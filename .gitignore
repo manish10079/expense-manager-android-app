@@ -13,3 +13,15 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local tool caches and editor files
+.gradle-user-home/
+.kotlin/
+.vscode/
+/.idea/vcs.xml
+
+# Generated logs and temporary files
+*.log
+gradle_*_err.txt
+gradle_*_out.txt
+tmp_*.jpg
