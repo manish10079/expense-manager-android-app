@@ -1,0 +1,456 @@
+package com.mkn0079.expensetracker.ui.screens
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.ChevronLeft
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
+import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
+import com.mkn0079.expensetracker.ui.components.AddTransactionFab
+import com.mkn0079.expensetracker.ui.components.FilterBottomSheet
+import com.mkn0079.expensetracker.ui.components.TransactionPeriodFilter
+import com.mkn0079.expensetracker.ui.components.TransactionPeriodNavigator
+import com.mkn0079.expensetracker.ui.components.TransactionCard
+import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
+import com.mkn0079.expensetracker.ui.theme.Dimens
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TransactionScreen(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
+    transactions: List<Transaction> = emptyList(),
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    onBackClick: () -> Unit = {},
+    onAddTransactionClick: () -> Unit = {},
+    onTransactionClick: (Transaction) -> Unit = {}
+) {
+    val transactionsViewModel: TransactionsViewModel = viewModel()
+    var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val searchFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
+    LaunchedEffect(
+        transactions,
+        currencyId,
+        dateFormatPattern,
+        timeFormat,
+        transactionCardCustomizationSettings
+    ) {
+        transactionsViewModel.updateInputs(
+            transactions = transactions,
+            currencyId = currencyId,
+            dateFormatPattern = dateFormatPattern,
+            timeFormat = timeFormat,
+            customizationSettings = transactionCardCustomizationSettings
+        )
+    }
+    val uiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
+
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            searchFocusRequester.requestFocus()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .pointerInput(isSearchExpanded, searchBarBounds) {
+                awaitEachGesture {
+                    awaitFirstDown(pass = PointerEventPass.Final)
+                    val up = waitForUpOrCancellation(pass = PointerEventPass.Final)
+                    if (up != null && isSearchExpanded) {
+                        val tappedInsideSearchBar = searchBarBounds?.contains(up.position) == true
+                        if (!tappedInsideSearchBar) {
+                            closeSearchBar(
+                                focusManager = focusManager,
+                                onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                onSearchExpandedChange = { isSearchExpanded = it }
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(horizontal = 15.dp, vertical = 12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ChevronLeft,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color(0x46A0A0A2), RoundedCornerShape(1.dp))
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "Transactions",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = PurplePrimary,
+                    modifier = Modifier.weight(1f)
+                )
+
+                IconButton(
+                    onClick = {
+                        isSearchExpanded = true
+                    },
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search transactions",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(30.dp))
+
+                IconButton(
+                    onClick = {
+                        closeSearchBar(
+                            focusManager = focusManager,
+                            onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                            onSearchExpandedChange = { isSearchExpanded = it }
+                        )
+                        showBottomSheet = true
+                    },
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Tune,
+                        contentDescription = "Sort & Filter",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isSearchExpanded,
+                enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it / 2 }) + fadeOut()
+            ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = transactionsViewModel::updateSearchQuery,
+                    placeholder = {
+                        Text(
+                            "Search transactions",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    shape = RoundedCornerShape(Dimens.CardRadius),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = Dimens.PaddingMedium)
+                        .focusRequester(searchFocusRequester)
+                        .onGloballyPositioned { coordinates ->
+                            searchBarBounds = coordinates.boundsInRoot()
+                        },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                closeSearchBar(
+                                    focusManager = focusManager,
+                                    onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                    onSearchExpandedChange = { isSearchExpanded = it }
+                                )
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close search",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+            Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+
+            TransactionPeriodNavigator(
+                selectedFilter = uiState.selectedPeriodFilter,
+                periodLabel = uiState.selectedPeriodLabel,
+                isMenuExpanded = isPeriodMenuExpanded,
+                canNavigateBackward = uiState.canNavigateBackward,
+                canNavigateForward = uiState.canNavigateForward,
+                onMenuExpandedChange = { isPeriodMenuExpanded = it },
+                onFilterSelected = { filter ->
+                    transactionsViewModel.updatePeriodFilter(filter)
+                    isPeriodMenuExpanded = false
+                },
+                onPreviousClick = {
+                    transactionsViewModel.navigatePeriod(-1)
+                },
+                onNextClick = {
+                    transactionsViewModel.navigatePeriod(1)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
+                contentPadding = PaddingValues(bottom = 180.dp)
+            ) {
+                items(
+                    items = uiState.transactionItems,
+                    key = { item ->
+                        when (item) {
+                            is TransactionListItemUi.Header -> item.id
+                            is TransactionListItemUi.TransactionRow -> item.card.id
+                        }
+                    },
+                    contentType = { item ->
+                        when (item) {
+                            is TransactionListItemUi.Header -> "header"
+                            is TransactionListItemUi.TransactionRow -> "transaction"
+                        }
+                    }
+                ) { item ->
+                    when (item) {
+                        is TransactionListItemUi.Header -> {
+                            TransactionDateHeader(
+                                dayLabel = item.dayLabel,
+                                dateLabel = item.dateLabel
+                            )
+                        }
+
+                        is TransactionListItemUi.TransactionRow -> {
+                            val card = item.card
+                            TransactionCard(
+                                note = card.note,
+                                transactionDate = card.transactionDate,
+                                transactionTime = card.transactionTime,
+                                amount = card.amount,
+                                icon = card.icon,
+                                transactionTypeId = card.transactionTypeId,
+                                paymentType = card.paymentType,
+                                showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
+                                showTransactionDate = uiState.customizationSettings.showTransactionDate,
+                                showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
+                                showTransactionTime = uiState.customizationSettings.showTransactionTime,
+                                showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                                onClick = { onTransactionClick(card.transaction) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState,
+            containerColor = Color.Transparent,
+            scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.76f),
+            dragHandle = null,
+            tonalElevation = 0.dp
+        ) {
+            FilterBottomSheet(
+                selectedSort = uiState.selectedSort,
+                selectedOrder = uiState.selectedOrder,
+                selectedDateRange = uiState.selectedDateRange,
+                selectedTransactionTypeId = uiState.selectedTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_FILTER_ID,
+                availableCategories = uiState.availableCategories,
+                selectedCategoryIds = uiState.selectedCategoryIds,
+                paymentModes = uiState.paymentModes,
+                selectedPaymentTypeIds = uiState.selectedPaymentTypeIds,
+                minAmount = uiState.selectedMinAmount,
+                maxAmount = uiState.selectedMaxAmount,
+                onSortChange = { transactionsViewModel.updateSort(it) },
+                onOrderChange = { transactionsViewModel.updateOrder(it) },
+                onDateRangeChange = { transactionsViewModel.updateDateRange(it) },
+                onTransactionTypeChange = {
+                    transactionsViewModel.updateTransactionTypeFilter(it)
+                },
+                onCategoryToggle = { categoryId ->
+                    transactionsViewModel.toggleCategory(categoryId)
+                },
+                onPaymentModeToggle = { paymentTypeId ->
+                    transactionsViewModel.togglePaymentMode(paymentTypeId)
+                },
+                onMinAmountChange = { transactionsViewModel.updateMinAmount(it) },
+                onMaxAmountChange = { transactionsViewModel.updateMaxAmount(it) },
+                onApply = {
+                    transactionsViewModel.applyFilters()
+
+                    scope.launch {
+                        sheetState.hide()
+                        showBottomSheet = false
+                    }
+                },
+                onReset = {
+                    transactionsViewModel.resetDraftFilters()
+                },
+                onClose = {
+                    scope.launch {
+                        sheetState.hide()
+                        showBottomSheet = false
+                    }
+                }
+            )
+        }
+    }
+}
+
+private fun closeSearchBar(
+    focusManager: FocusManager,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchExpandedChange: (Boolean) -> Unit
+) {
+    focusManager.clearFocus(force = true)
+    onSearchQueryChange("")
+    onSearchExpandedChange(false)
+}
+
+@Composable
+private fun TransactionDateHeader(
+    dayLabel: String,
+    dateLabel: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = dayLabel,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = dateLabel,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TransactionScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        TransactionScreen()
+    }
+}

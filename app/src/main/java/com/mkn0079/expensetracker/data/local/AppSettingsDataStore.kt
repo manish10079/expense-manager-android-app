@@ -1,0 +1,184 @@
+package com.mkn0079.expensetracker.data.local
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.mkn0079.expensetracker.data.constants.defaultAppSettings
+import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.SortType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private const val APP_SETTINGS_DATASTORE_NAME = "app_settings"
+
+private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = APP_SETTINGS_DATASTORE_NAME
+)
+
+object AppSettingsDataStore {
+
+    private object Keys {
+        val initialized = booleanPreferencesKey("settings_initialized")
+        val currencyId = intPreferencesKey("currency_id")
+        val dateFormatPattern = stringPreferencesKey("date_format_pattern")
+        val timeFormat = stringPreferencesKey("time_format")
+        val sortBy = stringPreferencesKey("sort_by")
+        val sortOrder = stringPreferencesKey("sort_order")
+        val defaultTransactionTypeId = intPreferencesKey("default_transaction_type_id")
+        val defaultTransactionTypeFilterId = intPreferencesKey("default_transaction_type_filter_id")
+        val defaultPaymentTypeId = intPreferencesKey("default_payment_type_id")
+        val languageCode = stringPreferencesKey("language_code")
+        val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
+        val budgetLimitAlertsEnabled = booleanPreferencesKey("budget_limit_alerts_enabled")
+        val missedEntryReminderEnabled = booleanPreferencesKey("missed_entry_reminder_enabled")
+        val appLockEnabled = booleanPreferencesKey("app_lock_enabled")
+        val biometricLockEnabled = booleanPreferencesKey("biometric_lock_enabled")
+        val blurInRecentsEnabled = booleanPreferencesKey("blur_in_recents_enabled")
+        val screenshotProtectionEnabled = booleanPreferencesKey("screenshot_protection_enabled")
+        val appLockTimeoutMinutes = intPreferencesKey("app_lock_timeout_minutes")
+        val showOnboardingScreen = booleanPreferencesKey("show_onboarding_screen")
+        val showSplashScreen = booleanPreferencesKey("show_splash_screen")
+        val darkThemeEnabled = booleanPreferencesKey("dark_theme_enabled")
+        val transactionCardShowIncomeExpenseLabels =
+            booleanPreferencesKey("transaction_card_show_income_expense_labels")
+        val transactionCardShowTransactionDate =
+            booleanPreferencesKey("transaction_card_show_transaction_date")
+        val transactionCardShowPaymentMethod =
+            booleanPreferencesKey("transaction_card_show_payment_method")
+        val transactionCardShowTransactionTime =
+            booleanPreferencesKey("transaction_card_show_transaction_time")
+        val transactionCardShowCategoryIcon =
+            booleanPreferencesKey("transaction_card_show_category_icon")
+        val transactionCardShowDateSeparators =
+            booleanPreferencesKey("transaction_card_show_date_separators")
+    }
+
+    fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
+        return context.applicationContext.appSettingsDataStore.data
+            .map { preferences -> preferences.toAppSettings() }
+    }
+
+    suspend fun initialize(context: Context) {
+        context.applicationContext.appSettingsDataStore.edit { preferences ->
+            if (preferences[Keys.initialized] == true) {
+                return@edit
+            }
+
+            val initialSettings = defaultAppSettings.copy(
+                appLockEnabled = AppLockPreferences.isEnabled(context),
+                biometricLockEnabled = AppLockPreferences.isBiometricEnabled(context),
+                appLockTimeoutMinutes = AppLockPreferences.getAutoLockDurationMinutes(context)
+            )
+
+            preferences.writeAppSettings(initialSettings)
+            preferences[Keys.initialized] = true
+        }
+    }
+
+    suspend fun updateAppSettings(
+        context: Context,
+        transform: (AppSettings) -> AppSettings
+    ) {
+        context.applicationContext.appSettingsDataStore.edit { preferences ->
+            val updatedSettings = transform(preferences.toAppSettings())
+            preferences.writeAppSettings(updatedSettings)
+            preferences[Keys.initialized] = true
+        }
+    }
+
+    private fun Preferences.toAppSettings(): AppSettings {
+        return AppSettings(
+            currencyId = this[Keys.currencyId] ?: defaultAppSettings.currencyId,
+            dateFormatPattern = this[Keys.dateFormatPattern] ?: defaultAppSettings.dateFormatPattern,
+            timeFormat = this[Keys.timeFormat] ?: defaultAppSettings.timeFormat,
+            sortBy = this[Keys.sortBy] ?: defaultAppSettings.sortBy,
+            sortOrder = this[Keys.sortOrder]
+                ?.let(::sortTypeOrDefault)
+                ?: defaultAppSettings.sortOrder,
+            defaultTransactionTypeId = this[Keys.defaultTransactionTypeId]
+                ?: defaultAppSettings.defaultTransactionTypeId,
+            defaultTransactionTypeFilterId = this[Keys.defaultTransactionTypeFilterId]
+                ?: defaultAppSettings.defaultTransactionTypeFilterId,
+            defaultPaymentTypeId = this[Keys.defaultPaymentTypeId]
+                ?: defaultAppSettings.defaultPaymentTypeId,
+            languageCode = this[Keys.languageCode] ?: defaultAppSettings.languageCode,
+            notificationsEnabled = this[Keys.notificationsEnabled]
+                ?: defaultAppSettings.notificationsEnabled,
+            budgetLimitAlertsEnabled = this[Keys.budgetLimitAlertsEnabled]
+                ?: defaultAppSettings.budgetLimitAlertsEnabled,
+            missedEntryReminderEnabled = this[Keys.missedEntryReminderEnabled]
+                ?: defaultAppSettings.missedEntryReminderEnabled,
+            appLockEnabled = this[Keys.appLockEnabled] ?: defaultAppSettings.appLockEnabled,
+            biometricLockEnabled = this[Keys.biometricLockEnabled]
+                ?: defaultAppSettings.biometricLockEnabled,
+            blurInRecentsEnabled = this[Keys.blurInRecentsEnabled]
+                ?: defaultAppSettings.blurInRecentsEnabled,
+            screenshotProtectionEnabled = this[Keys.screenshotProtectionEnabled]
+                ?: defaultAppSettings.screenshotProtectionEnabled,
+            appLockTimeoutMinutes = this[Keys.appLockTimeoutMinutes]
+                ?: defaultAppSettings.appLockTimeoutMinutes,
+            showOnboardingScreen = this[Keys.showOnboardingScreen]
+                ?: defaultAppSettings.showOnboardingScreen,
+            showSplashScreen = this[Keys.showSplashScreen]
+                ?: defaultAppSettings.showSplashScreen,
+            darkThemeEnabled = this[Keys.darkThemeEnabled] ?: defaultAppSettings.darkThemeEnabled,
+            transactionCardShowIncomeExpenseLabels = this[Keys.transactionCardShowIncomeExpenseLabels]
+                ?: defaultAppSettings.transactionCardShowIncomeExpenseLabels,
+            transactionCardShowTransactionDate = this[Keys.transactionCardShowTransactionDate]
+                ?: defaultAppSettings.transactionCardShowTransactionDate,
+            transactionCardShowPaymentMethod = this[Keys.transactionCardShowPaymentMethod]
+                ?: defaultAppSettings.transactionCardShowPaymentMethod,
+            transactionCardShowTransactionTime = this[Keys.transactionCardShowTransactionTime]
+                ?: defaultAppSettings.transactionCardShowTransactionTime,
+            transactionCardShowCategoryIcon = this[Keys.transactionCardShowCategoryIcon]
+                ?: defaultAppSettings.transactionCardShowCategoryIcon,
+            transactionCardShowDateSeparators = this[Keys.transactionCardShowDateSeparators]
+                ?: defaultAppSettings.transactionCardShowDateSeparators
+        )
+    }
+
+    private fun MutablePreferences.writeAppSettings(settings: AppSettings) {
+        this[Keys.currencyId] = settings.currencyId
+        this[Keys.dateFormatPattern] = settings.dateFormatPattern
+        this[Keys.timeFormat] = settings.timeFormat
+        this[Keys.sortBy] = settings.sortBy
+        this[Keys.sortOrder] = settings.sortOrder.name
+        this[Keys.defaultTransactionTypeId] = settings.defaultTransactionTypeId
+        this[Keys.defaultTransactionTypeFilterId] = settings.defaultTransactionTypeFilterId
+        this[Keys.defaultPaymentTypeId] = settings.defaultPaymentTypeId
+        this[Keys.languageCode] = settings.languageCode
+        this[Keys.notificationsEnabled] = settings.notificationsEnabled
+        this[Keys.budgetLimitAlertsEnabled] = settings.budgetLimitAlertsEnabled
+        this[Keys.missedEntryReminderEnabled] = settings.missedEntryReminderEnabled
+        this[Keys.appLockEnabled] = settings.appLockEnabled
+        this[Keys.biometricLockEnabled] = settings.biometricLockEnabled
+        this[Keys.blurInRecentsEnabled] = settings.blurInRecentsEnabled
+        this[Keys.screenshotProtectionEnabled] = settings.screenshotProtectionEnabled
+        this[Keys.appLockTimeoutMinutes] = settings.appLockTimeoutMinutes
+        this[Keys.showOnboardingScreen] = settings.showOnboardingScreen
+        this[Keys.showSplashScreen] = settings.showSplashScreen
+        this[Keys.darkThemeEnabled] = settings.darkThemeEnabled
+        this[Keys.transactionCardShowIncomeExpenseLabels] =
+            settings.transactionCardShowIncomeExpenseLabels
+        this[Keys.transactionCardShowTransactionDate] =
+            settings.transactionCardShowTransactionDate
+        this[Keys.transactionCardShowPaymentMethod] =
+            settings.transactionCardShowPaymentMethod
+        this[Keys.transactionCardShowTransactionTime] =
+            settings.transactionCardShowTransactionTime
+        this[Keys.transactionCardShowCategoryIcon] =
+            settings.transactionCardShowCategoryIcon
+        this[Keys.transactionCardShowDateSeparators] =
+            settings.transactionCardShowDateSeparators
+    }
+
+    private fun sortTypeOrDefault(value: String): SortType {
+        return SortType.entries.firstOrNull { it.name == value } ?: defaultAppSettings.sortOrder
+    }
+}

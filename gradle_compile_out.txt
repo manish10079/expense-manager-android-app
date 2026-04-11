@@ -1,0 +1,55 @@
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if "Windows_NT" == "Windows_NT" setlocal
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set DIRNAME=C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\ 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if "C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\" == "" set DIRNAME=. 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set APP_BASE_NAME=gradlew 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set APP_HOME=C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\ 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>for %i in ("C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\") do set APP_HOME=%~fi 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set APP_HOME=C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\ 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m" 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set JAVA_EXE=java.exe 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>java.exe -version  1>NUL 2>&1 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if 0 EQU 0 goto execute 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>set CLASSPATH= 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>"java.exe" "-Xmx64m" "-Xms64m"   "-Dorg.gradle.appname=gradlew" -classpath "" -jar "C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker\\gradle\wrapper\gradle-wrapper.jar" compileDebugKotlin --no-daemon --console=plain --stacktrace 
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/mkn00/AndroidStudioProjects/ExpenseTracker/app/src/main/java/com/mkn0079/expensetracker/MainActivity.kt:119:16 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///C:/Users/mkn00/AndroidStudioProjects/ExpenseTracker/app/src/main/java/com/mkn0079/expensetracker/MainActivity.kt:120:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///C:/Users/mkn00/AndroidStudioProjects/ExpenseTracker/app/src/main/java/com/mkn0079/expensetracker/MainActivity.kt:123:20 'var isStatusBarContrastEnforced: Boolean' is deprecated. Deprecated in Java.
+
+BUILD SUCCESSFUL in 1m 44s
+7 actionable tasks: 1 executed, 6 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.3.1/userguide/configuration_cache_enabling.html
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if 0 EQU 0 goto mainEnd 
+
+C:\Users\mkn00\AndroidStudioProjects\ExpenseTracker>if "Windows_NT" == "Windows_NT" endlocal

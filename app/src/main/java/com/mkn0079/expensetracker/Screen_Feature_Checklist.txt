@@ -1,0 +1,330 @@
+Expense Tracker Screen Feature Checklist
+
+Use this file to mark implementation status.
+Suggested marking:
+[ ] Not Implemented
+[x] Implemented
+
+1. Splash Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Android system splash screen
+   - [x] Custom branded splash screen
+   - [x] Animated splash logo
+   - [x] App title display
+   - [x] WavySlider2 progress/loading indicator
+   - [x] Consistent handoff between Android splash and custom splash
+   - [x] AMOLED black status and navigation bars during launch
+   - [x] Reduced system splash icon size for circular fit
+   - [x] Auto navigation to home screen
+
+2. Home Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Greeting header with user name
+   - [x] Settings shortcut button
+   - [x] Total balance summary card
+   - [x] Income summary display
+   - [x] Expense summary display
+   - [x] Today spending card
+   - [x] Recent activity section
+   - [x] View All action
+   - [x] Recent transactions list
+   - [x] Transaction item click to open edit flow
+   - [x] Floating add transaction button
+
+3. Analytics Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Analytics screen UI
+   - [ ] Analytics insights or charts
+   - [ ] Summary of spending patterns
+
+4. Budget Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Budget screen UI
+   - [x] Budget creation or management
+   - [x] Budget edit and delete actions
+   - [x] Budget tracking summary
+   - [x] Budget progress indicators
+   - [x] Month filter: This Month
+   - [x] Month filter: Last Month
+   - [x] Month filter: Custom Month
+   - [x] Custom month picker dialog
+   - [x] Budget category picker bottom sheet
+   - [x] Recurring expense section
+   - [x] Add recurring from existing expense transactions
+   - [x] Recurring frequency: Daily
+   - [x] Recurring frequency: Weekly
+   - [x] Recurring frequency: Monthly
+   - [x] Recurring frequency: Yearly
+   - [x] Recurring enable or disable action
+   - [x] Recurring edit action
+   - [x] Recurring delete action
+   - [x] Recurring repeat count display
+   - [x] Recurring due chips
+   - [x] AI insight card
+
+5. Calendar Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Calendar screen UI
+   - [x] Calendar-based transaction view
+   - [x] Day-wise transaction navigation
+   - [x] Date selection interaction
+   - [x] Month and year mode toggle
+   - [x] Monthly calendar grid with transaction indicators
+   - [x] Previous and next month navigation
+   - [x] Daily expense and income totals row
+   - [x] Selected date transaction list
+   - [x] Reuse shared transaction card in month view
+   - [x] Transaction item click to open edit flow from month view
+   - [x] Yearly overview mode
+   - [x] Previous and next year navigation
+   - [x] Yearly income and expense summary card
+   - [x] Yearly month-wise summary grid
+   - [x] Tappable year grid month cards to open month view
+   - [x] Empty year grid cards for months without data
+   - [x] Year mode currency symbol from app settings
+   - [x] Today shortcut button
+   - [x] Scrollable month and year picker dialog
+   - [x] Scrollable year picker dialog
+   - [x] Swipe gesture navigation between months
+
+6. Transactions Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Back navigation button
+   - [x] Expandable search field
+   - [x] Search by note
+   - [x] Search by amount
+   - [x] Search by payment type
+   - [x] Transactions list
+   - [x] Transaction item click to open edit flow
+   - [x] Floating add transaction button
+   - [x] Period filter: All
+   - [x] Period filter: Daily
+   - [x] Period filter: Monthly
+   - [x] Period filter: Yearly
+   - [x] Previous period navigation
+   - [x] Next period navigation
+   - [x] Sort and filter bottom sheet
+   - [x] Sort by date
+   - [x] Sort by amount
+   - [x] Sort by category/type grouping
+   - [x] Order option: Newest first
+   - [x] Order option: Oldest first
+   - [x] Order option: Highest first
+   - [x] Order option: Lowest first
+   - [x] Order option: Income first
+   - [x] Order option: Expense first
+   - [x] Quick date filter: Last 7 days
+   - [x] Quick date filter: Last 15 days
+   - [x] Quick date filter: Last 30 days
+   - [x] Quick date filter: Last 60 days
+   - [x] Transaction type filter
+   - [x] Category filter
+   - [x] Payment mode filter
+   - [x] Min amount filter
+   - [x] Max amount filter
+   - [x] Reset filters action
+   - [x] Apply filters action
+
+7. Settings Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Back navigation button
+   - [x] Settings screen UI
+   - [x] Settings options list
+   - [x] Profile header section
+   - [x] Grouped settings categories
+   - [x] Profile edit shortcut
+   - [x] Currency selection bottom sheet
+   - [x] Date format selection bottom sheet
+   - [x] Time format selection bottom sheet
+   - [x] App lock toggle
+   - [x] Biometric unlock toggle
+   - [x] Blur in recents toggle
+   - [x] Block screenshots toggle
+   - [x] Auto lock duration picker
+   - [x] Daily reminder toggle
+   - [x] Budget limit alerts toggle
+   - [x] Missed entry reminder toggle
+   - [x] Preference management
+   - [x] Manage category action
+   - [ ] Backup action
+   - [ ] Restore action
+   - [ ] Export action
+   - [ ] About action
+
+8. Add Transaction Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Add transaction mode
+   - [x] Edit transaction mode
+   - [x] Back navigation button
+   - [x] Income and expense toggle
+   - [x] Amount display card
+   - [x] Custom numeric keypad
+   - [x] Category selection chips
+   - [x] Dynamic category ordering by usage frequency
+   - [x] Payment method selection chips
+   - [x] Date selection card
+   - [x] Date picker dialog
+   - [x] Note selection card
+   - [x] Note input dialog
+   - [x] Delete action button
+   - [x] Open calculator action
+   - [x] Save or update transaction button
+   - [x] Basic input validation before submit
+   - [x] Recurring transaction checkbox
+   - [x] Recurring frequency: Daily
+   - [x] Recurring frequency: Weekly
+   - [x] Recurring frequency: Monthly
+   - [x] Recurring frequency: Yearly
+   - [x] Recurring repeat count input
+
+9. Itemized Calculator Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Back navigation button
+   - [x] Itemized calculator mode
+   - [x] Normal calculator mode
+   - [x] Mode switching tabs
+   - [x] Add breakdown item
+   - [x] Enter item description
+   - [x] Enter item amount
+   - [x] Delete breakdown item
+   - [x] Running total calculation
+   - [x] Normal calculator arithmetic operations
+   - [x] Percentage calculation
+   - [x] Clear calculator input
+   - [x] Backspace in calculator
+   - [x] Apply calculator result to transaction note
+
+10. App-Level Navigation and Shared UI
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Bottom navigation bar
+    - [x] Home tab
+    - [x] Analytics tab
+    - [x] Budget tab
+    - [x] Calendar tab
+    - [x] Floating navigation toggle button
+    - [x] Auto-hide bottom navigation menu
+    - [x] Animated screen transitions
+
+
+11. Onboarding Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Welcome slides for new users
+    - [x] App usage overview
+    - [x] Permission guidance
+    - [x] Previous slide action
+    - [x] Next slide action
+    - [x] Page indicator
+    - [x] Get started action
+    - [x] Skip onboarding action
+
+12. User Profile Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Profile information display
+    - [x] Edit user name
+    - [x] Edit profile photo
+    - [x] Edit email address
+    - [x] Edit phone number
+    - [x] Edit date of birth
+    - [x] Edit gender
+    - [x] Save profile changes
+    - [x] Show saved profile in home header
+
+13. Accounts and Wallets Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] View all accounts and wallets
+    - [ ] Add new bank account
+    - [ ] Add new cash wallet
+    - [ ] Add credit card account
+    - [ ] Edit account details
+    - [ ] Delete account
+    - [ ] Opening balance setup
+    - [ ] Current balance tracking
+
+14. Categories Management Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] View income categories
+    - [x] View expense categories
+    - [x] Add custom category
+    - [ ] Edit category name
+    - [ ] Change category icon
+    - [x] Delete category
+    - [ ] Category color customization
+
+15. Recurring Transactions Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [ ] Create recurring income
+    - [x] Create recurring expense
+    - [x] Daily recurrence option
+    - [x] Weekly recurrence option
+    - [x] Monthly recurrence option
+    - [x] Yearly recurrence option
+    - [x] Enable or disable recurrence
+    - [x] Edit recurring transaction
+    - [x] Delete recurring transaction
+
+16. Bills and Subscription Tracker Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] Add bill or subscription
+    - [ ] Due date tracking
+    - [ ] Upcoming payment reminders
+    - [ ] Paid and unpaid status
+    - [ ] Auto-repeat monthly bills
+    - [ ] Overdue bill highlighting
+
+17. Savings Goals Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] Create savings goal
+    - [ ] Set target amount
+    - [ ] Set target date
+    - [ ] Track saved amount progress
+    - [ ] Link transactions to a goal
+    - [ ] Goal completion indicator
+
+18. Detailed Reports Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] Monthly report summary
+    - [ ] Weekly report summary
+    - [ ] Income versus expense comparison
+    - [ ] Category-wise breakdown chart
+    - [ ] Payment-mode-wise breakdown
+    - [ ] Export report as PDF
+    - [ ] Share report action
+
+19. Notifications and Reminders Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] Daily expense reminder
+    - [ ] Bill payment reminder
+    - [ ] Budget limit alert
+    - [ ] Recurring transaction reminder
+    - [ ] Missed entry reminder
+    - [ ] Reminder on or off toggle
+    - [ ] Reminder time selection
+
+20. Backup, Sync, and Export Screen
+    Screen Status: [ ] Implemented   [x] Not Implemented
+    Features:
+    - [ ] Local data backup
+    - [ ] Restore backup
+    - [ ] Cloud sync support
+    - [ ] Export transactions as CSV
+    - [ ] Import transactions from file
+    - [ ] Data reset confirmation
