@@ -11,13 +11,8 @@ object ExpenseTrackerDatabaseInitializer {
         val database = ExpenseTrackerDatabase.getInstance(context)
 
         database.withTransaction {
-            if (database.categoryDao().countAll() == 0) {
-                database.categoryDao().upsertAll(categoryMap.values.map { it.toEntity() })
-            }
-
-            if (database.paymentMethodDao().countAll() == 0) {
-                database.paymentMethodDao().upsertAll(paymentTypeMap.values.map { it.toEntity() })
-            }
+            database.categoryDao().upsertAll(categoryMap.values.map { it.toEntity() })
+            database.paymentMethodDao().upsertAll(paymentTypeMap.values.map { it.toEntity() })
         }
     }
 }

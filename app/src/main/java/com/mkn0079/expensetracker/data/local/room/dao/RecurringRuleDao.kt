@@ -23,4 +23,7 @@ interface RecurringRuleDao {
 
     @Query("UPDATE recurring_rules SET is_deleted = 1, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun softDelete(id: String, syncState: String, updatedAt: Long)
+
+    @Query("DELETE FROM recurring_rules")
+    suspend fun deleteAll()
 }

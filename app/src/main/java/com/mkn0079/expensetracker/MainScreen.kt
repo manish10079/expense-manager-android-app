@@ -1,6 +1,7 @@
 package com.mkn0079.expensetracker
 
 import android.widget.Toast
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
@@ -73,6 +74,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 private val routeOrder = listOf(
@@ -192,13 +194,15 @@ fun MainScreen(
     appSettings: AppSettings,
     userProfile: UserProfile
 ) {
-    val mainViewModel: MainViewModel = viewModel()
-    val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
     val activity = rawContext.findFragmentActivity()
+    val biometricAuthenticator = remember(activity) {
+        activity?.let(BiometricAuthManager::createAuthenticator)
+    }
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
+    var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     var hasHandledLaunchSplash by remember { mutableStateOf(false) }
     val showSplash = appSettings.showSplashScreen && !showOnboarding && !hasHandledLaunchSplash
@@ -224,18 +228,18 @@ fun MainScreen(
         appSettings.toTransactionCardCustomizationSettings()
     }
     val biometricAvailability = BiometricAuthManager.getAvailability(rawContext)
-    var hasAppLockPin by remember { mutableStateOf(AppLockPreferences.hasPin(context)) }
+    val hasAppLockPin = appLockState.hasPin
     val canUseBiometricOnLockScreen = isBiometricEnabled && hasAppLockPin && biometricAvailability.isAvailable
     val initiallyRequiresUnlock = remember(
-        context,
         isAppLockEnabled,
         hasAppLockPin,
-        autoLockDurationMinutes
+        autoLockDurationMinutes,
+        appLockState.lastBackgroundedAtMillis,
+        appLockState.lastUnlockedAtMillis
     ) {
         isAppLockEnabled &&
             hasAppLockPin &&
-            AppLockPreferences.shouldRequireUnlock(
-                context = context,
+            AppLockPreferences.shouldRequireUnlockFromMemory(
                 autoLockDurationMinutes = autoLockDurationMinutes
             )
     }
@@ -257,6 +261,7 @@ fun MainScreen(
 
     val updateBiometricLockEnabled: (Boolean) -> Unit = { enabled ->
         AppLockPreferences.setBiometricEnabled(context, enabled)
+        appLockState = AppLockPreferences.getCachedState()
         coroutineScope.launch {
             AppSettingsDataStore.updateAppSettings(context) { settings ->
                 settings.copy(biometricLockEnabled = enabled)
@@ -266,7 +271,7 @@ fun MainScreen(
 
     val disableAppLock: (Boolean) -> Unit = { navigateHome ->
         AppLockPreferences.clear(context)
-        hasAppLockPin = false
+        appLockState = AppLockPreferences.getCachedState()
         isAppUnlocked = true
         appLockFlow = null
         if (navigateHome) {
@@ -283,9 +288,19 @@ fun MainScreen(
         }
     }
 
+    val completeUnlock: () -> Unit = {
+        isAppUnlocked = true
+        appLockFlow = null
+        isBottomBarVisible = false
+        val unlockedAtMillis = AppLockPreferences.markUnlockedInMemory()
+        appLockState = AppLockPreferences.getCachedState()
+        coroutineScope.launch(Dispatchers.IO) {
+            AppLockPreferences.persistUnlocked(context, unlockedAtMillis)
+        }
+    }
+
     val unlockWithBiometric: () -> Unit = {
-        val hostActivity = activity
-        if (hostActivity == null) {
+        if (biometricAuthenticator == null) {
             showToast("Biometric authentication is unavailable on this screen.")
         } else if (!biometricAvailability.isAvailable) {
             showToast(
@@ -293,17 +308,11 @@ fun MainScreen(
                     ?: "Biometric authentication is not available right now."
             )
         } else {
-            BiometricAuthManager.authenticate(
-                activity = hostActivity,
+            biometricAuthenticator.authenticate(
                 title = "Unlock Expense Tracker",
                 subtitle = "Verify your biometric to continue.",
                 negativeButtonText = "Use PIN",
-                onSuccess = {
-                    AppLockPreferences.markUnlocked(context)
-                    isAppUnlocked = true
-                    appLockFlow = null
-                    isBottomBarVisible = false
-                },
+                onSuccess = completeUnlock,
                 onFailure = { errorMessage ->
                     showToast(errorMessage.ifBlank { "Biometric verification failed." })
                 }
@@ -328,7 +337,11 @@ fun MainScreen(
                 isAppLockEnabled &&
                 hasAppLockPin
             ) {
-                AppLockPreferences.markBackgrounded(context)
+                val backgroundedAtMillis = AppLockPreferences.markBackgroundedInMemory()
+                appLockState = AppLockPreferences.getCachedState()
+                coroutineScope.launch(Dispatchers.IO) {
+                    AppLockPreferences.persistBackgrounded(context, backgroundedAtMillis)
+                }
                 if (autoLockDurationMinutes <= 0) {
                     isAppUnlocked = false
                     appLockFlow = AppLockFlow.Unlock
@@ -343,8 +356,7 @@ fun MainScreen(
                 hasAppLockPin &&
                 isAppUnlocked &&
                 appLockFlow == null &&
-                AppLockPreferences.shouldRequireUnlock(
-                    context = context,
+                AppLockPreferences.shouldRequireUnlockFromMemory(
                     autoLockDurationMinutes = autoLockDurationMinutes
                 )
             ) {
@@ -411,19 +423,13 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(currentRoute) {
-        mainViewModel.setTransactionObservationEnabled(
-            currentRoute in routesKeepingTransactionsWarm
-        )
-    }
-
     if (appLockFlow != null) {
         AppLockScreen(
             mode = if (appLockFlow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
             biometricEnabled = canUseBiometricOnLockScreen,
             isBiometricAvailable = canUseBiometricOnLockScreen,
             securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                AppLockPreferences.getSecurityQuestionId(context)
+                appLockState.securityQuestionId
             ),
             onBackClick = if (appLockFlow == AppLockFlow.Setup) {
                 { appLockFlow = null }
@@ -441,24 +447,19 @@ fun MainScreen(
             onSetupComplete = { pin, questionId, answer ->
                 AppLockPreferences.savePin(context, pin)
                 AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                AppLockPreferences.markUnlocked(context)
-                hasAppLockPin = true
-                isAppUnlocked = true
-                appLockFlow = null
+                appLockState = AppLockPreferences.getCachedState()
+                completeUnlock()
                 coroutineScope.launch {
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(appLockEnabled = true)
                     }
                 }
             },
-            onUnlockSuccess = {
-                AppLockPreferences.markUnlocked(context)
-                isAppUnlocked = true
-                appLockFlow = null
-                isBottomBarVisible = false
-            },
+            onUnlockSuccess = completeUnlock,
             validateUnlockPin = { pin ->
-                AppLockPreferences.validatePin(context, pin)
+                AppLockPreferences.validatePinForUnlock(context, pin).also {
+                    appLockState = AppLockPreferences.getCachedState()
+                }
             },
             onForgotPinRecovery = {
                 disableAppLock(true)
@@ -468,6 +469,15 @@ fun MainScreen(
             }
         )
         return
+    }
+
+    val mainViewModel: MainViewModel = viewModel()
+    val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(currentRoute) {
+        mainViewModel.setTransactionObservationEnabled(
+            currentRoute in routesKeepingTransactionsWarm
+        )
     }
 
     MainScaffold(
@@ -574,14 +584,40 @@ fun MainScreen(
                 }
             }
         },
+        onLegacyImportFileSelected = { uri ->
+            mainViewModel.importLegacyBackup(
+                uri = uri,
+                onComplete = { result ->
+                    showToast(
+                        "Imported ${result.importedTransactions} legacy transactions. " +
+                            "Skipped ${result.skippedTransactions} existing."
+                    )
+                },
+                onError = {
+                    showToast("Legacy import failed. Check the backup file and try again.")
+                }
+            )
+        },
+        onDeleteAllTransactionsClick = {
+            mainViewModel.deleteAllTransactions(
+                onComplete = {
+                    selectedTransaction = null
+                    addTransactionDraftAmount = null
+                    addTransactionDraftNote = null
+                    showToast("All transactions deleted.")
+                },
+                onError = {
+                    showToast("Unable to delete transactions. Please try again.")
+                }
+            )
+        },
         onBiometricLockChange = { enabled ->
             if (!enabled) {
                 updateBiometricLockEnabled(false)
             } else if (!isAppLockEnabled || !hasAppLockPin) {
                 showToast("Create an app lock PIN before enabling biometric unlock.")
             } else {
-                val hostActivity = activity
-                if (hostActivity == null) {
+                if (biometricAuthenticator == null) {
                     showToast("Biometric authentication is unavailable on this screen.")
                 } else if (!biometricAvailability.isAvailable) {
                     showToast(
@@ -589,8 +625,7 @@ fun MainScreen(
                             ?: "Biometric authentication is not available right now."
                     )
                 } else {
-                    BiometricAuthManager.authenticate(
-                        activity = hostActivity,
+                    biometricAuthenticator.authenticate(
                         title = "Enable Biometric Lock",
                         subtitle = "Verify your biometric once to turn on biometric unlock.",
                         negativeButtonText = "Cancel",
@@ -621,6 +656,7 @@ fun MainScreen(
         },
         onAutoLockDurationChange = { minutes ->
             AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
+            appLockState = AppLockPreferences.getCachedState()
             coroutineScope.launch {
                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                     settings.copy(appLockTimeoutMinutes = minutes)
@@ -699,6 +735,8 @@ private fun MainScaffold(
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
+    onLegacyImportFileSelected: (Uri) -> Unit,
+    onDeleteAllTransactionsClick: () -> Unit,
     onBiometricLockChange: (Boolean) -> Unit,
     onBlurInRecentsChange: (Boolean) -> Unit,
     onScreenshotProtectionChange: (Boolean) -> Unit,
@@ -884,6 +922,8 @@ private fun MainScaffold(
                     onDailyReminderChange = onDailyReminderChange,
                     onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                     onMissedEntryReminderChange = onMissedEntryReminderChange,
+                    onLegacyImportFileSelected = onLegacyImportFileSelected,
+                    onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
                     onBiometricChange = onBiometricLockChange,
                     onBlurInRecentsChange = onBlurInRecentsChange,
                     onScreenshotProtectionChange = onScreenshotProtectionChange,

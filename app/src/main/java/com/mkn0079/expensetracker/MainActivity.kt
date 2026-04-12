@@ -15,12 +15,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
+import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
-import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -52,19 +53,19 @@ class MainActivity : FragmentActivity() {
         )
 
         lifecycleScope.launch {
-            val appSettingsInitialization = async {
+            async(Dispatchers.IO) {
+                AppLockPreferences.initialize(applicationContext)
+            }.await()
+
+            val appSettingsInitialization = async(Dispatchers.IO) {
                 AppSettingsDataStore.initialize(applicationContext)
             }
-            val userProfileInitialization = async {
+            val userProfileInitialization = async(Dispatchers.IO) {
                 UserProfileDataStore.initialize(applicationContext)
-            }
-            val databaseInitialization = async {
-                ExpenseTrackerDatabaseInitializer.initialize(applicationContext)
             }
 
             appSettingsInitialization.await()
             userProfileInitialization.await()
-            databaseInitialization.await()
             isLaunchReady = true
         }
 

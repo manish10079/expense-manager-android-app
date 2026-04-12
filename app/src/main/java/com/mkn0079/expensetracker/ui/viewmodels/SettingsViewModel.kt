@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
@@ -61,7 +62,9 @@ enum class SettingsActionId {
     TimeFormatPicker,
     ManageCategory,
     AutoLockDuration,
-    TransactionCardCustomize
+    TransactionCardCustomize,
+    LegacyImport,
+    DeleteAllTransactions
 }
 
 @Immutable
@@ -233,6 +236,18 @@ private fun buildSettingsSections(
                     icon = Icons.Filled.Info,
                     trailing = transactionCountLabel,
                     showChevron = false
+                ),
+                SettingsItemUi(
+                    title = "Import Legacy Data",
+                    icon = Icons.Filled.Refresh,
+                    trailing = "JSON",
+                    actionId = SettingsActionId.LegacyImport
+                ),
+                SettingsItemUi(
+                    title = "Delete All Transactions",
+                    icon = Icons.Filled.Delete,
+                    trailing = "Only transactions",
+                    actionId = SettingsActionId.DeleteAllTransactions
                 ),
                 SettingsItemUi(title = "Backup", icon = Icons.Filled.Sync),
                 SettingsItemUi(title = "Restore", icon = Icons.Filled.Refresh),

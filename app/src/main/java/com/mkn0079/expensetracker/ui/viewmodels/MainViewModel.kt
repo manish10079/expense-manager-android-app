@@ -1,8 +1,12 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.data.legacy.LegacyImportRepository
+import com.mkn0079.expensetracker.data.legacy.LegacyImportResult
+import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mkn0079.expensetracker.data.repository.CategoryRepository
 import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
 import com.mkn0079.expensetracker.data.repository.PaymentMethodRepository
@@ -22,6 +26,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class MainDataUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -45,6 +51,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ExpenseTrackerRepositoryProvider.paymentMethodRepository(appContext)
     private val recurringRuleRepository: RecurringRuleRepository =
         ExpenseTrackerRepositoryProvider.recurringRuleRepository(appContext)
+    private val legacyImportRepository = LegacyImportRepository(appContext)
 
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()
@@ -52,6 +59,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
+            ExpenseTrackerDatabaseInitializer.initialize(appContext)
             combine(
                 observeTransactions.flatMapLatest { shouldObserve ->
                     if (shouldObserve) {
@@ -123,6 +131,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             transactionRepository.softDeleteTransaction(transactionId)
             recurringRuleRepository.getActiveByTransactionId(transactionId)?.let { rule ->
                 recurringRuleRepository.deleteRule(rule.id)
+            }
+        }
+    }
+
+    fun deleteAllTransactions(
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    transactionRepository.deleteAllTransactions()
+                }
+                _uiState.update {
+                    it.copy(
+                        transactions = emptyList(),
+                        transactionCount = 0,
+                        recurringRules = emptyList()
+                    )
+                }
+                onComplete()
+            } catch (throwable: Throwable) {
+                onError(throwable)
             }
         }
     }
@@ -224,6 +255,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteCustomPaymentMethod(paymentMethodId: Int) {
         viewModelScope.launch {
             paymentMethodRepository.deleteCustomPaymentMethod(paymentMethodId)
+        }
+    }
+
+    fun importLegacyBackup(
+        uri: Uri,
+        onComplete: (LegacyImportResult) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    legacyImportRepository.importBackup(uri)
+                }
+                onComplete(result)
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
         }
     }
 }

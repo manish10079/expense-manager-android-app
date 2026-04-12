@@ -1,5 +1,8 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -52,6 +56,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -138,6 +143,8 @@ fun SettingsScreen(
     onProfileClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
+    onLegacyImportFileSelected: (Uri) -> Unit = {},
+    onDeleteAllTransactionsClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
@@ -145,6 +152,13 @@ fun SettingsScreen(
     var isDateFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isTimeFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val legacyImportFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let(onLegacyImportFileSelected)
+        }
+    )
     LaunchedEffect(
         currentCurrencyId,
         currentDateFormatPattern,
@@ -228,6 +242,15 @@ fun SettingsScreen(
                                     SettingsActionId.ManageCategory -> onManageCategoryClick()
                                     SettingsActionId.AutoLockDuration -> isAutoLockDurationPickerVisible = true
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
+                                    SettingsActionId.LegacyImport -> legacyImportFilePicker.launch(
+                                        arrayOf(
+                                            "application/json",
+                                            "text/json",
+                                            "text/plain",
+                                            "application/octet-stream"
+                                        )
+                                    )
+                                    SettingsActionId.DeleteAllTransactions -> isDeleteTransactionsDialogVisible = true
                                     null -> Unit
                                 }
                             },
@@ -301,6 +324,50 @@ fun SettingsScreen(
             onDurationSelected = { minutes ->
                 onAutoLockDurationChange(minutes)
                 isAutoLockDurationPickerVisible = false
+            }
+        )
+    }
+
+    if (isDeleteTransactionsDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { isDeleteTransactionsDialogVisible = false },
+            containerColor = Color(0xFF18181A),
+            title = {
+                Text(
+                    text = "Delete all transactions?",
+                    color = Color(0xFFF2EDF9),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = "This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.",
+                    color = Color(0xFFB7AEC8),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        isDeleteTransactionsDialogVisible = false
+                        onDeleteAllTransactionsClick()
+                    }
+                ) {
+                    Text(
+                        text = "Delete All",
+                        color = Color(0xFFFFAAA0),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
+                    Text(
+                        text = "Cancel",
+                        color = PurpleAccent,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         )
     }

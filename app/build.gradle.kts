@@ -39,6 +39,11 @@ android {
     buildFeatures {
         compose = true
     }
+    sourceSets {
+        getByName("main") {
+            assets.srcDir("src/main/java/com/mkn0079/expensetracker/data/legacyimport")
+        }
+    }
 }
 
 ksp {

@@ -106,4 +106,7 @@ interface TransactionDao {
 
     @Query("UPDATE transactions SET is_deleted = 0, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun restore(id: String, syncState: String, updatedAt: Long)
+
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAll()
 }

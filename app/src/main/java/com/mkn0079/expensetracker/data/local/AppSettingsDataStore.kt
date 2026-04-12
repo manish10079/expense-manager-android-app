@@ -70,10 +70,11 @@ object AppSettingsDataStore {
                 return@edit
             }
 
+            val appLockState = AppLockPreferences.getCachedState()
             val initialSettings = defaultAppSettings.copy(
-                appLockEnabled = AppLockPreferences.isEnabled(context),
-                biometricLockEnabled = AppLockPreferences.isBiometricEnabled(context),
-                appLockTimeoutMinutes = AppLockPreferences.getAutoLockDurationMinutes(context)
+                appLockEnabled = appLockState.isAppLockEnabled,
+                biometricLockEnabled = appLockState.isBiometricEnabled,
+                appLockTimeoutMinutes = appLockState.autoLockDurationMinutes
             )
 
             preferences.writeAppSettings(initialSettings)

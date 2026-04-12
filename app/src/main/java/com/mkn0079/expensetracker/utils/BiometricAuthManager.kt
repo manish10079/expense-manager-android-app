@@ -95,6 +95,77 @@ object BiometricAuthManager {
 
         prompt.authenticate(promptInfo)
     }
+
+    fun createAuthenticator(activity: FragmentActivity): BiometricAuthenticator {
+        return BiometricAuthenticator(activity)
+    }
+
+    class BiometricAuthenticator internal constructor(
+        activity: FragmentActivity
+    ) {
+        private var onSuccess: () -> Unit = {}
+        private var onFailure: (String) -> Unit = {}
+        private var onCancel: () -> Unit = {}
+        private val prompt = BiometricPrompt(
+            activity,
+            ContextCompat.getMainExecutor(activity),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    onSuccess()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    when (errorCode) {
+                        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                        BiometricPrompt.ERROR_USER_CANCELED,
+                        BiometricPrompt.ERROR_CANCELED -> onCancel()
+
+                        else -> onFailure(errString.toString())
+                    }
+                }
+            }
+        )
+
+        fun authenticate(
+            title: String,
+            subtitle: String,
+            description: String? = null,
+            negativeButtonText: String = "Cancel",
+            onSuccess: () -> Unit,
+            onFailure: (String) -> Unit = {},
+            onCancel: () -> Unit = {}
+        ) {
+            this.onSuccess = onSuccess
+            this.onFailure = onFailure
+            this.onCancel = onCancel
+
+            prompt.authenticate(
+                buildPromptInfo(
+                    title = title,
+                    subtitle = subtitle,
+                    description = description,
+                    negativeButtonText = negativeButtonText
+                )
+            )
+        }
+    }
+
+    private fun buildPromptInfo(
+        title: String,
+        subtitle: String,
+        description: String?,
+        negativeButtonText: String
+    ): BiometricPrompt.PromptInfo {
+        return BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setSubtitle(subtitle)
+            .setAllowedAuthenticators(BIOMETRIC_AUTHENTICATORS)
+            .setNegativeButtonText(negativeButtonText)
+            .apply {
+                description?.let(::setDescription)
+            }
+            .build()
+    }
 }
 
 fun Context.findFragmentActivity(): FragmentActivity? {

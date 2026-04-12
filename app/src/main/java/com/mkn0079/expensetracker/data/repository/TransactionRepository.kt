@@ -1,6 +1,7 @@
 package com.mkn0079.expensetracker.data.repository
 
 import android.content.Context
+import androidx.room.withTransaction
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mkn0079.expensetracker.data.local.room.toDomain
 import com.mkn0079.expensetracker.data.local.room.toEntity
@@ -25,7 +26,9 @@ data class RecentTransaction(
 
 class TransactionRepository(context: Context) {
 
-    private val dao = ExpenseTrackerDatabase.getInstance(context).transactionDao()
+    private val database = ExpenseTrackerDatabase.getInstance(context)
+    private val dao = database.transactionDao()
+    private val recurringRuleDao = database.recurringRuleDao()
 
     fun observeActiveTransactions(): Flow<List<Transaction>> {
         return dao.observeActiveTransactions().map { entities ->
@@ -76,6 +79,13 @@ class TransactionRepository(context: Context) {
             syncState = SyncState.PENDING_DELETE.name,
             updatedAt = System.currentTimeMillis()
         )
+    }
+
+    suspend fun deleteAllTransactions() {
+        database.withTransaction {
+            recurringRuleDao.deleteAll()
+            dao.deleteAll()
+        }
     }
 
     private fun buildContentHash(transaction: Transaction): String {
