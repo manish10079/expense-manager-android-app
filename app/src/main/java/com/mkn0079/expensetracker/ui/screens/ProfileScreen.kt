@@ -32,7 +32,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -46,6 +47,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -384,49 +386,46 @@ private fun ProfilePhotoSection(
         size = 132.dp,
         textSize = 34.sp,
         photoUri = photoUri,
-        showBadge = true,
-        badgeIcon = Icons.Filled.CameraAlt,
-        modifier = Modifier.clickable(enabled = !isPhotoProcessing, onClick = onSelectPhoto)
+        showBadge = false,
+        modifier = Modifier
     )
 
     Spacer(modifier = Modifier.height(12.dp))
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(
+        IconButton(
             onClick = onSelectPhoto,
             enabled = !isPhotoProcessing,
-            colors = ButtonDefaults.textButtonColors(contentColor = PurpleAccent)
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(PurpleAccent.copy(alpha = 0.14f))
         ) {
-            Text(
-                text = when {
-                    isPhotoProcessing -> "Updating Photo..."
-                    photoUri == null -> "Add Photo"
-                    else -> "Change Photo"
-                },
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = if (photoUri == null) "Add photo" else "Edit photo",
+                tint = PurpleAccent
             )
         }
 
-        if (photoUri != null) {
-            TextButton(
-                onClick = onRemovePhoto,
-                enabled = !isPhotoProcessing,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = Color(0xFFB7B0C8)
-                )
-            ) {
-                Text(
-                    text = "Remove Photo",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            }
+        IconButton(
+            onClick = onRemovePhoto,
+            enabled = photoUri != null && !isPhotoProcessing,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.08f))
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Delete photo",
+                tint = if (photoUri != null && !isPhotoProcessing) {
+                    Color(0xFFB7B0C8)
+                } else {
+                    Color(0xFF6A6477)
+                }
+            )
         }
     }
 }

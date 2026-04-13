@@ -634,7 +634,7 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(12.dp)
+            .height(8.dp)
             .clip(CircleShape)
             .background(Color(0xFF2B2830))
     ) {
@@ -968,6 +968,8 @@ private fun TopSpendingCard(
 private fun TopSpendingRow(
     transaction: TopSpendingItemUi
 ) {
+    val truncatedNote = transaction.note.truncateWithEllipsis(maxCharacters = 10)
+
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
@@ -986,7 +988,7 @@ private fun TopSpendingRow(
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = transaction.note,
+                text = truncatedNote,
                 color = Color(0xFFF0EBF8),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
@@ -1003,6 +1005,11 @@ private fun TopSpendingRow(
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
         )
     }
+}
+
+private fun String.truncateWithEllipsis(maxCharacters: Int): String {
+    if (length <= maxCharacters) return this
+    return take(maxCharacters) + "..."
 }
 
 @Composable

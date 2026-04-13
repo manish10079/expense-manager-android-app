@@ -746,7 +746,8 @@ private fun MainScaffold(
     val showFixedBottomNavBar = currentRoute != "add_transaction" &&
         currentRoute != "itemized_calculator" &&
         currentRoute != "category_management" &&
-        currentRoute != "transaction_card_customize"
+        currentRoute != "transaction_card_customize" &&
+        currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
     val initialBottomTabPage = remember {
         bottomTabRoutes.indexOf("home").takeIf { it >= 0 } ?: 0

@@ -10,16 +10,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.AttachMoney
@@ -108,10 +108,9 @@ fun FilterBottomSheet(
     onClose: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val scrollState = rememberScrollState()
     val orderOptions = getOrderOptions(selectedSort)
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
@@ -123,259 +122,261 @@ fun FilterBottomSheet(
                     )
                 )
             )
-            .verticalScroll(scrollState)
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .width(54.dp)
-                .height(5.dp)
-                .clip(CircleShape)
-                .background(colorScheme.onSurface.copy(alpha = 0.16f))
-        )
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            IconButton(
-                onClick = onClose,
+        item {
+            Box(
                 modifier = Modifier
+                    .width(54.dp)
+                    .height(5.dp)
                     .clip(CircleShape)
-                    .background(colorScheme.surfaceVariant.copy(alpha = 0.55f))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close filters",
-                    tint = colorScheme.onSurface
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Sort & Filter",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Shape how your transactions are organized and displayed.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant
-                )
-            }
-
-            TextButton(onClick = onReset) {
-                Text(
-                    text = "Reset",
-                    color = colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+                    .background(colorScheme.onSurface.copy(alpha = 0.16f))
+            )
         }
 
-        Spacer(modifier = Modifier.height(18.dp))
-
-        FilterSection(
-            title = "Sort by",
-            subtitle = "Choose the main attribute used to arrange the list.",
-            icon = Icons.Default.Tune
-        ) {
+        item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                SortChip(
-                    modifier = Modifier.weight(1f),
-                    title = "Date",
-                    icon = Icons.Default.DateRange,
-                    selected = selectedSort == "Date"
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(colorScheme.surfaceVariant.copy(alpha = 0.55f))
                 ) {
-                    onSortChange("Date")
-                    onOrderChange(getDefaultOrder("Date"))
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close filters",
+                        tint = colorScheme.onSurface
+                    )
                 }
 
-                SortChip(
-                    modifier = Modifier.weight(1f),
-                    title = "Amount",
-                    icon = Icons.Default.AttachMoney,
-                    selected = selectedSort == "Amount"
-                ) {
-                    onSortChange("Amount")
-                    onOrderChange(getDefaultOrder("Amount"))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Sort & Filter",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Shape how your transactions are organized and displayed.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant
+                    )
                 }
 
-                SortChip(
-                    modifier = Modifier.weight(1f),
-                    title = "Category",
-                    icon = Icons.Default.GridView,
-                    selected = selectedSort == "Category"
-                ) {
-                    onSortChange("Category")
-                    onOrderChange(getDefaultOrder("Category"))
+                TextButton(onClick = onReset) {
+                    Text(
+                        text = "Reset",
+                        color = colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        FilterSection(
-            title = "Order",
-            subtitle = "Fine-tune how results are ranked inside the selected sort.",
-            icon = Icons.AutoMirrored.Filled.Sort
-        ) {
-            orderOptions.forEachIndexed { index, option ->
-                OrderOption(
-                    title = option.title,
-                    subtitle = orderDescription(option.value),
-                    value = option.value,
-                    selectedOrder = selectedOrder
-                ) {
-                    onOrderChange(option.value)
-                }
-
-                if (index != orderOptions.lastIndex) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        FilterSection(
-            title = "Filters",
-            subtitle = "Stack multiple filters to narrow the transaction list.",
-            icon = Icons.Default.Tune
-        ) {
-            FilterGroupLabel(title = "Date")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+        item {
+            FilterSection(
+                title = "Sort by",
+                subtitle = "Choose the main attribute used to arrange the list.",
+                icon = Icons.Default.Tune
             ) {
-                quickDateFilters.forEach { dateFilter ->
-                    FilterOptionChip(
-                        title = dateFilter,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    SortChip(
+                        modifier = Modifier.weight(1f),
+                        title = "Date",
                         icon = Icons.Default.DateRange,
-                        selected = selectedDateRange == dateFilter,
-                        onClick = {
-                            onDateRangeChange(
-                                if (selectedDateRange == dateFilter) {
-                                    null
-                                } else {
-                                    dateFilter
-                                }
-                            )
-                        }
-                    )
+                        selected = selectedSort == "Date"
+                    ) {
+                        onSortChange("Date")
+                        onOrderChange(getDefaultOrder("Date"))
+                    }
+
+                    SortChip(
+                        modifier = Modifier.weight(1f),
+                        title = "Amount",
+                        icon = Icons.Default.AttachMoney,
+                        selected = selectedSort == "Amount"
+                    ) {
+                        onSortChange("Amount")
+                        onOrderChange(getDefaultOrder("Amount"))
+                    }
+
+                    SortChip(
+                        modifier = Modifier.weight(1f),
+                        title = "Category",
+                        icon = Icons.Default.GridView,
+                        selected = selectedSort == "Category"
+                    ) {
+                        onSortChange("Category")
+                        onOrderChange(getDefaultOrder("Category"))
+                    }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            FilterGroupLabel(title = "Transaction Type")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                FilterOptionChip(
-                    title = "Expense",
-                    selected = selectedTransactionTypeId == FILTER_TYPE_EXPENSE,
-                    onClick = { onTransactionTypeChange(FILTER_TYPE_EXPENSE) }
-                )
-                FilterOptionChip(
-                    title = "Income",
-                    selected = selectedTransactionTypeId == FILTER_TYPE_INCOME,
-                    onClick = { onTransactionTypeChange(FILTER_TYPE_INCOME) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            FilterGroupLabel(
-                title = if (selectedTransactionTypeId == FILTER_TYPE_EXPENSE) {
-                    "Expense Categories"
-                } else {
-                    "Income Categories"
-                }
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                availableCategories.forEach { category ->
-                    FilterOptionChip(
-                        title = category.name,
-                        icon = category.icon,
-                        selected = selectedCategoryIds.contains(category.id),
-                        onClick = { onCategoryToggle(category.id) }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            FilterGroupLabel(title = "Payment Mode")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                paymentModes.forEach { paymentType ->
-                    FilterOptionChip(
-                        title = paymentType.name,
-                        icon = paymentType.icon,
-                        selected = selectedPaymentTypeIds.contains(paymentType.id),
-                        onClick = { onPaymentModeToggle(paymentType.id) }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            FilterGroupLabel(title = "Amount Range")
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                AmountFilterField(
-                    modifier = Modifier.weight(1f),
-                    value = minAmount,
-                    placeholder = "Min",
-                    onValueChange = onMinAmountChange
-                )
-                AmountFilterField(
-                    modifier = Modifier.weight(1f),
-                    value = maxAmount,
-                    placeholder = "Max",
-                    onValueChange = onMaxAmountChange
-                )
             }
         }
 
-        Spacer(modifier = Modifier.height(22.dp))
+        item {
+            FilterSection(
+                title = "Order",
+                subtitle = "Fine-tune how results are ranked inside the selected sort.",
+                icon = Icons.AutoMirrored.Filled.Sort
+            ) {
+                orderOptions.forEachIndexed { index, option ->
+                    OrderOption(
+                        title = option.title,
+                        subtitle = orderDescription(option.value),
+                        value = option.value,
+                        selectedOrder = selectedOrder
+                    ) {
+                        onOrderChange(option.value)
+                    }
 
-        Button(
-            onClick = onApply,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            shape = RoundedCornerShape(22.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Done,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Text(
-                text = "Apply Filters",
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold
-            )
+                    if (index != orderOptions.lastIndex) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                }
+            }
+        }
+
+        item {
+            FilterSection(
+                title = "Filters",
+                subtitle = "Stack multiple filters to narrow the transaction list.",
+                icon = Icons.Default.Tune
+            ) {
+                FilterGroupLabel(title = "Date")
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    quickDateFilters.forEach { dateFilter ->
+                        FilterOptionChip(
+                            title = dateFilter,
+                            icon = Icons.Default.DateRange,
+                            selected = selectedDateRange == dateFilter,
+                            onClick = {
+                                onDateRangeChange(
+                                    if (selectedDateRange == dateFilter) {
+                                        null
+                                    } else {
+                                        dateFilter
+                                    }
+                                )
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                FilterGroupLabel(title = "Transaction Type")
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    FilterOptionChip(
+                        title = "Expense",
+                        selected = selectedTransactionTypeId == FILTER_TYPE_EXPENSE,
+                        onClick = { onTransactionTypeChange(FILTER_TYPE_EXPENSE) }
+                    )
+                    FilterOptionChip(
+                        title = "Income",
+                        selected = selectedTransactionTypeId == FILTER_TYPE_INCOME,
+                        onClick = { onTransactionTypeChange(FILTER_TYPE_INCOME) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                FilterGroupLabel(
+                    title = if (selectedTransactionTypeId == FILTER_TYPE_EXPENSE) {
+                        "Expense Categories"
+                    } else {
+                        "Income Categories"
+                    }
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    availableCategories.forEach { category ->
+                        FilterOptionChip(
+                            title = category.name,
+                            icon = category.icon,
+                            selected = selectedCategoryIds.contains(category.id),
+                            onClick = { onCategoryToggle(category.id) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                FilterGroupLabel(title = "Payment Mode")
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    paymentModes.forEach { paymentType ->
+                        FilterOptionChip(
+                            title = paymentType.name,
+                            icon = paymentType.icon,
+                            selected = selectedPaymentTypeIds.contains(paymentType.id),
+                            onClick = { onPaymentModeToggle(paymentType.id) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                FilterGroupLabel(title = "Amount Range")
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    AmountFilterField(
+                        modifier = Modifier.weight(1f),
+                        value = minAmount,
+                        placeholder = "Min",
+                        onValueChange = onMinAmountChange
+                    )
+                    AmountFilterField(
+                        modifier = Modifier.weight(1f),
+                        value = maxAmount,
+                        placeholder = "Max",
+                        onValueChange = onMaxAmountChange
+                    )
+                }
+            }
+        }
+
+        item {
+            Button(
+                onClick = onApply,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp),
+                shape = RoundedCornerShape(22.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Done,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = "Apply Filters",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

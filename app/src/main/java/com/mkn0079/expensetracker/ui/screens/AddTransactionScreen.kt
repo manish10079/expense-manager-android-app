@@ -1,5 +1,10 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +36,8 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -183,6 +190,7 @@ fun AddTransactionScreen(
         }
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteDialogVisible by rememberSaveable { mutableStateOf(false) }
+        var isKeypadExpanded by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -363,13 +371,29 @@ fun AddTransactionScreen(
 
                 Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
 
-                NumericKeypad(
+                KeypadToggle(
+                    expanded = isKeypadExpanded,
                     compact = compact,
-                    onKeyPressed = { pressedKey ->
-                        amountInput = updateAmountInput(current = amountInput, pressedKey = pressedKey)
-                        onAmountInputChange(amountInput)
-                    }
+                    onClick = { isKeypadExpanded = !isKeypadExpanded }
                 )
+
+                AnimatedVisibility(
+                    visible = isKeypadExpanded,
+                    enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
+
+                        NumericKeypad(
+                            compact = compact,
+                            onKeyPressed = { pressedKey ->
+                                amountInput = updateAmountInput(current = amountInput, pressedKey = pressedKey)
+                                onAmountInputChange(amountInput)
+                            }
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
 
@@ -1049,6 +1073,62 @@ private fun NumericKeypad(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun KeypadToggle(
+    expanded: Boolean,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(Color.White.copy(alpha = 0.04f))
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = if (compact) 16.dp else 18.dp,
+                vertical = if (compact) 12.dp else 14.dp
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = "Amount Keypad",
+                color = Color(0xFFF4F1F7),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = if (compact) 15.sp else 16.sp
+                )
+            )
+            Text(
+                text = if (expanded) "Tap to hide keypad" else "Tap to slide up keypad",
+                color = Color(0xFF9C95AB),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .size(if (compact) 34.dp else 38.dp)
+                .clip(CircleShape)
+                .background(PurpleAccent.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = if (expanded) {
+                    Icons.Filled.KeyboardArrowDown
+                } else {
+                    Icons.Filled.KeyboardArrowUp
+                },
+                contentDescription = if (expanded) "Collapse keypad" else "Expand keypad",
+                tint = PurpleAccent,
+                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+            )
         }
     }
 }
