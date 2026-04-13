@@ -116,9 +116,6 @@ private val presetAutoLockDurations = (5..60 step 5).toList()
 @Composable
 fun SettingsScreen(
     userProfile: UserProfile = defaultUserProfile,
-    currentCurrencyId: Int = DEFAULT_CURRENCY_ID,
-    currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
-    currentTimeFormat: String = DEFAULT_TIME_FORMAT,
     isAppLockEnabled: Boolean = false,
     hasAppLockPin: Boolean = false,
     isBiometricEnabled: Boolean = DEFAULT_BIOMETRIC_LOCK_ENABLED,
@@ -129,9 +126,6 @@ fun SettingsScreen(
     isMissedEntryReminderEnabled: Boolean = DEFAULT_MISSED_ENTRY_REMINDER_ENABLED,
     autoLockDurationMinutes: Int = DEFAULT_APP_LOCK_TIMEOUT_MINUTES,
     transactionCount: Int = 0,
-    onCurrencyChange: (Int) -> Unit = {},
-    onDateFormatChange: (String) -> Unit = {},
-    onTimeFormatChange: (String) -> Unit = {},
     onDailyReminderChange: (Boolean) -> Unit = {},
     onBudgetLimitAlertsChange: (Boolean) -> Unit = {},
     onMissedEntryReminderChange: (Boolean) -> Unit = {},
@@ -141,16 +135,13 @@ fun SettingsScreen(
     onAutoLockDurationChange: (Int) -> Unit = {},
     onAppLockChange: (Boolean) -> Unit = {},
     onProfileClick: () -> Unit = {},
-    onManageCategoryClick: () -> Unit = {},
+    onPreferencesClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
     onLegacyImportFileSelected: (Uri) -> Unit = {},
     onDeleteAllTransactionsClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
-    var isCurrencyPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isDateFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isTimeFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     val legacyImportFilePicker = rememberLauncherForActivityResult(
@@ -160,24 +151,18 @@ fun SettingsScreen(
         }
     )
     LaunchedEffect(
-        currentCurrencyId,
-        currentDateFormatPattern,
-        currentTimeFormat,
         autoLockDurationMinutes,
         transactionCount
     ) {
         settingsViewModel.updateInputs(
-            currentCurrencyId = currentCurrencyId,
-            currentDateFormatPattern = currentDateFormatPattern,
-            currentTimeFormat = currentTimeFormat,
+            currentCurrencyId = DEFAULT_CURRENCY_ID,
+            currentDateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            currentTimeFormat = DEFAULT_TIME_FORMAT,
             autoLockDurationMinutes = autoLockDurationMinutes,
             transactionCount = transactionCount
         )
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val currencyPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val dateFormatPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val timeFormatPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val autoLockDurationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Box(
@@ -236,10 +221,7 @@ fun SettingsScreen(
                             onItemClick = { actionId ->
                                 when (actionId) {
                                     SettingsActionId.Profile -> onProfileClick()
-                                    SettingsActionId.CurrencyPicker -> isCurrencyPickerVisible = true
-                                    SettingsActionId.DateFormatPicker -> isDateFormatPickerVisible = true
-                                    SettingsActionId.TimeFormatPicker -> isTimeFormatPickerVisible = true
-                                    SettingsActionId.ManageCategory -> onManageCategoryClick()
+                                    SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.AutoLockDuration -> isAutoLockDurationPickerVisible = true
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
                                     SettingsActionId.LegacyImport -> legacyImportFilePicker.launch(
@@ -271,49 +253,6 @@ fun SettingsScreen(
                 }
             }
         }
-    }
-
-    if (isCurrencyPickerVisible) {
-        CurrencyPickerSheet(
-            searchQuery = uiState.currencySearchQuery,
-            filteredCurrencies = uiState.filteredCurrencies,
-            selectedCurrencyId = currentCurrencyId,
-            sheetState = currencyPickerSheetState,
-            onDismiss = {
-                settingsViewModel.clearCurrencySearchQuery()
-                isCurrencyPickerVisible = false
-            },
-            onSearchQueryChange = settingsViewModel::updateCurrencySearchQuery,
-            onCurrencySelected = { currencyId ->
-                onCurrencyChange(currencyId)
-                settingsViewModel.clearCurrencySearchQuery()
-                isCurrencyPickerVisible = false
-            }
-        )
-    }
-
-    if (isDateFormatPickerVisible) {
-        DateFormatPickerSheet(
-            selectedPattern = currentDateFormatPattern,
-            sheetState = dateFormatPickerSheetState,
-            onDismiss = { isDateFormatPickerVisible = false },
-            onFormatSelected = { pattern ->
-                onDateFormatChange(pattern)
-                isDateFormatPickerVisible = false
-            }
-        )
-    }
-
-    if (isTimeFormatPickerVisible) {
-        TimeFormatPickerSheet(
-            selectedTimeFormat = currentTimeFormat,
-            sheetState = timeFormatPickerSheetState,
-            onDismiss = { isTimeFormatPickerVisible = false },
-            onFormatSelected = { timeFormat ->
-                onTimeFormatChange(timeFormat)
-                isTimeFormatPickerVisible = false
-            }
-        )
     }
 
     if (isAutoLockDurationPickerVisible) {
@@ -670,468 +609,6 @@ private fun SettingsRow(
                     modifier = Modifier.size(18.dp)
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CurrencyPickerSheet(
-    searchQuery: String,
-    filteredCurrencies: List<Currency>,
-    selectedCurrencyId: Int,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onSearchQueryChange: (String) -> Unit,
-    onCurrencySelected: (Int) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Select Currency",
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Search by country and pick the currency you want to use across the app.",
-                color = Color(0xFF968EA8),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChange,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(20.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "Search currency",
-                        tint = Color(0xFF9B93AE)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Search country",
-                        color = Color(0xFF7E778D)
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFF1D1D21),
-                    unfocusedContainerColor = Color(0xFF1D1D21),
-                    focusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-                    focusedTextColor = Color(0xFFF0EBF7),
-                    unfocusedTextColor = Color(0xFFF0EBF7),
-                    cursorColor = PurpleAccent
-                )
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(440.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(
-                    items = filteredCurrencies,
-                    key = { currency -> currency.id }
-                ) { currency ->
-                    CurrencyPickerRow(
-                        currency = currency,
-                        isSelected = currency.id == selectedCurrencyId,
-                        onClick = { onCurrencySelected(currency.id) }
-                    )
-                }
-
-                if (filteredCurrencies.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(Color(0xFF1A1A1E))
-                                .padding(horizontal = 18.dp, vertical = 20.dp)
-                        ) {
-                            Text(
-                                text = "No countries matched your search.",
-                                color = Color(0xFF9B93AE),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CurrencyPickerRow(
-    currency: Currency,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = currency.currencySymbol,
-                color = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = currency.countryName,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = currency.currencyName,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DateFormatPickerSheet(
-    selectedPattern: String,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onFormatSelected: (String) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Select Date Format",
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Choose the date style you want to see across the app.",
-                color = Color(0xFF968EA8),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(440.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(
-                    items = supportedDateFormats,
-                    key = { option -> option.pattern }
-                ) { option ->
-                    DateFormatPickerRow(
-                        option = option,
-                        isSelected = option.pattern == selectedPattern,
-                        onClick = { onFormatSelected(option.pattern) }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DateFormatPickerRow(
-    option: DateFormatOption,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.CalendarMonth,
-                contentDescription = option.pattern,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = option.previewLabel,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = option.pattern,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimeFormatPickerSheet(
-    selectedTimeFormat: String,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onFormatSelected: (String) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Select Time Format",
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Choose whether time is shown in 12-hour or 24-hour style.",
-                color = Color(0xFF968EA8),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(
-                    items = supportedTimeFormats,
-                    key = { option -> option.id }
-                ) { option ->
-                    TimeFormatPickerRow(
-                        option = option,
-                        isSelected = option.id == selectedTimeFormat,
-                        onClick = { onFormatSelected(option.id) }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TimeFormatPickerRow(
-    option: TimeFormatOption,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = option.label,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = option.label,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = option.previewLabel,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
         }
     }
 }

@@ -57,10 +57,7 @@ enum class SettingsToggleId {
 
 enum class SettingsActionId {
     Profile,
-    CurrencyPicker,
-    DateFormatPicker,
-    TimeFormatPicker,
-    ManageCategory,
+    AppPreferences,
     AutoLockDuration,
     TransactionCardCustomize,
     LegacyImport,
@@ -171,27 +168,9 @@ private fun buildSettingsSections(
             title = "PREFERENCE",
             items = listOf(
                 SettingsItemUi(
-                    title = "Currency",
-                    icon = Icons.Filled.CurrencyRupee,
-                    trailing = selectedCurrencyLabel,
-                    actionId = SettingsActionId.CurrencyPicker
-                ),
-                SettingsItemUi(
-                    title = "Date Format",
-                    icon = Icons.Filled.CalendarMonth,
-                    trailing = selectedDateFormatLabel,
-                    actionId = SettingsActionId.DateFormatPicker
-                ),
-                SettingsItemUi(
-                    title = "Time Format",
+                    title = "App Preferences",
                     icon = Icons.Filled.Tune,
-                    trailing = selectedTimeFormatLabel,
-                    actionId = SettingsActionId.TimeFormatPicker
-                ),
-                SettingsItemUi(
-                    title = "Manage Category",
-                    icon = Icons.Filled.Apps,
-                    actionId = SettingsActionId.ManageCategory
+                    actionId = SettingsActionId.AppPreferences
                 )
             )
         ),

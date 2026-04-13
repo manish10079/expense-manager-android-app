@@ -61,6 +61,7 @@ import com.mkn0079.expensetracker.ui.screens.CategoryManagementScreen
 import com.mkn0079.expensetracker.ui.screens.HomeScreen
 import com.mkn0079.expensetracker.ui.screens.ItemizedCalculatorScreen
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
+import com.mkn0079.expensetracker.ui.screens.PreferencesScreen
 import com.mkn0079.expensetracker.ui.screens.ProfileScreen
 import com.mkn0079.expensetracker.ui.screens.SettingsScreen
 import com.mkn0079.expensetracker.ui.screens.SplashScreen
@@ -84,6 +85,7 @@ private val routeOrder = listOf(
     "calendar",
     "transactions",
     "settings",
+    "preferences",
     "transaction_card_customize",
     "category_management",
     "profile",
@@ -149,7 +151,8 @@ private fun resolveBackNavigationRoute(
         "calendar",
         "transactions",
         "settings" -> "home"
-        "transaction_card_customize" -> "settings"
+        "preferences",
+        "transaction_card_customize",
         "category_management" -> "settings"
         "profile" -> profileOriginRoute
         "add_transaction" -> previousRoute
@@ -904,9 +907,6 @@ private fun MainScaffold(
 
                 "settings" -> SettingsScreen(
                     userProfile = userProfile,
-                    currentCurrencyId = selectedCurrencyId,
-                    currentDateFormatPattern = selectedDateFormatPattern,
-                    currentTimeFormat = selectedTimeFormat,
                     isAppLockEnabled = isAppLockEnabled,
                     hasAppLockPin = hasAppLockPin,
                     isBiometricEnabled = isBiometricEnabled,
@@ -917,9 +917,6 @@ private fun MainScaffold(
                     isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
                     autoLockDurationMinutes = autoLockDurationMinutes,
                     transactionCount = transactionCount,
-                    onCurrencyChange = onSelectedCurrencyIdChange,
-                    onDateFormatChange = onSelectedDateFormatPatternChange,
-                    onTimeFormatChange = onSelectedTimeFormatChange,
                     onDailyReminderChange = onDailyReminderChange,
                     onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                     onMissedEntryReminderChange = onMissedEntryReminderChange,
@@ -935,9 +932,9 @@ private fun MainScaffold(
                         onBottomBarVisibilityChange(false)
                         onRouteChange("profile")
                     },
-                    onManageCategoryClick = {
+                    onPreferencesClick = {
                         onBottomBarVisibilityChange(false)
-                        onRouteChange("category_management")
+                        onRouteChange("preferences")
                     },
                     onTransactionCardCustomizeClick = {
                         onBottomBarVisibilityChange(false)
@@ -946,6 +943,23 @@ private fun MainScaffold(
                     onBackClick = {
                         onBottomBarVisibilityChange(false)
                         onRouteChange("home")
+                    }
+                )
+
+                "preferences" -> PreferencesScreen(
+                    currentCurrencyId = selectedCurrencyId,
+                    currentDateFormatPattern = selectedDateFormatPattern,
+                    currentTimeFormat = selectedTimeFormat,
+                    onCurrencyChange = onSelectedCurrencyIdChange,
+                    onDateFormatChange = onSelectedDateFormatPatternChange,
+                    onTimeFormatChange = onSelectedTimeFormatChange,
+                    onManageCategoryClick = {
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange("category_management")
+                    },
+                    onBackClick = {
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange("settings")
                     }
                 )
 
