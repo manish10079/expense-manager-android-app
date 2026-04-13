@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -63,6 +64,7 @@ import com.mkn0079.expensetracker.ui.screens.ItemizedCalculatorScreen
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.screens.PreferencesScreen
 import com.mkn0079.expensetracker.ui.screens.ProfileScreen
+import com.mkn0079.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mkn0079.expensetracker.ui.screens.SettingsScreen
 import com.mkn0079.expensetracker.ui.screens.SplashScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionScreen
@@ -86,6 +88,7 @@ private val routeOrder = listOf(
     "transactions",
     "settings",
     "preferences",
+    "security_privacy",
     "transaction_card_customize",
     "category_management",
     "profile",
@@ -152,6 +155,7 @@ private fun resolveBackNavigationRoute(
         "transactions",
         "settings" -> "home"
         "preferences",
+        "security_privacy",
         "transaction_card_customize",
         "category_management" -> "settings"
         "profile" -> profileOriginRoute
@@ -749,7 +753,10 @@ private fun MainScaffold(
     val showFixedBottomNavBar = currentRoute != "add_transaction" &&
         currentRoute != "itemized_calculator" &&
         currentRoute != "category_management" &&
+        currentRoute != "security_privacy" &&
         currentRoute != "transaction_card_customize" &&
+        currentRoute != "settings" &&
+        currentRoute != "preferences" &&
         currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
     val initialBottomTabPage = remember {
@@ -877,179 +884,194 @@ private fun MainScaffold(
             label = "secondary_screen_transition",
             modifier = Modifier.fillMaxSize()
         ) { route ->
-            when (route) {
-                null -> Box(modifier = Modifier.fillMaxSize())
+            val pointerModifier = if (route != null) {
+                Modifier.fillMaxSize().pointerInput(Unit) {}
+            } else {
+                Modifier.fillMaxSize()
+            }
+            Box(modifier = pointerModifier) {
+                when (route) {
+                    null -> Box(modifier = Modifier.fillMaxSize())
 
-                "transactions" -> TransactionScreen(
-                    currencyId = selectedCurrencyId,
-                    dateFormatPattern = selectedDateFormatPattern,
-                    timeFormat = selectedTimeFormat,
-                    transactions = transactions,
-                    transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-                    onBackClick = {
-                        onRouteChange("home")
-                    },
-                    onAddTransactionClick = {
-                        onSelectedTransactionChange(null)
-                        onAddTransactionDraftAmountChange(null)
-                        onAddTransactionDraftNoteChange(null)
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("add_transaction")
-                    },
-                    onTransactionClick = { transaction ->
-                        onSelectedTransactionChange(transaction)
-                        onAddTransactionDraftAmountChange(null)
-                        onAddTransactionDraftNoteChange(null)
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("add_transaction")
-                    }
-                )
+                    "transactions" -> TransactionScreen(
+                        currencyId = selectedCurrencyId,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
+                        transactions = transactions,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        onBackClick = {
+                            onRouteChange("home")
+                        },
+                        onAddTransactionClick = {
+                            onSelectedTransactionChange(null)
+                            onAddTransactionDraftAmountChange(null)
+                            onAddTransactionDraftNoteChange(null)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        },
+                        onTransactionClick = { transaction ->
+                            onSelectedTransactionChange(transaction)
+                            onAddTransactionDraftAmountChange(null)
+                            onAddTransactionDraftNoteChange(null)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        }
+                    )
 
-                "settings" -> SettingsScreen(
-                    userProfile = userProfile,
-                    isAppLockEnabled = isAppLockEnabled,
-                    hasAppLockPin = hasAppLockPin,
-                    isBiometricEnabled = isBiometricEnabled,
-                    isBlurInRecentsEnabled = isBlurInRecentsEnabled,
-                    isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
-                    isDailyReminderEnabled = isDailyReminderEnabled,
-                    isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                    isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                    autoLockDurationMinutes = autoLockDurationMinutes,
-                    transactionCount = transactionCount,
-                    onDailyReminderChange = onDailyReminderChange,
-                    onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-                    onMissedEntryReminderChange = onMissedEntryReminderChange,
-                    onLegacyImportFileSelected = onLegacyImportFileSelected,
-                    onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
-                    onBiometricChange = onBiometricLockChange,
-                    onBlurInRecentsChange = onBlurInRecentsChange,
-                    onScreenshotProtectionChange = onScreenshotProtectionChange,
-                    onAutoLockDurationChange = onAutoLockDurationChange,
-                    onAppLockChange = onAppLockToggleChange,
-                    onProfileClick = {
-                        onProfileOriginRouteChange("settings")
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("profile")
-                    },
-                    onPreferencesClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("preferences")
-                    },
-                    onTransactionCardCustomizeClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("transaction_card_customize")
-                    },
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("home")
-                    }
-                )
+                    "settings" -> SettingsScreen(
+                        userProfile = userProfile,
+                        isDailyReminderEnabled = isDailyReminderEnabled,
+                        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        transactionCount = transactionCount,
+                        onDailyReminderChange = onDailyReminderChange,
+                        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+                        onMissedEntryReminderChange = onMissedEntryReminderChange,
+                        onProfileClick = {
+                            onProfileOriginRouteChange("settings")
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("profile")
+                        },
+                        onPreferencesClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("preferences")
+                        },
+                        onSecurityPrivacyClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("security_privacy")
+                        },
+                        onTransactionCardCustomizeClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("transaction_card_customize")
+                        },
+                        onLegacyImportFileSelected = onLegacyImportFileSelected,
+                        onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("home")
+                        }
+                    )
 
-                "preferences" -> PreferencesScreen(
-                    currentCurrencyId = selectedCurrencyId,
-                    currentDateFormatPattern = selectedDateFormatPattern,
-                    currentTimeFormat = selectedTimeFormat,
-                    onCurrencyChange = onSelectedCurrencyIdChange,
-                    onDateFormatChange = onSelectedDateFormatPatternChange,
-                    onTimeFormatChange = onSelectedTimeFormatChange,
-                    onManageCategoryClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("category_management")
-                    },
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("settings")
-                    }
-                )
+                    "preferences" -> PreferencesScreen(
+                        currentCurrencyId = selectedCurrencyId,
+                        currentDateFormatPattern = selectedDateFormatPattern,
+                        currentTimeFormat = selectedTimeFormat,
+                        onCurrencyChange = onSelectedCurrencyIdChange,
+                        onDateFormatChange = onSelectedDateFormatPatternChange,
+                        onTimeFormatChange = onSelectedTimeFormatChange,
+                        onManageCategoryClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("category_management")
+                        },
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
+                        }
+                    )
 
-                "category_management" -> CategoryManagementScreen(
-                    userProfile = userProfile,
-                    customCategories = categories.filter { !it.isSystem },
-                    customPaymentTypes = paymentMethods.filter { !it.isSystem },
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("settings")
-                    },
-                    onCreateCustomCategory = { name, iconKey, transactionTypeId ->
-                        onCreateCustomCategory(name, iconKey, transactionTypeId)
-                    },
-                    onCreateCustomPaymentType = { name, iconKey ->
-                        onCreateCustomPaymentType(name, iconKey)
-                    },
-                    onDeleteCustomCategory = { categoryId ->
-                        onDeleteCustomCategory(categoryId)
-                    },
-                    onDeleteCustomPaymentType = { paymentTypeId ->
-                        onDeleteCustomPaymentType(paymentTypeId)
-                    }
-                )
+                    "security_privacy" -> SecurityPrivacyScreen(
+                        isAppLockEnabled = isAppLockEnabled,
+                        hasAppLockPin = hasAppLockPin,
+                        isBiometricEnabled = isBiometricEnabled,
+                        isBlurInRecentsEnabled = isBlurInRecentsEnabled,
+                        isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
+                        autoLockDurationMinutes = autoLockDurationMinutes,
+                        onAppLockChange = onAppLockToggleChange,
+                        onBiometricChange = onBiometricLockChange,
+                        onBlurInRecentsChange = onBlurInRecentsChange,
+                        onScreenshotProtectionChange = onScreenshotProtectionChange,
+                        onAutoLockDurationChange = onAutoLockDurationChange,
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
+                        }
+                    )
 
-                "transaction_card_customize" -> TransactionCardCustomizeScreen(
-                    settings = transactionCardCustomizationSettings,
-                    currencyId = selectedCurrencyId,
-                    dateFormatPattern = selectedDateFormatPattern,
-                    timeFormat = selectedTimeFormat,
-                    onSettingsChange = onTransactionCardCustomizationSettingsChange,
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("settings")
-                    }
-                )
+                    "category_management" -> CategoryManagementScreen(
+                        userProfile = userProfile,
+                        customCategories = categories.filter { !it.isSystem },
+                        customPaymentTypes = paymentMethods.filter { !it.isSystem },
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("settings")
+                        },
+                        onCreateCustomCategory = { name, iconKey, transactionTypeId ->
+                            onCreateCustomCategory(name, iconKey, transactionTypeId)
+                        },
+                        onCreateCustomPaymentType = { name, iconKey ->
+                            onCreateCustomPaymentType(name, iconKey)
+                        },
+                        onDeleteCustomCategory = { categoryId ->
+                            onDeleteCustomCategory(categoryId)
+                        },
+                        onDeleteCustomPaymentType = { paymentTypeId ->
+                            onDeleteCustomPaymentType(paymentTypeId)
+                        }
+                    )
 
-                "profile" -> ProfileScreen(
-                    userProfile = userProfile,
-                    dateFormatPattern = selectedDateFormatPattern,
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange(profileOriginRoute)
-                    },
-                    onSaveClick = { updatedProfile ->
-                        onUserProfileChange(updatedProfile)
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange(profileOriginRoute)
-                    }
-                )
+                    "transaction_card_customize" -> TransactionCardCustomizeScreen(
+                        settings = transactionCardCustomizationSettings,
+                        currencyId = selectedCurrencyId,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
+                        onSettingsChange = onTransactionCardCustomizationSettingsChange,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("settings")
+                        }
+                    )
 
-                "add_transaction" -> AddTransactionScreen(
-                    currencyId = selectedCurrencyId,
-                    dateFormatPattern = selectedDateFormatPattern,
-                    transactions = transactions,
-                    availableCategories = categories.filterNot { it.isDeleted },
-                    availablePaymentMethods = paymentMethods.filterNot { it.isDeleted }.sortedBy { it.id },
-                    existingTransaction = selectedTransaction,
-                    existingRecurringRule = selectedRecurringRule,
-                    initialAmountInput = addTransactionDraftAmount,
-                    initialNote = addTransactionDraftNote,
-                    onBackClick = {
-                        exitAddTransactionScreen(previousRoute)
-                    },
-                    onDeleteClick = deleteSelectedTransaction,
-                    onCalculatorClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("itemized_calculator")
-                    },
-                    onAmountInputChange = { onAddTransactionDraftAmountChange(it) },
-                    onNoteChange = { onAddTransactionDraftNoteChange(it) },
-                    onSaveClick = { transaction, recurringDraft ->
-                        persistTransactionAndRecurring(transaction, recurringDraft)
-                    }
-                )
+                    "profile" -> ProfileScreen(
+                        userProfile = userProfile,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(profileOriginRoute)
+                        },
+                        onSaveClick = { updatedProfile ->
+                            onUserProfileChange(updatedProfile)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(profileOriginRoute)
+                        }
+                    )
 
-                "itemized_calculator" -> ItemizedCalculatorScreen(
-                    onBackClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("add_transaction")
-                    },
-                    onApplyToNoteClick = { calculatedAmount, calculatedNote ->
-                        onAddTransactionDraftAmountChange(calculatedAmount)
-                        onAddTransactionDraftNoteChange(calculatedNote)
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange("add_transaction")
-                    }
-                )
+                    "add_transaction" -> AddTransactionScreen(
+                        currencyId = selectedCurrencyId,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        transactions = transactions,
+                        availableCategories = categories.filterNot { it.isDeleted },
+                        availablePaymentMethods = paymentMethods.filterNot { it.isDeleted }.sortedBy { it.id },
+                        existingTransaction = selectedTransaction,
+                        existingRecurringRule = selectedRecurringRule,
+                        initialAmountInput = addTransactionDraftAmount,
+                        initialNote = addTransactionDraftNote,
+                        onBackClick = {
+                            exitAddTransactionScreen(previousRoute)
+                        },
+                        onDeleteClick = deleteSelectedTransaction,
+                        onCalculatorClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("itemized_calculator")
+                        },
+                        onAmountInputChange = { onAddTransactionDraftAmountChange(it) },
+                        onNoteChange = { onAddTransactionDraftNoteChange(it) },
+                        onSaveClick = { transaction, recurringDraft ->
+                            persistTransactionAndRecurring(transaction, recurringDraft)
+                        }
+                    )
 
-                else -> Box(modifier = Modifier.fillMaxSize())
+                    "itemized_calculator" -> ItemizedCalculatorScreen(
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        },
+                        onApplyToNoteClick = { calculatedAmount, calculatedNote ->
+                            onAddTransactionDraftAmountChange(calculatedAmount)
+                            onAddTransactionDraftNoteChange(calculatedNote)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        }
+                    )
+
+                    else -> Box(modifier = Modifier.fillMaxSize())
+                }
             }
         }
 

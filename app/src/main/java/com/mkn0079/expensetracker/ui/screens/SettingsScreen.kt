@@ -110,39 +110,28 @@ import com.mkn0079.expensetracker.utils.getTimeFormatPreviewLabel
 import com.mkn0079.expensetracker.utils.supportedDateFormats
 import com.mkn0079.expensetracker.utils.supportedTimeFormats
 
-private val presetAutoLockDurations = (5..60 step 5).toList()
+ 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     userProfile: UserProfile = defaultUserProfile,
-    isAppLockEnabled: Boolean = false,
-    hasAppLockPin: Boolean = false,
-    isBiometricEnabled: Boolean = DEFAULT_BIOMETRIC_LOCK_ENABLED,
-    isBlurInRecentsEnabled: Boolean = DEFAULT_BLUR_IN_RECENTS_ENABLED,
-    isScreenshotProtectionEnabled: Boolean = DEFAULT_SCREENSHOT_PROTECTION_ENABLED,
     isDailyReminderEnabled: Boolean = DEFAULT_NOTIFICATIONS_ENABLED,
     isBudgetLimitAlertsEnabled: Boolean = DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED,
     isMissedEntryReminderEnabled: Boolean = DEFAULT_MISSED_ENTRY_REMINDER_ENABLED,
-    autoLockDurationMinutes: Int = DEFAULT_APP_LOCK_TIMEOUT_MINUTES,
     transactionCount: Int = 0,
     onDailyReminderChange: (Boolean) -> Unit = {},
     onBudgetLimitAlertsChange: (Boolean) -> Unit = {},
     onMissedEntryReminderChange: (Boolean) -> Unit = {},
-    onBiometricChange: (Boolean) -> Unit = {},
-    onBlurInRecentsChange: (Boolean) -> Unit = {},
-    onScreenshotProtectionChange: (Boolean) -> Unit = {},
-    onAutoLockDurationChange: (Int) -> Unit = {},
-    onAppLockChange: (Boolean) -> Unit = {},
     onProfileClick: () -> Unit = {},
     onPreferencesClick: () -> Unit = {},
+    onSecurityPrivacyClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
     onLegacyImportFileSelected: (Uri) -> Unit = {},
     onDeleteAllTransactionsClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
-    var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     val legacyImportFilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -151,19 +140,17 @@ fun SettingsScreen(
         }
     )
     LaunchedEffect(
-        autoLockDurationMinutes,
         transactionCount
     ) {
         settingsViewModel.updateInputs(
             currentCurrencyId = DEFAULT_CURRENCY_ID,
             currentDateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             currentTimeFormat = DEFAULT_TIME_FORMAT,
-            autoLockDurationMinutes = autoLockDurationMinutes,
+            autoLockDurationMinutes = 0,
             transactionCount = transactionCount
         )
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val autoLockDurationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Box(
         modifier = Modifier
@@ -210,11 +197,6 @@ fun SettingsScreen(
                     item(key = section.title) {
                         SettingsSection(
                             section = section,
-                            isAppLockEnabled = isAppLockEnabled,
-                            hasAppLockPin = hasAppLockPin,
-                            isBiometricEnabled = isBiometricEnabled,
-                            isBlurInRecentsEnabled = isBlurInRecentsEnabled,
-                            isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
                             isDailyReminderEnabled = isDailyReminderEnabled,
                             isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                             isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
@@ -222,7 +204,7 @@ fun SettingsScreen(
                                 when (actionId) {
                                     SettingsActionId.Profile -> onProfileClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
-                                    SettingsActionId.AutoLockDuration -> isAutoLockDurationPickerVisible = true
+                                    SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
                                     SettingsActionId.LegacyImport -> legacyImportFilePicker.launch(
                                         arrayOf(
@@ -236,11 +218,6 @@ fun SettingsScreen(
                                     null -> Unit
                                 }
                             },
-                            onAppLockChange = onAppLockChange,
-                            onBiometricChange = onBiometricChange,
-                            onBlurInRecentsChange = onBlurInRecentsChange,
-                            onScreenshotProtectionChange = onScreenshotProtectionChange,
-                            onAutoLockDurationClick = { isAutoLockDurationPickerVisible = true },
                             onDailyReminderChange = onDailyReminderChange,
                             onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                             onMissedEntryReminderChange = onMissedEntryReminderChange
@@ -255,17 +232,7 @@ fun SettingsScreen(
         }
     }
 
-    if (isAutoLockDurationPickerVisible) {
-        AutoLockDurationPickerSheet(
-            selectedDurationMinutes = autoLockDurationMinutes,
-            sheetState = autoLockDurationSheetState,
-            onDismiss = { isAutoLockDurationPickerVisible = false },
-            onDurationSelected = { minutes ->
-                onAutoLockDurationChange(minutes)
-                isAutoLockDurationPickerVisible = false
-            }
-        )
-    }
+ 
 
     if (isDeleteTransactionsDialogVisible) {
         AlertDialog(
@@ -441,20 +408,10 @@ private fun ProfileHero(
 @Composable
 private fun SettingsSection(
     section: SettingsSectionUi,
-    isAppLockEnabled: Boolean,
-    hasAppLockPin: Boolean,
-    isBiometricEnabled: Boolean,
-    isBlurInRecentsEnabled: Boolean,
-    isScreenshotProtectionEnabled: Boolean,
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
     onItemClick: (SettingsActionId?) -> Unit,
-    onAppLockChange: (Boolean) -> Unit,
-    onBiometricChange: (Boolean) -> Unit,
-    onBlurInRecentsChange: (Boolean) -> Unit,
-    onScreenshotProtectionChange: (Boolean) -> Unit,
-    onAutoLockDurationClick: () -> Unit,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit
@@ -480,42 +437,27 @@ private fun SettingsSection(
         ) {
             section.items.forEach { item ->
                 val toggleState = when (item.toggleId) {
-                    SettingsToggleId.PinLock -> isAppLockEnabled
-                    SettingsToggleId.Biometric -> isBiometricEnabled
-                    SettingsToggleId.BlurInRecents -> isBlurInRecentsEnabled
-                    SettingsToggleId.ScreenshotProtection -> isScreenshotProtectionEnabled
                     SettingsToggleId.DailyReminder -> isDailyReminderEnabled
                     SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
                     SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
-                    null -> null
+                    else -> null
                 }
-                val isEnabled = when {
-                    item.toggleId == SettingsToggleId.Biometric -> isAppLockEnabled && hasAppLockPin
-                    item.actionId == SettingsActionId.AutoLockDuration -> isAppLockEnabled
-                    else -> true
-                }
+                val isEnabled = true
 
                 SettingsRow(
                     item = item,
                     enabled = isEnabled,
                     toggleState = toggleState,
                     onClick = {
-                        if (item.actionId == SettingsActionId.AutoLockDuration) {
-                            onAutoLockDurationClick()
-                        } else {
-                            onItemClick(item.actionId)
-                        }
+                        onItemClick(item.actionId)
                     },
                     onToggleChange = { isChecked ->
                         when (item.toggleId) {
-                            SettingsToggleId.PinLock -> onAppLockChange(isChecked)
-                            SettingsToggleId.Biometric -> onBiometricChange(isChecked)
-                            SettingsToggleId.BlurInRecents -> onBlurInRecentsChange(isChecked)
-                            SettingsToggleId.ScreenshotProtection -> onScreenshotProtectionChange(isChecked)
                             SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
                             SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
                             SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
                             null -> Unit
+                            else -> Unit
                         }
                     }
                 )
@@ -613,241 +555,7 @@ private fun SettingsRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AutoLockDurationPickerSheet(
-    selectedDurationMinutes: Int,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onDurationSelected: (Int) -> Unit
-) {
-    var customMinutesInput by rememberSaveable(selectedDurationMinutes) {
-        mutableStateOf(
-            if (selectedDurationMinutes > 0 && selectedDurationMinutes !in presetAutoLockDurations) {
-                selectedDurationMinutes.toString()
-            } else {
-                ""
-            }
-        )
-    }
-    var customInputError by rememberSaveable { mutableStateOf<String?>(null) }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                Text(
-                    text = "Auto Lock Duration",
-                    color = Color(0xFFF0EBF7),
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-
-            item {
-                Text(
-                    text = "Pick a preset in 5-minute steps up to 60, or enter a custom value in minutes.",
-                    color = Color(0xFF968EA8),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            item {
-                DurationPickerRow(
-                    label = "Immediately",
-                    subtitle = "Lock as soon as the app moves to the background.",
-                    isSelected = selectedDurationMinutes <= 0,
-                    onClick = { onDurationSelected(0) }
-                )
-            }
-
-            items(
-                items = presetAutoLockDurations,
-                key = { durationMinutes -> durationMinutes }
-            ) { durationMinutes ->
-                DurationPickerRow(
-                    label = "$durationMinutes minutes",
-                    subtitle = "Require the PIN again after $durationMinutes minutes away from the app.",
-                    isSelected = selectedDurationMinutes == durationMinutes,
-                    onClick = { onDurationSelected(durationMinutes) }
-                )
-            }
-
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF1A1A1E))
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = "Custom Duration",
-                        color = Color(0xFFF0EBF7),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-
-                    OutlinedTextField(
-                        value = customMinutesInput,
-                        onValueChange = { value ->
-                            customMinutesInput = value.filter { it.isDigit() }
-                            customInputError = null
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(20.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        placeholder = {
-                            Text(
-                                text = "Enter minutes",
-                                color = Color(0xFF7E778D)
-                            )
-                        },
-                        supportingText = {
-                            val helperText = customInputError ?: if (
-                                selectedDurationMinutes > 0 &&
-                                selectedDurationMinutes !in presetAutoLockDurations
-                            ) {
-                                "Currently selected: $selectedDurationMinutes min"
-                            } else {
-                                "Use any positive number of minutes."
-                            }
-                            Text(
-                                text = helperText,
-                                color = if (customInputError == null) Color(0xFF968EA8) else Color(0xFFFFAAA0)
-                            )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1D1D21),
-                            unfocusedContainerColor = Color(0xFF1D1D21),
-                            focusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-                            focusedTextColor = Color(0xFFF0EBF7),
-                            unfocusedTextColor = Color(0xFFF0EBF7),
-                            cursorColor = PurpleAccent
-                        )
-                    )
-
-                    Button(
-                        onClick = {
-                            val customMinutes = customMinutesInput.toIntOrNull()
-                            if (customMinutes == null || customMinutes <= 0) {
-                                customInputError = "Enter a valid duration in minutes."
-                            } else {
-                                onDurationSelected(customMinutes)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = PurpleAccent,
-                            contentColor = Color(0xFF24114C)
-                        )
-                    ) {
-                        Text(
-                            text = "Apply Custom Duration",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun DurationPickerRow(
-    label: String,
-    subtitle: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AccessTime,
-                contentDescription = label,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = label,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = subtitle,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
-}
+ 
 
 @Preview(
     name = "Settings Screen",

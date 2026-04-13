@@ -409,7 +409,7 @@ private fun CategoryManagementHeader(
             color = PurplePrimary,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 lineHeight = 28.sp
             ),
             maxLines = 2,

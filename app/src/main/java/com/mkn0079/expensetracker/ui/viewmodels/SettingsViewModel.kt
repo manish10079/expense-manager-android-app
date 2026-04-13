@@ -58,7 +58,7 @@ enum class SettingsToggleId {
 enum class SettingsActionId {
     Profile,
     AppPreferences,
-    AutoLockDuration,
+    SecurityPrivacy,
     TransactionCardCustomize,
     LegacyImport,
     DeleteAllTransactions
@@ -136,7 +136,6 @@ class SettingsViewModel : ViewModel() {
                     selectedCurrencyLabel = selectedCurrencyLabel,
                     selectedDateFormatLabel = getDateFormatPreviewLabel(currentDateFormatPattern),
                     selectedTimeFormatLabel = getTimeFormatPreviewLabel(currentTimeFormat),
-                    selectedAutoLockDurationLabel = formatAutoLockDurationLabel(autoLockDurationMinutes),
                     transactionCountLabel = transactionCount.toString()
                 ),
                 filteredCurrencies = filteredCurrencies
@@ -149,7 +148,6 @@ private fun buildSettingsSections(
     selectedCurrencyLabel: String,
     selectedDateFormatLabel: String,
     selectedTimeFormatLabel: String,
-    selectedAutoLockDurationLabel: String,
     transactionCountLabel: String
 ): List<SettingsSectionUi> {
     return listOf(
@@ -187,23 +185,10 @@ private fun buildSettingsSections(
         SettingsSectionUi(
             title = "SECURITY & PRIVACY",
             items = listOf(
-                SettingsItemUi(title = "App Lock", icon = Icons.Filled.Lock, toggleId = SettingsToggleId.PinLock),
-                SettingsItemUi(title = "Biometric", icon = Icons.Filled.Security, toggleId = SettingsToggleId.Biometric),
                 SettingsItemUi(
-                    title = "Blur In Recents",
+                    title = "Security & Privacy",
                     icon = Icons.Filled.Security,
-                    toggleId = SettingsToggleId.BlurInRecents
-                ),
-                SettingsItemUi(
-                    title = "Block Screenshots",
-                    icon = Icons.Filled.PhotoCamera,
-                    toggleId = SettingsToggleId.ScreenshotProtection
-                ),
-                SettingsItemUi(
-                    title = "Auto Lock Duration",
-                    icon = Icons.Filled.AccessTime,
-                    trailing = selectedAutoLockDurationLabel,
-                    actionId = SettingsActionId.AutoLockDuration
+                    actionId = SettingsActionId.SecurityPrivacy
                 )
             )
         ),
