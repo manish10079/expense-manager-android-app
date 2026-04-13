@@ -160,7 +160,9 @@ private fun resolveBackNavigationRoute(
         "preferences",
         "security_privacy",
         "transaction_card_customize",
-        "category_management" -> "settings"
+        "category_management",
+        "data_management",
+        "about" -> "settings"
         "profile" -> profileOriginRoute
         "add_transaction" -> previousRoute
         "itemized_calculator" -> "add_transaction"
@@ -1063,7 +1065,8 @@ private fun MainScaffold(
                     "about" -> AboutScreen(
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
-                        }
+                        },
+                        onPrepareForExternalActivity = onPrepareForExternalActivity
                     )
 
                     "add_transaction" -> AddTransactionScreen(

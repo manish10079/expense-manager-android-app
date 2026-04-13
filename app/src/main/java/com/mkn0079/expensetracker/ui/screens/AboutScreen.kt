@@ -55,13 +55,15 @@ import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
 @Composable
 fun AboutScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     val openUrl: (String) -> Unit = { url ->
         try {
+            onPrepareForExternalActivity()
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             context.startActivity(intent)
         } catch (e: Exception) {
@@ -71,6 +73,7 @@ fun AboutScreen(
 
     val sendEmail: (String) -> Unit = { email ->
         try {
+            onPrepareForExternalActivity()
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:$email")
             }
