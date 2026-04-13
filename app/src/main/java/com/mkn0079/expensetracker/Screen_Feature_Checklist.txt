@@ -37,8 +37,13 @@ Suggested marking:
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Analytics screen UI
-   - [ ] Analytics insights or charts
-   - [ ] Summary of spending patterns
+   - [x] Analytics insights cards (Income, Expense, Savings, Cash Flow)
+   - [x] Spending Donut Chart with animated segments
+   - [x] Ranked Category breakdown list
+   - [x] View All Categories bottom sheet
+   - [x] Top spending items list
+   - [x] Period filter: This Week, This Month, This Year
+   - [x] Custom date range picker dialog
 
 4. Budget Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
@@ -138,25 +143,13 @@ Suggested marking:
    - [x] Settings screen UI
    - [x] Settings options list
    - [x] Profile header section
-   - [x] Grouped settings categories
-   - [x] Profile edit shortcut
-   - [x] Currency selection bottom sheet
-   - [x] Date format selection bottom sheet
-   - [x] Time format selection bottom sheet
-   - [x] App lock toggle
-   - [x] Biometric unlock toggle
-   - [x] Blur in recents toggle
-   - [x] Block screenshots toggle
-   - [x] Auto lock duration picker
-   - [x] Daily reminder toggle
-   - [x] Budget limit alerts toggle
-   - [x] Missed entry reminder toggle
-   - [x] Preference management
-   - [x] Manage category action
-   - [ ] Backup action
-   - [ ] Restore action
-   - [ ] Export action
-   - [ ] About action
+   - [x] Navigation to Profile screen
+   - [x] Navigation to App Preferences
+   - [x] Navigation to Security & Privacy
+   - [x] Navigation to Transaction Card Customize
+   - [x] Navigation to Data Management
+   - [x] Navigation to Notifications sub-screen
+   - [x] Navigation to About screen
 
 8. Add Transaction Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
@@ -258,11 +251,12 @@ Suggested marking:
     Features:
     - [x] View income categories
     - [x] View expense categories
-    - [x] Add custom category
+    - [x] Add custom category with icon and color
     - [ ] Edit category name
     - [ ] Change category icon
-    - [x] Delete category
-    - [ ] Category color customization
+    - [x] Delete custom category
+    - [x] Add custom payment method
+    - [x] Delete custom payment method
 
 15. Recurring Transactions Screen
     Screen Status: [x] Implemented   [ ] Not Implemented
@@ -308,23 +302,61 @@ Suggested marking:
     - [ ] Export report as PDF
     - [ ] Share report action
 
-19. Notifications and Reminders Screen
-    Screen Status: [ ] Implemented   [x] Not Implemented
+19. Notification Settings Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
     Features:
-    - [ ] Daily expense reminder
-    - [ ] Bill payment reminder
-    - [ ] Budget limit alert
-    - [ ] Recurring transaction reminder
-    - [ ] Missed entry reminder
-    - [ ] Reminder on or off toggle
-    - [ ] Reminder time selection
+    - [x] Dedicated notification settings UI
+    - [x] Daily expense reminder toggle
+    - [x] Budget limit alert toggle
+    - [x] Missed entry reminder toggle
+    - [x] Detailed descriptions for each notification type
 
-20. Backup, Sync, and Export Screen
-    Screen Status: [ ] Implemented   [x] Not Implemented
+20. Data Management Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
     Features:
-    - [ ] Local data backup
-    - [ ] Restore backup
-    - [ ] Cloud sync support
+    - [x] Dedicated data management UI
+    - [x] Import transactions from legacy JSON file
+    - [x] Delete all transactions with confirmation
+    - [x] App lock suppression during external file picking
+    - [ ] Backup to cloud/internal storage
     - [ ] Export transactions as CSV
-    - [ ] Import transactions from file
-    - [ ] Data reset confirmation
+
+21. About Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated About screen UI
+    - [x] App version and branding display
+    - [x] Developer social links and contact
+    - [x] Support actions: Rate app, Feedback, Report bug
+    - [x] Legal pages: Privacy Policy, Terms, Licenses
+    - [x] App lock suppression for external links
+
+22. Security & Privacy Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated security settings UI
+    - [x] App lock (PIN) configuration
+    - [x] Biometric unlock toggle
+    - [x] Blur in recents toggle
+    - [x] Screenshot protection toggle
+    - [x] Auto-lock duration selection
+
+23. Transaction Card Customize Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Itemized visual toggles for transaction cards
+    - [x] Toggle: Income/Expense labels
+    - [x] Toggle: Date display
+    - [x] Toggle: Payment method
+    - [x] Toggle: Transaction time
+    - [x] Toggle: Category icon
+    - [x] Toggle: Date separators
+
+24. App Preferences Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated preferences UI
+    - [x] Currency selection
+    - [x] Date format selection
+    - [x] Time format selection
+    - [x] Shortcut to Category Management
