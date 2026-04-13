@@ -63,7 +63,8 @@ enum class SettingsActionId {
     LegacyImport,
     DeleteAllTransactions,
     DataManagement,
-    About
+    About,
+    Notifications
 }
 
 @Immutable
@@ -208,19 +209,9 @@ private fun buildSettingsSections(
             title = "NOTIFICATIONS",
             items = listOf(
                 SettingsItemUi(
-                    title = "Daily Reminder",
+                    title = "Notifications",
                     icon = Icons.Filled.Notifications,
-                    toggleId = SettingsToggleId.DailyReminder
-                ),
-                SettingsItemUi(
-                    title = "Budget Limit Alerts",
-                    icon = Icons.Filled.Notifications,
-                    toggleId = SettingsToggleId.BudgetLimitAlerts
-                ),
-                SettingsItemUi(
-                    title = "Missed Entry Reminder",
-                    icon = Icons.Filled.Notifications,
-                    toggleId = SettingsToggleId.MissedEntryReminder
+                    actionId = SettingsActionId.Notifications
                 )
             )
         ),

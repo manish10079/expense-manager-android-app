@@ -63,6 +63,7 @@ import com.mkn0079.expensetracker.ui.screens.CategoryManagementScreen
 import com.mkn0079.expensetracker.ui.screens.DataManagementScreen
 import com.mkn0079.expensetracker.ui.screens.HomeScreen
 import com.mkn0079.expensetracker.ui.screens.ItemizedCalculatorScreen
+import com.mkn0079.expensetracker.ui.screens.NotificationSettingsScreen
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.screens.PreferencesScreen
 import com.mkn0079.expensetracker.ui.screens.ProfileScreen
@@ -162,7 +163,8 @@ private fun resolveBackNavigationRoute(
         "transaction_card_customize",
         "category_management",
         "data_management",
-        "about" -> "settings"
+        "about",
+        "notification_settings" -> "settings"
         "profile" -> profileOriginRoute
         "add_transaction" -> previousRoute
         "itemized_calculator" -> "add_transaction"
@@ -770,6 +772,7 @@ private fun MainScaffold(
         currentRoute != "preferences" &&
         currentRoute != "data_management" &&
         currentRoute != "about" &&
+        currentRoute != "notification_settings" &&
         currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
     val initialBottomTabPage = remember {
@@ -965,6 +968,10 @@ private fun MainScaffold(
                             onBottomBarVisibilityChange(false)
                             onRouteChange("about")
                         },
+                        onNotificationsClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("notification_settings")
+                        },
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("home")
                         }
@@ -981,6 +988,18 @@ private fun MainScaffold(
                             onBottomBarVisibilityChange(false)
                             onRouteChange("category_management")
                         },
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
+                        }
+                    )
+
+                    "notification_settings" -> NotificationSettingsScreen(
+                        isDailyReminderEnabled = isDailyReminderEnabled,
+                        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        onDailyReminderChange = onDailyReminderChange,
+                        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+                        onMissedEntryReminderChange = onMissedEntryReminderChange,
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
                         }
