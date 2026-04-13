@@ -128,6 +128,7 @@ fun SettingsScreen(
     onSecurityPrivacyClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
     onDataManagementClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
@@ -199,6 +200,7 @@ fun SettingsScreen(
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
                                     SettingsActionId.DataManagement -> onDataManagementClick()
+                                    SettingsActionId.About -> onAboutClick()
                                     else -> Unit
                                 }
                             },

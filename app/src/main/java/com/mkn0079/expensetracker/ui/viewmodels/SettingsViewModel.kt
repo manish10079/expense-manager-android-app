@@ -62,7 +62,8 @@ enum class SettingsActionId {
     TransactionCardCustomize,
     LegacyImport,
     DeleteAllTransactions,
-    DataManagement
+    DataManagement,
+    About
 }
 
 @Immutable
@@ -226,7 +227,11 @@ private fun buildSettingsSections(
         SettingsSectionUi(
             title = "ABOUT",
             items = listOf(
-                SettingsItemUi(title = "About", icon = Icons.Filled.Info)
+                SettingsItemUi(
+                    title = "About",
+                    icon = Icons.Filled.Info,
+                    actionId = SettingsActionId.About
+                )
             )
         )
     )

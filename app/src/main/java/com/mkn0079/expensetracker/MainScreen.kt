@@ -53,6 +53,7 @@ import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.ui.components.AppBottomBar
 import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 import com.mkn0079.expensetracker.ui.screens.AddTransactionScreen
+import com.mkn0079.expensetracker.ui.screens.AboutScreen
 import com.mkn0079.expensetracker.ui.screens.AppLockScreen
 import com.mkn0079.expensetracker.ui.screens.AppLockScreenMode
 import com.mkn0079.expensetracker.ui.screens.AnalyticsScreen
@@ -766,6 +767,7 @@ private fun MainScaffold(
         currentRoute != "settings" &&
         currentRoute != "preferences" &&
         currentRoute != "data_management" &&
+        currentRoute != "about" &&
         currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
     val initialBottomTabPage = remember {
@@ -957,6 +959,10 @@ private fun MainScaffold(
                             onBottomBarVisibilityChange(false)
                             onRouteChange("data_management")
                         },
+                        onAboutClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("about")
+                        },
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("home")
                         }
@@ -1049,6 +1055,12 @@ private fun MainScaffold(
                         onLegacyImportFileSelected = onLegacyImportFileSelected,
                         onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
                         onPrepareForExternalActivity = onPrepareForExternalActivity,
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
+                        }
+                    )
+
+                    "about" -> AboutScreen(
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
                         }
