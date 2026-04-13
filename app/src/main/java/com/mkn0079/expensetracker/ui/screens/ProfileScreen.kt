@@ -104,7 +104,8 @@ fun ProfileScreen(
     userProfile: UserProfile,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     onBackClick: () -> Unit = {},
-    onSaveClick: (UserProfile) -> Unit = {}
+    onSaveClick: (UserProfile) -> Unit = {},
+    onPrepareForExternalActivity: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -178,7 +179,8 @@ fun ProfileScreen(
                         ?.takeIf { it != initialPhotoUri }
                         ?.let(::deleteManagedProfilePhoto)
                     photoUri = null
-                }
+                },
+                onPrepareForExternalActivity = onPrepareForExternalActivity
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -379,7 +381,8 @@ private fun ProfilePhotoSection(
     photoUri: String?,
     isPhotoProcessing: Boolean,
     onSelectPhoto: () -> Unit,
-    onRemovePhoto: () -> Unit
+    onRemovePhoto: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit
 ) {
     ProfileAvatar(
         initials = initials,
@@ -397,7 +400,10 @@ private fun ProfilePhotoSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = onSelectPhoto,
+            onClick = {
+                onPrepareForExternalActivity()
+                onSelectPhoto()
+            },
             enabled = !isPhotoProcessing,
             modifier = Modifier
                 .clip(CircleShape)
@@ -462,7 +468,7 @@ private fun ProfileHeader(
             color = PurplePrimary,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+                fontSize = 20.sp
             )
         )
     }

@@ -454,7 +454,8 @@ private fun BudgetTopBar(
             text = "Budget & Recurring",
             color = PurplePrimary,
             style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontSize = 20.sp
             )
         )
     }

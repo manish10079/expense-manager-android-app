@@ -127,18 +127,10 @@ fun SettingsScreen(
     onPreferencesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
-    onLegacyImportFileSelected: (Uri) -> Unit = {},
-    onDeleteAllTransactionsClick: () -> Unit = {},
+    onDataManagementClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
-    var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
-    val legacyImportFilePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri ->
-            uri?.let(onLegacyImportFileSelected)
-        }
-    )
     LaunchedEffect(
         transactionCount
     ) {
@@ -206,16 +198,8 @@ fun SettingsScreen(
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
-                                    SettingsActionId.LegacyImport -> legacyImportFilePicker.launch(
-                                        arrayOf(
-                                            "application/json",
-                                            "text/json",
-                                            "text/plain",
-                                            "application/octet-stream"
-                                        )
-                                    )
-                                    SettingsActionId.DeleteAllTransactions -> isDeleteTransactionsDialogVisible = true
-                                    null -> Unit
+                                    SettingsActionId.DataManagement -> onDataManagementClick()
+                                    else -> Unit
                                 }
                             },
                             onDailyReminderChange = onDailyReminderChange,
@@ -234,49 +218,6 @@ fun SettingsScreen(
 
  
 
-    if (isDeleteTransactionsDialogVisible) {
-        AlertDialog(
-            onDismissRequest = { isDeleteTransactionsDialogVisible = false },
-            containerColor = Color(0xFF18181A),
-            title = {
-                Text(
-                    text = "Delete all transactions?",
-                    color = Color(0xFFF2EDF9),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-            },
-            text = {
-                Text(
-                    text = "This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.",
-                    color = Color(0xFFB7AEC8),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        isDeleteTransactionsDialogVisible = false
-                        onDeleteAllTransactionsClick()
-                    }
-                ) {
-                    Text(
-                        text = "Delete All",
-                        color = Color(0xFFFFAAA0),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
-                    Text(
-                        text = "Cancel",
-                        color = PurpleAccent,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        )
-    }
 }
 
 @Composable

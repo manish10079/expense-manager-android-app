@@ -296,7 +296,7 @@ private fun CalendarTopBar(
         Text(
             text = "Calendar",
             color = PurplePrimary,
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
     }

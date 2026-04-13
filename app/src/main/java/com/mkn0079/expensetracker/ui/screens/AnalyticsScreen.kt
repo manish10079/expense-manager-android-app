@@ -252,7 +252,8 @@ private fun AnalyticsHeader(
             text = "Analytics",
             color = PurplePrimary,
             style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
             )
         )
     }

@@ -61,7 +61,8 @@ enum class SettingsActionId {
     SecurityPrivacy,
     TransactionCardCustomize,
     LegacyImport,
-    DeleteAllTransactions
+    DeleteAllTransactions,
+    DataManagement
 }
 
 @Immutable
@@ -196,26 +197,10 @@ private fun buildSettingsSections(
             title = "DATA MANAGEMENT",
             items = listOf(
                 SettingsItemUi(
-                    title = "Transaction Count",
+                    title = "Data Management",
                     icon = Icons.Filled.Info,
-                    trailing = transactionCountLabel,
-                    showChevron = false
-                ),
-                SettingsItemUi(
-                    title = "Import Legacy Data",
-                    icon = Icons.Filled.Refresh,
-                    trailing = "JSON",
-                    actionId = SettingsActionId.LegacyImport
-                ),
-                SettingsItemUi(
-                    title = "Delete All Transactions",
-                    icon = Icons.Filled.Delete,
-                    trailing = "Only transactions",
-                    actionId = SettingsActionId.DeleteAllTransactions
-                ),
-                SettingsItemUi(title = "Backup", icon = Icons.Filled.Sync),
-                SettingsItemUi(title = "Restore", icon = Icons.Filled.Refresh),
-                SettingsItemUi(title = "Export", icon = Icons.Filled.SettingsApplications)
+                    actionId = SettingsActionId.DataManagement
+                )
             )
         ),
         SettingsSectionUi(

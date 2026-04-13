@@ -166,10 +166,10 @@ fun TransactionCardCustomizeScreen(
 
                 Text(
                     text = "Card Settings",
-                    color = PurpleAccent,
+                    color = PurplePrimary,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp
+                        fontSize = 20.sp
                     )
                 )
             }

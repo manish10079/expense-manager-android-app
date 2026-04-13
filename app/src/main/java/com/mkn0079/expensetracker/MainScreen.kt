@@ -59,6 +59,7 @@ import com.mkn0079.expensetracker.ui.screens.AnalyticsScreen
 import com.mkn0079.expensetracker.ui.screens.BudgetScreen
 import com.mkn0079.expensetracker.ui.screens.CalendarScreen
 import com.mkn0079.expensetracker.ui.screens.CategoryManagementScreen
+import com.mkn0079.expensetracker.ui.screens.DataManagementScreen
 import com.mkn0079.expensetracker.ui.screens.HomeScreen
 import com.mkn0079.expensetracker.ui.screens.ItemizedCalculatorScreen
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
@@ -91,6 +92,7 @@ private val routeOrder = listOf(
     "security_privacy",
     "transaction_card_customize",
     "category_management",
+    "data_management",
     "profile",
     "add_transaction",
     "itemized_calculator"
@@ -261,6 +263,7 @@ fun MainScreen(
     var hasPromptedBiometricForCurrentUnlock by remember(appLockFlow, canUseBiometricOnLockScreen) {
         mutableStateOf(false)
     }
+    var isAppLockSuppressed by remember { mutableStateOf(false) }
 
     val showToast: (String) -> Unit = { message ->
         Toast.makeText(rawContext, message, Toast.LENGTH_SHORT).show()
@@ -349,7 +352,7 @@ fun MainScreen(
                 coroutineScope.launch(Dispatchers.IO) {
                     AppLockPreferences.persistBackgrounded(context, backgroundedAtMillis)
                 }
-                if (autoLockDurationMinutes <= 0) {
+                if (autoLockDurationMinutes <= 0 && !isAppLockSuppressed) {
                     isAppUnlocked = false
                     appLockFlow = AppLockFlow.Unlock
                 }
@@ -360,15 +363,20 @@ fun MainScreen(
                 !showOnboarding &&
                 !showSplash &&
                 isAppLockEnabled &&
-                hasAppLockPin &&
-                isAppUnlocked &&
-                appLockFlow == null &&
-                AppLockPreferences.shouldRequireUnlockFromMemory(
-                    autoLockDurationMinutes = autoLockDurationMinutes
-                )
+                hasAppLockPin
             ) {
-                isAppUnlocked = false
-                appLockFlow = AppLockFlow.Unlock
+                if (isAppLockSuppressed) {
+                    isAppLockSuppressed = false
+                } else if (
+                    isAppUnlocked &&
+                    appLockFlow == null &&
+                    AppLockPreferences.shouldRequireUnlockFromMemory(
+                        autoLockDurationMinutes = autoLockDurationMinutes
+                    )
+                ) {
+                    isAppUnlocked = false
+                    appLockFlow = AppLockFlow.Unlock
+                }
             }
         }
 
@@ -673,8 +681,6 @@ fun MainScreen(
         onAppLockToggleChange = { shouldEnable ->
             if (shouldEnable) {
                 if (hasAppLockPin) {
-                    isAppUnlocked = true
-                    appLockFlow = null
                     coroutineScope.launch {
                         AppSettingsDataStore.updateAppSettings(context) { settings ->
                             settings.copy(appLockEnabled = true)
@@ -686,7 +692,8 @@ fun MainScreen(
             } else {
                 disableAppLock(false)
             }
-        }
+        },
+        onPrepareForExternalActivity = { isAppLockSuppressed = true }
     )
 }
 
@@ -748,7 +755,8 @@ private fun MainScaffold(
     onBlurInRecentsChange: (Boolean) -> Unit,
     onScreenshotProtectionChange: (Boolean) -> Unit,
     onAutoLockDurationChange: (Int) -> Unit,
-    onAppLockToggleChange: (Boolean) -> Unit
+    onAppLockToggleChange: (Boolean) -> Unit,
+    onPrepareForExternalActivity: () -> Unit
 ) {
     val showFixedBottomNavBar = currentRoute != "add_transaction" &&
         currentRoute != "itemized_calculator" &&
@@ -757,6 +765,7 @@ private fun MainScaffold(
         currentRoute != "transaction_card_customize" &&
         currentRoute != "settings" &&
         currentRoute != "preferences" &&
+        currentRoute != "data_management" &&
         currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
     val initialBottomTabPage = remember {
@@ -944,8 +953,10 @@ private fun MainScaffold(
                             onBottomBarVisibilityChange(false)
                             onRouteChange("transaction_card_customize")
                         },
-                        onLegacyImportFileSelected = onLegacyImportFileSelected,
-                        onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
+                        onDataManagementClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("data_management")
+                        },
                         onBackClick = {
                             backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("home")
                         }
@@ -1029,6 +1040,17 @@ private fun MainScaffold(
                             onUserProfileChange(updatedProfile)
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)
+                        },
+                        onPrepareForExternalActivity = onPrepareForExternalActivity
+                    )
+
+                    "data_management" -> DataManagementScreen(
+                        transactionCount = transactionCount,
+                        onLegacyImportFileSelected = onLegacyImportFileSelected,
+                        onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
+                        onPrepareForExternalActivity = onPrepareForExternalActivity,
+                        onBackClick = {
+                            backNavigationRoute?.let { onRouteChange(it) } ?: onRouteChange("settings")
                         }
                     )
 

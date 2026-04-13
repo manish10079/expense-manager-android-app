@@ -563,9 +563,9 @@ private fun HeaderRow(
         Text(
             text = title,
             color = PurplePrimary,
-            style = MaterialTheme.typography.headlineMedium.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = if (compact) 22.sp else 24.sp
+                fontSize = 20.sp
             )
         )
     }
