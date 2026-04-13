@@ -88,7 +88,7 @@ fun FilterBottomSheet(
     selectedSort: String,
     selectedOrder: SortType,
     selectedDateRange: String?,
-    selectedTransactionTypeId: Int,
+    selectedTransactionTypeIds: Set<Int>,
     availableCategories: List<CategoryType>,
     selectedCategoryIds: Set<Int>,
     paymentModes: List<PaymentType>,
@@ -98,7 +98,7 @@ fun FilterBottomSheet(
     onSortChange: (String) -> Unit,
     onOrderChange: (SortType) -> Unit,
     onDateRangeChange: (String?) -> Unit,
-    onTransactionTypeChange: (Int) -> Unit,
+    onTransactionTypeToggle: (Int) -> Unit,
     onCategoryToggle: (Int) -> Unit,
     onPaymentModeToggle: (Int) -> Unit,
     onMinAmountChange: (String) -> Unit,
@@ -128,12 +128,17 @@ fun FilterBottomSheet(
     ) {
         item {
             Box(
-                modifier = Modifier
-                    .width(54.dp)
-                    .height(5.dp)
-                    .clip(CircleShape)
-                    .background(colorScheme.onSurface.copy(alpha = 0.16f))
-            )
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(54.dp)
+                        .height(5.dp)
+                        .clip(CircleShape)
+                        .background(colorScheme.onSurface.copy(alpha = 0.16f))
+                )
+            }
         }
 
         item {
@@ -284,23 +289,24 @@ fun FilterBottomSheet(
                 ) {
                     FilterOptionChip(
                         title = "Expense",
-                        selected = selectedTransactionTypeId == FILTER_TYPE_EXPENSE,
-                        onClick = { onTransactionTypeChange(FILTER_TYPE_EXPENSE) }
+                        selected = selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
+                        onClick = { onTransactionTypeToggle(FILTER_TYPE_EXPENSE) }
                     )
                     FilterOptionChip(
                         title = "Income",
-                        selected = selectedTransactionTypeId == FILTER_TYPE_INCOME,
-                        onClick = { onTransactionTypeChange(FILTER_TYPE_INCOME) }
+                        selected = selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
+                        onClick = { onTransactionTypeToggle(FILTER_TYPE_INCOME) }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
                 FilterGroupLabel(
-                    title = if (selectedTransactionTypeId == FILTER_TYPE_EXPENSE) {
-                        "Expense Categories"
-                    } else {
-                        "Income Categories"
+                    title = when {
+                        selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "All Categories"
+                        selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) -> "Expense Categories"
+                        selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "Income Categories"
+                        else -> "Categories"
                     }
                 )
                 FlowRow(
@@ -402,33 +408,36 @@ private fun FilterOptionChip(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
+    val selectedBrush = remember {
+        Brush.horizontalGradient(
+            colors = listOf(
+                PurplePrimary.copy(alpha = 0.26f),
+                PurpleGlow.copy(alpha = 0.18f)
+            )
+        )
+    }
+
+    val unselectedBrush = remember(colorScheme.surface, colorScheme.surfaceVariant) {
+        Brush.horizontalGradient(
+            colors = listOf(
+                colorScheme.surface.copy(alpha = 0.92f),
+                colorScheme.surfaceVariant.copy(alpha = 0.72f)
+            )
+        )
+    }
+
+    val selectedBorderColor = remember { PurpleAccent.copy(alpha = 0.55f) }
+    val unselectedBorderColor = remember(colorScheme.onSurface) { colorScheme.onSurface.copy(alpha = 0.10f) }
+
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(18.dp))
             .background(
-                brush = if (selected) {
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            PurplePrimary.copy(alpha = 0.26f),
-                            PurpleGlow.copy(alpha = 0.18f)
-                        )
-                    )
-                } else {
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            colorScheme.surface.copy(alpha = 0.92f),
-                            colorScheme.surfaceVariant.copy(alpha = 0.72f)
-                        )
-                    )
-                }
+                brush = if (selected) selectedBrush else unselectedBrush
             )
             .border(
                 width = 1.dp,
-                color = if (selected) {
-                    PurpleAccent.copy(alpha = 0.55f)
-                } else {
-                    colorScheme.onSurface.copy(alpha = 0.10f)
-                },
+                color = if (selected) selectedBorderColor else unselectedBorderColor,
                 shape = RoundedCornerShape(18.dp)
             )
             .clickable(onClick = onClick)
@@ -586,14 +595,14 @@ fun FilterBottomSheetPreview() {
     var selectedSort by remember { mutableStateOf(DEFAULT_SORT_BY) }
     var selectedOrder by remember { mutableStateOf(DEFAULT_SORT_ORDER) }
     var selectedDateRange by remember { mutableStateOf<String?>(FILTER_DATE_LAST_30_DAYS) }
-    var selectedTransactionTypeId by remember { mutableStateOf(DEFAULT_TRANSACTION_TYPE_FILTER_ID) }
+    var selectedTransactionTypeIds by remember { mutableStateOf(setOf(1, 2)) }
     var selectedCategoryIds by remember { mutableStateOf(setOf(5, 1)) }
     var selectedPaymentTypeIds by remember { mutableStateOf(setOf(2, 1)) }
     var minAmount by remember { mutableStateOf("") }
     var maxAmount by remember { mutableStateOf("") }
-    val availableCategories = remember(selectedTransactionTypeId) {
+    val availableCategories = remember(selectedTransactionTypeIds) {
         categoryMap.values
-            .filter { it.transactionTypeId == selectedTransactionTypeId }
+            .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
     }
 
@@ -602,7 +611,7 @@ fun FilterBottomSheetPreview() {
             selectedSort = selectedSort,
             selectedOrder = selectedOrder,
             selectedDateRange = selectedDateRange,
-            selectedTransactionTypeId = selectedTransactionTypeId,
+            selectedTransactionTypeIds = selectedTransactionTypeIds,
             availableCategories = availableCategories,
             selectedCategoryIds = selectedCategoryIds,
             paymentModes = paymentTypeMap.values.toList(),
@@ -612,8 +621,8 @@ fun FilterBottomSheetPreview() {
             onSortChange = { selectedSort = it },
             onOrderChange = { selectedOrder = it },
             onDateRangeChange = { selectedDateRange = it },
-            onTransactionTypeChange = {
-                selectedTransactionTypeId = it
+            onTransactionTypeToggle = {
+                selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(it)
                 selectedCategoryIds = emptySet()
             },
             onCategoryToggle = { categoryId ->
@@ -629,7 +638,7 @@ fun FilterBottomSheetPreview() {
                 selectedSort = DEFAULT_SORT_BY
                 selectedOrder = DEFAULT_SORT_ORDER
                 selectedDateRange = null
-                selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_FILTER_ID
+                selectedTransactionTypeIds = setOf(1, 2)
                 selectedCategoryIds = emptySet()
                 selectedPaymentTypeIds = emptySet()
                 minAmount = ""

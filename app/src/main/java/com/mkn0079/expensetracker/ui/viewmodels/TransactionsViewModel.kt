@@ -7,7 +7,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
+import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.categoryMap
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.domain.mapper.buildTransactionListItems
@@ -41,7 +41,7 @@ data class TransactionsScreenUiState(
     val selectedSort: String = DEFAULT_SORT_BY,
     val selectedOrder: SortType = DEFAULT_SORT_ORDER,
     val selectedDateRange: String? = null,
-    val selectedTransactionTypeId: Int? = DEFAULT_TRANSACTION_TYPE_FILTER_ID,
+    val selectedTransactionTypeIds: Set<Int> = setOf(1, 2),
     val selectedCategoryIds: Set<Int> = emptySet(),
     val selectedPaymentTypeIds: Set<Int> = emptySet(),
     val selectedMinAmount: String = "",
@@ -70,7 +70,7 @@ class TransactionsViewModel : ViewModel() {
     private var selectedSort: String = DEFAULT_SORT_BY
     private var selectedOrder: SortType = DEFAULT_SORT_ORDER
     private var selectedDateRange: String? = null
-    private var selectedTransactionTypeId: Int? = DEFAULT_TRANSACTION_TYPE_FILTER_ID
+    private var selectedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var selectedCategoryIds: Set<Int> = emptySet()
     private var selectedPaymentTypeIds: Set<Int> = emptySet()
     private var selectedMinAmount: String = ""
@@ -78,7 +78,7 @@ class TransactionsViewModel : ViewModel() {
 
     private var appliedSortType: SortType = DEFAULT_SORT_ORDER
     private var appliedDateRange: String? = null
-    private var appliedTransactionTypeId: Int? = null
+    private var appliedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var appliedCategoryIds: Set<Int> = emptySet()
     private var appliedPaymentTypeIds: Set<Int> = emptySet()
     private var appliedMinAmount: String = ""
@@ -139,8 +139,8 @@ class TransactionsViewModel : ViewModel() {
         rebuildUiState()
     }
 
-    fun updateTransactionTypeFilter(transactionTypeId: Int?) {
-        selectedTransactionTypeId = transactionTypeId
+    fun toggleTransactionTypeFilter(transactionTypeId: Int) {
+        selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(transactionTypeId)
         selectedCategoryIds = emptySet()
         rebuildUiState()
     }
@@ -168,7 +168,7 @@ class TransactionsViewModel : ViewModel() {
     fun applyFilters() {
         appliedSortType = selectedOrder
         appliedDateRange = selectedDateRange
-        appliedTransactionTypeId = selectedTransactionTypeId
+        appliedTransactionTypeIds = selectedTransactionTypeIds
         appliedCategoryIds = selectedCategoryIds
         appliedPaymentTypeIds = selectedPaymentTypeIds
         appliedMinAmount = selectedMinAmount
@@ -176,16 +176,16 @@ class TransactionsViewModel : ViewModel() {
         rebuildUiState()
     }
 
-    fun resetDraftFilters() {
+    fun resetFilters() {
         selectedSort = DEFAULT_SORT_BY
         selectedOrder = DEFAULT_SORT_ORDER
         selectedDateRange = null
-        selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_FILTER_ID
+        selectedTransactionTypeIds = setOf(1, 2)
         selectedCategoryIds = emptySet()
         selectedPaymentTypeIds = emptySet()
         selectedMinAmount = ""
         selectedMaxAmount = ""
-        rebuildUiState()
+        applyFilters()
     }
 
     fun updatePeriodFilter(filter: TransactionPeriodFilter) {
@@ -205,7 +205,7 @@ class TransactionsViewModel : ViewModel() {
 
     private fun rebuildUiState() {
         val availableCategories = categoryMap.values
-            .filter { it.transactionTypeId == selectedTransactionTypeId }
+            .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
 
         val appliedMinAmountValue = appliedMinAmount.toDoubleOrNull()
@@ -234,7 +234,7 @@ class TransactionsViewModel : ViewModel() {
                     ) &&
                     matchesTransactionTypeFilter(
                         transactionTypeId = transaction.transactionTypeId,
-                        selectedTransactionTypeId = appliedTransactionTypeId
+                        selectedTransactionTypeIds = appliedTransactionTypeIds
                     ) &&
                     matchesCategoryFilter(
                         categoryId = transaction.categoryId,
@@ -274,7 +274,7 @@ class TransactionsViewModel : ViewModel() {
                 selectedSort = selectedSort,
                 selectedOrder = selectedOrder,
                 selectedDateRange = selectedDateRange,
-                selectedTransactionTypeId = selectedTransactionTypeId,
+                selectedTransactionTypeIds = selectedTransactionTypeIds,
                 selectedCategoryIds = selectedCategoryIds,
                 selectedPaymentTypeIds = selectedPaymentTypeIds,
                 selectedMinAmount = selectedMinAmount,
@@ -341,9 +341,9 @@ private fun matchesQuickDateFilter(
 
 private fun matchesTransactionTypeFilter(
     transactionTypeId: Int,
-    selectedTransactionTypeId: Int?
+    selectedTransactionTypeIds: Set<Int>
 ): Boolean {
-    return selectedTransactionTypeId == null || transactionTypeId == selectedTransactionTypeId
+    return selectedTransactionTypeIds.contains(transactionTypeId)
 }
 
 private fun matchesCategoryFilter(

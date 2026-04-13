@@ -365,49 +365,63 @@ fun TransactionScreen(
             dragHandle = null,
             tonalElevation = 0.dp
         ) {
-            FilterBottomSheet(
-                selectedSort = uiState.selectedSort,
-                selectedOrder = uiState.selectedOrder,
-                selectedDateRange = uiState.selectedDateRange,
-                selectedTransactionTypeId = uiState.selectedTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_FILTER_ID,
-                availableCategories = uiState.availableCategories,
-                selectedCategoryIds = uiState.selectedCategoryIds,
-                paymentModes = uiState.paymentModes,
-                selectedPaymentTypeIds = uiState.selectedPaymentTypeIds,
-                minAmount = uiState.selectedMinAmount,
-                maxAmount = uiState.selectedMaxAmount,
-                onSortChange = { transactionsViewModel.updateSort(it) },
-                onOrderChange = { transactionsViewModel.updateOrder(it) },
-                onDateRangeChange = { transactionsViewModel.updateDateRange(it) },
-                onTransactionTypeChange = {
-                    transactionsViewModel.updateTransactionTypeFilter(it)
-                },
-                onCategoryToggle = { categoryId ->
-                    transactionsViewModel.toggleCategory(categoryId)
-                },
-                onPaymentModeToggle = { paymentTypeId ->
-                    transactionsViewModel.togglePaymentMode(paymentTypeId)
-                },
-                onMinAmountChange = { transactionsViewModel.updateMinAmount(it) },
-                onMaxAmountChange = { transactionsViewModel.updateMaxAmount(it) },
-                onApply = {
-                    transactionsViewModel.applyFilters()
+            var isSheetReady by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(10) // Small delay to let the sheet start animating
+                isSheetReady = true
+            }
 
-                    scope.launch {
-                        sheetState.hide()
-                        showBottomSheet = false
+            if (isSheetReady) {
+                FilterBottomSheet(
+                    selectedSort = uiState.selectedSort,
+                    selectedOrder = uiState.selectedOrder,
+                    selectedDateRange = uiState.selectedDateRange,
+                    selectedTransactionTypeIds = uiState.selectedTransactionTypeIds,
+                    availableCategories = uiState.availableCategories,
+                    selectedCategoryIds = uiState.selectedCategoryIds,
+                    paymentModes = uiState.paymentModes,
+                    selectedPaymentTypeIds = uiState.selectedPaymentTypeIds,
+                    minAmount = uiState.selectedMinAmount,
+                    maxAmount = uiState.selectedMaxAmount,
+                    onSortChange = { transactionsViewModel.updateSort(it) },
+                    onOrderChange = { transactionsViewModel.updateOrder(it) },
+                    onDateRangeChange = { transactionsViewModel.updateDateRange(it) },
+                    onTransactionTypeToggle = {
+                        transactionsViewModel.toggleTransactionTypeFilter(it)
+                    },
+                    onCategoryToggle = { categoryId ->
+                        transactionsViewModel.toggleCategory(categoryId)
+                    },
+                    onPaymentModeToggle = { paymentTypeId ->
+                        transactionsViewModel.togglePaymentMode(paymentTypeId)
+                    },
+                    onMinAmountChange = { transactionsViewModel.updateMinAmount(it) },
+                    onMaxAmountChange = { transactionsViewModel.updateMaxAmount(it) },
+                    onApply = {
+                        transactionsViewModel.applyFilters()
+
+                        scope.launch {
+                            sheetState.hide()
+                            showBottomSheet = false
+                        }
+                    },
+                    onReset = {
+                        transactionsViewModel.resetFilters()
+                        scope.launch {
+                            sheetState.hide()
+                            showBottomSheet = false
+                        }
+                    },
+                    onClose = {
+                        scope.launch {
+                            sheetState.hide()
+                            showBottomSheet = false
+                        }
                     }
-                },
-                onReset = {
-                    transactionsViewModel.resetDraftFilters()
-                },
-                onClose = {
-                    scope.launch {
-                        sheetState.hide()
-                        showBottomSheet = false
-                    }
-                }
-            )
+                )
+            } else {
+                Spacer(modifier = Modifier.fillMaxWidth().height(400.dp))
+            }
         }
     }
 }
