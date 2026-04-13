@@ -169,9 +169,18 @@ private fun HomeScreenContent(
                     }
                 }
 
+                var isSettingsPressed by remember { mutableStateOf(false) }
+                val settingsScale by animateFloatAsState(
+                    targetValue = if (isSettingsPressed) 0.88f else 1f,
+                    animationSpec = tween(150),
+                    label = "settings_scale"
+                )
+                val scope = rememberCoroutineScope()
+
                 Box(
                     modifier = Modifier
                         .size(52.dp)
+                        .scale(settingsScale)
                         .shadow(
                             elevation = 20.dp,
                             shape = CircleShape,
@@ -187,7 +196,14 @@ private fun HomeScreenContent(
                                 )
                             )
                         )
-                        .clickable(onClick = onSettingsClick),
+                        .clickable {
+                            isSettingsPressed = true
+                            onSettingsClick()
+                            scope.launch {
+                                delay(150)
+                                isSettingsPressed = false
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

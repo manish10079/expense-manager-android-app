@@ -173,34 +173,10 @@ private fun resolveBackNavigationRoute(
 }
 
 private fun screenTransition(fromRoute: String, toRoute: String): ContentTransform {
-    val isPrimaryNavigationTransition = fromRoute in primaryNavigationRoutes && toRoute in primaryNavigationRoutes
-    val duration = if (isPrimaryNavigationTransition) 160 else 220
-    val isForward = routeOrder.indexOf(toRoute) >= routeOrder.indexOf(fromRoute)
-
-    if (isPrimaryNavigationTransition) {
-        return fadeIn(animationSpec = tween(duration)) togetherWith
-            fadeOut(animationSpec = tween(duration))
-    }
-
-    return if (isForward) {
-        slideInHorizontally(
-            animationSpec = tween(duration),
-            initialOffsetX = { width -> width / 5 }
-        ) + fadeIn(animationSpec = tween(duration)) togetherWith
-            slideOutHorizontally(
-                animationSpec = tween(duration),
-                targetOffsetX = { width -> -width / 6 }
-            ) + fadeOut(animationSpec = tween(duration))
-    } else {
-        slideInHorizontally(
-            animationSpec = tween(duration),
-            initialOffsetX = { width -> -width / 5 }
-        ) + fadeIn(animationSpec = tween(duration)) togetherWith
-            slideOutHorizontally(
-                animationSpec = tween(duration),
-                targetOffsetX = { width -> width / 6 }
-            ) + fadeOut(animationSpec = tween(duration))
-    }
+    val duration = 300
+    
+    return fadeIn(animationSpec = tween(duration)) togetherWith
+        fadeOut(animationSpec = tween(duration))
 }
 
 @Composable
@@ -734,13 +710,6 @@ private fun MainScaffold(
         currentRoute != "notification_settings" &&
         currentRoute != "profile"
     val isBottomTabRoute = currentRoute in bottomTabRoutes
-    val initialBottomTabPage = remember {
-        bottomTabRoutes.indexOf("home").takeIf { it >= 0 } ?: 0
-    }
-    val pagerState = rememberPagerState(
-        initialPage = bottomTabRoutes.indexOf(currentRoute).takeIf { it >= 0 } ?: initialBottomTabPage,
-        pageCount = { bottomTabRoutes.size }
-    )
     val backNavigationRoute = resolveBackNavigationRoute(
         currentRoute = currentRoute,
         profileOriginRoute = profileOriginRoute,
@@ -771,13 +740,6 @@ private fun MainScaffold(
         } else {
             onDeleteTransaction(transactionToDelete.id)
             exitAddTransactionScreen(previousRoute)
-        }
-    }
-
-    LaunchedEffect(currentRoute) {
-        val targetPage = bottomTabRoutes.indexOf(currentRoute)
-        if (targetPage >= 0 && pagerState.currentPage != targetPage) {
-            pagerState.scrollToPage(targetPage)
         }
     }
 
@@ -822,51 +784,96 @@ private fun MainScaffold(
             transactionCardCustomizationSettings = transactionCardCustomizationSettings
         )
 
-        PrimaryTabPager(
-            pagerState = pagerState,
-            userProfile = userProfile,
-            transactions = transactions,
-            recurringRules = recurringRules,
-            categories = categories,
-            selectedCurrencyId = selectedCurrencyId,
-            selectedDateFormatPattern = selectedDateFormatPattern,
-            selectedTimeFormat = selectedTimeFormat,
-            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-            onRouteChange = onRouteChange,
-            onProfileOriginRouteChange = onProfileOriginRouteChange,
-            onBottomBarVisibilityChange = onBottomBarVisibilityChange,
-            onSelectedTransactionChange = onSelectedTransactionChange,
-            onAddTransactionDraftAmountChange = onAddTransactionDraftAmountChange,
-            onAddTransactionDraftNoteChange = onAddTransactionDraftNoteChange,
-            onAddRecurring = onAddRecurring,
-            onUpdateRecurring = onUpdateRecurring,
-            onDeleteRecurring = onDeleteRecurring,
-            onRecurringEnabledChange = onRecurringEnabledChange
-        )
-
         AnimatedContent(
-            targetState = currentRoute.takeUnless { it in bottomTabRoutes },
+            targetState = currentRoute,
             transitionSpec = {
                 val fromRoute = initialState
                 val toRoute = targetState
-                if (fromRoute == null || toRoute == null) {
-                    fadeIn(animationSpec = tween(120)) togetherWith
-                        fadeOut(animationSpec = tween(120))
-                } else {
-                    screenTransition(fromRoute, toRoute)
-                }
+                screenTransition(fromRoute ?: "", toRoute)
             },
-            label = "secondary_screen_transition",
+            label = "screen_transition",
             modifier = Modifier.fillMaxSize()
         ) { route ->
-            val pointerModifier = if (route != null) {
+            // Use pointer input to prevent background interactions on non-tab routes
+            val pointerModifier = if (route !in bottomTabRoutes) {
                 Modifier.fillMaxSize().pointerInput(Unit) {}
             } else {
                 Modifier.fillMaxSize()
             }
             Box(modifier = pointerModifier) {
                 when (route) {
-                    null -> Box(modifier = Modifier.fillMaxSize())
+                    "home" -> HomeScreen(
+                        userProfile = userProfile,
+                        currencyId = selectedCurrencyId,
+                        timeFormat = selectedTimeFormat,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        onViewAllClick = {
+                            onRouteChange("transactions")
+                        },
+                        onTodaySpendingClick = {
+                            onRouteChange("calendar")
+                        },
+                        onProfileClick = {
+                            onProfileOriginRouteChange("home")
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("profile")
+                        },
+                        onSettingsClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("settings")
+                        },
+                        onTransactionClick = { transaction ->
+                            onSelectedTransactionChange(transaction)
+                            onAddTransactionDraftAmountChange(null)
+                            onAddTransactionDraftNoteChange(null)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        }
+                    )
+
+                    "analytics" -> AnalyticsScreen(
+                        currencyId = selectedCurrencyId,
+                        transactions = transactions,
+                        categories = categories,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("home")
+                        }
+                    )
+
+                    "budget" -> BudgetScreen(
+                        currencyId = selectedCurrencyId,
+                        transactions = transactions,
+                        availableCategories = categories,
+                        recurringRules = recurringRules,
+                        onAddRecurring = onAddRecurring,
+                        onUpdateRecurring = onUpdateRecurring,
+                        onDeleteRecurring = onDeleteRecurring,
+                        onRecurringEnabledChange = onRecurringEnabledChange,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("home")
+                        }
+                    )
+
+                    "calendar" -> CalendarScreen(
+                        transactions = transactions,
+                        currencyId = selectedCurrencyId,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("home")
+                        },
+                        onTransactionClick = { transaction ->
+                            onSelectedTransactionChange(transaction)
+                            onAddTransactionDraftAmountChange(null)
+                            onAddTransactionDraftNoteChange(null)
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange("add_transaction")
+                        }
+                    )
 
                     "transactions" -> TransactionScreen(
                         currencyId = selectedCurrencyId,
@@ -1084,8 +1091,6 @@ private fun MainScaffold(
                             onRouteChange("add_transaction")
                         }
                     )
-
-                    else -> Box(modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -1182,113 +1187,5 @@ private fun PreloadSecondaryScreenData(
             autoLockDurationMinutes = autoLockDurationMinutes,
             transactionCount = transactionCount
         )
-    }
-}
-
-@Composable
-private fun BoxScope.PrimaryTabPager(
-    pagerState: androidx.compose.foundation.pager.PagerState,
-    userProfile: UserProfile,
-    transactions: List<Transaction>,
-    recurringRules: List<RecurringTransactionRule>,
-    categories: List<CategoryType>,
-    selectedCurrencyId: Int,
-    selectedDateFormatPattern: String,
-    selectedTimeFormat: String,
-    transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
-    onRouteChange: (String) -> Unit,
-    onProfileOriginRouteChange: (String) -> Unit,
-    onBottomBarVisibilityChange: (Boolean) -> Unit,
-    onSelectedTransactionChange: (Transaction?) -> Unit,
-    onAddTransactionDraftAmountChange: (String?) -> Unit,
-    onAddTransactionDraftNoteChange: (String?) -> Unit,
-    onAddRecurring: (String, com.mkn0079.expensetracker.models.RecurringFrequency, Int) -> Unit,
-    onUpdateRecurring: (String, String, com.mkn0079.expensetracker.models.RecurringFrequency, Int) -> Unit,
-    onDeleteRecurring: (String) -> Unit,
-    onRecurringEnabledChange: (String, Boolean) -> Unit
-) {
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier
-            .fillMaxSize()
-            .align(Alignment.TopStart),
-        userScrollEnabled = false,
-        beyondViewportPageCount = bottomTabRoutes.lastIndex,
-        key = { page -> bottomTabRoutes[page] }
-    ) { page ->
-        when (bottomTabRoutes[page]) {
-            "home" -> HomeScreen(
-                userProfile = userProfile,
-                currencyId = selectedCurrencyId,
-                timeFormat = selectedTimeFormat,
-                transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-                onViewAllClick = {
-                    onRouteChange("transactions")
-                },
-                onTodaySpendingClick = {
-                    onRouteChange("calendar")
-                },
-                onProfileClick = {
-                    onProfileOriginRouteChange("home")
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("profile")
-                },
-                onSettingsClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("settings")
-                },
-                onTransactionClick = { transaction ->
-                    onSelectedTransactionChange(transaction)
-                    onAddTransactionDraftAmountChange(null)
-                    onAddTransactionDraftNoteChange(null)
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("add_transaction")
-                }
-            )
-
-            "analytics" -> AnalyticsScreen(
-                currencyId = selectedCurrencyId,
-                transactions = transactions,
-                categories = categories,
-                onBackClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("home")
-                }
-            )
-
-            "budget" -> BudgetScreen(
-                currencyId = selectedCurrencyId,
-                transactions = transactions,
-                availableCategories = categories,
-                recurringRules = recurringRules,
-                onAddRecurring = onAddRecurring,
-                onUpdateRecurring = onUpdateRecurring,
-                onDeleteRecurring = onDeleteRecurring,
-                onRecurringEnabledChange = onRecurringEnabledChange,
-                onBackClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("home")
-                }
-            )
-
-            "calendar" -> CalendarScreen(
-                transactions = transactions,
-                currencyId = selectedCurrencyId,
-                dateFormatPattern = selectedDateFormatPattern,
-                timeFormat = selectedTimeFormat,
-                transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-                onBackClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("home")
-                },
-                onTransactionClick = { transaction ->
-                    onSelectedTransactionChange(transaction)
-                    onAddTransactionDraftAmountChange(null)
-                    onAddTransactionDraftNoteChange(null)
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange("add_transaction")
-                }
-            )
-        }
     }
 }
