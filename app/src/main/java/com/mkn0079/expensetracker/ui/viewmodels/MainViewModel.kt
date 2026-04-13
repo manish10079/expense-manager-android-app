@@ -59,7 +59,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            ExpenseTrackerDatabaseInitializer.initialize(appContext)
             combine(
                 observeTransactions.flatMapLatest { shouldObserve ->
                     if (shouldObserve) {

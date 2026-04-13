@@ -7,31 +7,39 @@ import android.view.WindowManager
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
-import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.models.defaultUserProfile
+import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 
 class MainActivity : FragmentActivity() {
-    @Volatile
-    private var isLaunchReady = false
+
+    private val splashViewModel: SplashViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { !isLaunchReady }
+        
+        // Let the system splash dismiss quickly so our custom overlay can show progress
+        splashScreen.setKeepOnScreenCondition { false }
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
                 splashScreenViewProvider.view
@@ -52,33 +60,30 @@ class MainActivity : FragmentActivity() {
             navigationBarStyle = SystemBarStyle.dark(BackgroundDark.toArgb())
         )
 
-        lifecycleScope.launch {
-            async(Dispatchers.IO) {
-                AppLockPreferences.initialize(applicationContext)
-            }.await()
-
-            val appSettingsInitialization = async(Dispatchers.IO) {
-                AppSettingsDataStore.initialize(applicationContext)
-            }
-            val userProfileInitialization = async(Dispatchers.IO) {
-                UserProfileDataStore.initialize(applicationContext)
-            }
-
-            appSettingsInitialization.await()
-            userProfileInitialization.await()
-            isLaunchReady = true
-        }
-
         setContent {
-            val appSettings by AppSettingsDataStore
-                .getAppSettingsFlow(applicationContext)
-                .collectAsState(initial = null)
-            val userProfile by UserProfileDataStore
-                .getUserProfileFlow(applicationContext)
-                .collectAsState(initial = defaultUserProfile)
+            AppRoot(splashViewModel)
+        }
+    }
 
-            ExpenseTrackerTheme(darkTheme = appSettings?.darkThemeEnabled ?: defaultAppSettings.darkThemeEnabled) {
-                appSettings?.let { settings ->
+    @Composable
+    private fun AppRoot(viewModel: SplashViewModel) {
+        val isReady by viewModel.isReady.collectAsState()
+        val context = applicationContext
+
+        // Observe settings for theme and privacy
+        val appSettings by AppSettingsDataStore
+            .getAppSettingsFlow(context)
+            .collectAsState(initial = null)
+        val userProfile by UserProfileDataStore
+            .getUserProfileFlow(context)
+            .collectAsState(initial = defaultUserProfile)
+
+        ExpenseTrackerTheme(darkTheme = appSettings?.darkThemeEnabled ?: defaultAppSettings.darkThemeEnabled) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Main content renders underneath once settings are available
+                if (appSettings != null) {
+                    val settings = appSettings!!
+
                     LaunchedEffect(
                         settings.blurInRecentsEnabled,
                         settings.screenshotProtectionEnabled
@@ -93,6 +98,16 @@ class MainActivity : FragmentActivity() {
                         appSettings = settings,
                         userProfile = userProfile
                     )
+                }
+
+                // Splash overlay on top
+                AnimatedVisibility(
+                    visible = !isReady,
+                    exit = fadeOut(
+                        animationSpec = tween(durationMillis = 600)
+                    )
+                ) {
+                    SplashOverlay(viewModel = viewModel)
                 }
             }
         }

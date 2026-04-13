@@ -1,20 +1,25 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,13 +31,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -40,35 +43,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.SliderDefaults as MaterialSliderDefaults
 import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.theme.TextSecondaryDark
+import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import ir.mahozad.multiplatform.wavyslider.WaveDirection.HEAD
 import ir.mahozad.multiplatform.wavyslider.material.WavySlider as WavySlider2
-import kotlin.math.roundToInt
+import androidx.compose.material.SliderDefaults as MaterialSliderDefaults
 
 private val SplashLogoSize = 148.dp
 
 @Composable
-fun SplashScreen(
-    onNavigate: () -> Unit
-) {
-    var startAnimation by remember { mutableStateOf(false) }
+fun SplashOverlay(viewModel: SplashViewModel) {
+    val currentTask by viewModel.currentTask.collectAsState()
+    
     val loadingProgress = remember { Animatable(0f) }
 
-    val alphaAnim by animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 700),
-        label = "splash_alpha"
-    )
+    LaunchedEffect(currentTask) {
+        loadingProgress.animateTo(
+            targetValue = currentTask.progress / 100f,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
 
     val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
     val pulseScale by infiniteTransition.animateFloat(
@@ -89,43 +93,6 @@ fun SplashScreen(
         ),
         label = "glow_alpha"
     )
-    val sliderInteractionSource = remember { MutableInteractionSource() }
-
-    LaunchedEffect(Unit) {
-        startAnimation = true
-
-        val progressSegments = listOf(
-            0.12f to 240,
-            0.28f to 300,
-            0.46f to 340,
-            0.64f to 380,
-            0.80f to 360,
-            0.92f to 280,
-            1f to 220
-        )
-
-        progressSegments.forEach { (target, durationMillis) ->
-            loadingProgress.animateTo(
-                targetValue = target,
-                animationSpec = tween(
-                    durationMillis = durationMillis,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        }
-
-        onNavigate()
-    }
-
-    val progressValue = loadingProgress.value.coerceIn(0f, 1f)
-    val progressPercentage = (progressValue * 100).roundToInt()
-    val loadingMessage = when {
-        progressPercentage < 25 -> "Preparing your workspace"
-        progressPercentage < 50 -> "Loading your data"
-        progressPercentage < 75 -> "Applying your preferences"
-        progressPercentage < 100 -> "Almost ready"
-        else -> "Opening Expense Tracker"
-    }
 
     Box(
         modifier = Modifier
@@ -139,8 +106,8 @@ fun SplashScreen(
                     )
                 )
             )
-            .alpha(alphaAnim)
     ) {
+        // Top Glow
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -164,6 +131,7 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Logo
             Box(
                 modifier = Modifier
                     .size(SplashLogoSize)
@@ -191,14 +159,14 @@ fun SplashScreen(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 32.sp
                 ),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "App loading, please wait...",
+                text = "App is starting, please wait...",
                 color = TextSecondaryDark,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium
@@ -208,34 +176,45 @@ fun SplashScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            // Progress Section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 18.dp)
-                    .background(Color.Transparent),
+                    .padding(horizontal = 18.dp, vertical = 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = loadingMessage,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
+                AnimatedContent(
+                    targetState = currentTask.label,
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(300)) +
+                                slideInVertically { it / 2 } togetherWith
+                                fadeOut(animationSpec = tween(200)) +
+                                slideOutVertically { -it / 2 }
+                    },
+                    label = "StepAnimation"
+                ) { label ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = label,
+                            color = Color(0xFFF0EBF8),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Medium
+                            )
+                        )
+                        LoadingDots()
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 WavySlider2(
-                    value = progressValue,
+                    value = loadingProgress.value,
                     onValueChange = {},
-                    interactionSource = sliderInteractionSource,
                     colors = MaterialSliderDefaults.colors(
                         thumbColor = Color.Transparent,
                         disabledThumbColor = Color.Transparent,
                         activeTrackColor = PurpleAccent,
-                        inactiveTrackColor = PurplePrimary.copy(alpha = 0.16f),
-                        activeTickColor = Color.Transparent,
-                        inactiveTickColor = Color.Transparent
+                        inactiveTrackColor = PurplePrimary.copy(alpha = 0.16f)
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -251,7 +230,7 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "$progressPercentage%",
+                    text = "${(loadingProgress.value * 100).toInt()}%",
                     color = PurpleAccent,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold
@@ -262,15 +241,24 @@ fun SplashScreen(
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
 @Composable
-fun SplashScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        SplashScreen(
-            onNavigate = {}
+fun LoadingDots() {
+    val transition = rememberInfiniteTransition(label = "loading_dots")
+    val dotCount by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 3.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "dot_count"
+    )
+
+    Text(
+        text = ".".repeat(dotCount.toInt()),
+        color = Color(0xFFA49CB4),
+        style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.SemiBold
         )
-    }
+    )
 }

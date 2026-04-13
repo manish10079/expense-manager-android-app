@@ -69,7 +69,6 @@ import com.mkn0079.expensetracker.ui.screens.PreferencesScreen
 import com.mkn0079.expensetracker.ui.screens.ProfileScreen
 import com.mkn0079.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mkn0079.expensetracker.ui.screens.SettingsScreen
-import com.mkn0079.expensetracker.ui.screens.SplashScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionCardCustomizeScreen
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
@@ -218,8 +217,6 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
-    var hasHandledLaunchSplash by remember { mutableStateOf(false) }
-    val showSplash = appSettings.showSplashScreen && !showOnboarding && !hasHandledLaunchSplash
     var currentRoute by remember { mutableStateOf("home") }
     var previousRoute by remember { mutableStateOf("home") }
     var profileOriginRoute by remember { mutableStateOf("home") }
@@ -338,7 +335,6 @@ fun MainScreen(
     DisposableEffect(
         lifecycleOwner,
         showOnboarding,
-        showSplash,
         isAppLockEnabled,
         hasAppLockPin,
         isAppUnlocked,
@@ -348,7 +344,6 @@ fun MainScreen(
             if (
                 event == Lifecycle.Event.ON_STOP &&
                 !showOnboarding &&
-                !showSplash &&
                 isAppLockEnabled &&
                 hasAppLockPin
             ) {
@@ -366,7 +361,6 @@ fun MainScreen(
             if (
                 event == Lifecycle.Event.ON_START &&
                 !showOnboarding &&
-                !showSplash &&
                 isAppLockEnabled &&
                 hasAppLockPin
             ) {
@@ -408,26 +402,15 @@ fun MainScreen(
         return
     }
 
-    if (showSplash) {
-        SplashScreen(
-            onNavigate = {
-                hasHandledLaunchSplash = true
-                currentRoute = "home"
-                isBottomBarVisible = false
-            }
-        )
-        return
-    }
 
     LaunchedEffect(
         showOnboarding,
-        showSplash,
         isAppLockEnabled,
         hasAppLockPin,
         isAppUnlocked,
         autoLockDurationMinutes
     ) {
-        if (!showOnboarding && !showSplash && isAppLockEnabled && hasAppLockPin && !isAppUnlocked && appLockFlow == null) {
+        if (!showOnboarding && isAppLockEnabled && hasAppLockPin && !isAppUnlocked && appLockFlow == null) {
             appLockFlow = AppLockFlow.Unlock
         }
     }
