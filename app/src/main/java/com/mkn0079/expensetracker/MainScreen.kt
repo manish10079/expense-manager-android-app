@@ -585,54 +585,61 @@ fun MainScreen(
             onPrepareForExternalActivity = { isAppLockSuppressed = true }
         )
 
-        AnimatedVisibility(
-            visible = appLockFlow != null && (appLockFlow == AppLockFlow.Setup || !isAppUnlocked),
-            exit = fadeOut(animationSpec = tween(500))
-        ) {
-            AppLockScreen(
-                mode = if (appLockFlow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
-                biometricEnabled = canUseBiometricOnLockScreen,
-                isBiometricAvailable = canUseBiometricOnLockScreen,
-                securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                    appLockState.securityQuestionId
-                ),
-                onBackClick = if (appLockFlow == AppLockFlow.Setup) {
-                    { appLockFlow = null }
-                } else {
-                    null
-                },
-                onBiometricClick = if (
-                    appLockFlow == AppLockFlow.Unlock &&
-                    canUseBiometricOnLockScreen
-                ) {
-                    unlockWithBiometric
-                } else {
-                    null
-                },
-                onSetupComplete = { pin, questionId, answer ->
-                    AppLockPreferences.savePin(context, pin)
-                    AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                    appLockState = AppLockPreferences.getCachedState()
-                    completeUnlock()
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(appLockEnabled = true)
-                        }
-                    }
-                },
-                onUnlockSuccess = completeUnlock,
-                validateUnlockPin = { pin ->
-                    AppLockPreferences.validatePinForUnlock(context, pin).also {
+        AnimatedContent(
+            targetState = if (appLockFlow != null && (appLockFlow == AppLockFlow.Setup || !isAppUnlocked)) appLockFlow else null,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(500)) togetherWith
+                    fadeOut(animationSpec = tween(500))
+            },
+            label = "app_lock_transition",
+            modifier = Modifier.fillMaxSize()
+        ) { flow ->
+            if (flow != null) {
+                AppLockScreen(
+                    mode = if (flow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
+                    biometricEnabled = canUseBiometricOnLockScreen,
+                    isBiometricAvailable = canUseBiometricOnLockScreen,
+                    securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
+                        appLockState.securityQuestionId
+                    ),
+                    onBackClick = if (flow == AppLockFlow.Setup) {
+                        { appLockFlow = null }
+                    } else {
+                        null
+                    },
+                    onBiometricClick = if (
+                        flow == AppLockFlow.Unlock &&
+                        canUseBiometricOnLockScreen
+                    ) {
+                        unlockWithBiometric
+                    } else {
+                        null
+                    },
+                    onSetupComplete = { pin, questionId, answer ->
+                        AppLockPreferences.savePin(context, pin)
+                        AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
                         appLockState = AppLockPreferences.getCachedState()
+                        completeUnlock()
+                        coroutineScope.launch {
+                            AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                settings.copy(appLockEnabled = true)
+                            }
+                        }
+                    },
+                    onUnlockSuccess = completeUnlock,
+                    validateUnlockPin = { pin ->
+                        AppLockPreferences.validatePinForUnlock(context, pin).also {
+                            appLockState = AppLockPreferences.getCachedState()
+                        }
+                    },
+                    onForgotPinRecovery = {
+                        disableAppLock(true)
+                    },
+                    validateSecurityAnswer = { answer ->
+                        AppLockPreferences.validateSecurityAnswer(context, answer)
                     }
-                },
-                onForgotPinRecovery = {
-                    disableAppLock(true)
-                },
-                validateSecurityAnswer = { answer ->
-                    AppLockPreferences.validateSecurityAnswer(context, answer)
-                }
-            )
+                )
+            }
         }
     }
 }
