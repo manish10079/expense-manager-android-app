@@ -4,6 +4,7 @@ import android.widget.Toast
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -402,7 +403,6 @@ fun MainScreen(
         return
     }
 
-
     LaunchedEffect(
         showOnboarding,
         isAppLockEnabled,
@@ -426,54 +426,6 @@ fun MainScreen(
         }
     }
 
-    if (appLockFlow != null) {
-        AppLockScreen(
-            mode = if (appLockFlow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
-            biometricEnabled = canUseBiometricOnLockScreen,
-            isBiometricAvailable = canUseBiometricOnLockScreen,
-            securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                appLockState.securityQuestionId
-            ),
-            onBackClick = if (appLockFlow == AppLockFlow.Setup) {
-                { appLockFlow = null }
-            } else {
-                null
-            },
-            onBiometricClick = if (
-                appLockFlow == AppLockFlow.Unlock &&
-                canUseBiometricOnLockScreen
-            ) {
-                unlockWithBiometric
-            } else {
-                null
-            },
-            onSetupComplete = { pin, questionId, answer ->
-                AppLockPreferences.savePin(context, pin)
-                AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                appLockState = AppLockPreferences.getCachedState()
-                completeUnlock()
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(appLockEnabled = true)
-                    }
-                }
-            },
-            onUnlockSuccess = completeUnlock,
-            validateUnlockPin = { pin ->
-                AppLockPreferences.validatePinForUnlock(context, pin).also {
-                    appLockState = AppLockPreferences.getCachedState()
-                }
-            },
-            onForgotPinRecovery = {
-                disableAppLock(true)
-            },
-            validateSecurityAnswer = { answer ->
-                AppLockPreferences.validateSecurityAnswer(context, answer)
-            }
-        )
-        return
-    }
-
     val mainViewModel: MainViewModel = viewModel()
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -483,206 +435,230 @@ fun MainScreen(
         )
     }
 
-    MainScaffold(
-        currentRoute = currentRoute,
-        previousRoute = previousRoute,
-        profileOriginRoute = profileOriginRoute,
-        isBottomBarVisible = isBottomBarVisible,
-        transactions = mainUiState.transactions,
-        transactionCount = mainUiState.transactionCount,
-        recurringRules = mainUiState.recurringRules,
-        selectedTransaction = selectedTransaction,
-        addTransactionDraftAmount = addTransactionDraftAmount,
-        addTransactionDraftNote = addTransactionDraftNote,
-        categories = mainUiState.categories,
-        paymentMethods = mainUiState.paymentMethods,
-        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-        userProfile = userProfile,
-        selectedCurrencyId = selectedCurrencyId,
-        selectedDateFormatPattern = selectedDateFormatPattern,
-        selectedTimeFormat = selectedTimeFormat,
-        isAppLockEnabled = isAppLockEnabled,
-        hasAppLockPin = hasAppLockPin,
-        isBiometricEnabled = isBiometricEnabled,
-        isBlurInRecentsEnabled = isBlurInRecentsEnabled,
-        isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
-        autoLockDurationMinutes = autoLockDurationMinutes,
-        onRouteChange = { route ->
-            if (route == "add_transaction" && currentRoute != "itemized_calculator") {
-                previousRoute = currentRoute
-            }
-            currentRoute = route
-        },
-        onProfileOriginRouteChange = { profileOriginRoute = it },
-        onBottomBarVisibilityChange = { isBottomBarVisible = it },
-        onSelectedTransactionChange = { selectedTransaction = it },
-        onAddTransactionDraftAmountChange = { addTransactionDraftAmount = it },
-        onAddTransactionDraftNoteChange = { addTransactionDraftNote = it },
-        onSaveTransaction = mainViewModel::saveTransaction,
-        onDeleteTransaction = mainViewModel::deleteTransaction,
-        onAddRecurring = mainViewModel::addRecurring,
-        onUpdateRecurring = mainViewModel::updateRecurring,
-        onDeleteRecurring = mainViewModel::deleteRecurring,
-        onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
-        onCreateCustomCategory = mainViewModel::createCustomCategory,
-        onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
-        onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
-        onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
-        onTransactionCardCustomizationSettingsChange = { updatedSettings ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.withTransactionCardCustomizationSettings(updatedSettings)
+    Box(modifier = Modifier.fillMaxSize()) {
+        MainScaffold(
+            currentRoute = currentRoute,
+            previousRoute = previousRoute,
+            profileOriginRoute = profileOriginRoute,
+            isBottomBarVisible = isBottomBarVisible,
+            transactions = mainUiState.transactions,
+            transactionCount = mainUiState.transactionCount,
+            recurringRules = mainUiState.recurringRules,
+            selectedTransaction = selectedTransaction,
+            addTransactionDraftAmount = addTransactionDraftAmount,
+            addTransactionDraftNote = addTransactionDraftNote,
+            categories = mainUiState.categories,
+            paymentMethods = mainUiState.paymentMethods,
+            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+            userProfile = userProfile,
+            selectedCurrencyId = selectedCurrencyId,
+            selectedDateFormatPattern = selectedDateFormatPattern,
+            selectedTimeFormat = selectedTimeFormat,
+            isAppLockEnabled = isAppLockEnabled,
+            hasAppLockPin = hasAppLockPin,
+            isBiometricEnabled = isBiometricEnabled,
+            isBlurInRecentsEnabled = isBlurInRecentsEnabled,
+            isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
+            isDailyReminderEnabled = isDailyReminderEnabled,
+            isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+            isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+            autoLockDurationMinutes = autoLockDurationMinutes,
+            onRouteChange = { route ->
+                if (route == "add_transaction" && currentRoute != "itemized_calculator") {
+                    previousRoute = currentRoute
                 }
-            }
-        },
-        onUserProfileChange = { updatedProfile ->
-            coroutineScope.launch {
-                UserProfileDataStore.updateUserProfile(context) {
-                    updatedProfile
+                currentRoute = route
+            },
+            onProfileOriginRouteChange = { profileOriginRoute = it },
+            onBottomBarVisibilityChange = { isBottomBarVisible = it },
+            onSelectedTransactionChange = { selectedTransaction = it },
+            onAddTransactionDraftAmountChange = { addTransactionDraftAmount = it },
+            onAddTransactionDraftNoteChange = { addTransactionDraftNote = it },
+            onSaveTransaction = mainViewModel::saveTransaction,
+            onDeleteTransaction = mainViewModel::deleteTransaction,
+            onAddRecurring = mainViewModel::addRecurring,
+            onUpdateRecurring = mainViewModel::updateRecurring,
+            onDeleteRecurring = mainViewModel::deleteRecurring,
+            onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
+            onCreateCustomCategory = mainViewModel::createCustomCategory,
+            onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
+            onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
+            onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
+            onTransactionCardCustomizationSettingsChange = { updatedSettings ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.withTransactionCardCustomizationSettings(updatedSettings)
+                    }
                 }
-            }
-        },
-        onSelectedCurrencyIdChange = { currencyId ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(currencyId = currencyId)
+            },
+            onUserProfileChange = { updatedProfile ->
+                coroutineScope.launch {
+                    UserProfileDataStore.updateUserProfile(context) {
+                        updatedProfile
+                    }
                 }
-            }
-        },
-        onSelectedDateFormatPatternChange = { dateFormatPattern ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(dateFormatPattern = dateFormatPattern)
+            },
+            onSelectedCurrencyIdChange = { currencyId ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(currencyId = currencyId)
+                    }
                 }
-            }
-        },
-        onSelectedTimeFormatChange = { timeFormat ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(timeFormat = timeFormat)
+            },
+            onSelectedDateFormatPatternChange = { dateFormatPattern ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(dateFormatPattern = dateFormatPattern)
+                    }
                 }
-            }
-        },
-        isDailyReminderEnabled = isDailyReminderEnabled,
-        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-        onDailyReminderChange = { isEnabled ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(notificationsEnabled = isEnabled)
+            },
+            onSelectedTimeFormatChange = { timeFormat ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(timeFormat = timeFormat)
+                    }
                 }
-            }
-        },
-        onBudgetLimitAlertsChange = { isEnabled ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(budgetLimitAlertsEnabled = isEnabled)
+            },
+            onDailyReminderChange = { isEnabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(notificationsEnabled = isEnabled)
+                    }
                 }
-            }
-        },
-        onMissedEntryReminderChange = { isEnabled ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(missedEntryReminderEnabled = isEnabled)
+            },
+            onBudgetLimitAlertsChange = { isEnabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(budgetLimitAlertsEnabled = isEnabled)
+                    }
                 }
-            }
-        },
-        onLegacyImportFileSelected = { uri ->
-            mainViewModel.importLegacyBackup(
-                uri = uri,
-                onComplete = { result ->
-                    showToast(
-                        "Imported ${result.importedTransactions} legacy transactions. " +
-                            "Skipped ${result.skippedTransactions} existing."
-                    )
-                },
-                onError = {
-                    showToast("Legacy import failed. Check the backup file and try again.")
+            },
+            onMissedEntryReminderChange = { isEnabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(missedEntryReminderEnabled = isEnabled)
+                    }
                 }
-            )
-        },
-        onDeleteAllTransactionsClick = {
-            mainViewModel.deleteAllTransactions(
-                onComplete = {
-                    selectedTransaction = null
-                    addTransactionDraftAmount = null
-                    addTransactionDraftNote = null
-                    showToast("All transactions deleted.")
-                },
-                onError = {
-                    showToast("Unable to delete transactions. Please try again.")
+            },
+            onLegacyImportFileSelected = { uri ->
+                mainViewModel.importLegacyBackup(
+                    uri = uri,
+                    onComplete = { result ->
+                        showToast(
+                            "Imported ${result.importedTransactions} legacy transactions. " +
+                                "Skipped ${result.skippedTransactions} existing."
+                        )
+                    },
+                    onError = {
+                        showToast("Legacy import failed. Check the backup file and try again.")
+                    }
+                )
+            },
+            onDeleteAllTransactionsClick = {
+                mainViewModel.deleteAllTransactions(
+                    onComplete = {
+                        selectedTransaction = null
+                        addTransactionDraftAmount = null
+                        addTransactionDraftNote = null
+                        showToast("All transactions deleted.")
+                    },
+                    onError = {
+                        showToast("Unable to delete transactions. Please try again.")
+                    }
+                )
+            },
+            onBiometricLockChange = updateBiometricLockEnabled,
+            onBlurInRecentsChange = { enabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(blurInRecentsEnabled = enabled)
+                    }
                 }
-            )
-        },
-        onBiometricLockChange = { enabled ->
-            if (!enabled) {
-                updateBiometricLockEnabled(false)
-            } else if (!isAppLockEnabled || !hasAppLockPin) {
-                showToast("Create an app lock PIN before enabling biometric unlock.")
-            } else {
-                if (biometricAuthenticator == null) {
-                    showToast("Biometric authentication is unavailable on this screen.")
-                } else if (!biometricAvailability.isAvailable) {
-                    showToast(
-                        biometricAvailability.message
-                            ?: "Biometric authentication is not available right now."
-                    )
-                } else {
-                    biometricAuthenticator.authenticate(
-                        title = "Enable Biometric Lock",
-                        subtitle = "Verify your biometric once to turn on biometric unlock.",
-                        negativeButtonText = "Cancel",
-                        onSuccess = {
-                            updateBiometricLockEnabled(true)
-                            showToast("Biometric lock enabled.")
-                        },
-                        onFailure = { errorMessage ->
-                            showToast(errorMessage.ifBlank { "Biometric verification failed." })
+            },
+            onScreenshotProtectionChange = { enabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(screenshotProtectionEnabled = enabled)
+                    }
+                }
+            },
+            onAutoLockDurationChange = { minutes ->
+                AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
+                appLockState = AppLockPreferences.getCachedState()
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(appLockTimeoutMinutes = minutes)
+                    }
+                }
+            },
+            onAppLockToggleChange = { shouldEnable ->
+                if (shouldEnable) {
+                    if (hasAppLockPin) {
+                        coroutineScope.launch {
+                            AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                settings.copy(appLockEnabled = true)
+                            }
                         }
-                    )
+                    } else {
+                        appLockFlow = AppLockFlow.Setup
+                    }
+                } else {
+                    disableAppLock(false)
                 }
-            }
-        },
-        onBlurInRecentsChange = { enabled ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(blurInRecentsEnabled = enabled)
-                }
-            }
-        },
-        onScreenshotProtectionChange = { enabled ->
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(screenshotProtectionEnabled = enabled)
-                }
-            }
-        },
-        onAutoLockDurationChange = { minutes ->
-            AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
-            appLockState = AppLockPreferences.getCachedState()
-            coroutineScope.launch {
-                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                    settings.copy(appLockTimeoutMinutes = minutes)
-                }
-            }
-        },
-        onAppLockToggleChange = { shouldEnable ->
-            if (shouldEnable) {
-                if (hasAppLockPin) {
+            },
+            onPrepareForExternalActivity = { isAppLockSuppressed = true }
+        )
+
+        AnimatedVisibility(
+            visible = appLockFlow != null && (appLockFlow == AppLockFlow.Setup || !isAppUnlocked),
+            exit = fadeOut(animationSpec = tween(500))
+        ) {
+            AppLockScreen(
+                mode = if (appLockFlow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
+                biometricEnabled = canUseBiometricOnLockScreen,
+                isBiometricAvailable = canUseBiometricOnLockScreen,
+                securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
+                    appLockState.securityQuestionId
+                ),
+                onBackClick = if (appLockFlow == AppLockFlow.Setup) {
+                    { appLockFlow = null }
+                } else {
+                    null
+                },
+                onBiometricClick = if (
+                    appLockFlow == AppLockFlow.Unlock &&
+                    canUseBiometricOnLockScreen
+                ) {
+                    unlockWithBiometric
+                } else {
+                    null
+                },
+                onSetupComplete = { pin, questionId, answer ->
+                    AppLockPreferences.savePin(context, pin)
+                    AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
+                    appLockState = AppLockPreferences.getCachedState()
+                    completeUnlock()
                     coroutineScope.launch {
                         AppSettingsDataStore.updateAppSettings(context) { settings ->
                             settings.copy(appLockEnabled = true)
                         }
                     }
-                } else {
-                    appLockFlow = AppLockFlow.Setup
+                },
+                onUnlockSuccess = completeUnlock,
+                validateUnlockPin = { pin ->
+                    AppLockPreferences.validatePinForUnlock(context, pin).also {
+                        appLockState = AppLockPreferences.getCachedState()
+                    }
+                },
+                onForgotPinRecovery = {
+                    disableAppLock(true)
+                },
+                validateSecurityAnswer = { answer ->
+                    AppLockPreferences.validateSecurityAnswer(context, answer)
                 }
-            } else {
-                disableAppLock(false)
-            }
-        },
-        onPrepareForExternalActivity = { isAppLockSuppressed = true }
-    )
+            )
+        }
+    }
 }
 
 @Composable
