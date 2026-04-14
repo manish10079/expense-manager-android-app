@@ -361,16 +361,7 @@ private fun SettingsSection(
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
-            text = section.title,
-            color = Color(0xFF6F687C),
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.3.sp,
-                fontSize = 10.sp
-            )
-        )
+    Column {
 
         Column(
             modifier = Modifier
@@ -456,8 +447,7 @@ private fun SettingsRow(
                 text = item.title,
                 color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
+                    fontWeight = FontWeight.SemiBold
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -468,7 +458,7 @@ private fun SettingsRow(
                     color = if (enabled) Color(0xFF898297) else Color(0xFF676272),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 )
 

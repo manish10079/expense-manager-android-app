@@ -32,7 +32,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -109,8 +108,6 @@ fun BudgetScreen(
     transactions: List<Transaction> = transactionList,
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
-    onAddRecurring: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
-    onUpdateRecurring: (String, String, RecurringFrequency, Int) -> Unit = { _, _, _, _ -> },
     onDeleteRecurring: (String) -> Unit = {},
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
@@ -118,10 +115,8 @@ fun BudgetScreen(
     val budgetViewModel: BudgetViewModel = viewModel()
     var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
-    var isRecurringEditorVisible by rememberSaveable { mutableStateOf(false) }
     var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
-    var editingRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(transactions, availableCategories, currencyId, recurringRules) {
@@ -146,7 +141,6 @@ fun BudgetScreen(
     }
     val editingBudget = uiState.categoryBudgets.firstOrNull { it.id == editingBudgetId }
     val pendingDeleteBudget = uiState.categoryBudgets.firstOrNull { it.id == pendingDeleteBudgetId }
-    val editingRecurring = uiState.recurringExpenses.firstOrNull { it.id == editingRecurringId }
     val pendingDeleteRecurring = uiState.recurringExpenses.firstOrNull { it.id == pendingDeleteRecurringId }
 
     Box(
@@ -267,26 +261,11 @@ fun BudgetScreen(
                             onEnabledChange = { enabled ->
                                 onRecurringEnabledChange(expense.id, enabled)
                             },
-                            onEditClick = {
-                                editingRecurringId = expense.id
-                                isRecurringEditorVisible = true
-                            },
                             onDeleteClick = {
                                 pendingDeleteRecurringId = expense.id
                             }
                         )
                     }
-                }
-
-                item {
-                    BudgetActionButton(
-                        title = "ADD RECURRING",
-                        icon = Icons.Filled.Sync,
-                        onClick = {
-                            editingRecurringId = null
-                            isRecurringEditorVisible = true
-                        }
-                    )
                 }
 
                 item { InsightCard(insight = uiState.insight) }
@@ -375,36 +354,7 @@ fun BudgetScreen(
         )
     }
 
-    if (isRecurringEditorVisible) {
-        RecurringEditorDialog(
-            currencyId = currencyId,
-            expenseTransactions = expenseTransactions,
-            expenseCategories = expenseCategories,
-            existingRecurring = editingRecurring,
-            onDismiss = {
-                isRecurringEditorVisible = false
-                editingRecurringId = null
-            },
-            onSave = { transactionId, frequency, repeatCount ->
-                if (editingRecurring != null) {
-                    onUpdateRecurring(
-                        editingRecurring.id,
-                        transactionId,
-                        frequency,
-                        repeatCount
-                    )
-                } else {
-                    onAddRecurring(
-                        transactionId,
-                        frequency,
-                        repeatCount
-                    )
-                }
-                isRecurringEditorVisible = false
-                editingRecurringId = null
-            }
-        )
-    }
+
 
     if (pendingDeleteRecurring != null) {
         DeleteRecurringDialog(
@@ -935,174 +885,6 @@ private fun DeleteBudgetDialog(
 }
 
 @Composable
-private fun RecurringEditorDialog(
-    currencyId: Int,
-    expenseTransactions: List<Transaction>,
-    expenseCategories: List<CategoryType>,
-    existingRecurring: BudgetRecurringExpenseUi?,
-    onDismiss: () -> Unit,
-    onSave: (String, RecurringFrequency, Int) -> Unit
-) {
-    var isTransactionMenuExpanded by remember { mutableStateOf(false) }
-    var isFrequencyMenuExpanded by remember { mutableStateOf(false) }
-    var selectedTransactionId by rememberSaveable(existingRecurring?.id) {
-        mutableStateOf(existingRecurring?.transactionId ?: expenseTransactions.firstOrNull()?.id)
-    }
-    var selectedFrequency by rememberSaveable(existingRecurring?.id) {
-        mutableStateOf(existingRecurring?.frequency ?: RecurringFrequency.Monthly)
-    }
-    var repeatCountInput by rememberSaveable(existingRecurring?.id) {
-        mutableStateOf(existingRecurring?.repeatCount?.toString() ?: "12")
-    }
-    val selectedTransaction = expenseTransactions.firstOrNull { it.id == selectedTransactionId }
-    val selectedCategory = expenseCategories.firstOrNull { it.id == selectedTransaction?.categoryId }
-    val repeatCount = repeatCountInput.toIntOrNull()
-    val isSaveEnabled = selectedTransaction != null && repeatCount != null && repeatCount > 0
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = Color(0xFF18171C),
-        titleContentColor = Color(0xFFF4EFFA),
-        textContentColor = Color(0xFFD0C8DD),
-        title = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = if (existingRecurring == null) "Add Recurring" else "Edit Recurring",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
-                )
-                Text(
-                    text = "Choose an existing expense transaction and recurrence pattern.",
-                    color = Color(0xFFBEB6CB),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                SelectionDialogField(
-                    label = "Transaction",
-                    value = selectedTransaction?.let {
-                        formatRecurringTransactionLabel(
-                            transaction = it,
-                            category = selectedCategory,
-                            currencyId = currencyId
-                        )
-                    } ?: "No expense transactions available",
-                    actionLabel = "CHANGE",
-                    enabled = expenseTransactions.isNotEmpty(),
-                    onClick = { isTransactionMenuExpanded = true },
-                    dropdownContent = {
-                        DropdownMenu(
-                            expanded = isTransactionMenuExpanded,
-                            onDismissRequest = { isTransactionMenuExpanded = false },
-                            modifier = Modifier.background(Color(0xFF1B1A1F))
-                        ) {
-                            expenseTransactions.forEach { transaction ->
-                                val category = expenseCategories.firstOrNull { it.id == transaction.categoryId }
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            formatRecurringTransactionLabel(
-                                                transaction = transaction,
-                                                category = category,
-                                                currencyId = currencyId
-                                            )
-                                        )
-                                    },
-                                    onClick = {
-                                        selectedTransactionId = transaction.id
-                                        isTransactionMenuExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                )
-
-                SelectionDialogField(
-                    label = "Frequency",
-                    value = selectedFrequency.label,
-                    actionLabel = "CHANGE",
-                    enabled = true,
-                    onClick = { isFrequencyMenuExpanded = true },
-                    dropdownContent = {
-                        DropdownMenu(
-                            expanded = isFrequencyMenuExpanded,
-                            onDismissRequest = { isFrequencyMenuExpanded = false },
-                            modifier = Modifier.background(Color(0xFF1B1A1F))
-                        ) {
-                            RecurringFrequency.entries.forEach { frequency ->
-                                DropdownMenuItem(
-                                    text = { Text(frequency.label) },
-                                    onClick = {
-                                        selectedFrequency = frequency
-                                        isFrequencyMenuExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = repeatCountInput,
-                    onValueChange = { updatedValue ->
-                        repeatCountInput = updatedValue.filter { it.isDigit() }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    label = { Text("Repeat count") },
-                    placeholder = { Text("12") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    supportingText = {
-                        Text(
-                            text = "How many times this recurring transaction should repeat.",
-                            color = Color(0xFF968EA8)
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.14f),
-                        focusedLabelColor = PurplePrimary,
-                        unfocusedLabelColor = Color(0xFFAAA2B8),
-                        cursorColor = PurplePrimary
-                    )
-                )
-
-                if (selectedTransaction != null && selectedCategory != null) {
-                    Text(
-                        text = "This will track ${selectedTransaction.note.ifBlank { selectedCategory.name }} as a ${selectedFrequency.label.lowercase()} recurring expense for ${repeatCount ?: 0} occurrence${if ((repeatCount ?: 0) == 1) "" else "s"}.",
-                        color = Color(0xFFBEB6CB),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (selectedTransactionId != null && repeatCount != null) {
-                        onSave(selectedTransactionId!!, selectedFrequency, repeatCount)
-                    }
-                },
-                enabled = isSaveEnabled
-            ) {
-                Text(if (existingRecurring == null) "Save" else "Update")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
 private fun SelectionDialogField(
     label: String,
     value: String,
@@ -1324,15 +1106,7 @@ private fun DeleteRecurringDialog(
     )
 }
 
-private fun formatRecurringTransactionLabel(
-    transaction: Transaction,
-    category: CategoryType?,
-    currencyId: Int
-): String {
-    val title = transaction.note.ifBlank { category?.name ?: "Transaction" }
-    val categoryLabel = category?.name ?: "Uncategorized"
-    return "$title • ${formatCurrencyValue(transaction.amount, currencyId)} • $categoryLabel"
-}
+
 
 @Composable
 private fun CategoryBudgetCard(
@@ -1624,7 +1398,6 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
 private fun RecurringExpenseCard(
     expense: BudgetRecurringExpenseUi,
     onEnabledChange: (Boolean) -> Unit,
-    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Column(
@@ -1744,13 +1517,6 @@ private fun RecurringExpenseCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            BudgetCardAction(
-                label = "EDIT",
-                onClick = onEditClick
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
             BudgetCardAction(
                 label = "DELETE",
                 accent = Color(0xFFFFB3B3),

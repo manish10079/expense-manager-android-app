@@ -157,56 +157,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addRecurring(
-        transactionId: String,
-        frequency: com.mkn0079.expensetracker.models.RecurringFrequency,
-        repeatCount: Int
-    ) {
-        viewModelScope.launch {
-            val existingRule = recurringRuleRepository.getActiveByTransactionId(transactionId)
-            val transaction = transactionRepository.getTransactionById(transactionId) ?: return@launch
-            recurringRuleRepository.upsertRule(
-                RecurringTransactionRule(
-                    id = existingRule?.id.orEmpty(),
-                    transactionId = transactionId,
-                    frequency = frequency,
-                    repeatCount = repeatCount,
-                    isEnabled = existingRule?.isEnabled ?: true,
-                    intervalCount = existingRule?.intervalCount ?: 1,
-                    remainingCount = repeatCount,
-                    anchorAt = existingRule?.anchorAt ?: transaction.createdAt,
-                    nextRunAt = existingRule?.nextRunAt ?: transaction.createdAt,
-                    lastRunAt = existingRule?.lastRunAt,
-                    createdAt = existingRule?.createdAt ?: System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis(),
-                    syncState = existingRule?.syncState ?: transaction.syncState,
-                    isDeleted = false
-                )
-            )
-        }
-    }
-
-    fun updateRecurring(
-        ruleId: String,
-        transactionId: String,
-        frequency: com.mkn0079.expensetracker.models.RecurringFrequency,
-        repeatCount: Int
-    ) {
-        viewModelScope.launch {
-            val existingRule = uiState.value.recurringRules.firstOrNull { it.id == ruleId } ?: return@launch
-            recurringRuleRepository.upsertRule(
-                existingRule.copy(
-                    id = ruleId,
-                    transactionId = transactionId,
-                    frequency = frequency,
-                    repeatCount = repeatCount,
-                    remainingCount = repeatCount,
-                    updatedAt = System.currentTimeMillis()
-                )
-            )
-        }
-    }
-
     fun deleteRecurring(ruleId: String) {
         viewModelScope.launch {
             recurringRuleRepository.deleteRule(ruleId)

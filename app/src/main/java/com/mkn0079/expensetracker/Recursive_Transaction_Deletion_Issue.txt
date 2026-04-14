@@ -1,0 +1,31 @@
+ISSUE REPORT: Recurring Transaction Deletion Crash
+
+Status: [ ] Open
+Priority: High
+Affected Component: Database / Recurring Transaction Deletion
+
+1. Problem Description:
+   The application crashes with an SQLiteConstraintException: UNIQUE constraint failed when a user attempts to delete a recurring transaction that has been previously deleted and re-added for the same transaction ID.
+
+2. Root Cause:
+   In RecurringRuleEntity.kt, there is a unique index defined on both transaction_id and is_deleted:
+   Index(value = ["transaction_id", "is_deleted"], unique = true)
+
+   While this was intended to ensure only one active rule exists per transaction (is_deleted = 0), it also incorrectly forces only one deleted rule (is_deleted = 1) per transaction. When a user deletes a rule for the second time, SQLite blocks the update to is_deleted = 1 because a deleted entry already exists for that transaction.
+
+3. Steps to Reproduce:
+   1. Navigate to a transaction (e.g., "Lunch") and enable "Recurring Transaction".
+   2. Go to the Budget screen and delete this recurring expense. (Record now exists with is_deleted = 1).
+   3. Return to the same "Lunch" transaction and re-enable "Recurring Transaction". (A new record with is_deleted = 0 is created).
+   4. Return to the Budget screen and attempt to delete the new recurring expense.
+   5. Result: App crashes with SQLiteConstraintException.
+
+4. Proposed Fix:
+   - Location: RecurringRuleEntity.kt
+   - Action: Remove `unique = true` from the ["transaction_id", "is_deleted"] index.
+   - Database Migration: Increment database version in ExpenseTrackerDatabase.kt or provide a Migration.
+
+5. Verification Plan:
+   - Repeat the reproduction steps.
+   - Success Criteria: The rule is deleted successfully without crash.
+   - Verify both deleted rules exist in the database with is_deleted = 1.

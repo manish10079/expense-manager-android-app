@@ -210,8 +210,7 @@ private fun SecurityToggleRow(
                 text = title,
                 color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
+                    fontWeight = FontWeight.SemiBold
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -269,8 +268,7 @@ private fun SecurityItemRow(
                 text = title,
                 color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
+                    fontWeight = FontWeight.SemiBold
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -281,7 +279,7 @@ private fun SecurityItemRow(
                     color = if (enabled) Color(0xFF898297) else Color(0xFF676272),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 )
                 Spacer(modifier = Modifier.width(6.dp))

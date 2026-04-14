@@ -342,15 +342,6 @@ private fun DeveloperCard(
 
 @Composable
 private fun AboutSectionHeader(title: String) {
-    Text(
-        text = title,
-        color = Color.White.copy(alpha = 0.4f),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-    )
 }
 
 @Composable

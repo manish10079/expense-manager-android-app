@@ -120,13 +120,6 @@ private fun NotificationSection(
     content: @Composable () -> Unit
 ) {
     Column {
-        Text(
-            text = title,
-            color = Color.White.copy(alpha = 0.4f),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,7 +161,7 @@ private fun NotificationToggleItem(
             Text(
                 text = description,
                 color = Color.White.copy(alpha = 0.5f),
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
         }
         Switch(

@@ -670,15 +670,6 @@ private fun AddCategoryBottomSheet(
 
 @Composable
 private fun CategorySheetLabel(text: String) {
-    Text(
-        text = text,
-        color = Color(0xFFC9C2D6),
-        style = MaterialTheme.typography.labelLarge.copy(
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp,
-            letterSpacing = 2.2.sp
-        )
-    )
 }
 
 @Composable

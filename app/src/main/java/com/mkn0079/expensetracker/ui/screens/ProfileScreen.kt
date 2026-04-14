@@ -491,15 +491,7 @@ private fun ProfileTextFieldCard(
             .padding(horizontal = 18.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text(
-            text = label,
-            color = Color(0xFFCAC2DE),
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.1.sp,
-                fontSize = 12.sp
-            )
-        )
+        Unit
 
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -564,7 +556,7 @@ private fun ReadOnlyFieldCard(
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.1.sp,
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
         )
 
@@ -616,7 +608,7 @@ private fun GenderFieldCard(
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.1.sp,
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
         )
 

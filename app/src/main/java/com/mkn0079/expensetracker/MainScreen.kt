@@ -334,8 +334,6 @@ fun MainScreen(
             onAddTransactionDraftNoteChange = { addTransactionDraftNote = it },
             onSaveTransaction = mainViewModel::saveTransaction,
             onDeleteTransaction = mainViewModel::deleteTransaction,
-            onAddRecurring = mainViewModel::addRecurring,
-            onUpdateRecurring = mainViewModel::updateRecurring,
             onDeleteRecurring = mainViewModel::deleteRecurring,
             onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
             onCreateCustomCategory = mainViewModel::createCustomCategory,

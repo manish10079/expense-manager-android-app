@@ -175,17 +175,6 @@ fun TransactionCardCustomizeScreen(
             }
         }
 
-        item {
-            Text(
-                text = "LIVE PREVIEW",
-                color = Color(0xFF7C7488),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.8.sp,
-                    fontSize = 11.sp
-                )
-            )
-        }
 
         if (settings.showDateSeparators) {
             previewGroups.forEach { group ->
@@ -251,24 +240,13 @@ fun TransactionCardCustomizeScreen(
         }
 
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(
-                    text = "Interface",
-                    color = Color(0xFFF1EBF6),
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 24.sp
-                    )
+            Text(
+                text = "Customize how your data is visualized",
+                color = Color(0xFFA59EB1),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium
                 )
-
-                Text(
-                    text = "Customize how your data is visualized",
-                    color = Color(0xFFA59EB1),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
+            )
         }
 
         item {
@@ -326,7 +304,8 @@ private fun TransactionCardToggleRow(
                 text = item.subtitle,
                 color = Color(0xFFA099AC),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp
                 )
             )
         }

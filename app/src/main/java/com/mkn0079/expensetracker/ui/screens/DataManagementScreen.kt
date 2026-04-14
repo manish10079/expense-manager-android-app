@@ -234,16 +234,7 @@ private fun DataManagementSection(
     section: SettingsSectionUi,
     onItemClick: (SettingsActionId?) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
-            text = section.title,
-            color = Color(0xFF6F687C),
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.3.sp,
-                fontSize = 10.sp
-            )
-        )
+    Column {
 
         Column(
             modifier = Modifier
@@ -296,9 +287,8 @@ private fun DataManagementRow(
         Text(
             text = item.title,
             color = Color(0xFFEBE6F5),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.SemiBold
             ),
             modifier = Modifier.weight(1f)
         )

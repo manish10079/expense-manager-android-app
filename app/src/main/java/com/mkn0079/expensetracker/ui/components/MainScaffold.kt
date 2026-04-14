@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
-import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
@@ -84,8 +83,6 @@ fun MainScaffold(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
     onDeleteTransaction: (String) -> Unit,
-    onAddRecurring: (String, RecurringFrequency, Int) -> Unit,
-    onUpdateRecurring: (String, String, RecurringFrequency, Int) -> Unit,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onCreateCustomCategory: (String, String, Int) -> Unit,
@@ -227,8 +224,6 @@ fun MainScaffold(
                             transactions = transactions,
                             availableCategories = categories,
                             recurringRules = recurringRules,
-                            onAddRecurring = onAddRecurring,
-                            onUpdateRecurring = onUpdateRecurring,
                             onDeleteRecurring = onDeleteRecurring,
                             onRecurringEnabledChange = onRecurringEnabledChange
                         )

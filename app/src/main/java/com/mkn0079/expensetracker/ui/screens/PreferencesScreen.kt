@@ -243,8 +243,7 @@ private fun PreferenceItemRow(
                 text = title,
                 color = Color(0xFFF0EBF7),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
+                    fontWeight = FontWeight.SemiBold
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -255,7 +254,7 @@ private fun PreferenceItemRow(
                     color = Color(0xFF898297),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 )
                 Spacer(modifier = Modifier.width(6.dp))
