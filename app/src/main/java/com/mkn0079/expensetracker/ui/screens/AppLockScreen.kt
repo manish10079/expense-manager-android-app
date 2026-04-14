@@ -390,14 +390,6 @@ fun AppLockScreen(
                     }
 
                     else -> {
-                        if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
-                            BiometricActionButton(
-                                onClick = onBiometricClick
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
                         PinEntryContent(
                             enteredPin = enteredPin,
                             mode = mode,
@@ -415,6 +407,14 @@ fun AppLockScreen(
                                 triggerForgotRecovery()
                             }
                         )
+
+                        if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
+                            Spacer(modifier = Modifier.height(34.dp))
+                            
+                            BiometricActionButton(
+                                onClick = onBiometricClick
+                            )
+                        }
                     }
                 }
 

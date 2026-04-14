@@ -134,13 +134,35 @@ fun MainScreen(
         Toast.makeText(rawContext, message, Toast.LENGTH_SHORT).show()
     }
 
-    val updateBiometricLockEnabled: (Boolean) -> Unit = { enabled ->
+    val performBiometricUpdate: (Boolean) -> Unit = { enabled ->
         AppLockPreferences.setBiometricEnabled(context, enabled)
         appLockState = AppLockPreferences.getCachedState()
         coroutineScope.launch {
             AppSettingsDataStore.updateAppSettings(context) { settings ->
                 settings.copy(biometricLockEnabled = enabled)
             }
+        }
+    }
+
+    val updateBiometricLockEnabled: (Boolean) -> Unit = { enabled ->
+        if (enabled) {
+            // Turning ON: Require verification
+            if (biometricAuthenticator == null) {
+                showToast("Biometric initialization failed.")
+            } else if (!biometricAvailability.isAvailable) {
+                showToast(biometricAvailability.message ?: "Biometrics unavailable.")
+            } else {
+                biometricAuthenticator.authenticate(
+                    title = "Confirm Identity",
+                    subtitle = "Verify biometric to enable biometric lock.",
+                    onSuccess = { performBiometricUpdate(true) },
+                    onFailure = { showToast("Authentication failed.") }
+                    // onCancel: do nothing (switch stays off)
+                )
+            }
+        } else {
+            // Turning OFF: Immediate
+            performBiometricUpdate(false)
         }
     }
 
