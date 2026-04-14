@@ -237,7 +237,7 @@ private fun CalculatorHeader(onBackClick: () -> Unit) {
         Spacer(modifier = Modifier.width(10.dp))
 
         Text(
-            text = "ItemizedCalculator",
+            text = "Itemized Calculator",
             color = PurplePrimary,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
@@ -454,8 +454,8 @@ private fun NormalCalculatorContent(
             ) {
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
-                    label = "C",
-                    onClick = { onAction("C") }
+                    label = "AC",
+                    onClick = { onAction("AC") }
                 )
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
@@ -700,12 +700,12 @@ private fun handleNormalCalculatorAction(
     pendingOperator: String?,
     shouldResetDisplay: Boolean
 ): NormalCalculatorResult {
-    if (currentDisplay == "Error" && action !in setOf("C", "BACKSPACE")) {
+    if (currentDisplay == "Error" && action !in setOf("AC", "BACKSPACE")) {
         return handleNormalCalculatorAction(action, "0", null, null, false)
     }
 
     return when (action) {
-        "C" -> NormalCalculatorResult("0", null, null, false)
+        "AC" -> NormalCalculatorResult("0", null, null, false)
 
         "BACKSPACE" -> {
             val updated = if (shouldResetDisplay || currentDisplay.length <= 1) {
