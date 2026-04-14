@@ -358,8 +358,8 @@ private fun AutoLockDurationPickerSheet(
                 key = { durationMinutes -> durationMinutes }
             ) { durationMinutes ->
                 DurationPickerRow(
-                    label = "\$durationMinutes minutes",
-                    subtitle = "Require the PIN again after \$durationMinutes minutes away from the app.",
+                    label = "$durationMinutes minutes",
+                    subtitle = "Require the PIN again after $durationMinutes minutes away from the app.",
                     isSelected = selectedDurationMinutes == durationMinutes,
                     onClick = { onDurationSelected(durationMinutes) }
                 )
@@ -403,7 +403,7 @@ private fun AutoLockDurationPickerSheet(
                                 selectedDurationMinutes > 0 &&
                                 selectedDurationMinutes !in presetAutoLockDurations
                             ) {
-                                "Currently selected: \$selectedDurationMinutes min"
+                                "Currently selected: $selectedDurationMinutes min"
                             } else {
                                 "Use any positive number of minutes."
                             }
