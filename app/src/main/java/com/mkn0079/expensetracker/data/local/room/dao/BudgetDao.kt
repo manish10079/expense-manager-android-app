@@ -12,6 +12,26 @@ interface BudgetDao {
     @Query("SELECT * FROM budgets WHERE is_deleted = 0 ORDER BY month_start DESC")
     fun observeActiveBudgets(): Flow<List<BudgetEntity>>
 
+    @Query("SELECT * FROM budgets WHERE is_deleted = 0 ORDER BY month_start DESC")
+    suspend fun getActiveBudgets(): List<BudgetEntity>
+
+    @Query("SELECT * FROM budgets WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): BudgetEntity?
+
+    @Query(
+        """
+        SELECT * FROM budgets
+        WHERE category_id = :categoryId
+          AND month_start = :monthStart
+          AND is_deleted = 0
+        LIMIT 1
+        """
+    )
+    suspend fun getActiveByCategoryAndMonthStart(
+        categoryId: Int,
+        monthStart: Long
+    ): BudgetEntity?
+
     @Upsert
     suspend fun upsert(budget: BudgetEntity)
 

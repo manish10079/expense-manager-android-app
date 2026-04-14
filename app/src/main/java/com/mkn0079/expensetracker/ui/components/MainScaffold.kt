@@ -97,6 +97,10 @@ fun MainScaffold(
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
+    onDatabaseBackupFileSelected: (Uri) -> Unit,
+    onDatabaseRestoreFileSelected: (Uri) -> Unit,
+    onJsonExportFileSelected: (Uri) -> Unit,
+    onJsonImportFileSelected: (Uri) -> Unit,
     onLegacyImportFileSelected: (Uri) -> Unit,
     onDeleteAllTransactionsClick: () -> Unit,
     onBiometricLockChange: (Boolean) -> Unit,
@@ -367,6 +371,10 @@ fun MainScaffold(
                     "data_management" -> {
                         DataManagementScreen(
                             transactionCount = transactionCount,
+                            onDatabaseBackupFileSelected = onDatabaseBackupFileSelected,
+                            onDatabaseRestoreFileSelected = onDatabaseRestoreFileSelected,
+                            onJsonExportFileSelected = onJsonExportFileSelected,
+                            onJsonImportFileSelected = onJsonImportFileSelected,
                             onLegacyImportFileSelected = onLegacyImportFileSelected,
                             onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
                             onPrepareForExternalActivity = onPrepareForExternalActivity,

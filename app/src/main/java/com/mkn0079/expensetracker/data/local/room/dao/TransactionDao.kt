@@ -14,6 +14,12 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
     fun observeActiveTransactions(): Flow<List<TransactionEntity>>
 
+    @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
+    suspend fun getActiveTransactions(): List<TransactionEntity>
+
+    @Query("SELECT * FROM transactions")
+    suspend fun getAllTransactions(): List<TransactionEntity>
+
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): TransactionEntity?
 
@@ -106,6 +112,22 @@ interface TransactionDao {
 
     @Query("UPDATE transactions SET is_deleted = 0, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun restore(id: String, syncState: String, updatedAt: Long)
+
+    @Query(
+        """
+        UPDATE transactions
+        SET source_recurring_rule_id = :sourceRecurringRuleId,
+            content_hash = :contentHash,
+            updated_at = :updatedAt
+        WHERE id = :id
+        """
+    )
+    suspend fun updateRecurringSourceReference(
+        id: String,
+        sourceRecurringRuleId: String?,
+        contentHash: String?,
+        updatedAt: Long
+    )
 
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()

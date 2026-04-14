@@ -22,6 +22,7 @@ import com.mkn0079.expensetracker.data.constants.getAppLockSecurityQuestionPromp
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
+import com.mkn0079.expensetracker.data.repository.JsonImportResult
 import com.mkn0079.expensetracker.models.AppSettings
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
@@ -396,6 +397,57 @@ fun MainScreen(
                     }
                 }
             },
+            onDatabaseBackupFileSelected = { uri ->
+                mainViewModel.backupDatabase(
+                    uri = uri,
+                    onComplete = {
+                        showToast("Database backup saved.")
+                    },
+                    onError = {
+                        showToast("Unable to save the database backup. Please try again.")
+                    }
+                )
+            },
+            onDatabaseRestoreFileSelected = { uri ->
+                mainViewModel.restoreDatabase(
+                    uri = uri,
+                    onComplete = {
+                        selectedTransaction = null
+                        addTransactionDraftAmount = null
+                        addTransactionDraftNote = null
+                        showToast("Database restored. Reloading app.")
+                        activity?.recreate()
+                    },
+                    onError = {
+                        showToast("Unable to restore the database backup. Please try again.")
+                    }
+                )
+            },
+            onJsonExportFileSelected = { uri ->
+                mainViewModel.exportJson(
+                    uri = uri,
+                    onComplete = { result ->
+                        showToast(
+                            "JSON exported: ${result.exportedTransactions} transactions, " +
+                                "${result.exportedBudgets} budgets."
+                        )
+                    },
+                    onError = {
+                        showToast("Unable to export JSON. Please try again.")
+                    }
+                )
+            },
+            onJsonImportFileSelected = { uri ->
+                mainViewModel.importJson(
+                    uri = uri,
+                    onComplete = { result ->
+                        showToast(result.toJsonImportMessage())
+                    },
+                    onError = {
+                        showToast("Unable to import JSON. Check the file and try again.")
+                    }
+                )
+            },
             onLegacyImportFileSelected = { uri ->
                 mainViewModel.importLegacyBackup(
                     uri = uri,
@@ -500,4 +552,9 @@ fun MainScreen(
             }
         )
     }
+}
+
+private fun JsonImportResult.toJsonImportMessage(): String {
+    return "Imported $importedTransactions tx, $importedBudgets budgets, " +
+        "$importedRecurringRules rules. Skipped $skippedTransactions tx duplicates."
 }

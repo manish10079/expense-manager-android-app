@@ -12,6 +12,12 @@ interface RecurringRuleDao {
     @Query("SELECT * FROM recurring_rules WHERE is_deleted = 0 ORDER BY is_enabled DESC, next_run_at ASC")
     fun observeActiveRecurringRules(): Flow<List<RecurringRuleEntity>>
 
+    @Query("SELECT * FROM recurring_rules WHERE is_deleted = 0 ORDER BY is_enabled DESC, next_run_at ASC")
+    suspend fun getActiveRules(): List<RecurringRuleEntity>
+
+    @Query("SELECT * FROM recurring_rules WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): RecurringRuleEntity?
+
     @Query("SELECT * FROM recurring_rules WHERE transaction_id = :transactionId AND is_deleted = 0 LIMIT 1")
     suspend fun getActiveByTransactionId(transactionId: String): RecurringRuleEntity?
 

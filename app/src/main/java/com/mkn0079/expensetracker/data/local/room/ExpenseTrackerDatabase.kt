@@ -15,6 +15,7 @@ import com.mkn0079.expensetracker.data.local.room.entities.CategoryEntity
 import com.mkn0079.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mkn0079.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mkn0079.expensetracker.data.local.room.entities.TransactionEntity
+import java.io.File
 
 @Database(
     entities = [
@@ -37,6 +38,8 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun recurringRuleDao(): RecurringRuleDao
 
     companion object {
+        const val DATABASE_NAME = "expense_tracker.db"
+
         @Volatile
         private var INSTANCE: ExpenseTrackerDatabase? = null
 
@@ -45,9 +48,28 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ExpenseTrackerDatabase::class.java,
-                    "expense_tracker.db"
+                    DATABASE_NAME
                 ).build().also { INSTANCE = it }
             }
+        }
+
+        fun closeInstance() {
+            synchronized(this) {
+                INSTANCE?.close()
+                INSTANCE = null
+            }
+        }
+
+        fun databaseFile(context: Context): File {
+            return context.applicationContext.getDatabasePath(DATABASE_NAME)
+        }
+
+        fun databaseWalFile(context: Context): File {
+            return File(databaseFile(context).path + "-wal")
+        }
+
+        fun databaseShmFile(context: Context): File {
+            return File(databaseFile(context).path + "-shm")
         }
     }
 }

@@ -318,8 +318,8 @@ Suggested marking:
     - [x] Import transactions from legacy JSON file
     - [x] Delete all transactions with confirmation
     - [x] App lock suppression during external file picking
-    - [ ] Backup to cloud/internal storage
-    - [ ] Export transactions as CSV
+    - [x] Backup and restore database (.db)
+    - [x] Export and import transactions (JSON)
 
 21. About Screen
     Screen Status: [x] Implemented   [ ] Not Implemented

@@ -31,17 +31,48 @@ import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataManagementScreen(
     transactionCount: Int,
+    onDatabaseBackupFileSelected: (Uri) -> Unit,
+    onDatabaseRestoreFileSelected: (Uri) -> Unit,
+    onJsonExportFileSelected: (Uri) -> Unit,
+    onJsonImportFileSelected: (Uri) -> Unit,
     onLegacyImportFileSelected: (Uri) -> Unit,
     onDeleteAllTransactionsClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit,
     onBackClick: () -> Unit
 ) {
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
+    val todayLabel = remember { LocalDate.now().toString() }
+
+    val databaseBackupFileCreator = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/octet-stream")
+    ) { uri ->
+        uri?.let { onDatabaseBackupFileSelected(it) }
+    }
+
+    val databaseRestoreFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        pendingRestoreUri = uri
+    }
+
+    val jsonExportFileCreator = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let { onJsonExportFileSelected(it) }
+    }
+
+    val jsonImportFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { onJsonImportFileSelected(it) }
+    }
 
     val legacyImportFilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -62,28 +93,54 @@ fun DataManagementScreen(
             )
         ),
         SettingsSectionUi(
-            title = "OPERATIONS",
+            title = "DATABASE",
             items = listOf(
+                SettingsItemUi(
+                    title = "Backup Database",
+                    icon = Icons.Filled.Sync,
+                    trailing = ".db",
+                    actionId = SettingsActionId.DatabaseBackup
+                ),
+                SettingsItemUi(
+                    title = "Restore Database",
+                    icon = Icons.Filled.Refresh,
+                    trailing = ".db",
+                    actionId = SettingsActionId.DatabaseRestore
+                )
+            )
+        ),
+        SettingsSectionUi(
+            title = "JSON TRANSFER",
+            items = listOf(
+                SettingsItemUi(
+                    title = "Export JSON",
+                    icon = Icons.Filled.SettingsApplications,
+                    trailing = "Merge-safe",
+                    actionId = SettingsActionId.JsonExport
+                ),
+                SettingsItemUi(
+                    title = "Import JSON",
+                    icon = Icons.Filled.Refresh,
+                    trailing = "Add missing",
+                    actionId = SettingsActionId.JsonImport
+                ),
                 SettingsItemUi(
                     title = "Import Legacy Data",
                     icon = Icons.Filled.Refresh,
                     trailing = "JSON",
                     actionId = SettingsActionId.LegacyImport
-                ),
+                )
+            )
+        ),
+        SettingsSectionUi(
+            title = "MAINTENANCE",
+            items = listOf(
                 SettingsItemUi(
                     title = "Delete All Transactions",
                     icon = Icons.Filled.Delete,
                     trailing = "Only transactions",
                     actionId = SettingsActionId.DeleteAllTransactions
                 )
-            )
-        ),
-        SettingsSectionUi(
-            title = "STORAGE (COMING SOON)",
-            items = listOf(
-                SettingsItemUi(title = "Backup", icon = Icons.Filled.Sync, showChevron = false),
-                SettingsItemUi(title = "Restore", icon = Icons.Filled.Refresh, showChevron = false),
-                SettingsItemUi(title = "Export", icon = Icons.Filled.SettingsApplications, showChevron = false)
             )
         )
     )
@@ -123,6 +180,40 @@ fun DataManagementScreen(
                             section = section,
                             onItemClick = { actionId ->
                                 when (actionId) {
+                                    SettingsActionId.DatabaseBackup -> {
+                                        onPrepareForExternalActivity()
+                                        databaseBackupFileCreator.launch(
+                                            "expense_tracker_backup_$todayLabel.db"
+                                        )
+                                    }
+                                    SettingsActionId.DatabaseRestore -> {
+                                        onPrepareForExternalActivity()
+                                        databaseRestoreFilePicker.launch(
+                                            arrayOf(
+                                                "application/octet-stream",
+                                                "application/x-sqlite3",
+                                                "application/vnd.sqlite3",
+                                                "*/*"
+                                            )
+                                        )
+                                    }
+                                    SettingsActionId.JsonExport -> {
+                                        onPrepareForExternalActivity()
+                                        jsonExportFileCreator.launch(
+                                            "expense_tracker_export_$todayLabel.json"
+                                        )
+                                    }
+                                    SettingsActionId.JsonImport -> {
+                                        onPrepareForExternalActivity()
+                                        jsonImportFilePicker.launch(
+                                            arrayOf(
+                                                "application/json",
+                                                "text/json",
+                                                "text/plain",
+                                                "application/octet-stream"
+                                            )
+                                        )
+                                    }
                                     SettingsActionId.LegacyImport -> {
                                         onPrepareForExternalActivity()
                                         legacyImportFilePicker.launch(
@@ -179,6 +270,50 @@ fun DataManagementScreen(
             },
             dismissButton = {
                 TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
+                    Text(
+                        text = "Cancel",
+                        color = PurpleAccent,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        )
+    }
+
+    pendingRestoreUri?.let { selectedUri ->
+        AlertDialog(
+            onDismissRequest = { pendingRestoreUri = null },
+            containerColor = Color(0xFF18181A),
+            title = {
+                Text(
+                    text = "Restore database?",
+                    color = Color(0xFFF2EDF9),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = "This will overwrite your current database with the selected .db backup. It will not merge missing records. Existing database data will be replaced.",
+                    color = Color(0xFFB7AEC8),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingRestoreUri = null
+                        onDatabaseRestoreFileSelected(selectedUri)
+                    }
+                ) {
+                    Text(
+                        text = "Restore",
+                        color = Color(0xFFFFAAA0),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
                         text = "Cancel",
                         color = PurpleAccent,

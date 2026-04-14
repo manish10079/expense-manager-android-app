@@ -6,9 +6,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.legacy.LegacyImportRepository
 import com.mkn0079.expensetracker.data.legacy.LegacyImportResult
-import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mkn0079.expensetracker.data.repository.CategoryRepository
 import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
+import com.mkn0079.expensetracker.data.repository.JsonExportResult
+import com.mkn0079.expensetracker.data.repository.JsonImportResult
 import com.mkn0079.expensetracker.data.repository.PaymentMethodRepository
 import com.mkn0079.expensetracker.data.repository.RecurringRuleRepository
 import com.mkn0079.expensetracker.data.repository.TransactionRepository
@@ -51,6 +52,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ExpenseTrackerRepositoryProvider.paymentMethodRepository(appContext)
     private val recurringRuleRepository: RecurringRuleRepository =
         ExpenseTrackerRepositoryProvider.recurringRuleRepository(appContext)
+    private val dataManagementRepository =
+        ExpenseTrackerRepositoryProvider.dataManagementRepository(appContext)
     private val legacyImportRepository = LegacyImportRepository(appContext)
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -216,6 +219,74 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val result = withContext(Dispatchers.IO) {
                     legacyImportRepository.importBackup(uri)
+                }
+                onComplete(result)
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
+        }
+    }
+
+    fun backupDatabase(
+        uri: Uri,
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    dataManagementRepository.backupDatabase(uri)
+                }
+                onComplete()
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
+        }
+    }
+
+    fun restoreDatabase(
+        uri: Uri,
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    dataManagementRepository.restoreDatabase(uri)
+                }
+                onComplete()
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
+        }
+    }
+
+    fun exportJson(
+        uri: Uri,
+        onComplete: (JsonExportResult) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    dataManagementRepository.exportJson(uri)
+                }
+                onComplete(result)
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
+        }
+    }
+
+    fun importJson(
+        uri: Uri,
+        onComplete: (JsonImportResult) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    dataManagementRepository.importJson(uri)
                 }
                 onComplete(result)
             } catch (throwable: Throwable) {

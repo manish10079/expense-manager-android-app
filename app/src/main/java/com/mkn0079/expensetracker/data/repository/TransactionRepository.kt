@@ -10,7 +10,6 @@ import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.security.MessageDigest
 import java.util.UUID
 
 data class TransactionSummary(
@@ -65,7 +64,7 @@ class TransactionRepository(context: Context) {
         val existing = transaction.id.takeIf { it.isNotBlank() }?.let { dao.getById(it) }
         val resolved = transaction.copy(
             id = transaction.id.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString(),
-            contentHash = buildContentHash(transaction),
+            contentHash = TransactionContentHashBuilder.build(transaction),
             syncState = if (existing == null) SyncState.LOCAL_ONLY else SyncState.PENDING_UPLOAD,
             updatedAt = now
         )
@@ -86,20 +85,6 @@ class TransactionRepository(context: Context) {
             recurringRuleDao.deleteAll()
             dao.deleteAll()
         }
-    }
-
-    private fun buildContentHash(transaction: Transaction): String {
-        val raw = listOf(
-            transaction.note.trim(),
-            transaction.amountMinor.toString(),
-            transaction.createdAt.toString(),
-            transaction.transactionTypeId.toString(),
-            transaction.paymentTypeId.toString(),
-            transaction.categoryId.toString(),
-            transaction.sourceRecurringRuleId.orEmpty()
-        ).joinToString(separator = "|")
-        val digest = MessageDigest.getInstance("SHA-256").digest(raw.toByteArray())
-        return digest.joinToString(separator = "") { "%02x".format(it) }
     }
 }
 

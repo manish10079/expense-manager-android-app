@@ -43,7 +43,7 @@ The current default is 'true'.
 > Task :app:kspDebugKotlin
 > Task :app:compileDebugKotlin
 
-BUILD SUCCESSFUL in 56s
+BUILD SUCCESSFUL in 34s
 7 actionable tasks: 2 executed, 5 up-to-date
 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.3.1/userguide/configuration_cache_enabling.html
 
