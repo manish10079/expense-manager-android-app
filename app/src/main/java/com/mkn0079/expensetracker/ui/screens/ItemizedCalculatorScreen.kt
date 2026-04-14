@@ -41,6 +41,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -243,43 +252,70 @@ private fun CalculatorModeTabs(
     selectedMode: CalculatorMode,
     onModeSelected: (CalculatorMode) -> Unit
 ) {
-    Row(
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableIntStateOf(0) }
+    val selectedIndex = CalculatorMode.entries.indexOf(selectedMode).coerceAtLeast(0)
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFF17171A))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(4.dp)
     ) {
-        CalculatorMode.entries.forEach { mode ->
-            val isSelected = selectedMode == mode
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / CalculatorMode.entries.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "calculator_mode_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        if (isSelected) {
-                            Brush.horizontalGradient(
-                                colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                            )
-                        } else {
-                            Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, Color.Transparent)
-                            )
-                        }
+                        Brush.horizontalGradient(
+                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                        )
                     )
-                    .clickable { onModeSelected(mode) }
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = mode.title,
-                    color = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            CalculatorMode.entries.forEach { mode ->
+                val isSelected = selectedMode == mode
+                val animatedColor by animateColorAsState(
+                    targetValue = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    label = "calculator_mode_text_color"
                 )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { onModeSelected(mode) }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = mode.title,
+                        color = animatedColor,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    )
+                }
             }
         }
     }

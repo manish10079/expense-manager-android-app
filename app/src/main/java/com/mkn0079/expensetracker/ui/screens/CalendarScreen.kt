@@ -55,6 +55,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -308,26 +317,59 @@ private fun ViewModeToggle(
     onSelectMonth: () -> Unit,
     onSelectYear: () -> Unit
 ) {
-    Row(
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFF17171A))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(4.dp)
     ) {
-        ToggleSegment(
-            modifier = Modifier.weight(1f),
-            label = "Month",
-            selected = !isYearView,
-            onClick = onSelectMonth
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / 2 }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = if (isYearView) tabWidth else 0.dp,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "calendar_indicator_offset"
         )
-        ToggleSegment(
-            modifier = Modifier.weight(1f),
-            label = "Year",
-            selected = isYearView,
-            onClick = onSelectYear
-        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                        )
+                    )
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            ToggleSegment(
+                modifier = Modifier.weight(1f),
+                label = "Month",
+                selected = !isYearView,
+                onClick = onSelectMonth
+            )
+            ToggleSegment(
+                modifier = Modifier.weight(1f),
+                label = "Year",
+                selected = isYearView,
+                onClick = onSelectYear
+            )
+        }
     }
 }
 
@@ -338,27 +380,21 @@ private fun ToggleSegment(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+        label = "calendar_toggle_text_color"
+    )
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(
-                if (selected) {
-                    Brush.horizontalGradient(
-                        colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                    )
-                } else {
-                    Brush.horizontalGradient(
-                        colors = listOf(Color.Transparent, Color.Transparent)
-                    )
-                }
-            )
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+            color = animatedColor,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
@@ -661,7 +697,7 @@ private fun YearHeading(
             Text(
                 text = year.toString(),
                 color = CalendarTextPrimary,
-                fontSize = 42.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.clickable(onClick = onOpenYearPicker)
             )

@@ -59,6 +59,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -632,42 +642,70 @@ private fun RecurringTransactionSection(
         if (isEnabled) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionHeader(title = "FREQUENCY")
-                Row(
+                
+                val density = LocalDensity.current
+                var containerWidthPx by remember { mutableIntStateOf(0) }
+                val selectedIndex = recurringModeOptions.indexOfFirst { it.frequency == selectedFrequency }.coerceAtLeast(0)
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .onSizeChanged { containerWidthPx = it.width }
                         .clip(RoundedCornerShape(24.dp))
                         .background(Color(0xFF17171A))
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(4.dp)
                 ) {
-                    recurringModeOptions.forEach { option ->
-                        val selected = option.frequency == selectedFrequency
+                    val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
+                    
+                    val indicatorOffset by animateDpAsState(
+                        targetValue = tabWidth * selectedIndex,
+                        animationSpec = spring(stiffness = Spring.StiffnessLow),
+                        label = "recurring_freq_indicator_offset"
+                    )
+
+                    // Sliding indicator (Pill)
+                    if (containerWidthPx > 0) {
                         Box(
                             modifier = Modifier
-                                .weight(1f)
+                                .offset(x = indicatorOffset)
+                                .width(tabWidth)
+                                .fillMaxHeight()
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(
-                                    if (selected) {
-                                        Brush.horizontalGradient(
-                                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                                        )
-                                    } else {
-                                        Brush.horizontalGradient(
-                                            colors = listOf(Color.Transparent, Color.Transparent)
-                                        )
-                                    }
+                                    Brush.horizontalGradient(
+                                        colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                                    )
                                 )
-                                .clickable { onFrequencySelected(option.frequency) }
-                                .padding(vertical = if (compact) 10.dp else 12.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = option.label,
-                                color = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        recurringModeOptions.forEach { option ->
+                            val selected = option.frequency == selectedFrequency
+                            val animatedColor by animateColorAsState(
+                                targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                                label = "recurring_freq_text_color"
                             )
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .clickable { onFrequencySelected(option.frequency) }
+                                    .padding(vertical = if (compact) 10.dp else 12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = option.label,
+                                    color = animatedColor,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -708,43 +746,70 @@ private fun TransactionModeToggle(
     compact: Boolean,
     onModeSelected: (Int) -> Unit
 ) {
-    Row(
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableIntStateOf(0) }
+    val selectedIndex = transactionModes.indexOfFirst { it.id == selectedModeId }.coerceAtLeast(0)
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFF17171A))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(4.dp)
     ) {
-        transactionModes.forEach { mode ->
-            val isSelected = mode.id == selectedModeId
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / transactionModes.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "transaction_mode_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        if (isSelected) {
-                            Brush.horizontalGradient(
-                                colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                            )
-                        } else {
-                            Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, Color.Transparent)
-                            )
-                        }
+                        Brush.horizontalGradient(
+                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                        )
                     )
-                    .clickable { onModeSelected(mode.id) }
-                    .padding(vertical = if (compact) 10.dp else 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = mode.label,
-                    color = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = if (compact) 14.sp else 15.sp
-                    )
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            transactionModes.forEach { mode ->
+                val isSelected = mode.id == selectedModeId
+                val animatedColor by animateColorAsState(
+                    targetValue = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    label = "transaction_mode_text_color"
                 )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { onModeSelected(mode.id) }
+                        .padding(vertical = if (compact) 10.dp else 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = mode.label,
+                        color = animatedColor,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 14.sp else 15.sp
+                        )
+                    )
+                }
             }
         }
     }

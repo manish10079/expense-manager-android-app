@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,11 +43,22 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -264,45 +276,82 @@ private fun PeriodTabs(
     selectedPeriod: AnalyticsPeriod,
     onPeriodSelected: (AnalyticsPeriod) -> Unit
 ) {
-    Row(
+    val periods = remember { AnalyticsPeriod.entries.filter { it != AnalyticsPeriod.CUSTOM } }
+    val selectedIndex = periods.indexOf(selectedPeriod)
+    val isTabSelected = selectedIndex != -1
+
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFF17171A))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(4.dp)
     ) {
-        AnalyticsPeriod.entries.forEach { period ->
-            if (period == AnalyticsPeriod.CUSTOM) return@forEach
-            val selected = period == selectedPeriod
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = if (isTabSelected) tabWidth * selectedIndex else 0.dp,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "period_indicator_offset"
+        )
+
+        val indicatorAlpha by animateFloatAsState(
+            targetValue = if (isTabSelected) 1f else 0f,
+            label = "period_indicator_alpha"
+        )
+
+        // Sliding indicator (Pill)
+        if (indicatorAlpha > 0f && containerWidthPx > 0) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .graphicsLayer { alpha = indicatorAlpha }
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        if (selected) {
-                            Brush.horizontalGradient(
-                                colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                            )
-                        } else {
-                            Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, Color.Transparent)
-                            )
-                        }
+                        Brush.horizontalGradient(
+                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                        )
                     )
-                    .clickable { onPeriodSelected(period) }
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = period.label,
-                    color = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    ),
-                    modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+
+        // Tab Content
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            periods.forEach { period ->
+                val selected = period == selectedPeriod
+                val animatedColor by animateColorAsState(
+                    targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    label = "period_text_color"
                 )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { onPeriodSelected(period) }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = period.label,
+                        color = animatedColor,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        ),
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
             }
         }
     }

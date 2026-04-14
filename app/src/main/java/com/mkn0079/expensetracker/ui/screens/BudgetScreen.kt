@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -62,7 +64,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -466,26 +479,62 @@ private fun BudgetPeriodRow(
     selectedPeriod: BudgetPeriodFilter,
     onPeriodSelected: (BudgetPeriodFilter) -> Unit
 ) {
-    Row(
+    val periods = remember { BudgetPeriodFilter.entries }
+    val selectedIndex = periods.indexOf(selectedPeriod).coerceAtLeast(0)
+    
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFF17171A))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(4.dp)
     ) {
-        BudgetPeriodFilter.entries.forEach { period ->
-            BudgetPeriodChip(
-                label = when (period) {
-                    BudgetPeriodFilter.ThisMonth -> "THIS MONTH"
-                    BudgetPeriodFilter.LastMonth -> "LAST MONTH"
-                    BudgetPeriodFilter.CustomMonth -> "CUSTOM MONTH"
-                },
-                selected = period == selectedPeriod,
-                onClick = { onPeriodSelected(period) },
-                modifier = Modifier.weight(1f)
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "budget_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                        )
+                    )
             )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            periods.forEach { period ->
+                BudgetPeriodChip(
+                    label = when (period) {
+                        BudgetPeriodFilter.ThisMonth -> "THIS MONTH"
+                        BudgetPeriodFilter.LastMonth -> "LAST MONTH"
+                        BudgetPeriodFilter.CustomMonth -> "CUSTOM MONTH"
+                    },
+                    selected = period == selectedPeriod,
+                    onClick = { onPeriodSelected(period) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -497,32 +546,27 @@ private fun BudgetPeriodChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+        label = "budget_text_color"
+    )
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(
-                if (selected) {
-                    Brush.horizontalGradient(
-                        colors = listOf(PurplePrimary, Color(0xFFB89AF7))
-                    )
-                } else {
-                    Brush.horizontalGradient(
-                        colors = listOf(Color.Transparent, Color.Transparent)
-                    )
-                }
-            )
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 12.dp),
+            .padding(horizontal = 4.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+            color = animatedColor,
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
                 lineHeight = 15.sp,
                 letterSpacing = 0.sp,
-                fontSize = 12.sp
+                fontSize = 11.sp
             )
         )
     }
