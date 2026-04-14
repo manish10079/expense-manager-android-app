@@ -79,19 +79,10 @@ fun SplashOverlay(viewModel: SplashViewModel) {
         initialValue = 0.94f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1300, easing = LinearEasing),
+            animation = tween(durationMillis = 900, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "logo_pulse_scale"
-    )
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.22f,
-        targetValue = 0.45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1300, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
     )
 
     Box(
@@ -107,23 +98,6 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                 )
             )
     ) {
-        // Top Glow
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 72.dp)
-                .size(width = 300.dp, height = 240.dp)
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            PurpleGlow.copy(alpha = glowAlpha),
-                            Color.Transparent
-                        )
-                    ),
-                    shape = CircleShape
-                )
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,13 +109,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             Box(
                 modifier = Modifier
                     .size(SplashLogoSize)
-                    .scale(pulseScale)
-                    .shadow(
-                        elevation = 84.dp,
-                        shape = CircleShape,
-                        ambientColor = PurplePrimary.copy(alpha = 0.55f),
-                        spotColor = PurpleAccent.copy(alpha = 0.48f)
-                    ),
+                    .scale(pulseScale),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
