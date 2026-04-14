@@ -62,7 +62,7 @@ fun TransactionCard(
                 shape = RoundedCornerShape(28.dp)
             )
             .clickable(onClick = onClick)
-            .height(88.dp),
+            .height(70.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.width(14.dp))
@@ -198,7 +198,7 @@ private fun BoxIcon(
 ) {
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
-            .size(52.dp)
+            .size(42.dp)
             .clip(CircleShape)
             .background(Color(0xFF3D3159))
             .border(
@@ -212,7 +212,7 @@ private fun BoxIcon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = Color(0xFFE2D8FF),
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }

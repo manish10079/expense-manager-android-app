@@ -299,6 +299,14 @@ fun MainScaffold(
                             onNotificationsClick = {
                                 onBottomBarVisibilityChange(false)
                                 onRouteChange("notification_settings")
+                            },
+                            onTransactionCardCustomizeClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("transaction_card_customize")
+                            },
+                            onBackClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("home")
                             }
                         )
                     }
@@ -396,7 +404,7 @@ fun MainScaffold(
                             onSettingsChange = onTransactionCardCustomizationSettingsChange,
                             onBackClick = {
                                 onBottomBarVisibilityChange(false)
-                                onRouteChange("preferences")
+                                onRouteChange("settings")
                             }
                         )
                     }

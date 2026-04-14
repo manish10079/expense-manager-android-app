@@ -45,9 +45,9 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
-private val BottomBarContainerHeight = 90.dp
-private val BottomBarCenterActionSize = 48.dp
-private val BottomBarCenterSpacerWidth = 54.dp
+private val BottomBarContainerHeight = 72.dp
+private val BottomBarCenterActionSize = 40.dp
+private val BottomBarCenterSpacerWidth = 44.dp
 private val BottomBarBottomPadding = 0.dp
 
 @Composable
@@ -86,7 +86,7 @@ fun AppBottomBar(
                         color = Color.White.copy(alpha = 0.05f),
                         shape = shellShape
                     )
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -130,7 +130,7 @@ fun AppBottomBar(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "Add transaction",
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
