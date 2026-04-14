@@ -1,5 +1,8 @@
 package com.mkn0079.expensetracker
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Build
 import android.graphics.Color as AndroidColor
@@ -20,11 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.models.defaultUserProfile
+import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -60,15 +66,28 @@ class MainActivity : FragmentActivity() {
             navigationBarStyle = SystemBarStyle.dark(BackgroundDark.toArgb())
         )
 
+        NotificationHelper.createNotificationChannels(this)
+        checkAndRequestNotificationPermission()
+
         setContent {
-            AppRoot(splashViewModel)
+            AppRoot(splashViewModel, intent)
+        }
+    }
+
+    private fun checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
         }
     }
 
     @Composable
-    private fun AppRoot(viewModel: SplashViewModel) {
+    private fun AppRoot(viewModel: SplashViewModel, intent: Intent) {
         val isReady by viewModel.isReady.collectAsState()
         val context = applicationContext
+        
+        val initialNavDestination = intent.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
         // Observe settings for theme and privacy
         val appSettings by AppSettingsDataStore
@@ -96,7 +115,8 @@ class MainActivity : FragmentActivity() {
 
                     MainScreen(
                         appSettings = settings,
-                        userProfile = userProfile
+                        userProfile = userProfile,
+                        initialNavDestination = initialNavDestination
                     )
                 }
 

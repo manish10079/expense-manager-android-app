@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
@@ -57,6 +58,7 @@ object AppSettingsDataStore {
             booleanPreferencesKey("transaction_card_show_category_icon")
         val transactionCardShowDateSeparators =
             booleanPreferencesKey("transaction_card_show_date_separators")
+        val installDateMillis = longPreferencesKey("install_date_millis")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -78,6 +80,9 @@ object AppSettingsDataStore {
             )
 
             preferences.writeAppSettings(initialSettings)
+            if (preferences[Keys.installDateMillis] == null || preferences[Keys.installDateMillis] == 0L) {
+                preferences[Keys.installDateMillis] = System.currentTimeMillis()
+            }
             preferences[Keys.initialized] = true
         }
     }
@@ -140,7 +145,8 @@ object AppSettingsDataStore {
             transactionCardShowCategoryIcon = this[Keys.transactionCardShowCategoryIcon]
                 ?: defaultAppSettings.transactionCardShowCategoryIcon,
             transactionCardShowDateSeparators = this[Keys.transactionCardShowDateSeparators]
-                ?: defaultAppSettings.transactionCardShowDateSeparators
+                ?: defaultAppSettings.transactionCardShowDateSeparators,
+            installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis
         )
     }
 
@@ -177,6 +183,7 @@ object AppSettingsDataStore {
             settings.transactionCardShowCategoryIcon
         this[Keys.transactionCardShowDateSeparators] =
             settings.transactionCardShowDateSeparators
+        this[Keys.installDateMillis] = settings.installDateMillis
     }
 
     private fun sortTypeOrDefault(value: String): SortType {

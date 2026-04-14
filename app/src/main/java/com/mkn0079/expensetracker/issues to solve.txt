@@ -1,0 +1,20 @@
+# ISSUES TO SOLVE
+
+## 1. Custom Category Fallback Improvement
+- **Description**: Currently, the app defaults to a "Question Mark" icon for all custom categories (even active ones) because icon resolution only checks a static system map.
+- **Goal**: Update the transaction loading logic to fetch custom category names and icon keys from the database, and use the `ExpenseTrackerIconRegistry` to resolve the correct icons.
+- **Benefit**: Users will see their chosen icons and names for all transactions, ensuring a premium experience even after categories or payment methods are soft-deleted.
+
+---
+
+## 2. Recurring Transaction Deletion Crash
+- **Status**: Open
+- **Priority**: High
+- **Problem**: The app crashes with an `SQLiteConstraintException` when attempting to delete a recurring rule for a transaction that already has a previously deleted rule.
+- **Root Cause**: The unique index on `["transaction_id", "is_deleted"]` in `RecurringRuleEntity.kt` prevents having multiple deleted records for the same transaction.
+- **Proposed Fix**: Remove the `unique = true` constraint from the index and perform a database migration.
+- **Reproduce Steps**: 
+    1. Create recurring rule for "Lunch".
+    2. Delete the rule.
+    3. Re-create recurring rule for "Lunch".
+    4. Delete the rule again -> Crash.

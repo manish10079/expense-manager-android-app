@@ -30,6 +30,7 @@ const val DEFAULT_TRANSACTION_CARD_SHOW_PAYMENT_METHOD = false
 const val DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_TIME = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_CATEGORY_ICON = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_DATE_SEPARATORS = false
+const val DEFAULT_INSTALL_DATE_MILLIS = 0L
 
 val defaultAppSettings = AppSettings(
     currencyId = DEFAULT_CURRENCY_ID,
@@ -57,5 +58,6 @@ val defaultAppSettings = AppSettings(
     transactionCardShowPaymentMethod = DEFAULT_TRANSACTION_CARD_SHOW_PAYMENT_METHOD,
     transactionCardShowTransactionTime = DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_TIME,
     transactionCardShowCategoryIcon = DEFAULT_TRANSACTION_CARD_SHOW_CATEGORY_ICON,
-    transactionCardShowDateSeparators = DEFAULT_TRANSACTION_CARD_SHOW_DATE_SEPARATORS
+    transactionCardShowDateSeparators = DEFAULT_TRANSACTION_CARD_SHOW_DATE_SEPARATORS,
+    installDateMillis = DEFAULT_INSTALL_DATE_MILLIS
 )

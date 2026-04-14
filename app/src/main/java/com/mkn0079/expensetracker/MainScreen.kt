@@ -31,6 +31,8 @@ import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import com.mkn0079.expensetracker.ui.components.MainScaffold
 import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
 import com.mkn0079.expensetracker.ui.navigation.routesKeepingTransactionsWarm
+import com.mkn0079.expensetracker.notifications.NotificationHelper
+import com.mkn0079.expensetracker.notifications.NotificationScheduler
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
@@ -65,7 +67,8 @@ private fun AppSettings.withTransactionCardCustomizationSettings(
 @Composable
 fun MainScreen(
     appSettings: AppSettings,
-    userProfile: UserProfile
+    userProfile: UserProfile,
+    initialNavDestination: String? = null
 ) {
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
@@ -260,6 +263,21 @@ fun MainScreen(
             }
         )
         return
+    }
+
+    LaunchedEffect(initialNavDestination) {
+        if (initialNavDestination == NotificationHelper.DESTINATION_ADD_TRANSACTION) {
+            currentRoute = "add_transaction"
+            isBottomBarVisible = false
+        }
+    }
+
+    LaunchedEffect(isDailyReminderEnabled) {
+        if (isDailyReminderEnabled) {
+            NotificationScheduler.startDailyReminders(context)
+        } else {
+            NotificationScheduler.stopDailyReminders(context)
+        }
     }
 
     LaunchedEffect(

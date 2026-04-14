@@ -125,6 +125,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 existingRule != null -> recurringRuleRepository.deleteRule(existingRule.id)
             }
+            
+            // Check budget and notify if needed
+            transactionRepository.checkBudgetAndNotify(appContext, savedTransaction)
         }
     }
 

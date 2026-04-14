@@ -101,6 +101,28 @@ interface TransactionDao {
     @Query("SELECT COUNT(*) FROM transactions")
     suspend fun countAll(): Int
 
+    @Query(
+        """
+        SELECT COALESCE(SUM(amount_minor), 0)
+        FROM transactions
+        WHERE category_id = :categoryId
+          AND is_deleted = 0
+          AND transaction_type_id = 2
+          AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') = :monthStr
+        """
+    )
+    suspend fun getMonthlyCategorySpending(categoryId: Int, monthStr: String): Long
+
+    @Query(
+        """
+        SELECT COUNT(*)
+        FROM transactions
+        WHERE is_deleted = 0
+          AND strftime('%Y-%m-%d', occurred_at / 1000, 'unixepoch', 'localtime') = :dayStr
+        """
+    )
+    suspend fun getTodayTransactionCount(dayStr: String): Int
+
     @Upsert
     suspend fun upsert(transaction: TransactionEntity)
 
