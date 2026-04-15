@@ -114,6 +114,7 @@ class MainActivity : FragmentActivity() {
                     }
 
                     MainScreen(
+                        isReady = isReady,
                         appSettings = settings,
                         userProfile = userProfile,
                         initialNavDestination = initialNavDestination

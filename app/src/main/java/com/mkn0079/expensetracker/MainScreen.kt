@@ -67,6 +67,7 @@ private fun AppSettings.withTransactionCardCustomizationSettings(
 
 @Composable
 fun MainScreen(
+    isReady: Boolean,
     appSettings: AppSettings,
     userProfile: UserProfile,
     initialNavDestination: String? = null
@@ -321,8 +322,9 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(appLockFlow, canUseBiometricOnLockScreen) {
+    LaunchedEffect(appLockFlow, canUseBiometricOnLockScreen, isReady) {
         if (
+            isReady &&
             appLockFlow == AppLockFlow.Unlock &&
             canUseBiometricOnLockScreen &&
             !hasPromptedBiometricForCurrentUnlock
