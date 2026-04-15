@@ -640,7 +640,10 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = "Cash Flow Ratio",
                     color = Color(0xFFF0EBF8),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     LegendDot("INCOME", Color(0xFFC9B3FF))
