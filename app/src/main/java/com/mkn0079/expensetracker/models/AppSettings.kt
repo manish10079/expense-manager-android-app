@@ -30,5 +30,8 @@ data class AppSettings(
     val transactionCardShowTransactionTime: Boolean,
     val transactionCardShowCategoryIcon: Boolean,
     val transactionCardShowDateSeparators: Boolean,
-    val installDateMillis: Long
+    val installDateMillis: Long,
+    val isAutoBackupEnabled: Boolean,
+    val autoBackupFrequencyDays: Int,
+    val lastAutoBackupTimeMillis: Long
 )

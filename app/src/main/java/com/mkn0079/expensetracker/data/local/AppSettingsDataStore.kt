@@ -59,6 +59,9 @@ object AppSettingsDataStore {
         val transactionCardShowDateSeparators =
             booleanPreferencesKey("transaction_card_show_date_separators")
         val installDateMillis = longPreferencesKey("install_date_millis")
+        val isAutoBackupEnabled = booleanPreferencesKey("is_auto_backup_enabled")
+        val autoBackupFrequencyDays = intPreferencesKey("auto_backup_frequency_days")
+        val lastAutoBackupTimeMillis = longPreferencesKey("last_auto_backup_time_millis")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -146,7 +149,10 @@ object AppSettingsDataStore {
                 ?: defaultAppSettings.transactionCardShowCategoryIcon,
             transactionCardShowDateSeparators = this[Keys.transactionCardShowDateSeparators]
                 ?: defaultAppSettings.transactionCardShowDateSeparators,
-            installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis
+            installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis,
+            isAutoBackupEnabled = this[Keys.isAutoBackupEnabled] ?: defaultAppSettings.isAutoBackupEnabled,
+            autoBackupFrequencyDays = this[Keys.autoBackupFrequencyDays] ?: defaultAppSettings.autoBackupFrequencyDays,
+            lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis
         )
     }
 
@@ -184,6 +190,9 @@ object AppSettingsDataStore {
         this[Keys.transactionCardShowDateSeparators] =
             settings.transactionCardShowDateSeparators
         this[Keys.installDateMillis] = settings.installDateMillis
+        this[Keys.isAutoBackupEnabled] = settings.isAutoBackupEnabled
+        this[Keys.autoBackupFrequencyDays] = settings.autoBackupFrequencyDays
+        this[Keys.lastAutoBackupTimeMillis] = settings.lastAutoBackupTimeMillis
     }
 
     private fun sortTypeOrDefault(value: String): SortType {

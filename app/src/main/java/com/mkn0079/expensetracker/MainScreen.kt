@@ -39,6 +39,7 @@ import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.mkn0079.expensetracker.workers.AutoBackupScheduler
 
 private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCardCustomizationSettings {
     return TransactionCardCustomizationSettings(
@@ -98,6 +99,8 @@ fun MainScreen(
     val isDailyReminderEnabled = appSettings.notificationsEnabled
     val isBudgetLimitAlertsEnabled = appSettings.budgetLimitAlertsEnabled
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
+    val isAutoBackupEnabled = appSettings.isAutoBackupEnabled
+    val autoBackupFrequencyDays = appSettings.autoBackupFrequencyDays
     val transactionCardCustomizationSettings = remember(appSettings) {
         appSettings.toTransactionCardCustomizationSettings()
     }
@@ -302,6 +305,10 @@ fun MainScreen(
         }
     }
 
+    LaunchedEffect(isAutoBackupEnabled, autoBackupFrequencyDays) {
+        AutoBackupScheduler.scheduleOrUpdate(context, isAutoBackupEnabled, autoBackupFrequencyDays)
+    }
+
     LaunchedEffect(
         showOnboarding,
         isAppLockEnabled,
@@ -362,6 +369,8 @@ fun MainScreen(
             isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
             isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
             autoLockDurationMinutes = autoLockDurationMinutes,
+            isAutoBackupEnabled = isAutoBackupEnabled,
+            autoBackupFrequencyDays = autoBackupFrequencyDays,
             onRouteChange = { route ->
                 if (route == "add_transaction" && currentRoute != "itemized_calculator") {
                     previousRoute = currentRoute
@@ -536,6 +545,20 @@ fun MainScreen(
                 coroutineScope.launch {
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(appLockTimeoutMinutes = minutes)
+                    }
+                }
+            },
+            onAutoBackupEnabledChange = { enabled ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(isAutoBackupEnabled = enabled)
+                    }
+                }
+            },
+            onAutoBackupFrequencyChange = { days ->
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(autoBackupFrequencyDays = days)
                     }
                 }
             },

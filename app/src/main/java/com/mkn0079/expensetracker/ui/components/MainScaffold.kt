@@ -75,6 +75,8 @@ fun MainScaffold(
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
     autoLockDurationMinutes: Int,
+    isAutoBackupEnabled: Boolean,
+    autoBackupFrequencyDays: Int,
     onRouteChange: (String) -> Unit,
     onProfileOriginRouteChange: (String) -> Unit,
     onBottomBarVisibilityChange: (Boolean) -> Unit,
@@ -108,6 +110,8 @@ fun MainScaffold(
     onScreenshotProtectionChange: (Boolean) -> Unit,
     onAutoLockDurationChange: (Int) -> Unit,
     onAppLockToggleChange: (Boolean) -> Unit,
+    onAutoBackupEnabledChange: (Boolean) -> Unit,
+    onAutoBackupFrequencyChange: (Int) -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
     val showFixedBottomNavBar = currentRoute != "add_transaction" &&
@@ -377,6 +381,10 @@ fun MainScaffold(
                             onJsonImportFileSelected = onJsonImportFileSelected,
                             onLegacyImportFileSelected = onLegacyImportFileSelected,
                             onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
+                            isAutoBackupEnabled = isAutoBackupEnabled,
+                            autoBackupFrequencyDays = autoBackupFrequencyDays,
+                            onAutoBackupEnabledChange = onAutoBackupEnabledChange,
+                            onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
                             onPrepareForExternalActivity = onPrepareForExternalActivity,
                             onBackClick = {
                                 onBottomBarVisibilityChange(false)
