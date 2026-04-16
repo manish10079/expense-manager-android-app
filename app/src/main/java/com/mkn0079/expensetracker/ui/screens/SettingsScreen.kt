@@ -266,7 +266,7 @@ private fun SettingsHeader(
             text = "Settings",
             color = PurplePrimary,
             style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp
             )
         )
@@ -320,11 +320,20 @@ private fun ProfileHero(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = userProfile.fullName,
-            color = Color(0xFFF2EDF9),
+            text = userProfile.fullName
+                .lowercase()
+                .split(" ")
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } },
             style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 30.sp,
+                letterSpacing = 0.5.sp,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        PurplePrimary.copy(alpha = 0.95f),
+                        PurpleAccent.copy(alpha = 0.90f)
+                    )
+                )
             )
         )
 
