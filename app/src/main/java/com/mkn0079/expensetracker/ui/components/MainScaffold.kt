@@ -223,7 +223,11 @@ fun MainScaffold(
                         AnalyticsScreen(
                             currencyId = selectedCurrencyId,
                             transactions = transactions,
-                            categories = categories
+                            categories = categories,
+                            onBackClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("home")
+                            }
                         )
                     }
                     "budget" -> {
@@ -233,7 +237,11 @@ fun MainScaffold(
                             availableCategories = categories,
                             recurringRules = recurringRules,
                             onDeleteRecurring = onDeleteRecurring,
-                            onRecurringEnabledChange = onRecurringEnabledChange
+                            onRecurringEnabledChange = onRecurringEnabledChange,
+                            onBackClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("home")
+                            }
                         )
                     }
                     "calendar" -> {
@@ -243,6 +251,10 @@ fun MainScaffold(
                             dateFormatPattern = selectedDateFormatPattern,
                             timeFormat = selectedTimeFormat,
                             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                            onBackClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("home")
+                            },
                             onTransactionClick = { transaction ->
                                 onSelectedTransactionChange(transaction)
                                 onBottomBarVisibilityChange(false)
@@ -257,6 +269,10 @@ fun MainScaffold(
                             timeFormat = selectedTimeFormat,
                             transactions = transactions,
                             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                            onBackClick = {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange("home")
+                            },
                             onAddTransactionClick = {
                                 onBottomBarVisibilityChange(false)
                                 onRouteChange("add_transaction")
@@ -423,7 +439,11 @@ fun MainScaffold(
                         ProfileScreen(
                             userProfile = userProfile,
                             dateFormatPattern = selectedDateFormatPattern,
-                            onSaveClick = onUserProfileChange,
+                            onSaveClick = { updatedProfile ->
+                                onUserProfileChange(updatedProfile)
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange(profileOriginRoute)
+                            },
                             onPrepareForExternalActivity = onPrepareForExternalActivity,
                             onBackClick = {
                                 onBottomBarVisibilityChange(false)

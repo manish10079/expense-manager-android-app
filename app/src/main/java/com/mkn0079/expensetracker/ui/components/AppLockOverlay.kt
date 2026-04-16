@@ -27,14 +27,16 @@ fun AppLockOverlay(
     onForgotPinRecovery: () -> Unit,
     validateSecurityAnswer: (String) -> Boolean
 ) {
+    val targetState = if (appLockFlow != null && (appLockFlow == AppLockFlow.Setup || !isAppUnlocked)) appLockFlow else null
+    
     AnimatedContent(
-        targetState = if (appLockFlow != null && (appLockFlow == AppLockFlow.Setup || !isAppUnlocked)) appLockFlow else null,
+        targetState = targetState,
         transitionSpec = {
             fadeIn(animationSpec = tween(500)) togetherWith
                 fadeOut(animationSpec = tween(500))
         },
         label = "app_lock_transition",
-        modifier = Modifier.fillMaxSize()
+        modifier = if (targetState != null) Modifier.fillMaxSize() else Modifier
     ) { flow ->
         if (flow != null) {
             AppLockScreen(

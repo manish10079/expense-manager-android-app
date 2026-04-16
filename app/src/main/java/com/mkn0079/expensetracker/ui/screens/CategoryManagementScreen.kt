@@ -745,7 +745,7 @@ private fun HeaderCircleButton(
 ) {
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(48.dp)
             .shadow(
                 elevation = 12.dp,
                 shape = CircleShape,

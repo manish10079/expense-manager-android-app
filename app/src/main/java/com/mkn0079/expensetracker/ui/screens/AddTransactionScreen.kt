@@ -554,18 +554,24 @@ private fun HeaderRow(
     ) {
         Box(
             modifier = Modifier
-                .size(if (compact) 36.dp else 40.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.06f))
+                .size(48.dp)
                 .clickable(onClick = onBackClick),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Back",
-                tint = PurpleAccent,
-                modifier = Modifier.size(if (compact) 17.dp else 19.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(if (compact) 36.dp else 40.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.06f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    tint = PurpleAccent,
+                    modifier = Modifier.size(if (compact) 17.dp else 19.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(12.dp))
