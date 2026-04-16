@@ -32,7 +32,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -77,49 +82,61 @@ fun TransactionCardCustomizeScreen(
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val toggleItems = remember(settings, onSettingsChange) {
+    // Local state — initialized once from settings, then owned locally.
+    // No key on remember: avoids DataStore round-trip overriding user's uncommitted changes.
+    var localSettings by remember { mutableStateOf(settings) }
+
+    // Debounced persistence: write to DataStore 300ms after the last toggle.
+    // No early-return guard — DataStore is idempotent, and skipping writes caused
+    // "toggle not responding" when the user toggled back within the debounce window.
+    LaunchedEffect(localSettings) {
+        delay(300)
+        onSettingsChange(localSettings)
+    }
+
+    val toggleItems = remember(localSettings) {
         listOf(
             TransactionCardToggleItem(
                 title = "Income/Expense labels",
                 subtitle = "Toggle visibility of transaction tags",
                 icon = Icons.Outlined.Style,
-                checked = settings.showIncomeExpenseLabels,
-                onCheckedChange = { onSettingsChange(settings.copy(showIncomeExpenseLabels = it)) }
+                checked = localSettings.showIncomeExpenseLabels,
+                onCheckedChange = { localSettings = localSettings.copy(showIncomeExpenseLabels = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Transaction Date",
                 subtitle = "Display the transaction date",
                 icon = Icons.Outlined.DateRange,
-                checked = settings.showTransactionDate,
-                onCheckedChange = { onSettingsChange(settings.copy(showTransactionDate = it)) }
+                checked = localSettings.showTransactionDate,
+                onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Payment Method",
                 subtitle = "Display wallet or card used",
                 icon = Icons.Outlined.Wallet,
-                checked = settings.showPaymentMethod,
-                onCheckedChange = { onSettingsChange(settings.copy(showPaymentMethod = it)) }
+                checked = localSettings.showPaymentMethod,
+                onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Transaction Time",
                 subtitle = "Exact timestamp visibility",
                 icon = Icons.Outlined.Schedule,
-                checked = settings.showTransactionTime,
-                onCheckedChange = { onSettingsChange(settings.copy(showTransactionTime = it)) }
+                checked = localSettings.showTransactionTime,
+                onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Category Icon",
                 subtitle = "Visual category indicators",
                 icon = Icons.Outlined.Paid,
-                checked = settings.showCategoryIcon,
-                onCheckedChange = { onSettingsChange(settings.copy(showCategoryIcon = it)) }
+                checked = localSettings.showCategoryIcon,
+                onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Date Separators",
                 subtitle = "Group transactions by day",
                 icon = Icons.Outlined.DateRange,
-                checked = settings.showDateSeparators,
-                onCheckedChange = { onSettingsChange(settings.copy(showDateSeparators = it)) }
+                checked = localSettings.showDateSeparators,
+                onCheckedChange = { localSettings = localSettings.copy(showDateSeparators = it) }
             )
         )
     }
@@ -176,7 +193,7 @@ fun TransactionCardCustomizeScreen(
         }
 
 
-        if (settings.showDateSeparators) {
+        if (localSettings.showDateSeparators) {
             previewGroups.forEach { group ->
                 item(key = "preview_header_${group.key}") {
                     Text(
