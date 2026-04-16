@@ -14,14 +14,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -155,7 +162,6 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(BackgroundDark)
             .statusBarsPadding()
-            .navigationBarsPadding()
     ) {
         ProfileHeader(
             onBackClick = onBackClick
@@ -183,19 +189,8 @@ fun ProfileScreen(
                 onPrepareForExternalActivity = onPrepareForExternalActivity
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = fullName.ifBlank { "Guest User" },
-                color = Color(0xFFF1EDF8),
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 32.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Spacer(modifier = Modifier.height(16.dp))
 
             ProfileTextFieldCard(
                 label = "FULL NAME",
@@ -247,8 +242,15 @@ fun ProfileScreen(
                 onClick = { isGenderPickerVisible = true }
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime).only(WindowInsetsSides.Bottom))
+                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp)
+        ) {
             Button(
                 onClick = {
                     onSaveClick(
@@ -268,7 +270,7 @@ fun ProfileScreen(
                 enabled = !isPhotoProcessing,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(82.dp)
+                    .height(64.dp)
                     .shadow(
                         elevation = 28.dp,
                         shape = RoundedCornerShape(999.dp),
@@ -303,7 +305,6 @@ fun ProfileScreen(
                         )
                     )
                 }
-                Spacer(modifier = Modifier.height(110.dp))
             }
         }
     }

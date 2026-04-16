@@ -1,5 +1,6 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,14 +8,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -183,7 +191,7 @@ fun AppLockScreen(
 
         setupStage == PinSetupStage.Create -> "CREATE A 4-DIGIT PIN"
         setupStage == PinSetupStage.Confirm -> "CONFIRM YOUR PIN"
-        else -> "ADD PIN RECOVERY"
+        else -> ""
     }
     val headline = when {
         isRecoveryMode -> "Forgot Your PIN?"
@@ -207,6 +215,41 @@ fun AppLockScreen(
         setupStage == PinSetupStage.Confirm -> "Repeat the same 4 digits to finish setup."
         else -> "Choose one of the five questions and enter an answer you will remember."
     }
+    val primaryActionLabel = if (isRecoveryMode) "Disable App Lock" else "Save"
+    val density = LocalDensity.current
+    val imeBottom = WindowInsets.ime.getBottom(density)
+    val navigationBottom = WindowInsets.navigationBars.getBottom(density)
+    val primaryActionBottomPadding = with(density) {
+        if (imeBottom > navigationBottom) {
+            imeBottom.toDp() * 0.5f
+        } else {
+            navigationBottom.toDp()
+        }
+    }
+    val onPrimaryActionClick: () -> Unit = {
+        if (isRecoveryMode) {
+            if (securityQuestionPrompt == null) {
+                message = "Recovery question is not configured for this app lock."
+            } else if (recoveryAnswer.isBlank()) {
+                message = "Enter your answer to disable app lock."
+            } else if (validateSecurityAnswer(recoveryAnswer)) {
+                onForgotPinRecovery()
+            } else {
+                recoveryAnswer = ""
+                message = "Incorrect answer. Try again."
+            }
+        } else {
+            if (securityAnswer.isBlank()) {
+                message = "Enter an answer for your security question."
+            } else {
+                onSetupComplete(firstPin, selectedSecurityQuestionId, securityAnswer)
+            }
+        }
+    }
+
+    BackHandler(enabled = headerAction != null) {
+        headerAction?.invoke()
+    }
 
     Column(
         modifier = Modifier
@@ -221,7 +264,6 @@ fun AppLockScreen(
                 )
             )
             .statusBarsPadding()
-            .navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier
@@ -273,7 +315,7 @@ fun AppLockScreen(
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = 22.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
         ) {
             Box(
                 modifier = Modifier
@@ -302,18 +344,20 @@ fun AppLockScreen(
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = eyebrow,
-                    color = Color(0xFFB9B1C9),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 4.sp,
-                        fontSize = 12.sp
-                    ),
-                    textAlign = TextAlign.Center
-                )
+                if (eyebrow.isNotBlank()) {
+                    Text(
+                        text = eyebrow,
+                        color = Color(0xFFB9B1C9),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 4.sp,
+                            fontSize = 12.sp
+                        ),
+                        textAlign = TextAlign.Center
+                    )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
 
                 if (headline.isNotBlank()) {
                     Text(
@@ -351,18 +395,6 @@ fun AppLockScreen(
                             onAnswerChange = {
                                 recoveryAnswer = it
                                 message = null
-                            },
-                            onRecoverClick = {
-                                if (securityQuestionPrompt == null) {
-                                    message = "Recovery question is not configured for this app lock."
-                                } else if (recoveryAnswer.isBlank()) {
-                                    message = "Enter your answer to disable app lock."
-                                } else if (validateSecurityAnswer(recoveryAnswer)) {
-                                    onForgotPinRecovery()
-                                } else {
-                                    recoveryAnswer = ""
-                                    message = "Incorrect answer. Try again."
-                                }
                             }
                         )
                     }
@@ -378,13 +410,6 @@ fun AppLockScreen(
                             onAnswerChange = {
                                 securityAnswer = it
                                 message = null
-                            },
-                            onContinueClick = {
-                                if (securityAnswer.isBlank()) {
-                                    message = "Enter an answer for your security question."
-                                } else {
-                                    onSetupComplete(firstPin, selectedSecurityQuestionId, securityAnswer)
-                                }
                             }
                         )
                     }
@@ -418,9 +443,20 @@ fun AppLockScreen(
                     }
                 }
 
-                if (!isPinEntryVisible) {
-                    Spacer(modifier = Modifier.height(22.dp))
-                }
+                Spacer(modifier = Modifier.height(22.dp))
+            }
+        }
+
+        if (!isPinEntryVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = primaryActionBottomPadding)
+            ) {
+                PrimaryActionButton(
+                    label = primaryActionLabel,
+                    onClick = onPrimaryActionClick
+                )
             }
         }
     }
@@ -496,8 +532,7 @@ private fun SetupSecurityQuestionContent(
     selectedQuestionId: String,
     answer: String,
     onQuestionSelected: (String) -> Unit,
-    onAnswerChange: (String) -> Unit,
-    onContinueClick: () -> Unit
+    onAnswerChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -519,13 +554,6 @@ private fun SetupSecurityQuestionContent(
             placeholder = "Type your recovery answer",
             onValueChange = onAnswerChange
         )
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        PrimaryActionButton(
-            label = "Save App Lock",
-            onClick = onContinueClick
-        )
     }
 }
 
@@ -533,8 +561,7 @@ private fun SetupSecurityQuestionContent(
 private fun RecoveryQuestionContent(
     questionPrompt: String?,
     answer: String,
-    onAnswerChange: (String) -> Unit,
-    onRecoverClick: () -> Unit
+    onAnswerChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -561,11 +588,6 @@ private fun RecoveryQuestionContent(
             label = "Security Answer",
             placeholder = "Enter your answer",
             onValueChange = onAnswerChange
-        )
-
-        PrimaryActionButton(
-            label = "Disable App Lock",
-            onClick = onRecoverClick
         )
     }
 }
@@ -643,19 +665,41 @@ private fun PrimaryActionButton(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp),
+            .height(64.dp)
+            .shadow(
+                elevation = 28.dp,
+                shape = RoundedCornerShape(999.dp),
+                ambientColor = PurplePrimary.copy(alpha = 0.34f),
+                spotColor = PurpleGlow.copy(alpha = 0.26f)
+            ),
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = PurpleAccent,
-            contentColor = Color(0xFF24114C)
+            containerColor = Color.Transparent
         )
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF7C4DFF),
+                            Color(0xFFC8B1FF)
+                        )
+                    ),
+                    shape = RoundedCornerShape(999.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                color = Color(0xFF24114C),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
             )
-        )
+        }
     }
 }
 
