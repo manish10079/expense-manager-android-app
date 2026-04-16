@@ -1461,12 +1461,11 @@ private fun RecurringExpenseCard(
                 checked = expense.isEnabled,
                 onCheckedChange = onEnabledChange,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = PurplePrimary,
-                    uncheckedThumbColor = Color(0xFFC7C0D3),
-                    uncheckedTrackColor = Color(0xFF3A3840),
-                    uncheckedBorderColor = Color.Transparent,
-                    checkedBorderColor = Color.Transparent
+                    checkedThumbColor = Color(0xFF24114C),
+                    checkedTrackColor = PurpleAccent,
+                    uncheckedThumbColor = Color(0xFFDDD6EC),
+                    uncheckedTrackColor = Color(0xFF3B3548),
+                    uncheckedBorderColor = Color(0xFF3B3548)
                 )
             )
         }

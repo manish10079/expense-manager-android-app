@@ -331,11 +331,11 @@ private fun TransactionCardToggleRow(
             checked = item.checked,
             onCheckedChange = item.onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color(0xFF2E0E68),
-                checkedTrackColor = Color(0xFF9D72FF),
-                uncheckedThumbColor = Color(0xFFD8D0E7),
-                uncheckedTrackColor = Color(0xFF434044),
-                uncheckedBorderColor = Color(0xFF434044)
+                checkedThumbColor = Color(0xFF24114C),
+                checkedTrackColor = PurpleAccent,
+                uncheckedThumbColor = Color(0xFFDDD6EC),
+                uncheckedTrackColor = Color(0xFF3B3548),
+                uncheckedBorderColor = Color(0xFF3B3548)
             )
         )
     }

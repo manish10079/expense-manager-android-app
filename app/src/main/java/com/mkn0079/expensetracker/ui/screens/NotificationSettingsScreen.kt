@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
+import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
 @Composable
@@ -188,10 +189,11 @@ private fun NotificationToggleItem(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = PurplePrimary,
-                uncheckedThumbColor = Color.LightGray,
-                uncheckedTrackColor = Color.DarkGray
+                checkedThumbColor = Color(0xFF24114C),
+                checkedTrackColor = PurpleAccent,
+                uncheckedThumbColor = Color(0xFFDDD6EC),
+                uncheckedTrackColor = Color(0xFF3B3548),
+                uncheckedBorderColor = Color(0xFF3B3548)
             )
         )
     }
