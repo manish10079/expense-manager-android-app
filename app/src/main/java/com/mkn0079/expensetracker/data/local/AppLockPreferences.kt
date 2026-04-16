@@ -365,7 +365,7 @@ object AppLockPreferences {
         prefs(context)
             .edit()
             .putString(KEY_SECURITY_QUESTION_ID, questionId)
-            .putSaltedSecret(
+            .putFastSaltedSecret(
                 hashKey = KEY_SECURITY_ANSWER_HASH,
                 saltKey = KEY_SECURITY_ANSWER_SALT,
                 versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
@@ -392,6 +392,10 @@ object AppLockPreferences {
         val salt = preferences.getString(KEY_SECURITY_ANSWER_SALT, null)
 
         val isValid = when {
+            hashVersion == HASH_VERSION_FAST_SHA256_V1 && !salt.isNullOrBlank() -> {
+                savedHash == fastPinHash(normalizedAnswer, salt)
+            }
+
             hashVersion == HASH_VERSION_PBKDF2_SHA256_V2 && !salt.isNullOrBlank() -> {
                 savedHash == hashSecret(
                     normalizedSecret = normalizedAnswer,
@@ -413,10 +417,10 @@ object AppLockPreferences {
             }
         }
 
-        if (isValid && (hashVersion != HASH_VERSION_PBKDF2_SHA256_V2 || salt.isNullOrBlank())) {
+        if (isValid && (hashVersion != HASH_VERSION_FAST_SHA256_V1 || salt.isNullOrBlank())) {
             preferences
                 .edit()
-                .putSaltedSecret(
+                .putFastSaltedSecret(
                     hashKey = KEY_SECURITY_ANSWER_HASH,
                     saltKey = KEY_SECURITY_ANSWER_SALT,
                     versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
@@ -627,6 +631,18 @@ object AppLockPreferences {
         )
             .putString(saltKey, salt)
             .putString(versionKey, HASH_VERSION_PBKDF2_SHA256_V2)
+    }
+
+    private fun SharedPreferences.Editor.putFastSaltedSecret(
+        hashKey: String,
+        saltKey: String,
+        versionKey: String,
+        normalizedSecret: String
+    ): SharedPreferences.Editor {
+        val salt = generateSalt()
+        return putString(hashKey, fastPinHash(normalizedSecret, salt))
+            .putString(saltKey, salt)
+            .putString(versionKey, HASH_VERSION_FAST_SHA256_V1)
     }
 
     private fun generateSalt(): String {

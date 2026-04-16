@@ -593,11 +593,15 @@ fun MainScreen(
             onBackClick = { appLockFlow = null },
             onBiometricClick = unlockWithBiometric,
             onSetupComplete = { pin, questionId, answer ->
-                AppLockPreferences.savePin(context, pin)
-                AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                appLockState = AppLockPreferences.getCachedState()
+                // 1. Dismiss UI immediately
                 completeUnlock()
-                coroutineScope.launch {
+
+                // 2. Background heavy work
+                coroutineScope.launch(Dispatchers.Default) {
+                    AppLockPreferences.savePin(context, pin)
+                    AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
+                    appLockState = AppLockPreferences.getCachedState()
+
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(appLockEnabled = true)
                     }
