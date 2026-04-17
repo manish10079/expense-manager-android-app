@@ -91,21 +91,14 @@ fun ProfileAvatar(
 
         Box(
             modifier = Modifier
-                .size(size * 0.92f)
+                .size(size * 0.95f)
                 .clip(CircleShape)
                 .border(
                     width = 2.dp,
                     color = PurpleAccent.copy(alpha = 0.88f),
                     shape = CircleShape
                 )
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF2B2B30),
-                            Color(0xFF1A1A1F)
-                        )
-                    )
-                ),
+                .background(Color.Transparent),
             contentAlignment = Alignment.Center
         ) {
             val resolvedAvatarBitmap = avatarBitmap
@@ -121,9 +114,10 @@ fun ProfileAvatar(
             } else {
                 Text(
                     text = initials,
-                    color = Color(0xFFE8E1F8),
+                    color = Color.White,
                     fontSize = textSize,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         }

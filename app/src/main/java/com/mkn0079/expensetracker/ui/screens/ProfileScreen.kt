@@ -387,8 +387,8 @@ private fun ProfilePhotoSection(
 ) {
     ProfileAvatar(
         initials = initials,
-        size = 132.dp,
-        textSize = 34.sp,
+        size = 150.dp,
+        textSize = 38.sp,
         photoUri = photoUri,
         showBadge = false,
         modifier = Modifier

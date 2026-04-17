@@ -142,8 +142,8 @@ private fun HomeScreenContent(
                     ) {
                         ProfileAvatar(
                             initials = userProfile.avatarInitials(),
-                            size = 52.dp,
-                            textSize = 16.sp,
+                            size = 60.dp,
+                            textSize = 18.sp,
                             photoUri = userProfile.photoUri
                         )
                     }

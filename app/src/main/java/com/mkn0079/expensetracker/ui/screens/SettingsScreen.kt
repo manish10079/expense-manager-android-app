@@ -312,8 +312,8 @@ private fun ProfileHero(
     ) {
         ProfileAvatar(
             initials = userProfile.avatarInitials(),
-            size = 124.dp,
-            textSize = 28.sp,
+            size = 140.dp,
+            textSize = 32.sp,
             photoUri = userProfile.photoUri
         )
 
