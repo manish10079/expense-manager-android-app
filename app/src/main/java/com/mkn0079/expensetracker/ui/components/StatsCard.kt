@@ -18,12 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.PurpleAccent
+import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 
 @Composable
@@ -92,10 +96,17 @@ fun TotalBalanceCard(
         Text(
             text = totalBalance,
             modifier = Modifier.fillMaxWidth(),
-            color = Color(0xFF8E6FFF),
-            fontSize = 40.sp,
-            fontWeight = FontWeight.ExtraBold,
-            lineHeight = 60.sp,
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 40.sp,
+                lineHeight = 60.sp,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        PurplePrimary.copy(alpha = 0.95f),
+                        PurpleAccent.copy(alpha = 0.90f)
+                    )
+                )
+            ),
             maxLines = 1
         )
 
