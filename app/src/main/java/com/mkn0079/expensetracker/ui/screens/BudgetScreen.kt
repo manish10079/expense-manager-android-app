@@ -86,6 +86,7 @@ import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
@@ -168,7 +169,7 @@ fun BudgetScreen(
                     .fillMaxWidth()
                     .padding(start = 14.dp, top = 22.dp, end = 14.dp)
             ) {
-                BudgetTopBar(onBackClick = onBackClick)
+                AppHeader(title = "Budget & Recurring", onBackClick = onBackClick)
             }
 
             LazyColumn(
@@ -387,48 +388,6 @@ private fun BoxScope.BudgetGlow() {
     )
 }
 
-@Composable
-private fun BudgetTopBar(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.04f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = PurpleAccent,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(
-            text = "Budget & Recurring",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
 
 @Composable
 private fun BudgetPeriodRow(

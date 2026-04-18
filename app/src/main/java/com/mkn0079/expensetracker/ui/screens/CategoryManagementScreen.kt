@@ -88,6 +88,7 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
 private val categoryFallbackDescriptions = mapOf(
@@ -258,7 +259,8 @@ fun CategoryManagementScreen(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            CategoryManagementHeader(
+            AppHeader(
+                title = "Manage Category",
                 onBackClick = onBackClick
             )
 
@@ -388,36 +390,6 @@ private fun BoxScope.CategoryManagementGlow() {
     )
 }
 
-@Composable
-private fun CategoryManagementHeader(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        HeaderCircleButton(
-            icon = Icons.Outlined.ChevronLeft,
-            contentDescription = "Back",
-            onClick = onBackClick
-        )
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Text(
-            text = "Manage Category",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 20.sp,
-                lineHeight = 28.sp
-            ),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -737,39 +709,6 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
     }
 }
 
-@Composable
-private fun HeaderCircleButton(
-    icon: ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .shadow(
-                elevation = 12.dp,
-                shape = CircleShape,
-                ambientColor = PurplePrimary.copy(alpha = 0.18f),
-                spotColor = PurpleGlow.copy(alpha = 0.14f)
-            )
-            .clip(CircleShape)
-            .background(Color(0xFF161618))
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.05f),
-                shape = CircleShape
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = PurpleAccent,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}
 
 @Composable
 private fun CategoryTabSwitcher(

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
@@ -175,7 +176,10 @@ fun DataManagementScreen(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            DataManagementHeader(onBackClick = onBackClick)
+            AppHeader(
+                title = "Data Management",
+                onBackClick = onBackClick
+            )
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -374,50 +378,6 @@ fun DataManagementScreen(
     }
 }
 
-@Composable
-private fun DataManagementHeader(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(34.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.03f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color(0xFFE4DBF6),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = "Data Management",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
 
 @Composable
 private fun DataManagementSection(

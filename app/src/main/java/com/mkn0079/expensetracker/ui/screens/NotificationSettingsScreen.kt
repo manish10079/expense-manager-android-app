@@ -38,6 +38,7 @@ import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.components.AppHeader
 
 @Composable
 fun NotificationSettingsScreen(
@@ -58,7 +59,11 @@ fun NotificationSettingsScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        NotificationHeader(onBackClick = onBackClick)
+        AppHeader(
+            title = "Notification Settings",
+            onBackClick = onBackClick,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
 
         Column(
             modifier = Modifier
@@ -110,30 +115,6 @@ fun NotificationSettingsScreen(
     }
 }
 
-@Composable
-private fun NotificationHeader(onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White
-            )
-        }
-        Text(
-            text = "Notification Settings",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 8.dp)
-        )
-    }
-}
 
 @Composable
 private fun NotificationSection(

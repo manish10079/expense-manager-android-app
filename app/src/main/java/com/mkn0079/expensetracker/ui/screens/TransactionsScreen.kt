@@ -76,6 +76,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.AddTransactionFab
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.FilterBottomSheet
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodFilter
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodNavigator
@@ -157,82 +158,48 @@ fun TransactionScreen(
             .padding(horizontal = 15.dp, vertical = 12.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clickable(onClick = onBackClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
+            AppHeader(
+                title = "Transactions",
+                onBackClick = onBackClick,
+                actions = {
+                    IconButton(
+                        onClick = {
+                            isSearchExpanded = true
+                        },
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.04f)),
-                        contentAlignment = Alignment.Center
+                            .size(26.dp)
+                            .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(22.dp)
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = "Search transactions",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(30.dp))
+
+                    IconButton(
+                        onClick = {
+                            closeSearchBar(
+                                focusManager = focusManager,
+                                onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                onSearchExpandedChange = { isSearchExpanded = it }
+                            )
+                            showBottomSheet = true
+                        },
+                        modifier = Modifier
+                            .size(26.dp)
+                            .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Tune,
+                            contentDescription = "Sort & Filter",
+                            tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = "Transactions",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    ),
-                    color = PurplePrimary,
-                    modifier = Modifier.weight(1f)
-                )
-
-                IconButton(
-                    onClick = {
-                        isSearchExpanded = true
-                    },
-                    modifier = Modifier
-                        .size(26.dp)
-                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "Search transactions",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(30.dp))
-
-                IconButton(
-                    onClick = {
-                        closeSearchBar(
-                            focusManager = focusManager,
-                            onSearchQueryChange = transactionsViewModel::updateSearchQuery,
-                            onSearchExpandedChange = { isSearchExpanded = it }
-                        )
-                        showBottomSheet = true
-                    },
-                    modifier = Modifier
-                        .size(26.dp)
-                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Tune,
-                        contentDescription = "Sort & Filter",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            }
-
+            )
             AnimatedVisibility(
                 visible = isSearchExpanded,
                 enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),

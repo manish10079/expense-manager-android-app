@@ -80,6 +80,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
@@ -130,7 +131,7 @@ fun AnalyticsScreen(
                 .fillMaxWidth()
                 .padding(start = 22.dp, top = 20.dp, end = 22.dp)
         ) {
-            AnalyticsHeader(onBackClick = onBackClick)
+            AppHeader(title = "Analytics", onBackClick = onBackClick)
         }
 
         LazyColumn(
@@ -234,48 +235,6 @@ fun AnalyticsScreen(
     }
 }
 
-@Composable
-private fun AnalyticsHeader(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.04f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = PurpleAccent,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(
-            text = "Analytics",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
 
 @Composable
 private fun PeriodTabs(

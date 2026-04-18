@@ -77,6 +77,7 @@ import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.models.CalendarDayUi
 import com.mkn0079.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
@@ -146,9 +147,7 @@ fun CalendarScreen(
                     .fillMaxWidth()
                     .padding(start = 20.dp, top = 18.dp, end = 20.dp)
             ) {
-                CalendarTopBar(
-                    onBackClick = onBackClick
-                )
+                AppHeader(title = "Calendar", onBackClick = onBackClick)
             }
 
             LazyColumn(
@@ -276,46 +275,6 @@ fun CalendarScreen(
     }
 }
 
-@Composable
-private fun CalendarTopBar(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.04f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = CalendarPurpleSoft,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(
-            text = "Calendar",
-            color = PurplePrimary,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 @Composable
 private fun ViewModeToggle(

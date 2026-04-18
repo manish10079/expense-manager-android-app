@@ -93,6 +93,7 @@ import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -170,7 +171,7 @@ fun SettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            SettingsHeader(onBackClick = onBackClick)
+            AppHeader(title = "Settings", onBackClick = onBackClick)
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -244,63 +245,6 @@ private fun BoxScope.TopGlow() {
     )
 }
 
-@Composable
-private fun SettingsHeader(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        HeaderIconButton(
-            icon = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
-            onClick = onBackClick
-        )
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = "Settings",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
-
-@Composable
-private fun HeaderIconButton(
-    icon: ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.03f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = Color(0xFFE4DBF6),
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    }
-}
 
 @Composable
 private fun ProfileHero(

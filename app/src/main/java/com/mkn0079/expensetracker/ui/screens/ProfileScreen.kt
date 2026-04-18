@@ -86,6 +86,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -163,8 +164,10 @@ fun ProfileScreen(
             .background(BackgroundDark)
             .statusBarsPadding()
     ) {
-        ProfileHeader(
-            onBackClick = onBackClick
+        AppHeader(
+            title = "Profile",
+            onBackClick = onBackClick,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
         )
 
         Column(
@@ -437,49 +440,6 @@ private fun ProfilePhotoSection(
     }
 }
 
-@Composable
-private fun ProfileHeader(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color.Transparent),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = PurpleAccent
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = "Profile",
-            color = PurplePrimary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
 
 @Composable
 private fun ProfileTextFieldCard(

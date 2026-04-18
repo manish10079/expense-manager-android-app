@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.*
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.ui.theme.*
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.utils.*
 
@@ -91,40 +92,10 @@ fun PreferencesScreen(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.03f))
-                        .clickable(onClick = onBackClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color(0xFFE4DBF6),
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = "App Preferences",
-                    color = PurplePrimary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                )
-            }
-
+            AppHeader(
+                title = "App Preferences",
+                onBackClick = onBackClick
+            )
             Spacer(modifier = Modifier.height(22.dp))
 
             Column(
