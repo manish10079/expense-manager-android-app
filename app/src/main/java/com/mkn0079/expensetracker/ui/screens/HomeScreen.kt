@@ -42,6 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -128,90 +130,94 @@ private fun HomeScreenContent(
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clickable(onClick = onProfileClick)
+            val fontScale = LocalDensity.current.fontScale
+            val isLargeFont = fontScale > 1.3f
+
+            if (isLargeFont) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         ProfileAvatar(
                             initials = userProfile.avatarInitials(),
                             size = 60.dp,
                             textSize = 18.sp,
-                            photoUri = userProfile.photoUri
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column {
-                        Text(
-                            text = "Hi, ${uiState.greetingName}",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold
-                            )
+                            photoUri = userProfile.photoUri,
+                            modifier = Modifier.clickable(onClick = onProfileClick)
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
-                        Text(
-                            text = "Track every move with confidence.",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-
-                var isSettingsPressed by remember { mutableStateOf(false) }
-                val settingsScale by animateFloatAsState(
-                    targetValue = if (isSettingsPressed) 0.88f else 1f,
-                    animationSpec = tween(150),
-                    label = "settings_scale"
-                )
-                val scope = rememberCoroutineScope()
-
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .scale(settingsScale)
-                        .shadow(
-                            elevation = 20.dp,
-                            shape = CircleShape,
-                            ambientColor = PurplePrimary.copy(alpha = 0.22f),
-                            spotColor = PurpleGlow.copy(alpha = 0.18f)
-                        )
-                        .clip(CircleShape)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-                                    Color(0xFF17171A)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Hi, ${uiState.greetingName}",
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
-                        )
-                        .clickable {
-                            isSettingsPressed = true
-                            onSettingsClick()
-                            scope.launch {
-                                delay(150)
-                                isSettingsPressed = false
-                            }
-                        },
-                    contentAlignment = Alignment.Center
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "Track every move with confidence.",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    SettingsButton(onClick = onSettingsClick)
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileAvatar(
+                            initials = userProfile.avatarInitials(),
+                            size = 60.dp,
+                            textSize = 18.sp,
+                            photoUri = userProfile.photoUri,
+                            modifier = Modifier.clickable(onClick = onProfileClick)
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                text = "Hi, ${uiState.greetingName}",
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "Track every move with confidence.",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+
+                    SettingsButton(onClick = onSettingsClick)
                 }
             }
 
@@ -317,6 +323,52 @@ fun HomeScreenPreview() {
             onProfileClick = {},
             onSettingsClick = {},
             onTodaySpendingClick = {}
+        )
+    }
+}
+@Composable
+fun SettingsButton(onClick: () -> Unit) {
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 1f,
+        animationSpec = tween(150)
+    )
+    val scope = rememberCoroutineScope()
+
+    Box(
+        modifier = Modifier
+            .size(52.dp)
+            .scale(scale)
+            .shadow(
+                elevation = 20.dp,
+                shape = CircleShape,
+                ambientColor = PurplePrimary.copy(alpha = 0.22f),
+                spotColor = PurpleGlow.copy(alpha = 0.18f)
+            )
+            .clip(CircleShape)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+                        Color(0xFF17171A)
+                    )
+                )
+            )
+            .clickable {
+                isPressed = true
+                onClick()
+                scope.launch {
+                    delay(150)
+                    isPressed = false
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Settings,
+            contentDescription = "Settings",
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
         )
     }
 }
