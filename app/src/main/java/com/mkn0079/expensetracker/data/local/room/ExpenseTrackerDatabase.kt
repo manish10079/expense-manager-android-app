@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mkn0079.expensetracker.data.local.room.dao.BudgetDao
 import com.mkn0079.expensetracker.data.local.room.dao.CategoryDao
 import com.mkn0079.expensetracker.data.local.room.dao.PaymentMethodDao
@@ -25,7 +27,7 @@ import java.io.File
         BudgetEntity::class,
         RecurringRuleEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -49,7 +51,29 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     context.applicationContext,
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
-                ).build().also { INSTANCE = it }
+                )
+                    .addMigrations(MIGRATION_1_2)
+                    .build().also { INSTANCE = it }
+            }
+        }
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recurring Rules
+                db.execSQL("DROP INDEX IF EXISTS `index_recurring_rules_transaction_id_is_deleted` ")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_recurring_rules_transaction_id_is_deleted` ON `recurring_rules` (`transaction_id`, `is_deleted`)")
+
+                // Budgets
+                db.execSQL("DROP INDEX IF EXISTS `index_budgets_category_id_month_start_is_deleted` ")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_budgets_category_id_month_start_is_deleted` ON `budgets` (`category_id`, `month_start`, `is_deleted`)")
+
+                // Categories
+                db.execSQL("DROP INDEX IF EXISTS `index_categories_name_transaction_type_id_is_deleted` ")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_categories_name_transaction_type_id_is_deleted` ON `categories` (`name`, `transaction_type_id`, `is_deleted`)")
+
+                // Payment Methods
+                db.execSQL("DROP INDEX IF EXISTS `index_payment_methods_name_is_deleted` ")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_payment_methods_name_is_deleted` ON `payment_methods` (`name`, `is_deleted`)")
             }
         }
 

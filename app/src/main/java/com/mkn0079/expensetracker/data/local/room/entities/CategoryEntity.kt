@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "categories",
     indices = [
         Index(value = ["transaction_type_id", "sort_order", "name"]),
-        Index(value = ["name", "transaction_type_id", "is_deleted"], unique = true)
+        Index(value = ["name", "transaction_type_id", "is_deleted"], unique = false)
     ]
 )
 data class CategoryEntity(

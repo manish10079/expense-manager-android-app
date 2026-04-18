@@ -20,7 +20,7 @@ import com.mkn0079.expensetracker.models.SyncState
     ],
     indices = [
         Index(value = ["is_enabled", "next_run_at"]),
-        Index(value = ["transaction_id", "is_deleted"], unique = true)
+        Index(value = ["transaction_id", "is_deleted"], unique = false)
     ]
 )
 data class RecurringRuleEntity(

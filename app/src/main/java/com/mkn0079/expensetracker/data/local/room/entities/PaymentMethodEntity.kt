@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "payment_methods",
     indices = [
         Index(value = ["sort_order", "name"]),
-        Index(value = ["name", "is_deleted"], unique = true)
+        Index(value = ["name", "is_deleted"], unique = false)
     ]
 )
 data class PaymentMethodEntity(

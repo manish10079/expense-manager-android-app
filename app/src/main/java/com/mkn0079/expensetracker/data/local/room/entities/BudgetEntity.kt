@@ -20,7 +20,7 @@ import com.mkn0079.expensetracker.models.SyncState
     indices = [
         Index(value = ["month_start"]),
         Index(value = ["category_id", "month_start"]),
-        Index(value = ["category_id", "month_start", "is_deleted"], unique = true)
+        Index(value = ["category_id", "month_start", "is_deleted"], unique = false)
     ]
 )
 data class BudgetEntity(

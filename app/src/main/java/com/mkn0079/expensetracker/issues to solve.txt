@@ -8,13 +8,7 @@
 ---
 
 ## 2. Recurring Transaction Deletion Crash
-- **Status**: Open
+- **Status**: Resolved ✅
 - **Priority**: High
-- **Problem**: The app crashes with an `SQLiteConstraintException` when attempting to delete a recurring rule for a transaction that already has a previously deleted rule.
-- **Root Cause**: The unique index on `["transaction_id", "is_deleted"]` in `RecurringRuleEntity.kt` prevents having multiple deleted records for the same transaction.
-- **Proposed Fix**: Remove the `unique = true` constraint from the index and perform a database migration.
-- **Reproduce Steps**: 
-    1. Create recurring rule for "Lunch".
-    2. Delete the rule.
-    3. Re-create recurring rule for "Lunch".
-    4. Delete the rule again -> Crash.
+- **Fix**: Replaced unique constraints with non-unique indexes and implemented Database Migration (Version 1 → 2).
+- **Verified**: Build successful, prevents crash on multiple deletions across RecurringRules, Budgets, Categories, and PaymentMethods.
