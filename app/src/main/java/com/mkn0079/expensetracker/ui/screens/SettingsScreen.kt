@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -71,6 +69,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -160,8 +160,6 @@ fun SettingsScreen(
                 )
             )
     ) {
-        TopGlow()
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -226,27 +224,6 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun BoxScope.TopGlow() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .padding(top = 64.dp)
-            .size(width = 240.dp, height = 180.dp)
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        PurplePrimary.copy(alpha = 0.12f),
-                        PurpleAccent.copy(alpha = 0.08f),
-                        Color.Transparent
-                    )
-                ),
-                shape = CircleShape
-            )
-    )
-}
-
-
-@Composable
 private fun ProfileHero(
     userProfile: UserProfile
 ) {
@@ -258,7 +235,15 @@ private fun ProfileHero(
             initials = userProfile.avatarInitials(),
             size = 140.dp,
             textSize = 32.sp,
-            photoUri = userProfile.photoUri
+            photoUri = userProfile.photoUri,
+            showGlow = false,
+            showBorder = true,
+            borderBrush = Brush.verticalGradient(
+                colors = listOf(
+                    PurplePrimary.copy(alpha = 0.95f),
+                    PurpleAccent.copy(alpha = 0.86f)
+                )
+            )
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -268,6 +253,13 @@ private fun ProfileHero(
                 .lowercase()
                 .split(" ")
                 .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            softWrap = true,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 30.sp,

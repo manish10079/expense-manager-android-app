@@ -47,7 +47,11 @@ fun ProfileAvatar(
     textSize: TextUnit,
     photoUri: String? = null,
     showBadge: Boolean = false,
-    badgeIcon: ImageVector = Icons.Filled.Check
+    badgeIcon: ImageVector = Icons.Filled.Check,
+    showGlow: Boolean = true,
+    showBorder: Boolean = true,
+    backgroundBrush: Brush? = null,
+    borderBrush: Brush? = null
 ) {
     val context = LocalContext.current
     val targetSizePx = with(LocalDensity.current) { size.roundToPx().coerceAtLeast(1) }
@@ -69,36 +73,56 @@ fun ProfileAvatar(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(size)
-                .shadow(
-                    elevation = 24.dp,
-                    shape = CircleShape,
-                    ambientColor = PurplePrimary.copy(alpha = 0.26f),
-                    spotColor = PurpleGlow.copy(alpha = 0.22f)
-                )
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            PurpleGlow.copy(alpha = 0.18f),
-                            Color.Transparent
-                        )
-                    ),
-                    shape = CircleShape
-                )
-        )
+        if (showGlow) {
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .shadow(
+                        elevation = 24.dp,
+                        shape = CircleShape,
+                        ambientColor = PurplePrimary.copy(alpha = 0.26f),
+                        spotColor = PurpleGlow.copy(alpha = 0.22f)
+                    )
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                PurpleGlow.copy(alpha = 0.18f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+            )
+        }
 
         Box(
             modifier = Modifier
                 .size(size * 0.95f)
                 .clip(CircleShape)
-                .border(
-                    width = 2.dp,
-                    color = PurpleAccent.copy(alpha = 0.88f),
-                    shape = CircleShape
+                .then(
+                    backgroundBrush?.let { brush ->
+                        Modifier.background(brush = brush, shape = CircleShape)
+                    } ?: Modifier.background(Color.Transparent)
                 )
-                .background(Color.Transparent),
+                .then(
+                    if (showBorder) {
+                        if (borderBrush != null) {
+                            Modifier.border(
+                                width = 2.dp,
+                                brush = borderBrush,
+                                shape = CircleShape
+                            )
+                        } else {
+                            Modifier.border(
+                                width = 2.dp,
+                                color = PurpleAccent.copy(alpha = 0.88f),
+                                shape = CircleShape
+                            )
+                        }
+                    } else {
+                        Modifier
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             val resolvedAvatarBitmap = avatarBitmap
