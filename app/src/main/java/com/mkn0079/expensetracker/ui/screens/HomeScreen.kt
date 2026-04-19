@@ -118,6 +118,13 @@ private fun HomeScreenContent(
     onSettingsClick: () -> Unit,
     onTodaySpendingClick: () -> Unit
 ) {
+    val profileAvatarGradient = Brush.verticalGradient(
+        colors = listOf(
+            PurplePrimary.copy(alpha = 0.95f),
+            PurpleAccent.copy(alpha = 0.86f)
+        )
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -142,6 +149,9 @@ private fun HomeScreenContent(
                         size = 60.dp,
                         textSize = 18.sp,
                         photoUri = userProfile.photoUri,
+                        backgroundColor = Color.Black,
+                        borderBrush = profileAvatarGradient,
+                        placeholderIconBrush = profileAvatarGradient,
                         modifier = Modifier.clickable(onClick = onProfileClick)
                     )
 

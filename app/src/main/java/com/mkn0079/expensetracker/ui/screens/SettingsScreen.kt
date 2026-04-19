@@ -227,6 +227,13 @@ fun SettingsScreen(
 private fun ProfileHero(
     userProfile: UserProfile
 ) {
+    val profileAvatarGradient = Brush.verticalGradient(
+        colors = listOf(
+            PurplePrimary.copy(alpha = 0.95f),
+            PurpleAccent.copy(alpha = 0.86f)
+        )
+    )
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -238,12 +245,9 @@ private fun ProfileHero(
             photoUri = userProfile.photoUri,
             showGlow = false,
             showBorder = true,
-            borderBrush = Brush.verticalGradient(
-                colors = listOf(
-                    PurplePrimary.copy(alpha = 0.95f),
-                    PurpleAccent.copy(alpha = 0.86f)
-                )
-            )
+            backgroundColor = Color.Black,
+            borderBrush = profileAvatarGradient,
+            placeholderIconBrush = profileAvatarGradient
         )
 
         Spacer(modifier = Modifier.height(12.dp))

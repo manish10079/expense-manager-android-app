@@ -10,21 +10,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -51,7 +54,9 @@ fun ProfileAvatar(
     showGlow: Boolean = true,
     showBorder: Boolean = true,
     backgroundBrush: Brush? = null,
-    borderBrush: Brush? = null
+    backgroundColor: Color = Color.Transparent,
+    borderBrush: Brush? = null,
+    placeholderIconBrush: Brush? = null
 ) {
     val context = LocalContext.current
     val targetSizePx = with(LocalDensity.current) { size.roundToPx().coerceAtLeast(1) }
@@ -102,7 +107,7 @@ fun ProfileAvatar(
                 .then(
                     backgroundBrush?.let { brush ->
                         Modifier.background(brush = brush, shape = CircleShape)
-                    } ?: Modifier.background(Color.Transparent)
+                    } ?: Modifier.background(color = backgroundColor, shape = CircleShape)
                 )
                 .then(
                     if (showBorder) {
@@ -136,12 +141,28 @@ fun ProfileAvatar(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                Text(
-                    text = initials,
-                    color = Color.White,
-                    fontSize = textSize,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.align(Alignment.Center)
+                Icon(
+                    imageVector = Icons.Filled.AccountCircle,
+                    contentDescription = "Profile placeholder",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(size * 1.10f)
+                        .align(Alignment.Center)
+                        .then(
+                            placeholderIconBrush?.let { brush ->
+                                Modifier
+                                    .graphicsLayer(
+                                        compositingStrategy = CompositingStrategy.Offscreen
+                                    )
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            brush = brush,
+                                            blendMode = BlendMode.SrcIn
+                                        )
+                                    }
+                            } ?: Modifier
+                        )
                 )
             }
         }

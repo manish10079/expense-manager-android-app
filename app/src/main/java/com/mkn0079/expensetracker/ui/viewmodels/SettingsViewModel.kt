@@ -164,7 +164,6 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Profile",
                     icon = Icons.Filled.Person,
-                    trailing = "Edit",
                     actionId = SettingsActionId.Profile
                 )
             )
