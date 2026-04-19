@@ -3,8 +3,11 @@ package com.mkn0079.expensetracker.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -63,8 +66,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,6 +93,47 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 import kotlinx.coroutines.launch
+
+private val emptyTransactionMessages = listOf(
+    "Your wallet's too quiet today.",
+    "404: Transactions Not Found.",
+    "Nothing here! maybe grab a coffee?",
+    "Haven't found any.",
+    "Looks empty...",
+    "No transactions to display.",
+    "No records yet",
+    "Did you forget to add something?",
+    "Empty page. Peaceful life.",
+    "Your transactions ghosted you.",
+    "Financial activity: 0%",
+    "No data found in this range.",
+    "Database says: null.",
+    "Your wallet is in airplane mode.",
+    "Silence... even your money is meditating.",
+    "No spending, no stress. Interesting strategy.",
+    "Your ledger is taking a nap.",
+    "Nothing moved. Not even a rupee.",
+    "Your expenses are on vacation.",
+    "Zero activity. Zen achieved.",
+    "This page is cleaner than your room.",
+    "No transactions. Suspiciously responsible.",
+    "Your bank account is playing hide and seek.",
+    "No entries. Did time stop?",
+    "All quiet on the financial front.",
+    "No spending detected. Impressive.",
+    "Your wallet is on strike.",
+    "Nothing to report, captain.",
+    "Your money stayed loyal today.",
+    "No chaos, no expenses. Rare moment.",
+    "Even your wallet is confused.",
+    "This space is intentionally blank.",
+    "No financial drama today.",
+    "Your balance is chilling.",
+    "No activity. Are you even alive financially?",
+    "Your wallet is in stealth mode.",
+    "No transactions. Too good to be true.",
+    "Nothing happened here. Move along."
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,6 +174,21 @@ fun TransactionScreen(
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var showPeriodPicker by remember { mutableStateOf(false) }
+    val emptyTransactionMessage = remember(
+        uiState.selectedPeriodFilter,
+        uiState.selectedPeriodLabel,
+        uiState.searchQuery,
+        uiState.selectedSort,
+        uiState.selectedOrder,
+        uiState.selectedDateRange,
+        uiState.selectedTransactionTypeIds,
+        uiState.selectedCategoryIds,
+        uiState.selectedPaymentTypeIds,
+        uiState.selectedMinAmount,
+        uiState.selectedMaxAmount
+    ) {
+        emptyTransactionMessages.random()
+    }
 
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -314,51 +374,103 @@ fun TransactionScreen(
 
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
-                contentPadding = PaddingValues(bottom = 180.dp)
-            ) {
-                items(
-                    items = uiState.transactionItems,
-                    key = { item ->
-                        when (item) {
-                            is TransactionListItemUi.Header -> item.id
-                            is TransactionListItemUi.TransactionRow -> item.card.id
-                        }
-                    },
-                    contentType = { item ->
-                        when (item) {
-                            is TransactionListItemUi.Header -> "header"
-                            is TransactionListItemUi.TransactionRow -> "transaction"
-                        }
-                    }
-                ) { item ->
-                    when (item) {
-                        is TransactionListItemUi.Header -> {
-                            TransactionDateHeader(
-                                dayLabel = item.dayLabel,
-                                dateLabel = item.dateLabel
-                            )
-                        }
+            if (uiState.transactionItems.isEmpty()) {
+                var isEmptyMessageVisible by remember(emptyTransactionMessage) {
+                    mutableStateOf(false)
+                }
 
-                        is TransactionListItemUi.TransactionRow -> {
-                            val card = item.card
-                            TransactionCard(
-                                note = card.note,
-                                transactionDate = card.transactionDate,
-                                transactionTime = card.transactionTime,
-                                amount = card.amount,
-                                icon = card.icon,
-                                transactionTypeId = card.transactionTypeId,
-                                paymentType = card.paymentType,
-                                showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
-                                showTransactionDate = uiState.customizationSettings.showTransactionDate,
-                                showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
-                                showTransactionTime = uiState.customizationSettings.showTransactionTime,
-                                showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
-                                onClick = { onTransactionClick(card.transaction) }
+                LaunchedEffect(emptyTransactionMessage) {
+                    isEmptyMessageVisible = true
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 28.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isEmptyMessageVisible,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 500)) +
+                            scaleIn(
+                                initialScale = 0.92f,
+                                animationSpec = tween(durationMillis = 500)
+                            ) +
+                            slideInVertically(
+                                animationSpec = tween(durationMillis = 500),
+                                initialOffsetY = { height -> height / 3 }
+                            ),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 500)) +
+                            scaleOut(
+                                targetScale = 0.92f,
+                                animationSpec = tween(durationMillis = 500)
+                            ) +
+                            slideOutVertically(
+                                animationSpec = tween(durationMillis = 500),
+                                targetOffsetY = { height -> height / 3 }
                             )
+                    ) {
+                        Text(
+                            text = emptyTransactionMessage,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            softWrap = true,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 28.sp
+                            )
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
+                    contentPadding = PaddingValues(bottom = 180.dp)
+                ) {
+                    items(
+                        items = uiState.transactionItems,
+                        key = { item ->
+                            when (item) {
+                                is TransactionListItemUi.Header -> item.id
+                                is TransactionListItemUi.TransactionRow -> item.card.id
+                            }
+                        },
+                        contentType = { item ->
+                            when (item) {
+                                is TransactionListItemUi.Header -> "header"
+                                is TransactionListItemUi.TransactionRow -> "transaction"
+                            }
+                        }
+                    ) { item ->
+                        when (item) {
+                            is TransactionListItemUi.Header -> {
+                                TransactionDateHeader(
+                                    dayLabel = item.dayLabel,
+                                    dateLabel = item.dateLabel
+                                )
+                            }
+
+                            is TransactionListItemUi.TransactionRow -> {
+                                val card = item.card
+                                TransactionCard(
+                                    note = card.note,
+                                    transactionDate = card.transactionDate,
+                                    transactionTime = card.transactionTime,
+                                    amount = card.amount,
+                                    icon = card.icon,
+                                    transactionTypeId = card.transactionTypeId,
+                                    paymentType = card.paymentType,
+                                    showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
+                                    showTransactionDate = uiState.customizationSettings.showTransactionDate,
+                                    showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
+                                    showTransactionTime = uiState.customizationSettings.showTransactionTime,
+                                    showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                                    onClick = { onTransactionClick(card.transaction) }
+                                )
+                            }
                         }
                     }
                 }

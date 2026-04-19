@@ -16,7 +16,7 @@ import com.mkn0079.expensetracker.ui.screens.AppLockScreenMode
 fun AppLockOverlay(
     appLockFlow: AppLockFlow?,
     isAppUnlocked: Boolean,
-    biometricEnabled: Boolean,
+    biometricEnabled: Boolean, 
     isBiometricAvailable: Boolean,
     securityQuestionPrompt: String,
     onBackClick: () -> Unit,
