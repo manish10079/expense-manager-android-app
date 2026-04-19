@@ -41,15 +41,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -103,6 +100,8 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.getRankedCategories
@@ -468,36 +467,15 @@ fun AddTransactionScreen(
         }
 
         if (isDatePickerVisible) {
-            val datePickerState = rememberDatePickerState(
-                initialSelectedDateMillis = localDateTimestampToDatePickerSelection(selectedDateMillis)
-            )
-            DatePickerDialog(
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_DATE,
+                initialStartMillis = selectedDateMillis,
                 onDismissRequest = { isDatePickerVisible = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            selectedDateMillis = datePickerState.selectedDateMillis
-                                ?.let { pickedDateMillis ->
-                                    datePickerSelectionToLocalDateTimestamp(
-                                        selectedDateMillis = pickedDateMillis,
-                                        referenceTimestamp = selectedDateMillis
-                                    )
-                                }
-                                ?: selectedDateMillis
-                            isDatePickerVisible = false
-                        }
-                    ) {
-                        Text(text = "OK")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { isDatePickerVisible = false }) {
-                        Text(text = "Cancel")
-                    }
+                onConfirm = { start, _ ->
+                    selectedDateMillis = start
+                    isDatePickerVisible = false
                 }
-            ) {
-                DatePicker(state = datePickerState, showModeToggle = false)
-            }
+            )
         }
 
         if (isNoteDialogVisible) {

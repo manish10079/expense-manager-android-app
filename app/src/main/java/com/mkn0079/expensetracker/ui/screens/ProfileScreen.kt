@@ -49,9 +49,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Transgender
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,8 +56,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -93,9 +88,10 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
-import com.mkn0079.expensetracker.utils.localDateTimestampToDatePickerSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -313,57 +309,18 @@ fun ProfileScreen(
     }
 
     if (isDatePickerVisible) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = dateOfBirthMillis?.let(::localDateTimestampToDatePickerSelection)
-        )
-        DatePickerDialog(
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.SINGLE_DATE,
+            initialStartMillis = dateOfBirthMillis ?: System.currentTimeMillis(),
             onDismissRequest = { isDatePickerVisible = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        dateOfBirthMillis = datePickerState.selectedDateMillis
-                            ?.let(::datePickerSelectionToLocalDateTimestamp)
-                            ?: dateOfBirthMillis
-                        isDatePickerVisible = false
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = PurpleAccent)
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { isDatePickerVisible = false },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFB7B0C8))
-                ) {
-                    Text("Cancel")
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                showModeToggle = false,
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color(0xFF1E1E20),
-                    titleContentColor = Color(0xFFF1EDF8),
-                    headlineContentColor = Color(0xFFF1EDF8),
-                    weekdayContentColor = Color(0xFFBEB6D1),
-                    subheadContentColor = Color(0xFFBEB6D1),
-                    navigationContentColor = PurpleAccent,
-                    yearContentColor = Color(0xFFDDD6EC),
-                    currentYearContentColor = PurpleAccent,
-                    selectedYearContentColor = Color(0xFF24114C),
-                    selectedYearContainerColor = PurplePrimary,
-                    dayContentColor = Color(0xFFECE6F7),
-                    disabledDayContentColor = Color(0xFF6A6477),
-                    selectedDayContentColor = Color(0xFF24114C),
-                    selectedDayContainerColor = PurplePrimary,
-                    todayContentColor = PurpleAccent,
-                    todayDateBorderColor = PurpleAccent,
-                    dividerColor = Color.White.copy(alpha = 0.08f)
+            onConfirm = { pickedDateMillis, _ ->
+                dateOfBirthMillis = datePickerSelectionToLocalDateTimestamp(
+                    selectedDateMillis = pickedDateMillis,
+                    referenceTimestamp = dateOfBirthMillis
                 )
-            )
-        }
+                isDatePickerVisible = false
+            }
+        )
     }
 
     if (isGenderPickerVisible) {

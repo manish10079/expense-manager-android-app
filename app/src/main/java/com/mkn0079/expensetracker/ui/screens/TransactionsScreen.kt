@@ -81,6 +81,8 @@ import com.mkn0079.expensetracker.ui.components.FilterBottomSheet
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodFilter
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodNavigator
 import com.mkn0079.expensetracker.ui.components.TransactionCard
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -126,6 +128,7 @@ fun TransactionScreen(
 
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -282,8 +285,32 @@ fun TransactionScreen(
                 },
                 onNextClick = {
                     transactionsViewModel.navigatePeriod(1)
+                },
+                // Only enable label tap for Daily/Monthly/Yearly, not All
+                onLabelClick = when (uiState.selectedPeriodFilter) {
+                    TransactionPeriodFilter.ALL -> null
+                    else -> ({ showPeriodPicker = true })
                 }
             )
+
+            // Period date-jump picker
+            if (showPeriodPicker) {
+                val pickerMode = when (uiState.selectedPeriodFilter) {
+                    TransactionPeriodFilter.DAILY   -> WheelPickerMode.SINGLE_DATE
+                    TransactionPeriodFilter.MONTHLY -> WheelPickerMode.MONTH_YEAR
+                    TransactionPeriodFilter.YEARLY  -> WheelPickerMode.YEAR_ONLY
+                    TransactionPeriodFilter.ALL     -> WheelPickerMode.SINGLE_DATE
+                }
+                WheelDateTimePickerModal(
+                    mode = pickerMode,
+                    initialStartMillis = uiState.focusedPeriodTimestamp,
+                    onDismissRequest = { showPeriodPicker = false },
+                    onConfirm = { millis, _ ->
+                        transactionsViewModel.jumpToPeriod(millis)
+                        showPeriodPicker = false
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 

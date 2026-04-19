@@ -49,7 +49,8 @@ fun TransactionPeriodNavigator(
     onMenuExpandedChange: (Boolean) -> Unit,
     onFilterSelected: (TransactionPeriodFilter) -> Unit,
     onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit
+    onNextClick: () -> Unit,
+    onLabelClick: (() -> Unit)? = null  // null = not clickable (e.g. ALL mode)
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val surfaceColor = colorScheme.surface.copy(alpha = 0.96f)
@@ -99,13 +100,17 @@ fun TransactionPeriodNavigator(
                         }
                     )
 
+                    val isLabelClickable = onLabelClick != null
                     Text(
                         text = periodLabel,
-                        color = colorScheme.onSurface,
+                        color = Color.White,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp
-                        )
+                        ),
+                        modifier = if (isLabelClickable) {
+                            Modifier.clip(RoundedCornerShape(6.dp)).clickable { onLabelClick() }
+                        } else Modifier
                     )
 
                     if (selectedFilter != TransactionPeriodFilter.YEARLY) {
@@ -155,7 +160,8 @@ fun TransactionPeriodNavigator(
                     text = selectedFilter.label,
                     color = colorScheme.onSurface.copy(alpha = 0.88f),
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.9f).sp
                     )
                 )
             }
@@ -184,7 +190,8 @@ fun TransactionPeriodNavigator(
                                         FontWeight.SemiBold
                                     } else {
                                         FontWeight.Normal
-                                    }
+                                    },
+                                    fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 1.2f).sp
                                 )
                             )
                         },

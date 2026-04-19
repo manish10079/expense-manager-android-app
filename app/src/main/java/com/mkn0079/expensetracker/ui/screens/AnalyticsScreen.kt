@@ -30,16 +30,13 @@ import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Wallet
-import androidx.compose.material3.Icon
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -81,6 +78,8 @@ import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
@@ -173,58 +172,19 @@ fun AnalyticsScreen(
     }
 
     if (isCustomRangePickerVisible) {
-        val dateRangePickerState = rememberDateRangePickerState(
-            initialSelectedStartDateMillis = uiState.customRangeStart,
-            initialSelectedEndDateMillis = uiState.customRangeEnd
-        )
-
-        DatePickerDialog(
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.DATE_RANGE,
+            initialStartMillis = uiState.customRangeStart ?: System.currentTimeMillis(),
+            initialEndMillis = uiState.customRangeEnd,
             onDismissRequest = { isCustomRangePickerVisible = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val pickedStart = dateRangePickerState.selectedStartDateMillis
-                        val pickedEnd = dateRangePickerState.selectedEndDateMillis
-                        if (pickedStart != null && pickedEnd != null) {
-                            analyticsViewModel.applyCustomRange(
-                                startMillis = pickedStart,
-                                endMillis = pickedEnd
-                            )
-                        }
-                        isCustomRangePickerVisible = false
-                    }
-                ) {
-                    Text("Apply")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { isCustomRangePickerVisible = false }) {
-                    Text("Cancel")
-                }
+            onConfirm = { pickedStart, pickedEnd ->
+                analyticsViewModel.applyCustomRange(
+                    startMillis = pickedStart,
+                    endMillis = pickedEnd ?: pickedStart
+                )
+                isCustomRangePickerVisible = false
             }
-        ) {
-            DateRangePicker(
-                state = dateRangePickerState,
-                title = {
-                    Text(
-                        text = "Select custom range",
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                headline = {
-                    Text(
-                        text = buildCustomRangeHeadline(
-                            startMillis = dateRangePickerState.selectedStartDateMillis,
-                            endMillis = dateRangePickerState.selectedEndDateMillis
-                        ),
-                        modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 24.dp),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                showModeToggle = false
-            )
-        }
+        )
     }
 
     if (isCategorySheetVisible) {

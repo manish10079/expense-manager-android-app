@@ -203,6 +203,11 @@ class TransactionsViewModel : ViewModel() {
         rebuildUiState()
     }
 
+    fun jumpToPeriod(millis: Long) {
+        focusedPeriodTimestamp = millis
+        rebuildUiState()
+    }
+
     private fun rebuildUiState() {
         val availableCategories = categoryMap.values
             .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }

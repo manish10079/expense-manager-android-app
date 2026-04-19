@@ -198,6 +198,60 @@ fun localDateTimestampToDatePickerSelection(timestamp: Long): Long {
     }.timeInMillis
 }
 
+
+data class PickerResult(
+    val timestamp: Long? = null,
+    val error: String? = null
+)
+
+/**
+ * Centralized logic for calculating a timestamp from wheel selections.
+ * Validates days in month and handles AM/PM conversion.
+ */
+fun validateAndCalculateTimestamp(
+    day: Int,
+    month: Int,
+    year: Int,
+    hour: Int,
+    minute: Int,
+    amPm: String,
+    showDate: Boolean,
+    showTime: Boolean
+): PickerResult {
+    val cal = Calendar.getInstance()
+    
+    if (showDate) {
+        cal.set(Calendar.YEAR, year)
+        cal.set(Calendar.MONTH, month)
+        
+        val maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
+        if (day > maxDays) {
+            return PickerResult(error = "Invalid date for selected month.")
+        }
+        cal.set(Calendar.DAY_OF_MONTH, day)
+    }
+
+    if (showTime) {
+        // Convert 12h to 24h
+        val hour24 = when {
+            amPm == "PM" && hour < 12 -> hour + 12
+            amPm == "AM" && hour == 12 -> 0
+            else -> hour
+        }
+        cal.set(Calendar.HOUR_OF_DAY, hour24)
+        cal.set(Calendar.MINUTE, minute)
+    } else if (showDate) {
+        // If only date, set to midnight
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+    }
+    
+    cal.set(Calendar.SECOND, 0)
+    cal.set(Calendar.MILLISECOND, 0)
+    
+    return PickerResult(timestamp = cal.timeInMillis)
+}
+
 private fun formatWithPattern(timestamp: Long, pattern: String): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).format(Date(timestamp))
 }

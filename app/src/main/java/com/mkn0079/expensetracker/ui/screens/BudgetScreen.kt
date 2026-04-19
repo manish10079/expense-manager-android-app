@@ -33,8 +33,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -48,7 +46,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -87,6 +84,8 @@ import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
@@ -101,7 +100,6 @@ import com.mkn0079.expensetracker.ui.viewmodels.BudgetViewModel
 import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
-import com.mkn0079.expensetracker.utils.localDateTimestampToDatePickerSelection
 
 @Composable
 fun BudgetScreen(
@@ -275,44 +273,19 @@ fun BudgetScreen(
     }
 
     if (isMonthPickerVisible) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = localDateTimestampToDatePickerSelection(uiState.customMonthStart)
-        )
-        DatePickerDialog(
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.SINGLE_DATE,
+            initialStartMillis = uiState.customMonthStart,
             onDismissRequest = { isMonthPickerVisible = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis
-                            ?.let(::datePickerSelectionToLocalDateTimestamp)
-                            ?.let(budgetViewModel::selectCustomMonth)
-                        isMonthPickerVisible = false
-                    }
-                ) { Text("Apply") }
-            },
-            dismissButton = {
-                TextButton(onClick = { isMonthPickerVisible = false }) {
-                    Text("Cancel")
-                }
+            onConfirm = { pickedDateMillis, _ ->
+                val adjustedTimestamp = datePickerSelectionToLocalDateTimestamp(
+                    selectedDateMillis = pickedDateMillis,
+                    referenceTimestamp = uiState.customMonthStart
+                )
+                budgetViewModel.selectCustomMonth(adjustedTimestamp)
+                isMonthPickerVisible = false
             }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                title = {
-                    Text(
-                        text = "Select custom month",
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp)
-                    )
-                },
-                headline = {
-                    Text(
-                        text = "Choose any date in the month you want to review.",
-                        modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 24.dp)
-                    )
-                },
-                showModeToggle = false
-            )
-        }
+        )
     }
 
     if (isBudgetEditorVisible) {
