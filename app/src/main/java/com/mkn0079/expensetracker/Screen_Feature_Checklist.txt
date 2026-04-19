@@ -1,6 +1,7 @@
 Expense Tracker Screen Feature Checklist
 
-Use this file to mark implementation status.
+Updated from current codebase analysis.
+
 Suggested marking:
 [ ] Not Implemented
 [x] Implemented
@@ -8,105 +9,145 @@ Suggested marking:
 1. Splash Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
-   - [x] Android system splash screen
-   - [x] Custom branded splash screen
-   - [x] Animated splash logo
+   - [x] Android 12+ system splash integration
+   - [x] Custom Compose splash overlay
+   - [x] Fade-out transition from splash to app content
+   - [x] Animated branded loading screen
    - [x] App title display
-   - [x] WavySlider2 progress/loading indicator
-   - [x] Consistent handoff between Android splash and custom splash
+   - [x] Custom progress/loading indicator
    - [x] AMOLED black status and navigation bars during launch
-   - [x] Reduced system splash icon size for circular fit
-   - [x] Auto navigation to home screen
+   - [x] Notification channels created on startup
+   - [x] Runtime notification permission request on Android 13+
+   - [x] Auto navigation to onboarding or home based on saved settings
 
-2. Home Screen
+2. Onboarding Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
-   - [x] Greeting header with user name
+   - [x] Multi-page onboarding flow
+   - [x] Animated page content
+   - [x] Expense tracking introduction
+   - [x] Security and privacy introduction
+   - [x] Visual analytics introduction
+   - [x] Premium/offline app messaging
+   - [x] Previous slide action
+   - [x] Next slide action
+   - [x] Get started action
+   - [x] Skip onboarding action
+   - [x] Page indicator
+   - [x] Onboarding completion persisted in app settings
+
+3. Home Screen
+   Screen Status: [x] Implemented   [ ] Not Implemented
+   Features:
+   - [x] Greeting header with saved user name
+   - [x] Top-left profile shortcut
+   - [x] Gradient account-circle placeholder when no profile photo exists
    - [x] Settings shortcut button
    - [x] Total balance summary card
    - [x] Income summary display
    - [x] Expense summary display
    - [x] Today spending card
    - [x] Recent activity section
-   - [x] View All action
-   - [x] Recent transactions list
-   - [x] Transaction item click to open edit flow
+   - [x] Recent transactions limited for home feed
+   - [x] Shared transaction card rendering
+   - [x] Transaction card customization settings applied
+   - [x] View All action to transactions screen
+   - [x] Transaction item click opens edit transaction flow
    - [x] Floating add transaction button
+   - [x] Currency and time format from app settings
 
-3. Analytics Screen
+4. Analytics Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Analytics screen UI
-   - [x] Analytics insights cards (Income, Expense, Savings, Cash Flow)
-   - [x] Spending Donut Chart with animated segments
-   - [x] Ranked Category breakdown list
-   - [x] View All Categories bottom sheet
-   - [x] Top spending items list
-   - [x] Period filter: This Week, This Month, This Year
-   - [x] Custom date range picker dialog
+   - [x] Week, month, and year period tabs
+   - [x] Custom date range picker
+   - [x] Clear custom range action
+   - [x] Total flow card
+   - [x] Average daily expense card
+   - [x] Savings card
+   - [x] Income versus expense/cash-flow card
+   - [x] Line chart with period buckets
+   - [x] Spending donut chart
+   - [x] Top category summary
+   - [x] Category breakdown list
+   - [x] View all category breakdown bottom sheet
+   - [x] Top spending transactions list
+   - [x] Smart AI tip text generated from spending data
+   - [x] Empty-data fallback messaging
+   - [x] Currency from app settings
 
-4. Budget Screen
+5. Budget & Recurring Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Budget screen UI
-   - [x] Budget creation or management
-   - [x] Budget edit and delete actions
-   - [x] Budget tracking summary
-   - [x] Budget progress indicators
-   - [x] Month filter: This Month
-   - [x] Month filter: Last Month
-   - [x] Month filter: Custom Month
-   - [x] Custom month picker dialog
-   - [x] Budget category picker bottom sheet
+   - [x] This Month period filter
+   - [x] Last Month period filter
+   - [x] Custom Month period filter
+   - [x] Wheel date/month picker for custom month
+   - [x] Monthly budget summary card
+   - [x] Total budget, spent, and remaining values
+   - [x] Overall budget usage progress
+   - [x] Category budget list
+   - [x] Add new category budget dialog
+   - [x] Edit existing category budget
+   - [x] Delete category budget with confirmation
+   - [x] Expense category picker in budget editor
+   - [x] Per-category spent versus limit tracking
+   - [x] Over-budget, near-limit, and safe status labels
    - [x] Recurring expense section
-   - [x] Add recurring from existing expense transactions
-   - [x] Recurring frequency: Daily
-   - [x] Recurring frequency: Weekly
-   - [x] Recurring frequency: Monthly
-   - [x] Recurring frequency: Yearly
-   - [x] Recurring enable or disable action
-   - [x] Recurring edit action
-   - [x] Recurring delete action
-   - [x] Recurring repeat count display
    - [x] Recurring due chips
-   - [x] AI insight card
+   - [x] Enable or disable recurring expense
+   - [x] Delete recurring expense with confirmation
+   - [x] Daily recurrence display
+   - [x] Weekly recurrence display
+   - [x] Monthly recurrence display
+   - [x] Yearly recurrence display
+   - [x] Repeat count display
+   - [x] Next due date label
+   - [x] AI budget insight card
+   - [x] Empty budget and empty recurring states
 
-5. Calendar Screen
+6. Calendar Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Calendar screen UI
-   - [x] Calendar-based transaction view
-   - [x] Day-wise transaction navigation
-   - [x] Date selection interaction
+   - [x] Month view
+   - [x] Year view
    - [x] Month and year mode toggle
-   - [x] Monthly calendar grid with transaction indicators
-   - [x] Previous and next month navigation
-   - [x] Daily expense and income totals row
+   - [x] Monthly calendar grid
+   - [x] Transaction indicators on calendar days
+   - [x] Date selection interaction
    - [x] Selected date transaction list
-   - [x] Reuse shared transaction card in month view
-   - [x] Transaction item click to open edit flow from month view
-   - [x] Yearly overview mode
-   - [x] Previous and next year navigation
+   - [x] Daily expense and income totals row
+   - [x] Previous and next month navigation
+   - [x] Swipe gesture navigation between months
+   - [x] Today shortcut button
+   - [x] Scrollable month/year picker dialog
    - [x] Yearly income and expense summary card
    - [x] Yearly month-wise summary grid
    - [x] Tappable year grid month cards to open month view
-   - [x] Empty year grid cards for months without data
-   - [x] Year mode currency symbol from app settings
-   - [x] Today shortcut button
-   - [x] Scrollable month and year picker dialog
-   - [x] Scrollable year picker dialog
-   - [x] Swipe gesture navigation between months
+   - [x] Empty month cards for months without data
+   - [x] Shared transaction card rendering
+   - [x] Transaction item click opens edit flow
+   - [x] Transaction card customization settings applied
+   - [x] Currency, date format, and time format from app settings
 
-6. Transactions Screen
+7. Transactions Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Back navigation button
    - [x] Expandable search field
+   - [x] Search focus handling
+   - [x] Tap-outside behavior to close search
    - [x] Search by note
    - [x] Search by amount
    - [x] Search by payment type
    - [x] Transactions list
-   - [x] Transaction item click to open edit flow
+   - [x] Date separators
+   - [x] Shared transaction card rendering
+   - [x] Transaction card customization settings applied
+   - [x] Transaction item click opens edit transaction flow
    - [x] Floating add transaction button
    - [x] Period filter: All
    - [x] Period filter: Daily
@@ -114,6 +155,7 @@ Suggested marking:
    - [x] Period filter: Yearly
    - [x] Previous period navigation
    - [x] Next period navigation
+   - [x] Custom date range picker for filtering
    - [x] Sort and filter bottom sheet
    - [x] Sort by date
    - [x] Sort by amount
@@ -135,23 +177,9 @@ Suggested marking:
    - [x] Max amount filter
    - [x] Reset filters action
    - [x] Apply filters action
+   - [x] Empty-state support
 
-7. Settings Screen
-   Screen Status: [x] Implemented   [ ] Not Implemented
-   Features:
-   - [x] Back navigation button
-   - [x] Settings screen UI
-   - [x] Settings options list
-   - [x] Profile header section
-   - [x] Navigation to Profile screen
-   - [x] Navigation to App Preferences
-   - [x] Navigation to Security & Privacy
-   - [x] Navigation to Transaction Card Customize
-   - [x] Navigation to Data Management
-   - [x] Navigation to Notifications sub-screen
-   - [x] Navigation to About screen
-
-8. Add Transaction Screen
+8. Add/Edit Transaction Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
    Features:
    - [x] Add transaction mode
@@ -159,24 +187,28 @@ Suggested marking:
    - [x] Back navigation button
    - [x] Income and expense toggle
    - [x] Amount display card
-   - [x] Custom numeric keypad
+   - [x] Expandable custom numeric keypad
    - [x] Category selection chips
    - [x] Dynamic category ordering by usage frequency
    - [x] Payment method selection chips
    - [x] Date selection card
-   - [x] Date picker dialog
+   - [x] Wheel date picker modal
    - [x] Note selection card
    - [x] Note input dialog
-   - [x] Delete action button
-   - [x] Open calculator action
-   - [x] Save or update transaction button
-   - [x] Basic input validation before submit
-   - [x] Recurring transaction checkbox
+   - [x] Delete action in edit mode
+   - [x] Open itemized calculator action
+   - [x] Save transaction action
+   - [x] Update transaction action
+   - [x] Required field validation before submit
+   - [x] Draft amount from calculator
+   - [x] Draft note from calculator itemization
+   - [x] Recurring transaction toggle
    - [x] Recurring frequency: Daily
    - [x] Recurring frequency: Weekly
    - [x] Recurring frequency: Monthly
    - [x] Recurring frequency: Yearly
    - [x] Recurring repeat count input
+   - [x] Recurring transaction restricted to expenses
 
 9. Itemized Calculator Screen
    Screen Status: [x] Implemented   [ ] Not Implemented
@@ -194,9 +226,202 @@ Suggested marking:
    - [x] Percentage calculation
    - [x] Clear calculator input
    - [x] Backspace in calculator
-   - [x] Apply calculator result to transaction note
+   - [x] Live calculator preview result
+   - [x] Apply calculator total to transaction amount
+   - [x] Apply itemized breakdown to transaction note
 
-10. App-Level Navigation and Shared UI
+10. Settings Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Back navigation button
+    - [x] Settings screen UI
+    - [x] Profile header section
+    - [x] Saved profile photo display
+    - [x] Gradient account-circle placeholder when no profile photo exists
+    - [x] Responsive two-line user name handling
+    - [x] Premium member pill
+    - [x] Settings options list
+    - [x] Navigation to Profile screen
+    - [x] Navigation to App Preferences
+    - [x] Navigation to Security & Privacy
+    - [x] Navigation to Transaction Card Customize
+    - [x] Navigation to Data Management
+    - [x] Navigation to Notifications sub-screen
+    - [x] Navigation to About screen
+
+11. User Profile Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Profile information form
+    - [x] Edit user name
+    - [x] Edit profile photo
+    - [x] Copy selected profile photo to internal storage
+    - [x] Delete profile photo
+    - [x] Edit email address
+    - [x] Edit phone number
+    - [x] Edit date of birth
+    - [x] Wheel date picker for date of birth
+    - [x] Edit gender
+    - [x] Gender picker bottom sheet
+    - [x] Save profile changes
+    - [x] Show saved profile in Home header
+    - [x] Show saved profile in Settings header
+    - [x] App lock suppression during external photo picking
+
+12. App Preferences Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated preferences UI
+    - [x] Currency selection
+    - [x] Searchable currency picker bottom sheet
+    - [x] Empty currency search result state
+    - [x] Date format selection
+    - [x] Date format picker bottom sheet
+    - [x] Time format selection
+    - [x] Time format picker bottom sheet
+    - [x] Shortcut to Category Management
+    - [x] Persist selected currency
+    - [x] Persist selected date format
+    - [x] Persist selected time format
+
+13. Categories Management Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated category management UI
+    - [x] Income categories tab
+    - [x] Expense categories tab
+    - [x] Payment methods tab
+    - [x] Built-in category display
+    - [x] Built-in payment method display
+    - [x] Custom category display
+    - [x] Custom payment method display
+    - [x] Category/payment count label
+    - [x] Add custom income category
+    - [x] Add custom expense category
+    - [x] Add custom payment method
+    - [x] Icon picker grid for custom entries
+    - [x] Duplicate name validation
+    - [x] Delete custom category
+    - [x] Delete custom payment method
+    - [ ] Edit category name
+    - [ ] Edit payment method name
+    - [ ] Change category icon after creation
+    - [ ] Change payment method icon after creation
+
+14. Security & Privacy Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated security settings UI
+    - [x] App lock toggle
+    - [x] PIN setup flow trigger
+    - [x] Biometric unlock toggle
+    - [x] Biometric verification required before enabling biometric lock
+    - [x] Blur in recents toggle
+    - [x] Screenshot protection toggle
+    - [x] Auto-lock duration row
+    - [x] Auto-lock duration bottom sheet
+    - [x] Immediate lock option
+    - [x] Preset auto-lock duration options
+    - [x] Custom auto-lock duration input
+    - [x] Custom auto-lock duration validation
+    - [x] Privacy settings applied to Android window flags
+
+15. App Lock Screen / Overlay
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Full-screen app lock overlay
+    - [x] Animated overlay transition
+    - [x] Setup mode
+    - [x] Unlock mode
+    - [x] Create 4-digit PIN stage
+    - [x] Confirm PIN stage
+    - [x] Security question selection stage
+    - [x] Security answer storage
+    - [x] Custom numeric keypad
+    - [x] Backspace action
+    - [x] PIN unlock validation
+    - [x] Biometric unlock action
+    - [x] Automatic biometric prompt when available
+    - [x] Forgot PIN recovery flow
+    - [x] Security answer validation
+    - [x] Disable app lock after successful recovery
+    - [x] Failed PIN attempt handling
+    - [x] Encrypted app lock preferences
+    - [x] Salted PIN and security answer hashes
+    - [x] Legacy app lock preference migration
+    - [x] Lifecycle-based auto-lock on app background/foreground
+
+16. Notification Settings Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated notification settings UI
+    - [x] Daily reminder toggle
+    - [x] Budget limit alert toggle
+    - [x] Missed entry reminder toggle
+    - [x] Detailed descriptions for each notification type
+    - [x] Test daily reminder action
+    - [x] Test budget alert action
+    - [x] Test missed entry reminder action
+    - [x] Daily reminder scheduling based on saved setting
+    - [x] Notification channels initialized at app startup
+
+17. Data Management Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated data management UI
+    - [x] Transaction count display
+    - [x] Manual database backup to .db
+    - [x] Database restore from .db
+    - [x] Restore confirmation dialog
+    - [x] Delete all transactions action
+    - [x] Delete all transactions confirmation dialog
+    - [x] JSON export
+    - [x] JSON import
+    - [x] Legacy JSON import
+    - [x] Merge-safe JSON import with duplicate skipping
+    - [x] Export/import transactions
+    - [x] Export/import budgets
+    - [x] Export/import recurring rules
+    - [x] Export/import categories
+    - [x] Export/import payment methods
+    - [x] App lock suppression during external file picking
+    - [x] Auto backup toggle
+    - [x] Auto backup frequency picker
+    - [x] WorkManager periodic auto backup
+    - [x] Auto backup retention cleanup for old .db backups
+
+18. Transaction Card Customize Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated transaction card customization UI
+    - [x] Live transaction card preview
+    - [x] Toggle: Income/Expense labels
+    - [x] Toggle: Date display
+    - [x] Toggle: Payment method
+    - [x] Toggle: Transaction time
+    - [x] Toggle: Category icon
+    - [x] Toggle: Date separators
+    - [x] Persist customization settings in app settings
+    - [x] Apply customization to Home transaction cards
+    - [x] Apply customization to Transactions screen cards
+    - [x] Apply customization to Calendar screen cards
+
+19. About Screen
+    Screen Status: [x] Implemented   [ ] Not Implemented
+    Features:
+    - [x] Dedicated About screen UI
+    - [x] Back navigation button
+    - [x] App version and branding display
+    - [x] About app information card
+    - [x] Developer profile card
+    - [x] Developer social links and contact
+    - [x] Support actions: Rate app, Feedback, Report bug
+    - [x] Legal actions: Privacy Policy, Terms, Licenses
+    - [x] Follow/social section
+    - [x] External link launching
+    - [x] App lock suppression for external links
+
+20. App-Level Navigation and Shared UI
     Screen Status: [x] Implemented   [ ] Not Implemented
     Features:
     - [x] Bottom navigation bar
@@ -204,37 +429,40 @@ Suggested marking:
     - [x] Analytics tab
     - [x] Budget tab
     - [x] Calendar tab
+    - [x] Floating add transaction button
     - [x] Floating navigation toggle button
     - [x] Auto-hide bottom navigation menu
+    - [x] Route-aware bottom navigation visibility
     - [x] Animated screen transitions
+    - [x] Shared app header component
+    - [x] Header remains aligned at larger Android font sizes
+    - [x] Shared profile avatar component
+    - [x] Shared wheel picker components
+    - [x] Shared transaction card component
+    - [x] Shared sort/filter modal
+    - [x] Back navigation route resolver
+    - [x] Preloading/warming secondary screen viewmodels
 
-
-11. Onboarding Screen
+21. Local Data, Persistence, and Repositories
     Screen Status: [x] Implemented   [ ] Not Implemented
     Features:
-    - [x] Welcome slides for new users
-    - [x] App usage overview
-    - [x] Permission guidance
-    - [x] Previous slide action
-    - [x] Next slide action
-    - [x] Page indicator
-    - [x] Get started action
-    - [x] Skip onboarding action
+    - [x] Room database integration
+    - [x] Transaction repository
+    - [x] Budget repository
+    - [x] Recurring rule repository
+    - [x] Category repository
+    - [x] Payment method repository
+    - [x] Data management repository
+    - [x] App settings DataStore
+    - [x] User profile DataStore
+    - [x] Custom category persistence
+    - [x] Custom payment method persistence
+    - [x] Soft-delete support for transactions, budgets, recurring rules, categories, and payment methods
+    - [x] Database migration for category/payment uniqueness changes
+    - [x] Budget limit alert check after transaction save
+    - [x] Recurring transaction rule save/update/delete
 
-12. User Profile Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Profile information display
-    - [x] Edit user name
-    - [x] Edit profile photo
-    - [x] Edit email address
-    - [x] Edit phone number
-    - [x] Edit date of birth
-    - [x] Edit gender
-    - [x] Save profile changes
-    - [x] Show saved profile in home header
-
-13. Accounts and Wallets Screen
+22. Accounts and Wallets Screen
     Screen Status: [ ] Implemented   [x] Not Implemented
     Features:
     - [ ] View all accounts and wallets
@@ -246,32 +474,7 @@ Suggested marking:
     - [ ] Opening balance setup
     - [ ] Current balance tracking
 
-14. Categories Management Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] View income categories
-    - [x] View expense categories
-    - [x] Add custom category with icon and color
-    - [ ] Edit category name
-    - [ ] Change category icon
-    - [x] Delete custom category
-    - [x] Add custom payment method
-    - [x] Delete custom payment method
-
-15. Recurring Transactions Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [ ] Create recurring income
-    - [x] Create recurring expense
-    - [x] Daily recurrence option
-    - [x] Weekly recurrence option
-    - [x] Monthly recurrence option
-    - [x] Yearly recurrence option
-    - [x] Enable or disable recurrence
-    - [x] Edit recurring transaction
-    - [x] Delete recurring transaction
-
-16. Bills and Subscription Tracker Screen
+23. Bills and Subscription Tracker Screen
     Screen Status: [ ] Implemented   [x] Not Implemented
     Features:
     - [ ] Add bill or subscription
@@ -281,7 +484,7 @@ Suggested marking:
     - [ ] Auto-repeat monthly bills
     - [ ] Overdue bill highlighting
 
-17. Savings Goals Screen
+24. Savings Goals Screen
     Screen Status: [ ] Implemented   [x] Not Implemented
     Features:
     - [ ] Create savings goal
@@ -291,7 +494,7 @@ Suggested marking:
     - [ ] Link transactions to a goal
     - [ ] Goal completion indicator
 
-18. Detailed Reports Screen
+25. Detailed Reports Screen
     Screen Status: [ ] Implemented   [x] Not Implemented
     Features:
     - [ ] Monthly report summary
@@ -301,62 +504,3 @@ Suggested marking:
     - [ ] Payment-mode-wise breakdown
     - [ ] Export report as PDF
     - [ ] Share report action
-
-19. Notification Settings Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Dedicated notification settings UI
-    - [x] Daily expense reminder toggle
-    - [x] Budget limit alert toggle
-    - [x] Missed entry reminder toggle
-    - [x] Detailed descriptions for each notification type
-
-20. Data Management Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Dedicated data management UI
-    - [x] Import transactions from legacy JSON file
-    - [x] Delete all transactions with confirmation
-    - [x] App lock suppression during external file picking
-    - [x] Backup and restore database (.db)
-    - [x] Export and import transactions (JSON)
-
-21. About Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Dedicated About screen UI
-    - [x] App version and branding display
-    - [x] Developer social links and contact
-    - [x] Support actions: Rate app, Feedback, Report bug
-    - [x] Legal pages: Privacy Policy, Terms, Licenses
-    - [x] App lock suppression for external links
-
-22. Security & Privacy Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Dedicated security settings UI
-    - [x] App lock (PIN) configuration
-    - [x] Biometric unlock toggle
-    - [x] Blur in recents toggle
-    - [x] Screenshot protection toggle
-    - [x] Auto-lock duration selection
-
-23. Transaction Card Customize Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Itemized visual toggles for transaction cards
-    - [x] Toggle: Income/Expense labels
-    - [x] Toggle: Date display
-    - [x] Toggle: Payment method
-    - [x] Toggle: Transaction time
-    - [x] Toggle: Category icon
-    - [x] Toggle: Date separators
-
-24. App Preferences Screen
-    Screen Status: [x] Implemented   [ ] Not Implemented
-    Features:
-    - [x] Dedicated preferences UI
-    - [x] Currency selection
-    - [x] Date format selection
-    - [x] Time format selection
-    - [x] Shortcut to Category Management
