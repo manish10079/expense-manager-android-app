@@ -9,7 +9,11 @@ data class HomeSummaryRow(
     @ColumnInfo(name = "expense_minor")
     val expenseMinor: Long,
     @ColumnInfo(name = "highlighted_expense_minor")
-    val highlightedExpenseMinor: Long
+    val highlightedExpenseMinor: Long,
+    @ColumnInfo(name = "previous_month_income_minor")
+    val previousMonthIncomeMinor: Long,
+    @ColumnInfo(name = "previous_month_expense_minor")
+    val previousMonthExpenseMinor: Long
 )
 
 data class HomeRecentTransactionRow(

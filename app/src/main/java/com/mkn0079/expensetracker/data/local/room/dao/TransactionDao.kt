@@ -61,7 +61,31 @@ interface TransactionDao {
                     END
                 ),
                 0
-            ) AS highlighted_expense_minor
+            ) AS highlighted_expense_minor,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN transaction_type_id = 1
+                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
+                              strftime('%Y-%m', 'now', '-1 month', 'localtime')
+                        THEN amount_minor
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS previous_month_income_minor,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN transaction_type_id != 1
+                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
+                              strftime('%Y-%m', 'now', '-1 month', 'localtime')
+                        THEN amount_minor
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS previous_month_expense_minor
         FROM transactions
         WHERE is_deleted = 0
         """

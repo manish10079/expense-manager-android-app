@@ -17,7 +17,9 @@ import java.util.UUID
 data class TransactionSummary(
     val totalIncomeMinor: Long,
     val totalExpenseMinor: Long,
-    val highlightedExpenseMinor: Long
+    val highlightedExpenseMinor: Long,
+    val previousMonthIncomeMinor: Long,
+    val previousMonthExpenseMinor: Long
 )
 
 data class RecentTransaction(
@@ -42,7 +44,9 @@ class TransactionRepository(context: Context) {
             TransactionSummary(
                 totalIncomeMinor = row.incomeMinor,
                 totalExpenseMinor = row.expenseMinor,
-                highlightedExpenseMinor = row.highlightedExpenseMinor
+                highlightedExpenseMinor = row.highlightedExpenseMinor,
+                previousMonthIncomeMinor = row.previousMonthIncomeMinor,
+                previousMonthExpenseMinor = row.previousMonthExpenseMinor
             )
         }
     }

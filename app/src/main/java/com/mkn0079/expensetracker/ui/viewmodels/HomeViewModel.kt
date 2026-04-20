@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 data class HomeScreenUiState(
     val greetingName: String = defaultUserProfile.firstName(),
     val totalBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val previousMonthBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val totalIncome: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
@@ -66,6 +67,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
                         (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
+                        currencyId = inputs.currencyId
+                    ),
+                    previousMonthBalance = formatCurrencyValue(
+                        (summary.previousMonthIncomeMinor - summary.previousMonthExpenseMinor).toMajorUnits(),
                         currencyId = inputs.currencyId
                     ),
                     totalIncome = formatCurrencyValue(

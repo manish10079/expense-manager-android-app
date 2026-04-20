@@ -42,6 +42,7 @@ import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 @Composable
 fun TotalBalanceCard(
     totalBalance: String,
+    previousMonthBalance: String = "",
     income: String,
     expense: String
 ) {
@@ -51,7 +52,7 @@ fun TotalBalanceCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(240.dp)
             .shadow(
                 elevation = 26.dp,
                 shape = cardShape,
@@ -109,6 +110,39 @@ fun TotalBalanceCard(
             ),
             maxLines = 1
         )
+
+        if (previousMonthBalance.isNotBlank()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "LAST MONTH",
+                    color = Color(0xFFB7B0C3),
+                    fontSize = 14.3.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 3.1.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = previousMonthBalance,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 14.3.sp,
+                        lineHeight = 22.sp,
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                PurplePrimary.copy(alpha = 0.95f),
+                                PurpleAccent.copy(alpha = 0.90f)
+                            )
+                        )
+                    ),
+                    maxLines = 1
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         Box(
             modifier = Modifier

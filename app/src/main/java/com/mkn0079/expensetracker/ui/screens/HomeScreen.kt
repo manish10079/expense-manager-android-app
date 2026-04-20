@@ -187,6 +187,7 @@ private fun HomeScreenContent(
 
             TotalBalanceCard(
                 totalBalance = uiState.totalBalance,
+                previousMonthBalance = uiState.previousMonthBalance,
                 income = uiState.totalIncome,
                 expense = uiState.totalExpense
             )
