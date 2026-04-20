@@ -109,13 +109,13 @@ fun DataManagementScreen(
             title = "DATABASE",
             items = listOf(
                 SettingsItemUi(
-                    title = "Backup Database",
+                    title = "Backup",
                     icon = Icons.Filled.Sync,
                     trailing = ".db",
                     actionId = SettingsActionId.DatabaseBackup
                 ),
                 SettingsItemUi(
-                    title = "Restore Database",
+                    title = "Restore",
                     icon = Icons.Filled.Refresh,
                     trailing = ".db",
                     actionId = SettingsActionId.DatabaseRestore
