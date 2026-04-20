@@ -129,13 +129,4 @@ object NotificationHelper {
         }
     }
 
-    fun showTestNotification(context: Context) {
-        val message = DynamicNotificationEngine.generateReminderMessage(true)
-        showReminderNotification(context, "[TEST] $message")
-    }
-
-    fun showTestBudgetNotification(context: Context) {
-        val message = DynamicNotificationEngine.generateBudgetExceededMessage("Shopping")
-        showBudgetExceededNotification(context, "[TEST] $message")
-    }
 }

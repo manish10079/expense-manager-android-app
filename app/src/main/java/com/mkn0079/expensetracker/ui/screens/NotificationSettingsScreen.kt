@@ -94,22 +94,6 @@ fun NotificationSettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            val context = LocalContext.current
-            NotificationSection(title = "VERIFICATION TOOLS") {
-                NotificationTestItem(
-                    title = "Test Daily Reminder",
-                    description = "Trigger an immediate sarcastic daily reminder.",
-                    onTestClick = { NotificationHelper.showTestNotification(context) }
-                )
-                NotificationTestItem(
-                    title = "Test Budget Alert",
-                    description = "Trigger an immediate sarcastic budget exceeded alert.",
-                    onTestClick = { NotificationHelper.showTestBudgetNotification(context) }
-                )
-            }
-
             Spacer(modifier = Modifier.height(48.dp))
         }
     }
@@ -180,47 +164,3 @@ private fun NotificationToggleItem(
     }
 }
 
-@Composable
-private fun NotificationTestItem(
-    title: String,
-    description: String,
-    onTestClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Notifications,
-            contentDescription = null,
-            tint = PurplePrimary.copy(alpha = 0.6f),
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = description,
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 13.sp
-            )
-        }
-        Button(
-            onClick = onTestClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = PurplePrimary.copy(alpha = 0.2f),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Test", fontSize = 12.sp)
-        }
-    }
-}
