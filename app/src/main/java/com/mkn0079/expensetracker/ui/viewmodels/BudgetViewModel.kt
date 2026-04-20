@@ -97,8 +97,8 @@ data class BudgetScreenUiState(
     val recurringExpenses: List<BudgetRecurringExpenseUi> = emptyList(),
     val recurringDueItems: List<BudgetRecurringExpenseUi> = emptyList(),
     val insight: BudgetInsightUi = BudgetInsightUi(
-        title = "AI Budget Insight",
-        body = "Add a budget to start tracking how your spending is pacing against your monthly limits.",
+        title = "Budget Insight",
+        body = "Start tracking how your spending is pacing against your monthly limits.",
         supportingLabel = "WAITING FOR BUDGETS",
         accent = Color(0xFFB89AF7)
     ),
@@ -463,9 +463,9 @@ private fun buildInsight(
 ): BudgetInsightUi {
     if (categoryBudgets.isEmpty() && recurringExpenses.isEmpty()) {
         return BudgetInsightUi(
-            title = "AI Budget Insight",
+            title = "Budget Insight",
             body = "You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.",
-            supportingLabel = "SET UP YOUR PLAN",
+            supportingLabel = "",
             accent = Color(0xFFB89AF7)
         )
     }
@@ -486,7 +486,7 @@ private fun buildInsight(
     return when {
         overspentCategory != null -> {
             BudgetInsightUi(
-                title = "AI Budget Insight",
+                title = "Budget Insight",
                 body = "${overspentCategory.title} is over budget by ${formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId)}. Tightening that category first will give you the quickest recovery.",
                 supportingLabel = "OVER BUDGET",
                 accent = Color(0xFFFFA8A8)
@@ -495,7 +495,7 @@ private fun buildInsight(
 
         recurringExpenses.isNotEmpty() && nextRecurring != null -> {
             BudgetInsightUi(
-                title = "AI Budget Insight",
+                title = "Budget Insight",
                 body = "You have ${recurringExpenses.size} recurring expense${if (recurringExpenses.size == 1) "" else "s"} tracked. ${nextRecurring.title} is ${nextRecurring.dueLabel.lowercase(Locale.getDefault())}, and your recurring commitments average about ${formatCurrencyValue(recurringMonthlyEquivalent, currencyId)} per month.",
                 supportingLabel = "RECURRING WATCH",
                 accent = nextRecurring.accent
@@ -504,7 +504,7 @@ private fun buildInsight(
 
         summary.totalBudgetAmount > 0.0 && summary.usageFraction >= 0.85f -> {
             BudgetInsightUi(
-                title = "AI Budget Insight",
+                title = "Budget Insight",
                 body = "You have used ${summary.usageLabel.lowercase(Locale.getDefault())} for ${summary.monthLabel}. ${highestSpendCategory?.title ?: "Your top category"} is carrying the most spend, so trimming there will protect your remaining ${summary.remainingLabel}.",
                 supportingLabel = "WATCH YOUR RUNWAY",
                 accent = Color(0xFFFFC27C)
@@ -513,7 +513,7 @@ private fun buildInsight(
 
         else -> {
             BudgetInsightUi(
-                title = "AI Budget Insight",
+                title = "Budget Insight",
                 body = "Your budget pacing looks steady for ${summary.monthLabel}. You still have ${summary.remainingLabel} available, with ${highestSpendCategory?.title ?: "your biggest category"} leading spend so far.",
                 supportingLabel = "BUDGET ON TRACK",
                 accent = Color(0xFFB89AF7)

@@ -155,8 +155,6 @@ fun BudgetScreen(
                 )
             )
     ) {
-        BudgetGlow()
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
