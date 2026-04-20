@@ -159,7 +159,7 @@ private fun HomeScreenContent(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Hi, ${uiState.greetingName}",
+                            text = "Hi, ${uiState.greetingName} 👋",
                             color = MaterialTheme.colorScheme.onBackground,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

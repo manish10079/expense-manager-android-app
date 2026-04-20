@@ -63,7 +63,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 inputState
             ) { summary, recentTransactions, inputs ->
                 HomeScreenUiState(
-                    greetingName = inputs.userProfile.firstName(),
+                    greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
                         (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
                         currencyId = inputs.currencyId
