@@ -1,7 +1,6 @@
 package com.mkn0079.expensetracker.workers
 
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -26,8 +25,13 @@ class AutoBackupWorker(
                 return Result.success()
             }
 
-            val documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val backupDir = File(documentsDir, "ExpenseTracker")
+            val mediaDirs = context.getExternalMediaDirs()
+            if (mediaDirs.isEmpty()) {
+                Log.e("AutoBackupWorker", "No external media directories available")
+                return Result.failure()
+            }
+            val primaryMediaDir = mediaDirs[0]
+            val backupDir = File(primaryMediaDir, "backup")
             if (!backupDir.exists()) {
                 backupDir.mkdirs()
             }
