@@ -375,11 +375,12 @@ fun TransactionScreen(
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
             if (uiState.transactionItems.isEmpty()) {
-                var isEmptyMessageVisible by remember(emptyTransactionMessage) {
-                    mutableStateOf(false)
-                }
+                var isEmptyMessageVisible by remember { mutableStateOf(false) }
 
                 LaunchedEffect(emptyTransactionMessage) {
+                    // Trigger exit animation before showing new message
+                    isEmptyMessageVisible = false
+                    kotlinx.coroutines.delay(500) // wait for exit animation to complete
                     isEmptyMessageVisible = true
                 }
 
@@ -394,7 +395,7 @@ fun TransactionScreen(
                         visible = isEmptyMessageVisible,
                         enter = fadeIn(animationSpec = tween(durationMillis = 500)) +
                             scaleIn(
-                                initialScale = 0.92f,
+                                initialScale = 0.5f,
                                 animationSpec = tween(durationMillis = 500)
                             ) +
                             slideInVertically(
@@ -403,7 +404,7 @@ fun TransactionScreen(
                             ),
                         exit = fadeOut(animationSpec = tween(durationMillis = 500)) +
                             scaleOut(
-                                targetScale = 0.92f,
+                                targetScale = 0.5f,
                                 animationSpec = tween(durationMillis = 500)
                             ) +
                             slideOutVertically(
