@@ -78,18 +78,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
-import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED
-import com.mkn0079.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
-import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
-import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_MISSED_ENTRY_REMINDER_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_NOTIFICATIONS_ENABLED
-import com.mkn0079.expensetracker.data.constants.DEFAULT_SCREENSHOT_PROTECTION_ENABLED
-import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.constants.currencyMap
-import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
@@ -104,14 +95,6 @@ import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsToggleId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
-import com.mkn0079.expensetracker.utils.DateFormatOption
-import com.mkn0079.expensetracker.utils.TimeFormatOption
-import com.mkn0079.expensetracker.utils.getDateFormatPreviewLabel
-import com.mkn0079.expensetracker.utils.getTimeFormatPreviewLabel
-import com.mkn0079.expensetracker.utils.supportedDateFormats
-import com.mkn0079.expensetracker.utils.supportedTimeFormats
-
- 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,13 +120,7 @@ fun SettingsScreen(
     LaunchedEffect(
         transactionCount
     ) {
-        settingsViewModel.updateInputs(
-            currentCurrencyId = DEFAULT_CURRENCY_ID,
-            currentDateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
-            currentTimeFormat = DEFAULT_TIME_FORMAT,
-            autoLockDurationMinutes = 0,
-            transactionCount = transactionCount
-        )
+        settingsViewModel.updateInputs(transactionCount = transactionCount)
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
 

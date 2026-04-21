@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
@@ -63,6 +64,7 @@ import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModelFactory
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -70,6 +72,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     userProfile: UserProfile = defaultUserProfile,
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onViewAllClick: () -> Unit = {},
@@ -85,12 +88,14 @@ fun HomeScreen(
     androidx.compose.runtime.LaunchedEffect(
         userProfile,
         currencyId,
+        amountFormatPreferences,
         timeFormat,
         transactionCardCustomizationSettings
     ) {
         homeViewModel.updateInputs(
             userProfile = userProfile,
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             timeFormat = timeFormat,
             customizationSettings = transactionCardCustomizationSettings
         )

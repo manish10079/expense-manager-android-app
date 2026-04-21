@@ -3,22 +3,26 @@ package com.mkn0079.expensetracker.utils
 import androidx.compose.ui.graphics.Color
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.currencyMap
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Currency
+import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.CurrencyPosition
 import com.mkn0079.expensetracker.ui.theme.NegativeRed
 import com.mkn0079.expensetracker.ui.theme.PositiveGreen
-import java.text.NumberFormat
-import java.util.Locale
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 fun formatAmount(
     amount: Double,
     transactionTypeId: Int = 0,
-    currencyId: Int = DEFAULT_CURRENCY_ID
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 ): String {
     val sign = if (getTransactionTypeName(transactionTypeId).equals("Income", true)) "+" else "-"
     return formatCurrencyValue(
         amount = amount,
         currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
         prefix = sign
     )
 }
@@ -26,10 +30,11 @@ fun formatAmount(
 fun formatCurrencyValue(
     amount: Double,
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     prefix: String = ""
 ): String {
     val currency = getCurrency(currencyId)
-    val formattedAmount = formatCurrencyNumber(kotlin.math.abs(amount))
+    val formattedAmount = formatNumberValue(kotlin.math.abs(amount), amountFormatPreferences)
     val safePrefix = prefix.trim().ifEmpty {
         if (amount < 0) "-" else ""
     }
@@ -44,12 +49,50 @@ fun getCurrency(currencyId: Int = DEFAULT_CURRENCY_ID): Currency {
     return currencyMap[currencyId] ?: currencyMap.getValue(DEFAULT_CURRENCY_ID)
 }
 
-private fun formatCurrencyNumber(amount: Double): String {
-    val formatter = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
-        minimumFractionDigits = if (amount % 1.0 == 0.0) 0 else 2
-        maximumFractionDigits = 2
+fun formatNumberValue(
+    amount: Double,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
+): String {
+    val normalizedDecimalPlaces = amountFormatPreferences.decimalPlaces.coerceIn(0, 4)
+    val roundedAmount = BigDecimal.valueOf(amount)
+        .setScale(normalizedDecimalPlaces, RoundingMode.HALF_UP)
+        .toPlainString()
+
+    val parts = roundedAmount.split('.')
+    val integerPart = parts.first()
+    val groupedIntegerPart = when (amountFormatPreferences.groupingStyle) {
+        CurrencyGroupingStyle.INDIAN -> formatIndianGroupedInteger(integerPart)
+        CurrencyGroupingStyle.INTERNATIONAL -> formatInternationalGroupedInteger(integerPart)
     }
-    return formatter.format(amount)
+
+    return if (normalizedDecimalPlaces == 0) {
+        groupedIntegerPart
+    } else {
+        val fractionalPart = parts.getOrNull(1).orEmpty().padEnd(normalizedDecimalPlaces, '0')
+        "$groupedIntegerPart.$fractionalPart"
+    }
+}
+
+private fun formatInternationalGroupedInteger(integerPart: String): String {
+    return integerPart.reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()
+}
+
+private fun formatIndianGroupedInteger(integerPart: String): String {
+    if (integerPart.length <= 3) {
+        return integerPart
+    }
+
+    val prefix = integerPart.dropLast(3)
+    val lastThreeDigits = integerPart.takeLast(3)
+    val groupedPrefix = prefix.reversed()
+        .chunked(2)
+        .joinToString(",")
+        .reversed()
+
+    return "$groupedPrefix,$lastThreeDigits"
 }
 
 fun getAmountColor(transactionId:Int): Color

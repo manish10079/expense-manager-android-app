@@ -1,9 +1,11 @@
 package com.mkn0079.expensetracker.domain.mapper
 
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatAmount
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.formatTime
@@ -14,6 +16,7 @@ import java.util.Locale
 
 fun Transaction.toTransactionCardItemUi(
     currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String,
     timeFormat: String,
     paymentTypeName: String
@@ -27,7 +30,8 @@ fun Transaction.toTransactionCardItemUi(
         amount = formatAmount(
             amount = amount,
             transactionTypeId = transactionTypeId,
-            currencyId = currencyId
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences
         ),
         icon = categoryIcon,
         transactionTypeId = transactionTypeId,

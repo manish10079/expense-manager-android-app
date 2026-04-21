@@ -69,9 +69,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.constants.currencyMap
 import com.mkn0079.expensetracker.data.constants.transactionList
-import com.mkn0079.expensetracker.models.CurrencyPosition
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.models.CalendarDayUi
@@ -85,10 +84,8 @@ import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.calendarAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.calendarMonthTitle
-import java.text.NumberFormat
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import java.util.Calendar
-import java.util.Locale
-import kotlin.math.abs
 
 private val CalendarBackground = Color(0xFF09090C)
 private val CalendarSurface = Color(0xFF1A1A1F)
@@ -109,6 +106,7 @@ private val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL",
 fun CalendarScreen(
     transactions: List<Transaction> = transactionList,
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
@@ -121,6 +119,7 @@ fun CalendarScreen(
     androidx.compose.runtime.LaunchedEffect(
         transactions,
         currencyId,
+        amountFormatPreferences,
         dateFormatPattern,
         timeFormat,
         transactionCardCustomizationSettings
@@ -128,6 +127,7 @@ fun CalendarScreen(
         calendarViewModel.updateInputs(
             transactions = transactions,
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             timeFormat = timeFormat,
             customizationSettings = transactionCardCustomizationSettings
@@ -901,29 +901,6 @@ private fun getField(timestamp: Long, field: Int): Int {
 
 private fun mondayFirstOffset(dayOfWeek: Int): Int {
     return (dayOfWeek + 5) % 7
-}
-
-private fun formatConfiguredCurrency(
-    amount: Double,
-    signed: Boolean = false,
-    currencyId: Int = DEFAULT_CURRENCY_ID
-): String {
-    val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
-        minimumFractionDigits = 2
-        maximumFractionDigits = 2
-    }
-    val prefix = when {
-        signed && amount > 0 -> "+"
-        amount < 0 -> "-"
-        else -> ""
-    }
-    val absoluteValue = formatter.format(abs(amount))
-    val currency = currencyMap[currencyId] ?: currencyMap[DEFAULT_CURRENCY_ID]
-
-    return when (currency?.position) {
-        CurrencyPosition.POSTFIX -> "$prefix$absoluteValue${currency.currencySymbol}"
-        else -> "$prefix${currency?.currencySymbol ?: "$"}$absoluteValue"
-    }
 }
 
 @Composable

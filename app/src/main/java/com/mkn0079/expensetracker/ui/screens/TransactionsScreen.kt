@@ -77,6 +77,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.AddTransactionFab
@@ -92,6 +93,7 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
 private val emptyTransactionMessages = listOf(
@@ -139,6 +141,7 @@ private val emptyTransactionMessages = listOf(
 @Composable
 fun TransactionScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     transactions: List<Transaction> = emptyList(),
@@ -157,6 +160,7 @@ fun TransactionScreen(
     LaunchedEffect(
         transactions,
         currencyId,
+        amountFormatPreferences,
         dateFormatPattern,
         timeFormat,
         transactionCardCustomizationSettings
@@ -164,6 +168,7 @@ fun TransactionScreen(
         transactionsViewModel.updateInputs(
             transactions = transactions,
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             timeFormat = timeFormat,
             customizationSettings = transactionCardCustomizationSettings

@@ -3,27 +3,12 @@ package com.mkn0079.expensetracker.ui.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SettingsApplications
-import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Tune
 import androidx.lifecycle.ViewModel
-import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
-import com.mkn0079.expensetracker.data.constants.currencyMap
-import com.mkn0079.expensetracker.models.Currency
-import com.mkn0079.expensetracker.utils.getDateFormatPreviewLabel
-import com.mkn0079.expensetracker.utils.getTimeFormatPreviewLabel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,88 +58,33 @@ enum class SettingsActionId {
 
 @Immutable
 data class SettingsScreenUiState(
-    val settingsSections: List<SettingsSectionUi> = emptyList(),
-    val currencySearchQuery: String = "",
-    val filteredCurrencies: List<Currency> = emptyList()
+    val settingsSections: List<SettingsSectionUi> = emptyList()
 )
 
 class SettingsViewModel : ViewModel() {
 
-    private val allCurrencies = currencyMap.values.sortedBy { it.countryName.lowercase() }
-
-    private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
-    private var currentDateFormatPattern: String = ""
-    private var currentTimeFormat: String = ""
-    private var autoLockDurationMinutes: Int = 0
     private var transactionCount: Int = 0
 
-    private val _uiState = MutableStateFlow(
-        SettingsScreenUiState(filteredCurrencies = allCurrencies)
-    )
+    private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
 
-    fun updateInputs(
-        currentCurrencyId: Int,
-        currentDateFormatPattern: String,
-        currentTimeFormat: String,
-        autoLockDurationMinutes: Int,
-        transactionCount: Int
-    ) {
-        this.currentCurrencyId = currentCurrencyId
-        this.currentDateFormatPattern = currentDateFormatPattern
-        this.currentTimeFormat = currentTimeFormat
-        this.autoLockDurationMinutes = autoLockDurationMinutes
+    fun updateInputs(transactionCount: Int) {
         this.transactionCount = transactionCount
         rebuildUiState()
     }
 
-    fun updateCurrencySearchQuery(query: String) {
-        _uiState.update { it.copy(currencySearchQuery = query) }
-        rebuildUiState()
-    }
-
-    fun clearCurrencySearchQuery() {
-        if (_uiState.value.currencySearchQuery.isEmpty()) {
-            return
-        }
-        _uiState.update { it.copy(currencySearchQuery = "") }
-        rebuildUiState()
-    }
-
     private fun rebuildUiState() {
-        val currentCurrency = currencyMap[currentCurrencyId] ?: currencyMap[DEFAULT_CURRENCY_ID]
-        val selectedCurrencyLabel = currentCurrency
-            ?.let { "${it.currencySymbol} ${it.countryName}" }
-            ?: "Select"
-        val query = _uiState.value.currencySearchQuery.trim()
-        val filteredCurrencies = if (query.isEmpty()) {
-            allCurrencies
-        } else {
-            allCurrencies.filter { currency ->
-                currency.countryName.contains(query, ignoreCase = true) ||
-                    currency.currencyName.contains(query, ignoreCase = true) ||
-                    currency.currencySymbol.contains(query, ignoreCase = true)
-            }
-        }
-
         _uiState.update {
             it.copy(
                 settingsSections = buildSettingsSections(
-                    selectedCurrencyLabel = selectedCurrencyLabel,
-                    selectedDateFormatLabel = getDateFormatPreviewLabel(currentDateFormatPattern),
-                    selectedTimeFormatLabel = getTimeFormatPreviewLabel(currentTimeFormat),
                     transactionCountLabel = transactionCount.toString()
-                ),
-                filteredCurrencies = filteredCurrencies
+                )
             )
         }
     }
 }
 
 private fun buildSettingsSections(
-    selectedCurrencyLabel: String,
-    selectedDateFormatLabel: String,
-    selectedTimeFormatLabel: String,
     transactionCountLabel: String
 ): List<SettingsSectionUi> {
     return listOf(

@@ -6,26 +6,25 @@ import androidx.lifecycle.ViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.constants.currencyMap
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
-import com.mkn0079.expensetracker.models.CurrencyPosition
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.models.CalendarDayUi
 import com.mkn0079.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
+import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import com.mkn0079.expensetracker.utils.formatDateWithWeekday
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.math.abs
 import kotlin.math.max
 
 @Immutable
@@ -51,6 +50,7 @@ class CalendarViewModel : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
+    private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var currentTimeFormat: String = DEFAULT_TIME_FORMAT
     private var currentCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
@@ -71,12 +71,14 @@ class CalendarViewModel : ViewModel() {
     fun updateInputs(
         transactions: List<Transaction>,
         currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
         timeFormat: String,
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         currentTransactions = transactions
         currentCurrencyId = currencyId
+        currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
         currentTimeFormat = timeFormat
         currentCustomizationSettings = customizationSettings
@@ -172,7 +174,8 @@ class CalendarViewModel : ViewModel() {
             year = displayedYear,
             transactions = currentTransactions,
             latestTransactionDay = latestTransactionDay,
-            currencyId = currentCurrencyId
+            currencyId = currentCurrencyId,
+            amountFormatPreferences = currentAmountFormatPreferences
         )
         val yearlyIncome = currentTransactions
             .filter { getField(it.createdAt, Calendar.YEAR) == displayedYear && it.transactionTypeId == 1 }
@@ -193,18 +196,19 @@ class CalendarViewModel : ViewModel() {
                 selectedDayTransactions = selectedDayTransactions.map { transaction ->
                     transaction.toTransactionCardItemUi(
                         currencyId = currentCurrencyId,
+                        amountFormatPreferences = currentAmountFormatPreferences,
                         dateFormatPattern = "dd MMM",
                         timeFormat = currentTimeFormat,
                         paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
                     )
                 },
-                selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId)}",
-                selectedDayIncomeLabel = "Income ${formatConfiguredCurrency(selectedDayIncomeTotal, signed = true, currencyId = currentCurrencyId)}",
+                selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
+                selectedDayIncomeLabel = "Income ${formatConfiguredCurrency(selectedDayIncomeTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
                 selectedDayTitle = formatDateWithWeekday(safeSelectedDate, currentDateFormatPattern),
                 emptyTransactionsMessage = "There are no entries recorded for ${formatDateWithWeekday(safeSelectedDate, currentDateFormatPattern)}.",
                 yearSummaries = yearSummaries,
-                yearlyIncomeLabel = formatConfiguredCurrency(yearlyIncome, currencyId = currentCurrencyId),
-                yearlyExpenseLabel = formatConfiguredCurrency(yearlyExpense, currencyId = currentCurrencyId),
+                yearlyIncomeLabel = formatConfiguredCurrency(yearlyIncome, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
+                yearlyExpenseLabel = formatConfiguredCurrency(yearlyExpense, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
                 calendarYearRange = calendarYearRange,
                 customizationSettings = currentCustomizationSettings
             )
@@ -296,7 +300,8 @@ private fun buildYearSummaries(
     year: Int,
     transactions: List<Transaction>,
     latestTransactionDay: Long,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): List<CalendarMonthFinancialSummaryUi> {
     val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
     val latestYear = getField(latestTransactionDay, Calendar.YEAR)
@@ -326,9 +331,24 @@ private fun buildYearSummaries(
             expense = renderedExpense,
             net = renderedNet,
             isProjection = isFutureProjection,
-            incomeLabel = formatConfiguredCurrency(renderedIncome, signed = true, currencyId = currencyId),
-            expenseLabel = formatConfiguredCurrency(-renderedExpense, signed = true, currencyId = currencyId),
-            netLabel = formatConfiguredCurrency(renderedNet, signed = true, currencyId = currencyId)
+            incomeLabel = formatConfiguredCurrency(
+                renderedIncome,
+                signed = true,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences
+            ),
+            expenseLabel = formatConfiguredCurrency(
+                -renderedExpense,
+                signed = true,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences
+            ),
+            netLabel = formatConfiguredCurrency(
+                renderedNet,
+                signed = true,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences
+            )
         )
     }
 }
@@ -432,24 +452,20 @@ private fun signedAmount(transaction: Transaction): Double {
 private fun formatConfiguredCurrency(
     amount: Double,
     signed: Boolean = false,
-    currencyId: Int = DEFAULT_CURRENCY_ID
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 ): String {
-    val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
-        minimumFractionDigits = 2
-        maximumFractionDigits = 2
-    }
     val prefix = when {
         signed && amount > 0 -> "+"
         amount < 0 -> "-"
         else -> ""
     }
-    val absoluteValue = formatter.format(abs(amount))
-    val currency = currencyMap[currencyId] ?: currencyMap[DEFAULT_CURRENCY_ID]
-
-    return when (currency?.position) {
-        CurrencyPosition.POSTFIX -> "$prefix$absoluteValue${currency.currencySymbol}"
-        else -> "$prefix${currency?.currencySymbol ?: "$"}$absoluteValue"
-    }
+    return formatCurrencyValue(
+        amount = amount,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        prefix = prefix
+    )
 }
 
 fun calendarAmountColor(amount: Double): Color {

@@ -52,6 +52,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.transactionList
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.TransactionCard
@@ -59,6 +60,7 @@ import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatAmount
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.formatTime
@@ -76,6 +78,7 @@ private data class TransactionCardToggleItem(
 fun TransactionCardCustomizeScreen(
     settings: TransactionCardCustomizationSettings,
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     previewTransactions: List<Transaction> = transactionList.take(3),
@@ -216,7 +219,8 @@ fun TransactionCardCustomizeScreen(
                         amount = formatAmount(
                             amount = transaction.amount,
                             transactionTypeId = transaction.transactionTypeId,
-                            currencyId = currencyId
+                            currencyId = currencyId,
+                            amountFormatPreferences = amountFormatPreferences
                         ),
                         transactionTypeId = transaction.transactionTypeId,
                         icon = transaction.categoryIcon,
@@ -240,7 +244,8 @@ fun TransactionCardCustomizeScreen(
                             amount = formatAmount(
                                 amount = transaction.amount,
                                 transactionTypeId = transaction.transactionTypeId,
-                                currencyId = currencyId
+                                currencyId = currencyId,
+                                amountFormatPreferences = amountFormatPreferences
                             ),
                             transactionTypeId = transaction.transactionTypeId,
                             icon = transaction.categoryIcon,

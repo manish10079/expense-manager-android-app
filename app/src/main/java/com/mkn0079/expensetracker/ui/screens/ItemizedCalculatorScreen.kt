@@ -69,12 +69,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
+import com.mkn0079.expensetracker.utils.formatCurrencyValue
 
 private data class CalculatorLineItem(
     val id: Int,
@@ -96,11 +100,12 @@ private data class NormalCalculatorResult(
 )
 
 private val initialCalculatorLineItems = emptyList<CalculatorLineItem>()
-private val calculatorAmountFormatter = DecimalFormat("#,##0.00")
 private val normalCalculatorFormatter = DecimalFormat("#,##0.########")
 
 @Composable
 fun ItemizedCalculatorScreen(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     onBackClick: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
@@ -147,6 +152,8 @@ fun ItemizedCalculatorScreen(
                 ItemizedCalculatorContent(
                     modifier = Modifier.weight(1f),
                     items = items,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences,
                     totalAmount = totalAmount,
                     isAddingItem = isAddingItem,
                     descriptionInput = descriptionInput,
@@ -180,7 +187,7 @@ fun ItemizedCalculatorScreen(
                     onApplyToNoteClick = {
                         onApplyToNoteClick(
                             formatEditableTotal(totalAmount),
-                            buildBreakdownNote(items)
+                            buildBreakdownNote(items, currencyId, amountFormatPreferences)
                         )
                     }
                 )
@@ -325,6 +332,8 @@ private fun CalculatorModeTabs(
 private fun ItemizedCalculatorContent(
     modifier: Modifier = Modifier,
     items: List<CalculatorLineItem>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     totalAmount: Double,
     isAddingItem: Boolean,
     descriptionInput: String,
@@ -347,7 +356,11 @@ private fun ItemizedCalculatorContent(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            TotalAmountCard(totalAmount = totalAmount)
+            TotalAmountCard(
+                totalAmount = totalAmount,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -383,6 +396,8 @@ private fun ItemizedCalculatorContent(
                 items.forEach { item ->
                     BreakdownItemCard(
                         item = item,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences,
                         onDeleteClick = { onDeleteItem(item.id) }
                     )
                 }
@@ -845,7 +860,11 @@ private fun normalCalculatorOperatorSymbol(operator: String): String {
 }
 
 @Composable
-private fun TotalAmountCard(totalAmount: Double) {
+private fun TotalAmountCard(
+    totalAmount: Double,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -867,26 +886,14 @@ private fun TotalAmountCard(totalAmount: Double) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "\u20B9",
-                    color = PurpleAccent,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    ),
-                    modifier = Modifier.padding(end = 6.dp, bottom = 4.dp)
+            Text(
+                text = formatCurrencyValue(totalAmount, currencyId, amountFormatPreferences),
+                color = Color(0xFFF3F0F4),
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 34.sp
                 )
-
-                Text(
-                    text = calculatorAmountFormatter.format(totalAmount),
-                    color = Color(0xFFF3F0F4),
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 34.sp
-                    )
-                )
-            }
+            )
         }
     }
 }
@@ -894,6 +901,8 @@ private fun TotalAmountCard(totalAmount: Double) {
 @Composable
 private fun BreakdownItemCard(
     item: CalculatorLineItem,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     onDeleteClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(28.dp)
@@ -960,30 +969,15 @@ private fun BreakdownItemCard(
                     modifier = Modifier.weight(1f)
                 )
 
-                Row(
-                    modifier = Modifier.padding(start = 14.dp, end = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "\u20B9",
-                        color = PurpleAccent,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = calculatorAmountFormatter.format(item.amount),
-                        color = Color(0xFFF0EBF5),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                    )
-                }
+                Text(
+                    text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
+                    color = Color(0xFFF0EBF5),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    ),
+                    modifier = Modifier.padding(start = 14.dp, end = 16.dp)
+                )
 
                 Box(
                     modifier = Modifier
@@ -1281,9 +1275,13 @@ private fun formatEditableTotal(amount: Double): String {
     return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
 }
 
-private fun buildBreakdownNote(items: List<CalculatorLineItem>): String {
+private fun buildBreakdownNote(
+    items: List<CalculatorLineItem>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
+): String {
     return items.joinToString(separator = "\n") { item ->
-        "${item.description} - \u20B9${calculatorAmountFormatter.format(item.amount)}"
+        "${item.description} - ${formatCurrencyValue(item.amount, currencyId, amountFormatPreferences)}"
     }
 }
 

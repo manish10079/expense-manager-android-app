@@ -5,74 +5,59 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mkn0079.expensetracker.data.constants.*
 import com.mkn0079.expensetracker.models.Currency
-import com.mkn0079.expensetracker.ui.theme.*
 import com.mkn0079.expensetracker.ui.components.AppHeader
-import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
-import com.mkn0079.expensetracker.utils.*
+import com.mkn0079.expensetracker.ui.theme.BackgroundDark
+import com.mkn0079.expensetracker.ui.theme.PurpleAccent
+import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.viewmodels.DecimalPlacesOptionUi
+import com.mkn0079.expensetracker.ui.viewmodels.NumberFormatOptionUi
+import com.mkn0079.expensetracker.ui.viewmodels.PreferencesScreenUiState
+import com.mkn0079.expensetracker.ui.viewmodels.PreferencesSheetType
+import com.mkn0079.expensetracker.ui.viewmodels.PreferencesViewModel
+import com.mkn0079.expensetracker.utils.DateFormatOption
+import com.mkn0079.expensetracker.utils.TimeFormatOption
+import com.mkn0079.expensetracker.utils.supportedDateFormats
+import com.mkn0079.expensetracker.utils.supportedTimeFormats
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreferencesScreen(
-    currentCurrencyId: Int = DEFAULT_CURRENCY_ID,
-    currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
-    currentTimeFormat: String = DEFAULT_TIME_FORMAT,
-    onCurrencyChange: (Int) -> Unit = {},
-    onDateFormatChange: (String) -> Unit = {},
-    onTimeFormatChange: (String) -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    settingsViewModel: SettingsViewModel = viewModel()
+    preferencesViewModel: PreferencesViewModel = viewModel()
 ) {
-    var isCurrencyPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isDateFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isTimeFormatPickerVisible by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(currentCurrencyId, currentDateFormatPattern, currentTimeFormat) {
-        settingsViewModel.updateInputs(
-            currentCurrencyId = currentCurrencyId,
-            currentDateFormatPattern = currentDateFormatPattern,
-            currentTimeFormat = currentTimeFormat,
-            autoLockDurationMinutes = 0,
-            transactionCount = 0
-        )
-    }
-
-    val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val currencyPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val dateFormatPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val timeFormatPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val currentCurrencyLabel = uiState.filteredCurrencies.find { it.id == currentCurrencyId }
-        ?.let { "${it.currencySymbol} ${it.countryName}" }
-        ?: "Select"
-
-    val currentDateFormatLabel = getDateFormatPreviewLabel(currentDateFormatPattern)
-    val currentTimeFormatLabel = getTimeFormatPreviewLabel(currentTimeFormat)
+    val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -109,79 +94,105 @@ fun PreferencesScreen(
                 PreferenceItemRow(
                     title = "Currency",
                     icon = Icons.Filled.CurrencyRupee,
-                    trailing = currentCurrencyLabel,
-                    onClick = { isCurrencyPickerVisible = true }
+                    trailing = uiState.currentCurrencyLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
                 )
                 PreferenceItemRow(
                     title = "Date Format",
                     icon = Icons.Filled.CalendarMonth,
-                    trailing = currentDateFormatLabel,
-                    onClick = { isDateFormatPickerVisible = true }
+                    trailing = uiState.currentDateFormatLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DateFormat) }
                 )
                 PreferenceItemRow(
                     title = "Time Format",
                     icon = Icons.Filled.Tune,
-                    trailing = currentTimeFormatLabel,
-                    onClick = { isTimeFormatPickerVisible = true }
+                    trailing = uiState.currentTimeFormatLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
+                )
+                PreferenceItemRow(
+                    title = "Number Format",
+                    icon = Icons.Filled.Tune,
+                    trailing = uiState.currentGroupingLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
+                )
+                PreferenceItemRow(
+                    title = "Decimal Places",
+                    icon = Icons.Filled.Tune,
+                    trailing = uiState.currentDecimalPlacesLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
                 )
                 PreferenceItemRow(
                     title = "Manage Category",
                     icon = Icons.Filled.Apps,
                     trailing = null,
-                    onClick = { onManageCategoryClick() }
+                    onClick = onManageCategoryClick
                 )
             }
         }
     }
 
-    if (isCurrencyPickerVisible) {
-        CurrencyPickerSheet(
-            searchQuery = uiState.currencySearchQuery,
-            filteredCurrencies = uiState.filteredCurrencies,
-            selectedCurrencyId = currentCurrencyId,
-            sheetState = currencyPickerSheetState,
-            onDismiss = {
-                settingsViewModel.clearCurrencySearchQuery()
-                isCurrencyPickerVisible = false
-            },
-            onSearchQueryChange = settingsViewModel::updateCurrencySearchQuery,
-            onCurrencySelected = { currencyId ->
-                onCurrencyChange(currencyId)
-                settingsViewModel.clearCurrencySearchQuery()
-                isCurrencyPickerVisible = false
-            }
-        )
-    }
+    when (uiState.activeSheet) {
+        PreferencesSheetType.Currency -> {
+            CurrencyPickerSheet(
+                searchQuery = uiState.currencySearchQuery,
+                filteredCurrencies = uiState.filteredCurrencies,
+                selectedCurrencyId = uiState.selectedCurrencyId,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = {
+                    preferencesViewModel.clearCurrencySearchQuery()
+                    preferencesViewModel.dismissSheet()
+                },
+                onSearchQueryChange = preferencesViewModel::updateCurrencySearchQuery,
+                onCurrencySelected = preferencesViewModel::selectCurrency
+            )
+        }
 
-    if (isDateFormatPickerVisible) {
-        DateFormatPickerSheet(
-            selectedPattern = currentDateFormatPattern,
-            sheetState = dateFormatPickerSheetState,
-            onDismiss = { isDateFormatPickerVisible = false },
-            onFormatSelected = { pattern ->
-                onDateFormatChange(pattern)
-                isDateFormatPickerVisible = false
-            }
-        )
-    }
+        PreferencesSheetType.DateFormat -> {
+            DateFormatPickerSheet(
+                selectedPattern = uiState.selectedDateFormatPattern,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = preferencesViewModel::dismissSheet,
+                onFormatSelected = preferencesViewModel::selectDateFormat
+            )
+        }
 
-    if (isTimeFormatPickerVisible) {
-        TimeFormatPickerSheet(
-            selectedTimeFormat = currentTimeFormat,
-            sheetState = timeFormatPickerSheetState,
-            onDismiss = { isTimeFormatPickerVisible = false },
-            onFormatSelected = { timeFormat ->
-                onTimeFormatChange(timeFormat)
-                isTimeFormatPickerVisible = false
-            }
-        )
+        PreferencesSheetType.TimeFormat -> {
+            TimeFormatPickerSheet(
+                selectedTimeFormat = uiState.selectedTimeFormat,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = preferencesViewModel::dismissSheet,
+                onFormatSelected = preferencesViewModel::selectTimeFormat
+            )
+        }
+
+        PreferencesSheetType.NumberFormat -> {
+            NumberFormatPickerSheet(
+                options = uiState.numberFormatOptions,
+                selectedLabel = uiState.currentGroupingLabel,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = preferencesViewModel::dismissSheet,
+                onSelected = preferencesViewModel::selectGroupingStyle
+            )
+        }
+
+        PreferencesSheetType.DecimalPlaces -> {
+            DecimalPlacesPickerSheet(
+                options = uiState.decimalPlaceOptions,
+                selectedValue = uiState.selectedDecimalPlaces,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = preferencesViewModel::dismissSheet,
+                onSelected = preferencesViewModel::selectDecimalPlaces
+            )
+        }
+
+        null -> Unit
     }
 }
 
 @Composable
 private fun PreferenceItemRow(
     title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     trailing: String?,
     onClick: () -> Unit
 ) {
@@ -192,7 +203,7 @@ private fun PreferenceItemRow(
             .clickable(onClick = onClick)
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(30.dp)
@@ -233,7 +244,7 @@ private fun PreferenceItemRow(
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Open title",
+                contentDescription = "Open $title",
                 tint = Color(0xFF6F687C),
                 modifier = Modifier.size(18.dp)
             )
@@ -332,19 +343,7 @@ private fun CurrencyPickerSheet(
 
                 if (filteredCurrencies.isEmpty()) {
                     item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(Color(0xFF1A1A1E))
-                                .padding(horizontal = 18.dp, vertical = 20.dp)
-                        ) {
-                            Text(
-                                text = "No countries matched your search.",
-                                color = Color(0xFF9B93AE),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+                        EmptyPickerState(text = "No countries matched your search.")
                     }
                 }
 
@@ -362,73 +361,13 @@ private fun CurrencyPickerRow(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = currency.currencySymbol,
-                color = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = currency.countryName,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = currency.currencyName,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
+    PickerRow(
+        title = currency.countryName,
+        subtitle = currency.currencyName,
+        leading = currency.currencySymbol,
+        isSelected = isSelected,
+        onClick = onClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -474,95 +413,16 @@ private fun DateFormatPickerSheet(
                     .height(440.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(
-                    items = supportedDateFormats,
-                    key = { option -> option.pattern }
-                ) { option ->
-                    DateFormatPickerRow(
-                        option = option,
+                items(supportedDateFormats, key = { option -> option.pattern }) { option ->
+                    PickerRow(
+                        title = option.previewLabel,
+                        subtitle = option.pattern,
+                        leadingIcon = Icons.Filled.CalendarMonth,
                         isSelected = option.pattern == selectedPattern,
                         onClick = { onFormatSelected(option.pattern) }
                     )
                 }
-
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
             }
-        }
-    }
-}
-
-@Composable
-private fun DateFormatPickerRow(
-    option: DateFormatOption,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.CalendarMonth,
-                contentDescription = option.pattern,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = option.previewLabel,
-                color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = option.pattern,
-                color = Color(0xFF9B93AE),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
         }
     }
 }
@@ -610,19 +470,126 @@ private fun TimeFormatPickerSheet(
                     .height(240.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(
-                    items = supportedTimeFormats,
-                    key = { option -> option.id }
-                ) { option ->
-                    TimeFormatPickerRow(
-                        option = option,
+                items(supportedTimeFormats, key = { option -> option.id }) { option ->
+                    PickerRow(
+                        title = option.label,
+                        subtitle = option.previewLabel,
+                        leadingIcon = Icons.Filled.Tune,
                         isSelected = option.id == selectedTimeFormat,
                         onClick = { onFormatSelected(option.id) }
                     )
                 }
+            }
+        }
+    }
+}
 
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NumberFormatPickerSheet(
+    options: List<NumberFormatOptionUi>,
+    selectedLabel: String,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSelected: (com.mkn0079.expensetracker.models.CurrencyGroupingStyle) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFF141416),
+        scrimColor = Color.Black.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Select Number Format",
+                color = Color(0xFFF0EBF7),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Choose how large amounts are grouped across the app.",
+                color = Color(0xFF968EA8),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(options, key = { option -> option.groupingStyle.name }) { option ->
+                    PickerRow(
+                        title = option.label,
+                        subtitle = option.preview,
+                        leadingIcon = Icons.Filled.Tune,
+                        isSelected = option.label == selectedLabel,
+                        onClick = { onSelected(option.groupingStyle) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DecimalPlacesPickerSheet(
+    options: List<DecimalPlacesOptionUi>,
+    selectedValue: Int,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSelected: (Int) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFF141416),
+        scrimColor = Color.Black.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Select Decimal Places",
+                color = Color(0xFFF0EBF7),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Choose how many decimal places are shown in currency values.",
+                color = Color(0xFF968EA8),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(options, key = { option -> option.value }) { option ->
+                    PickerRow(
+                        title = option.value.toString(),
+                        subtitle = option.preview,
+                        leadingIcon = Icons.Filled.Tune,
+                        isSelected = option.value == selectedValue,
+                        onClick = { onSelected(option.value) }
+                    )
                 }
             }
         }
@@ -630,22 +597,19 @@ private fun TimeFormatPickerSheet(
 }
 
 @Composable
-private fun TimeFormatPickerRow(
-    option: TimeFormatOption,
+private fun PickerRow(
+    title: String,
+    subtitle: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    leading: String? = null,
+    leadingIcon: ImageVector? = null
 ) {
-    Row(
+    androidx.compose.foundation.layout.Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
-                } else {
-                    Color(0xFF1A1A1E)
-                }
-            )
+            .background(if (isSelected) PurplePrimary.copy(alpha = 0.18f) else Color(0xFF1A1A1E))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -655,37 +619,41 @@ private fun TimeFormatPickerRow(
                 .size(42.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(
-                    if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
-                    } else {
-                        Color(0xFF232326)
-                    }
+                    if (isSelected) PurpleAccent.copy(alpha = 0.18f) else Color(0xFF232326)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = option.label,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
-                modifier = Modifier.size(20.dp)
-            )
+            when {
+                leading != null -> {
+                    Text(
+                        text = leading,
+                        color = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
+                leadingIcon != null -> {
+                    Icon(
+                        imageVector = leadingIcon,
+                        contentDescription = title,
+                        tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.width(14.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = option.label,
+                text = title,
                 color = Color(0xFFF0EBF7),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
-
             Spacer(modifier = Modifier.height(2.dp))
-
             Text(
-                text = option.previewLabel,
+                text = subtitle,
                 color = Color(0xFF9B93AE),
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -695,11 +663,25 @@ private fun TimeFormatPickerRow(
             Text(
                 text = "Selected",
                 color = PurpleAccent,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
             )
         }
     }
 }
 
+@Composable
+private fun EmptyPickerState(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFF1A1A1E))
+            .padding(horizontal = 18.dp, vertical = 20.dp)
+    ) {
+        Text(
+            text = text,
+            color = Color(0xFF9B93AE),
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}

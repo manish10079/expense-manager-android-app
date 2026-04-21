@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.ui.viewmodels
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_BY
@@ -23,6 +24,7 @@ import com.mkn0079.expensetracker.ui.components.FILTER_DATE_LAST_60_DAYS
 import com.mkn0079.expensetracker.ui.components.FILTER_DATE_LAST_7_DAYS
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodFilter
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.getDefaultOrder
 import com.mkn0079.expensetracker.utils.sortTransactions
@@ -61,6 +63,7 @@ class TransactionsViewModel : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
+    private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var currentTimeFormat: String = DEFAULT_TIME_FORMAT
     private var currentCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
@@ -102,12 +105,14 @@ class TransactionsViewModel : ViewModel() {
     fun updateInputs(
         transactions: List<Transaction>,
         currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
         timeFormat: String,
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         currentTransactions = transactions
         currentCurrencyId = currencyId
+        currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
         currentTimeFormat = timeFormat
         currentCustomizationSettings = customizationSettings
@@ -264,6 +269,7 @@ class TransactionsViewModel : ViewModel() {
             transactions = filteredTransactions.map { transaction ->
                 transaction.toTransactionCardItemUi(
                     currencyId = currentCurrencyId,
+                    amountFormatPreferences = currentAmountFormatPreferences,
                     dateFormatPattern = currentDateFormatPattern,
                     timeFormat = currentTimeFormat,
                     paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty()

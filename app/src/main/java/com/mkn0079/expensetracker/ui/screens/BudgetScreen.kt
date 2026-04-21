@@ -80,6 +80,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.categoryMap
 import com.mkn0079.expensetracker.data.constants.transactionList
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
@@ -98,12 +99,14 @@ import com.mkn0079.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetViewModel
 import com.mkn0079.expensetracker.models.RecurringFrequency
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 
 @Composable
 fun BudgetScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     transactions: List<Transaction> = transactionList,
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
@@ -118,11 +121,12 @@ fun BudgetScreen(
     var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(transactions, availableCategories, currencyId, recurringRules) {
+    LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules) {
         budgetViewModel.updateInputs(
             transactions = transactions,
             categories = availableCategories,
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             recurringRules = recurringRules
         )
     }
@@ -289,6 +293,7 @@ fun BudgetScreen(
     if (isBudgetEditorVisible) {
         BudgetEditorDialog(
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             monthLabel = uiState.summary.monthLabel,
             expenseCategories = expenseCategories,
             existingBudget = editingBudget,
@@ -657,6 +662,7 @@ private fun EmptySectionCard(message: String) {
 @Composable
 private fun BudgetEditorDialog(
     currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     monthLabel: String,
     expenseCategories: List<CategoryType>,
     existingBudget: BudgetCategoryBudgetUi?,
@@ -738,7 +744,9 @@ private fun BudgetEditorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     label = { Text("Monthly limit") },
-                    placeholder = { Text(formatCurrencyValue(5000.0, currencyId)) },
+                    placeholder = {
+                        Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.models.CategoryType
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
@@ -64,6 +65,7 @@ fun MainScaffold(
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
     userProfile: UserProfile,
     selectedCurrencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     selectedDateFormatPattern: String,
     selectedTimeFormat: String,
     isAppLockEnabled: Boolean,
@@ -93,9 +95,6 @@ fun MainScaffold(
     onDeleteCustomPaymentType: (Int) -> Unit,
     onTransactionCardCustomizationSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onUserProfileChange: (UserProfile) -> Unit,
-    onSelectedCurrencyIdChange: (Int) -> Unit,
-    onSelectedDateFormatPatternChange: (String) -> Unit,
-    onSelectedTimeFormatChange: (String) -> Unit,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
@@ -174,6 +173,7 @@ fun MainScaffold(
             categories = categories,
             recurringRules = recurringRules,
             selectedCurrencyId = selectedCurrencyId,
+            amountFormatPreferences = amountFormatPreferences,
             selectedDateFormatPattern = selectedDateFormatPattern,
             selectedTimeFormat = selectedTimeFormat,
             transactionCount = transactionCount,
@@ -197,6 +197,7 @@ fun MainScaffold(
                         HomeScreen(
                             userProfile = userProfile,
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             timeFormat = selectedTimeFormat,
                             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                             onTransactionClick = { transaction ->
@@ -222,6 +223,7 @@ fun MainScaffold(
                     "analytics" -> {
                         AnalyticsScreen(
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             transactions = transactions,
                             categories = categories,
                             onBackClick = {
@@ -233,6 +235,7 @@ fun MainScaffold(
                     "budget" -> {
                         BudgetScreen(
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             transactions = transactions,
                             availableCategories = categories,
                             recurringRules = recurringRules,
@@ -248,6 +251,7 @@ fun MainScaffold(
                         CalendarScreen(
                             transactions = transactions,
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             dateFormatPattern = selectedDateFormatPattern,
                             timeFormat = selectedTimeFormat,
                             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
@@ -265,6 +269,7 @@ fun MainScaffold(
                     "transactions" -> {
                         TransactionScreen(
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             dateFormatPattern = selectedDateFormatPattern,
                             timeFormat = selectedTimeFormat,
                             transactions = transactions,
@@ -353,12 +358,6 @@ fun MainScaffold(
                     }
                     "preferences" -> {
                         PreferencesScreen(
-                            currentCurrencyId = selectedCurrencyId,
-                            currentDateFormatPattern = selectedDateFormatPattern,
-                            currentTimeFormat = selectedTimeFormat,
-                            onCurrencyChange = onSelectedCurrencyIdChange,
-                            onDateFormatChange = onSelectedDateFormatPatternChange,
-                            onTimeFormatChange = onSelectedTimeFormatChange,
                             onManageCategoryClick = {
                                 onBottomBarVisibilityChange(false)
                                 onRouteChange("category_management")
@@ -426,6 +425,7 @@ fun MainScaffold(
                         TransactionCardCustomizeScreen(
                             settings = transactionCardCustomizationSettings,
                             currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             dateFormatPattern = selectedDateFormatPattern,
                             timeFormat = selectedTimeFormat,
                             onSettingsChange = onTransactionCardCustomizationSettingsChange,
@@ -492,6 +492,8 @@ fun MainScaffold(
                     }
                     "itemized_calculator" -> {
                         ItemizedCalculatorScreen(
+                            currencyId = selectedCurrencyId,
+                            amountFormatPreferences = amountFormatPreferences,
                             onBackClick = {
                                 onBottomBarVisibilityChange(false)
                                 onRouteChange("add_transaction")
@@ -533,6 +535,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     categories: List<CategoryType>,
     recurringRules: List<RecurringTransactionRule>,
     selectedCurrencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     selectedDateFormatPattern: String,
     selectedTimeFormat: String,
     transactionCount: Int,
@@ -550,17 +553,30 @@ private fun BoxScope.PreloadSecondaryScreenData(
         categories,
         recurringRules,
         selectedCurrencyId,
+        amountFormatPreferences,
         selectedDateFormatPattern,
         selectedTimeFormat,
         transactionCount,
         autoLockDurationMinutes,
         transactionCardCustomizationSettings
     ) {
-        analyticsViewModel.updateInputs(transactions, categories, selectedCurrencyId)
-        budgetViewModel.updateInputs(transactions, categories, selectedCurrencyId, recurringRules)
+        analyticsViewModel.updateInputs(
+            transactions,
+            categories,
+            selectedCurrencyId,
+            amountFormatPreferences
+        )
+        budgetViewModel.updateInputs(
+            transactions,
+            categories,
+            selectedCurrencyId,
+            amountFormatPreferences,
+            recurringRules
+        )
         calendarViewModel.updateInputs(
             transactions,
             selectedCurrencyId,
+            amountFormatPreferences,
             selectedDateFormatPattern,
             selectedTimeFormat,
             transactionCardCustomizationSettings
@@ -568,16 +584,11 @@ private fun BoxScope.PreloadSecondaryScreenData(
         transactionsViewModel.updateInputs(
             transactions,
             selectedCurrencyId,
+            amountFormatPreferences,
             selectedDateFormatPattern,
             selectedTimeFormat,
             transactionCardCustomizationSettings
         )
-        settingsViewModel.updateInputs(
-            selectedCurrencyId,
-            selectedDateFormatPattern,
-            selectedTimeFormat,
-            autoLockDurationMinutes,
-            transactionCount
-        )
+        settingsViewModel.updateInputs(transactionCount)
     }
 }

@@ -35,6 +35,7 @@ import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.notifications.NotificationScheduler
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
+import com.mkn0079.expensetracker.utils.toAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +91,9 @@ fun MainScreen(
     var addTransactionDraftAmount by remember { mutableStateOf<String?>(null) }
     var addTransactionDraftNote by remember { mutableStateOf<String?>(null) }
     val selectedCurrencyId = appSettings.currencyId
+    val amountFormatPreferences = remember(appSettings) {
+        appSettings.toAmountFormatPreferences()
+    }
     val selectedDateFormatPattern = appSettings.dateFormatPattern
     val selectedTimeFormat = appSettings.timeFormat
     val isAppLockEnabled = appSettings.appLockEnabled
@@ -360,6 +364,7 @@ fun MainScreen(
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
             userProfile = userProfile,
             selectedCurrencyId = selectedCurrencyId,
+            amountFormatPreferences = amountFormatPreferences,
             selectedDateFormatPattern = selectedDateFormatPattern,
             selectedTimeFormat = selectedTimeFormat,
             isAppLockEnabled = isAppLockEnabled,
@@ -403,27 +408,6 @@ fun MainScreen(
                 coroutineScope.launch {
                     UserProfileDataStore.updateUserProfile(context) {
                         updatedProfile
-                    }
-                }
-            },
-            onSelectedCurrencyIdChange = { currencyId ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(currencyId = currencyId)
-                    }
-                }
-            },
-            onSelectedDateFormatPatternChange = { dateFormatPattern ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(dateFormatPattern = dateFormatPattern)
-                    }
-                }
-            },
-            onSelectedTimeFormatChange = { timeFormat ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(timeFormat = timeFormat)
                     }
                 }
             },

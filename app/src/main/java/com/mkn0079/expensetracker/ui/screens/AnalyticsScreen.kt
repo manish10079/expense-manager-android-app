@@ -75,6 +75,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.transactionList
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
@@ -91,6 +92,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
 import com.mkn0079.expensetracker.ui.viewmodels.TopSpendingItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.buildCustomRangeHeadline
 import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -100,6 +102,7 @@ import kotlin.math.sin
 @Composable
 fun AnalyticsScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     transactions: List<Transaction> = transactionList,
     categories: List<CategoryType> = emptyList(),
     onBackClick: () -> Unit = {},
@@ -108,11 +111,12 @@ fun AnalyticsScreen(
     var isCustomRangePickerVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
 
-    LaunchedEffect(transactions, categories, currencyId) {
+    LaunchedEffect(transactions, categories, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
             categories = categories,
-            currencyId = currencyId
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences
         )
     }
     val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()

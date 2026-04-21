@@ -1,10 +1,13 @@
 package com.mkn0079.expensetracker.data.constants
 
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.utils.getDefaultOrder
 
 const val DEFAULT_CURRENCY_ID = 1
+val DEFAULT_CURRENCY_GROUPING_STYLE = CurrencyGroupingStyle.INDIAN
+const val DEFAULT_CURRENCY_DECIMAL_PLACES = 2
 const val DEFAULT_DATE_FORMAT_PATTERN = "dd/MM/yyyy"
 const val DEFAULT_TIME_FORMAT = "12-hour"
 const val DEFAULT_SORT_BY = "Date"
@@ -37,6 +40,8 @@ const val DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS = 0L
 
 val defaultAppSettings = AppSettings(
     currencyId = DEFAULT_CURRENCY_ID,
+    currencyGroupingStyle = DEFAULT_CURRENCY_GROUPING_STYLE,
+    currencyDecimalPlaces = DEFAULT_CURRENCY_DECIMAL_PLACES,
     dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat = DEFAULT_TIME_FORMAT,
     sortBy = DEFAULT_SORT_BY,

@@ -5,6 +5,8 @@ import androidx.compose.runtime.Immutable
 @Immutable
 data class AppSettings(
     val currencyId: Int,
+    val currencyGroupingStyle: CurrencyGroupingStyle,
+    val currencyDecimalPlaces: Int,
     val dateFormatPattern: String,
     val timeFormat: String,
     val sortBy: String,

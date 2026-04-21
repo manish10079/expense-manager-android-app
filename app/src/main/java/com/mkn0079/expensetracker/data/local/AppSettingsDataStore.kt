@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.SortType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,6 +28,8 @@ object AppSettingsDataStore {
     private object Keys {
         val initialized = booleanPreferencesKey("settings_initialized")
         val currencyId = intPreferencesKey("currency_id")
+        val currencyGroupingStyle = stringPreferencesKey("currency_grouping_style")
+        val currencyDecimalPlaces = intPreferencesKey("currency_decimal_places")
         val dateFormatPattern = stringPreferencesKey("date_format_pattern")
         val timeFormat = stringPreferencesKey("time_format")
         val sortBy = stringPreferencesKey("sort_by")
@@ -104,6 +107,12 @@ object AppSettingsDataStore {
     private fun Preferences.toAppSettings(): AppSettings {
         return AppSettings(
             currencyId = this[Keys.currencyId] ?: defaultAppSettings.currencyId,
+            currencyGroupingStyle = this[Keys.currencyGroupingStyle]
+                ?.let(::currencyGroupingStyleOrDefault)
+                ?: defaultAppSettings.currencyGroupingStyle,
+            currencyDecimalPlaces = (this[Keys.currencyDecimalPlaces]
+                ?: defaultAppSettings.currencyDecimalPlaces)
+                .coerceIn(0, 4),
             dateFormatPattern = this[Keys.dateFormatPattern] ?: defaultAppSettings.dateFormatPattern,
             timeFormat = this[Keys.timeFormat] ?: defaultAppSettings.timeFormat,
             sortBy = this[Keys.sortBy] ?: defaultAppSettings.sortBy,
@@ -158,6 +167,8 @@ object AppSettingsDataStore {
 
     private fun MutablePreferences.writeAppSettings(settings: AppSettings) {
         this[Keys.currencyId] = settings.currencyId
+        this[Keys.currencyGroupingStyle] = settings.currencyGroupingStyle.name
+        this[Keys.currencyDecimalPlaces] = settings.currencyDecimalPlaces.coerceIn(0, 4)
         this[Keys.dateFormatPattern] = settings.dateFormatPattern
         this[Keys.timeFormat] = settings.timeFormat
         this[Keys.sortBy] = settings.sortBy
@@ -197,5 +208,10 @@ object AppSettingsDataStore {
 
     private fun sortTypeOrDefault(value: String): SortType {
         return SortType.entries.firstOrNull { it.name == value } ?: defaultAppSettings.sortOrder
+    }
+
+    private fun currencyGroupingStyleOrDefault(value: String): CurrencyGroupingStyle {
+        return CurrencyGroupingStyle.entries.firstOrNull { it.name == value }
+            ?: defaultAppSettings.currencyGroupingStyle
     }
 }

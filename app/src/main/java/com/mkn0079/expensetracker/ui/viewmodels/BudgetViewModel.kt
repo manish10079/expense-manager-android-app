@@ -8,11 +8,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Budget
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -129,6 +131,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: Map<Int, CategoryType> = emptyMap()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
+    private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentRecurringEntries: List<RecurringEntry> = emptyList()
     private var anchorMonthStart: Long = startOfMonth(System.currentTimeMillis())
     private var selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth
@@ -152,11 +155,13 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         transactions: List<Transaction>,
         categories: List<CategoryType>,
         currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences,
         recurringRules: List<RecurringTransactionRule>
     ) {
         currentTransactions = transactions
         currentCategories = categories.associateBy { it.id }
         currentCurrencyId = currencyId
+        currentAmountFormatPreferences = amountFormatPreferences
         currentRecurringEntries = recurringRules.map { rule ->
             RecurringEntry(
                 id = rule.id,
@@ -254,19 +259,22 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             monthlyBudgets = monthlyBudgets,
             selectedMonthExpenses = expenseTransactions,
             categories = currentCategories,
-            currencyId = currentCurrencyId
+            currencyId = currentCurrencyId,
+            amountFormatPreferences = currentAmountFormatPreferences
         )
         val recurringExpenses = buildRecurringExpenses(
             recurringEntries = currentRecurringEntries,
             transactions = currentTransactions,
             categories = currentCategories,
-            currencyId = currentCurrencyId
+            currencyId = currentCurrencyId,
+            amountFormatPreferences = currentAmountFormatPreferences
         )
         val summary = buildSummary(
             monthStart = selectedMonthStart,
             expenseTransactions = expenseTransactions,
             categoryBudgets = categoryBudgets,
-            currencyId = currentCurrencyId
+            currencyId = currentCurrencyId,
+            amountFormatPreferences = currentAmountFormatPreferences
         )
         val dueItems = recurringExpenses
             .filter { it.isEnabled }
@@ -275,8 +283,9 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         val insight = buildInsight(
             summary = summary,
             categoryBudgets = categoryBudgets,
-                recurringExpenses = recurringExpenses.filter { it.isEnabled && it.repeatCount > 0 },
-                currencyId = currentCurrencyId
+            recurringExpenses = recurringExpenses.filter { it.isEnabled && it.repeatCount > 0 },
+            currencyId = currentCurrencyId,
+            amountFormatPreferences = currentAmountFormatPreferences
         )
 
         _uiState.update {
@@ -307,7 +316,8 @@ private fun buildSummary(
     monthStart: Long,
     expenseTransactions: List<Transaction>,
     categoryBudgets: List<BudgetCategoryBudgetUi>,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): BudgetSummaryUi {
     val spentAmount = expenseTransactions.sumOf { it.amount }
     val totalBudgetAmount = categoryBudgets.sumOf { it.limitAmount }
@@ -323,9 +333,9 @@ private fun buildSummary(
         ((spentAmount / totalBudgetAmount) * 100).toInt().coerceAtLeast(0)
     }
     val remainingLabel = when {
-        totalBudgetAmount <= 0.0 -> formatCurrencyValue(0.0, currencyId)
-        remainingAmount >= 0.0 -> formatCurrencyValue(remainingAmount, currencyId)
-        else -> "Over ${formatCurrencyValue(abs(remainingAmount), currencyId)}"
+        totalBudgetAmount <= 0.0 -> formatCurrencyValue(0.0, currencyId, amountFormatPreferences)
+        remainingAmount >= 0.0 -> formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)
+        else -> "Over ${formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences)}"
     }
 
     return BudgetSummaryUi(
@@ -333,15 +343,15 @@ private fun buildSummary(
         totalBudgetAmount = totalBudgetAmount,
         spentAmount = spentAmount,
         remainingAmount = remainingAmount,
-        totalBudgetLabel = formatCurrencyValue(totalBudgetAmount, currencyId),
-        spentLabel = formatCurrencyValue(spentAmount, currencyId),
+        totalBudgetLabel = formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences),
+        spentLabel = formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences),
         remainingLabel = remainingLabel,
         usageFraction = usageFraction,
         usageLabel = if (totalBudgetAmount <= 0.0) "NO BUDGET" else "$usagePercent% USED",
         limitLabel = if (totalBudgetAmount <= 0.0) {
             "ADD A BUDGET"
         } else {
-            "LIMIT ${formatCurrencyValue(totalBudgetAmount, currencyId)}"
+            "LIMIT ${formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences)}"
         }
     )
 }
@@ -350,7 +360,8 @@ private fun buildCategoryBudgets(
     monthlyBudgets: List<BudgetEntry>,
     selectedMonthExpenses: List<Transaction>,
     categories: Map<Int, CategoryType>,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): List<BudgetCategoryBudgetUi> {
     return monthlyBudgets
         .mapNotNull { budgetEntry ->
@@ -367,7 +378,7 @@ private fun buildCategoryBudgets(
             val accent = categoryAccent(progress)
             val (statusValueLabel, statusCaption, totalCaption) = when {
                 spentAmount > budgetEntry.limitAmount -> Triple(
-                    "${formatCurrencyValue(spentAmount - budgetEntry.limitAmount, currencyId)} OVER",
+                    "${formatCurrencyValue(spentAmount - budgetEntry.limitAmount, currencyId, amountFormatPreferences)} OVER",
                     "BUDGET",
                     "EXCEEDED"
                 )
@@ -379,7 +390,7 @@ private fun buildCategoryBudgets(
                 )
 
                 else -> Triple(
-                    "${formatCurrencyValue(remainingAmount, currencyId)} LEFT",
+                    "${formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)} LEFT",
                     "SAFE",
                     "SPENT / LIMIT"
                 )
@@ -389,7 +400,7 @@ private fun buildCategoryBudgets(
                 id = budgetEntry.id,
                 categoryId = budgetEntry.categoryId,
                 title = category.name,
-                summaryLabel = "${formatCurrencyValue(spentAmount, currencyId)} / ${formatCurrencyValue(budgetEntry.limitAmount, currencyId)}",
+                summaryLabel = "${formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences)} / ${formatCurrencyValue(budgetEntry.limitAmount, currencyId, amountFormatPreferences)}",
                 statusValueLabel = statusValueLabel,
                 statusCaption = statusCaption,
                 totalCaption = totalCaption,
@@ -410,7 +421,8 @@ private fun buildRecurringExpenses(
     recurringEntries: List<RecurringEntry>,
     transactions: List<Transaction>,
     categories: Map<Int, CategoryType>,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): List<BudgetRecurringExpenseUi> {
     val referenceTime = System.currentTimeMillis()
     return recurringEntries
@@ -433,14 +445,14 @@ private fun buildRecurringExpenses(
                 id = recurringEntry.id,
                 transactionId = transaction.id,
                 title = transaction.note.ifBlank { category.name },
-                amountLabel = "${formatCurrencyValue(transaction.amount, currencyId)} / ${recurringEntry.frequency.periodUnit}",
+                amountLabel = "${formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences)} / ${recurringEntry.frequency.periodUnit}",
                 categoryLabel = category.name.uppercase(Locale.getDefault()),
                 frequency = recurringEntry.frequency,
                 frequencyLabel = recurringEntry.frequency.label.uppercase(Locale.getDefault()),
                 repeatCount = recurringEntry.repeatCount,
                 sourceDateLabel = "Started ${recurringDateFormatter.format(Date(transaction.createdAt))}",
                 dueLabel = dueLabelFor(nextDueAt, referenceTime),
-                dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId),
+                dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                 icon = category.icon,
                 accent = accent,
                 nextDueAt = nextDueAt,
@@ -459,7 +471,8 @@ private fun buildInsight(
     summary: BudgetSummaryUi,
     categoryBudgets: List<BudgetCategoryBudgetUi>,
     recurringExpenses: List<BudgetRecurringExpenseUi>,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): BudgetInsightUi {
     if (categoryBudgets.isEmpty() && recurringExpenses.isEmpty()) {
         return BudgetInsightUi(
@@ -474,7 +487,11 @@ private fun buildInsight(
     val highestSpendCategory = categoryBudgets.maxByOrNull { it.spentAmount }
     val nextRecurring = recurringExpenses.minByOrNull { it.nextDueAt }
     val recurringMonthlyEquivalent = recurringExpenses.sumOf { recurring ->
-        val recurringAmount = parseAmountValue(recurring.dueAmountLabel, currencyId)
+        val recurringAmount = parseAmountValue(
+            recurring.dueAmountLabel,
+            currencyId,
+            amountFormatPreferences
+        )
         when (recurring.frequency) {
             RecurringFrequency.Daily -> recurringAmount * 30.0
             RecurringFrequency.Weekly -> recurringAmount * 4.0
@@ -487,7 +504,7 @@ private fun buildInsight(
         overspentCategory != null -> {
             BudgetInsightUi(
                 title = "Budget Insight",
-                body = "${overspentCategory.title} is over budget by ${formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId)}. Tightening that category first will give you the quickest recovery.",
+                body = "${overspentCategory.title} is over budget by ${formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId, amountFormatPreferences)}. Tightening that category first will give you the quickest recovery.",
                 supportingLabel = "OVER BUDGET",
                 accent = Color(0xFFFFA8A8)
             )
@@ -496,7 +513,7 @@ private fun buildInsight(
         recurringExpenses.isNotEmpty() && nextRecurring != null -> {
             BudgetInsightUi(
                 title = "Budget Insight",
-                body = "You have ${recurringExpenses.size} recurring expense${if (recurringExpenses.size == 1) "" else "s"} tracked. ${nextRecurring.title} is ${nextRecurring.dueLabel.lowercase(Locale.getDefault())}, and your recurring commitments average about ${formatCurrencyValue(recurringMonthlyEquivalent, currencyId)} per month.",
+                body = "You have ${recurringExpenses.size} recurring expense${if (recurringExpenses.size == 1) "" else "s"} tracked. ${nextRecurring.title} is ${nextRecurring.dueLabel.lowercase(Locale.getDefault())}, and your recurring commitments average about ${formatCurrencyValue(recurringMonthlyEquivalent, currencyId, amountFormatPreferences)} per month.",
                 supportingLabel = "RECURRING WATCH",
                 accent = nextRecurring.accent
             )
@@ -545,9 +562,10 @@ private fun categoryAccent(progress: Float): Color {
 
 private fun parseAmountValue(
     formattedValue: String,
-    currencyId: Int
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences
 ): Double {
-    val currencySymbol = formatCurrencyValue(0.0, currencyId)
+    val currencySymbol = formatCurrencyValue(0.0, currencyId, amountFormatPreferences)
         .replace("0", "")
         .trim()
     return formattedValue

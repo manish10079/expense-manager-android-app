@@ -16,6 +16,8 @@ object ExpenseTrackerRepositoryProvider {
     private var recurringRuleRepository: RecurringRuleRepository? = null
     @Volatile
     private var dataManagementRepository: DataManagementRepository? = null
+    @Volatile
+    private var appPreferencesRepository: AppPreferencesRepositoryImpl? = null
 
     fun transactionRepository(context: Context): TransactionRepository {
         return transactionRepository ?: synchronized(this) {
@@ -65,6 +67,14 @@ object ExpenseTrackerRepositoryProvider {
         }
     }
 
+    fun appPreferencesRepository(context: Context): AppPreferencesRepositoryImpl {
+        return appPreferencesRepository ?: synchronized(this) {
+            appPreferencesRepository ?: AppPreferencesRepositoryImpl(context.applicationContext).also {
+                appPreferencesRepository = it
+            }
+        }
+    }
+
     fun reset() {
         synchronized(this) {
             transactionRepository = null
@@ -73,6 +83,7 @@ object ExpenseTrackerRepositoryProvider {
             budgetRepository = null
             recurringRuleRepository = null
             dataManagementRepository = null
+            appPreferencesRepository = null
         }
     }
 }

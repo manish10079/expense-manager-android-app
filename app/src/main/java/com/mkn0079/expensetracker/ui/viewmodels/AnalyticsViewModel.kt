@@ -7,8 +7,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,6 +97,7 @@ class AnalyticsViewModel : ViewModel() {
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
+    private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 
     private var selectedPeriod: AnalyticsPeriod = AnalyticsPeriod.MONTH
     private var customRangeStart: Long? = null
@@ -106,11 +109,13 @@ class AnalyticsViewModel : ViewModel() {
     fun updateInputs(
         transactions: List<Transaction>,
         categories: List<CategoryType>,
-        currencyId: Int
+        currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences
     ) {
         currentTransactions = transactions
         currentCategories = categories
         currentCurrencyId = currencyId
+        currentAmountFormatPreferences = amountFormatPreferences
         rebuildUiState()
     }
 
@@ -151,6 +156,7 @@ class AnalyticsViewModel : ViewModel() {
                 snapshot = buildAnalyticsSnapshot(
                     period = selectedPeriod,
                     currencyId = currentCurrencyId,
+                    amountFormatPreferences = currentAmountFormatPreferences,
                     transactions = currentTransactions,
                     categories = currentCategories,
                     customRange = customRange
@@ -163,6 +169,7 @@ class AnalyticsViewModel : ViewModel() {
 private fun buildAnalyticsSnapshot(
     period: AnalyticsPeriod,
     currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     transactions: List<Transaction>,
     categories: List<CategoryType>,
     customRange: LongRange? = null
@@ -201,7 +208,7 @@ private fun buildAnalyticsSnapshot(
     val allBreakdown = categoryTotals.mapIndexed { index, (categoryId, amount) ->
         CategoryBreakdownUi(
             label = categoryMap[categoryId]?.name ?: "Other",
-            amountDisplay = formatCurrencyValue(amount, currencyId),
+            amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
             color = categoryColors[index % categoryColors.size]
@@ -217,7 +224,12 @@ private fun buildAnalyticsSnapshot(
             TopSpendingItemUi(
                 id = transaction.id,
                 note = transaction.note,
-                amountDisplay = formatCurrencyValue(transaction.amount, currencyId, prefix = "-"),
+                amountDisplay = formatCurrencyValue(
+                    transaction.amount,
+                    currencyId,
+                    amountFormatPreferences,
+                    prefix = "-"
+                ),
                 categoryLabel = category?.name ?: "General",
                 icon = category?.icon ?: categoryFallbackIcon
             )
@@ -227,15 +239,15 @@ private fun buildAnalyticsSnapshot(
     val dailyChange = percentageChange(avgDailyExpense, previousAvgDailyExpense)
     return AnalyticsSnapshotUi(
         summaryLabel = buildSummaryLabel(period, range, customRange),
-        totalDisplay = formatCurrencyValue(totalFlow, currencyId),
+        totalDisplay = formatCurrencyValue(totalFlow, currencyId, amountFormatPreferences),
         changeDisplay = formatPercent(flowChange),
         changePercent = flowChange,
-        avgDailyDisplay = formatCurrencyValue(avgDailyExpense, currencyId),
+        avgDailyDisplay = formatCurrencyValue(avgDailyExpense, currencyId, amountFormatPreferences),
         dailyDeltaDisplay = formatPercent(-dailyChange),
-        savingsDisplay = formatCurrencyValue(savings, currencyId),
+        savingsDisplay = formatCurrencyValue(savings, currencyId, amountFormatPreferences),
         savingsDeltaDisplay = formatPercent(savingsChange),
-        incomeDisplay = formatCurrencyValue(income, currencyId),
-        expenseDisplay = formatCurrencyValue(expense, currencyId),
+        incomeDisplay = formatCurrencyValue(income, currencyId, amountFormatPreferences),
+        expenseDisplay = formatCurrencyValue(expense, currencyId, amountFormatPreferences),
         incomeFraction = (income / max(income + expense, 1.0)).toFloat(),
         chartPoints = chartBuckets.map { it.value.toFloat() },
         chartLabels = chartBuckets.map { it.label },
@@ -247,6 +259,7 @@ private fun buildAnalyticsSnapshot(
             avgDailyExpense = avgDailyExpense,
             topCategory = breakdown.firstOrNull()?.label ?: "spending",
             currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             hasSpendingData = currentTransactions.isNotEmpty()
         ),
         hasSpendingData = currentTransactions.any { it.transactionTypeId == 2 }
@@ -324,6 +337,7 @@ private fun buildSmartTip(
     avgDailyExpense: Double,
     topCategory: String,
     currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     hasSpendingData: Boolean
 ): String {
     if (!hasSpendingData) {
@@ -331,7 +345,7 @@ private fun buildSmartTip(
     }
     val direction = if (flowChange >= 0f) "up" else "down"
     return "Your spending trend is ${formatPercent(flowChange)} $direction this period. Keep an eye on $topCategory and you can save about ${
-        formatCurrencyValue(avgDailyExpense * 4, currencyId)
+        formatCurrencyValue(avgDailyExpense * 4, currencyId, amountFormatPreferences)
     } next cycle."
 }
 

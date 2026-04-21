@@ -12,11 +12,13 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
 import com.mkn0079.expensetracker.data.repository.TransactionRepository
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
+import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.models.firstName
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import com.mkn0079.expensetracker.utils.toMajorUnits
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +43,7 @@ data class HomeScreenUiState(
 private data class HomeInputState(
     val userProfile: UserProfile = defaultUserProfile,
     val currencyId: Int = DEFAULT_CURRENCY_ID,
+    val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     val timeFormat: String = DEFAULT_TIME_FORMAT,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
 )
@@ -67,27 +70,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
                         (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
-                        currencyId = inputs.currencyId
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
                     ),
                     previousMonthBalance = formatCurrencyValue(
                         (summary.previousMonthIncomeMinor - summary.previousMonthExpenseMinor).toMajorUnits(),
-                        currencyId = inputs.currencyId
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
                     ),
                     totalIncome = formatCurrencyValue(
                         summary.totalIncomeMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
                     ),
                     totalExpense = formatCurrencyValue(
                         summary.totalExpenseMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
                     ),
                     todaySpending = formatCurrencyValue(
                         summary.highlightedExpenseMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
                     ),
                     recentTransactions = recentTransactions.map { recentTransaction ->
                         recentTransaction.transaction.toTransactionCardItemUi(
                             currencyId = inputs.currencyId,
+                            amountFormatPreferences = inputs.amountFormatPreferences,
                             dateFormatPattern = "dd MMM",
                             timeFormat = inputs.timeFormat,
                             paymentTypeName = recentTransaction.paymentTypeName
@@ -104,6 +113,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun updateInputs(
         userProfile: UserProfile,
         currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences,
         timeFormat: String,
         customizationSettings: TransactionCardCustomizationSettings
     ) {
@@ -111,6 +121,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 userProfile = userProfile,
                 currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences,
                 timeFormat = timeFormat,
                 customizationSettings = customizationSettings
             )
