@@ -7,6 +7,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -240,56 +242,65 @@ fun TransactionScreen(
             .padding(horizontal = 15.dp, vertical = 12.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            if (uiState.isSelectionMode) {
-                SelectionHeader(
-                    selectedCount = uiState.selectedTransactionIds.size,
-                    onCloseClick = { transactionsViewModel.clearSelection() },
-                    onSelectAllClick = { transactionsViewModel.selectAll() },
-                    onDeleteClick = { showDeleteConfirmation = true }
-                )
-            } else {
-                AppHeader(
-                    title = "Transactions",
-                    onBackClick = onBackClick,
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                isSearchExpanded = true
-                            },
-                            modifier = Modifier
-                                .size(26.dp)
-                                .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = "Search transactions",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(30.dp))
-
-                        IconButton(
-                            onClick = {
-                                closeSearchBar(
-                                    focusManager = focusManager,
-                                    onSearchQueryChange = transactionsViewModel::updateSearchQuery,
-                                    onSearchExpandedChange = { isSearchExpanded = it }
+            AnimatedContent(
+                targetState = uiState.isSelectionMode,
+                label = "HeaderTransition",
+                transitionSpec = {
+                    (slideInVertically { -it } + fadeIn(tween(300)))
+                        .togetherWith(slideOutVertically { -it } + fadeOut(tween(300)))
+                }
+            ) { isSelectionMode ->
+                if (isSelectionMode) {
+                    SelectionHeader(
+                        selectedCount = uiState.selectedTransactionIds.size,
+                        onCloseClick = { transactionsViewModel.clearSelection() },
+                        onSelectAllClick = { transactionsViewModel.selectAll() },
+                        onDeleteClick = { showDeleteConfirmation = true }
+                    )
+                } else {
+                    AppHeader(
+                        title = "Transactions",
+                        onBackClick = onBackClick,
+                        actions = {
+                            IconButton(
+                                onClick = {
+                                    isSearchExpanded = true
+                                },
+                                modifier = Modifier
+                                    .size(26.dp)
+                                    .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = "Search transactions",
+                                    tint = MaterialTheme.colorScheme.secondary
                                 )
-                                showBottomSheet = true
-                            },
-                            modifier = Modifier
-                                .size(26.dp)
-                                .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Tune,
-                                contentDescription = "Sort & Filter",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
+                            }
+
+                            Spacer(modifier = Modifier.width(30.dp))
+
+                            IconButton(
+                                onClick = {
+                                    closeSearchBar(
+                                        focusManager = focusManager,
+                                        onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                        onSearchExpandedChange = { isSearchExpanded = it }
+                                    )
+                                    showBottomSheet = true
+                                },
+                                modifier = Modifier
+                                    .size(26.dp)
+                                    .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Tune,
+                                    contentDescription = "Sort & Filter",
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
             AnimatedVisibility(
                 visible = isSearchExpanded,

@@ -19,13 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,38 +75,6 @@ fun TransactionCard(
             .height(70.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AnimatedVisibility(
-            visible = selectionMode,
-            enter = expandHorizontally(),
-            exit = shrinkHorizontally()
-        ) {
-            Row {
-                Spacer(modifier = Modifier.width(14.dp))
-                Box(
-                    modifier = Modifier.size(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isSelected) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = "Selected",
-                            tint = Color(0xFF8B63F1),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        androidx.compose.foundation.layout.Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .border(
-                                    width = 2.dp,
-                                    color = Color(0xFF807987).copy(alpha = 0.5f),
-                                    shape = CircleShape
-                                )
-                        )
-                    }
-                }
-            }
-        }
 
         Spacer(modifier = Modifier.width(14.dp))
 

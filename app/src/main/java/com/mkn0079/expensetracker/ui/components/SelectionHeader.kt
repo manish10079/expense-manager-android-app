@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -62,13 +63,15 @@ fun SelectionHeader(
                 fontSize = 20.sp
             ),
             color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
         )
 
         IconButton(
             onClick = onSelectAllClick,
             modifier = Modifier
-                .size(36.dp)
+                .size(31.dp)
                 .background(Color(0x1EA0A0A2), RoundedCornerShape(12.dp))
         ) {
             Icon(
@@ -78,12 +81,12 @@ fun SelectionHeader(
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(20.dp))
 
         IconButton(
             onClick = onDeleteClick,
             modifier = Modifier
-                .size(36.dp)
+                .size(31.dp)
                 .background(Color(0x33FF4D4D), RoundedCornerShape(12.dp))
         ) {
             Icon(
