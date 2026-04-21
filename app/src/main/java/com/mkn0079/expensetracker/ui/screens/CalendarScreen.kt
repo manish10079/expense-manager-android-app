@@ -3,7 +3,6 @@ package com.mkn0079.expensetracker.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,6 +57,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -63,6 +70,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -80,6 +88,7 @@ import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.horizontalSwipe
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
@@ -171,82 +180,112 @@ fun CalendarScreen(
                     )
                 }
 
-                if (uiState.isYearView) {
-                    item {
-                        YearHeading(
-                            year = uiState.displayedYear,
-                            onPreviousYear = calendarViewModel::goToPreviousYear,
-                            onNextYear = calendarViewModel::goToNextYear,
-                            onTodayClick = calendarViewModel::jumpToToday,
-                            onOpenYearPicker = { isYearPickerVisible = true }
-                        )
-                    }
+                item {
+                    AnimatedContent(
+                        targetState = uiState.isYearView,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith
+                                fadeOut(animationSpec = tween(300))
+                        },
+                        label = "calendar_view_mode_transition"
+                    ) { isYearView ->
+                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                            if (isYearView) {
+                                AnimatedContent(
+                                    targetState = uiState.displayedYear,
+                                    transitionSpec = {
+                                        fadeIn(animationSpec = tween(300)) togetherWith
+                                            fadeOut(animationSpec = tween(300))
+                                    },
+                                    label = "year_navigation_transition"
+                                ) { targetYear ->
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .horizontalSwipe(
+                                                key = targetYear,
+                                                onSwipeLeft = calendarViewModel::goToNextYear,
+                                                onSwipeRight = calendarViewModel::goToPreviousYear
+                                            ),
+                                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                                    ) {
+                                        YearHeading(
+                                            year = targetYear,
+                                            onPreviousYear = calendarViewModel::goToPreviousYear,
+                                            onNextYear = calendarViewModel::goToNextYear,
+                                            onTodayClick = calendarViewModel::jumpToToday,
+                                            onOpenYearPicker = { isYearPickerVisible = true }
+                                        )
 
-                    item {
-                        AnnualSummaryCard(
-                            totalIncome = uiState.yearlyIncomeLabel,
-                            totalExpense = uiState.yearlyExpenseLabel
-                        )
-                    }
+                                        AnnualSummaryCard(
+                                            totalIncome = uiState.yearlyIncomeLabel,
+                                            totalExpense = uiState.yearlyExpenseLabel
+                                        )
 
-                    item {
-                        YearSummaryGrid(
-                            summaries = uiState.yearSummaries,
-                            onMonthClick = { summary ->
-                                calendarViewModel.selectMonth(createDate(uiState.displayedYear, summary.monthIndex, 1))
-                                calendarViewModel.setYearView(false)
+                                        YearSummaryGrid(
+                                            summaries = uiState.yearSummaries,
+                                            onMonthClick = { summary ->
+                                                calendarViewModel.selectMonth(createDate(uiState.displayedYear, summary.monthIndex, 1))
+                                                calendarViewModel.setYearView(false)
+                                            }
+                                        )
+                                    }
+                                }
+                            } else {
+                                AnimatedContent(
+                                    targetState = uiState.displayedMonthStart,
+                                    transitionSpec = {
+                                        fadeIn(animationSpec = tween(300)) togetherWith
+                                            fadeOut(animationSpec = tween(300))
+                                    },
+                                    label = "month_navigation_transition"
+                                ) { targetMonthStart ->
+                                    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                        MonthHeading(
+                                            monthStart = targetMonthStart,
+                                            onPreviousMonth = calendarViewModel::goToPreviousMonth,
+                                            onNextMonth = calendarViewModel::goToNextMonth,
+                                            onTodayClick = calendarViewModel::jumpToToday,
+                                            onOpenPicker = { isMonthYearPickerVisible = true }
+                                        )
+
+                                        MonthCalendarCard(
+                                            days = uiState.monthDays,
+                                            selectedDate = uiState.selectedDate,
+                                            onDaySelected = { day ->
+                                                calendarViewModel.selectDay(day)
+                                            },
+                                            onSwipePrevious = calendarViewModel::goToPreviousMonth,
+                                            onSwipeNext = calendarViewModel::goToNextMonth
+                                        )
+                                    }
+                                }
+
+                                DailyTotalsRow(
+                                    expenseLabel = uiState.selectedDayExpenseLabel,
+                                    incomeLabel = uiState.selectedDayIncomeLabel
+                                )
+
+                                TransactionSectionHeader(
+                                    selectedDayTitle = uiState.selectedDayTitle
+                                )
+
+                                if (uiState.selectedDayTransactions.isEmpty()) {
+                                    EmptyTransactionsCard(
+                                        message = uiState.emptyTransactionsMessage
+                                    )
+                                } else {
+                                    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                        uiState.selectedDayTransactions.forEach { transaction ->
+                                            CalendarTransactionCard(
+                                                transaction = transaction,
+                                                transactionCardCustomizationSettings = uiState.customizationSettings,
+                                                onClick = { onTransactionClick(transaction.transaction) }
+                                            )
+                                        }
+                                    }
+                                }
                             }
-                        )
-                    }
-                } else {
-                    item {
-                        MonthHeading(
-                            monthStart = uiState.displayedMonthStart,
-                            onPreviousMonth = calendarViewModel::goToPreviousMonth,
-                            onNextMonth = calendarViewModel::goToNextMonth,
-                            onTodayClick = calendarViewModel::jumpToToday,
-                            onOpenPicker = { isMonthYearPickerVisible = true }
-                        )
-                    }
-
-                    item {
-                        MonthCalendarCard(
-                            days = uiState.monthDays,
-                            selectedDate = uiState.selectedDate,
-                            onDaySelected = { day ->
-                                calendarViewModel.selectDay(day)
-                            },
-                            onSwipePrevious = calendarViewModel::goToPreviousMonth,
-                            onSwipeNext = calendarViewModel::goToNextMonth
-                        )
-                    }
-
-                    item {
-                        DailyTotalsRow(
-                            expenseLabel = uiState.selectedDayExpenseLabel,
-                            incomeLabel = uiState.selectedDayIncomeLabel
-                        )
-                    }
-
-                    item {
-                        TransactionSectionHeader(
-                            selectedDayTitle = uiState.selectedDayTitle
-                        )
-                    }
-
-                    if (uiState.selectedDayTransactions.isEmpty()) {
-                        item {
-                            EmptyTransactionsCard(
-                                message = uiState.emptyTransactionsMessage
-                            )
-                        }
-                    } else {
-                        items(uiState.selectedDayTransactions, key = { it.id }) { transaction ->
-                            CalendarTransactionCard(
-                                transaction = transaction,
-                                transactionCardCustomizationSettings = uiState.customizationSettings,
-                                onClick = { onTransactionClick(transaction.transaction) }
-                            )
                         }
                     }
                 }
@@ -436,22 +475,11 @@ private fun MonthCalendarCard(
     Card(
         colors = CardDefaults.cardColors(containerColor = CalendarSurface),
         shape = RoundedCornerShape(26.dp),
-        modifier = Modifier.pointerInput(days, selectedDate) {
-            var totalDrag = 0f
-            detectHorizontalDragGestures(
-                onHorizontalDrag = { _, dragAmount ->
-                    totalDrag += dragAmount
-                },
-                onDragEnd = {
-                    when {
-                        totalDrag > 80f -> onSwipePrevious()
-                        totalDrag < -80f -> onSwipeNext()
-                    }
-                    totalDrag = 0f
-                },
-                onDragCancel = { totalDrag = 0f }
-            )
-        }
+        modifier = Modifier.horizontalSwipe(
+            key = days to selectedDate,
+            onSwipeLeft = onSwipeNext,
+            onSwipeRight = onSwipePrevious
+        )
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
@@ -801,24 +829,53 @@ private fun MonthSummaryCard(
             if (summary.isProjection || (summary.income == 0.0 && summary.expense == 0.0)) {
                 Spacer(modifier = Modifier.height(38.dp))
             } else {
-                Text(
-                    text = summary.expenseLabel,
-                    color = getAmountColor(2),
-                    fontSize = 12.sp
+                SummaryRow(
+                    icon = Icons.AutoMirrored.Filled.TrendingDown,
+                    label = summary.expenseLabel,
+                    color = getAmountColor(2)
                 )
-                Text(
-                    text = summary.incomeLabel,
-                    color = getAmountColor(1),
-                    fontSize = 12.sp
+                SummaryRow(
+                    icon = Icons.AutoMirrored.Filled.TrendingUp,
+                    label = summary.incomeLabel,
+                    color = getAmountColor(1)
                 )
-                Text(
-                    text = summary.netLabel,
+                SummaryRow(
+                    icon = Icons.Default.AccountBalanceWallet,
+                    label = summary.netLabel,
                     color = calendarAmountColor(summary.net),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    isBold = true,
+                    fontSize = 14.sp
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SummaryRow(
+    icon: ImageVector,
+    label: String,
+    color: Color,
+    isBold: Boolean = false,
+    fontSize: TextUnit = 12.sp
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color.copy(alpha = 0.8f),
+            modifier = Modifier.size(10.dp)
+        )
+        Text(
+            text = label,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            maxLines = 1
+        )
     }
 }
 
