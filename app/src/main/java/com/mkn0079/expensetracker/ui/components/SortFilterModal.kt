@@ -114,14 +114,7 @@ fun FilterBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        colorScheme.surface.copy(alpha = 0.98f),
-                        colorScheme.background.copy(alpha = 0.98f)
-                    )
-                )
-            )
+            .background(Color.Black)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
@@ -510,7 +503,7 @@ private fun FilterSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(colorScheme.surface.copy(alpha = 0.94f))
+            .background(Color(0xFF0A0A0A))
             .border(
                 width = 1.dp,
                 color = colorScheme.onSurface.copy(alpha = 0.08f),
