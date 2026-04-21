@@ -27,6 +27,7 @@ import com.mkn0079.expensetracker.ui.navigation.resolveBackNavigationRoute
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -148,6 +149,7 @@ fun MainScaffold(
             selectedTimeFormat = selectedTimeFormat,
             transactionCount = transactionCount,
             autoLockDurationMinutes = autoLockDurationMinutes,
+            userProfile = userProfile,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings
         )
 
@@ -245,8 +247,10 @@ private fun BoxScope.PreloadSecondaryScreenData(
     selectedTimeFormat: String,
     transactionCount: Int,
     autoLockDurationMinutes: Int,
+    userProfile: UserProfile,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings
 ) {
+    val homeViewModel: HomeViewModel = viewModel()
     val transactionsViewModel: TransactionsViewModel = viewModel()
     val analyticsViewModel: AnalyticsViewModel = viewModel()
     val budgetViewModel: BudgetViewModel = viewModel()
@@ -265,6 +269,14 @@ private fun BoxScope.PreloadSecondaryScreenData(
         autoLockDurationMinutes,
         transactionCardCustomizationSettings
     ) {
+        homeViewModel.updateInputs(
+            userProfile,
+            selectedCurrencyId,
+            amountFormatPreferences,
+            selectedTimeFormat,
+            categories,
+            transactionCardCustomizationSettings
+        )
         analyticsViewModel.updateInputs(
             transactions,
             categories,
@@ -280,6 +292,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
         )
         calendarViewModel.updateInputs(
             transactions,
+            categories,
             selectedCurrencyId,
             amountFormatPreferences,
             selectedDateFormatPattern,
@@ -288,6 +301,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
         )
         transactionsViewModel.updateInputs(
             transactions,
+            categories,
             selectedCurrencyId,
             amountFormatPreferences,
             selectedDateFormatPattern,

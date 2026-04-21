@@ -9,7 +9,6 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.constants.categoryMap
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.domain.mapper.buildTransactionListItems
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
@@ -62,6 +61,7 @@ data class TransactionsScreenUiState(
 class TransactionsViewModel : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
+    private var currentCategories: List<CategoryType> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
@@ -104,6 +104,7 @@ class TransactionsViewModel : ViewModel() {
 
     fun updateInputs(
         transactions: List<Transaction>,
+        categories: List<CategoryType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
@@ -111,6 +112,7 @@ class TransactionsViewModel : ViewModel() {
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         currentTransactions = transactions
+        currentCategories = categories
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
@@ -214,7 +216,7 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun rebuildUiState() {
-        val availableCategories = categoryMap.values
+        val availableCategories = currentCategories
             .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
 
@@ -272,7 +274,8 @@ class TransactionsViewModel : ViewModel() {
                     amountFormatPreferences = currentAmountFormatPreferences,
                     dateFormatPattern = currentDateFormatPattern,
                     timeFormat = currentTimeFormat,
-                    paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
+                    paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
+                    categories = currentCategories
                 )
             },
             groupByDate = shouldGroupTransactions,

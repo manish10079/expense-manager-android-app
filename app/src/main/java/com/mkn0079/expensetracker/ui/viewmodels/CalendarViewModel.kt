@@ -9,6 +9,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.models.CalendarDayUi
@@ -49,6 +50,7 @@ data class CalendarScreenUiState(
 class CalendarViewModel : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
+    private var currentCategories: List<CategoryType> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
@@ -70,6 +72,7 @@ class CalendarViewModel : ViewModel() {
 
     fun updateInputs(
         transactions: List<Transaction>,
+        categories: List<CategoryType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
@@ -77,6 +80,7 @@ class CalendarViewModel : ViewModel() {
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         currentTransactions = transactions
+        currentCategories = categories
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
@@ -199,7 +203,8 @@ class CalendarViewModel : ViewModel() {
                         amountFormatPreferences = currentAmountFormatPreferences,
                         dateFormatPattern = "dd MMM",
                         timeFormat = currentTimeFormat,
-                        paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
+                        paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
+                        categories = currentCategories
                     )
                 },
                 selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",

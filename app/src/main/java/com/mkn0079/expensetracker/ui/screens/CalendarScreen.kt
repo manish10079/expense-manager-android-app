@@ -71,6 +71,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.models.CalendarDayUi
@@ -104,11 +105,12 @@ private val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL",
 
 @Composable
 fun CalendarScreen(
-    transactions: List<Transaction> = transactionList,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
+    transactions: List<Transaction> = transactionList,
+    categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {}
@@ -122,10 +124,12 @@ fun CalendarScreen(
         amountFormatPreferences,
         dateFormatPattern,
         timeFormat,
+        categories,
         transactionCardCustomizationSettings
     ) {
         calendarViewModel.updateInputs(
             transactions = transactions,
+            categories = categories,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,

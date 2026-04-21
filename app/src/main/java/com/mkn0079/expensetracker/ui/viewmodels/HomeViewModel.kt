@@ -8,6 +8,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.defaultUserProfile
@@ -42,7 +43,8 @@ private data class HomeInputState(
     val currencyId: Int = DEFAULT_CURRENCY_ID,
     val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     val timeFormat: String = DEFAULT_TIME_FORMAT,
-    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    val categories: List<CategoryType> = emptyList()
 )
 
 private const val HOME_RECENT_TRANSACTION_LIMIT = 10
@@ -97,7 +99,8 @@ class HomeViewModel @Inject constructor(
                             amountFormatPreferences = inputs.amountFormatPreferences,
                             dateFormatPattern = "dd MMM",
                             timeFormat = inputs.timeFormat,
-                            paymentTypeName = recentTransaction.paymentTypeName
+                            paymentTypeName = recentTransaction.paymentTypeName,
+                            categories = inputs.categories
                         )
                     },
                     customizationSettings = inputs.customizationSettings
@@ -113,6 +116,7 @@ class HomeViewModel @Inject constructor(
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         timeFormat: String,
+        categories: List<CategoryType>,
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         inputState.update {
@@ -121,6 +125,7 @@ class HomeViewModel @Inject constructor(
                 currencyId = currencyId,
                 amountFormatPreferences = amountFormatPreferences,
                 timeFormat = timeFormat,
+                categories = categories,
                 customizationSettings = customizationSettings
             )
         }

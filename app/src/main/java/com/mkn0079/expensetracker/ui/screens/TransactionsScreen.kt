@@ -78,6 +78,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.AddTransactionFab
@@ -145,6 +146,7 @@ fun TransactionScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     transactions: List<Transaction> = emptyList(),
+    categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
@@ -159,6 +161,7 @@ fun TransactionScreen(
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
     LaunchedEffect(
         transactions,
+        categories,
         currencyId,
         amountFormatPreferences,
         dateFormatPattern,
@@ -167,6 +170,7 @@ fun TransactionScreen(
     ) {
         transactionsViewModel.updateInputs(
             transactions = transactions,
+            categories = categories,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,

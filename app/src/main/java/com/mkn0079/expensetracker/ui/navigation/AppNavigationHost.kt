@@ -122,6 +122,7 @@ fun AppNavigationHost(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         timeFormat = selectedTimeFormat,
+                        categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         onTransactionClick = { transaction ->
                             onSelectedTransactionChange(transaction)
@@ -176,6 +177,7 @@ fun AppNavigationHost(
                 AppRoute.Calendar -> {
                     CalendarScreen(
                         transactions = transactions,
+                        categories = categories,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -200,6 +202,7 @@ fun AppNavigationHost(
                         dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
                         transactions = transactions,
+                        categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)

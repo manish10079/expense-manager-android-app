@@ -48,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
@@ -73,6 +74,7 @@ fun HomeScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     timeFormat: String = DEFAULT_TIME_FORMAT,
+    categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onViewAllClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {},
@@ -86,6 +88,7 @@ fun HomeScreen(
         currencyId,
         amountFormatPreferences,
         timeFormat,
+        categories,
         transactionCardCustomizationSettings
     ) {
         homeViewModel.updateInputs(
@@ -93,6 +96,7 @@ fun HomeScreen(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             timeFormat = timeFormat,
+            categories = categories,
             customizationSettings = transactionCardCustomizationSettings
         )
     }

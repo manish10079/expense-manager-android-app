@@ -1,6 +1,7 @@
 package com.mkn0079.expensetracker.domain.mapper
 
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
@@ -19,8 +20,11 @@ fun Transaction.toTransactionCardItemUi(
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String,
     timeFormat: String,
-    paymentTypeName: String
+    paymentTypeName: String,
+    categories: List<CategoryType>
 ): TransactionCardItemUi {
+    val category = categories.find { it.id == categoryId }
+    val resolvedIcon = category?.icon ?: categoryIcon
     return TransactionCardItemUi(
         id = id,
         transaction = this,
@@ -33,7 +37,7 @@ fun Transaction.toTransactionCardItemUi(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences
         ),
-        icon = categoryIcon,
+        icon = resolvedIcon,
         transactionTypeId = transactionTypeId,
         paymentType = paymentTypeName
     )
