@@ -35,6 +35,16 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import com.mkn0079.expensetracker.domain.repository.TransactionRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 
 @Immutable
 data class TransactionsScreenUiState(
@@ -55,13 +65,23 @@ data class TransactionsScreenUiState(
     val availableCategories: List<CategoryType> = emptyList(),
     val paymentModes: List<PaymentType> = emptyList(),
     val transactionItems: List<TransactionListItemUi> = emptyList(),
-    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    val isSelectionMode: Boolean = false,
+    val selectedTransactionIds: Set<String> = emptySet(),
+    val isDragging: Boolean = false
 )
 
-class TransactionsViewModel : ViewModel() {
+@HiltViewModel
+class TransactionsViewModel @Inject constructor(
+    private val transactionRepository: TransactionRepository
+) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: List<CategoryType> = emptyList()
+
+    private val _selectedTransactionIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _isSelectionMode = MutableStateFlow(false)
+
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
@@ -90,13 +110,30 @@ class TransactionsViewModel : ViewModel() {
     private var selectedPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY
     private var focusedPeriodTimestamp: Long = latestTransactionTimestamp
 
-    private val _uiState = MutableStateFlow(
+    private val _baseUiState = MutableStateFlow(
         TransactionsScreenUiState(
             focusedPeriodTimestamp = focusedPeriodTimestamp,
             paymentModes = paymentTypeMap.values.toList()
         )
     )
-    val uiState: StateFlow<TransactionsScreenUiState> = _uiState.asStateFlow()
+
+    val uiState: StateFlow<TransactionsScreenUiState> = combine(
+        _baseUiState,
+        _selectedTransactionIds,
+        _isSelectionMode
+    ) { base, selectedIds, selectionMode ->
+        base.copy(
+            selectedTransactionIds = selectedIds,
+            isSelectionMode = selectionMode
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = _baseUiState.value.copy(
+            selectedTransactionIds = _selectedTransactionIds.value,
+            isSelectionMode = _isSelectionMode.value
+        )
+    )
 
     init {
         rebuildUiState()
@@ -215,7 +252,83 @@ class TransactionsViewModel : ViewModel() {
         rebuildUiState()
     }
 
+    fun toggleSelection(transactionId: String) {
+        if (!_isSelectionMode.value) {
+            _isSelectionMode.value = true
+        }
+        val currentIds = _selectedTransactionIds.value
+        val newIds = if (currentIds.contains(transactionId)) {
+            currentIds - transactionId
+        } else {
+            currentIds + transactionId
+        }
+        
+        _selectedTransactionIds.value = newIds
+        if (newIds.isEmpty()) {
+            _isSelectionMode.value = false
+        }
+    }
+
+    fun enterSelectionMode(initialId: String) {
+        _isSelectionMode.value = true
+        _selectedTransactionIds.value = setOf(initialId)
+    }
+
+    fun clearSelection() {
+        _isSelectionMode.value = false
+        _selectedTransactionIds.value = emptySet()
+    }
+
+    fun selectAll() {
+        val allIds = _baseUiState.value.transactionItems
+            .filterIsInstance<TransactionListItemUi.TransactionRow>()
+            .map { it.card.id }
+            .toSet()
+        
+        _selectedTransactionIds.value = allIds
+        _isSelectionMode.value = allIds.isNotEmpty()
+    }
+
+    fun deleteSelectedTransactions() {
+        val idsToDelete = _selectedTransactionIds.value.toList()
+        if (idsToDelete.isEmpty()) return
+
+        viewModelScope.launch {
+            transactionRepository.softDeleteTransactions(idsToDelete)
+            clearSelection()
+        }
+    }
+
+    fun selectRange(fromId: String, toId: String) {
+        val transactionsInList = _baseUiState.value.transactionItems
+            .filterIsInstance<TransactionListItemUi.TransactionRow>()
+            .map { it.card.id }
+        
+        val startIndex = transactionsInList.indexOf(fromId)
+        val endIndex = transactionsInList.indexOf(toId)
+        
+        if (startIndex == -1 || endIndex == -1) return
+        
+        val rangeIds = if (startIndex <= endIndex) {
+            transactionsInList.subList(startIndex, endIndex + 1)
+        } else {
+            transactionsInList.subList(endIndex, startIndex + 1)
+        }
+        
+        _selectedTransactionIds.value = _selectedTransactionIds.value + rangeIds
+        _isSelectionMode.value = true
+    }
+
     private fun rebuildUiState() {
+        viewModelScope.launch {
+            val newState = withContext(Dispatchers.Default) {
+                calculateNewUiState()
+            }
+            _baseUiState.update { newState }
+        }
+    }
+
+    private fun calculateNewUiState(): TransactionsScreenUiState {
         val availableCategories = currentCategories
             .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
@@ -282,42 +395,40 @@ class TransactionsViewModel : ViewModel() {
             sortType = appliedSortType
         )
 
-        _uiState.update {
-            it.copy(
-                searchQuery = searchQuery,
-                selectedSort = selectedSort,
-                selectedOrder = selectedOrder,
-                selectedDateRange = selectedDateRange,
-                selectedTransactionTypeIds = selectedTransactionTypeIds,
-                selectedCategoryIds = selectedCategoryIds,
-                selectedPaymentTypeIds = selectedPaymentTypeIds,
-                selectedMinAmount = selectedMinAmount,
-                selectedMaxAmount = selectedMaxAmount,
-                selectedPeriodFilter = selectedPeriodFilter,
-                focusedPeriodTimestamp = focusedPeriodTimestamp,
-                canNavigateBackward = canNavigateToPeriod(
-                    transactions = currentTransactions,
-                    focusedTimestamp = focusedPeriodTimestamp,
-                    filter = selectedPeriodFilter,
-                    direction = -1
-                ),
-                canNavigateForward = canNavigateToPeriod(
-                    transactions = currentTransactions,
-                    focusedTimestamp = focusedPeriodTimestamp,
-                    filter = selectedPeriodFilter,
-                    direction = 1
-                ),
-                selectedPeriodLabel = buildPeriodLabel(
-                    timestamp = focusedPeriodTimestamp,
-                    filter = selectedPeriodFilter,
-                    dateFormatPattern = currentDateFormatPattern
-                ),
-                availableCategories = availableCategories,
-                paymentModes = paymentTypeMap.values.toList(),
-                transactionItems = transactionItems,
-                customizationSettings = currentCustomizationSettings
-            )
-        }
+        return _baseUiState.value.copy(
+            searchQuery = searchQuery,
+            selectedSort = selectedSort,
+            selectedOrder = selectedOrder,
+            selectedDateRange = selectedDateRange,
+            selectedTransactionTypeIds = selectedTransactionTypeIds,
+            selectedCategoryIds = selectedCategoryIds,
+            selectedPaymentTypeIds = selectedPaymentTypeIds,
+            selectedMinAmount = selectedMinAmount,
+            selectedMaxAmount = selectedMaxAmount,
+            selectedPeriodFilter = selectedPeriodFilter,
+            focusedPeriodTimestamp = focusedPeriodTimestamp,
+            canNavigateBackward = canNavigateToPeriod(
+                transactions = currentTransactions,
+                focusedTimestamp = focusedPeriodTimestamp,
+                filter = selectedPeriodFilter,
+                direction = -1
+            ),
+            canNavigateForward = canNavigateToPeriod(
+                transactions = currentTransactions,
+                focusedTimestamp = focusedPeriodTimestamp,
+                filter = selectedPeriodFilter,
+                direction = 1
+            ),
+            selectedPeriodLabel = buildPeriodLabel(
+                timestamp = focusedPeriodTimestamp,
+                filter = selectedPeriodFilter,
+                dateFormatPattern = currentDateFormatPattern
+            ),
+            availableCategories = availableCategories,
+            paymentModes = paymentTypeMap.values.toList(),
+            transactionItems = transactionItems,
+            customizationSettings = currentCustomizationSettings
+        )
     }
 }
 

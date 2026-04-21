@@ -18,6 +18,8 @@ interface TransactionRepository {
     
     suspend fun softDeleteTransaction(id: String)
     
+    suspend fun softDeleteTransactions(ids: List<String>)
+    
     suspend fun deleteAllTransactions()
     
     suspend fun checkBudgetAndNotify(context: android.content.Context, transaction: Transaction)

@@ -33,8 +33,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +48,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -89,6 +95,7 @@ import com.mkn0079.expensetracker.ui.components.TransactionPeriodNavigator
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.components.SelectionHeader
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -158,6 +165,7 @@ fun TransactionScreen(
     val scope = rememberCoroutineScope()
     val searchFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val lazyListState = rememberLazyListState()
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
     LaunchedEffect(
         transactions,
@@ -183,20 +191,22 @@ fun TransactionScreen(
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var showPeriodPicker by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
     val emptyTransactionMessage = remember(
         uiState.selectedPeriodFilter,
         uiState.selectedPeriodLabel,
         uiState.searchQuery,
         uiState.selectedSort,
         uiState.selectedOrder,
-        uiState.selectedDateRange,
-        uiState.selectedTransactionTypeIds,
-        uiState.selectedCategoryIds,
-        uiState.selectedPaymentTypeIds,
-        uiState.selectedMinAmount,
-        uiState.selectedMaxAmount
+        uiState.isSelectionMode,
+        uiState.selectedTransactionIds
     ) {
         emptyTransactionMessages.random()
+    }
+
+    BackHandler(enabled = uiState.isSelectionMode) {
+        transactionsViewModel.clearSelection()
     }
 
     LaunchedEffect(isSearchExpanded) {
@@ -230,48 +240,57 @@ fun TransactionScreen(
             .padding(horizontal = 15.dp, vertical = 12.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            AppHeader(
-                title = "Transactions",
-                onBackClick = onBackClick,
-                actions = {
-                    IconButton(
-                        onClick = {
-                            isSearchExpanded = true
-                        },
-                        modifier = Modifier
-                            .size(26.dp)
-                            .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Search transactions",
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(30.dp))
-
-                    IconButton(
-                        onClick = {
-                            closeSearchBar(
-                                focusManager = focusManager,
-                                onSearchQueryChange = transactionsViewModel::updateSearchQuery,
-                                onSearchExpandedChange = { isSearchExpanded = it }
+            if (uiState.isSelectionMode) {
+                SelectionHeader(
+                    selectedCount = uiState.selectedTransactionIds.size,
+                    onCloseClick = { transactionsViewModel.clearSelection() },
+                    onSelectAllClick = { transactionsViewModel.selectAll() },
+                    onDeleteClick = { showDeleteConfirmation = true }
+                )
+            } else {
+                AppHeader(
+                    title = "Transactions",
+                    onBackClick = onBackClick,
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                isSearchExpanded = true
+                            },
+                            modifier = Modifier
+                                .size(26.dp)
+                                .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "Search transactions",
+                                tint = MaterialTheme.colorScheme.secondary
                             )
-                            showBottomSheet = true
-                        },
-                        modifier = Modifier
-                            .size(26.dp)
-                            .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Tune,
-                            contentDescription = "Sort & Filter",
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
+                        }
+
+                        Spacer(modifier = Modifier.width(30.dp))
+
+                        IconButton(
+                            onClick = {
+                                closeSearchBar(
+                                    focusManager = focusManager,
+                                    onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                    onSearchExpandedChange = { isSearchExpanded = it }
+                                )
+                                showBottomSheet = true
+                            },
+                            modifier = Modifier
+                                .size(26.dp)
+                                .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Tune,
+                                contentDescription = "Sort & Filter",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
             AnimatedVisibility(
                 visible = isSearchExpanded,
                 enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
@@ -436,7 +455,9 @@ fun TransactionScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
+                    state = lazyListState,
+                    modifier = Modifier
+                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
                     contentPadding = PaddingValues(bottom = 180.dp)
                 ) {
@@ -478,7 +499,20 @@ fun TransactionScreen(
                                     showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
                                     showTransactionTime = uiState.customizationSettings.showTransactionTime,
                                     showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
-                                    onClick = { onTransactionClick(card.transaction) }
+                                    isSelected = uiState.selectedTransactionIds.contains(card.id),
+                                    selectionMode = uiState.isSelectionMode,
+                                    onClick = {
+                                        if (uiState.isSelectionMode) {
+                                            transactionsViewModel.toggleSelection(card.id)
+                                        } else {
+                                            onTransactionClick(card.transaction)
+                                        }
+                                    },
+                                    onLongClick = {
+                                        if (!uiState.isSelectionMode) {
+                                            transactionsViewModel.enterSelectionMode(card.id)
+                                        }
+                                    }
                                 )
                             }
                         }
@@ -555,6 +589,32 @@ fun TransactionScreen(
                 Spacer(modifier = Modifier.fillMaxWidth().height(400.dp))
             }
         }
+    }
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Delete Transactions") },
+            text = { Text("Are you sure you want to delete ${uiState.selectedTransactionIds.size} transactions? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        transactionsViewModel.deleteSelectedTransactions()
+                        showDeleteConfirmation = false
+                    }
+                ) {
+                    Text("Delete", color = Color(0xFFFF4D4D))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = Color(0xFF1C1C1E),
+            titleContentColor = Color.White,
+            textContentColor = Color.White.copy(alpha = 0.7f)
+        )
     }
 }
 

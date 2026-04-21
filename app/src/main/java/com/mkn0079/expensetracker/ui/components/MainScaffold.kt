@@ -29,8 +29,10 @@ import com.mkn0079.expensetracker.ui.viewmodels.BudgetViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
-import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 
 @Composable
 fun MainScaffold(
@@ -97,7 +99,11 @@ fun MainScaffold(
     onAutoBackupFrequencyChange: (Int) -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
-    val showFixedBottomNavBar = currentRoute.showsFixedBottomBar
+    val transactionsViewModel: TransactionsViewModel = viewModel()
+    val transactionsUiState by transactionsViewModel.uiState.collectAsState()
+    val isSelectionMode = currentRoute == AppRoute.Transactions && transactionsUiState.isSelectionMode
+
+    val showFixedBottomNavBar = currentRoute.showsFixedBottomBar && !isSelectionMode
     val backNavigationRoute = resolveBackNavigationRoute(
         currentRoute = currentRoute,
         profileOriginRoute = profileOriginRoute,
@@ -115,6 +121,9 @@ fun MainScaffold(
             onSelectedTransactionChange(null)
             onAddTransactionDraftAmountChange(null)
             onAddTransactionDraftNoteChange(null)
+        }
+        if (currentRoute != AppRoute.Transactions) {
+            transactionsViewModel.clearSelection()
         }
     }
 

@@ -76,6 +76,19 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
         )
     }
 
+    override suspend fun softDeleteTransactions(ids: List<String>) {
+        if (ids.isEmpty()) return
+        database.withTransaction {
+            ids.forEach { id ->
+                dao.softDelete(
+                    id = id,
+                    syncState = SyncState.PENDING_DELETE.name,
+                    updatedAt = System.currentTimeMillis()
+                )
+            }
+        }
+    }
+
     override suspend fun deleteAllTransactions() {
         database.withTransaction {
             recurringRuleDao.deleteAll()
