@@ -1,13 +1,11 @@
 package com.mkn0079.expensetracker.ui.navigation
 
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 
-
-val bottomNavBarItems= listOf(
-    BottomNavBarItem("home", Icons.Default.Home, "Home"),
-    BottomNavBarItem("analytics", Icons.Default.Analytics, "Analytics"),
-    BottomNavBarItem("budget", Icons.Default.AccountBalanceWallet, "Budget"),
-    BottomNavBarItem("calendar", Icons.Default.CalendarMonth, "Calendar")
+val bottomNavBarItems = listOf(
+    BottomNavBarItem(AppRoute.Home, Icons.Default.Home, "Home"),
+    BottomNavBarItem(AppRoute.Analytics, Icons.Default.Analytics, "Analytics"),
+    BottomNavBarItem(AppRoute.Budget, Icons.Default.AccountBalanceWallet, "Budget"),
+    BottomNavBarItem(AppRoute.Calendar, Icons.Default.CalendarMonth, "Calendar")
 )

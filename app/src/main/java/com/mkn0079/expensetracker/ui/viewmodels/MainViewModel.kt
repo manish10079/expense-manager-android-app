@@ -1,23 +1,25 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mkn0079.expensetracker.data.legacy.LegacyImportRepository
-import com.mkn0079.expensetracker.data.legacy.LegacyImportResult
-import com.mkn0079.expensetracker.data.repository.CategoryRepository
-import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
-import com.mkn0079.expensetracker.data.repository.JsonExportResult
-import com.mkn0079.expensetracker.data.repository.JsonImportResult
-import com.mkn0079.expensetracker.data.repository.PaymentMethodRepository
-import com.mkn0079.expensetracker.data.repository.RecurringRuleRepository
-import com.mkn0079.expensetracker.data.repository.TransactionRepository
+import com.mkn0079.expensetracker.domain.repository.CategoryRepository
+import com.mkn0079.expensetracker.domain.repository.DataManagementRepository
+import com.mkn0079.expensetracker.domain.repository.JsonExportResult
+import com.mkn0079.expensetracker.domain.repository.JsonImportResult
+import com.mkn0079.expensetracker.domain.repository.LegacyImportRepository
+import com.mkn0079.expensetracker.domain.repository.LegacyImportResult
+import com.mkn0079.expensetracker.domain.repository.PaymentMethodRepository
+import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
+import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,9 +28,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 data class MainDataUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -41,20 +44,16 @@ data class MainDataUiState(
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val appContext = application.applicationContext
-    private val transactionRepository: TransactionRepository =
-        ExpenseTrackerRepositoryProvider.transactionRepository(appContext)
-    private val categoryRepository: CategoryRepository =
-        ExpenseTrackerRepositoryProvider.categoryRepository(appContext)
-    private val paymentMethodRepository: PaymentMethodRepository =
-        ExpenseTrackerRepositoryProvider.paymentMethodRepository(appContext)
-    private val recurringRuleRepository: RecurringRuleRepository =
-        ExpenseTrackerRepositoryProvider.recurringRuleRepository(appContext)
-    private val dataManagementRepository =
-        ExpenseTrackerRepositoryProvider.dataManagementRepository(appContext)
-    private val legacyImportRepository = LegacyImportRepository(appContext)
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
+    private val transactionRepository: TransactionRepository,
+    private val categoryRepository: CategoryRepository,
+    private val paymentMethodRepository: PaymentMethodRepository,
+    private val recurringRuleRepository: RecurringRuleRepository,
+    private val dataManagementRepository: DataManagementRepository,
+    private val legacyImportRepository: LegacyImportRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()

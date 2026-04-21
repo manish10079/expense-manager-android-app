@@ -41,7 +41,11 @@ android {
     }
     sourceSets {
         getByName("main") {
-            assets.srcDir("src/main/java/com/mkn0079/expensetracker/data/legacyimport")
+            assets {
+                directories.add(
+                    "src/main/java/com/mkn0079/expensetracker/data/legacyimport"
+                )
+            }
         }
     }
 }
@@ -75,6 +79,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.wavy.slider)
+    
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,5 +95,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.work.runtime.ktx)
-
 }
+
+apply(plugin = "com.google.dagger.hilt.android")

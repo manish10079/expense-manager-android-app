@@ -4,27 +4,28 @@ import android.content.Context
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mkn0079.expensetracker.data.local.room.toDomain
 import com.mkn0079.expensetracker.data.local.room.toEntity
+import com.mkn0079.expensetracker.domain.repository.PaymentMethodRepository as DomainPaymentMethodRepository
 import com.mkn0079.expensetracker.models.PaymentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class PaymentMethodRepository(context: Context) {
+class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository {
 
     private val dao = ExpenseTrackerDatabase.getInstance(context).paymentMethodDao()
 
-    fun observeActivePaymentMethods(): Flow<List<PaymentType>> {
+    override fun observeActivePaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActivePaymentMethods().map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    fun observeActiveCustomPaymentMethods(): Flow<List<PaymentType>> {
+    override fun observeActiveCustomPaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActiveCustomPaymentMethods().map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    suspend fun createCustomPaymentMethod(
+    override suspend fun createCustomPaymentMethod(
         name: String,
         iconKey: String
     ) {
@@ -44,7 +45,7 @@ class PaymentMethodRepository(context: Context) {
         )
     }
 
-    suspend fun deleteCustomPaymentMethod(id: Int) {
+    override suspend fun deleteCustomPaymentMethod(id: Int) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
     }
 }

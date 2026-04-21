@@ -1,19 +1,19 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
-import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
+import com.mkn0079.expensetracker.domain.repository.BudgetRepository
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Budget
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
+import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -124,9 +125,10 @@ private data class RecurringEntry(
     val isEnabled: Boolean
 )
 
-class BudgetViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val budgetRepository = ExpenseTrackerRepositoryProvider.budgetRepository(application.applicationContext)
+@HiltViewModel
+class BudgetViewModel @Inject constructor(
+    private val budgetRepository: BudgetRepository
+) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: Map<Int, CategoryType> = emptyMap()

@@ -22,6 +22,8 @@ private val Context.userProfileDataStore: DataStore<Preferences> by preferencesD
 
 object UserProfileDataStore {
 
+    const val DATA_STORE_NAME = USER_PROFILE_DATASTORE_NAME
+
     private object Keys {
         val initialized = booleanPreferencesKey("user_profile_initialized")
         val fullName = stringPreferencesKey("full_name")

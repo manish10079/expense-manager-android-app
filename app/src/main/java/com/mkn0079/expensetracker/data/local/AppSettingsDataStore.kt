@@ -25,6 +25,8 @@ private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesD
 
 object AppSettingsDataStore {
 
+    const val DATA_STORE_NAME = APP_SETTINGS_DATASTORE_NAME
+
     private object Keys {
         val initialized = booleanPreferencesKey("settings_initialized")
         val currencyId = intPreferencesKey("currency_id")

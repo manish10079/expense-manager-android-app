@@ -7,6 +7,9 @@ import com.mkn0079.expensetracker.data.local.room.toDomain
 import com.mkn0079.expensetracker.data.local.room.toEntity
 import com.mkn0079.expensetracker.data.local.room.query.HomeRecentTransactionRow
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
+import com.mkn0079.expensetracker.domain.repository.RecentTransaction
+import com.mkn0079.expensetracker.domain.repository.TransactionSummary
+import com.mkn0079.expensetracker.domain.repository.TransactionRepository as DomainTransactionRepository
 import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -14,32 +17,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
-data class TransactionSummary(
-    val totalIncomeMinor: Long,
-    val totalExpenseMinor: Long,
-    val highlightedExpenseMinor: Long,
-    val previousMonthIncomeMinor: Long,
-    val previousMonthExpenseMinor: Long
-)
-
-data class RecentTransaction(
-    val transaction: Transaction,
-    val paymentTypeName: String
-)
-
-class TransactionRepository(context: Context) {
+class TransactionRepository(context: Context) : DomainTransactionRepository {
 
     private val database = ExpenseTrackerDatabase.getInstance(context)
     private val dao = database.transactionDao()
     private val recurringRuleDao = database.recurringRuleDao()
 
-    fun observeActiveTransactions(): Flow<List<Transaction>> {
+    override fun observeActiveTransactions(): Flow<List<Transaction>> {
         return dao.observeActiveTransactions().map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    fun observeHomeSummary(): Flow<TransactionSummary> {
+    override fun observeHomeSummary(): Flow<TransactionSummary> {
         return dao.observeHomeSummary().map { row ->
             TransactionSummary(
                 totalIncomeMinor = row.incomeMinor,
@@ -51,21 +41,21 @@ class TransactionRepository(context: Context) {
         }
     }
 
-    fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> {
+    override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> {
         return dao.observeRecentTransactions(limit).map { rows ->
             rows.map(HomeRecentTransactionRow::toRecentTransaction)
         }
     }
 
-    fun observeActiveTransactionCount(): Flow<Int> {
+    override fun observeActiveTransactionCount(): Flow<Int> {
         return dao.observeActiveTransactionCount()
     }
 
-    suspend fun getTransactionById(id: String): Transaction? {
+    override suspend fun getTransactionById(id: String): Transaction? {
         return dao.getById(id)?.toDomain()
     }
 
-    suspend fun upsertTransaction(transaction: Transaction): Transaction {
+    override suspend fun upsertTransaction(transaction: Transaction): Transaction {
         val now = System.currentTimeMillis()
         val existing = transaction.id.takeIf { it.isNotBlank() }?.let { dao.getById(it) }
         val resolved = transaction.copy(
@@ -78,7 +68,7 @@ class TransactionRepository(context: Context) {
         return resolved
     }
 
-    suspend fun softDeleteTransaction(id: String) {
+    override suspend fun softDeleteTransaction(id: String) {
         dao.softDelete(
             id = id,
             syncState = SyncState.PENDING_DELETE.name,
@@ -86,14 +76,17 @@ class TransactionRepository(context: Context) {
         )
     }
 
-    suspend fun deleteAllTransactions() {
+    override suspend fun deleteAllTransactions() {
         database.withTransaction {
             recurringRuleDao.deleteAll()
             dao.deleteAll()
         }
     }
 
-    suspend fun checkBudgetAndNotify(context: android.content.Context, transaction: Transaction) {
+    override suspend fun checkBudgetAndNotify(
+        context: android.content.Context,
+        transaction: Transaction
+    ) {
         if (transaction.transactionTypeId != 2) return // Only for expenses
         
         val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()

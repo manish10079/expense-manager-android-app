@@ -22,16 +22,16 @@ import com.mkn0079.expensetracker.data.constants.getAppLockSecurityQuestionPromp
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
-import com.mkn0079.expensetracker.data.repository.JsonImportResult
+import com.mkn0079.expensetracker.domain.repository.JsonImportResult
 import com.mkn0079.expensetracker.models.AppSettings
-import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import com.mkn0079.expensetracker.ui.components.MainScaffold
+import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
+import com.mkn0079.expensetracker.ui.navigation.rememberMainNavigationState
 import com.mkn0079.expensetracker.ui.navigation.routesKeepingTransactionsWarm
-import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.notifications.NotificationScheduler
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
@@ -83,13 +83,7 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
-    var currentRoute by remember { mutableStateOf("home") }
-    var previousRoute by remember { mutableStateOf("home") }
-    var profileOriginRoute by remember { mutableStateOf("home") }
-    var isBottomBarVisible by remember { mutableStateOf(false) }
-    var selectedTransaction by remember { mutableStateOf<Transaction?>(null) }
-    var addTransactionDraftAmount by remember { mutableStateOf<String?>(null) }
-    var addTransactionDraftNote by remember { mutableStateOf<String?>(null) }
+    val navigationState = rememberMainNavigationState()
     val selectedCurrencyId = appSettings.currencyId
     val amountFormatPreferences = remember(appSettings) {
         appSettings.toAmountFormatPreferences()
@@ -180,8 +174,8 @@ fun MainScreen(
         isAppUnlocked = true
         appLockFlow = null
         if (navigateHome) {
-            currentRoute = "home"
-            isBottomBarVisible = false
+            navigationState.navigateTo(AppRoute.Home)
+            navigationState.updateBottomBarVisibility(false)
         }
         coroutineScope.launch {
             AppSettingsDataStore.updateAppSettings(context) { settings ->
@@ -196,7 +190,7 @@ fun MainScreen(
     val completeUnlock: () -> Unit = {
         isAppUnlocked = true
         appLockFlow = null
-        isBottomBarVisible = false
+        navigationState.updateBottomBarVisibility(false)
         val unlockedAtMillis = AppLockPreferences.markUnlockedInMemory()
         appLockState = AppLockPreferences.getCachedState()
         coroutineScope.launch(Dispatchers.IO) {
@@ -281,8 +275,8 @@ fun MainScreen(
     if (showOnboarding) {
         OnboardingScreen(
             onFinish = {
-                currentRoute = "home"
-                isBottomBarVisible = false
+                navigationState.navigateTo(AppRoute.Home)
+                navigationState.updateBottomBarVisibility(false)
                 coroutineScope.launch {
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(
@@ -296,9 +290,9 @@ fun MainScreen(
     }
 
     LaunchedEffect(initialNavDestination) {
-        if (initialNavDestination == NotificationHelper.DESTINATION_ADD_TRANSACTION) {
-            currentRoute = "add_transaction"
-            isBottomBarVisible = false
+        if (AppRoute.fromRoute(initialNavDestination) == AppRoute.AddTransaction) {
+            navigationState.navigateTo(AppRoute.AddTransaction)
+            navigationState.updateBottomBarVisibility(false)
         }
     }
 
@@ -341,24 +335,24 @@ fun MainScreen(
     val mainViewModel: MainViewModel = viewModel()
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(currentRoute) {
+    LaunchedEffect(navigationState.currentRoute) {
         mainViewModel.setTransactionObservationEnabled(
-            currentRoute in routesKeepingTransactionsWarm
+            navigationState.currentRoute in routesKeepingTransactionsWarm
         )
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MainScaffold(
-            currentRoute = currentRoute,
-            previousRoute = previousRoute,
-            profileOriginRoute = profileOriginRoute,
-            isBottomBarVisible = isBottomBarVisible,
+            currentRoute = navigationState.currentRoute,
+            previousRoute = navigationState.previousRoute,
+            profileOriginRoute = navigationState.profileOriginRoute,
+            isBottomBarVisible = navigationState.isBottomBarVisible,
             transactions = mainUiState.transactions,
             transactionCount = mainUiState.transactionCount,
             recurringRules = mainUiState.recurringRules,
-            selectedTransaction = selectedTransaction,
-            addTransactionDraftAmount = addTransactionDraftAmount,
-            addTransactionDraftNote = addTransactionDraftNote,
+            selectedTransaction = navigationState.selectedTransaction,
+            addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
+            addTransactionDraftNote = navigationState.addTransactionDraftNote,
             categories = mainUiState.categories,
             paymentMethods = mainUiState.paymentMethods,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
@@ -378,17 +372,12 @@ fun MainScreen(
             autoLockDurationMinutes = autoLockDurationMinutes,
             isAutoBackupEnabled = isAutoBackupEnabled,
             autoBackupFrequencyDays = autoBackupFrequencyDays,
-            onRouteChange = { route ->
-                if (route == "add_transaction" && currentRoute != "itemized_calculator") {
-                    previousRoute = currentRoute
-                }
-                currentRoute = route
-            },
-            onProfileOriginRouteChange = { profileOriginRoute = it },
-            onBottomBarVisibilityChange = { isBottomBarVisible = it },
-            onSelectedTransactionChange = { selectedTransaction = it },
-            onAddTransactionDraftAmountChange = { addTransactionDraftAmount = it },
-            onAddTransactionDraftNoteChange = { addTransactionDraftNote = it },
+            onRouteChange = navigationState::navigateTo,
+            onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
+            onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
+            onSelectedTransactionChange = navigationState::updateSelectedTransaction,
+            onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
+            onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
             onSaveTransaction = mainViewModel::saveTransaction,
             onDeleteTransaction = mainViewModel::deleteTransaction,
             onDeleteRecurring = mainViewModel::deleteRecurring,
@@ -447,9 +436,7 @@ fun MainScreen(
                 mainViewModel.restoreDatabase(
                     uri = uri,
                     onComplete = {
-                        selectedTransaction = null
-                        addTransactionDraftAmount = null
-                        addTransactionDraftNote = null
+                        navigationState.clearTransactionDraftContext()
                         showToast("Database restored. Reloading app.")
                         activity?.recreate()
                     },
@@ -500,9 +487,7 @@ fun MainScreen(
             onDeleteAllTransactionsClick = {
                 mainViewModel.deleteAllTransactions(
                     onComplete = {
-                        selectedTransaction = null
-                        addTransactionDraftAmount = null
-                        addTransactionDraftNote = null
+                        navigationState.clearTransactionDraftContext()
                         showToast("All transactions deleted.")
                     },
                     onError = {

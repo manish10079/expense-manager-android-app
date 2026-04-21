@@ -5,27 +5,26 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.togetherWith
-import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 
 val primaryNavigationRoutes = setOf(
-    "home",
-    "analytics",
-    "budget",
-    "calendar",
-    "transactions"
+    AppRoute.Home,
+    AppRoute.Analytics,
+    AppRoute.Budget,
+    AppRoute.Calendar,
+    AppRoute.Transactions
 )
 
 val bottomTabRoutes = bottomNavBarItems.map { it.route }
 
 val routesRequiringFullTransactions = setOf(
-    "analytics",
-    "budget",
-    "calendar",
-    "transactions",
-    "add_transaction"
+    AppRoute.Analytics,
+    AppRoute.Budget,
+    AppRoute.Calendar,
+    AppRoute.Transactions,
+    AppRoute.AddTransaction
 )
 
-val routesKeepingTransactionsWarm = routesRequiringFullTransactions + "home"
+val routesKeepingTransactionsWarm = routesRequiringFullTransactions + AppRoute.Home
 
 enum class AppLockFlow {
     Setup,
@@ -33,33 +32,33 @@ enum class AppLockFlow {
 }
 
 fun resolveBackNavigationRoute(
-    currentRoute: String,
-    profileOriginRoute: String,
-    previousRoute: String
-): String? {
+    currentRoute: AppRoute,
+    profileOriginRoute: AppRoute,
+    previousRoute: AppRoute
+): AppRoute? {
     return when (currentRoute) {
-        "analytics",
-        "budget",
-        "calendar",
-        "transactions",
-        "settings" -> "home"
-        "preferences",
-        "security_privacy",
-        "transaction_card_customize",
-        "category_management",
-        "data_management",
-        "about",
-        "notification_settings" -> "settings"
-        "profile" -> profileOriginRoute
-        "add_transaction" -> previousRoute
-        "itemized_calculator" -> "add_transaction"
+        AppRoute.Analytics,
+        AppRoute.Budget,
+        AppRoute.Calendar,
+        AppRoute.Transactions,
+        AppRoute.Settings -> AppRoute.Home
+        AppRoute.Preferences,
+        AppRoute.SecurityPrivacy,
+        AppRoute.TransactionCardCustomize,
+        AppRoute.CategoryManagement,
+        AppRoute.DataManagement,
+        AppRoute.About,
+        AppRoute.NotificationSettings -> AppRoute.Settings
+        AppRoute.Profile -> profileOriginRoute
+        AppRoute.AddTransaction -> previousRoute
+        AppRoute.ItemizedCalculator -> AppRoute.AddTransaction
         else -> null
     }
 }
 
-fun screenTransition(fromRoute: String, toRoute: String): ContentTransform {
+fun screenTransition(fromRoute: AppRoute, toRoute: AppRoute): ContentTransform {
     val duration = 300
-    
+
     return fadeIn(animationSpec = tween(duration)) togetherWith
         fadeOut(animationSpec = tween(duration))
 }

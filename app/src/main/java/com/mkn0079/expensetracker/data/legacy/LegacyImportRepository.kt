@@ -8,6 +8,8 @@ import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mkn0079.expensetracker.data.local.room.entities.TransactionEntity
+import com.mkn0079.expensetracker.domain.repository.LegacyImportRepository as DomainLegacyImportRepository
+import com.mkn0079.expensetracker.domain.repository.LegacyImportResult
 import com.mkn0079.expensetracker.models.SyncState
 import org.json.JSONObject
 import java.math.BigDecimal
@@ -19,20 +21,14 @@ private const val FALLBACK_INCOME_CATEGORY_ID = 105
 private const val FALLBACK_EXPENSE_CATEGORY_ID = 23
 private const val FALLBACK_PAYMENT_METHOD_ID = 5
 
-data class LegacyImportResult(
-    val totalTransactions: Int,
-    val importedTransactions: Int,
-    val skippedTransactions: Int
-)
-
 class LegacyImportRepository(
     private val context: Context
-) {
+) : DomainLegacyImportRepository {
     private val appContext = context.applicationContext
     private val database = ExpenseTrackerDatabase.getInstance(appContext)
     private val transactionDao = database.transactionDao()
 
-    suspend fun importBackup(uri: Uri): LegacyImportResult {
+    override suspend fun importBackup(uri: Uri): LegacyImportResult {
         ExpenseTrackerDatabaseInitializer.initialize(appContext)
 
         val backupJson = appContext.contentResolver.openInputStream(uri)

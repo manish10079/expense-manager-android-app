@@ -1,17 +1,12 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import android.app.Application
-import android.content.Context
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
-import com.mkn0079.expensetracker.data.repository.TransactionRepository
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
+import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
@@ -21,12 +16,14 @@ import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import com.mkn0079.expensetracker.utils.toMajorUnits
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @Immutable
 data class HomeScreenUiState(
@@ -50,10 +47,11 @@ private data class HomeInputState(
 
 private const val HOME_RECENT_TRANSACTION_LIMIT = 10
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val transactionRepository: TransactionRepository
+) : ViewModel() {
 
-    private val transactionRepository: TransactionRepository =
-        ExpenseTrackerRepositoryProvider.transactionRepository(application.applicationContext)
     private val inputState = MutableStateFlow(HomeInputState())
 
     private val _uiState = MutableStateFlow(HomeScreenUiState())
@@ -126,19 +124,5 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 customizationSettings = customizationSettings
             )
         }
-    }
-}
-
-class HomeViewModelFactory(
-    private val context: Context
-) : ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            val application = context.applicationContext as Application
-            @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

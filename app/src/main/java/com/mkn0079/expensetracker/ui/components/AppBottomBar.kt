@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.BottomNavBarItem
 import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -52,8 +53,8 @@ private val BottomBarBottomPadding = 0.dp
 
 @Composable
 fun AppBottomBar(
-    currentRoute: String?,
-    onItemClick: (String) -> Unit,
+    currentRoute: AppRoute?,
+    onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -140,8 +141,8 @@ fun AppBottomBar(
 @Composable
 private fun NavItemGroup(
     items: List<BottomNavBarItem>,
-    currentRoute: String?,
-    onItemClick: (String) -> Unit,
+    currentRoute: AppRoute?,
+    onItemClick: (AppRoute) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -240,7 +241,7 @@ private fun AppBottomBarPreview() {
                 .padding(vertical = 24.dp)
         ) {
             AppBottomBar(
-                currentRoute = "budget",
+                currentRoute = AppRoute.Budget,
                 onItemClick = {},
                 onAddClick = {},
                 modifier = Modifier.align(Alignment.BottomCenter)

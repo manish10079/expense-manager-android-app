@@ -1,22 +1,22 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
-import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import com.mkn0079.expensetracker.domain.repository.TransactionRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class InitTask(val label: String, val progress: Int) {
     object Start : InitTask("Initializing", 0)
@@ -29,7 +29,11 @@ sealed class InitTask(val label: String, val progress: Int) {
     object Complete : InitTask("Done", 100)
 }
 
-class SplashViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SplashViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
+    private val transactionRepository: TransactionRepository
+) : ViewModel() {
 
     private val _currentTask = MutableStateFlow<InitTask>(InitTask.Start)
     val currentTask: StateFlow<InitTask> = _currentTask.asStateFlow()
@@ -46,7 +50,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     private fun startInitialization() {
         viewModelScope.launch {
             val startTime = System.currentTimeMillis()
-            val context = getApplication<Application>().applicationContext
+            val context = appContext
 
             try {
                 // Core Preferences
@@ -69,8 +73,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
 
                 _currentTask.value = InitTask.WarmUp
                 // Perform a warm-up fetch to ensure Room caches are ready
-                val transactionRepo = ExpenseTrackerRepositoryProvider.transactionRepository(context)
-                transactionRepo.observeActiveTransactionCount().first() 
+                transactionRepository.observeActiveTransactionCount().first()
                 delay(300)
 
                 _currentTask.value = InitTask.Finalize

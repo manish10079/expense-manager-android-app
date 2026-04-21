@@ -1,14 +1,13 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import android.app.Application
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.currencyMap
-import com.mkn0079.expensetracker.data.repository.ExpenseTrackerRepositoryProvider
+import com.mkn0079.expensetracker.domain.repository.AppPreferencesRepository
 import com.mkn0079.expensetracker.domain.usecase.GetAppPreferencesUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateCurrencyDecimalPlacesUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateCurrencyGroupingStyleUseCase
@@ -17,6 +16,7 @@ import com.mkn0079.expensetracker.domain.usecase.UpdateDateFormatUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateTimeFormatUseCase
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mkn0079.expensetracker.utils.formatNumberValue
 import com.mkn0079.expensetracker.utils.getDateFormatPreviewLabel
 import com.mkn0079.expensetracker.utils.getTimeFormatPreviewLabel
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 enum class PreferencesSheetType {
     Currency,
@@ -67,10 +68,11 @@ data class PreferencesScreenUiState(
     val activeSheet: PreferencesSheetType? = null
 )
 
-class PreferencesViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PreferencesViewModel @Inject constructor(
+    repository: AppPreferencesRepository
+) : ViewModel() {
 
-    private val repository = ExpenseTrackerRepositoryProvider
-        .appPreferencesRepository(application.applicationContext)
     private val getAppPreferences = GetAppPreferencesUseCase(repository)
     private val updateCurrency = UpdateCurrencyUseCase(repository)
     private val updateDateFormat = UpdateDateFormatUseCase(repository)

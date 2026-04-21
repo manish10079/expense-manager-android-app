@@ -63,7 +63,6 @@ import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
-import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModelFactory
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -81,10 +80,7 @@ fun HomeScreen(
     onSettingsClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {}
 ) {
-    val appContext = LocalContext.current.applicationContext
-    val homeViewModel: HomeViewModel = viewModel(
-        factory = HomeViewModelFactory(appContext)
-    )
+    val homeViewModel: HomeViewModel = viewModel()
     androidx.compose.runtime.LaunchedEffect(
         userProfile,
         currencyId,

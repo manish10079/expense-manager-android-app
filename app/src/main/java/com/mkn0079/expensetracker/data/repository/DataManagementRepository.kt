@@ -13,6 +13,9 @@ import com.mkn0079.expensetracker.data.local.room.entities.CategoryEntity
 import com.mkn0079.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mkn0079.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mkn0079.expensetracker.data.local.room.entities.TransactionEntity
+import com.mkn0079.expensetracker.domain.repository.DataManagementRepository as DomainDataManagementRepository
+import com.mkn0079.expensetracker.domain.repository.JsonExportResult
+import com.mkn0079.expensetracker.domain.repository.JsonImportResult
 import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.SyncState
 import org.json.JSONArray
@@ -23,33 +26,12 @@ import java.util.UUID
 
 private const val JSON_SCHEMA_VERSION = 1
 
-data class JsonExportResult(
-    val exportedTransactions: Int,
-    val exportedBudgets: Int,
-    val exportedRecurringRules: Int,
-    val exportedCategories: Int,
-    val exportedPaymentMethods: Int
-)
-
-data class JsonImportResult(
-    val importedTransactions: Int,
-    val skippedTransactions: Int,
-    val importedBudgets: Int,
-    val skippedBudgets: Int,
-    val importedRecurringRules: Int,
-    val skippedRecurringRules: Int,
-    val importedCategories: Int,
-    val skippedCategories: Int,
-    val importedPaymentMethods: Int,
-    val skippedPaymentMethods: Int
-)
-
 class DataManagementRepository(
     context: Context
-) {
+) : DomainDataManagementRepository {
     private val appContext = context.applicationContext
 
-    suspend fun backupDatabase(uri: Uri) {
+    override suspend fun backupDatabase(uri: Uri) {
         val database = ExpenseTrackerDatabase.getInstance(appContext)
         database.query(SimpleSQLiteQuery("PRAGMA wal_checkpoint(TRUNCATE)")).close()
         copyFileToUri(
@@ -58,7 +40,7 @@ class DataManagementRepository(
         )
     }
 
-    suspend fun restoreDatabase(uri: Uri) {
+    override suspend fun restoreDatabase(uri: Uri) {
         val tempBackupFile = copyUriToTempFile(uri, suffix = ".db")
         val databaseFile = ExpenseTrackerDatabase.databaseFile(appContext)
         val parentDirectory = databaseFile.parentFile
@@ -68,7 +50,6 @@ class DataManagementRepository(
         }
 
         ExpenseTrackerDatabase.closeInstance()
-        ExpenseTrackerRepositoryProvider.reset()
         deleteDatabaseSidecars()
 
         tempBackupFile.inputStream().use { input ->
@@ -81,7 +62,7 @@ class DataManagementRepository(
         tempBackupFile.delete()
     }
 
-    suspend fun exportJson(uri: Uri): JsonExportResult {
+    override suspend fun exportJson(uri: Uri): JsonExportResult {
         val database = ExpenseTrackerDatabase.getInstance(appContext)
 
         val categories = database.categoryDao().getActiveCategories()
@@ -124,7 +105,7 @@ class DataManagementRepository(
         )
     }
 
-    suspend fun importJson(uri: Uri): JsonImportResult {
+    override suspend fun importJson(uri: Uri): JsonImportResult {
         ExpenseTrackerDatabaseInitializer.initialize(appContext)
 
         val json = appContext.contentResolver.openInputStream(uri)
