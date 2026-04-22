@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.Wallet
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -65,12 +66,16 @@ import com.mkn0079.expensetracker.utils.formatAmount
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.formatTime
 import com.mkn0079.expensetracker.utils.getPaymentTypeName
+import com.mkn0079.expensetracker.ui.components.GatedAction
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 
 private data class TransactionCardToggleItem(
     val title: String,
     val subtitle: String,
     val icon: ImageVector,
     val checked: Boolean,
+    val optionId: String,
     val onCheckedChange: (Boolean) -> Unit
 )
 
@@ -103,6 +108,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Income/Expense labels",
                 subtitle = "Toggle visibility of transaction tags",
                 icon = Icons.Outlined.Style,
+                optionId = "showIncomeExpenseLabels",
                 checked = localSettings.showIncomeExpenseLabels,
                 onCheckedChange = { localSettings = localSettings.copy(showIncomeExpenseLabels = it) }
             ),
@@ -110,6 +116,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Show Transaction Date",
                 subtitle = "Display the transaction date",
                 icon = Icons.Outlined.DateRange,
+                optionId = "showTransactionDate",
                 checked = localSettings.showTransactionDate,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
             ),
@@ -117,6 +124,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Show Payment Method",
                 subtitle = "Display wallet or card used",
                 icon = Icons.Outlined.Wallet,
+                optionId = "showPaymentMethod",
                 checked = localSettings.showPaymentMethod,
                 onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
             ),
@@ -124,6 +132,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Show Transaction Time",
                 subtitle = "Exact timestamp visibility",
                 icon = Icons.Outlined.Schedule,
+                optionId = "showTransactionTime",
                 checked = localSettings.showTransactionTime,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
             ),
@@ -131,6 +140,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Show Category Icon",
                 subtitle = "Visual category indicators",
                 icon = Icons.Outlined.Paid,
+                optionId = "showCategoryIcon",
                 checked = localSettings.showCategoryIcon,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
             ),
@@ -138,6 +148,7 @@ fun TransactionCardCustomizeScreen(
                 title = "Show Date Separators",
                 subtitle = "Group transactions by day",
                 icon = Icons.Outlined.DateRange,
+                optionId = "showDateSeparators",
                 checked = localSettings.showDateSeparators,
                 onCheckedChange = { localSettings = localSettings.copy(showDateSeparators = it) }
             )
@@ -274,7 +285,18 @@ fun TransactionCardCustomizeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 toggleItems.forEach { item ->
-                    TransactionCardToggleRow(item = item)
+                    GatedAction(
+                        feature = Feature.CARD_CUSTOMIZATION,
+                        optionId = item.optionId,
+                        displayName = item.title,
+                        onAction = { item.onCheckedChange(!item.checked) }
+                    ) { status, onClick ->
+                        TransactionCardToggleRow(
+                            item = item,
+                            isLocked = status !is AccessStatus.Granted,
+                            onClick = onClick
+                        )
+                    }
                 }
             }
         }
@@ -283,13 +305,16 @@ fun TransactionCardCustomizeScreen(
 
 @Composable
 private fun TransactionCardToggleRow(
-    item: TransactionCardToggleItem
+    item: TransactionCardToggleItem,
+    isLocked: Boolean,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(Color(0xFF232223))
+            .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -301,9 +326,9 @@ private fun TransactionCardToggleRow(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = item.icon,
+                imageVector = if (isLocked) Icons.Filled.Lock else item.icon,
                 contentDescription = item.title,
-                tint = Color(0xFFD9CEF7),
+                tint = if (isLocked) Color(0xFFFFB74D) else Color(0xFFD9CEF7),
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -334,7 +359,8 @@ private fun TransactionCardToggleRow(
 
         Switch(
             checked = item.checked,
-            onCheckedChange = item.onCheckedChange,
+            onCheckedChange = { onClick() },
+            enabled = !isLocked,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color(0xFF24114C),
                 checkedTrackColor = PurpleAccent,

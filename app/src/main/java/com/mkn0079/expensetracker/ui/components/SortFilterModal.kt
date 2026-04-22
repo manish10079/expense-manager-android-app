@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
@@ -67,6 +69,8 @@ import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getDefaultOrder
 import com.mkn0079.expensetracker.utils.getOrderOptions
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 
 const val FILTER_DATE_LAST_7_DAYS = "Last 7 Days"
 const val FILTER_DATE_LAST_15_DAYS = "Last 15 Days"
@@ -294,42 +298,90 @@ fun FilterBottomSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroupLabel(
-                    title = when {
-                        selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "All Categories"
-                        selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) -> "Expense Categories"
-                        selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "Income Categories"
-                        else -> "Categories"
-                    }
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    availableCategories.forEach { category ->
-                        FilterOptionChip(
-                            title = category.name,
-                            icon = category.icon,
-                            selected = selectedCategoryIds.contains(category.id),
-                            onClick = { onCategoryToggle(category.id) }
-                        )
+                GatedAction(
+                    feature = Feature.ADVANCED_SEARCH_SCOPE,
+                    displayName = "Filter by Category",
+                    onAction = { /* Handle inside content via onClick */ }
+                ) { status, onClick ->
+                    val isLocked = status !is AccessStatus.Granted
+                    
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FilterGroupLabel(
+                                title = when {
+                                    selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "All Categories"
+                                    selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) -> "Expense Categories"
+                                    selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "Income Categories"
+                                    else -> "Categories"
+                                }
+                            )
+                            if (isLocked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Filled.Lock,
+                                    contentDescription = "Locked",
+                                    tint = Color(0xFFFFB74D),
+                                    modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                                )
+                            }
+                        }
+                        
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            availableCategories.forEach { category ->
+                                FilterOptionChip(
+                                    title = category.name,
+                                    icon = category.icon,
+                                    selected = selectedCategoryIds.contains(category.id),
+                                    onClick = { 
+                                        if (isLocked) onClick() else onCategoryToggle(category.id)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroupLabel(title = "Payment Mode")
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    paymentModes.forEach { paymentType ->
-                        FilterOptionChip(
-                            title = paymentType.name,
-                            icon = paymentType.icon,
-                            selected = selectedPaymentTypeIds.contains(paymentType.id),
-                            onClick = { onPaymentModeToggle(paymentType.id) }
-                        )
+                GatedAction(
+                    feature = Feature.ADVANCED_SEARCH_SCOPE,
+                    displayName = "Filter by Wallet/Payment Mode",
+                    onAction = { /* Handle inside content */ }
+                ) { status, onClick ->
+                    val isLocked = status !is AccessStatus.Granted
+                    
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FilterGroupLabel(title = "Payment Mode")
+                            if (isLocked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Filled.Lock,
+                                    contentDescription = "Locked",
+                                    tint = Color(0xFFFFB74D),
+                                    modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                                )
+                            }
+                        }
+                        
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            paymentModes.forEach { paymentType ->
+                                FilterOptionChip(
+                                    title = paymentType.name,
+                                    icon = paymentType.icon,
+                                    selected = selectedPaymentTypeIds.contains(paymentType.id),
+                                    onClick = { 
+                                        if (isLocked) onClick() else onPaymentModeToggle(paymentType.id)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
 

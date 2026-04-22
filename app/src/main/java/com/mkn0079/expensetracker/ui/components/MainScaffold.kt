@@ -159,7 +159,8 @@ fun MainScaffold(
             transactionCount = transactionCount,
             autoLockDurationMinutes = autoLockDurationMinutes,
             userProfile = userProfile,
-            transactionCardCustomizationSettings = transactionCardCustomizationSettings
+            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+            paymentMethods = paymentMethods
         )
 
         AppNavigationHost(
@@ -257,7 +258,8 @@ private fun BoxScope.PreloadSecondaryScreenData(
     transactionCount: Int,
     autoLockDurationMinutes: Int,
     userProfile: UserProfile,
-    transactionCardCustomizationSettings: TransactionCardCustomizationSettings
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
+    paymentMethods: List<PaymentType>
 ) {
     val homeViewModel: HomeViewModel = viewModel()
     val transactionsViewModel: TransactionsViewModel = viewModel()
@@ -276,7 +278,8 @@ private fun BoxScope.PreloadSecondaryScreenData(
         selectedTimeFormat,
         transactionCount,
         autoLockDurationMinutes,
-        transactionCardCustomizationSettings
+        transactionCardCustomizationSettings,
+        paymentMethods
     ) {
         homeViewModel.updateInputs(
             userProfile,
@@ -289,6 +292,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
         analyticsViewModel.updateInputs(
             transactions,
             categories,
+            paymentMethods,
             selectedCurrencyId,
             amountFormatPreferences
         )

@@ -6,9 +6,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,7 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,19 +55,22 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,18 +83,23 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
+import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
+import com.mkn0079.expensetracker.ui.viewmodels.PaymentTypeBreakdownUi
 import com.mkn0079.expensetracker.ui.viewmodels.TopSpendingItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.buildCustomRangeHeadline
 import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
@@ -105,16 +116,20 @@ fun AnalyticsScreen(
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     transactions: List<Transaction> = transactionList,
     categories: List<CategoryType> = emptyList(),
+    paymentMethods: List<PaymentType> = emptyList(),
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = viewModel()
 ) {
     var isCustomRangePickerVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var isPaymentSheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var isTopSpendingSheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
 
-    LaunchedEffect(transactions, categories, currencyId, amountFormatPreferences) {
+    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
             categories = categories,
+            paymentTypes = paymentMethods,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences
         )
@@ -148,7 +163,12 @@ fun AnalyticsScreen(
             item {
                 PeriodTabs(
                     selectedPeriod = uiState.selectedPeriod,
-                    onPeriodSelected = analyticsViewModel::selectPeriod
+                    onPeriodSelected = { period ->
+                        if (period == AnalyticsPeriod.YEAR) {
+                            // Handled via GatedAction wrapper in PeriodTabs or here
+                        }
+                        analyticsViewModel.selectPeriod(period)
+                    }
                 )
             }
             item {
@@ -165,13 +185,93 @@ fun AnalyticsScreen(
             item { StatsRow(snapshot) }
             item { CashFlowCard(snapshot) }
             item {
-                CategoryCard(
-                    snapshot = snapshot,
-                    onViewAllClick = { isCategorySheetVisible = true }
-                )
+                GatedAction(
+                    feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+                    displayName = "Category Breakdown",
+                    onAction = {}
+                ) { status, onClick ->
+                    val isLocked = status !is AccessStatus.Granted
+                    Box {
+                        CategoryCard(
+                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            snapshot = snapshot,
+                            onViewAllClick = { isCategorySheetVisible = true }
+                        )
+                        if (isLocked) {
+                            PremiumLockedOverlay(
+                                displayText = "Unlock Breakdown",
+                                onClick = onClick
+                            )
+                        }
+                    }
+                }
             }
-            item { TopSpendingCard(topTransactions = snapshot.topTransactions) }
-            item { SmartTipCard(snapshot.smartTip) }
+            item {
+                GatedAction(
+                    feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+                    displayName = "Payment Mode Breakdown",
+                    onAction = {}
+                ) { status, onClick ->
+                    val isLocked = status !is AccessStatus.Granted
+                    Box {
+                        PaymentTypeCard(
+                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            snapshot = snapshot,
+                            onViewAllClick = { isPaymentSheetVisible = true }
+                        )
+                        if (isLocked) {
+                            PremiumLockedOverlay(
+                                displayText = "Unlock Breakdown",
+                                onClick = onClick
+                            )
+                        }
+                    }
+                }
+            }
+            item {
+                GatedAction(
+                    feature = Feature.ANALYTICS_TOP_SPENDING,
+                    displayName = "Top Spending Details",
+                    onAction = {}
+                ) { status, onClick ->
+                    Box {
+                        val isLocked = status !is AccessStatus.Granted
+                        TopSpendingCard(
+                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            topTransactions = snapshot.topTransactions,
+                            onViewAllClick = { isTopSpendingSheetVisible = true }
+                        )
+                        if (isLocked) {
+                            PremiumLockedOverlay(
+                                displayText = "Unlock Top Spending",
+                                onClick = onClick
+                            )
+                        }
+                    }
+                }
+            }
+            item {
+                GatedAction(
+                    feature = Feature.ANALYTICS_SMART_TIPS,
+                    displayName = "Spending Insights",
+                    onAction = {}
+                ) { status, onClick ->
+                    Box {
+                        val isLocked = status !is AccessStatus.Granted
+                        SmartTipCard(
+                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            tip = snapshot.smartTip
+                        )
+                        if (isLocked) {
+                            PremiumLockedOverlay(
+                                displayText = "Unlock Insights",
+                                icon = Icons.Filled.AutoAwesome,
+                                onClick = onClick
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -192,9 +292,49 @@ fun AnalyticsScreen(
     }
 
     if (isCategorySheetVisible) {
-        CategoryBreakdownBottomSheet(
-            categories = snapshot.allCategoryBreakdown,
-            onDismiss = { isCategorySheetVisible = false }
+        GatedAction(
+            feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+            displayName = "Full Category Breakdown",
+            onAction = { isCategorySheetVisible = true }
+        ) { status, onClick ->
+            if (status is AccessStatus.Granted) {
+                CategoryBreakdownBottomSheet(
+                    categories = snapshot.allCategoryBreakdown,
+                    onDismiss = { isCategorySheetVisible = false }
+                )
+            } else {
+                LaunchedEffect(Unit) { 
+                    isCategorySheetVisible = false
+                    onClick()
+                }
+            }
+        }
+    }
+
+    if (isPaymentSheetVisible) {
+        GatedAction(
+            feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+            displayName = "Full Payment Breakdown",
+            onAction = { isPaymentSheetVisible = true }
+        ) { status, onClick ->
+            if (status is AccessStatus.Granted) {
+                PaymentTypeBreakdownBottomSheet(
+                    categories = snapshot.allPaymentTypeBreakdown,
+                    onDismiss = { isPaymentSheetVisible = false }
+                )
+            } else {
+                LaunchedEffect(Unit) { 
+                    isPaymentSheetVisible = false
+                    onClick()
+                }
+            }
+        }
+    }
+
+    if (isTopSpendingSheetVisible) {
+        TopSpendingBottomSheet(
+            transactions = snapshot.allTopTransactions,
+            onDismiss = { isTopSpendingSheetVisible = false }
         )
     }
 }
@@ -258,29 +398,75 @@ private fun PeriodTabs(
         ) {
             periods.forEach { period ->
                 val selected = period == selectedPeriod
-                val animatedColor by animateColorAsState(
-                    targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
-                    label = "period_text_color"
-                )
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(20.dp))
-                        .clickable { onPeriodSelected(period) }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = period.label,
-                        color = animatedColor,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        ),
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                
+                if (period == AnalyticsPeriod.YEAR) {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_PERIOD_YEAR,
+                        displayName = "Yearly Analytics",
+                        onAction = { onPeriodSelected(period) }
+                    ) { status, onClick ->
+                        val isLocked = status !is AccessStatus.Granted
+                        PeriodTabItem(
+                            period = period,
+                            selected = selected,
+                            isLocked = isLocked,
+                            onClick = { if (isLocked) onClick() else onPeriodSelected(period) }
+                        )
+                    }
+                } else {
+                    PeriodTabItem(
+                        period = period,
+                        selected = selected,
+                        isLocked = false,
+                        onClick = { onPeriodSelected(period) }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.PeriodTabItem(
+    period: AnalyticsPeriod,
+    selected: Boolean,
+    isLocked: Boolean,
+    onClick: () -> Unit
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = when {
+            selected -> Color(0xFF24114C)
+            isLocked -> Color(0xFF7B748A)
+            else -> Color(0xFFD9D0E8)
+        },
+        label = "period_text_color"
+    )
+
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = period.label,
+                color = animatedColor,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                ),
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            if (isLocked) {
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "Locked",
+                    tint = animatedColor,
+                    modifier = Modifier.size(12.dp)
+                )
             }
         }
     }
@@ -321,24 +507,33 @@ private fun CustomRangeSelector(
                     },
                     shape = RoundedCornerShape(18.dp)
                 )
-                .clickable(onClick = onClick)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Custom range",
-                    tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else PurpleAccent,
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = customRange?.let { formatCustomRangeLabel(it) } ?: "Custom Range",
-                    color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
-                )
+            GatedAction(
+                feature = Feature.ANALYTICS_CUSTOM_RANGE,
+                displayName = "Custom Range Analytics",
+                onAction = onClick
+            ) { status, gatedOnClick ->
+                val isLocked = status !is AccessStatus.Granted
+                
+                Row(
+                    modifier = Modifier
+                        .clickable { if (isLocked) gatedOnClick() else onClick() }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DateRange,
+                        contentDescription = "Custom range",
+                        tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else PurpleAccent,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = customRange?.let { formatCustomRangeLabel(it) } ?: "Custom Range",
+                        color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+                    )
+                }
             }
         }
 
@@ -639,10 +834,15 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
 
 @Composable
 private fun CategoryCard(
+    modifier: Modifier = Modifier,
     snapshot: AnalyticsSnapshotUi,
     onViewAllClick: () -> Unit
 ) {
-    Surface(shape = RoundedCornerShape(30.dp), color = Color(0xFF1C1B1E)) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFF1C1B1E)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -654,20 +854,34 @@ private fun CategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Spending by Category",
+                    text = "Top Spending by\nCategory",
                     color = Color(0xFFF0EBF8),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 28.sp
+                    )
                 )
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
-                    Text(
-                        text = "VIEW ALL",
-                        color = PurpleAccent,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.4.sp
-                        ),
-                        modifier = Modifier.clickable(onClick = onViewAllClick)
-                    )
+                    Row(
+                        modifier = Modifier.clickable(onClick = onViewAllClick),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "VIEW ALL",
+                            color = PurpleAccent,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.4.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = "Ad Supported",
+                            tint = PurpleAccent,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
@@ -901,9 +1115,15 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
 
 @Composable
 private fun TopSpendingCard(
-    topTransactions: List<TopSpendingItemUi>
+    modifier: Modifier = Modifier,
+    topTransactions: List<TopSpendingItemUi>,
+    onViewAllClick: () -> Unit
 ) {
-    Surface(shape = RoundedCornerShape(30.dp), color = Color(0xFF1C1B1E)) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFF1C1B1E)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -919,14 +1139,17 @@ private fun TopSpendingCard(
                     color = Color(0xFFF0EBF8),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
-                Text(
-                    text = "VIEW ALL",
-                    color = PurpleAccent,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp
+                if (topTransactions.isNotEmpty()) {
+                    Text(
+                        text = "VIEW ALL",
+                        color = PurpleAccent,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.4.sp
+                        ),
+                        modifier = Modifier.clickable(onClick = onViewAllClick)
                     )
-                )
+                }
             }
             Spacer(modifier = Modifier.height(18.dp))
             if (topTransactions.isEmpty()) {
@@ -995,8 +1218,15 @@ private fun String.truncateWithEllipsis(maxCharacters: Int): String {
 }
 
 @Composable
-private fun SmartTipCard(tip: String) {
-    Surface(shape = RoundedCornerShape(30.dp), color = Color(0xFF161518)) {
+private fun SmartTipCard(
+    modifier: Modifier = Modifier,
+    tip: String
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFF161518)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1061,6 +1291,405 @@ private fun SparkleCluster() {
         }
         path.close()
         drawPath(path, color = Color(0xFF2E2737))
+    }
+}
+
+@Composable
+private fun PaymentTypeCard(
+    modifier: Modifier = Modifier,
+    snapshot: AnalyticsSnapshotUi,
+    onViewAllClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFF1C1B1E)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(22.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Top Spending by\nPayment Mode",
+                    color = Color(0xFFF0EBF8),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 28.sp
+                    )
+                )
+                if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.clickable(onClick = onViewAllClick),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "VIEW ALL",
+                            color = PurpleAccent,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.4.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = "Ad Supported",
+                            tint = PurpleAccent,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(18.dp))
+            PaymentDonutChart(snapshot.paymentTypeBreakdown, modifier = Modifier.align(Alignment.CenterHorizontally))
+            Spacer(modifier = Modifier.height(20.dp))
+            if (snapshot.paymentTypeBreakdown.isEmpty()) {
+                Text(
+                    text = "No payment data found in this range.",
+                    color = Color(0xFFA49CB4),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    snapshot.paymentTypeBreakdown.forEach { item ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(item.color)
+                                )
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = null,
+                                    tint = Color(0xFFA49CB4),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = item.label,
+                                    color = Color(0xFFD7D2E1),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                            Text(
+                                text = "${item.percentLabel}%",
+                                color = Color(0xFFF0EBF8),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = 18.dp.toPx()
+            var startAngle = -180f
+            val gap = 5f
+            drawArc(
+                color = Color(0xFF302E33),
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                style = Stroke(width = strokeWidth)
+            )
+            breakdown.forEach { segment ->
+                val sweep = (segment.fraction * 360f) - gap
+                drawArc(
+                    color = segment.color,
+                    startAngle = startAngle,
+                    sweepAngle = sweep,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                )
+                startAngle += sweep + gap
+            }
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                imageVector = breakdown.firstOrNull()?.icon ?: Icons.Filled.Wallet,
+                contentDescription = null,
+                tint = Color(0xFFF0EBF8),
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = breakdown.firstOrNull()?.label ?: "N/A",
+                color = Color(0xFFA49CB4),
+                style = MaterialTheme.typography.labelSmall,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PaymentTypeBreakdownBottomSheet(
+    categories: List<PaymentTypeBreakdownUi>,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF17161A),
+        contentColor = Color(0xFFF0EBF8),
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp, vertical = 10.dp)
+        ) {
+            val filteredCategories = remember(categories) {
+                categories.filter { it.fraction > 0f }
+            }
+            
+            Text(
+                text = "Spending by Payment Mode",
+                color = Color(0xFFF0EBF8),
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Breakdown of expenses based on the wallet or payment method used.",
+                color = Color(0xFFA49CB4),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (filteredCategories.isEmpty()) {
+                Text(
+                    text = "No payment data found in this range.",
+                    color = Color(0xFFA49CB4),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            } else {
+                Column(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    filteredCategories.forEachIndexed { index, category ->
+                        PaymentBreakdownRow(
+                            rank = index + 1,
+                            item = category
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentBreakdownRow(
+    rank: Int,
+    item: PaymentTypeBreakdownUi
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = Color(0xFF1F1D23)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF26232C)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = rank.toString(),
+                            color = Color(0xFFD9D2E8),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                        tint = Color(0xFFA49CB4),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = item.label,
+                        color = Color(0xFFF0EBF8),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+                Text(
+                    text = "${item.percentLabel}%",
+                    color = Color(0xFFF0EBF8),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF2B2830))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(item.fraction.coerceIn(0f, 1f))
+                        .height(8.dp)
+                        .clip(CircleShape)
+                        .background(item.color)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = item.amountDisplay,
+                color = Color(0xFFA49CB4),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.PremiumLockedOverlay(
+    modifier: Modifier = Modifier,
+    displayText: String,
+    icon: ImageVector = Icons.Filled.Lock,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .matchParentSize()
+            .clip(RoundedCornerShape(30.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Black.copy(alpha = 0.45f)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.15f))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = displayText,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopSpendingBottomSheet(
+    transactions: List<TopSpendingItemUi>,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF17161A),
+        contentColor = Color(0xFFF0EBF8),
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp, vertical = 10.dp)
+        ) {
+            Text(
+                text = "Top Spending",
+                color = Color(0xFFF0EBF8),
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Your highest expenses in the selected period.",
+                color = Color(0xFFA49CB4),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (transactions.isEmpty()) {
+                Text(
+                    text = "No spending data found.",
+                    color = Color(0xFFA49CB4),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            } else {
+                Column(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    transactions.forEach { transaction ->
+                        TopSpendingRow(transaction = transaction)
+                    }
+                }
+            }
+        }
     }
 }
 

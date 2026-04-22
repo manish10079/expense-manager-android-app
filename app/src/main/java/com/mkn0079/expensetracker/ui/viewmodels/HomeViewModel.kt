@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @Immutable
@@ -35,7 +37,8 @@ data class HomeScreenUiState(
     val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
-    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    val isBalanceHidden: Boolean = false
 )
 
 private data class HomeInputState(
@@ -59,7 +62,13 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeScreenUiState())
     val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
 
+    private var smartHideJob: Job? = null
+
     init {
+        startDataObservation()
+    }
+
+    private fun startDataObservation() {
         viewModelScope.launch {
             combine(
                 transactionRepository.observeHomeSummary(),
@@ -103,7 +112,8 @@ class HomeViewModel @Inject constructor(
                             categories = inputs.categories
                         )
                     },
-                    customizationSettings = inputs.customizationSettings
+                    customizationSettings = inputs.customizationSettings,
+                    isBalanceHidden = _uiState.value.isBalanceHidden
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -128,6 +138,21 @@ class HomeViewModel @Inject constructor(
                 categories = categories,
                 customizationSettings = customizationSettings
             )
+        }
+    }
+
+    fun toggleBalanceVisibility() {
+        val newState = !_uiState.value.isBalanceHidden
+        _uiState.update { it.copy(isBalanceHidden = newState) }
+        
+        // Handle Smart Hide logic (Always active for everyone)
+        smartHideJob?.cancel()
+        if (!newState) {
+            // If we just showed the balance, start a timer to hide it again
+            smartHideJob = viewModelScope.launch {
+                delay(10000) // 10 seconds of inactivity
+                _uiState.update { it.copy(isBalanceHidden = true) }
+            }
         }
     }
 }

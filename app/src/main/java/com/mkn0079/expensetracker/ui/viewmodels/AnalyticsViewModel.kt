@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
+import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
@@ -42,6 +43,16 @@ data class CategoryBreakdownUi(
 )
 
 @Immutable
+data class PaymentTypeBreakdownUi(
+    val label: String,
+    val amountDisplay: String,
+    val fraction: Float,
+    val percentLabel: Int,
+    val color: Color,
+    val icon: ImageVector
+)
+
+@Immutable
 data class TopSpendingItemUi(
     val id: String,
     val note: String,
@@ -67,7 +78,10 @@ data class AnalyticsSnapshotUi(
     val chartLabels: List<String> = emptyList(),
     val categoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val allCategoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
+    val paymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
+    val allPaymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
     val topTransactions: List<TopSpendingItemUi> = emptyList(),
+    val allTopTransactions: List<TopSpendingItemUi> = emptyList(),
     val smartTip: String = "Pick a different range or add more transactions to unlock tailored spending insights.",
     val hasSpendingData: Boolean = false
 )
@@ -96,6 +110,7 @@ class AnalyticsViewModel : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: List<CategoryType> = emptyList()
+    private var currentPaymentTypes: List<PaymentType> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 
@@ -109,11 +124,13 @@ class AnalyticsViewModel : ViewModel() {
     fun updateInputs(
         transactions: List<Transaction>,
         categories: List<CategoryType>,
+        paymentTypes: List<PaymentType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences
     ) {
         currentTransactions = transactions
         currentCategories = categories
+        currentPaymentTypes = paymentTypes
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         rebuildUiState()
@@ -159,6 +176,7 @@ class AnalyticsViewModel : ViewModel() {
                     amountFormatPreferences = currentAmountFormatPreferences,
                     transactions = currentTransactions,
                     categories = currentCategories,
+                    paymentTypes = currentPaymentTypes,
                     customRange = customRange
                 )
             )
@@ -172,6 +190,7 @@ private fun buildAnalyticsSnapshot(
     amountFormatPreferences: AmountFormatPreferences,
     transactions: List<Transaction>,
     categories: List<CategoryType>,
+    paymentTypes: List<PaymentType>,
     customRange: LongRange? = null
 ): AnalyticsSnapshotUi {
     val latestTimestamp = transactions.maxOfOrNull { it.createdAt } ?: System.currentTimeMillis()
@@ -180,6 +199,7 @@ private fun buildAnalyticsSnapshot(
     val currentTransactions = transactions.filter { it.createdAt in range.first..range.last }
     val previousTransactions = transactions.filter { it.createdAt in previousRange.first..previousRange.last }
     val categoryMap = categories.associateBy { it.id }
+    val paymentTypeMap = paymentTypes.associateBy { it.id }
 
     val income = currentTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
     val expense = currentTransactions.filter { it.transactionTypeId == 2 }.sumOf { it.amount }
@@ -215,10 +235,52 @@ private fun buildAnalyticsSnapshot(
         )
     }
     val breakdown = allBreakdown.take(3)
-    val topTransactions = currentTransactions
+
+    val paymentColors = listOf(Color(0xFF81C784), Color(0xFF64B5F6), Color(0xFFFFD54F))
+    val paymentTotals = currentTransactions
+        .filter { it.transactionTypeId == 2 }
+        .groupBy { it.paymentTypeId }
+        .mapValues { (_, items) -> items.sumOf { it.amount } }
+        .toList()
+        .sortedByDescending { it.second }
+    
+    val allPaymentBreakdown = paymentTotals.mapIndexed { index, (paymentId, amount) ->
+        val paymentType = paymentTypeMap[paymentId]
+        PaymentTypeBreakdownUi(
+            label = paymentType?.name ?: "Wallet",
+            amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
+            fraction = (amount / totalExpenseForShare).toFloat(),
+            percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
+            color = paymentColors[index % paymentColors.size],
+            icon = paymentType?.icon ?: Icons.Filled.Analytics
+        )
+    }
+    val paymentBreakdown = allPaymentBreakdown.take(3)
+
+    val sortedTransactions = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .sortedByDescending { it.amount }
+
+    val topTransactions = sortedTransactions
         .take(3)
+        .map { transaction ->
+            val category = categoryMap[transaction.categoryId]
+            TopSpendingItemUi(
+                id = transaction.id,
+                note = transaction.note,
+                amountDisplay = formatCurrencyValue(
+                    transaction.amount,
+                    currencyId,
+                    amountFormatPreferences,
+                    prefix = "-"
+                ),
+                categoryLabel = category?.name ?: "General",
+                icon = category?.icon ?: categoryFallbackIcon
+            )
+        }
+
+    val allTopTransactions = sortedTransactions
+        .take(10)
         .map { transaction ->
             val category = categoryMap[transaction.categoryId]
             TopSpendingItemUi(
@@ -253,7 +315,10 @@ private fun buildAnalyticsSnapshot(
         chartLabels = chartBuckets.map { it.label },
         categoryBreakdown = breakdown,
         allCategoryBreakdown = allBreakdown,
+        paymentTypeBreakdown = paymentBreakdown,
+        allPaymentTypeBreakdown = allPaymentBreakdown,
         topTransactions = topTransactions,
+        allTopTransactions = allTopTransactions,
         smartTip = buildSmartTip(
             flowChange = flowChange,
             avgDailyExpense = avgDailyExpense,

@@ -38,8 +38,11 @@ import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
+import com.mkn0079.expensetracker.ui.components.GatedAction
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 
-private val presetAutoLockDurations = (5..60 step 5).toList()
+private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,20 +109,32 @@ fun SecurityPrivacyScreen(
                     enabled = isAppLockEnabled && hasAppLockPin,
                     onCheckedChange = onBiometricChange
                 )
-                SecurityToggleRow(
-                    title = "Blur In Recents",
-                    icon = Icons.Filled.Security,
-                    isChecked = isBlurInRecentsEnabled,
-                    enabled = true,
-                    onCheckedChange = onBlurInRecentsChange
-                )
-                SecurityToggleRow(
-                    title = "Block Screenshots",
-                    icon = Icons.Filled.PhotoCamera,
-                    isChecked = isScreenshotProtectionEnabled,
-                    enabled = true,
-                    onCheckedChange = onScreenshotProtectionChange
-                )
+                GatedAction(
+                    feature = Feature.PRIVACY_PROTECTION,
+                    onAction = { onBlurInRecentsChange(!isBlurInRecentsEnabled) }
+                ) { status, onClick ->
+                    SecurityToggleRow(
+                        title = "Blur In Recents",
+                        icon = Icons.Filled.Security,
+                        isChecked = isBlurInRecentsEnabled,
+                        enabled = true,
+                        isLocked = status !is AccessStatus.Granted,
+                        onCheckedChange = { onClick() }
+                    )
+                }
+                GatedAction(
+                    feature = Feature.PRIVACY_PROTECTION,
+                    onAction = { onScreenshotProtectionChange(!isScreenshotProtectionEnabled) }
+                ) { status, onClick ->
+                    SecurityToggleRow(
+                        title = "Block Screenshots",
+                        icon = Icons.Filled.PhotoCamera,
+                        isChecked = isScreenshotProtectionEnabled,
+                        enabled = true,
+                        isLocked = status !is AccessStatus.Granted,
+                        onCheckedChange = { onClick() }
+                    )
+                }
                 SecurityItemRow(
                     title = "Auto Lock Duration",
                     icon = Icons.Filled.AccessTime,
@@ -136,10 +151,7 @@ fun SecurityPrivacyScreen(
             selectedDurationMinutes = autoLockDurationMinutes,
             sheetState = autoLockDurationSheetState,
             onDismiss = { isAutoLockDurationPickerVisible = false },
-            onDurationSelected = { minutes ->
-                onAutoLockDurationChange(minutes)
-                isAutoLockDurationPickerVisible = false
-            }
+            onDurationSelected = onAutoLockDurationChange
         )
     }
 }
@@ -150,6 +162,7 @@ private fun SecurityToggleRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     isChecked: Boolean,
     enabled: Boolean,
+    isLocked: Boolean = false,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Column(
@@ -186,10 +199,19 @@ private fun SecurityToggleRow(
                 modifier = Modifier.weight(1f)
             )
 
+            if (isLocked) {
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "Locked",
+                    tint = Color(0xFFFFB74D),
+                    modifier = Modifier.size(16.dp).padding(end = 8.dp)
+                )
+            }
+
             Switch(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
-                enabled = enabled,
+                enabled = enabled && !isLocked,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color(0xFF24114C),
                     checkedTrackColor = PurpleAccent,
@@ -328,12 +350,20 @@ private fun AutoLockDurationPickerSheet(
                 items = presetAutoLockDurations,
                 key = { durationMinutes -> durationMinutes }
             ) { durationMinutes ->
-                DurationPickerRow(
-                    label = "$durationMinutes minutes",
-                    subtitle = "Require the PIN again after $durationMinutes minutes away from the app.",
-                    isSelected = selectedDurationMinutes == durationMinutes,
-                    onClick = { onDurationSelected(durationMinutes) }
-                )
+                GatedAction(
+                    feature = Feature.AUTO_LOCK_SETTING,
+                    optionId = durationMinutes.toString(),
+                    displayName = "$durationMinutes Minute Lock",
+                    onAction = { onDurationSelected(durationMinutes) }
+                ) { status, onClick ->
+                    DurationPickerRow(
+                        label = "$durationMinutes minutes",
+                        subtitle = "Require the PIN again after $durationMinutes minutes away from the app.",
+                        isSelected = selectedDurationMinutes == durationMinutes,
+                        isLocked = status !is AccessStatus.Granted,
+                        onClick = onClick
+                    )
+                }
             }
 
             item {
@@ -394,28 +424,49 @@ private fun AutoLockDurationPickerSheet(
                         )
                     )
 
-                    Button(
-                        onClick = {
+                    GatedAction(
+                        feature = Feature.AUTO_LOCK_SETTING,
+                        optionId = "custom",
+                        displayName = "Custom Auto-Lock",
+                        onAction = { 
                             val customMinutes = customMinutesInput.toIntOrNull()
-                            if (customMinutes == null || customMinutes <= 0) {
-                                customInputError = "Enter a valid duration in minutes."
-                            } else {
+                            if (customMinutes != null && customMinutes > 0) {
                                 onDurationSelected(customMinutes)
                             }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = PurpleAccent,
-                            contentColor = Color(0xFF24114C)
-                        )
-                    ) {
-                        Text(
-                            text = "Apply Custom Duration",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
+                        }
+                    ) { status, onClick ->
+                        Button(
+                            onClick = {
+                                val customMinutes = customMinutesInput.toIntOrNull()
+                                if (customMinutes == null || customMinutes <= 0) {
+                                    customInputError = "Enter a valid duration in minutes."
+                                } else {
+                                    onClick() // Triggers gate or runs onAction
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (status is AccessStatus.Granted) PurpleAccent else Color(0xFFFFB74D),
+                                contentColor = Color(0xFF24114C)
                             )
-                        )
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (status !is AccessStatus.Granted) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Lock,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp).padding(end = 8.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "Apply Custom Duration",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -432,6 +483,7 @@ private fun DurationPickerRow(
     label: String,
     subtitle: String,
     isSelected: Boolean,
+    isLocked: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
@@ -463,9 +515,9 @@ private fun DurationPickerRow(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Filled.AccessTime,
+                imageVector = if (isLocked) Icons.Filled.Lock else Icons.Filled.AccessTime,
                 contentDescription = label,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                tint = if (isSelected) PurpleAccent else if (isLocked) Color(0xFFFFB74D) else Color(0xFFF0EBF7),
                 modifier = Modifier.size(20.dp)
             )
         }

@@ -141,6 +141,10 @@ fun AppNavigationHost(
                         onSettingsClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
+                        },
+                        onTodaySpendingClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Calendar)
                         }
                     )
                 }
@@ -151,6 +155,7 @@ fun AppNavigationHost(
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,
                         categories = categories,
+                        paymentMethods = paymentMethods,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)

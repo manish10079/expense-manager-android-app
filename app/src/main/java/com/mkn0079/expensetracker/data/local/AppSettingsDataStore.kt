@@ -67,6 +67,7 @@ object AppSettingsDataStore {
         val isAutoBackupEnabled = booleanPreferencesKey("is_auto_backup_enabled")
         val autoBackupFrequencyDays = intPreferencesKey("auto_backup_frequency_days")
         val lastAutoBackupTimeMillis = longPreferencesKey("last_auto_backup_time_millis")
+        val userTier = stringPreferencesKey("user_tier")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -163,7 +164,8 @@ object AppSettingsDataStore {
             installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis,
             isAutoBackupEnabled = this[Keys.isAutoBackupEnabled] ?: defaultAppSettings.isAutoBackupEnabled,
             autoBackupFrequencyDays = this[Keys.autoBackupFrequencyDays] ?: defaultAppSettings.autoBackupFrequencyDays,
-            lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis
+            lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis,
+            userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier
         )
     }
 
@@ -206,6 +208,7 @@ object AppSettingsDataStore {
         this[Keys.isAutoBackupEnabled] = settings.isAutoBackupEnabled
         this[Keys.autoBackupFrequencyDays] = settings.autoBackupFrequencyDays
         this[Keys.lastAutoBackupTimeMillis] = settings.lastAutoBackupTimeMillis
+        this[Keys.userTier] = settings.userTier.name
     }
 
     private fun sortTypeOrDefault(value: String): SortType {
@@ -215,5 +218,10 @@ object AppSettingsDataStore {
     private fun currencyGroupingStyleOrDefault(value: String): CurrencyGroupingStyle {
         return CurrencyGroupingStyle.entries.firstOrNull { it.name == value }
             ?: defaultAppSettings.currencyGroupingStyle
+    }
+
+    private fun userTierOrDefault(value: String): com.mkn0079.expensetracker.models.UserTier {
+        return com.mkn0079.expensetracker.models.UserTier.entries.firstOrNull { it.name == value }
+            ?: defaultAppSettings.userTier
     }
 }

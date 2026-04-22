@@ -109,7 +109,8 @@ fun HomeScreen(
         onTransactionClick = onTransactionClick,
         onProfileClick = onProfileClick,
         onSettingsClick = onSettingsClick,
-        onTodaySpendingClick = onTodaySpendingClick
+        onTodaySpendingClick = onTodaySpendingClick,
+        onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility
     )
 }
 
@@ -121,7 +122,8 @@ private fun HomeScreenContent(
     onTransactionClick: (Transaction) -> Unit,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onTodaySpendingClick: () -> Unit
+    onTodaySpendingClick: () -> Unit,
+    onToggleBalanceVisibility: () -> Unit
 ) {
     val profileAvatarGradient = Brush.verticalGradient(
         colors = listOf(
@@ -194,7 +196,9 @@ private fun HomeScreenContent(
                 totalBalance = uiState.totalBalance,
                 previousMonthBalance = uiState.previousMonthBalance,
                 income = uiState.totalIncome,
-                expense = uiState.totalExpense
+                expense = uiState.totalExpense,
+                isBalanceHidden = uiState.isBalanceHidden,
+                onToggleVisibility = onToggleBalanceVisibility
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -290,7 +294,8 @@ fun HomeScreenPreview() {
             onTransactionClick = {},
             onProfileClick = {},
             onSettingsClick = {},
-            onTodaySpendingClick = {}
+            onTodaySpendingClick = {},
+            onToggleBalanceVisibility = {}
         )
     }
 }

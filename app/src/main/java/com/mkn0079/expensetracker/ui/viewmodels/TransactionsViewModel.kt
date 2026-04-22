@@ -45,6 +45,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 
 @Immutable
 data class TransactionsScreenUiState(
@@ -73,7 +77,8 @@ data class TransactionsScreenUiState(
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
@@ -110,6 +115,8 @@ class TransactionsViewModel @Inject constructor(
     private var selectedPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY
     private var focusedPeriodTimestamp: Long = latestTransactionTimestamp
 
+    private var advancedSearchGranted: Boolean = false
+
     private val _baseUiState = MutableStateFlow(
         TransactionsScreenUiState(
             focusedPeriodTimestamp = focusedPeriodTimestamp,
@@ -136,7 +143,17 @@ class TransactionsViewModel @Inject constructor(
     )
 
     init {
+        observeAdvancedSearchAccess()
         rebuildUiState()
+    }
+
+    private fun observeAdvancedSearchAccess() {
+        viewModelScope.launch {
+            observeAccessStatusUseCase(Feature.ADVANCED_SEARCH_SCOPE).collect { status ->
+                advancedSearchGranted = status is AccessStatus.Granted
+                rebuildUiState()
+            }
+        }
     }
 
     fun updateInputs(
@@ -164,6 +181,8 @@ class TransactionsViewModel @Inject constructor(
 
     fun updateSearchQuery(query: String) {
         searchQuery = query
+        // Update the state immediately for the text field to prevent cursor jumping
+        _baseUiState.update { it.copy(searchQuery = query) }
         rebuildUiState()
     }
 
@@ -335,16 +354,19 @@ class TransactionsViewModel @Inject constructor(
 
         val appliedMinAmountValue = appliedMinAmount.toDoubleOrNull()
         val appliedMaxAmountValue = appliedMaxAmount.toDoubleOrNull()
+        val categoryNames = currentCategories.associate { it.id to it.name }
         val paymentTypeNames = paymentTypeMap.mapValues { it.value.name }
         val normalizedQuery = searchQuery.trim()
 
         val filteredTransactions = sortTransactions(
             currentTransactions.filter { transaction ->
                 val paymentName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
+                val categoryName = categoryNames[transaction.categoryId].orEmpty()
                 val matchesSearchQuery = normalizedQuery.isBlank() ||
                     transaction.note.contains(normalizedQuery, ignoreCase = true) ||
                     transaction.amount.toString().contains(normalizedQuery, ignoreCase = true) ||
-                    paymentName.contains(normalizedQuery, ignoreCase = true)
+                    (advancedSearchGranted && (paymentName.contains(normalizedQuery, ignoreCase = true) ||
+                    categoryName.contains(normalizedQuery, ignoreCase = true)))
 
                 matchesSelectedPeriod(
                     transactionTimestamp = transaction.createdAt,

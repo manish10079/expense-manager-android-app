@@ -35,6 +35,7 @@ import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.InitTask
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,8 +46,11 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         
-        // Let the system splash dismiss quickly so our custom overlay can show progress
-        splashScreen.setKeepOnScreenCondition { false }
+        // Keep the system splash screen visible until our custom splash screen is ready to take over.
+        // This prevents the "flicker" or "blank frame" during the hand-off.
+        splashScreen.setKeepOnScreenCondition { 
+            splashViewModel.currentTask.value == InitTask.Start
+        }
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->

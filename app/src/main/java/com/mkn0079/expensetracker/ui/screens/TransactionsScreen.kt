@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -103,6 +104,9 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
+import com.mkn0079.expensetracker.ui.components.GatedAction
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
@@ -262,19 +266,23 @@ fun TransactionScreen(
                         title = "Transactions",
                         onBackClick = onBackClick,
                         actions = {
-                            IconButton(
-                                onClick = {
-                                    isSearchExpanded = true
-                                },
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Search,
-                                    contentDescription = "Search transactions",
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
+                            GatedAction(
+                                feature = Feature.SEARCH_TRANSACTIONS,
+                                onAction = { isSearchExpanded = true }
+                            ) { status, onClick ->
+                                IconButton(
+                                    onClick = onClick,
+                                    modifier = Modifier
+                                        .size(26.dp)
+                                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                                ) {
+                                    Icon(
+                                        imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
+                                        contentDescription = "Search transactions",
+                                        tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else Color(0xFFFFB74D),
+                                        modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
+                                    )
+                                }
                             }
 
                             Spacer(modifier = Modifier.width(30.dp))
@@ -312,7 +320,7 @@ fun TransactionScreen(
                     onValueChange = transactionsViewModel::updateSearchQuery,
                     placeholder = {
                         Text(
-                            "Search transactions",
+                            "Notes or Amount...",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -335,20 +343,39 @@ fun TransactionScreen(
                         )
                     },
                     trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                closeSearchBar(
-                                    focusManager = focusManager,
-                                    onSearchQueryChange = transactionsViewModel::updateSearchQuery,
-                                    onSearchExpandedChange = { isSearchExpanded = it }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            GatedAction(
+                                feature = Feature.ADVANCED_SEARCH_SCOPE,
+                                displayName = "Search by Category & Wallet",
+                                onAction = { /* Handled by GatedAction dialogs */ }
+                            ) { status, onClick ->
+                                if (status !is AccessStatus.Granted) {
+                                    IconButton(onClick = onClick) {
+                                        Icon(
+                                            imageVector = Icons.Default.Lock,
+                                            contentDescription = "Unlock Advanced Search",
+                                            tint = Color(0xFFFFB74D),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    closeSearchBar(
+                                        focusManager = focusManager,
+                                        onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                        onSearchExpandedChange = { isSearchExpanded = it }
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Close search",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close search",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(

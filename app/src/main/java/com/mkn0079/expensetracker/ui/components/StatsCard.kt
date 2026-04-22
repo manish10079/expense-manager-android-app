@@ -17,7 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +47,9 @@ fun TotalBalanceCard(
     totalBalance: String,
     previousMonthBalance: String = "",
     income: String,
-    expense: String
+    expense: String,
+    isBalanceHidden: Boolean = false,
+    onToggleVisibility: () -> Unit = {}
 ) {
     val cardShape = RoundedCornerShape(35.dp)
     val currentDateLabel = getCurrentDateLabel()
@@ -76,13 +81,29 @@ fun TotalBalanceCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "TOTAL BALANCE",
-                color = Color(0xFFB7B0C3),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 3.1.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "TOTAL BALANCE",
+                    color = Color(0xFFB7B0C3),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 3.1.sp
+                )
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                IconButton(
+                    onClick = onToggleVisibility,
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = if (isBalanceHidden) "Show Balance" else "Hide Balance",
+                        tint = PurpleAccent,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
 
             Text(
                 text = currentDateLabel,
@@ -95,11 +116,11 @@ fun TotalBalanceCard(
         Spacer(modifier = Modifier.height(5.dp))
 
         Text(
-            text = totalBalance,
+            text = if (isBalanceHidden) "••••••••" else totalBalance,
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 40.sp,
+                fontSize = if (isBalanceHidden) 32.sp else 40.sp,
                 lineHeight = 60.sp,
                 brush = Brush.horizontalGradient(
                     colors = listOf(
@@ -126,7 +147,7 @@ fun TotalBalanceCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = previousMonthBalance,
+                    text = if (isBalanceHidden) "••••••" else previousMonthBalance,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.3.sp,
@@ -160,7 +181,7 @@ fun TotalBalanceCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = "INCOME",
-                value = formatStatAmount(income, '+'),
+                value = if (isBalanceHidden) "••••••" else formatStatAmount(income, '+'),
                 icon = Icons.Filled.ArrowUpward,
                 iconColor = Color(0xFFF6C7A6),
                 iconAtStart = true
@@ -177,7 +198,7 @@ fun TotalBalanceCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = "EXPENSE",
-                value = formatStatAmount(expense, '-'),
+                value = if (isBalanceHidden) "••••••" else formatStatAmount(expense, '-'),
                 icon = Icons.Filled.ArrowDownward,
                 iconColor = Color(0xFFF2B9AF),
                 iconAtStart = false

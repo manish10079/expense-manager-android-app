@@ -37,6 +37,7 @@ const val DEFAULT_INSTALL_DATE_MILLIS = 0L
 const val DEFAULT_AUTO_BACKUP_ENABLED = false
 const val DEFAULT_AUTO_BACKUP_FREQUENCY_DAYS = 7
 const val DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS = 0L
+val DEFAULT_USER_TIER = com.mkn0079.expensetracker.models.UserTier.FREE
 
 val defaultAppSettings = AppSettings(
     currencyId = DEFAULT_CURRENCY_ID,
@@ -70,5 +71,6 @@ val defaultAppSettings = AppSettings(
     installDateMillis = DEFAULT_INSTALL_DATE_MILLIS,
     isAutoBackupEnabled = DEFAULT_AUTO_BACKUP_ENABLED,
     autoBackupFrequencyDays = DEFAULT_AUTO_BACKUP_FREQUENCY_DAYS,
-    lastAutoBackupTimeMillis = DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS
+    lastAutoBackupTimeMillis = DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS,
+    userTier = DEFAULT_USER_TIER
 )
