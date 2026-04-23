@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker</string>
 
     <!-- General -->
     <string name="msg_a_security_update_is_required">A security update is required before biometric unlock can be used.</string>
@@ -59,7 +58,7 @@
     <string name="label_category_name">CATEGORY NAME</string>
     <string name="label_category_type">CATEGORY TYPE</string>
     <string name="label_choose_from_all_expense_catego">Choose from all expense categories, including preloaded and custom ones.</string>
-    <string name="label_choose_how_many_decimal_places">Choose how many decimal places are shown in currency values.</string>
+    <string name="label_choose_how_large_amounts_are_g">Choose how large amounts are grouped across the app.</string>
     <string name="label_delete_all_transactions">Delete all transactions?</string>
     <string name="label_delete_budget">Delete Budget</string>
     <string name="label_delete_recurring">Delete Recurring</string>
@@ -204,6 +203,7 @@
     <string name="label_cancel_1">Cancel</string>
     <string name="label_cash_flow_ratio">Cash Flow Ratio</string>
     <string name="label_choose_from_50_icons_color_sty">Choose from 50 icons. Color styling stays automatic.</string>
+    <string name="label_choose_how_many_decimal_places">Choose how many decimal places are shown in currency values.</string>
     <string name="label_choose_month">Choose Month</string>
     <string name="label_choose_the_date_style_you_want">Choose the date style you want to see across the app.</string>
     <string name="label_choose_the_gender_label_that_b">Choose the gender label that best fits your profile.</string>

@@ -186,7 +186,7 @@ fun AnalyticsScreen(
             item { CashFlowCard(snapshot) }
             item {
                 GatedAction(
-                    feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+                    feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
                     displayName = "Category Breakdown",
                     onAction = {}
                 ) { status, onClick ->
@@ -208,7 +208,7 @@ fun AnalyticsScreen(
             }
             item {
                 GatedAction(
-                    feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+                    feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
                     displayName = "Payment Mode Breakdown",
                     onAction = {}
                 ) { status, onClick ->
@@ -293,7 +293,7 @@ fun AnalyticsScreen(
 
     if (isCategorySheetVisible) {
         GatedAction(
-            feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+            feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
             displayName = "Full Category Breakdown",
             onAction = { isCategorySheetVisible = true }
         ) { status, onClick ->
@@ -313,7 +313,7 @@ fun AnalyticsScreen(
 
     if (isPaymentSheetVisible) {
         GatedAction(
-            feature = Feature.ANALYTICS_FULL_BREAKDOWN,
+            feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
             displayName = "Full Payment Breakdown",
             onAction = { isPaymentSheetVisible = true }
         ) { status, onClick ->
@@ -533,6 +533,14 @@ private fun CustomRangeSelector(
                         color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
+                    if (isLocked) {
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = "Locked",
+                            tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
                 }
             }
         }
@@ -862,26 +870,15 @@ private fun CategoryCard(
                     )
                 )
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.clickable(onClick = onViewAllClick),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "VIEW ALL",
-                            color = PurpleAccent,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.4.sp
-                            )
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = "Ad Supported",
-                            tint = PurpleAccent,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
+                    Text(
+                        text = "VIEW ALL",
+                        color = PurpleAccent,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.4.sp
+                        ),
+                        modifier = Modifier.clickable(onClick = onViewAllClick)
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
@@ -1324,26 +1321,15 @@ private fun PaymentTypeCard(
                     )
                 )
                 if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.clickable(onClick = onViewAllClick),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "VIEW ALL",
-                            color = PurpleAccent,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.4.sp
-                            )
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = "Ad Supported",
-                            tint = PurpleAccent,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
+                    Text(
+                        text = "VIEW ALL",
+                        color = PurpleAccent,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.4.sp
+                        ),
+                        modifier = Modifier.clickable(onClick = onViewAllClick)
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))

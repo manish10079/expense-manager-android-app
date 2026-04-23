@@ -18,7 +18,8 @@ enum class Feature(val id: String, val displayName: String) {
     SMART_PRIVACY_MODE("smart_privacy_mode", "Smart Privacy (Auto-Blur)"),
     ANALYTICS_PERIOD_YEAR("analytics_period_year", "Yearly Analytics"),
     ANALYTICS_CUSTOM_RANGE("analytics_custom_range", "Custom Range Analytics"),
-    ANALYTICS_FULL_BREAKDOWN("analytics_full_breakdown", "Full Analytics Breakdown"),
+    ANALYTICS_CATEGORY_BREAKDOWN("analytics_category_breakdown", "Category Breakdown"),
+    ANALYTICS_PAYMENT_BREAKDOWN("analytics_payment_breakdown", "Payment Mode Breakdown"),
     ANALYTICS_TOP_SPENDING("analytics_top_spending", "Top Spending Insights"),
     ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips")
 }
@@ -43,7 +44,8 @@ object FeatureRegistry {
         Feature.DATA_EXPORT to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_PERIOD_YEAR to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_CUSTOM_RANGE to AccessLevel.AD_SUPPORTED,
-        Feature.ANALYTICS_FULL_BREAKDOWN to AccessLevel.AD_SUPPORTED,
+        Feature.ANALYTICS_CATEGORY_BREAKDOWN to AccessLevel.AD_SUPPORTED,
+        Feature.ANALYTICS_PAYMENT_BREAKDOWN to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_TOP_SPENDING to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_SMART_TIPS to AccessLevel.AD_SUPPORTED,
         
