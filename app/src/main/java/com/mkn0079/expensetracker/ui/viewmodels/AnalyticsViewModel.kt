@@ -74,7 +74,8 @@ data class AnalyticsSnapshotUi(
     val incomeDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val expenseDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val incomeFraction: Float = 0f,
-    val chartPoints: List<Float> = emptyList(),
+    val expenseChartPoints: List<Float> = emptyList(),
+    val incomeChartPoints: List<Float> = emptyList(),
     val chartLabels: List<String> = emptyList(),
     val categoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val allCategoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
@@ -103,7 +104,8 @@ data class AnalyticsScreenUiState(
 
 private data class ChartBucket(
     val label: String,
-    val value: Double
+    val expenseValue: Double,
+    val incomeValue: Double
 )
 
 class AnalyticsViewModel : ViewModel() {
@@ -193,7 +195,7 @@ private fun buildAnalyticsSnapshot(
     paymentTypes: List<PaymentType>,
     customRange: LongRange? = null
 ): AnalyticsSnapshotUi {
-    val latestTimestamp = transactions.maxOfOrNull { it.createdAt } ?: System.currentTimeMillis()
+    val latestTimestamp = System.currentTimeMillis()
     val range = customRange ?: periodRangeFor(latestTimestamp, period)
     val previousRange = previousPeriodRange(range, period, customRange)
     val currentTransactions = transactions.filter { it.createdAt in range.first..range.last }
@@ -311,7 +313,8 @@ private fun buildAnalyticsSnapshot(
         incomeDisplay = formatCurrencyValue(income, currencyId, amountFormatPreferences),
         expenseDisplay = formatCurrencyValue(expense, currencyId, amountFormatPreferences),
         incomeFraction = (income / max(income + expense, 1.0)).toFloat(),
-        chartPoints = chartBuckets.map { it.value.toFloat() },
+        expenseChartPoints = chartBuckets.map { it.expenseValue.toFloat() },
+        incomeChartPoints = chartBuckets.map { it.incomeValue.toFloat() },
         chartLabels = chartBuckets.map { it.label },
         categoryBreakdown = breakdown,
         allCategoryBreakdown = allBreakdown,
@@ -346,8 +349,11 @@ private fun buildChartBuckets(
                 val end = shiftByDays(start, 1) - 1
                 ChartBucket(
                     label = label,
-                    value = transactions
+                    expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
+                        .sumOf { it.amount },
+                    incomeValue = transactions
+                        .filter { it.transactionTypeId == 1 && it.createdAt in start..end }
                         .sumOf { it.amount }
                 )
             }
@@ -363,8 +369,11 @@ private fun buildChartBuckets(
                 val end = if (index == 3) monthEnd else min(shiftByDays(start, chunkSize) - 1, monthEnd)
                 ChartBucket(
                     label = "WK ${index + 1}",
-                    value = transactions
+                    expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
+                        .sumOf { it.amount },
+                    incomeValue = transactions
+                        .filter { it.transactionTypeId == 1 && it.createdAt in start..end }
                         .sumOf { it.amount }
                 )
             }
@@ -386,8 +395,11 @@ private fun buildChartBuckets(
                 }
                 ChartBucket(
                     label = "Q${index + 1}",
-                    value = transactions
+                    expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
+                        .sumOf { it.amount },
+                    incomeValue = transactions
+                        .filter { it.transactionTypeId == 1 && it.createdAt in start..end }
                         .sumOf { it.amount }
                 )
             }
@@ -526,8 +538,11 @@ private fun buildCustomRangeBuckets(
         val end = min(shiftByDays(start, chunkSize) - 1, activeRange.last)
         ChartBucket(
             label = buildCustomBucketLabel(index, bucketCount, start),
-            value = transactions
+            expenseValue = transactions
                 .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
+                .sumOf { it.amount },
+            incomeValue = transactions
+                .filter { it.transactionTypeId == 1 && it.createdAt in start..end }
                 .sumOf { it.amount }
         )
     }
