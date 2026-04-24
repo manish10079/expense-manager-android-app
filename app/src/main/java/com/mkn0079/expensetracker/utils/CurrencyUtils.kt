@@ -7,8 +7,8 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.CurrencyPosition
-import com.mkn0079.expensetracker.ui.theme.NegativeRed
-import com.mkn0079.expensetracker.ui.theme.PositiveGreen
+import com.mkn0079.expensetracker.ui.theme.ExpenseRed
+import com.mkn0079.expensetracker.ui.theme.IncomeGreen
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -98,6 +98,7 @@ private fun formatIndianGroupedInteger(integerPart: String): String {
 fun getAmountColor(transactionId:Int): Color
 {
     if(getTransactionTypeName(transactionId).equals("Income", ignoreCase = true))
-        return PositiveGreen
-    return NegativeRed
+        return IncomeGreen
+    return ExpenseRed
+
 }

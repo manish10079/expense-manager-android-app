@@ -89,6 +89,8 @@ import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.horizontalSwipe
+import com.mkn0079.expensetracker.ui.theme.ExpenseRed
+import com.mkn0079.expensetracker.ui.theme.IncomeGreen
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
@@ -104,8 +106,8 @@ private val CalendarPurpleSoft = Color(0xFFBCA8FF)
 private val CalendarPurpleDark = Color(0xFF2B2048)
 private val CalendarTextPrimary = Color(0xFFF2F2F5)
 private val CalendarTextSecondary = Color(0xFF8B8796)
-private val CalendarExpense = Color(0xFFFF9D92)
-private val CalendarIncome = Color(0xFFB59BFF)
+private val CalendarExpense = ExpenseRed
+private val CalendarIncome = IncomeGreen
 private val CalendarAmber = Color(0xFFFFC177)
 private val CalendarMuted = Color(0xFF5D5B66)
 

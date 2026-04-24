@@ -38,6 +38,9 @@ private val LightColorScheme = lightColorScheme(
     outline = DividerLight
 )
 
+val ColorScheme.income: Color get() = IncomeGreen
+val ColorScheme.expense: Color get() = ExpenseRed
+
 @Composable
 fun ExpenseTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

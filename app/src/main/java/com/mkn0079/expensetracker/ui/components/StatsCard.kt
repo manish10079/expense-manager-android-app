@@ -37,6 +37,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.ui.theme.income
+import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
@@ -183,7 +185,7 @@ fun TotalBalanceCard(
                 label = "INCOME",
                 value = if (isBalanceHidden) "••••••" else formatStatAmount(income, '+'),
                 icon = Icons.Filled.ArrowUpward,
-                iconColor = Color(0xFFF6C7A6),
+                iconColor = MaterialTheme.colorScheme.income,
                 iconAtStart = true
             )
 
@@ -200,7 +202,7 @@ fun TotalBalanceCard(
                 label = "EXPENSE",
                 value = if (isBalanceHidden) "••••••" else formatStatAmount(expense, '-'),
                 icon = Icons.Filled.ArrowDownward,
-                iconColor = Color(0xFFF2B9AF),
+                iconColor = MaterialTheme.colorScheme.expense,
                 iconAtStart = false
             )
         }

@@ -1,5 +1,8 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
+import com.mkn0079.expensetracker.ui.theme.IncomeGreen
+import com.mkn0079.expensetracker.ui.theme.ExpenseRed
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.runtime.Immutable
@@ -238,7 +241,7 @@ private fun buildAnalyticsSnapshot(
     }
     val breakdown = allBreakdown.take(3)
 
-    val paymentColors = listOf(Color(0xFF81C784), Color(0xFF64B5F6), Color(0xFFFFD54F))
+    val paymentColors = listOf(IncomeGreen, Color(0xFF64B5F6), Color(0xFFFFD54F))
     val paymentTotals = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .groupBy { it.paymentTypeId }

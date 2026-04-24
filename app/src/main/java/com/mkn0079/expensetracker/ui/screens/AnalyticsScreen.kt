@@ -95,6 +95,8 @@ import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.ui.theme.income
+import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
@@ -675,7 +677,7 @@ private fun HeroAnalyticsSection(
             )
             Text(
                 text = snapshot.changeDisplay,
-                color = if (snapshot.changePercent >= 0) Color(0xFF81C784) else Color(0xFFFF7D7D),
+                color = if (snapshot.changePercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 6.dp)
             )
@@ -697,8 +699,8 @@ private fun AnalyticsLineChart(
     labels: List<String>,
     displayMode: HeroDisplayMode
 ) {
-    val expenseColor = Color(0xFFCDBDFF)
-    val incomeColor = Color(0xFF81C784)
+    val expenseColor = MaterialTheme.colorScheme.expense
+    val incomeColor = MaterialTheme.colorScheme.income
     
     Column(modifier = Modifier.fillMaxWidth()) {
         Canvas(

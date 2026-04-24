@@ -21,8 +21,8 @@ val TextSecondaryDark = Color(0xFF9E9E9E)
 
 val DividerDark = Color(0xFF2A2A2A)
 
-val PositiveGreen = Color(0xFFFFB4AB)
-val NegativeRed = Color(0xFFE4E1E0)
+val IncomeGreen = Color(0xFF81C784)
+val ExpenseRed = Color(0xFFFF7D7D)
 
 /* LIGHT THEME */
 
