@@ -75,6 +75,8 @@ data class BudgetRecurringExpenseUi(
     val frequency: RecurringFrequency,
     val frequencyLabel: String,
     val repeatCount: Int,
+    val currentInstallment: Int,
+    val totalInstallments: Int,
     val sourceDateLabel: String,
     val dueLabel: String,
     val dueAmountLabel: String,
@@ -264,13 +266,15 @@ class BudgetViewModel @Inject constructor(
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
-        val recurringExpenses = buildRecurringExpenses(
+        val allRecurring = buildRecurringExpenses(
             recurringEntries = currentRecurringEntries,
             transactions = currentTransactions,
             categories = currentCategories,
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
+        val activeRecurring = allRecurring.filter { it.currentInstallment <= it.totalInstallments }
+
         val summary = buildSummary(
             monthStart = selectedMonthStart,
             expenseTransactions = expenseTransactions,
@@ -278,14 +282,14 @@ class BudgetViewModel @Inject constructor(
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
-        val dueItems = recurringExpenses
+        val dueItems = activeRecurring
             .filter { it.isEnabled }
             .sortedBy { it.nextDueAt }
             .take(3)
         val insight = buildInsight(
             summary = summary,
             categoryBudgets = categoryBudgets,
-            recurringExpenses = recurringExpenses.filter { it.isEnabled && it.repeatCount > 0 },
+            recurringExpenses = activeRecurring.filter { it.isEnabled },
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
@@ -295,7 +299,7 @@ class BudgetViewModel @Inject constructor(
                 selectedPeriod = selectedPeriod,
                 summary = summary,
                 categoryBudgets = categoryBudgets,
-                recurringExpenses = recurringExpenses,
+                recurringExpenses = activeRecurring,
                 recurringDueItems = dueItems,
                 insight = insight,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
@@ -303,7 +307,7 @@ class BudgetViewModel @Inject constructor(
                 } else {
                     null
                 },
-                emptyRecurringMessage = if (recurringExpenses.isEmpty()) {
+                emptyRecurringMessage = if (activeRecurring.isEmpty()) {
                     "No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction."
                 } else {
                     null
@@ -433,7 +437,7 @@ private fun buildRecurringExpenses(
                 it.id == recurringEntry.transactionId && it.transactionTypeId != 1
             } ?: return@mapNotNull null
             val category = categories[transaction.categoryId] ?: return@mapNotNull null
-            val nextDueAt = nextRecurringDueTimestamp(
+            val (nextDueAt, nextIndex) = calculateNextInstallmentInfo(
                 baseTimestamp = transaction.createdAt,
                 frequency = recurringEntry.frequency,
                 referenceTime = referenceTime
@@ -452,6 +456,8 @@ private fun buildRecurringExpenses(
                 frequency = recurringEntry.frequency,
                 frequencyLabel = recurringEntry.frequency.label.uppercase(Locale.getDefault()),
                 repeatCount = recurringEntry.repeatCount,
+                currentInstallment = nextIndex,
+                totalInstallments = recurringEntry.repeatCount,
                 sourceDateLabel = "Started ${recurringDateFormatter.format(Date(transaction.createdAt))}",
                 dueLabel = dueLabelFor(nextDueAt, referenceTime),
                 dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
@@ -594,11 +600,11 @@ private fun resolveAnchorMonthStart(transactions: List<Transaction>): Long {
     }
 }
 
-private fun nextRecurringDueTimestamp(
+private fun calculateNextInstallmentInfo(
     baseTimestamp: Long,
     frequency: RecurringFrequency,
     referenceTime: Long
-): Long {
+): Pair<Long, Int> {
     val referenceCalendar = Calendar.getInstance().apply {
         timeInMillis = referenceTime
         set(Calendar.HOUR_OF_DAY, 0)
@@ -609,60 +615,39 @@ private fun nextRecurringDueTimestamp(
     val baseCalendar = Calendar.getInstance().apply {
         timeInMillis = baseTimestamp
     }
-
-    return when (frequency) {
-        RecurringFrequency.Daily -> {
-            val baseHour = baseCalendar.get(Calendar.HOUR_OF_DAY)
-            val baseMinute = baseCalendar.get(Calendar.MINUTE)
-            referenceCalendar.set(Calendar.HOUR_OF_DAY, baseHour)
-            referenceCalendar.set(Calendar.MINUTE, baseMinute)
-            if (referenceCalendar.timeInMillis <= referenceTime) {
-                referenceCalendar.add(Calendar.DAY_OF_MONTH, 1)
-            }
-            referenceCalendar.timeInMillis
-        }
-
-        RecurringFrequency.Weekly -> {
-            val targetDayOfWeek = baseCalendar.get(Calendar.DAY_OF_WEEK)
-            val currentDayOfWeek = referenceCalendar.get(Calendar.DAY_OF_WEEK)
-            val diffDays = (targetDayOfWeek - currentDayOfWeek + 7) % 7
-            referenceCalendar.add(Calendar.DAY_OF_MONTH, diffDays)
-            if (referenceCalendar.timeInMillis <= referenceTime) {
-                referenceCalendar.add(Calendar.DAY_OF_MONTH, 7)
-            }
-            referenceCalendar.timeInMillis
-        }
-
-        RecurringFrequency.Monthly -> {
-            val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
-            val maxDayThisMonth = referenceCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            referenceCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDayThisMonth))
-            if (referenceCalendar.timeInMillis <= referenceTime) {
-                referenceCalendar.add(Calendar.MONTH, 1)
-                val maxDayNextMonth = referenceCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                referenceCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDayNextMonth))
-            }
-            referenceCalendar.timeInMillis
-        }
-
-        RecurringFrequency.Yearly -> {
-            referenceCalendar.set(Calendar.MONTH, baseCalendar.get(Calendar.MONTH))
-            val dayOfMonth = min(
-                baseCalendar.get(Calendar.DAY_OF_MONTH),
-                referenceCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            )
-            referenceCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            if (referenceCalendar.timeInMillis <= referenceTime) {
-                referenceCalendar.add(Calendar.YEAR, 1)
-                val nextDay = min(
-                    baseCalendar.get(Calendar.DAY_OF_MONTH),
-                    referenceCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                )
-                referenceCalendar.set(Calendar.DAY_OF_MONTH, nextDay)
-            }
-            referenceCalendar.timeInMillis
-        }
+    
+    val nextCalendar = Calendar.getInstance().apply {
+        timeInMillis = baseTimestamp
     }
+    
+    var index = 1
+    
+    // Catch up to reference time
+    while (nextCalendar.timeInMillis <= referenceTime) {
+        when (frequency) {
+            RecurringFrequency.Daily -> {
+                nextCalendar.add(Calendar.DAY_OF_YEAR, 1)
+            }
+            RecurringFrequency.Weekly -> {
+                nextCalendar.add(Calendar.WEEK_OF_YEAR, 1)
+            }
+            RecurringFrequency.Monthly -> {
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                nextCalendar.add(Calendar.MONTH, 1)
+                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+            RecurringFrequency.Yearly -> {
+                nextCalendar.add(Calendar.YEAR, 1)
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+        }
+        index++
+    }
+    
+    return nextCalendar.timeInMillis to index
 }
 
 private fun dueLabelFor(

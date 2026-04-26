@@ -1418,7 +1418,7 @@ private fun RecurringExpenseCard(
                 accent = expense.accent
             )
             RecurringMetaChip(
-                label = "${expense.repeatCount}X",
+                label = "${expense.currentInstallment} OF ${expense.totalInstallments}",
                 accent = expense.accent
             )
         }

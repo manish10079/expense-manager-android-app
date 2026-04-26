@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -700,13 +701,42 @@ private fun RecurringTransactionSection(
                 onValueChange = onRepeatCountChange,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                label = { Text("Repeat count") },
+                label = { Text("Total installments") },
                 placeholder = { Text("12") },
                 supportingText = {
-                    Text(
-                        text = "How many times this recurring transaction should repeat.",
-                        color = Color(0xFF9A93A6)
-                    )
+                    Column(
+                        modifier = Modifier.padding(top = 2.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "Total number of payments for this commitment.",
+                            color = Color(0xFF9A93A6)
+                        )
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(PurpleAccent.copy(alpha = 0.06f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = PurpleAccent,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Current transaction is considered the 1st installment",
+                                color = Color(0xFFD0C8DD),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontStyle = FontStyle.Italic,
+                                    letterSpacing = 0.4.sp
+                                )
+                            )
+                        }
+                    }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
