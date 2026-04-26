@@ -89,7 +89,7 @@ fun TransactionPeriodNavigator(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     PeriodArrow(
-                        enabled = canNavigateBackward,
+                        enabled = true,
                         onClick = onPreviousClick,
                         icon = {
                             Icon(
@@ -100,31 +100,37 @@ fun TransactionPeriodNavigator(
                         }
                     )
 
-                    val isLabelClickable = onLabelClick != null
-                    Text(
-                        text = periodLabel,
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp
-                        ),
-                        modifier = if (isLabelClickable) {
-                            Modifier.clip(RoundedCornerShape(6.dp)).clickable { onLabelClick() }
-                        } else Modifier
-                    )
+                    val isClickable = onLabelClick != null
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = if (isClickable) {
+                            Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onLabelClick?.invoke() }
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        } else Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = periodLabel,
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 16.sp
+                            )
+                        )
 
-                    if (selectedFilter != TransactionPeriodFilter.YEARLY) {
-                        Spacer(modifier = Modifier.size(4.dp))
+                        Spacer(modifier = Modifier.size(8.dp))
+
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = null,
+                            contentDescription = "Select period",
                             tint = colorScheme.onSurface.copy(alpha = 0.86f),
                             modifier = Modifier.size(18.dp)
                         )
                     }
 
                     PeriodArrow(
-                        enabled = canNavigateForward,
+                        enabled = true,
                         onClick = onNextClick,
                         icon = {
                             Icon(
@@ -161,7 +167,7 @@ fun TransactionPeriodNavigator(
                     color = colorScheme.onSurface.copy(alpha = 0.88f),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.9f).sp
+                        fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.72f).sp
                     )
                 )
             }
@@ -191,7 +197,7 @@ fun TransactionPeriodNavigator(
                                     } else {
                                         FontWeight.Normal
                                     },
-                                    fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 1.2f).sp
+                                    fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.96f).sp
                                 )
                             )
                         },
