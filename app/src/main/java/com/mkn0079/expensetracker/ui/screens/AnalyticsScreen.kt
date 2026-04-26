@@ -713,7 +713,7 @@ private fun AnalyticsLineChart(
             // Y-Axis Labels
             Column(
                 modifier = Modifier
-                    .width(42.dp)
+                    .width(34.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
@@ -738,7 +738,7 @@ private fun AnalyticsLineChart(
                 )
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
@@ -870,12 +870,13 @@ private fun AnalyticsLineChart(
             )
             }
         }
+        Spacer(modifier = Modifier.width(42.dp))
     }
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 52.dp),
+                .padding(horizontal = 42.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             labels.forEach { label ->
