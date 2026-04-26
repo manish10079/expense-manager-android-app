@@ -1,23 +1,29 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,22 +40,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -63,6 +59,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,58 +69,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.models.CalculatorLineItem
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.PurpleAccent
 import com.mkn0079.expensetracker.ui.theme.PurpleGlow
 import com.mkn0079.expensetracker.ui.theme.PurplePrimary
-import java.math.BigDecimal
-import java.text.DecimalFormat
+import com.mkn0079.expensetracker.ui.viewmodels.CalculatorMode
+import com.mkn0079.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 
-private data class CalculatorLineItem(
-    val id: Int,
-    val description: String,
-    val amount: Double,
-    val highlighted: Boolean = false
-)
-
-private enum class CalculatorMode(val title: String) {
-    ITEMIZED("Itemized"),
-    NORMAL("Normal")
-}
-
-private data class NormalCalculatorResult(
-    val display: String,
-    val storedValue: Double?,
-    val pendingOperator: String?,
-    val shouldResetDisplay: Boolean
-)
-
-private val initialCalculatorLineItems = emptyList<CalculatorLineItem>()
-private val normalCalculatorFormatter = DecimalFormat("#,##0.########")
-
 @Composable
 fun ItemizedCalculatorScreen(
+    viewModel: ItemizedCalculatorViewModel,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    initialNote: String? = null,
     onBackClick: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
-    var selectedMode by rememberSaveable { mutableStateOf(CalculatorMode.ITEMIZED.name) }
-    val items = remember { mutableStateListOf<CalculatorLineItem>().apply { addAll(initialCalculatorLineItems) } }
-    var nextItemId by rememberSaveable { mutableIntStateOf(initialCalculatorLineItems.size + 1) }
-    var isAddingItem by rememberSaveable { mutableStateOf(false) }
-    var descriptionInput by rememberSaveable { mutableStateOf("") }
-    var amountInput by rememberSaveable { mutableStateOf("") }
-    var normalDisplay by rememberSaveable { mutableStateOf("0") }
-    var normalStoredValue by rememberSaveable { mutableStateOf<Double?>(null) }
-    var normalPendingOperator by rememberSaveable { mutableStateOf<String?>(null) }
-    var shouldResetNormalDisplay by rememberSaveable { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    val totalAmount = items.sumOf { it.amount }
-    val canAddItem = descriptionInput.isNotBlank() && (amountInput.toDoubleOrNull() ?: 0.0) > 0
-    val activeMode = CalculatorMode.valueOf(selectedMode)
+    LaunchedEffect(initialNote) {
+        viewModel.initialize(initialNote)
+    }
 
     Column(
         modifier = Modifier
@@ -143,52 +113,31 @@ fun ItemizedCalculatorScreen(
         )
 
         CalculatorModeTabs(
-            selectedMode = activeMode,
-            onModeSelected = { selectedMode = it.name }
+            selectedMode = uiState.selectedMode,
+            onModeSelected = viewModel::setMode
         )
 
-        when (activeMode) {
+        when (uiState.selectedMode) {
             CalculatorMode.ITEMIZED -> {
                 ItemizedCalculatorContent(
                     modifier = Modifier.weight(1f),
-                    items = items,
+                    items = uiState.items,
                     currencyId = currencyId,
                     amountFormatPreferences = amountFormatPreferences,
-                    totalAmount = totalAmount,
-                    isAddingItem = isAddingItem,
-                    descriptionInput = descriptionInput,
-                    amountInput = amountInput,
-                    canAddItem = canAddItem,
-                    onDeleteItem = { itemId -> items.removeAll { it.id == itemId } },
-                    onDescriptionChange = { descriptionInput = it },
-                    onAmountChange = { amountInput = sanitizeAmountInput(it) },
-                    onStartAdding = { isAddingItem = true },
-                    onCancelAdding = {
-                        isAddingItem = false
-                        descriptionInput = ""
-                        amountInput = ""
-                    },
-                    onAddItem = {
-                        val parsedAmount = amountInput.toDoubleOrNull()
-                        if (parsedAmount != null) {
-                            items.add(
-                                CalculatorLineItem(
-                                    id = nextItemId,
-                                    description = descriptionInput.trim(),
-                                    amount = parsedAmount
-                                )
-                            )
-                            nextItemId += 1
-                            isAddingItem = false
-                            descriptionInput = ""
-                            amountInput = ""
-                        }
-                    },
+                    totalAmount = uiState.totalAmount,
+                    isAddingItem = uiState.isAddingItem,
+                    descriptionInput = uiState.descriptionInput,
+                    amountInput = uiState.amountInput,
+                    canAddItem = uiState.canAddItem,
+                    onDeleteItem = viewModel::deleteItem,
+                    onDescriptionChange = viewModel::updateDescriptionInput,
+                    onAmountChange = viewModel::updateAmountInput,
+                    onStartAdding = viewModel::startAddingItem,
+                    onCancelAdding = viewModel::cancelAddingItem,
+                    onAddItem = viewModel::addItem,
                     onApplyToNoteClick = {
-                        onApplyToNoteClick(
-                            formatEditableTotal(totalAmount),
-                            buildBreakdownNote(items, currencyId, amountFormatPreferences)
-                        )
+                        val (amount, note) = viewModel.getFinalResult(currencyId, amountFormatPreferences)
+                        onApplyToNoteClick(amount, note)
                     }
                 )
             }
@@ -196,23 +145,10 @@ fun ItemizedCalculatorScreen(
             CalculatorMode.NORMAL -> {
                 NormalCalculatorContent(
                     modifier = Modifier.weight(1f),
-                    display = normalDisplay,
-                    storedValue = normalStoredValue,
-                    pendingOperator = normalPendingOperator,
-                    shouldResetDisplay = shouldResetNormalDisplay,
-                    onAction = { action ->
-                        val result = handleNormalCalculatorAction(
-                            action = action,
-                            currentDisplay = normalDisplay,
-                            storedValue = normalStoredValue,
-                            pendingOperator = normalPendingOperator,
-                            shouldResetDisplay = shouldResetNormalDisplay
-                        )
-                        normalDisplay = result.display
-                        normalStoredValue = result.storedValue
-                        normalPendingOperator = result.pendingOperator
-                        shouldResetNormalDisplay = result.shouldResetDisplay
-                    }
+                    display = uiState.normalDisplay,
+                    previewResult = viewModel.calculatePreview(),
+                    expression = viewModel.buildExpression(),
+                    onAction = viewModel::handleNormalAction
                 )
             }
         }
@@ -430,24 +366,10 @@ private fun ItemizedCalculatorContent(
 private fun NormalCalculatorContent(
     modifier: Modifier = Modifier,
     display: String,
-    storedValue: Double?,
-    pendingOperator: String?,
-    shouldResetDisplay: Boolean,
+    previewResult: String,
+    expression: String?,
     onAction: (String) -> Unit
 ) {
-    val previewResult = calculateNormalCalculatorPreview(
-        currentDisplay = display,
-        storedValue = storedValue,
-        pendingOperator = pendingOperator,
-        shouldResetDisplay = shouldResetDisplay
-    )
-    val expression = buildNormalCalculatorExpression(
-        currentDisplay = display,
-        storedValue = storedValue,
-        pendingOperator = pendingOperator,
-        shouldResetDisplay = shouldResetDisplay
-    )
-
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(18.dp)
@@ -705,157 +627,6 @@ private fun CalculatorKeyButton(
                 )
             )
         }
-    }
-}
-
-private fun handleNormalCalculatorAction(
-    action: String,
-    currentDisplay: String,
-    storedValue: Double?,
-    pendingOperator: String?,
-    shouldResetDisplay: Boolean
-): NormalCalculatorResult {
-    if (currentDisplay == "Error" && action !in setOf("AC", "BACKSPACE")) {
-        return handleNormalCalculatorAction(action, "0", null, null, false)
-    }
-
-    return when (action) {
-        "AC" -> NormalCalculatorResult("0", null, null, false)
-
-        "BACKSPACE" -> {
-            val updated = if (shouldResetDisplay || currentDisplay.length <= 1) {
-                "0"
-            } else {
-                currentDisplay.dropLast(1)
-            }
-            NormalCalculatorResult(updated, storedValue, pendingOperator, false)
-        }
-
-        "%" -> {
-            val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-            NormalCalculatorResult(
-                display = formatNormalCalculatorValue(currentValue / 100.0),
-                storedValue = storedValue,
-                pendingOperator = pendingOperator,
-                shouldResetDisplay = true
-            )
-        }
-
-        "+", "-", "*", "/" -> {
-            val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-            val updatedStoredValue = if (storedValue != null && pendingOperator != null && !shouldResetDisplay) {
-                performNormalCalculation(storedValue, currentValue, pendingOperator)
-            } else {
-                storedValue ?: currentValue
-            }
-            NormalCalculatorResult(
-                display = formatNormalCalculatorValue(updatedStoredValue),
-                storedValue = updatedStoredValue,
-                pendingOperator = action,
-                shouldResetDisplay = true
-            )
-        }
-
-        "=" -> {
-            if (storedValue == null || pendingOperator == null) {
-                NormalCalculatorResult(currentDisplay, null, null, true)
-            } else {
-                val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-                val result = performNormalCalculation(storedValue, currentValue, pendingOperator)
-                NormalCalculatorResult(
-                    display = formatNormalCalculatorValue(result),
-                    storedValue = null,
-                    pendingOperator = null,
-                    shouldResetDisplay = true
-                )
-            }
-        }
-
-        "." -> {
-            when {
-                shouldResetDisplay -> NormalCalculatorResult("0.", storedValue, pendingOperator, false)
-                currentDisplay.contains(".") -> NormalCalculatorResult(currentDisplay, storedValue, pendingOperator, false)
-                else -> NormalCalculatorResult("$currentDisplay.", storedValue, pendingOperator, false)
-            }
-        }
-
-        else -> {
-            val updatedDisplay = if (shouldResetDisplay || currentDisplay == "0") {
-                action
-            } else {
-                currentDisplay + action
-            }
-            NormalCalculatorResult(updatedDisplay, storedValue, pendingOperator, false)
-        }
-    }
-}
-
-private fun performNormalCalculation(
-    left: Double,
-    right: Double,
-    operator: String
-): Double {
-    return when (operator) {
-        "+" -> left + right
-        "-" -> left - right
-        "*" -> left * right
-        "/" -> if (right == 0.0) Double.NaN else left / right
-        else -> right
-    }
-}
-
-private fun formatNormalCalculatorValue(value: Double): String {
-    return if (value.isFinite()) {
-        normalCalculatorFormatter.format(value)
-    } else {
-        "Error"
-    }
-}
-
-private fun calculateNormalCalculatorPreview(
-    currentDisplay: String,
-    storedValue: Double?,
-    pendingOperator: String?,
-    shouldResetDisplay: Boolean
-): String {
-    if (currentDisplay == "Error") return "Error"
-
-    val currentValue = currentDisplay.toDoubleOrNull()
-    return when {
-        storedValue != null && pendingOperator != null && currentValue != null && !shouldResetDisplay ->
-            formatNormalCalculatorValue(
-                performNormalCalculation(storedValue, currentValue, pendingOperator)
-            )
-
-        currentValue != null -> formatNormalCalculatorValue(currentValue)
-        storedValue != null -> formatNormalCalculatorValue(storedValue)
-        else -> "0"
-    }
-}
-
-private fun buildNormalCalculatorExpression(
-    currentDisplay: String,
-    storedValue: Double?,
-    pendingOperator: String?,
-    shouldResetDisplay: Boolean
-): String? {
-    if (storedValue == null || pendingOperator == null) return null
-
-    val leftValue = formatNormalCalculatorValue(storedValue)
-    val operatorSymbol = normalCalculatorOperatorSymbol(pendingOperator)
-    val rightValue = if (shouldResetDisplay) "" else currentDisplay
-
-    return listOf(leftValue, operatorSymbol, rightValue)
-        .filter { it.isNotBlank() }
-        .joinToString(separator = " ")
-}
-
-private fun normalCalculatorOperatorSymbol(operator: String): String {
-    return when (operator) {
-        "*" -> "×"
-        "/" -> "÷"
-        "-" -> "−"
-        else -> operator
     }
 }
 
@@ -1256,35 +1027,6 @@ private fun ApplyToNoteButton(
     }
 }
 
-private fun sanitizeAmountInput(input: String): String {
-    val filtered = input.filterIndexed { index, char ->
-        char.isDigit() || (char == '.' && index == input.indexOf('.'))
-    }
-    val decimalIndex = filtered.indexOf('.')
-
-    return if (decimalIndex >= 0) {
-        val whole = filtered.substring(0, decimalIndex + 1)
-        val decimals = filtered.substring(decimalIndex + 1).take(2)
-        whole + decimals
-    } else {
-        filtered
-    }
-}
-
-private fun formatEditableTotal(amount: Double): String {
-    return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
-}
-
-private fun buildBreakdownNote(
-    items: List<CalculatorLineItem>,
-    currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
-): String {
-    return items.joinToString(separator = "\n") { item ->
-        "${item.description} - ${formatCurrencyValue(item.amount, currencyId, amountFormatPreferences)}"
-    }
-}
-
 @Preview(
     name = "Itemized Calculator",
     showBackground = true,
@@ -1295,6 +1037,6 @@ private fun buildBreakdownNote(
 @Composable
 private fun ItemizedCalculatorScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        ItemizedCalculatorScreen()
+        // ItemizedCalculatorScreen requires a ViewModel, so we can't easily preview it without a mock or dummy
     }
 }

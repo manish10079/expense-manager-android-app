@@ -31,6 +31,8 @@ import com.mkn0079.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mkn0079.expensetracker.ui.screens.SettingsScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionCardCustomizeScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 
 @Composable
 fun AppNavigationHost(
@@ -444,9 +446,12 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.ItemizedCalculator -> {
+                    val calculatorViewModel: ItemizedCalculatorViewModel = hiltViewModel()
                     ItemizedCalculatorScreen(
+                        viewModel = calculatorViewModel,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
+                        initialNote = addTransactionDraftNote ?: selectedTransaction?.note,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)

@@ -5,6 +5,10 @@ import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.domain.repository.TransactionSummary
 import com.mkn0079.expensetracker.domain.repository.RecentTransaction
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
+import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
+import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,11 +49,15 @@ class TransactionsViewModelTest {
 
     private lateinit var viewModel: TransactionsViewModel
     private lateinit var fakeRepository: FakeTransactionRepository
+    private lateinit var fakeMonetizationRepository: FakeMonetizationRepository
+    private lateinit var observeAccessStatusUseCase: ObserveAccessStatusUseCase
 
     @Before
     fun setup() {
         fakeRepository = FakeTransactionRepository()
-        viewModel = TransactionsViewModel(fakeRepository)
+        fakeMonetizationRepository = FakeMonetizationRepository()
+        observeAccessStatusUseCase = ObserveAccessStatusUseCase(fakeMonetizationRepository)
+        viewModel = TransactionsViewModel(fakeRepository, observeAccessStatusUseCase)
         
         // Start collecting the flow to keep it active during tests
         viewModel.viewModelScope.launch(UnconfinedTestDispatcher()) {
@@ -119,5 +127,11 @@ class TransactionsViewModelTest {
         override suspend fun softDeleteTransactions(ids: List<String>) {}
         override suspend fun deleteAllTransactions() {}
         override suspend fun checkBudgetAndNotify(context: android.content.Context, transaction: Transaction) {}
+    }
+
+    private class FakeMonetizationRepository : MonetizationRepository {
+        override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> = 
+            flowOf(AccessStatus.Granted)
+        override suspend fun grantTemporaryAccess(feature: Feature, optionId: String?, durationMillis: Long) {}
     }
 }
