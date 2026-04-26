@@ -967,22 +967,22 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                     )
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    LegendDot("INCOME", Color(0xFFC9B3FF))
-                    LegendDot("EXPENSE", Color(0xFFFFB482))
+                    LegendDot("INCOME", MaterialTheme.colorScheme.income)
+                    LegendDot("EXPENSE", MaterialTheme.colorScheme.expense)
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            CashFlowBar(snapshot.incomeFraction, Color(0xFFC9B3FF), Color(0xFFFFB482))
+            CashFlowBar(snapshot.incomeFraction, MaterialTheme.colorScheme.income, MaterialTheme.colorScheme.expense)
             Spacer(modifier = Modifier.height(14.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     text = snapshot.incomeDisplay,
-                    color = Color(0xFFC9B3FF),
+                    color = MaterialTheme.colorScheme.income,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 Text(
                     text = snapshot.expenseDisplay,
-                    color = Color(0xFFFFB482),
+                    color = MaterialTheme.colorScheme.expense,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }

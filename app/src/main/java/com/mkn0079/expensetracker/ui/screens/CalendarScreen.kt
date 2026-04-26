@@ -563,7 +563,7 @@ private fun DayCell(
                 DotIndicator(color = if (day.isCurrentMonth) CalendarExpense else CalendarMuted.copy(alpha = 0.45f))
             }
             if (day.hasIncome) {
-                DotIndicator(color = if (day.isCurrentMonth) CalendarPurpleSoft else CalendarMuted.copy(alpha = 0.45f))
+                DotIndicator(color = if (day.isCurrentMonth) CalendarIncome else CalendarMuted.copy(alpha = 0.45f))
             }
         }
     }
