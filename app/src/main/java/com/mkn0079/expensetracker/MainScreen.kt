@@ -41,6 +41,7 @@ import com.mkn0079.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.mkn0079.expensetracker.workers.AutoBackupScheduler
+import com.mkn0079.expensetracker.utils.AppRestartUtils
 
 private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCardCustomizationSettings {
     return TransactionCardCustomizationSettings(
@@ -438,7 +439,7 @@ fun MainScreen(
                     onComplete = {
                         navigationState.clearTransactionDraftContext()
                         showToast("Database restored. Reloading app.")
-                        activity?.recreate()
+                        AppRestartUtils.restartApp(rawContext)
                     },
                     onError = {
                         showToast("Unable to restore the database backup. Please try again.")
