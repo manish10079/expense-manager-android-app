@@ -701,23 +701,66 @@ private fun AnalyticsLineChart(
 ) {
     val expenseColor = MaterialTheme.colorScheme.expense
     val incomeColor = MaterialTheme.colorScheme.income
+    val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
+    val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
     
     Column(modifier = Modifier.fillMaxWidth()) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(170.dp)
-        ) {
-            val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
-            val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
-            
+        val maxExpense = if (showExpense && expensePoints.isNotEmpty()) expensePoints.maxOrNull() ?: 0f else 0f
+        val maxIncome = if (showIncome && incomePoints.isNotEmpty()) incomePoints.maxOrNull() ?: 0f else 0f
+        val maxValue = maxOf(maxExpense, maxIncome).coerceAtLeast(1f)
+
+        Row(modifier = Modifier.fillMaxWidth().height(170.dp)) {
+            // Y-Axis Labels
+            Column(
+                modifier = Modifier
+                    .width(42.dp)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = formatYAxisAmount(maxValue),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+                Text(
+                    text = formatYAxisAmount(maxValue / 2),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = "0",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(bottom = 28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
             if (!showExpense && !showIncome) return@Canvas
             
-            val maxExpense = if (showExpense && expensePoints.isNotEmpty()) expensePoints.maxOrNull() ?: 0f else 0f
-            val maxIncome = if (showIncome && incomePoints.isNotEmpty()) incomePoints.maxOrNull() ?: 0f else 0f
-            val maxValue = maxOf(maxExpense, maxIncome).coerceAtLeast(1f)
-            
             val chartHeight = size.height * 0.82f
+            
+            // Draw horizontal grid lines
+            val gridLines = listOf(16.dp.toPx(), (chartHeight + 16.dp.toPx()) / 2)
+            gridLines.forEach { y ->
+                drawLine(
+                    color = gridColor,
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
             
             // Draw Expense Line
             if (showExpense && expensePoints.isNotEmpty()) {
@@ -758,7 +801,7 @@ private fun AnalyticsLineChart(
                 drawPath(
                     path = linePath,
                     color = expenseColor,
-                    style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+                    style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
                 )
                 
                 if (displayMode == HeroDisplayMode.EXPENSE) {
@@ -808,7 +851,7 @@ private fun AnalyticsLineChart(
                 drawPath(
                     path = linePath,
                     color = incomeColor,
-                    style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+                    style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
                 )
                 
                 if (displayMode == HeroDisplayMode.INCOME) {
@@ -820,18 +863,25 @@ private fun AnalyticsLineChart(
             }
 
             drawLine(
-                color = Color(0xFF1F1928),
+                color = gridColor,
                 start = Offset(0f, chartHeight),
                 end = Offset(size.width, chartHeight),
                 strokeWidth = 1.dp.toPx()
             )
+            }
         }
+    }
         Spacer(modifier = Modifier.height(10.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 52.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             labels.forEach { label ->
                 Text(
                     text = label,
-                    color = Color(0xFFD9D3E6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
             }
@@ -853,6 +903,14 @@ private fun AnalyticsLineChart(
                 Text("Income", color = Color(0xFFA49CB4), style = MaterialTheme.typography.labelSmall)
             }
         }
+    }
+}
+
+private fun formatYAxisAmount(amount: Float): String {
+    return when {
+        amount >= 1_000_000f -> String.format(java.util.Locale.US, "%.1fM", amount / 1_000_000f)
+        amount >= 1_000f -> String.format(java.util.Locale.US, "%.1fk", amount / 1_000f)
+        else -> amount.toInt().toString()
     }
 }
 
