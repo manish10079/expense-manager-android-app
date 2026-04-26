@@ -33,11 +33,42 @@ class DataManagementRepository(
 
     override suspend fun backupDatabase(uri: Uri) {
         val database = ExpenseTrackerDatabase.getInstance(appContext)
-        database.query(SimpleSQLiteQuery("PRAGMA wal_checkpoint(TRUNCATE)")).close()
-        copyFileToUri(
-            file = ExpenseTrackerDatabase.databaseFile(appContext),
-            destination = uri
-        )
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            // Android 11+ (API 30+) supports VACUUM INTO, which is the safest way 
+            // to create a consistent backup of a live WAL database.
+            val tempFile = File.createTempFile("expense-tracker-backup-", ".db", appContext.cacheDir)
+            try {
+                // Ensure the temp file is deleted before VACUUM INTO tries to create it
+                if (tempFile.exists()) tempFile.delete()
+                
+                database.openHelper.writableDatabase.execSQL("VACUUM INTO '${tempFile.absolutePath}'")
+                
+                copyFileToUri(
+                    file = tempFile,
+                    destination = uri
+                )
+            } finally {
+                if (tempFile.exists()) tempFile.delete()
+            }
+        } else {
+            // Fallback for older versions: Force a full checkpoint and wait for completion.
+            // RESTART is more aggressive than TRUNCATE as it ensures all data is moved
+            // and the WAL file is effectively reset.
+            database.query(SimpleSQLiteQuery("PRAGMA wal_checkpoint(RESTART)")).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    // Log checkpoint result for debugging if needed
+                    // val status = cursor.getInt(0)
+                    // val walPages = cursor.getInt(1)
+                    // val checkpointedPages = cursor.getInt(2)
+                }
+            }
+            
+            copyFileToUri(
+                file = ExpenseTrackerDatabase.databaseFile(appContext),
+                destination = uri
+            )
+        }
     }
 
     override suspend fun restoreDatabase(uri: Uri) {
