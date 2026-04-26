@@ -365,13 +365,25 @@ private fun buildChartBuckets(
         AnalyticsPeriod.MONTH -> {
             val monthStart = activeRange.first
             val monthEnd = activeRange.last
-            val totalDays = daysBetween(monthStart, monthEnd) + 1
-            val chunkSize = max(totalDays / 4, 1)
-            (0 until 4).map { index ->
-                val start = shiftByDays(monthStart, index * chunkSize)
-                val end = if (index == 3) monthEnd else min(shiftByDays(start, chunkSize) - 1, monthEnd)
+            val totalDays = (daysBetween(monthStart, monthEnd) + 1).toInt()
+            
+            (0 until totalDays).map { dayIndex ->
+                val start = shiftByDays(monthStart, dayIndex)
+                val end = endOfDay(start)
+                
+                // Show labels only for roughly every 7 days to avoid crowding
+                val label = if (dayIndex % 7 == 0 || dayIndex == totalDays - 1) {
+                    val dayOfMonth = dayIndex + 1
+                    when {
+                        dayOfMonth <= 7 -> "W1"
+                        dayOfMonth <= 14 -> "W2"
+                        dayOfMonth <= 21 -> "W3"
+                        else -> "W4"
+                    }
+                } else ""
+                
                 ChartBucket(
-                    label = "WK ${index + 1}",
+                    label = label,
                     expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
                         .sumOf { it.amount },
@@ -384,20 +396,21 @@ private fun buildChartBuckets(
 
         AnalyticsPeriod.YEAR -> {
             val yearStart = startOfYear(referenceTimestamp)
-            val quarterStarts = listOf(0, 3, 6, 9).map { offset ->
-                Calendar.getInstance().apply {
+            val monthNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+            
+            (0 until 12).map { monthIndex ->
+                val calendar = Calendar.getInstance().apply {
                     timeInMillis = yearStart
-                    add(Calendar.MONTH, offset)
-                }.timeInMillis
-            }
-            quarterStarts.mapIndexed { index, start ->
-                val end = if (index == quarterStarts.lastIndex) {
-                    endOfYear(referenceTimestamp)
-                } else {
-                    quarterStarts[index + 1] - 1
+                    add(Calendar.MONTH, monthIndex)
                 }
+                val start = startOfMonth(calendar.timeInMillis)
+                val end = endOfMonth(calendar.timeInMillis)
+                
+                // Show labels for every 2nd month to keep it readable
+                val label = if (monthIndex % 2 == 0) monthNames[monthIndex] else ""
+                
                 ChartBucket(
-                    label = "Q${index + 1}",
+                    label = label,
                     expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
                         .sumOf { it.amount },
