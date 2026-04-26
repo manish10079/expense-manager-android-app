@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -112,6 +113,7 @@ fun BudgetScreen(
     recurringRules: List<RecurringTransactionRule> = emptyList(),
     onDeleteRecurring: (String) -> Unit = {},
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
+    onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
     val budgetViewModel: BudgetViewModel = viewModel()
@@ -120,6 +122,7 @@ fun BudgetScreen(
     var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
 
     LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules) {
         budgetViewModel.updateInputs(
@@ -262,6 +265,7 @@ fun BudgetScreen(
                             onEnabledChange = { enabled ->
                                 onRecurringEnabledChange(expense.id, enabled)
                             },
+                            onEditClick = { editingRecurringRule = expense },
                             onDeleteClick = {
                                 pendingDeleteRecurringId = expense.id
                             }
@@ -331,8 +335,6 @@ fun BudgetScreen(
         )
     }
 
-
-
     if (pendingDeleteRecurring != null) {
         DeleteRecurringDialog(
             recurringName = pendingDeleteRecurring.title,
@@ -343,7 +345,21 @@ fun BudgetScreen(
             }
         )
     }
+
+    if (editingRecurringRule != null) {
+        val rule = editingRecurringRule!!
+        RecurringRuleEditorModal(
+            rule = rule,
+            onDismiss = { editingRecurringRule = null },
+            onSave = { frequency, installments ->
+                onUpdateRecurringRule(rule.id, frequency, installments)
+                editingRecurringRule = null
+            }
+        )
+    }
 }
+
+
 
 @Composable
 private fun BoxScope.BudgetGlow() {
@@ -1342,6 +1358,7 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
 private fun RecurringExpenseCard(
     expense: BudgetRecurringExpenseUi,
     onEnabledChange: (Boolean) -> Unit,
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Column(
@@ -1458,8 +1475,15 @@ private fun RecurringExpenseCard(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            BudgetCardAction(
+                label = "EDIT",
+                accent = PurpleAccent,
+                onClick = onEditClick
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             BudgetCardAction(
                 label = "DELETE",
                 accent = Color(0xFFFFB3B3),
@@ -1576,5 +1600,156 @@ private fun InsightCard(insight: BudgetInsightUi) {
 private fun BudgetScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         BudgetScreen()
+    }
+}
+@Composable
+private fun RecurringRuleEditorModal(
+    rule: BudgetRecurringExpenseUi,
+    onDismiss: () -> Unit,
+    onSave: (RecurringFrequency, Int) -> Unit
+) {
+    var selectedFrequency by remember { mutableStateOf(rule.frequency) }
+    var installmentsInput by remember { mutableStateOf(rule.totalInstallments.toString()) }
+    var isFrequencyDropdownExpanded by remember { mutableStateOf(false) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF141418),
+        scrimColor = Color.Black.copy(alpha = 0.65f),
+        dragHandle = {
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 38.dp, height = 4.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.12f))
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 24.dp)
+                .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(22.dp)
+        ) {
+            Text(
+                text = "Edit Commitment",
+                color = Color.White,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Frequency",
+                    color = Color(0xFFAAA2B8),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedFrequency.label,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        enabled = false,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = PurpleAccent
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = Color.White,
+                            disabledBorderColor = Color.White.copy(alpha = 0.12f),
+                            disabledContainerColor = Color(0xFF19191D)
+                        )
+                    )
+                    
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { isFrequencyDropdownExpanded = true }
+                    )
+
+                    DropdownMenu(
+                        expanded = isFrequencyDropdownExpanded,
+                        onDismissRequest = { isFrequencyDropdownExpanded = false },
+                        modifier = Modifier
+                            .background(Color(0xFF222228))
+                            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                    ) {
+                        RecurringFrequency.entries.forEach { frequency ->
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        text = frequency.label,
+                                        color = if (frequency == selectedFrequency) PurpleAccent else Color.White
+                                    )
+                                },
+                                onClick = {
+                                    selectedFrequency = frequency
+                                    isFrequencyDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Total Installments",
+                    color = Color(0xFFAAA2B8),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                
+                OutlinedTextField(
+                    value = installmentsInput,
+                    onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = PurplePrimary,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.12f),
+                        focusedContainerColor = Color(0xFF19191D),
+                        unfocusedContainerColor = Color(0xFF19191D)
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("CANCEL", color = Color(0xFFAAA2B8))
+                }
+                
+                TextButton(
+                    onClick = {
+                        val count = installmentsInput.toIntOrNull() ?: rule.totalInstallments
+                        if (count > 0) {
+                            onSave(selectedFrequency, count)
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(PurplePrimary, RoundedCornerShape(12.dp))
+                ) {
+                    Text("SAVE CHANGES", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
     }
 }

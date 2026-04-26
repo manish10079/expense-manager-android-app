@@ -383,6 +383,7 @@ fun MainScreen(
             onDeleteTransaction = mainViewModel::deleteTransaction,
             onDeleteRecurring = mainViewModel::deleteRecurring,
             onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
+            onUpdateRecurringRule = mainViewModel::updateRecurringRule,
             onCreateCustomCategory = mainViewModel::createCustomCategory,
             onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
             onDeleteCustomCategory = mainViewModel::deleteCustomCategory,

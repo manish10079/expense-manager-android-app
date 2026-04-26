@@ -10,6 +10,7 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
+import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
@@ -71,6 +72,7 @@ fun AppNavigationHost(
     onDeleteTransaction: (String) -> Unit,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
+    onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
     onCreateCustomCategory: (String, String, Int) -> Unit,
     onCreateCustomPaymentType: (String, String) -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
@@ -172,6 +174,7 @@ fun AppNavigationHost(
                         recurringRules = recurringRules,
                         onDeleteRecurring = onDeleteRecurring,
                         onRecurringEnabledChange = onRecurringEnabledChange,
+                        onUpdateRecurringRule = onUpdateRecurringRule,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)

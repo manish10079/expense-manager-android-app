@@ -15,6 +15,7 @@ import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
+import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
@@ -171,6 +172,23 @@ class MainViewModel @Inject constructor(
     fun setRecurringEnabled(ruleId: String, enabled: Boolean) {
         viewModelScope.launch {
             recurringRuleRepository.setEnabled(ruleId, enabled)
+        }
+    }
+
+    fun updateRecurringRule(
+        ruleId: String,
+        frequency: RecurringFrequency,
+        totalInstallments: Int
+    ) {
+        viewModelScope.launch {
+            val existingRule = _uiState.value.recurringRules.find { it.id == ruleId } ?: return@launch
+            recurringRuleRepository.upsertRule(
+                existingRule.copy(
+                    frequency = frequency,
+                    repeatCount = totalInstallments,
+                    updatedAt = System.currentTimeMillis()
+                )
+            )
         }
     }
 
