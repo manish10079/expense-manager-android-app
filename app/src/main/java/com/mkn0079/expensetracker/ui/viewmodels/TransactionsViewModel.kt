@@ -174,7 +174,7 @@ class TransactionsViewModel @Inject constructor(
         currentCustomizationSettings = customizationSettings
         latestTransactionTimestamp = transactions.maxOfOrNull { it.createdAt } ?: System.currentTimeMillis()
         if (focusedPeriodTimestamp == 0L) {
-            focusedPeriodTimestamp = latestTransactionTimestamp
+            focusedPeriodTimestamp = System.currentTimeMillis()
         }
         rebuildUiState()
     }
@@ -253,7 +253,7 @@ class TransactionsViewModel @Inject constructor(
 
     fun updatePeriodFilter(filter: TransactionPeriodFilter) {
         selectedPeriodFilter = filter
-        focusedPeriodTimestamp = latestTransactionTimestamp
+        focusedPeriodTimestamp = System.currentTimeMillis()
         rebuildUiState()
     }
 
@@ -375,10 +375,10 @@ class TransactionsViewModel @Inject constructor(
                 ) &&
                     matchesSearchQuery &&
                     matchesQuickDateFilter(
-                        transactionTimestamp = transaction.createdAt,
-                        selectedDateRange = appliedDateRange,
-                        anchorTimestamp = latestTransactionTimestamp
-                    ) &&
+                    transactionTimestamp = transaction.createdAt,
+                    selectedDateRange = appliedDateRange,
+                    anchorTimestamp = System.currentTimeMillis()
+                ) &&
                     matchesTransactionTypeFilter(
                         transactionTypeId = transaction.transactionTypeId,
                         selectedTransactionTypeIds = appliedTransactionTypeIds
