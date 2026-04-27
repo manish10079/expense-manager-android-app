@@ -11,6 +11,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +28,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
-import com.mkn0079.expensetracker.data.constants.defaultAppSettings
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.models.defaultUserProfile
@@ -101,19 +101,20 @@ class MainActivity : FragmentActivity() {
         val userProfile by UserProfileDataStore
             .getUserProfileFlow(context)
             .collectAsState(initial = defaultUserProfile)
+        val darkTheme = isSystemInDarkTheme()
 
-        ExpenseTrackerTheme(darkTheme = appSettings?.darkThemeEnabled ?: defaultAppSettings.darkThemeEnabled) {
+        ExpenseTrackerTheme(darkTheme = darkTheme) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Main content renders underneath once settings are available
                 if (appSettings != null) {
                     val settings = appSettings!!
 
                     LaunchedEffect(
-                        settings.darkThemeEnabled,
+                        darkTheme,
                         settings.blurInRecentsEnabled,
                         settings.screenshotProtectionEnabled
                     ) {
-                        applySystemBarColors(settings.darkThemeEnabled)
+                        applySystemBarColors(darkTheme)
                         applyPrivacySettings(
                             shouldBlurInRecents = settings.blurInRecentsEnabled,
                             shouldBlockScreenshots = settings.screenshotProtectionEnabled
