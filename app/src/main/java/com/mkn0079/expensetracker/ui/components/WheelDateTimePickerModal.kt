@@ -22,9 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.utils.validateAndCalculateTimestamp
 import com.mkn0079.expensetracker.utils.PickerResult
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
-import com.mkn0079.expensetracker.ui.theme.TextPrimaryDark
 import java.util.*
 
 enum class WheelPickerMode {
@@ -83,7 +80,7 @@ fun WheelDateTimePickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = BackgroundDark,
+        containerColor = MaterialTheme.colorScheme.surface,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         dragHandle = {
             Box(
@@ -91,7 +88,7 @@ fun WheelDateTimePickerModal(
                     .padding(vertical = 12.dp)
                     .size(width = 32.dp, height = 4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color.White.copy(alpha = 0.2f))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
             )
         }
     ) {
@@ -111,7 +108,7 @@ fun WheelDateTimePickerModal(
                     WheelPickerMode.YEAR_ONLY   -> "Select Year"
                     WheelPickerMode.DATE_RANGE  -> "Select Date Range"
                 },
-                color = TextPrimaryDark,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 22.sp
@@ -130,7 +127,7 @@ fun WheelDateTimePickerModal(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color.White.copy(alpha = 0.03f))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .padding(vertical = 8.dp)
             ) {
                 if (mode == WheelPickerMode.DATE_RANGE) {
@@ -178,7 +175,7 @@ fun WheelDateTimePickerModal(
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage!!,
-                        color = Color(0xFFFF5252),
+                        color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
@@ -191,7 +188,7 @@ fun WheelDateTimePickerModal(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
-                    Text("Cancel", color = Color.White.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -238,11 +235,11 @@ fun WheelDateTimePickerModal(
                     },
                     modifier = Modifier.weight(1.5f).height(54.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = if (mode == WheelPickerMode.DATE_RANGE) "Apply Range" else "Confirm",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -264,7 +261,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.05f))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / tabs.size }
@@ -281,7 +278,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Brush.horizontalGradient(listOf(PurplePrimary, Color(0xFFB89AF7))))
+                    .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)))
             )
         }
 
@@ -289,7 +286,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
             tabs.forEach { tab ->
                 val isSelected = tab == selectedTab
                 val contentColor by animateColorAsState(
-                    targetValue = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     label = "text_color"
                 )
                 Box(

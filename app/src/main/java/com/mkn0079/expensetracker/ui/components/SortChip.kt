@@ -37,7 +37,7 @@ fun SortChip(
     val borderColor = if (selected) {
         colorScheme.primary.copy(alpha = 0.55f)
     } else {
-        colorScheme.onSurface.copy(alpha = 0.08f)
+        colorScheme.onSurface.copy(alpha = 0.65f)
     }
 
     val backgroundBrush = if (selected) {
@@ -89,7 +89,7 @@ fun SortChip(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Preview(showBackground = true)
 @Composable
 fun SortChipPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

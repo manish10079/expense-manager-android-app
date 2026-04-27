@@ -96,11 +96,7 @@ import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -157,7 +153,7 @@ fun AddTransactionScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         val compact = maxHeight < 780.dp
         val dense = maxHeight < 700.dp
@@ -214,6 +210,8 @@ fun AddTransactionScreen(
                 noteDraft = initialNote
             }
         }
+
+        val colorScheme = MaterialTheme.colorScheme
 
         val categoriesForType = remember(transactions, availableCategories, selectedTransactionTypeId) {
             getRankedCategories(
@@ -291,7 +289,7 @@ fun AddTransactionScreen(
                     ) {
                         Text(
                             text = "ENTER AMOUNT",
-                            color = Color(0xFF8E8799),
+                            color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 letterSpacing = 2.2.sp,
                                 fontWeight = FontWeight.Bold,
@@ -527,6 +525,8 @@ private fun HeaderRow(
     title: String,
     compact: Boolean
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -541,13 +541,13 @@ private fun HeaderRow(
                 modifier = Modifier
                     .size(if (compact) 36.dp else 40.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.06f)),
+                    .background(colorScheme.onSurface.copy(alpha = 0.65f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    tint = PurpleAccent,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(if (compact) 17.dp else 19.dp)
                 )
             }
@@ -557,7 +557,7 @@ private fun HeaderRow(
 
         Text(
             text = title,
-            color = PurplePrimary,
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
@@ -568,11 +568,13 @@ private fun HeaderRow(
 
 @Composable
 private fun DividerLine() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(Color.White.copy(alpha = 0.08f))
+            .background(colorScheme.onSurface.copy(alpha = 0.65f))
     )
 }
 
@@ -586,11 +588,13 @@ private fun RecurringTransactionSection(
     onFrequencySelected: (RecurringFrequency) -> Unit,
     onRepeatCountChange: (String) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(Color(0xFF141418))
+            .background(colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -608,7 +612,7 @@ private fun RecurringTransactionSection(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Recurring Transaction",
-                    color = Color.White,
+                    color = colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -618,7 +622,7 @@ private fun RecurringTransactionSection(
 
                 Text(
                     text = "Default is off. Turn it on to track this expense in Budget & Recurring.",
-                    color = Color(0xFF9A93A6),
+                    color = colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -638,7 +642,7 @@ private fun RecurringTransactionSection(
                         .height(IntrinsicSize.Min)
                         .onSizeChanged { containerWidthPx = it.width }
                         .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF17171A))
+                        .background(colorScheme.surfaceVariant)
                         .padding(4.dp)
                 ) {
                     val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
@@ -659,7 +663,7 @@ private fun RecurringTransactionSection(
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(
                                     Brush.horizontalGradient(
-                                        colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                                        colors = listOf(colorScheme.primary, colorScheme.secondary)
                                     )
                                 )
                         )
@@ -672,7 +676,7 @@ private fun RecurringTransactionSection(
                         recurringModeOptions.forEach { option ->
                             val selected = option.frequency == selectedFrequency
                             val animatedColor by animateColorAsState(
-                                targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                                targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
                                 label = "recurring_freq_text_color"
                             )
                             Box(
@@ -710,26 +714,26 @@ private fun RecurringTransactionSection(
                     ) {
                         Text(
                             text = "Total number of payments for this commitment.",
-                            color = Color(0xFF9A93A6)
+                            color = colorScheme.onSurfaceVariant
                         )
                         
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(PurpleAccent.copy(alpha = 0.06f))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = null,
-                                tint = PurpleAccent,
+                                tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(12.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "Current transaction is considered the 1st installment",
-                                color = Color(0xFFD0C8DD),
+                                color = colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontStyle = FontStyle.Italic,
                                     letterSpacing = 0.4.sp
@@ -739,15 +743,15 @@ private fun RecurringTransactionSection(
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = PurplePrimary,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.10f),
-                    focusedContainerColor = Color(0xFF19191D),
-                    unfocusedContainerColor = Color(0xFF19191D),
-                    focusedLabelColor = PurplePrimary,
-                    unfocusedLabelColor = Color(0xFFAAA2B8),
-                    cursorColor = PurplePrimary
+                    focusedTextColor = colorScheme.onSurface,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedBorderColor = colorScheme.primary,
+                    unfocusedBorderColor = colorScheme.onSurface.copy(alpha =  0.65f),
+                    focusedContainerColor = colorScheme.surface,
+                    unfocusedContainerColor = colorScheme.surface,
+                    focusedLabelColor = colorScheme.primary,
+                    unfocusedLabelColor = colorScheme.onSurfaceVariant,
+                    cursorColor = colorScheme.primary
                 )
             )
         }
@@ -763,6 +767,7 @@ private fun TransactionModeToggle(
     val density = LocalDensity.current
     var containerWidthPx by remember { mutableIntStateOf(0) }
     val selectedIndex = transactionModes.indexOfFirst { it.id == selectedModeId }.coerceAtLeast(0)
+    val colorScheme = MaterialTheme.colorScheme
 
     Box(
         modifier = Modifier
@@ -770,7 +775,7 @@ private fun TransactionModeToggle(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17171A))
+            .background(colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / transactionModes.size }
@@ -791,7 +796,7 @@ private fun TransactionModeToggle(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(colorScheme.primary, colorScheme.secondary)
                         )
                     )
             )
@@ -804,7 +809,7 @@ private fun TransactionModeToggle(
             transactionModes.forEach { mode ->
                 val isSelected = mode.id == selectedModeId
                 val animatedColor by animateColorAsState(
-                    targetValue = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     label = "transaction_mode_text_color"
                 )
                 Box(
@@ -839,9 +844,9 @@ private fun AmountCard(
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
     val currency = getCurrency(currencyId)
     val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        Color(0xFFCBF8D7)
+        MaterialTheme.colorScheme.primary
     } else {
-        Color(0xFFF1ECF8)
+        MaterialTheme.colorScheme.onSurface
     }
 
     Box(
@@ -850,13 +855,13 @@ private fun AmountCard(
             .shadow(
                 elevation = 22.dp,
                 shape = shape,
-                ambientColor = PurplePrimary.copy(alpha = 0.18f),
-                spotColor = PurpleGlow.copy(alpha = 0.18f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(shape)
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF27222F), Color(0xFF1A1A1D))
+                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                 )
             )
             .padding(
@@ -871,7 +876,7 @@ private fun AmountCard(
         ) {
             Text(
                 text = "₹",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = if (compact) 22.sp else 24.sp
@@ -904,9 +909,9 @@ private fun CurrencyAmountCard(
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
     val currency = getCurrency(currencyId)
     val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        Color(0xFFCBF8D7)
+        MaterialTheme.colorScheme.primary
     } else {
-        Color(0xFFF1ECF8)
+        MaterialTheme.colorScheme.onSurface
     }
 
     Box(
@@ -915,13 +920,13 @@ private fun CurrencyAmountCard(
             .shadow(
                 elevation = 22.dp,
                 shape = shape,
-                ambientColor = PurplePrimary.copy(alpha = 0.18f),
-                spotColor = PurpleGlow.copy(alpha = 0.18f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(shape)
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF27222F), Color(0xFF1A1A1D))
+                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                 )
             )
             .padding(
@@ -937,7 +942,7 @@ private fun CurrencyAmountCard(
             if (currency.position == CurrencyPosition.PREFIX) {
                 Text(
                     text = currency.currencySymbol,
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = if (compact) 22.sp else 24.sp
@@ -961,7 +966,7 @@ private fun CurrencyAmountCard(
             if (currency.position == CurrencyPosition.POSTFIX) {
                 Text(
                     text = currency.currencySymbol,
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = if (compact) 22.sp else 24.sp
@@ -977,7 +982,7 @@ private fun CurrencyAmountCard(
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        color = Color(0xFFD2CBDD),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.labelLarge.copy(
             letterSpacing = 2.1.sp,
             fontWeight = FontWeight.Bold,
@@ -1027,18 +1032,18 @@ private fun ChoiceChip(
                 .shadow(
                     elevation = if (isSelected) 22.dp else 0.dp,
                     shape = CircleShape,
-                    ambientColor = PurplePrimary.copy(alpha = 0.26f),
-                    spotColor = PurpleGlow.copy(alpha = 0.24f)
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
                 )
                 .clip(CircleShape)
                 .background(
                     brush = if (isSelected) {
                         Brush.linearGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     } else {
                         Brush.verticalGradient(
-                            colors = listOf(Color(0xFF242424), Color(0xFF1F1F1F))
+                            colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
                 )
@@ -1048,7 +1053,7 @@ private fun ChoiceChip(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) Color(0xFF24104E) else Color(0xFF8F8A97),
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
         }
@@ -1057,7 +1062,7 @@ private fun ChoiceChip(
 
         Text(
             text = label,
-            color = if (isSelected) Color(0xFFE0D7F4) else Color(0xFF7A7482),
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -1090,7 +1095,7 @@ private fun SelectionInfoCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFF1C1C1D))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = if (compact) 14.dp else 16.dp,
@@ -1101,7 +1106,7 @@ private fun SelectionInfoCard(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = label,
-                tint = if (isPlaceholder) Color(0xFFC3BAD5) else PurpleAccent,
+                tint = if (isPlaceholder) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
 
@@ -1109,7 +1114,7 @@ private fun SelectionInfoCard(
 
             Text(
                 text = value,
-                color = if (isPlaceholder) Color(0xFF8B8594) else Color(0xFFF0ECF6),
+                color = if (isPlaceholder) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -1166,7 +1171,7 @@ private fun KeypadToggle(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(Color.White.copy(alpha = 0.04f))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 16.dp else 18.dp,
@@ -1178,7 +1183,7 @@ private fun KeypadToggle(
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
                 text = "Amount Keypad",
-                color = Color(0xFFF4F1F7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = if (compact) 15.sp else 16.sp
@@ -1186,7 +1191,7 @@ private fun KeypadToggle(
             )
             Text(
                 text = if (expanded) "Tap to hide keypad" else "Tap to slide up keypad",
-                color = Color(0xFF9C95AB),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -1195,7 +1200,7 @@ private fun KeypadToggle(
             modifier = Modifier
                 .size(if (compact) 34.dp else 38.dp)
                 .clip(CircleShape)
-                .background(PurpleAccent.copy(alpha = 0.12f)),
+                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -1205,7 +1210,7 @@ private fun KeypadToggle(
                     Icons.Filled.KeyboardArrowUp
                 },
                 contentDescription = if (expanded) "Collapse keypad" else "Expand keypad",
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
             )
         }
@@ -1223,7 +1228,7 @@ private fun KeypadKey(
         modifier = modifier
             .height(if (compact) 46.dp else 52.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(Color.White.copy(alpha = 0.04f))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -1231,13 +1236,13 @@ private fun KeypadKey(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Backspace,
                 contentDescription = "Delete",
-                tint = Color(0xFFD8CEEA),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(if (compact) 22.dp else 24.dp)
             )
         } else {
             Text(
                 text = label,
-                color = Color(0xFFF4F1F7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = if (compact) 24.sp else 26.sp
@@ -1263,13 +1268,13 @@ private fun AddTransactionButton(
             .shadow(
                 elevation = 26.dp,
                 shape = shape,
-                ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                spotColor = PurpleGlow.copy(alpha = 0.38f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
             )
             .clip(shape)
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF7A56F5), Color(0xFFB89AF7))
+                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                 )
             )
             .clickable(enabled = enabled, onClick = onClick)
@@ -1282,7 +1287,7 @@ private fun AddTransactionButton(
         ) {
             Text(
                 text = label,
-                color = Color(0xFF24114C),
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -1295,13 +1300,13 @@ private fun AddTransactionButton(
                 modifier = Modifier
                     .size(26.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2A1558)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = "Confirm $selectedCategory transaction",
-                    tint = Color(0xFFEFE9FA),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(15.dp)
                 )
             }
@@ -1321,18 +1326,18 @@ private fun SideActionButton(
             .shadow(
                 elevation = 18.dp,
                 shape = CircleShape,
-                ambientColor = PurplePrimary.copy(alpha = 0.24f),
-                spotColor = PurpleGlow.copy(alpha = 0.2f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
             )
             .clip(CircleShape)
-            .background(Color(0xFF1C1C1F))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = PurpleAccent,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -1389,14 +1394,12 @@ private fun formatEditableAmount(amount: Double): String {
     name = "Add Transaction",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Preview(
     name = "Add Transaction Compact",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=360dp,height=740dp,dpi=420"
 )
 @Composable

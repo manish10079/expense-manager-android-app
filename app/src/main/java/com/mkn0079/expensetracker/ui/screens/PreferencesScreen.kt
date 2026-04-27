@@ -37,9 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.ui.components.AppHeader
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.DecimalPlacesOptionUi
 import com.mkn0079.expensetracker.ui.viewmodels.NumberFormatOptionUi
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesScreenUiState
@@ -62,11 +60,7 @@ fun PreferencesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, Color(0xFF0B0B0C), BackgroundDark)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -87,7 +81,7 @@ fun PreferencesScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFF18181A))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(horizontal = 10.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -208,13 +202,13 @@ private fun PreferenceItemRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF232326)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = PurpleAccent,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -223,7 +217,7 @@ private fun PreferenceItemRow(
 
             Text(
                 text = title,
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -233,7 +227,7 @@ private fun PreferenceItemRow(
             if (trailing != null) {
                 Text(
                     text = trailing,
-                    color = Color(0xFF898297),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp
@@ -245,7 +239,7 @@ private fun PreferenceItemRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Open $title",
-                tint = Color(0xFF6F687C),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -266,8 +260,8 @@ private fun CurrencyPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -276,7 +270,7 @@ private fun CurrencyPickerSheet(
         ) {
             Text(
                 text = "Select Currency",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -286,7 +280,7 @@ private fun CurrencyPickerSheet(
 
             Text(
                 text = "Search by country and pick the currency you want to use across the app.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -302,23 +296,23 @@ private fun CurrencyPickerSheet(
                     Icon(
                         imageVector = Icons.Filled.Search,
                         contentDescription = "Search currency",
-                        tint = Color(0xFF9B93AE)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 placeholder = {
                     Text(
                         text = "Search country",
-                        color = Color(0xFF7E778D)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFF1D1D21),
-                    unfocusedContainerColor = Color(0xFF1D1D21),
-                    focusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-                    focusedTextColor = Color(0xFFF0EBF7),
-                    unfocusedTextColor = Color(0xFFF0EBF7),
-                    cursorColor = PurpleAccent
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -381,8 +375,8 @@ private fun DateFormatPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -391,7 +385,7 @@ private fun DateFormatPickerSheet(
         ) {
             Text(
                 text = "Select Date Format",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -401,7 +395,7 @@ private fun DateFormatPickerSheet(
 
             Text(
                 text = "Choose the date style you want to see across the app.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -438,8 +432,8 @@ private fun TimeFormatPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -448,7 +442,7 @@ private fun TimeFormatPickerSheet(
         ) {
             Text(
                 text = "Select Time Format",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -458,7 +452,7 @@ private fun TimeFormatPickerSheet(
 
             Text(
                 text = "Choose whether time is shown in 12-hour or 24-hour style.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -496,8 +490,8 @@ private fun NumberFormatPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -506,7 +500,7 @@ private fun NumberFormatPickerSheet(
         ) {
             Text(
                 text = "Select Number Format",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -514,7 +508,7 @@ private fun NumberFormatPickerSheet(
 
             Text(
                 text = "Choose how large amounts are grouped across the app.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -552,8 +546,8 @@ private fun DecimalPlacesPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -562,7 +556,7 @@ private fun DecimalPlacesPickerSheet(
         ) {
             Text(
                 text = "Select Decimal Places",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -570,7 +564,7 @@ private fun DecimalPlacesPickerSheet(
 
             Text(
                 text = "Choose how many decimal places are shown in currency values.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -609,7 +603,7 @@ private fun PickerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(if (isSelected) PurplePrimary.copy(alpha = 0.18f) else Color(0xFF1A1A1E))
+            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f) else MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -619,7 +613,7 @@ private fun PickerRow(
                 .size(42.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(
-                    if (isSelected) PurpleAccent.copy(alpha = 0.18f) else Color(0xFF232326)
+                    if (isSelected) MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -627,7 +621,7 @@ private fun PickerRow(
                 leading != null -> {
                     Text(
                         text = leading,
-                        color = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
@@ -636,7 +630,7 @@ private fun PickerRow(
                     Icon(
                         imageVector = leadingIcon,
                         contentDescription = title,
-                        tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -648,13 +642,13 @@ private fun PickerRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
-                color = Color(0xFF9B93AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -662,7 +656,7 @@ private fun PickerRow(
         if (isSelected) {
             Text(
                 text = "Selected",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
             )
         }
@@ -675,12 +669,12 @@ private fun EmptyPickerState(text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF1A1A1E))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 20.dp)
     ) {
         Text(
             text = text,
-            color = Color(0xFF9B93AE),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
     }

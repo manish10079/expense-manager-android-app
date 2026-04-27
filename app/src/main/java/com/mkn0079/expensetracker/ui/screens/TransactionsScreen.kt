@@ -83,6 +83,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mkn0079.expensetracker.ui.components.GatedAction
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
@@ -101,10 +104,6 @@ import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.components.SelectionHeader
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
 import com.mkn0079.expensetracker.ui.theme.Dimens
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
-import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
-import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
@@ -274,12 +273,12 @@ fun TransactionScreen(
                                     onClick = onClick,
                                     modifier = Modifier
                                         .size(26.dp)
-                                        .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), RoundedCornerShape(15.dp))
                                 ) {
                                     Icon(
                                         imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
                                         contentDescription = "Search transactions",
-                                        tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else Color(0xFFFFB74D),
+                                        tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
                                         modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
                                     )
                                 }
@@ -298,7 +297,7 @@ fun TransactionScreen(
                                 },
                                 modifier = Modifier
                                     .size(26.dp)
-                                    .background(Color(0x1EA0A0A2), RoundedCornerShape(15.dp))
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), RoundedCornerShape(15.dp))
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Tune,
@@ -354,7 +353,7 @@ fun TransactionScreen(
                                         Icon(
                                             imageVector = Icons.Default.Lock,
                                             contentDescription = "Unlock Advanced Search",
-                                            tint = Color(0xFFFFB74D),
+                                            tint = MaterialTheme.colorScheme.tertiary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -564,7 +563,7 @@ fun TransactionScreen(
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState,
-            containerColor = Color.Transparent,
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
             scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.76f),
             dragHandle = null,
             tonalElevation = 0.dp
@@ -641,7 +640,7 @@ fun TransactionScreen(
                         showDeleteConfirmation = false
                     }
                 ) {
-                    Text("Delete", color = Color(0xFFFF4D4D))
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
@@ -649,9 +648,9 @@ fun TransactionScreen(
                     Text("Cancel")
                 }
             },
-            containerColor = Color(0xFF1C1C1E),
-            titleContentColor = Color.White,
-            textContentColor = Color.White.copy(alpha = 0.7f)
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -28,9 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
@@ -161,11 +159,7 @@ fun DataManagementScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, Color(0xFF0B0B0C), BackgroundDark)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -195,7 +189,7 @@ fun DataManagementScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(28.dp))
-                            .background(Color(0xFF18181A))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(horizontal = 10.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -280,18 +274,18 @@ fun DataManagementScreen(
     if (isDeleteTransactionsDialogVisible) {
         AlertDialog(
             onDismissRequest = { isDeleteTransactionsDialogVisible = false },
-            containerColor = Color(0xFF18181A),
+            containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
                     text = "Delete all transactions?",
-                    color = Color(0xFFF2EDF9),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
                     text = "This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.",
-                    color = Color(0xFFB7AEC8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
@@ -304,7 +298,7 @@ fun DataManagementScreen(
                 ) {
                     Text(
                         text = "Delete All",
-                        color = Color(0xFFFFAAA0),
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -313,7 +307,7 @@ fun DataManagementScreen(
                 TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
                     Text(
                         text = "Cancel",
-                        color = PurpleAccent,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -324,18 +318,18 @@ fun DataManagementScreen(
     pendingRestoreUri?.let { selectedUri ->
         AlertDialog(
             onDismissRequest = { pendingRestoreUri = null },
-            containerColor = Color(0xFF18181A),
+            containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
                     text = "Restore database?",
-                    color = Color(0xFFF2EDF9),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
                     text = "This will overwrite your current database with the selected .db backup. It will not merge missing records. Existing database data will be replaced.",
-                    color = Color(0xFFB7AEC8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
@@ -348,7 +342,7 @@ fun DataManagementScreen(
                 ) {
                     Text(
                         text = "Restore",
-                        color = Color(0xFFFFAAA0),
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -357,7 +351,7 @@ fun DataManagementScreen(
                 TextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
                         text = "Cancel",
-                        color = PurpleAccent,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -390,7 +384,7 @@ private fun DataManagementSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
-                .background(Color(0xFF18181A))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -424,13 +418,13 @@ private fun DataManagementToggleRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) Color(0xFF232326) else Color(0xFF1D1D20)),
+                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = if (enabled) PurpleAccent else Color(0xFF6F687C),
+                    tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -439,7 +433,7 @@ private fun DataManagementToggleRow(
 
             Text(
                 text = title,
-                color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -451,11 +445,11 @@ private fun DataManagementToggleRow(
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF24114C),
-                    checkedTrackColor = PurpleAccent,
-                    uncheckedThumbColor = Color(0xFFDDD6EC),
-                    uncheckedTrackColor = Color(0xFF3B3548),
-                    uncheckedBorderColor = Color(0xFF3B3548)
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
         }
@@ -482,13 +476,13 @@ private fun DataManagementItemRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) Color(0xFF232326) else Color(0xFF1D1D20)),
+                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = if (enabled) PurpleAccent else Color(0xFF6F687C),
+                    tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -497,7 +491,7 @@ private fun DataManagementItemRow(
 
             Text(
                 text = title,
-                color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -507,7 +501,7 @@ private fun DataManagementItemRow(
             if (trailing != null) {
                 Text(
                     text = trailing,
-                    color = if (enabled) Color(0xFF898297) else Color(0xFF676272),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp
@@ -519,7 +513,7 @@ private fun DataManagementItemRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = if (enabled) Color(0xFF6F687C) else Color(0xFF4F4A59),
+                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -543,13 +537,13 @@ private fun DataManagementRow(
             modifier = Modifier
                 .size(38.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF222224)),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = item.title,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -558,7 +552,7 @@ private fun DataManagementRow(
 
         Text(
             text = item.title,
-            color = Color(0xFFEBE6F5),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.SemiBold
             ),
@@ -568,7 +562,7 @@ private fun DataManagementRow(
         if (item.trailing != null) {
             Text(
                 text = item.trailing,
-                color = Color(0xFF8D8699),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp
@@ -583,7 +577,7 @@ private fun DataManagementRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Color(0xFF534F5C),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -612,8 +606,8 @@ private fun AutoBackupFrequencyPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -624,7 +618,7 @@ private fun AutoBackupFrequencyPickerSheet(
             item {
                 Text(
                     text = "Backup Frequency",
-                    color = Color(0xFFF0EBF7),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -634,7 +628,7 @@ private fun AutoBackupFrequencyPickerSheet(
             item {
                 Text(
                     text = "Pick a preset or enter a custom value between 1 and 30 days.",
-                    color = Color(0xFF968EA8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -656,13 +650,13 @@ private fun AutoBackupFrequencyPickerSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF1A1A1E))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
                         text = "Custom Frequency",
-                        color = Color(0xFFF0EBF7),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -681,7 +675,7 @@ private fun AutoBackupFrequencyPickerSheet(
                         placeholder = {
                             Text(
                                 text = "Enter days",
-                                color = Color(0xFF7E778D)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
                         },
                         supportingText = {
@@ -695,17 +689,17 @@ private fun AutoBackupFrequencyPickerSheet(
                             }
                             Text(
                                 text = helperText,
-                                color = if (customInputError == null) Color(0xFF968EA8) else Color(0xFFFFAAA0)
+                                color = if (customInputError == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1D1D21),
-                            unfocusedContainerColor = Color(0xFF1D1D21),
-                            focusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-                            focusedTextColor = Color(0xFFF0EBF7),
-                            unfocusedTextColor = Color(0xFFF0EBF7),
-                            cursorColor = PurpleAccent
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary
                         )
                     )
 
@@ -721,8 +715,8 @@ private fun AutoBackupFrequencyPickerSheet(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = PurpleAccent,
-                            contentColor = Color(0xFF24114C)
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         Text(
@@ -755,9 +749,9 @@ private fun DurationPickerRow(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
                 } else {
-                    Color(0xFF1A1A1E)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
             )
             .clickable(onClick = onClick)
@@ -770,9 +764,9 @@ private fun DurationPickerRow(
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
                     } else {
-                        Color(0xFF232326)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     }
                 ),
             contentAlignment = Alignment.Center
@@ -780,7 +774,7 @@ private fun DurationPickerRow(
             Icon(
                 imageVector = Icons.Filled.AccessTime,
                 contentDescription = label,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -790,7 +784,7 @@ private fun DurationPickerRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -800,7 +794,7 @@ private fun DurationPickerRow(
 
             Text(
                 text = subtitle,
-                color = Color(0xFF9B93AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -808,7 +802,7 @@ private fun DurationPickerRow(
         if (isSelected) {
             Text(
                 text = "Selected",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold
                 )

@@ -57,10 +57,7 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.TransactionCard
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatAmount
 import com.mkn0079.expensetracker.utils.formatDate
@@ -162,11 +159,7 @@ fun TransactionCardCustomizeScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, Color(0xFF0C0B10), BackgroundDark)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentPadding = PaddingValues(start = 22.dp, top = 12.dp, end = 22.dp, bottom = 32.dp),
@@ -181,14 +174,14 @@ fun TransactionCardCustomizeScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF18181A))
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable(onClick = onBackClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ChevronLeft,
                         contentDescription = "Back",
-                        tint = PurpleAccent,
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -197,7 +190,7 @@ fun TransactionCardCustomizeScreen(
 
                 Text(
                     text = "Card Settings",
-                    color = PurplePrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 20.sp
@@ -212,7 +205,7 @@ fun TransactionCardCustomizeScreen(
                 item(key = "preview_header_${group.key}") {
                     Text(
                         text = group.key,
-                        color = Color(0xFF8F889D),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.6.sp
@@ -275,7 +268,7 @@ fun TransactionCardCustomizeScreen(
         item {
             Text(
                 text = "Customize how your data is visualized",
-                color = Color(0xFFA59EB1),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium
                 )
@@ -313,7 +306,7 @@ private fun TransactionCardToggleRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFF232223))
+            .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -322,13 +315,13 @@ private fun TransactionCardToggleRow(
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF1B1A1C)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = if (isLocked) Icons.Filled.Lock else item.icon,
                 contentDescription = item.title,
-                tint = if (isLocked) Color(0xFFFFB74D) else Color(0xFFD9CEF7),
+                tint = if (isLocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -338,7 +331,7 @@ private fun TransactionCardToggleRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,
-                color = Color(0xFFF2EDF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp
@@ -349,7 +342,7 @@ private fun TransactionCardToggleRow(
 
             Text(
                 text = item.subtitle,
-                color = Color(0xFFA099AC),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp
@@ -362,17 +355,17 @@ private fun TransactionCardToggleRow(
             onCheckedChange = { onClick() },
             enabled = !isLocked,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color(0xFF24114C),
-                checkedTrackColor = PurpleAccent,
-                uncheckedThumbColor = Color(0xFFDDD6EC),
-                uncheckedTrackColor = Color(0xFF3B3548),
-                uncheckedBorderColor = Color(0xFF3B3548)
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.secondary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
+                uncheckedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
             )
         )
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF0A0A0A)
+@Preview(showBackground = true)
 @Composable
 private fun TransactionCardCustomizeScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

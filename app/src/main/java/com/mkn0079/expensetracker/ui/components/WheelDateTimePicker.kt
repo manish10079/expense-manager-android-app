@@ -1,11 +1,10 @@
 package com.mkn0079.expensetracker.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.TextSecondaryDark
 import java.util.*
 
 @Composable
@@ -79,8 +78,8 @@ fun WheelDateTimePicker(
                 initialIndex = (selectedDay - 1).coerceIn(0, 30),
                 onItemSelected = { selectedDay = it },
                 label = { it.toString().padStart(2, '0') },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -91,8 +90,8 @@ fun WheelDateTimePicker(
                 initialIndex = selectedMonth,
                 onItemSelected = { selectedMonth = it },
                 label = { "${(it + 1).toString().padStart(2, '0')} ${monthNames[it]}" },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -107,8 +106,8 @@ fun WheelDateTimePicker(
                 initialIndex = yearIndex,
                 onItemSelected = { selectedYear = it },
                 label = { it.toString() },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -121,8 +120,8 @@ fun WheelDateTimePicker(
                 initialIndex = hours.indexOf(selectedHour).coerceAtLeast(0),
                 onItemSelected = { selectedHour = it },
                 label = { it.toString().padStart(2, '0') },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             WheelPicker(
@@ -131,8 +130,8 @@ fun WheelDateTimePicker(
                 initialIndex = selectedMinute,
                 onItemSelected = { selectedMinute = it },
                 label = { it.toString().padStart(2, '0') },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             WheelPicker(
@@ -141,8 +140,8 @@ fun WheelDateTimePicker(
                 initialIndex = amPmOptions.indexOf(selectedAmPm),
                 onItemSelected = { selectedAmPm = it },
                 label = { it },
-                selectedTextColor = PurpleAccent,
-                unselectedTextColor = TextSecondaryDark
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

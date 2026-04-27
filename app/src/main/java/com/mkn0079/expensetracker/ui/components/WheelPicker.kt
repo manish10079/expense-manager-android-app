@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,8 +28,8 @@ fun <T> WheelPicker(
     initialIndex: Int = 0,
     itemHeight: Dp = 48.dp,
     visibleCount: Int = 5,
-    selectedTextColor: Color = Color.White,
-    unselectedTextColor: Color = Color.Gray,
+    selectedTextColor: Color? = null,
+    unselectedTextColor: Color? = null,
     onItemSelected: (T) -> Unit,
     label: (T) -> String
 ) {
@@ -94,22 +95,23 @@ fun <T> WheelPicker(
                 .height(itemHeight)
                 .align(Alignment.Center)
         ) {
-            // Top line
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.5.dp)
-                    .align(Alignment.TopCenter)
-                    .background(selectedTextColor.copy(alpha = 0.3f))
-            )
-            // Bottom line
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.5.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(selectedTextColor.copy(alpha = 0.3f))
-            )
+                    val lineColor = selectedTextColor ?: MaterialTheme.colorScheme.onSurface
+                    // Top line
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(0.5.dp)
+                            .align(Alignment.TopCenter)
+                            .background(lineColor.copy(alpha = 0.3f))
+                    )
+                    // Bottom line
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(0.5.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(lineColor.copy(alpha = 0.3f))
+                    )
         }
 
         // NO contentPadding — items scroll naturally and FVI+visibleCount/2 is always center
@@ -148,9 +150,12 @@ fun <T> WheelPicker(
                         .height(itemHeight),
                     contentAlignment = Alignment.Center
                 ) {
+                    val finalSelectedColor = selectedTextColor ?: MaterialTheme.colorScheme.onSurface
+                    val finalUnselectedColor = unselectedTextColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+
                     Text(
                         text = label(item),
-                        color = if (isSelected) selectedTextColor else unselectedTextColor.copy(alpha = 0.4f),
+                        color = if (isSelected) finalSelectedColor else finalUnselectedColor.copy(alpha = 0.4f),
                         fontSize = 18.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         modifier = Modifier.graphicsLayer {

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Build
-import android.graphics.Color as AndroidColor
+import android.content.res.Configuration
 import android.view.WindowManager
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -25,6 +25,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
@@ -33,6 +34,7 @@ import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.BackgroundDark
+import com.mkn0079.expensetracker.ui.theme.BackgroundLight
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.InitTask
@@ -65,12 +67,9 @@ class MainActivity : FragmentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        applySystemBarColors()
+        applySystemBarColors(isSystemInDarkMode())
 
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(BackgroundDark.toArgb()),
-            navigationBarStyle = SystemBarStyle.dark(BackgroundDark.toArgb())
-        )
+        enableEdgeToEdge()
 
         NotificationHelper.createNotificationChannels(this)
         checkAndRequestNotificationPermission()
@@ -110,9 +109,11 @@ class MainActivity : FragmentActivity() {
                     val settings = appSettings!!
 
                     LaunchedEffect(
+                        settings.darkThemeEnabled,
                         settings.blurInRecentsEnabled,
                         settings.screenshotProtectionEnabled
                     ) {
+                        applySystemBarColors(settings.darkThemeEnabled)
                         applyPrivacySettings(
                             shouldBlurInRecents = settings.blurInRecentsEnabled,
                             shouldBlockScreenshots = settings.screenshotProtectionEnabled
@@ -158,13 +159,28 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun applySystemBarColors() {
-        window.statusBarColor = AndroidColor.BLACK
-        window.navigationBarColor = AndroidColor.BLACK
+    private fun applySystemBarColors(darkTheme: Boolean) {
+        val systemBarColor = if (darkTheme) {
+            BackgroundDark.toArgb()
+        } else {
+            BackgroundLight.toArgb()
+        }
+
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isStatusBarContrastEnforced = false
             window.isNavigationBarContrastEnforced = false
         }
+
+        window.statusBarColor = systemBarColor
+        window.navigationBarColor = systemBarColor
+        insetsController.isAppearanceLightStatusBars = !darkTheme
+        insetsController.isAppearanceLightNavigationBars = !darkTheme
+    }
+
+    private fun isSystemInDarkMode(): Boolean {
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 }

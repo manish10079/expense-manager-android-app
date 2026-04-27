@@ -473,9 +473,6 @@ private fun formatConfiguredCurrency(
     )
 }
 
-fun calendarAmountColor(amount: Double): Color {
-    return if (amount < 0) Color(0xFFFF9D92) else Color(0xFFB59BFF)
-}
 
 fun calendarMonthTitle(monthStart: Long): String {
     return SimpleDateFormat("MMMM yyyy", Locale.getDefault())

@@ -60,11 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
 enum class AppLockScreenMode {
     Setup,
@@ -257,9 +253,9 @@ fun AppLockScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF09090B),
-                        BackgroundDark,
-                        Color(0xFF121216)
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        MaterialTheme.colorScheme.background
                     )
                 )
             )
@@ -275,7 +271,7 @@ fun AppLockScreen(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(CircleShape)
-                    .background(Color.Transparent)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
                     .then(
                         if (headerAction != null) {
                             Modifier.clickable(onClick = headerAction)
@@ -289,7 +285,7 @@ fun AppLockScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFFC8B7FF),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -298,7 +294,7 @@ fun AppLockScreen(
             if (title.isNotBlank()) {
                 Text(
                     text = title,
-                    color = PurplePrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -324,8 +320,8 @@ fun AppLockScreen(
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                PurpleGlow.copy(alpha = 0.10f),
-                                Color.Transparent
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                             )
                         ),
                         shape = CircleShape
@@ -347,7 +343,7 @@ fun AppLockScreen(
                 if (eyebrow.isNotBlank()) {
                     Text(
                         text = eyebrow,
-                        color = Color(0xFFB9B1C9),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Medium,
                             letterSpacing = 4.sp,
@@ -362,7 +358,7 @@ fun AppLockScreen(
                 if (headline.isNotBlank()) {
                     Text(
                         text = headline,
-                        color = Color(0xFFF3EEF8),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 34.sp
@@ -376,7 +372,7 @@ fun AppLockScreen(
                 if (supportText.isNotBlank()) {
                     Text(
                         text = supportText,
-                        color = if (message == null) Color(0xFF8F879E) else Color(0xFFFFAAA0),
+                        color = if (message == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp),
                         textAlign = TextAlign.Center
@@ -482,16 +478,16 @@ private fun PinEntryContent(
                     .clip(CircleShape)
                     .background(
                         if (filled) {
-                            PurpleAccent
+                            MaterialTheme.colorScheme.secondary
                         } else {
-                            Color(0xFF3A3940)
+                            MaterialTheme.colorScheme.outlineVariant
                         }
                     )
                     .shadow(
                         elevation = if (filled) 14.dp else 0.dp,
                         shape = CircleShape,
-                        ambientColor = PurpleGlow.copy(alpha = 0.35f),
-                        spotColor = PurpleGlow.copy(alpha = 0.35f)
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
                     )
             )
         }
@@ -571,12 +567,12 @@ private fun RecoveryQuestionContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(26.dp))
-                .background(Color(0xFF19191D))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 18.dp, vertical = 18.dp)
         ) {
             Text(
                 text = questionPrompt ?: "No recovery question is saved for this app lock yet.",
-                color = Color(0xFFF3EEF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -604,9 +600,9 @@ private fun SecurityQuestionCard(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.22f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
                 } else {
-                    Color(0xFF19191D)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
             )
             .clickable(onClick = onClick)
@@ -614,7 +610,7 @@ private fun SecurityQuestionCard(
     ) {
         Text(
             text = prompt,
-            color = if (isSelected) Color(0xFFF6F0FF) else Color(0xFFD2CADF),
+            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.SemiBold
             )
@@ -643,15 +639,15 @@ private fun AppLockAnswerField(
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFF1D1D21),
-            unfocusedContainerColor = Color(0xFF1D1D21),
-            focusedBorderColor = PurpleAccent.copy(alpha = 0.75f),
-            unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-            focusedTextColor = Color(0xFFF0EBF7),
-            unfocusedTextColor = Color(0xFFF0EBF7),
-            focusedLabelColor = PurpleAccent,
-            unfocusedLabelColor = Color(0xFF968EA8),
-            cursorColor = PurpleAccent
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            cursorColor = MaterialTheme.colorScheme.primary
         )
     )
 }
@@ -669,12 +665,12 @@ private fun PrimaryActionButton(
             .shadow(
                 elevation = 28.dp,
                 shape = RoundedCornerShape(999.dp),
-                ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                spotColor = PurpleGlow.copy(alpha = 0.26f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
             ),
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
         )
     ) {
         Box(
@@ -683,8 +679,8 @@ private fun PrimaryActionButton(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            Color(0xFF7C4DFF),
-                            Color(0xFFC8B1FF)
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
                         )
                     ),
                     shape = RoundedCornerShape(999.dp)
@@ -693,7 +689,7 @@ private fun PrimaryActionButton(
         ) {
             Text(
                 text = label,
-                color = Color(0xFF24114C),
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
@@ -712,8 +708,8 @@ private fun BiometricActionButton(
         modifier = Modifier.size(68.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF1D1D21),
-            contentColor = PurpleAccent
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.primary
         )
     ) {
         Icon(
@@ -742,8 +738,8 @@ private fun AppLockKey(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        if (enabled) Color(0xFF232326) else Color(0xFF1A1A1D),
-                        if (enabled) Color(0xFF1A1A1D) else Color(0xFF141417)
+                        if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        if (enabled) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
                     )
                 )
             )
@@ -765,7 +761,7 @@ private fun AppLockKey(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = "Delete PIN digit",
-                    tint = if (enabled) Color(0xFFEDE7F7) else Color(0xFF6B6772),
+                    tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -773,7 +769,7 @@ private fun AppLockKey(
             isForgot -> {
                 Text(
                     text = "FORGOT",
-                    color = if (enabled) Color(0xFFC2BACE) else Color(0xFF6B6772),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 1.2.sp,
@@ -785,7 +781,7 @@ private fun AppLockKey(
             else -> {
                 Text(
                     text = key,
-                    color = if (enabled) Color(0xFFF3EEF8) else Color(0xFF6B6772),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 28.sp
@@ -796,7 +792,7 @@ private fun AppLockKey(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 360, heightDp = 780)
+@Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun AppLockUnlockPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
@@ -807,7 +803,7 @@ private fun AppLockUnlockPreview() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 360, heightDp = 780)
+@Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun AppLockSetupPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

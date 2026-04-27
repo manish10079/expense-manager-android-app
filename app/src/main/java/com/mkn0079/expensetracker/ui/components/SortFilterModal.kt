@@ -64,9 +64,6 @@ import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getDefaultOrder
 import com.mkn0079.expensetracker.utils.getOrderOptions
 import com.mkn0079.expensetracker.monetization.Feature
@@ -118,7 +115,7 @@ fun FilterBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
@@ -133,7 +130,7 @@ fun FilterBottomSheet(
                         .width(54.dp)
                         .height(5.dp)
                         .clip(CircleShape)
-                        .background(colorScheme.onSurface.copy(alpha = 0.16f))
+                        .background(colorScheme.onSurface.copy(alpha = 0.65f))
                 )
             }
         }
@@ -320,7 +317,7 @@ fun FilterBottomSheet(
                                 Icon(
                                     imageVector = Icons.Filled.Lock,
                                     contentDescription = "Locked",
-                                    tint = Color(0xFFFFB74D),
+                                    tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
                                 )
                             }
@@ -361,7 +358,7 @@ fun FilterBottomSheet(
                                 Icon(
                                     imageVector = Icons.Filled.Lock,
                                     contentDescription = "Locked",
-                                    tint = Color(0xFFFFB74D),
+                                    tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
                                 )
                             }
@@ -453,11 +450,11 @@ private fun FilterOptionChip(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    val selectedBrush = remember {
+    val selectedBrush = remember(colorScheme.primary, colorScheme.secondary) {
         Brush.horizontalGradient(
             colors = listOf(
-                PurplePrimary.copy(alpha = 0.26f),
-                PurpleGlow.copy(alpha = 0.18f)
+                colorScheme.primary.copy(alpha = 0.26f),
+                colorScheme.secondary.copy(alpha = 0.18f)
             )
         )
     }
@@ -471,8 +468,8 @@ private fun FilterOptionChip(
         )
     }
 
-    val selectedBorderColor = remember { PurpleAccent.copy(alpha = 0.55f) }
-    val unselectedBorderColor = remember(colorScheme.onSurface) { colorScheme.onSurface.copy(alpha = 0.10f) }
+    val selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
+    val unselectedBorderColor = remember(colorScheme.onSurface) { colorScheme.onSurface.copy(alpha =  0.65f) }
 
     Row(
         modifier = Modifier
@@ -494,7 +491,7 @@ private fun FilterOptionChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) PurpleAccent else colorScheme.onSurfaceVariant,
+                tint = if (selected) MaterialTheme.colorScheme.primary else colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(16.dp)
             )
         }
@@ -533,9 +530,9 @@ private fun AmountFilterField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = colorScheme.surface.copy(alpha = 0.92f),
             unfocusedContainerColor = colorScheme.surface.copy(alpha = 0.92f),
-            focusedBorderColor = PurpleAccent.copy(alpha = 0.55f),
-            unfocusedBorderColor = colorScheme.onSurface.copy(alpha = 0.10f),
-            cursorColor = PurpleAccent,
+            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
+            unfocusedBorderColor = colorScheme.onSurface.copy(alpha =  0.65f),
+            cursorColor = MaterialTheme.colorScheme.primary,
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface
         )
@@ -555,10 +552,10 @@ private fun FilterSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFF0A0A0A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha = 0.08f),
+                color = colorScheme.onSurface.copy(alpha = 0.65f),
                 shape = RoundedCornerShape(28.dp)
             )
             .padding(18.dp)
@@ -634,7 +631,7 @@ private fun orderDescription(sortType: SortType): String {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Preview(showBackground = true)
 @Composable
 fun FilterBottomSheetPreview() {
     var selectedSort by remember { mutableStateOf(DEFAULT_SORT_BY) }

@@ -1,56 +1,33 @@
 package com.mkn0079.expensetracker.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
+private fun ColorScheme.isExpenseTrackerDarkPalette(): Boolean {
+    return primary == PurplePrimary && background == BackgroundDark
+}
 
-    primary = PurplePrimary,
-    secondary = PurpleAccent,
+val ColorScheme.income: Color
+    get() = if (isExpenseTrackerDarkPalette()) IncomeGreen else tertiary
 
-    background = BackgroundDark,
-    surface = SurfaceDark,
-    surfaceVariant = CardDark,
-
-    onPrimary = TextPrimaryDark,
-    onBackground = TextPrimaryDark,
-    onSurface = TextPrimaryDark,
-    onSurfaceVariant = TextSecondaryDark,
-
-    outline = DividerDark
-)
-
-private val LightColorScheme = lightColorScheme(
-
-    primary = PurplePrimaryLight,
-    secondary = PurpleAccentLight,
-
-    background = BackgroundLight,
-    surface = SurfaceLight,
-    surfaceVariant = CardLight,
-    onPrimary = TextPrimaryLight,
-    onBackground = TextPrimaryLight,
-    onSurface = TextPrimaryLight,
-    onSurfaceVariant = TextSecondaryLight,
-
-    outline = DividerLight
-)
-
-val ColorScheme.income: Color get() = IncomeGreen
-val ColorScheme.expense: Color get() = ExpenseRed
+val ColorScheme.expense: Color get() = error
 
 @Composable
 fun ExpenseTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-
-    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (darkTheme) {
+        ExpenseTrackerDarkColorScheme
+    } else {
+        ExpenseTrackerLightColorScheme
+    }
 
     MaterialTheme(
-        colorScheme = colors,
+        colorScheme = colorScheme,
         typography = Typography,
         shapes = Shapes,
         content = content

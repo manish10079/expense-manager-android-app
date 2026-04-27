@@ -1,7 +1,6 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,11 +27,19 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
-
 enum class BudgetPeriodFilter {
     ThisMonth,
     LastMonth,
     CustomMonth
+}
+
+enum class BudgetAccent {
+    Primary,
+    Warning,
+    Overspent,
+    Disabled,
+    Daily,
+    Yearly
 }
 
 @Immutable
@@ -62,7 +69,7 @@ data class BudgetCategoryBudgetUi(
     val spentAmount: Double,
     val limitAmount: Double,
     val icon: ImageVector,
-    val accent: Color
+    val accent: BudgetAccent
 )
 
 @Immutable
@@ -81,7 +88,7 @@ data class BudgetRecurringExpenseUi(
     val dueLabel: String,
     val dueAmountLabel: String,
     val icon: ImageVector,
-    val accent: Color,
+    val accent: BudgetAccent,
     val nextDueAt: Long,
     val isEnabled: Boolean
 )
@@ -91,7 +98,7 @@ data class BudgetInsightUi(
     val title: String,
     val body: String,
     val supportingLabel: String,
-    val accent: Color
+    val accent: BudgetAccent
 )
 
 @Immutable
@@ -105,7 +112,7 @@ data class BudgetScreenUiState(
         title = "Budget Insight",
         body = "Start tracking how your spending is pacing against your monthly limits.",
         supportingLabel = "WAITING FOR BUDGETS",
-        accent = Color(0xFFB89AF7)
+        accent = BudgetAccent.Primary
     ),
     val emptyCategoryMessage: String? = null,
     val emptyRecurringMessage: String? = null,
@@ -487,7 +494,7 @@ private fun buildInsight(
             title = "Budget Insight",
             body = "You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.",
             supportingLabel = "",
-            accent = Color(0xFFB89AF7)
+            accent = BudgetAccent.Primary
         )
     }
 
@@ -514,7 +521,7 @@ private fun buildInsight(
                 title = "Budget Insight",
                 body = "${overspentCategory.title} is over budget by ${formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId, amountFormatPreferences)}. Tightening that category first will give you the quickest recovery.",
                 supportingLabel = "OVER BUDGET",
-                accent = Color(0xFFFFA8A8)
+                accent = BudgetAccent.Overspent
             )
         }
 
@@ -532,7 +539,7 @@ private fun buildInsight(
                 title = "Budget Insight",
                 body = "You have used ${summary.usageLabel.lowercase(Locale.getDefault())} for ${summary.monthLabel}. ${highestSpendCategory?.title ?: "Your top category"} is carrying the most spend, so trimming there will protect your remaining ${summary.remainingLabel}.",
                 supportingLabel = "WATCH YOUR RUNWAY",
-                accent = Color(0xFFFFC27C)
+                accent = BudgetAccent.Warning
             )
         }
 
@@ -541,7 +548,7 @@ private fun buildInsight(
                 title = "Budget Insight",
                 body = "Your budget pacing looks steady for ${summary.monthLabel}. You still have ${summary.remainingLabel} available, with ${highestSpendCategory?.title ?: "your biggest category"} leading spend so far.",
                 supportingLabel = "BUDGET ON TRACK",
-                accent = Color(0xFFB89AF7)
+                accent = BudgetAccent.Primary
             )
         }
     }
@@ -550,21 +557,21 @@ private fun buildInsight(
 private fun recurringAccent(
     isEnabled: Boolean,
     frequency: RecurringFrequency
-): Color {
-    if (!isEnabled) return Color(0xFF8E8799)
+): BudgetAccent {
+    if (!isEnabled) return BudgetAccent.Disabled
     return when (frequency) {
-        RecurringFrequency.Daily -> Color(0xFF8BFFCF)
-        RecurringFrequency.Weekly -> Color(0xFFFFC27C)
-        RecurringFrequency.Monthly -> Color(0xFFD8C2FF)
-        RecurringFrequency.Yearly -> Color(0xFF9AD8FF)
+        RecurringFrequency.Daily -> BudgetAccent.Daily
+        RecurringFrequency.Weekly -> BudgetAccent.Warning
+        RecurringFrequency.Monthly -> BudgetAccent.Primary
+        RecurringFrequency.Yearly -> BudgetAccent.Yearly
     }
 }
 
-private fun categoryAccent(progress: Float): Color {
+private fun categoryAccent(progress: Float): BudgetAccent {
     return when {
-        progress > 1f -> Color(0xFFFFA8A8)
-        progress >= 0.85f -> Color(0xFFFFC27C)
-        else -> Color(0xFFD8C2FF)
+        progress > 1f -> BudgetAccent.Overspent
+        progress >= 0.85f -> BudgetAccent.Warning
+        else -> BudgetAccent.Primary
     }
 }
 

@@ -46,11 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.R
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
-import com.mkn0079.expensetracker.ui.theme.TextSecondaryDark
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import ir.mahozad.multiplatform.wavyslider.WaveDirection.HEAD
 import ir.mahozad.multiplatform.wavyslider.material.WavySlider as WavySlider2
@@ -88,15 +83,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0A0A0A),
-                        BackgroundDark,
-                        Color(0xFF120F1A)
-                    )
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -127,7 +114,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 32.sp
                 ),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -135,7 +122,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
 
             Text(
                 text = "App is starting, please wait...",
-                color = TextSecondaryDark,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium
                 ),
@@ -164,7 +151,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = label,
-                            color = Color(0xFFF0EBF8),
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Medium
                             )
@@ -179,10 +166,10 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                     value = loadingProgress.value,
                     onValueChange = {},
                     colors = MaterialSliderDefaults.colors(
-                        thumbColor = Color.Transparent,
-                        disabledThumbColor = Color.Transparent,
-                        activeTrackColor = PurpleAccent,
-                        inactiveTrackColor = PurplePrimary.copy(alpha = 0.16f)
+                        thumbColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        disabledThumbColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        activeTrackColor = MaterialTheme.colorScheme.secondary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -199,7 +186,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
 
                 Text(
                     text = "${(loadingProgress.value * 100).toInt()}%",
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -224,7 +211,7 @@ fun LoadingDots() {
 
     Text(
         text = ".".repeat(dotCount.toInt()),
-        color = Color(0xFFA49CB4),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.SemiBold
         )

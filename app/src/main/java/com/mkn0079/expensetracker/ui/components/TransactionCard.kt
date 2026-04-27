@@ -55,8 +55,8 @@ fun TransactionCard(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
-    val backgroundColor = if (isSelected) Color(0xFF2D243F) else Color(0xFF171718)
-    val borderColor = if (isSelected) Color(0xFF8B63F1).copy(alpha = 0.5f) else Color.White.copy(alpha = 0.03f)
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
 
     Row(
         modifier = Modifier
@@ -88,7 +88,7 @@ fun TransactionCard(
         ) {
             Text(
                 text = note,
-                color = Color(0xFFF3EEF4),
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -107,7 +107,7 @@ fun TransactionCard(
                     if (showTransactionDate) {
                         Text(
                             text = transactionDate,
-                            color = Color(0xFF807987),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium.copy(
@@ -121,7 +121,7 @@ fun TransactionCard(
                     if (showTransactionDate && showTransactionTime) {
                         Text(
                             text = " | ",
-                            color = Color(0xFF807987),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.sp,
@@ -134,7 +134,7 @@ fun TransactionCard(
                     if (showTransactionTime) {
                         Text(
                             text = transactionTime,
-                            color = Color(0xFF807987),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium.copy(
@@ -156,7 +156,7 @@ fun TransactionCard(
 
                 Text(
                     text = paymentType,
-                    color = Color(0xFF807987),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelMedium.copy(
@@ -188,7 +188,7 @@ fun TransactionCard(
 
                 Text(
                     text = if (transactionTypeId == 1) "INCOME" else "EXPENSE",
-                    color = Color(0xFF807987),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
@@ -211,10 +211,10 @@ private fun BoxIcon(
         modifier = Modifier
             .size(42.dp)
             .clip(CircleShape)
-            .background(Color(0xFF3D3159))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
             .border(
                 width = 1.dp,
-                color = Color(0xFF5B4A84),
+                color = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f),
                 shape = CircleShape
             ),
         contentAlignment = Alignment.Center
@@ -222,7 +222,7 @@ private fun BoxIcon(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = Color(0xFFE2D8FF),
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(20.dp)
         )
     }
@@ -250,7 +250,7 @@ fun TransactionCardLightPreview() {
 @Composable
 fun TransactionCardDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        Surface(color = Color(0xFF0A0A0A)) {
+        Surface {
             TransactionCard(
                 note = "Salary Credit",
                 transactionDate = "31 Dec",

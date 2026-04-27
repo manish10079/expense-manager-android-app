@@ -59,9 +59,7 @@ import com.mkn0079.expensetracker.ui.components.TodaySpendingCard
 import com.mkn0079.expensetracker.ui.components.TotalBalanceCard
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
@@ -127,8 +125,8 @@ private fun HomeScreenContent(
 ) {
     val profileAvatarGradient = Brush.verticalGradient(
         colors = listOf(
-            PurplePrimary.copy(alpha = 0.95f),
-            PurpleAccent.copy(alpha = 0.86f)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.86f)
         )
     )
 
@@ -156,7 +154,7 @@ private fun HomeScreenContent(
                         size = 60.dp,
                         textSize = 18.sp,
                         photoUri = userProfile.photoUri,
-                        backgroundColor = Color.Black,
+                        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                         borderBrush = profileAvatarGradient,
                         placeholderIconBrush = profileAvatarGradient,
                         modifier = Modifier.clickable(onClick = onProfileClick)
@@ -217,7 +215,7 @@ private fun HomeScreenContent(
             ) {
                 Text(
                     text = "Recent Activity",
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -231,7 +229,7 @@ private fun HomeScreenContent(
 
                 Text(
                     text = "VIEW ALL",
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -315,15 +313,15 @@ fun SettingsButton(onClick: () -> Unit) {
             .shadow(
                 elevation = 20.dp,
                 shape = CircleShape,
-                ambientColor = PurplePrimary.copy(alpha = 0.22f),
-                spotColor = PurpleGlow.copy(alpha = 0.18f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(CircleShape)
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-                        Color(0xFF17171A)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
@@ -340,7 +338,7 @@ fun SettingsButton(onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.Settings,
             contentDescription = "Settings",
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(24.dp)
         )
     }

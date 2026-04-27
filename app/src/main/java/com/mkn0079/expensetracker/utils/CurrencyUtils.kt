@@ -1,14 +1,15 @@
 package com.mkn0079.expensetracker.utils
 
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.currencyMap
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.CurrencyPosition
-import com.mkn0079.expensetracker.ui.theme.ExpenseRed
-import com.mkn0079.expensetracker.ui.theme.IncomeGreen
+import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.income
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -95,10 +96,10 @@ private fun formatIndianGroupedInteger(integerPart: String): String {
     return "$groupedPrefix,$lastThreeDigits"
 }
 
-fun getAmountColor(transactionId:Int): Color
-{
-    if(getTransactionTypeName(transactionId).equals("Income", ignoreCase = true))
-        return IncomeGreen
-    return ExpenseRed
-
-}
+@Composable
+fun getAmountColor(transactionId: Int) =
+    if (getTransactionTypeName(transactionId).equals("Income", ignoreCase = true)) {
+        MaterialTheme.colorScheme.income
+    } else {
+        MaterialTheme.colorScheme.expense
+    }

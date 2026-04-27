@@ -86,15 +86,12 @@ import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
+import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsToggleId
-import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,15 +124,7 @@ fun SettingsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        BackgroundDark,
-                        Color(0xFF0B0B0C),
-                        BackgroundDark
-                    )
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -206,8 +195,8 @@ private fun ProfileHero(
 ) {
     val profileAvatarGradient = Brush.verticalGradient(
         colors = listOf(
-            PurplePrimary.copy(alpha = 0.95f),
-            PurpleAccent.copy(alpha = 0.86f)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.86f)
         )
     )
 
@@ -222,7 +211,7 @@ private fun ProfileHero(
             photoUri = userProfile.photoUri,
             showGlow = false,
             showBorder = true,
-            backgroundColor = Color.Black,
+            backgroundColor = MaterialTheme.colorScheme.background,
             borderBrush = profileAvatarGradient,
             placeholderIconBrush = profileAvatarGradient
         )
@@ -247,8 +236,8 @@ private fun ProfileHero(
                 letterSpacing = 0.5.sp,
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        PurplePrimary.copy(alpha = 0.95f),
-                        PurpleAccent.copy(alpha = 0.90f)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
                     )
                 )
             )
@@ -262,8 +251,8 @@ private fun ProfileHero(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            PurplePrimary.copy(alpha = 0.95f),
-                            PurpleAccent.copy(alpha = 0.90f)
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
                         )
                     )
                 )
@@ -271,7 +260,7 @@ private fun ProfileHero(
         ) {
             Text(
                 text = "PREMIUM MEMBER",
-                color = Color(0xFF271157),
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 10.sp,
@@ -299,7 +288,7 @@ private fun SettingsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
-                .background(Color(0xFF18181A))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -362,13 +351,13 @@ private fun SettingsRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) Color(0xFF232326) else Color(0xFF1D1D20)),
+                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = item.title,
-                    tint = if (enabled) PurpleAccent else Color(0xFF6F687C),
+                    tint = if (enabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -377,7 +366,7 @@ private fun SettingsRow(
 
             Text(
                 text = item.title,
-                color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -387,7 +376,7 @@ private fun SettingsRow(
             item.trailing?.let {
                 Text(
                     text = it,
-                    color = if (enabled) Color(0xFF898297) else Color(0xFF676272),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp
@@ -403,18 +392,18 @@ private fun SettingsRow(
                     onCheckedChange = onToggleChange,
                     enabled = enabled,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF24114C),
-                        checkedTrackColor = PurpleAccent,
-                        uncheckedThumbColor = Color(0xFFDDD6EC),
-                        uncheckedTrackColor = Color(0xFF3B3548),
-                        uncheckedBorderColor = Color(0xFF3B3548)
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                        checkedTrackColor = MaterialTheme.colorScheme.secondary,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
+                        uncheckedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
                     )
                 )
             } else if (item.showChevron) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Open ${item.title}",
-                    tint = if (enabled) Color(0xFF6F687C) else Color(0xFF4F4A59),
+                    tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -428,7 +417,6 @@ private fun SettingsRow(
     name = "Settings Screen",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable

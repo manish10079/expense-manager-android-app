@@ -31,8 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -60,7 +58,7 @@ fun TodaySpendingCard(
             )
             .border(
                 width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha = 0.08f),
+                color = colorScheme.onSurface.copy(alpha = 0.65f),
                 shape = shape
             )
             .padding(horizontal = Dimens.PaddingMedium, vertical = 18.dp)
@@ -80,8 +78,8 @@ fun TodaySpendingCard(
                         .background(
                             brush = Brush.linearGradient(
                                 colors = listOf(
-                                    PurplePrimary,
-                                    PurpleAccent
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
                                 )
                             ),
                             shape = CircleShape
@@ -91,7 +89,7 @@ fun TodaySpendingCard(
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
                         contentDescription = "Today's spending",
-                        tint = Color(0xFF24104E)
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 

@@ -35,6 +35,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -88,28 +89,16 @@ import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.horizontalSwipe
-import com.mkn0079.expensetracker.ui.theme.ExpenseRed
-import com.mkn0079.expensetracker.ui.theme.IncomeGreen
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
-import com.mkn0079.expensetracker.ui.viewmodels.calendarAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.calendarMonthTitle
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import java.util.Calendar
 
-private val CalendarBackground = Color(0xFF09090C)
-private val CalendarSurface = Color(0xFF1A1A1F)
-private val CalendarPurple = Color(0xFF8D6BFF)
-private val CalendarPurpleSoft = Color(0xFFBCA8FF)
-private val CalendarPurpleDark = Color(0xFF2B2048)
-private val CalendarTextPrimary = Color(0xFFF2F2F5)
-private val CalendarTextSecondary = Color(0xFF8B8796)
-private val CalendarExpense = ExpenseRed
-private val CalendarIncome = IncomeGreen
-private val CalendarAmber = Color(0xFFFFC177)
-private val CalendarMuted = Color(0xFF5D5B66)
+// Theme colors are now derived from MaterialTheme.colorScheme
 
 private val dayNames = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 private val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
@@ -150,11 +139,11 @@ fun CalendarScreen(
     }
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
 
-    Surface(color = CalendarBackground, modifier = Modifier.fillMaxSize()) {
+    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(CalendarBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .statusBarsPadding()
         ) {
             Box(
@@ -170,7 +159,7 @@ fun CalendarScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .navigationBarsPadding()
-                    .background(CalendarBackground),
+                    .background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 130.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
@@ -336,7 +325,7 @@ private fun ViewModeToggle(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / 2 }
@@ -357,7 +346,7 @@ private fun ViewModeToggle(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     )
             )
@@ -391,7 +380,7 @@ private fun ToggleSegment(
     onClick: () -> Unit
 ) {
     val animatedColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "calendar_toggle_text_color"
     )
 
@@ -429,7 +418,7 @@ private fun MonthHeading(
 
             Text(
                 text = calendarMonthTitle(monthStart),
-                color = CalendarTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.clickable(onClick = onOpenPicker)
@@ -452,14 +441,14 @@ private fun TodayShortcutButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Today",
-            color = CalendarPurpleSoft,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
@@ -475,7 +464,7 @@ private fun MonthCalendarCard(
     onSwipeNext: () -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CalendarSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(26.dp),
         modifier = Modifier.horizontalSwipe(
             key = days to selectedDate,
@@ -495,9 +484,9 @@ private fun MonthCalendarCard(
                     Text(
                         text = day,
                         color = when (index) {
-                            5 -> CalendarAmber
-                            6 -> CalendarExpense
-                            else -> CalendarTextSecondary
+                            5 -> MaterialTheme.colorScheme.tertiary
+                            6 -> MaterialTheme.colorScheme.expense
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -541,15 +530,15 @@ private fun DayCell(
     ) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape)
-                .background(if (selected) CalendarPurple else Color.Transparent),
+                .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = day.dayNumber.toString(),
                 color = when {
-                    selected -> CalendarTextPrimary
-                    day.isCurrentMonth -> CalendarTextPrimary
-                    else -> CalendarMuted
+                    selected -> MaterialTheme.colorScheme.onPrimary
+                    day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
+                    else -> MaterialTheme.colorScheme.outline
                 },
                 fontSize = 14.sp,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
@@ -560,10 +549,10 @@ private fun DayCell(
 
         Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
             if (day.hasExpense) {
-                DotIndicator(color = if (day.isCurrentMonth) CalendarExpense else CalendarMuted.copy(alpha = 0.45f))
+                DotIndicator(color = if (day.isCurrentMonth) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.outline.copy(alpha =  0.65f))
             }
             if (day.hasIncome) {
-                DotIndicator(color = if (day.isCurrentMonth) CalendarIncome else CalendarMuted.copy(alpha = 0.45f))
+                DotIndicator(color = if (day.isCurrentMonth) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.outline.copy(alpha =  0.65f))
             }
         }
     }
@@ -606,7 +595,7 @@ private fun TransactionSectionHeader(
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = "TRANSACTIONS",
-            color = CalendarTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.6.sp
@@ -614,7 +603,7 @@ private fun TransactionSectionHeader(
 
         Text(
             text = selectedDayTitle,
-            color = CalendarTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -649,7 +638,7 @@ private fun EmptyTransactionsCard(
     message: String
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CalendarSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(24.dp)
     ) {
         Column(
@@ -658,13 +647,13 @@ private fun EmptyTransactionsCard(
         ) {
             Text(
                 text = "No transactions found",
-                color = CalendarTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = message,
-                color = CalendarTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp
             )
         }
@@ -695,7 +684,7 @@ private fun YearHeading(
             )
             Text(
                 text = year.toString(),
-                color = CalendarTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.clickable(onClick = onOpenYearPicker)
@@ -722,7 +711,7 @@ private fun AnnualSummaryCard(
     totalExpense: String
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CalendarSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(28.dp)
     ) {
         Column(
@@ -737,12 +726,12 @@ private fun AnnualSummaryCard(
                 SummaryStat(
                     label = "TOTAL INCOME",
                     value = totalIncome,
-                    valueColor = CalendarTextPrimary
+                    valueColor = MaterialTheme.colorScheme.onSurface
                 )
                 SummaryStat(
                     label = "TOTAL EXPENSES",
                     value = totalExpense,
-                    valueColor = CalendarTextPrimary
+                    valueColor = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -758,7 +747,7 @@ private fun SummaryStat(
     Column {
         Text(
             text = label,
-            color = CalendarTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.3.sp
@@ -803,7 +792,7 @@ private fun MonthSummaryCard(
     onClick: () -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CalendarSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(22.dp),
         modifier = Modifier.clickable(onClick = onClick)
     ) {
@@ -818,13 +807,13 @@ private fun MonthSummaryCard(
             ) {
                 Text(
                     text = summary.label,
-                    color = CalendarTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Box(
                     modifier = Modifier.size(7.dp).clip(CircleShape)
-                        .background(if (summary.isProjection) CalendarMuted else CalendarPurpleSoft)
+                        .background(if (summary.isProjection) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.secondary)
                 )
             }
 
@@ -844,7 +833,7 @@ private fun MonthSummaryCard(
                 SummaryRow(
                     icon = Icons.Default.AccountBalanceWallet,
                     label = summary.netLabel,
-                    color = calendarAmountColor(summary.net),
+                    color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                     isBold = true,
                     fontSize = 14.sp
                 )
@@ -887,10 +876,10 @@ private fun CircularNavButton(
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier.size(32.dp).clip(CircleShape).background(CalendarSurface).clickable(onClick = onClick),
+        modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = CalendarTextPrimary)
+        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -904,7 +893,7 @@ private fun SimpleIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = CalendarTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.alpha(0.9f)
         )
     }
@@ -990,7 +979,7 @@ private fun MonthYearPickerDialog(
         title = {
             Text(
                 text = "Choose Month",
-                color = CalendarTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -1027,7 +1016,7 @@ private fun MonthYearPickerDialog(
                 Text("Cancel")
             }
         },
-        containerColor = CalendarSurface
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }
 
@@ -1049,7 +1038,7 @@ private fun YearPickerDialog(
         title = {
             Text(
                 text = "Choose Year",
-                color = CalendarTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -1073,7 +1062,7 @@ private fun YearPickerDialog(
                 Text("Cancel")
             }
         },
-        containerColor = CalendarSurface
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }
 
@@ -1092,7 +1081,7 @@ private fun PickerWheel(
     ) {
         Text(
             text = title,
-            color = CalendarTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth(),
@@ -1100,7 +1089,7 @@ private fun PickerWheel(
         )
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF17171A)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             shape = RoundedCornerShape(18.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -1135,10 +1124,10 @@ private fun PickerWheelItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(if (selected) CalendarPurple else Color(0xFF111116))
+            .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
-                color = if (selected) CalendarPurpleSoft else Color.Transparent,
+                color = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
                 shape = RoundedCornerShape(14.dp)
             )
             .clickable(onClick = onClick)
@@ -1147,7 +1136,7 @@ private fun PickerWheelItem(
     ) {
         Text(
             text = label,
-            color = if (selected) Color(0xFF24114C) else CalendarTextPrimary,
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center

@@ -83,13 +83,9 @@ import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
 import kotlinx.coroutines.Dispatchers
@@ -157,7 +153,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         AppHeader(
@@ -273,12 +269,12 @@ fun ProfileScreen(
                     .shadow(
                         elevation = 28.dp,
                         shape = RoundedCornerShape(999.dp),
-                        ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                        spotColor = PurpleGlow.copy(alpha = 0.26f)
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
                     ),
                 shape = RoundedCornerShape(999.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                 )
             ) {
                 Box(
@@ -287,8 +283,8 @@ fun ProfileScreen(
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(
-                                    Color(0xFF7C4DFF),
-                                    Color(0xFFC8B1FF)
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
                                 )
                             ),
                             shape = RoundedCornerShape(999.dp)
@@ -297,7 +293,7 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Save Changes",
-                        color = Color(0xFF24114C),
+                        color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 18.sp
@@ -368,12 +364,12 @@ private fun ProfilePhotoSection(
             enabled = !isPhotoProcessing,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(PurpleAccent.copy(alpha = 0.14f))
+                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f))
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = if (photoUri == null) "Add photo" else "Edit photo",
-                tint = PurpleAccent
+                tint = MaterialTheme.colorScheme.secondary
             )
         }
 
@@ -382,15 +378,15 @@ private fun ProfilePhotoSection(
             enabled = photoUri != null && !isPhotoProcessing,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.08f))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f))
         ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Delete photo",
                 tint = if (photoUri != null && !isPhotoProcessing) {
-                    Color(0xFFB7B0C8)
+                    MaterialTheme.colorScheme.onSurfaceVariant
                 } else {
-                    Color(0xFF6A6477)
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f)
                 }
             )
         }
@@ -411,11 +407,11 @@ private fun ProfileTextFieldCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF1E1E20))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Unit
+        // Label or other content can go here
 
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -423,7 +419,7 @@ private fun ProfileTextFieldCard(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = label,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -435,7 +431,7 @@ private fun ProfileTextFieldCard(
                 singleLine = true,
                 keyboardOptions = keyboardOptions,
                 textStyle = MaterialTheme.typography.titleLarge.copy(
-                    color = Color(0xFFEDE8F7),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 ),
@@ -444,7 +440,7 @@ private fun ProfileTextFieldCard(
                     if (value.isBlank()) {
                         Text(
                             text = placeholder,
-                            color = Color(0xFF676272),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontSize = 18.sp
                             )
@@ -469,14 +465,14 @@ private fun ReadOnlyFieldCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF1E1E20))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
             text = label,
-            color = Color(0xFFCAC2DE),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.1.sp,
@@ -490,7 +486,7 @@ private fun ReadOnlyFieldCard(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = label,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -498,7 +494,7 @@ private fun ReadOnlyFieldCard(
 
             Text(
                 text = value.ifBlank { placeholder },
-                color = if (value.isBlank()) Color(0xFF676272) else Color(0xFF5E5770),
+                color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -521,14 +517,14 @@ private fun GenderFieldCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF1E1E20))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
             text = label,
-            color = Color(0xFFCAC2DE),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.1.sp,
@@ -542,7 +538,7 @@ private fun GenderFieldCard(
             Icon(
                 imageVector = genderIcon,
                 contentDescription = label,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -550,7 +546,7 @@ private fun GenderFieldCard(
 
             Text(
                 text = value.ifBlank { placeholder },
-                color = if (value.isBlank()) Color(0xFF676272) else Color(0xFFEDE8F7),
+                color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
@@ -561,7 +557,7 @@ private fun GenderFieldCard(
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowDown,
                 contentDescription = "Open gender options",
-                tint = Color(0xFF777184)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -578,8 +574,8 @@ private fun GenderPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.62f)
     ) {
         Column(
             modifier = Modifier
@@ -588,7 +584,7 @@ private fun GenderPickerSheet(
         ) {
             Text(
                 text = "Select Gender",
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -598,7 +594,7 @@ private fun GenderPickerSheet(
 
             Text(
                 text = "Choose the gender label that best fits your profile.",
-                color = Color(0xFF968EA8),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -643,9 +639,9 @@ private fun GenderPickerRow(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
                 } else {
-                    Color(0xFF1A1A1E)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
             )
             .clickable(onClick = onClick)
@@ -658,9 +654,9 @@ private fun GenderPickerRow(
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
                     } else {
-                        Color(0xFF232326)
+                        MaterialTheme.colorScheme.surfaceVariant
                     }
                 ),
             contentAlignment = Alignment.Center
@@ -668,7 +664,7 @@ private fun GenderPickerRow(
             Icon(
                 imageVector = genderIcon,
                 contentDescription = option,
-                tint = if (isSelected) PurpleAccent else Color(0xFFF0EBF7),
+                tint = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -677,7 +673,7 @@ private fun GenderPickerRow(
 
         Text(
             text = option,
-            color = Color(0xFFF0EBF7),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold
             ),
@@ -687,7 +683,7 @@ private fun GenderPickerRow(
         if (isSelected) {
             Text(
                 text = "Selected",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -763,7 +759,6 @@ private fun deleteManagedProfilePhoto(uriString: String) {
     name = "Profile Screen",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable

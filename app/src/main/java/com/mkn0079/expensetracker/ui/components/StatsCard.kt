@@ -40,8 +40,6 @@ import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 
 @Composable
@@ -63,17 +61,17 @@ fun TotalBalanceCard(
             .shadow(
                 elevation = 26.dp,
                 shape = cardShape,
-                ambientColor = Color.Black.copy(alpha = 0.48f),
-                spotColor = Color.Black.copy(alpha = 0.36f)
+                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.48f),
+                spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.36f)
             )
             .clip(cardShape)
             .background(
-                color = Color(0xFF1D1D1F),
+                color = MaterialTheme.colorScheme.surface,
                 shape = cardShape
             )
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.03f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = cardShape
             )
             .padding(horizontal = 28.dp, vertical = 20.dp)
@@ -86,7 +84,7 @@ fun TotalBalanceCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "TOTAL BALANCE",
-                    color = Color(0xFFB7B0C3),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 3.1.sp
@@ -101,7 +99,7 @@ fun TotalBalanceCard(
                     Icon(
                         imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (isBalanceHidden) "Show Balance" else "Hide Balance",
-                        tint = PurpleAccent,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -109,7 +107,7 @@ fun TotalBalanceCard(
 
             Text(
                 text = currentDateLabel,
-                color = Color(0xFF9E98AA),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -126,8 +124,8 @@ fun TotalBalanceCard(
                 lineHeight = 60.sp,
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        PurplePrimary.copy(alpha = 0.95f),
-                        PurpleAccent.copy(alpha = 0.90f)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
                     )
                 )
             ),
@@ -142,7 +140,7 @@ fun TotalBalanceCard(
             ) {
                 Text(
                     text = "LAST MONTH",
-                    color = Color(0xFFB7B0C3),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.3.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 3.1.sp
@@ -156,8 +154,8 @@ fun TotalBalanceCard(
                         lineHeight = 22.sp,
                         brush = Brush.horizontalGradient(
                             colors = listOf(
-                                PurplePrimary.copy(alpha = 0.95f),
-                                PurpleAccent.copy(alpha = 0.90f)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
                             )
                         )
                     ),
@@ -171,7 +169,7 @@ fun TotalBalanceCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(Color.White.copy(alpha = 0.04f))
+                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -194,7 +192,7 @@ fun TotalBalanceCard(
                     .padding(horizontal = 20.dp)
                     .width(1.dp)
                     .height(98.dp)
-                    .background(Color.White.copy(alpha = 0.04f))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
             )
 
             StatItem(
@@ -242,7 +240,7 @@ private fun StatItem(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.1.sp,
-                color = Color(0xFFBEB8C7)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             if (!iconAtStart) {
@@ -261,7 +259,7 @@ private fun StatItem(
             modifier = Modifier.fillMaxWidth(),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFF3F1F6),
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = if (iconAtStart) TextAlign.Start else TextAlign.End
@@ -278,7 +276,7 @@ private fun StatIconBubble(
     Box(
         modifier = Modifier
             .size(38.dp)
-            .background(Color(0xFF232326), CircleShape),
+            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -331,7 +329,7 @@ private fun String.toZeroPlaceholder(): String {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF09090B)
+@Preview(showBackground = true)
 @Composable
 fun TotalBalanceCardPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

@@ -1,12 +1,8 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
-import com.mkn0079.expensetracker.ui.theme.IncomeGreen
-import com.mkn0079.expensetracker.ui.theme.ExpenseRed
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -42,7 +38,7 @@ data class CategoryBreakdownUi(
     val amountDisplay: String,
     val fraction: Float,
     val percentLabel: Int,
-    val color: Color
+    val colorIndex: Int
 )
 
 @Immutable
@@ -51,7 +47,7 @@ data class PaymentTypeBreakdownUi(
     val amountDisplay: String,
     val fraction: Float,
     val percentLabel: Int,
-    val color: Color,
+    val colorIndex: Int,
     val icon: ImageVector
 )
 
@@ -222,7 +218,6 @@ private fun buildAnalyticsSnapshot(
         activeRange = range,
         referenceTimestamp = latestTimestamp
     )
-    val categoryColors = listOf(Color(0xFFC9B3FF), Color(0xFFFFB482), Color(0xFF8F8A9A))
     val categoryTotals = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .groupBy { it.categoryId }
@@ -236,12 +231,11 @@ private fun buildAnalyticsSnapshot(
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
-            color = categoryColors[index % categoryColors.size]
+            colorIndex = index
         )
     }
     val breakdown = allBreakdown.take(3)
 
-    val paymentColors = listOf(IncomeGreen, Color(0xFF64B5F6), Color(0xFFFFD54F))
     val paymentTotals = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .groupBy { it.paymentTypeId }
@@ -256,7 +250,7 @@ private fun buildAnalyticsSnapshot(
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
-            color = paymentColors[index % paymentColors.size],
+            colorIndex = index,
             icon = paymentType?.icon ?: Icons.Filled.Analytics
         )
     }

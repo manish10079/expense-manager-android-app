@@ -89,14 +89,12 @@ import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+// Legacy theme imports removed
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
@@ -151,7 +149,7 @@ fun AnalyticsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         Box(
@@ -374,7 +372,7 @@ private fun PeriodTabs(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
@@ -401,7 +399,7 @@ private fun PeriodTabs(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     )
             )
@@ -451,9 +449,9 @@ private fun RowScope.PeriodTabItem(
 ) {
     val animatedColor by animateColorAsState(
         targetValue = when {
-            selected -> Color(0xFF24114C)
-            isLocked -> Color(0xFF7B748A)
-            else -> Color(0xFFD9D0E8)
+            selected -> MaterialTheme.colorScheme.onPrimary
+            isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
         },
         label = "period_text_color"
     )
@@ -506,20 +504,20 @@ private fun CustomRangeSelector(
                 .background(
                     if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
                         Brush.horizontalGradient(
-                            colors = listOf(Color(0xFF271B42), Color(0xFF43306C))
+                            colors = listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
                         )
                     } else {
                         Brush.verticalGradient(
-                            colors = listOf(Color(0xFF161519), Color(0xFF161519))
+                            colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
                         )
                     }
                 )
                 .border(
                     width = 1.dp,
                     color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
-                        Color(0xFF6C50BE)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                     } else {
-                        Color(0xFF26242A)
+                        MaterialTheme.colorScheme.outlineVariant
                     },
                     shape = RoundedCornerShape(18.dp)
                 )
@@ -541,19 +539,19 @@ private fun CustomRangeSelector(
                     Icon(
                         imageVector = Icons.Filled.DateRange,
                         contentDescription = "Custom range",
-                        tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else PurpleAccent,
+                        tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = customRange?.let { formatCustomRangeLabel(it) } ?: "Custom Range",
-                        color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
+                        color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
                     if (isLocked) {
                         Icon(
                             imageVector = Icons.Filled.Lock,
                             contentDescription = "Locked",
-                            tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) Color(0xFFF0E9FF) else Color(0xFFD1CADF),
+                            tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(12.dp)
                         )
                     }
@@ -564,7 +562,7 @@ private fun CustomRangeSelector(
         if (selectedPeriod == AnalyticsPeriod.CUSTOM && customRange != null) {
             Text(
                 text = "Clear",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.clickable(onClick = onClear)
             )
@@ -580,18 +578,18 @@ private fun HeroToggle(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1F1928))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         HeroDisplayMode.values().forEach { mode ->
             val isSelected = mode == selectedMode
             val backgroundColor by animateColorAsState(
-                if (isSelected) PurplePrimary else Color.Transparent,
+                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
                 label = "bg"
             )
             val textColor by animateColorAsState(
-                if (isSelected) Color.White else Color(0xFFA49CB4),
+                if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 label = "text"
             )
 
@@ -648,7 +646,7 @@ private fun HeroAnalyticsSection(
         ) {
             Text(
                 text = title,
-                color = Color(0xFF7B748A),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.labelSmall.copy(
                     letterSpacing = 3.sp,
                     fontWeight = FontWeight.Medium
@@ -659,7 +657,7 @@ private fun HeroAnalyticsSection(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = snapshot.summaryLabel,
-            color = Color(0xFFA49CB4),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -669,7 +667,7 @@ private fun HeroAnalyticsSection(
         ) {
             Text(
                 text = amount,
-                color = Color(0xFFF1EDF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 34.sp
@@ -701,6 +699,8 @@ private fun AnalyticsLineChart(
 ) {
     val expenseColor = MaterialTheme.colorScheme.expense
     val incomeColor = MaterialTheme.colorScheme.income
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val backgroundColor = MaterialTheme.colorScheme.background
     val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
     val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
     
@@ -741,7 +741,7 @@ private fun AnalyticsLineChart(
             Spacer(modifier = Modifier.width(8.dp))
 
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            val gridColor = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f)
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -792,7 +792,11 @@ private fun AnalyticsLineChart(
                     drawPath(
                         path = fillPath,
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0x994B2E8D), Color(0x661E1336), Color(0x22100C1A)),
+                            colors = listOf(
+                                primaryColor.copy(alpha = 0.6f),
+                                primaryColor.copy(alpha = 0.2f),
+                                backgroundColor.copy(alpha = 0.1f)
+                            ),
                             endY = chartHeight
                         )
                     )
@@ -806,8 +810,8 @@ private fun AnalyticsLineChart(
                 
                 if (displayMode == HeroDisplayMode.EXPENSE) {
                     normalized.maxByOrNull { it.y * -1 }?.let { peak ->
-                        drawCircle(color = Color(0x33DECFFF), radius = 9.dp.toPx(), center = peak)
-                        drawCircle(color = Color(0xFFDECFFF), radius = 4.dp.toPx(), center = peak)
+                        drawCircle(color = primaryColor.copy(alpha = 0.2f), radius = 9.dp.toPx(), center = peak)
+                        drawCircle(color = primaryColor, radius = 4.dp.toPx(), center = peak)
                     }
                 }
             }
@@ -842,7 +846,11 @@ private fun AnalyticsLineChart(
                     drawPath(
                         path = fillPath,
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0x992E8D4B), Color(0x6613361E), Color(0x220C1A10)),
+                            colors = listOf(
+                                incomeColor.copy(alpha = 0.6f),
+                                incomeColor.copy(alpha = 0.2f),
+                                backgroundColor.copy(alpha = 0.1f)
+                            ),
                             endY = chartHeight
                         )
                     )
@@ -856,8 +864,8 @@ private fun AnalyticsLineChart(
                 
                 if (displayMode == HeroDisplayMode.INCOME) {
                     normalized.maxByOrNull { it.y * -1 }?.let { peak ->
-                        drawCircle(color = Color(0x33CFFFDE), radius = 9.dp.toPx(), center = peak)
-                        drawCircle(color = Color(0xFFCFFFDE), radius = 4.dp.toPx(), center = peak)
+                        drawCircle(color = incomeColor.copy(alpha = 0.2f), radius = 9.dp.toPx(), center = peak)
+                        drawCircle(color = incomeColor, radius = 4.dp.toPx(), center = peak)
                     }
                 }
             }
@@ -897,11 +905,11 @@ private fun AnalyticsLineChart(
             ) {
                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(expenseColor))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Expense", color = Color(0xFFA49CB4), style = MaterialTheme.typography.labelSmall)
+                Text("Expense", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.width(20.dp))
                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(incomeColor))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Income", color = Color(0xFFA49CB4), style = MaterialTheme.typography.labelSmall)
+                Text("Income", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
@@ -926,20 +934,20 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             title = "AVG DAILY",
             value = snapshot.avgDailyDisplay,
             delta = snapshot.dailyDeltaDisplay,
-            deltaColor = Color(0xFFFF9B90),
-            deltaBackground = Color(0xFF4B1E20),
+            deltaColor = MaterialTheme.colorScheme.error,
+            deltaBackground = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
             icon = Icons.Filled.Wallet,
-            iconTint = Color(0xFFE0CEFF)
+            iconTint = MaterialTheme.colorScheme.primary
         )
         InsightStatCard(
             modifier = Modifier.weight(1f),
             title = "SAVINGS",
             value = snapshot.savingsDisplay,
             delta = snapshot.savingsDeltaDisplay,
-            deltaColor = Color(0xFFDCCEFF),
-            deltaBackground = Color(0xFF38275A),
+            deltaColor = MaterialTheme.colorScheme.income,
+            deltaBackground = MaterialTheme.colorScheme.income.copy(alpha = 0.15f),
             icon = Icons.Filled.ArrowOutward,
-            iconTint = Color(0xFFFFC59A)
+            iconTint = MaterialTheme.colorScheme.secondary
         )
     }
 }
@@ -955,7 +963,7 @@ private fun InsightStatCard(
     icon: ImageVector,
     iconTint: Color
 ) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(30.dp), color = Color(0xFF1C1B1E)) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -970,7 +978,7 @@ private fun InsightStatCard(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFF26202E)),
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
@@ -991,13 +999,13 @@ private fun InsightStatCard(
             Spacer(modifier = Modifier.height(18.dp))
             Text(
                 text = title,
-                color = Color(0xFFADA5BC),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = value,
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold)
             )
         }
@@ -1006,7 +1014,7 @@ private fun InsightStatCard(
 
 @Composable
 private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
-    Surface(shape = RoundedCornerShape(30.dp), color = Color(0xFF1C1B1E)) {
+    Surface(shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1019,7 +1027,7 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
             ) {
                 Text(
                     text = "Cash Flow Ratio",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
@@ -1058,7 +1066,27 @@ private fun LegendDot(label: String, color: Color) {
                 .clip(CircleShape)
                 .background(color)
         )
-        Text(text = label, color = Color(0xFFCFC8DB), style = MaterialTheme.typography.labelMedium)
+        Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@Composable
+private fun categoryBreakdownColor(index: Int): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (index % 3) {
+        0 -> colorScheme.primary
+        1 -> colorScheme.secondary
+        else -> colorScheme.tertiary
+    }
+}
+
+@Composable
+private fun paymentBreakdownColor(index: Int): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (index % 3) {
+        0 -> colorScheme.income
+        1 -> colorScheme.primary
+        else -> colorScheme.secondary
     }
 }
 
@@ -1069,7 +1097,7 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
             .fillMaxWidth()
             .height(8.dp)
             .clip(CircleShape)
-            .background(Color(0xFF2B2830))
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val incomeWidth = size.width * incomeFraction.coerceIn(0f, 1f)
@@ -1097,7 +1125,7 @@ private fun CategoryCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(30.dp),
-        color = Color(0xFF1C1B1E)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     ) {
         Column(
             modifier = Modifier
@@ -1111,7 +1139,7 @@ private fun CategoryCard(
             ) {
                 Text(
                     text = "Top Spending by\nCategory",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
                         lineHeight = 28.sp
@@ -1120,7 +1148,7 @@ private fun CategoryCard(
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
                     Text(
                         text = "VIEW ALL",
-                        color = PurpleAccent,
+                        color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.4.sp
@@ -1135,7 +1163,7 @@ private fun CategoryCard(
             if (snapshot.categoryBreakdown.isEmpty()) {
                 Text(
                     text = "No category spending found in this range.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
             } else {
@@ -1154,17 +1182,17 @@ private fun CategoryCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(category.color)
+                                        .background(categoryBreakdownColor(category.colorIndex))
                                 )
                                 Text(
                                     text = category.label,
-                                    color = Color(0xFFD7D2E1),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                             Text(
                                 text = "${category.percentLabel}%",
-                                color = Color(0xFFF0EBF8),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                             )
                         }
@@ -1183,8 +1211,8 @@ private fun CategoryBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF17161A),
-        contentColor = Color(0xFFF0EBF8),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
         Column(
@@ -1194,7 +1222,7 @@ private fun CategoryBreakdownBottomSheet(
         ) {
             Text(
                 text = "All Categories",
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -1202,7 +1230,7 @@ private fun CategoryBreakdownBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Ranked by spending for the selected analytics range.",
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -1210,7 +1238,7 @@ private fun CategoryBreakdownBottomSheet(
             if (categories.isEmpty()) {
                 Text(
                     text = "No category spending found in this range.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
@@ -1238,7 +1266,7 @@ private fun CategoryBreakdownRow(
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color(0xFF1F1D23)
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier
@@ -1258,12 +1286,12 @@ private fun CategoryBreakdownRow(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF26232C)),
+                            .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = rank.toString(),
-                            color = Color(0xFFD9D2E8),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold
                             )
@@ -1273,11 +1301,11 @@ private fun CategoryBreakdownRow(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(category.color)
+                            .background(categoryBreakdownColor(category.colorIndex))
                     )
                     Text(
                         text = category.label,
-                        color = Color(0xFFF0EBF8),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -1285,7 +1313,7 @@ private fun CategoryBreakdownRow(
                 }
                 Text(
                     text = "${category.percentLabel}%",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -1299,14 +1327,14 @@ private fun CategoryBreakdownRow(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2B2830))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(category.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(category.color)
+                        .background(categoryBreakdownColor(category.colorIndex))
                 )
             }
 
@@ -1314,7 +1342,7 @@ private fun CategoryBreakdownRow(
 
             Text(
                 text = category.amountDisplay,
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -1323,22 +1351,25 @@ private fun CategoryBreakdownRow(
 
 @Composable
 private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val segmentColors = breakdown.map { categoryBreakdownColor(it.colorIndex) }
+
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 18.dp.toPx()
             var startAngle = -180f
             val gap = 5f
             drawArc(
-                color = Color(0xFF302E33),
+                color = trackColor,
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
-            breakdown.forEach { segment ->
+            breakdown.forEachIndexed { index, segment ->
                 val sweep = (segment.fraction * 360f) - gap
                 drawArc(
-                    color = segment.color,
+                    color = segmentColors[index],
                     startAngle = startAngle,
                     sweepAngle = sweep,
                     useCenter = false,
@@ -1350,7 +1381,7 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Top: ${breakdown.firstOrNull()?.label ?: "N/A"}",
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
             )
@@ -1367,7 +1398,7 @@ private fun TopSpendingCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(30.dp),
-        color = Color(0xFF1C1B1E)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     ) {
         Column(
             modifier = Modifier
@@ -1381,13 +1412,13 @@ private fun TopSpendingCard(
             ) {
                 Text(
                     text = "Top Spending",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 if (topTransactions.isNotEmpty()) {
                     Text(
                         text = "VIEW ALL",
-                        color = PurpleAccent,
+                        color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.4.sp
@@ -1400,7 +1431,7 @@ private fun TopSpendingCard(
             if (topTransactions.isEmpty()) {
                 Text(
                     text = "No spending transactions in the selected range.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
             } else {
@@ -1425,13 +1456,13 @@ private fun TopSpendingRow(
             modifier = Modifier
                 .size(42.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFF2A2830)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = transaction.icon,
                 contentDescription = transaction.note,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1439,19 +1470,19 @@ private fun TopSpendingRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = truncatedNote,
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = transaction.categoryLabel,
-                color = Color(0xFF9C95AB),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
         Text(
             text = transaction.amountDisplay,
-            color = Color(0xFFF0EBF8),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
         )
     }
@@ -1470,14 +1501,14 @@ private fun SmartTipCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(30.dp),
-        color = Color(0xFF161518)
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF201A29), Color(0xFF111013))
+                        colors = listOf(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), MaterialTheme.colorScheme.surface)
                     )
                 )
                 .padding(horizontal = 20.dp, vertical = 18.dp),
@@ -1488,26 +1519,26 @@ private fun SmartTipCard(
                     .size(40.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(
-                        Brush.verticalGradient(colors = listOf(PurplePrimary, Color(0xFF8C63FF)))
+                        Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.AutoAwesome,
                     contentDescription = "AI Tip",
-                    tint = Color(0xFF24114C)
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Smart AI Tip",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = tip,
-                    color = Color(0xFFD8D1E6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 23.sp)
                 )
             }
@@ -1518,6 +1549,8 @@ private fun SmartTipCard(
 
 @Composable
 private fun SparkleCluster() {
+    val sparkleColor = MaterialTheme.colorScheme.outlineVariant
+
     Canvas(
         modifier = Modifier
             .size(34.dp)
@@ -1535,7 +1568,7 @@ private fun SparkleCluster() {
             if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
         }
         path.close()
-        drawPath(path, color = Color(0xFF2E2737))
+        drawPath(path, color = sparkleColor)
     }
 }
 
@@ -1548,7 +1581,7 @@ private fun PaymentTypeCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(30.dp),
-        color = Color(0xFF1C1B1E)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     ) {
         Column(
             modifier = Modifier
@@ -1562,7 +1595,7 @@ private fun PaymentTypeCard(
             ) {
                 Text(
                     text = "Top Spending by\nPayment Mode",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
                         lineHeight = 28.sp
@@ -1571,7 +1604,7 @@ private fun PaymentTypeCard(
                 if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
                     Text(
                         text = "VIEW ALL",
-                        color = PurpleAccent,
+                        color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.4.sp
@@ -1586,7 +1619,7 @@ private fun PaymentTypeCard(
             if (snapshot.paymentTypeBreakdown.isEmpty()) {
                 Text(
                     text = "No payment data found in this range.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
             } else {
@@ -1605,23 +1638,23 @@ private fun PaymentTypeCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(item.color)
+                                        .background(paymentBreakdownColor(item.colorIndex))
                                 )
                                 Icon(
                                     imageVector = item.icon,
                                     contentDescription = null,
-                                    tint = Color(0xFFA49CB4),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
                                     text = item.label,
-                                    color = Color(0xFFD7D2E1),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                             Text(
                                 text = "${item.percentLabel}%",
-                                color = Color(0xFFF0EBF8),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                             )
                         }
@@ -1634,22 +1667,25 @@ private fun PaymentTypeCard(
 
 @Composable
 private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val segmentColors = breakdown.map { paymentBreakdownColor(it.colorIndex) }
+
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 18.dp.toPx()
             var startAngle = -180f
             val gap = 5f
             drawArc(
-                color = Color(0xFF302E33),
+                color = trackColor,
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
-            breakdown.forEach { segment ->
+            breakdown.forEachIndexed { index, segment ->
                 val sweep = (segment.fraction * 360f) - gap
                 drawArc(
-                    color = segment.color,
+                    color = segmentColors[index],
                     startAngle = startAngle,
                     sweepAngle = sweep,
                     useCenter = false,
@@ -1662,12 +1698,12 @@ private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier:
             Icon(
                 imageVector = breakdown.firstOrNull()?.icon ?: Icons.Filled.Wallet,
                 contentDescription = null,
-                tint = Color(0xFFF0EBF8),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp)
             )
             Text(
                 text = breakdown.firstOrNull()?.label ?: "N/A",
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
             )
@@ -1683,8 +1719,8 @@ private fun PaymentTypeBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF17161A),
-        contentColor = Color(0xFFF0EBF8),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
         Column(
@@ -1698,7 +1734,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             
             Text(
                 text = "Spending by Payment Mode",
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -1706,7 +1742,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Breakdown of expenses based on the wallet or payment method used.",
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -1714,7 +1750,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             if (filteredCategories.isEmpty()) {
                 Text(
                     text = "No payment data found in this range.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
@@ -1742,7 +1778,7 @@ private fun PaymentBreakdownRow(
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color(0xFF1F1D23)
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier
@@ -1762,12 +1798,12 @@ private fun PaymentBreakdownRow(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF26232C)),
+                            .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = rank.toString(),
-                            color = Color(0xFFD9D2E8),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold
                             )
@@ -1776,12 +1812,12 @@ private fun PaymentBreakdownRow(
                     Icon(
                         imageVector = item.icon,
                         contentDescription = null,
-                        tint = Color(0xFFA49CB4),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = item.label,
-                        color = Color(0xFFF0EBF8),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -1789,7 +1825,7 @@ private fun PaymentBreakdownRow(
                 }
                 Text(
                     text = "${item.percentLabel}%",
-                    color = Color(0xFFF0EBF8),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -1803,14 +1839,14 @@ private fun PaymentBreakdownRow(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2B2830))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(item.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(item.color)
+                        .background(paymentBreakdownColor(item.colorIndex))
                 )
             }
 
@@ -1818,7 +1854,7 @@ private fun PaymentBreakdownRow(
 
             Text(
                 text = item.amountDisplay,
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -1840,7 +1876,7 @@ private fun BoxScope.PremiumLockedOverlay(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Black.copy(alpha = 0.45f)
+            color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -1851,21 +1887,21 @@ private fun BoxScope.PremiumLockedOverlay(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.15f))
-                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f))
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(24.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = displayText,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -1882,8 +1918,8 @@ private fun TopSpendingBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF17161A),
-        contentColor = Color(0xFFF0EBF8),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
         Column(
@@ -1893,7 +1929,7 @@ private fun TopSpendingBottomSheet(
         ) {
             Text(
                 text = "Top Spending",
-                color = Color(0xFFF0EBF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -1901,7 +1937,7 @@ private fun TopSpendingBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Your highest expenses in the selected period.",
-                color = Color(0xFFA49CB4),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -1909,7 +1945,7 @@ private fun TopSpendingBottomSheet(
             if (transactions.isEmpty()) {
                 Text(
                     text = "No spending data found.",
-                    color = Color(0xFFA49CB4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
@@ -1927,7 +1963,7 @@ private fun TopSpendingBottomSheet(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF0A0A0A)
+@Preview(showBackground = true)
 @Composable
 private fun AnalyticsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

@@ -65,11 +65,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
 private data class OnboardingPage(
     val title: String,
@@ -123,7 +119,7 @@ fun OnboardingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         AmbientBackdrop()
 
@@ -174,13 +170,13 @@ fun OnboardingScreen(
                             } else {
                                 val accentStart = current.title.indexOf(current.accentedText)
                                 append(current.title.substring(0, accentStart))
-                                withStyle(SpanStyle(color = PurpleAccent)) {
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
                                     append(current.accentedText)
                                 }
                                 append(current.title.substring(accentStart + current.accentedText.length))
                             }
                         },
-                        color = Color(0xFFF5F1FB),
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
@@ -193,7 +189,7 @@ fun OnboardingScreen(
 
                     Text(
                         text = current.description,
-                        color = Color(0xFFB3ADBE),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontSize = 15.sp,
@@ -249,9 +245,9 @@ private fun BoxScope.AmbientBackdrop() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        PurplePrimary.copy(alpha = 0.18f),
-                        Color(0xFF171020).copy(alpha = 0.28f),
-                        BackgroundDark
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
+                        MaterialTheme.colorScheme.background
                     ),
                     center = Offset(0.5f, 0.38f),
                     radius = 1200f
@@ -270,7 +266,7 @@ private fun BrandBar(
         Icon(
             imageVector = Icons.Filled.Lock,
             contentDescription = "Expense Tracker",
-            tint = PurpleAccent,
+            tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.size(30.dp)
         )
 
@@ -278,7 +274,7 @@ private fun BrandBar(
 
         Text(
             text = "EXPENSE TRACKER",
-            color = PurpleAccent,
+            color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 0.5.sp,
@@ -301,9 +297,9 @@ private fun BottomControls(
         Text(
             text = "PREV",
             color = if (currentPage == 0) {
-                Color(0xFF5B5861)
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f)
             } else {
-                Color(0xFFC7C0D7)
+                MaterialTheme.colorScheme.onSurfaceVariant
             },
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
@@ -325,7 +321,7 @@ private fun BottomControls(
 
         Text(
             text = "SKIP",
-            color = Color(0xFFC7C0D7),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.4.sp,
@@ -352,13 +348,13 @@ private fun PrimaryOnboardingButton(
             .shadow(
                 elevation = 34.dp,
                 shape = RoundedCornerShape(999.dp),
-                ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                spotColor = PurpleGlow.copy(alpha = 0.28f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             ),
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color(0xFF26134D)
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues()
     ) {
@@ -368,8 +364,8 @@ private fun PrimaryOnboardingButton(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            Color(0xFF7C4DFF),
-                            Color(0xFFC9B2FF)
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
                         )
                     ),
                     shape = RoundedCornerShape(999.dp)
@@ -378,7 +374,7 @@ private fun PrimaryOnboardingButton(
         ) {
             Text(
                 text = label,
-                color = Color(0xFF24114C),
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.4.sp,
@@ -398,7 +394,7 @@ private fun PageIndicator(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(999.dp))
-            .background(Color(0xFF212124))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -417,7 +413,7 @@ private fun PageIndicator(
                     .scale(dotScale)
                     .clip(CircleShape)
                     .background(
-                        if (selected) PurplePrimary else Color(0xFF343438)
+                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                     )
                     .alpha(if (selected) 1f else 0.7f)
             )
@@ -433,7 +429,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             .padding(top = 10.dp, end = 10.dp),
         size = 110.dp,
         icon = Icons.Filled.CurrencyBitcoin,
-        iconTint = PurpleAccent
+        iconTint = MaterialTheme.colorScheme.secondary
     )
 
     FloatingCircle(
@@ -442,7 +438,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             .padding(top = 124.dp),
         size = 110.dp,
         icon = Icons.Filled.Money,
-        iconTint = Color(0xFFFFB58B)
+        iconTint = MaterialTheme.colorScheme.tertiary
     )
 
     FloatingCircle(
@@ -451,7 +447,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             .padding(top = 140.dp, end = 8.dp),
         size = 100.dp,
         icon = Icons.Filled.Savings,
-        iconTint = Color(0xFFE8E5EE)
+        iconTint = MaterialTheme.colorScheme.onSurface
     )
 
     Box(
@@ -467,8 +463,8 @@ private fun BoxScope.ExpenseCardIllustration() {
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF25242B),
-                        Color(0xFF1E1D23)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
@@ -476,7 +472,7 @@ private fun BoxScope.ExpenseCardIllustration() {
     ) {
         Text(
             text = "EXPENSE TRACKER",
-            color = Color(0xFFDAD1EE),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 16.sp
@@ -489,13 +485,13 @@ private fun BoxScope.ExpenseCardIllustration() {
                 .padding(top = 18.dp)
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF323133)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Analytics,
                 contentDescription = null,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -508,14 +504,14 @@ private fun BoxScope.ExpenseCardIllustration() {
                     .width(82.dp)
                     .height(7.dp)
                     .clip(RoundedCornerShape(999.dp))
-                    .background(Color(0xFF61557B))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f))
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = "PRIVATE MEMBER",
-                color = Color(0xFF8D8698),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.titleMedium.copy(
                     letterSpacing = 2.2.sp,
                     fontWeight = FontWeight.Medium,
@@ -534,7 +530,7 @@ private fun BoxScope.SecureTrackerIllustration() {
             .padding(top = 110.dp, start = 10.dp),
         size = 74.dp,
         icon = Icons.Filled.Key,
-        iconTint = Color(0xFF81759B)
+        iconTint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
     )
 
     FloatingCircle(
@@ -543,7 +539,7 @@ private fun BoxScope.SecureTrackerIllustration() {
             .padding(top = 52.dp, end = 54.dp),
         size = 84.dp,
         icon = Icons.Filled.Security,
-        iconTint = Color(0xFF867AA3)
+        iconTint = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
     Box(
@@ -555,8 +551,8 @@ private fun BoxScope.SecureTrackerIllustration() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF17171A),
-                        Color(0xFF111113)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
@@ -566,7 +562,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                 .align(Alignment.Center)
                 .size(152.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF16121E))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -574,7 +570,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(Color.Transparent)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
             )
 
             Box(
@@ -584,8 +580,8 @@ private fun BoxScope.SecureTrackerIllustration() {
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF9B78FF),
-                                Color(0xFFBAA3FF)
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
                             )
                         )
                     ),
@@ -594,7 +590,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                 Icon(
                     imageVector = Icons.Filled.Fingerprint,
                     contentDescription = null,
-                    tint = Color(0xFF26134F),
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(42.dp)
                 )
             }
@@ -608,7 +604,7 @@ private fun BoxScope.SecureTrackerIllustration() {
         ) {
             Text(
                 text = "ENCRYPTED MODE",
-                color = Color(0xFFD6CFEB),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 2.2.sp,
@@ -625,14 +621,14 @@ private fun BoxScope.SecureTrackerIllustration() {
                     modifier = Modifier
                         .size(10.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF9B8ABF))
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
                 )
 
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
                     text = "System Active",
-                    color = PurpleAccent,
+                    color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
@@ -651,12 +647,12 @@ private fun BoxScope.AnalyticsIllustration() {
             .padding(start = 12.dp, top = 36.dp)
             .size(90.dp)
             .clip(CircleShape)
-            .background(Color.Transparent)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .borderGlowCircle(Color(0xFF2B2437), 0.08f)
+                .borderGlowCircle(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), 0.08f)
         )
     }
 
@@ -669,8 +665,8 @@ private fun BoxScope.AnalyticsIllustration() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF232126),
-                        Color(0xFF1A1720)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
@@ -678,7 +674,7 @@ private fun BoxScope.AnalyticsIllustration() {
     ) {
         Text(
             text = "GROWTH INDEX",
-            color = Color(0xFFB7B0C5),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium.copy(
                 letterSpacing = 1.4.sp,
                 fontSize = 13.sp
@@ -687,7 +683,7 @@ private fun BoxScope.AnalyticsIllustration() {
 
         Text(
             text = "+24.8%",
-            color = PurpleAccent,
+            color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 26.sp
@@ -698,7 +694,7 @@ private fun BoxScope.AnalyticsIllustration() {
         Icon(
             imageVector = Icons.Filled.SsidChart,
             contentDescription = null,
-            tint = PurpleAccent,
+            tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .size(28.dp)
@@ -722,15 +718,15 @@ private fun BoxScope.AnalyticsIllustration() {
                             if (isActive) {
                                 Brush.verticalGradient(
                                     colors = listOf(
-                                        Color(0xFFCBB8FF),
-                                        Color(0xFF7348FF)
+                                        MaterialTheme.colorScheme.secondary,
+                                        MaterialTheme.colorScheme.primary
                                     )
                                 )
                             } else {
                                 Brush.verticalGradient(
                                     colors = listOf(
-                                        Color(0xFF444145),
-                                        Color(0xFF303034)
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                                     )
                                 )
                             }
@@ -745,7 +741,7 @@ private fun BoxScope.AnalyticsIllustration() {
             .align(Alignment.BottomEnd)
             .padding(end = 18.dp, bottom = 22.dp)
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF25222B))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
         Row(
@@ -755,13 +751,13 @@ private fun BoxScope.AnalyticsIllustration() {
                 modifier = Modifier
                     .size(52.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF533B2A)),
+                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Analytics,
                     contentDescription = null,
-                    tint = Color(0xFFFFBD8E),
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -771,7 +767,7 @@ private fun BoxScope.AnalyticsIllustration() {
             Column {
                 Text(
                     text = "ACCURACY",
-                    color = Color(0xFFD0C7E5),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.titleMedium.copy(
                         letterSpacing = 1.8.sp,
                         fontSize = 11.sp
@@ -782,7 +778,7 @@ private fun BoxScope.AnalyticsIllustration() {
 
                 Text(
                     text = "High Fidelity",
-                    color = Color(0xFFF1ECF9),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
@@ -801,7 +797,7 @@ private fun BoxScope.PremiumPrivacyIllustration() {
             .padding(top = 44.dp, end = 34.dp),
         size = 76.dp,
         icon = Icons.Filled.Lock,
-        iconTint = PurpleAccent
+        iconTint = MaterialTheme.colorScheme.secondary
     )
 
     FloatingCircle(
@@ -810,7 +806,7 @@ private fun BoxScope.PremiumPrivacyIllustration() {
             .padding(start = 24.dp, top = 86.dp),
         size = 84.dp,
         icon = Icons.Filled.Savings,
-        iconTint = Color(0xFFFFB98D)
+        iconTint = MaterialTheme.colorScheme.tertiary
     )
 
     Box(
@@ -822,8 +818,8 @@ private fun BoxScope.PremiumPrivacyIllustration() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF1F1C26),
-                        Color(0xFF18161C)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             ),
@@ -835,15 +831,15 @@ private fun BoxScope.PremiumPrivacyIllustration() {
                 .shadow(
                     elevation = 28.dp,
                     shape = CircleShape,
-                    ambientColor = PurplePrimary.copy(alpha = 0.26f),
-                    spotColor = PurpleGlow.copy(alpha = 0.18f)
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
                 )
                 .clip(CircleShape)
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF8F63FF),
-                            Color(0xFF6E42F2)
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
                         )
                     )
                 ),
@@ -852,7 +848,7 @@ private fun BoxScope.PremiumPrivacyIllustration() {
             Icon(
                 imageVector = Icons.Filled.Security,
                 contentDescription = null,
-                tint = Color(0xFF24114C),
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(64.dp)
             )
         }
@@ -870,7 +866,7 @@ private fun PremiumBenefitCards() {
         BenefitCard(
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.CloudOff,
-            iconTint = PurpleAccent,
+            iconTint = MaterialTheme.colorScheme.secondary,
             title = "ARCHITECTURE",
             value = "100% Offline"
         )
@@ -878,7 +874,7 @@ private fun PremiumBenefitCards() {
         BenefitCard(
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.CheckCircle,
-            iconTint = Color(0xFFFFB98D),
+            iconTint = MaterialTheme.colorScheme.tertiary,
             title = "ACCESS",
             value = "Lifetime Pro"
         )
@@ -896,7 +892,7 @@ private fun BenefitCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(30.dp))
-            .background(Color(0xFF1F1E21))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -904,7 +900,7 @@ private fun BenefitCard(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF2A2930)),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -917,7 +913,7 @@ private fun BenefitCard(
 
         Text(
             text = title,
-            color = Color(0xFFC8C1D7),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium.copy(
                 letterSpacing = 2.sp,
                 fontSize = 11.sp
@@ -926,7 +922,7 @@ private fun BenefitCard(
 
         Text(
             text = value,
-            color = Color(0xFFF0EBF9),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -947,7 +943,7 @@ private fun FloatingCircle(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(Color(0xFF1C1C1F).copy(alpha = 0.92f)),
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.92f)),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -959,6 +955,7 @@ private fun FloatingCircle(
     }
 }
 
+@Composable
 private fun Modifier.borderGlowCircle(
     color: Color,
     alpha: Float
@@ -969,7 +966,7 @@ private fun Modifier.borderGlowCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
                     color.copy(alpha = alpha),
-                    Color.Transparent
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                 )
             ),
             shape = CircleShape
@@ -980,7 +977,6 @@ private fun Modifier.borderGlowCircle(
     name = "Onboarding Screen",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable

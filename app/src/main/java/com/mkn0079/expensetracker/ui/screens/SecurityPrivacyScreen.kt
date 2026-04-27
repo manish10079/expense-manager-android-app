@@ -32,9 +32,6 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTE
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SCREENSHOT_PROTECTION_ENABLED
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
@@ -62,15 +59,12 @@ fun SecurityPrivacyScreen(
 ) {
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
     val autoLockDurationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colorScheme = MaterialTheme.colorScheme
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, Color(0xFF0B0B0C), BackgroundDark)
-                )
-            )
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -91,7 +85,7 @@ fun SecurityPrivacyScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFF18181A))
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 10.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -177,13 +171,13 @@ private fun SecurityToggleRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) Color(0xFF232326) else Color(0xFF1D1D20)),
+                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = if (enabled) PurpleAccent else Color(0xFF6F687C),
+                    tint = if (enabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -192,7 +186,7 @@ private fun SecurityToggleRow(
 
             Text(
                 text = title,
-                color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -203,7 +197,7 @@ private fun SecurityToggleRow(
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = "Locked",
-                    tint = Color(0xFFFFB74D),
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(16.dp).padding(end = 8.dp)
                 )
             }
@@ -213,11 +207,11 @@ private fun SecurityToggleRow(
                 onCheckedChange = onCheckedChange,
                 enabled = enabled && !isLocked,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF24114C),
-                    checkedTrackColor = PurpleAccent,
-                    uncheckedThumbColor = Color(0xFFDDD6EC),
-                    uncheckedTrackColor = Color(0xFF3B3548),
-                    uncheckedBorderColor = Color(0xFF3B3548)
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.secondary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
+                    uncheckedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
                 )
             )
         }
@@ -244,13 +238,13 @@ private fun SecurityItemRow(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) Color(0xFF232326) else Color(0xFF1D1D20)),
+                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = if (enabled) PurpleAccent else Color(0xFF6F687C),
+                    tint = if (enabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -259,7 +253,7 @@ private fun SecurityItemRow(
 
             Text(
                 text = title,
-                color = if (enabled) Color(0xFFF0EBF7) else Color(0xFF7A7386),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -269,7 +263,7 @@ private fun SecurityItemRow(
             if (trailing != null) {
                 Text(
                     text = trailing,
-                    color = if (enabled) Color(0xFF898297) else Color(0xFF676272),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp
@@ -281,7 +275,7 @@ private fun SecurityItemRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Open \$title",
-                tint = if (enabled) Color(0xFF6F687C) else Color(0xFF4F4A59),
+                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -310,8 +304,8 @@ private fun AutoLockDurationPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.62f)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -322,7 +316,7 @@ private fun AutoLockDurationPickerSheet(
             item {
                 Text(
                     text = "Auto Lock Duration",
-                    color = Color(0xFFF0EBF7),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -332,7 +326,7 @@ private fun AutoLockDurationPickerSheet(
             item {
                 Text(
                     text = "Pick a preset in 5-minute steps up to 60, or enter a custom value in minutes.",
-                    color = Color(0xFF968EA8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -371,13 +365,13 @@ private fun AutoLockDurationPickerSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF1A1A1E))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
                         text = "Custom Duration",
-                        color = Color(0xFFF0EBF7),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -396,7 +390,7 @@ private fun AutoLockDurationPickerSheet(
                         placeholder = {
                             Text(
                                 text = "Enter minutes",
-                                color = Color(0xFF7E778D)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
                         },
                         supportingText = {
@@ -410,17 +404,17 @@ private fun AutoLockDurationPickerSheet(
                             }
                             Text(
                                 text = helperText,
-                                color = if (customInputError == null) Color(0xFF968EA8) else Color(0xFFFFAAA0)
+                                color = if (customInputError == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1D1D21),
-                            unfocusedContainerColor = Color(0xFF1D1D21),
-                            focusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.08f),
-                            focusedTextColor = Color(0xFFF0EBF7),
-                            unfocusedTextColor = Color(0xFFF0EBF7),
-                            cursorColor = PurpleAccent
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary
                         )
                     )
 
@@ -447,8 +441,8 @@ private fun AutoLockDurationPickerSheet(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (status is AccessStatus.Granted) PurpleAccent else Color(0xFFFFB74D),
-                                contentColor = Color(0xFF24114C)
+                                containerColor = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -492,9 +486,9 @@ private fun DurationPickerRow(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
                 } else {
-                    Color(0xFF1A1A1E)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
             )
             .clickable(onClick = onClick)
@@ -507,9 +501,9 @@ private fun DurationPickerRow(
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
                     } else {
-                        Color(0xFF232326)
+                        MaterialTheme.colorScheme.surfaceVariant
                     }
                 ),
             contentAlignment = Alignment.Center
@@ -517,7 +511,7 @@ private fun DurationPickerRow(
             Icon(
                 imageVector = if (isLocked) Icons.Filled.Lock else Icons.Filled.AccessTime,
                 contentDescription = label,
-                tint = if (isSelected) PurpleAccent else if (isLocked) Color(0xFFFFB74D) else Color(0xFFF0EBF7),
+                tint = if (isSelected) MaterialTheme.colorScheme.secondary else if (isLocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -527,7 +521,7 @@ private fun DurationPickerRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -537,7 +531,7 @@ private fun DurationPickerRow(
 
             Text(
                 text = subtitle,
-                color = Color(0xFF9B93AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -545,7 +539,7 @@ private fun DurationPickerRow(
         if (isSelected) {
             Text(
                 text = "Selected",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold
                 )

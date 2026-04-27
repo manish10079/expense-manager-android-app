@@ -71,9 +71,7 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CalculatorLineItem
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.CalculatorMode
 import com.mkn0079.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
@@ -97,7 +95,7 @@ fun ItemizedCalculatorScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A))
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 18.dp, vertical = 14.dp),
@@ -109,7 +107,7 @@ fun ItemizedCalculatorScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(Color.White.copy(alpha = 0.08f))
+                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
         )
 
         CalculatorModeTabs(
@@ -165,14 +163,14 @@ private fun CalculatorHeader(onBackClick: () -> Unit) {
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.02f))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f))
                 .clickable(onClick = onBackClick),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = "Back",
-                tint = Color(0xFFE0D7F4),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -181,7 +179,7 @@ private fun CalculatorHeader(onBackClick: () -> Unit) {
 
         Text(
             text = "Itemized Calculator",
-            color = PurplePrimary,
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -205,7 +203,7 @@ private fun CalculatorModeTabs(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / CalculatorMode.entries.size }
@@ -226,7 +224,7 @@ private fun CalculatorModeTabs(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     )
             )
@@ -239,7 +237,7 @@ private fun CalculatorModeTabs(
             CalculatorMode.entries.forEach { mode ->
                 val isSelected = selectedMode == mode
                 val animatedColor by animateColorAsState(
-                    targetValue = if (isSelected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     label = "calculator_mode_text_color"
                 )
                 Box(
@@ -305,7 +303,7 @@ private fun ItemizedCalculatorContent(
             ) {
                 Text(
                     text = "Breakdown",
-                    color = Color(0xFFE7E3EB),
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
@@ -314,7 +312,7 @@ private fun ItemizedCalculatorContent(
 
                 Text(
                     text = "${items.size} ITEMS",
-                    color = Color(0xFF9A919F),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         letterSpacing = 1.2.sp,
                         fontWeight = FontWeight.SemiBold
@@ -514,12 +512,12 @@ private fun NormalCalculatorDisplay(
             .clip(RoundedCornerShape(30.dp))
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF17131F), Color(0xFF0F0D14))
+                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                 )
             )
             .border(
                 width = 1.dp,
-                color = PurplePrimary.copy(alpha = 0.16f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
                 shape = RoundedCornerShape(30.dp)
             )
             .padding(horizontal = 22.dp, vertical = 28.dp),
@@ -531,7 +529,7 @@ private fun NormalCalculatorDisplay(
         ) {
             Text(
                 text = resultValue,
-                color = Color(0xFFB89AF7),
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.displayMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 40.sp
@@ -545,10 +543,10 @@ private fun NormalCalculatorDisplay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(22.dp))
-                    .background(Color(0xFF16131B))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.08f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                         shape = RoundedCornerShape(22.dp)
                     )
                     .padding(horizontal = 18.dp, vertical = 18.dp),
@@ -556,7 +554,7 @@ private fun NormalCalculatorDisplay(
             ) {
                 Text(
                     text = expression ?: resultValue,
-                    color = Color(0xFFF2EDFF),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -590,20 +588,20 @@ private fun CalculatorKeyButton(
             .shadow(
                 elevation = if (primary) 18.dp else if (accent) 10.dp else 0.dp,
                 shape = shape,
-                ambientColor = if (primary) PurplePrimary.copy(alpha = 0.34f) else PurpleGlow.copy(alpha = 0.10f),
-                spotColor = if (primary) PurpleGlow.copy(alpha = 0.28f) else PurplePrimary.copy(alpha = 0.08f)
+                ambientColor = if (primary) MaterialTheme.colorScheme.primary.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f),
+                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
             )
             .clip(shape)
             .background(
                 brush = when {
                     primary -> Brush.verticalGradient(
-                        colors = listOf(Color(0xFF7D5AF8), Color(0xFF5B2FCB))
+                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                     )
                     accent -> Brush.verticalGradient(
-                        colors = listOf(Color(0xFF221736), Color(0xFF171021))
+                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
                     )
                     else -> Brush.verticalGradient(
-                        colors = listOf(Color(0xFF1F1E22), Color(0xFF18181B))
+                        colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             )
@@ -614,13 +612,13 @@ private fun CalculatorKeyButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (primary) Color(0xFF210A53) else Color(0xFFECE7F6),
+                tint = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         } else {
             Text(
                 text = label.orEmpty(),
-                color = if (primary) Color(0xFF210A53) else Color(0xFFECE7F6),
+                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = if (primary) 28.sp else 24.sp
@@ -641,14 +639,14 @@ private fun TotalAmountCard(
             .fillMaxWidth()
             .padding(top = 8.dp)
             .clip(RoundedCornerShape(30.dp))
-            .background(Color(0xFF1F1D20))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 28.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "TOTAL AMOUNT",
-                color = Color(0xFF9D92AA),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium.copy(
                     letterSpacing = 2.2.sp,
                     fontWeight = FontWeight.SemiBold
@@ -659,7 +657,7 @@ private fun TotalAmountCard(
 
             Text(
                 text = formatCurrencyValue(totalAmount, currencyId, amountFormatPreferences),
-                color = Color(0xFFF3F0F4),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 34.sp
@@ -677,6 +675,7 @@ private fun BreakdownItemCard(
     onDeleteClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(28.dp)
+    val highlightedBorderColor = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier
@@ -684,15 +683,15 @@ private fun BreakdownItemCard(
             .shadow(
                 elevation = if (item.highlighted) 18.dp else 0.dp,
                 shape = shape,
-                ambientColor = PurplePrimary.copy(alpha = if (item.highlighted) 0.14f else 0f),
-                spotColor = PurpleGlow.copy(alpha = if (item.highlighted) 0.12f else 0f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = if (item.highlighted) 0.14f else 0f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
             )
             .clip(shape)
-            .background(Color(0xFF232124))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .drawBehind {
                 if (item.highlighted) {
                     drawRoundRect(
-                        color = Color(0xFFD1BCFF),
+                        color = highlightedBorderColor,
                         cornerRadius = CornerRadius(28.dp.toPx(), 28.dp.toPx()),
                         style = Stroke(width = 2.dp.toPx())
                     )
@@ -707,7 +706,7 @@ private fun BreakdownItemCard(
             ) {
                 Text(
                     text = "DESCRIPTION",
-                    color = Color(0xFF9D92AA),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall.copy(
                         letterSpacing = 0.8.sp,
                         fontWeight = FontWeight.Medium
@@ -716,7 +715,7 @@ private fun BreakdownItemCard(
 
                 Text(
                     text = "AMOUNT",
-                    color = Color(0xFF9D92AA),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall.copy(
                         letterSpacing = 0.8.sp,
                         fontWeight = FontWeight.Medium
@@ -730,7 +729,7 @@ private fun BreakdownItemCard(
             ) {
                 Text(
                     text = item.description,
-                    color = Color(0xFFF0EBF5),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -742,7 +741,7 @@ private fun BreakdownItemCard(
 
                 Text(
                     text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
-                    color = Color(0xFFF0EBF5),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
@@ -754,14 +753,14 @@ private fun BreakdownItemCard(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.02f))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f))
                         .clickable(onClick = onDeleteClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DeleteOutline,
                         contentDescription = "Delete ${item.description}",
-                        tint = Color(0xFFA89DB5),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -784,13 +783,13 @@ private fun AddItemInputCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
             text = "NEW ITEM",
-            color = Color(0xFFD4C2FF),
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelLarge.copy(
                 letterSpacing = 1.2.sp,
                 fontWeight = FontWeight.Bold
@@ -846,26 +845,26 @@ private fun ItemizedTextField(
         label = {
             Text(
                 text = label,
-                color = Color(0xFFBEB4CB)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         placeholder = {
             Text(
                 text = placeholder,
-                color = Color(0xFF7F748C)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         },
         shape = RoundedCornerShape(22.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFF222024),
-            unfocusedContainerColor = Color(0xFF222024),
-            focusedBorderColor = PurpleAccent,
-            unfocusedBorderColor = Color(0xFF3A3048),
-            cursorColor = PurpleAccent,
-            focusedTextColor = Color(0xFFF3F0F4),
-            unfocusedTextColor = Color(0xFFF3F0F4),
-            focusedLabelColor = PurpleAccent,
-            unfocusedLabelColor = Color(0xFFBEB4CB)
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
 }
@@ -873,6 +872,7 @@ private fun ItemizedTextField(
 @Composable
 private fun AddNewItemButton(onClick: () -> Unit) {
     val shape = RoundedCornerShape(28.dp)
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
 
     Row(
         modifier = Modifier
@@ -880,7 +880,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
             .height(70.dp)
             .drawBehind {
                 drawRoundRect(
-                    color = Color(0xFF3B3048),
+                    color = borderColor,
                     cornerRadius = CornerRadius(28.dp.toPx(), 28.dp.toPx()),
                     style = Stroke(
                         width = 1.dp.toPx(),
@@ -890,7 +890,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
                 )
             }
             .clip(shape)
-            .background(Color.Transparent)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
             .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -898,7 +898,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.Add,
             contentDescription = "Add item",
-            tint = Color(0xFFE9DEF9),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(20.dp)
         )
 
@@ -906,7 +906,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
 
         Text(
             text = "Add New Item",
-            color = Color(0xFFE9DEF9),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
@@ -925,13 +925,13 @@ private fun SecondaryActionButton(
         modifier = modifier
             .height(54.dp)
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF26232B))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = Color(0xFFE5DCF7),
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold
             )
@@ -953,7 +953,7 @@ private fun PrimaryActionButton(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF7A56F5), Color(0xFFC3AEFF))
+                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                 )
             )
             .clickable(enabled = enabled, onClick = onClick),
@@ -961,7 +961,7 @@ private fun PrimaryActionButton(
     ) {
         Text(
             text = label,
-            color = Color(0xFF220A53),
+            color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold
             )
@@ -982,13 +982,13 @@ private fun ApplyToNoteButton(
             .shadow(
                 elevation = 22.dp,
                 shape = RoundedCornerShape(32.dp),
-                ambientColor = PurplePrimary.copy(alpha = 0.28f),
-                spotColor = PurpleGlow.copy(alpha = 0.22f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
             )
             .clip(RoundedCornerShape(32.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF7A56F5), Color(0xFFC3AEFF))
+                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                 )
             )
             .clickable(enabled = enabled, onClick = onClick),
@@ -1002,13 +1002,13 @@ private fun ApplyToNoteButton(
                 modifier = Modifier
                     .size(22.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2A1558)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = "Apply to note",
-                    tint = Color(0xFFEFE9FA),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -1017,7 +1017,7 @@ private fun ApplyToNoteButton(
 
             Text(
                 text = "Apply to Note",
-                color = Color(0xFF220A53),
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -1031,7 +1031,6 @@ private fun ApplyToNoteButton(
     name = "Itemized Calculator",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable

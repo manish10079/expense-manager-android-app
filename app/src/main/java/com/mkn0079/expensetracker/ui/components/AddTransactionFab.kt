@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,8 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+
 
 @Composable
 fun AddTransactionFab(
@@ -35,27 +35,27 @@ fun AddTransactionFab(
             .shadow(
                 elevation = 18.dp,
                 shape = CircleShape,
-                ambientColor = PurplePrimary.copy(alpha = 0.26f),
-                spotColor = PurpleGlow.copy(alpha = 0.24f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
             )
             .clip(CircleShape)
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        PurplePrimary,
-                        Color(0xFFB89AF7)
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
                     )
                 )
             ),
         shape = CircleShape,
-        containerColor = Color.Transparent,
-        contentColor = Color(0xFF24104E),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp)
     ) {
         Box(
             modifier = Modifier
                 .clip(CircleShape)
-                .background(Color.Transparent)
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
         ) {
             Icon(
                 imageVector = Icons.Default.Add,

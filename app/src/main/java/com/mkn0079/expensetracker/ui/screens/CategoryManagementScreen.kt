@@ -83,11 +83,7 @@ import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.models.CategoryIconOption
 import com.mkn0079.expensetracker.ui.models.CategoryManagementItemUi
 import com.mkn0079.expensetracker.ui.models.CategoryManagementTab
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
@@ -238,15 +234,7 @@ fun CategoryManagementScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        BackgroundDark,
-                        Color(0xFF09090A),
-                        BackgroundDark
-                    )
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         CategoryManagementGlow()
 
@@ -275,7 +263,7 @@ fun CategoryManagementScreen(
 
             Text(
                 text = uiState.categoryCountLabel,
-                color = Color(0xFF9F98AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp
@@ -380,9 +368,9 @@ private fun BoxScope.CategoryManagementGlow() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        PurplePrimary.copy(alpha = 0.14f),
-                        PurpleGlow.copy(alpha = 0.08f),
-                        Color.Transparent
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                     )
                 ),
                 shape = CircleShape
@@ -408,8 +396,8 @@ private fun AddCategoryBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF0E0D12),
-        scrimColor = Color.Black.copy(alpha = 0.72f),
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f),
         dragHandle = null
     ) {
         BoxWithConstraints(
@@ -431,14 +419,14 @@ private fun AddCategoryBottomSheet(
                         .padding(top = 8.dp)
                         .size(width = 56.dp, height = 5.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.16f))
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "Add Category",
-                    color = Color(0xFFF5F0FA),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.Black,
                         fontSize = 30.sp,
@@ -450,7 +438,7 @@ private fun AddCategoryBottomSheet(
 
                 Text(
                     text = "PERSONALIZE YOUR VAULT",
-                    color = Color(0xFFB5AFC0),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 3.sp,
@@ -484,7 +472,7 @@ private fun AddCategoryBottomSheet(
                                 CategoryManagementTab.Expense -> "e.g. Weekend Escapes"
                                 CategoryManagementTab.Payment -> "e.g. Digital Wallet"
                             },
-                            color = Color(0xFF5C5768)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
                     leadingIcon = {
@@ -494,7 +482,7 @@ private fun AddCategoryBottomSheet(
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(
                                     brush = Brush.linearGradient(
-                                        colors = listOf(Color(0xFF8D63FF), PurplePrimary)
+                                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                                     )
                                 ),
                             contentAlignment = Alignment.Center
@@ -502,7 +490,7 @@ private fun AddCategoryBottomSheet(
                             Icon(
                                 imageVector = selectedIcon.icon,
                                 contentDescription = selectedIcon.label,
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -512,16 +500,16 @@ private fun AddCategoryBottomSheet(
                         keyboardType = KeyboardType.Text
                     ),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = PurplePrimary,
-                        unfocusedIndicatorColor = Color.White.copy(alpha = 0.12f),
-                        cursorColor = PurpleAccent,
-                        focusedTextColor = Color(0xFFF2EDF8),
-                        unfocusedTextColor = Color(0xFFF2EDF8),
-                        focusedLeadingIconColor = Color.White,
-                        unfocusedLeadingIconColor = Color.White
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
 
@@ -530,7 +518,7 @@ private fun AddCategoryBottomSheet(
 
                     Text(
                         text = "This name already exists in ${targetTab.title.lowercase()}.",
-                        color = Color(0xFFFFAAA0),
+                        color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Medium
                         )
@@ -545,7 +533,7 @@ private fun AddCategoryBottomSheet(
 
                 Text(
                     text = "Choose from 50 icons. Color styling stays automatic.",
-                    color = Color(0xFF8E879B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium
                     )
@@ -581,10 +569,10 @@ private fun AddCategoryBottomSheet(
                         .height(76.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        contentColor = Color(0xFF25124E),
-                        disabledContentColor = Color(0xFF8A8396)
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     contentPadding = PaddingValues(0.dp)
                 ) {
@@ -595,9 +583,9 @@ private fun AddCategoryBottomSheet(
                             .background(
                                 brush = Brush.horizontalGradient(
                                     colors = if (canCreate) {
-                                        listOf(Color(0xFF7D53FF), Color(0xFFC6B6FF))
+                                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                                     } else {
-                                        listOf(Color(0xFF2A2734), Color(0xFF35313F))
+                                        listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
                                     }
                                 )
                             ),
@@ -609,7 +597,7 @@ private fun AddCategoryBottomSheet(
                             } else {
                                 "Create Category"
                             },
-                            color = if (canCreate) Color(0xFF24114C) else Color(0xFF8A8396),
+                            color = if (canCreate) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 18.sp
@@ -626,7 +614,7 @@ private fun AddCategoryBottomSheet(
                 ) {
                     Text(
                         text = "CANCEL",
-                        color = Color(0xFFD0CADB),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Medium,
                             letterSpacing = 2.sp
@@ -649,10 +637,10 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17151F))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = 1.dp,
-                color = PurplePrimary.copy(alpha = 0.22f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
                 shape = RoundedCornerShape(24.dp)
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -665,7 +653,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(
                     brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF8D63FF), PurplePrimary)
+                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                     )
                 ),
             contentAlignment = Alignment.Center
@@ -677,7 +665,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                     CategoryManagementTab.Payment -> Icons.Filled.Payments
                 },
                 contentDescription = targetTab.title,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -689,7 +677,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                 } else {
                     "${targetTab.title} Category"
                 },
-                color = Color(0xFFF3EEF8),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp
@@ -700,7 +688,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
 
             Text(
                 text = "This new item will be added under ${targetTab.title}.",
-                color = Color(0xFF9F98AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Medium
                 )
@@ -719,7 +707,7 @@ private fun CategoryTabSwitcher(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFF121214))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -732,23 +720,23 @@ private fun CategoryTabSwitcher(
                     .shadow(
                         elevation = if (isSelected) 18.dp else 0.dp,
                         shape = RoundedCornerShape(24.dp),
-                        ambientColor = if (isSelected) PurplePrimary.copy(alpha = 0.28f) else Color.Transparent,
-                        spotColor = if (isSelected) PurpleGlow.copy(alpha = 0.22f) else Color.Transparent
+                        ambientColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        spotColor = if (isSelected) MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                     )
                     .clip(RoundedCornerShape(24.dp))
                     .background(
                         brush = if (isSelected) {
                             Brush.horizontalGradient(
                                 colors = listOf(
-                                    PurplePrimary,
-                                    Color(0xFF8A5EFF)
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
                                 )
                             )
                         } else {
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Transparent,
-                                    Color.Transparent
+                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
+                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f)
                                 )
                             )
                         }
@@ -759,7 +747,7 @@ private fun CategoryTabSwitcher(
             ) {
                 Text(
                     text = tab.title,
-                    color = if (isSelected) Color(0xFFF9F4FF) else Color(0xFFC9C2D4),
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
@@ -782,14 +770,14 @@ private fun CategoryManagementCard(
             .background(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        Color(0xFF19191B),
-                        Color(0xFF202022)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.04f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(34.dp)
             )
             .padding(horizontal = 18.dp, vertical = 20.dp),
@@ -799,13 +787,13 @@ private fun CategoryManagementCard(
             modifier = Modifier
                 .size(64.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xFF2B2A31)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = item.title,
-                tint = PurpleAccent,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -817,7 +805,7 @@ private fun CategoryManagementCard(
         ) {
             Text(
                 text = item.title,
-                color = Color(0xFFF3EDF9),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
@@ -828,7 +816,7 @@ private fun CategoryManagementCard(
 
             Text(
                 text = item.subtitle,
-                color = Color(0xFFABA4B6),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp
@@ -841,14 +829,14 @@ private fun CategoryManagementCard(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2A1A22))
+                    .background(MaterialTheme.colorScheme.errorContainer)
                     .clickable(onClick = onDeleteClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.DeleteOutline,
                     contentDescription = "Delete ${item.title}",
-                    tint = Color(0xFFFFA8B0),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -868,18 +856,18 @@ private fun IconSelectionItem(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                spotColor = PurpleGlow.copy(alpha = 0.28f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
             .background(
                 brush = if (selected) {
                     Brush.linearGradient(
-                        colors = listOf(Color(0xFF7B4DFF), Color(0xFF9E7CFF))
+                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                     )
                 } else {
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFF242226), Color(0xFF1D1B20))
+                        colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             )
@@ -889,7 +877,7 @@ private fun IconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = option.label,
-            tint = if (selected) Color(0xFFF5F1FF) else Color(0xFFD2CAE0),
+            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(30.dp)
         )
     }
@@ -942,8 +930,8 @@ private fun AddCategoryFab(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            PurplePrimary.copy(alpha = 0.28f),
-                            Color.Transparent
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                         )
                     ),
                     shape = CircleShape
@@ -956,15 +944,15 @@ private fun AddCategoryFab(
                 .shadow(
                     elevation = 22.dp,
                     shape = CircleShape,
-                    ambientColor = PurplePrimary.copy(alpha = 0.34f),
-                    spotColor = PurpleGlow.copy(alpha = 0.30f)
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.30f)
                 )
                 .clip(CircleShape)
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF8D63FF),
-                            PurplePrimary
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
                         )
                     )
                 )
@@ -974,14 +962,14 @@ private fun AddCategoryFab(
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Add category",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(26.dp)
             )
         }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF0A0A0A)
+@Preview(showBackground = true)
 @Composable
 private fun CategoryManagementScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

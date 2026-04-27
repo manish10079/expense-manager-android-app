@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
+
 
 @Composable
 fun AdRewardDialog(
@@ -25,7 +25,7 @@ fun AdRewardDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1A1A1E),
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
         shape = RoundedCornerShape(28.dp),
         title = {
@@ -34,20 +34,20 @@ fun AdRewardDialog(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(PurpleAccent.copy(alpha = 0.15f)),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
                         contentDescription = null,
-                        tint = PurpleAccent,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "2 Hour Access",
-                    color = Color(0xFFFFB74D), // Gold/Accent color for emphasis
+                    color = MaterialTheme.colorScheme.secondary, // Gold/Accent color for emphasis
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
                 )
@@ -56,7 +56,7 @@ fun AdRewardDialog(
         text = {
             Text(
                 text = "Watch a short video to unlock $featureName.",
-                color = Color.White.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge
@@ -65,11 +65,11 @@ fun AdRewardDialog(
         confirmButton = {
             Button(
                 onClick = onWatchAdClick,
-                colors = ButtonDefaults.buttonColors(containerColor = PurpleAccent),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Watch Ad & Unlock", fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Watch Ad & Unlock", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
             }
         },
         dismissButton = {
@@ -77,7 +77,7 @@ fun AdRewardDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("CANCEL", color = Color.White.copy(alpha = 0.5f))
+                Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
             }
         }
     )

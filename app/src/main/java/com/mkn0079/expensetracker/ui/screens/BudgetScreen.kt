@@ -88,12 +88,11 @@ import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
+import com.mkn0079.expensetracker.ui.viewmodels.BudgetAccent
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetInsightUi
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetPeriodFilter
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
@@ -155,9 +154,9 @@ fun BudgetScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        BackgroundDark,
-                        Color(0xFF050507),
-                        BackgroundDark
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        MaterialTheme.colorScheme.background
                     )
                 )
             )
@@ -235,7 +234,7 @@ fun BudgetScreen(
                 item {
                     HorizontalDivider(
                         thickness = 1.dp,
-                        color = Color.White.copy(alpha = 0.06f)
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
                     )
                 }
 
@@ -360,6 +359,19 @@ fun BudgetScreen(
 }
 
 
+@Composable
+private fun budgetAccentColor(accent: BudgetAccent): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (accent) {
+        BudgetAccent.Primary -> colorScheme.primary
+        BudgetAccent.Warning -> colorScheme.tertiary
+        BudgetAccent.Overspent -> colorScheme.error
+        BudgetAccent.Disabled -> colorScheme.outline
+        BudgetAccent.Daily -> colorScheme.income
+        BudgetAccent.Yearly -> colorScheme.secondary
+    }
+}
+
 
 @Composable
 private fun BoxScope.BudgetGlow() {
@@ -371,9 +383,9 @@ private fun BoxScope.BudgetGlow() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        PurplePrimary.copy(alpha = 0.26f),
-                        PurpleGlow.copy(alpha = 0.12f),
-                        Color.Transparent
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f),
+                        MaterialTheme.colorScheme.background.copy(alpha = 0f)
                     )
                 )
             )
@@ -398,7 +410,7 @@ private fun BudgetPeriodRow(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF17171A))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
@@ -419,7 +431,7 @@ private fun BudgetPeriodRow(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(PurplePrimary, Color(0xFFB89AF7))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     )
             )
@@ -454,7 +466,7 @@ private fun BudgetPeriodChip(
     modifier: Modifier = Modifier
 ) {
     val animatedColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF24114C) else Color(0xFFD9D0E8),
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "budget_text_color"
     )
 
@@ -487,21 +499,21 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             .shadow(
                 elevation = 26.dp,
                 shape = RoundedCornerShape(24.dp),
-                ambientColor = Color.Black.copy(alpha = 0.34f),
-                spotColor = PurpleGlow.copy(alpha = 0.08f)
+                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
             )
             .clip(RoundedCornerShape(24.dp))
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF211E24),
-                        Color(0xFF171518)
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             )
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.05f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(24.dp)
             )
             .padding(20.dp),
@@ -514,7 +526,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
         ) {
             Text(
                 text = "MONTHLY BUDGET",
-                color = Color(0xFF9C96AA),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     letterSpacing = 1.1.sp
@@ -523,7 +535,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
 
             Text(
                 text = summary.monthLabel,
-                color = Color(0xFFD5CCEA),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
@@ -533,7 +545,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
                 text = summary.totalBudgetLabel,
-                color = Color(0xFFF6F2FC),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     fontSize = 34.sp
@@ -544,7 +556,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
 
             Text(
                 text = "/ month",
-                color = Color(0xFFD3CED9),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                 )
@@ -556,14 +568,14 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 modifier = Modifier.weight(1f),
                 title = "SPENT",
                 value = summary.spentLabel,
-                valueColor = Color(0xFFFFB8B2)
+                valueColor = MaterialTheme.colorScheme.expense
             )
 
             BudgetMetricCard(
                 modifier = Modifier.weight(1f),
                 title = if (summary.remainingAmount >= 0.0) "REMAINING" else "OVER",
                 value = summary.remainingLabel,
-                valueColor = if (summary.remainingAmount >= 0.0) Color(0xFFD6C8FF) else Color(0xFFFFB3B3)
+                valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
         }
 
@@ -575,7 +587,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             ) {
                 Text(
                     text = summary.usageLabel,
-                    color = Color(0xFFE1D6FF),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         letterSpacing = 0.9.sp
@@ -584,7 +596,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
 
                 Text(
                     text = summary.limitLabel,
-                    color = Color(0xFFA8A1B4),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         letterSpacing = 0.7.sp
@@ -595,7 +607,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             BudgetProgressBar(
                 progress = summary.usageFraction,
                 accent = Brush.horizontalGradient(
-                    colors = listOf(PurplePrimary, Color(0xFFBAA3FF))
+                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                 )
             )
         }
@@ -612,10 +624,10 @@ private fun BudgetMetricCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF101013))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.05f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(18.dp)
             )
             .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -623,7 +635,7 @@ private fun BudgetMetricCard(
     ) {
         Text(
             text = title,
-            color = Color(0xFF9B95A8),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 0.9.sp
@@ -645,7 +657,7 @@ private fun BudgetMetricCard(
 private fun SectionTitle(title: String) {
     Text(
         text = title,
-        color = Color(0xFFF2EDF8),
+        color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
         )
@@ -658,17 +670,17 @@ private fun EmptySectionCard(message: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF1B1A1E))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.05f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(18.dp)
     ) {
         Text(
             text = message,
-            color = Color(0xFFC8C0D7),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -704,9 +716,9 @@ private fun BudgetEditorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF18171C),
-        titleContentColor = Color(0xFFF4EFFA),
-        textContentColor = Color(0xFFD0C8DD),
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
@@ -717,7 +729,7 @@ private fun BudgetEditorDialog(
                 )
                 Text(
                     text = monthLabel,
-                    color = PurplePrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
@@ -734,7 +746,7 @@ private fun BudgetEditorDialog(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         text = "Category",
-                        color = Color(0xFFEDE7F9),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
@@ -765,13 +777,13 @@ private fun BudgetEditorDialog(
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.14f),
-                        focusedLabelColor = PurplePrimary,
-                        unfocusedLabelColor = Color(0xFFAAA2B8),
-                        cursorColor = PurplePrimary
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -817,9 +829,9 @@ private fun DeleteBudgetDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF18171C),
-        titleContentColor = Color(0xFFF4EFFA),
-        textContentColor = Color(0xFFD0C8DD),
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
                 text = "Delete Budget",
@@ -857,7 +869,7 @@ private fun SelectionDialogField(
         if (label.isNotBlank()) {
             Text(
                 text = label,
-                color = Color(0xFFEDE7F9),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
@@ -869,10 +881,10 @@ private fun SelectionDialogField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF111115))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.06f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                         shape = RoundedCornerShape(16.dp)
                     )
                     .clickable(enabled = enabled, onClick = onClick)
@@ -882,13 +894,13 @@ private fun SelectionDialogField(
             ) {
                 Text(
                     text = value,
-                    color = if (enabled) Color(0xFFF4EFFA) else Color(0xFFA9A1B6),
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
                 Text(
                     text = actionLabel,
-                    color = if (enabled) PurplePrimary else Color(0xFF7D768B),
+                    color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.7.sp
@@ -912,8 +924,8 @@ private fun BudgetCategoryPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF141416),
-        scrimColor = Color.Black.copy(alpha = 0.62f)
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -924,7 +936,7 @@ private fun BudgetCategoryPickerSheet(
             item {
                 Text(
                     text = "Select Category",
-                    color = Color(0xFFF0EBF7),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
@@ -934,7 +946,7 @@ private fun BudgetCategoryPickerSheet(
             item {
                 Text(
                     text = "Choose from all expense categories, including preloaded and custom ones.",
-                    color = Color(0xFF968EA8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -969,9 +981,9 @@ private fun BudgetCategoryPickerRow(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    PurplePrimary.copy(alpha = 0.18f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
                 } else {
-                    Color(0xFF1A1A1E)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
             )
             .clickable(onClick = onClick)
@@ -984,9 +996,9 @@ private fun BudgetCategoryPickerRow(
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (isSelected) {
-                        PurpleAccent.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
                     } else {
-                        Color(0xFF232326)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     }
                 ),
             contentAlignment = Alignment.Center
@@ -994,7 +1006,7 @@ private fun BudgetCategoryPickerRow(
             Icon(
                 imageVector = category.icon,
                 contentDescription = category.name,
-                tint = if (isSelected) PurpleAccent else Color(0xFFD7D1E4),
+                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1004,7 +1016,7 @@ private fun BudgetCategoryPickerRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = category.name,
-                color = Color(0xFFF0EBF7),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
@@ -1014,7 +1026,7 @@ private fun BudgetCategoryPickerRow(
 
             Text(
                 text = "Expense category",
-                color = Color(0xFF9B93AE),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -1022,7 +1034,7 @@ private fun BudgetCategoryPickerRow(
         if (isSelected) {
             Text(
                 text = "Selected",
-                color = PurpleAccent,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
@@ -1039,9 +1051,9 @@ private fun DeleteRecurringDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF18171C),
-        titleContentColor = Color(0xFFF4EFFA),
-        textContentColor = Color(0xFFD0C8DD),
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
                 text = "Delete Recurring",
@@ -1076,21 +1088,21 @@ private fun CategoryBudgetCard(
 ) {
     val containerBrush = when {
         budget.spentAmount > budget.limitAmount -> Brush.verticalGradient(
-            colors = listOf(Color(0xFF2C2527), Color(0xFF1F1A1B))
+            colors = listOf(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
         )
 
         budget.progressFraction >= 0.85f -> Brush.verticalGradient(
-            colors = listOf(Color(0xFF402108), Color(0xFF251409))
+            colors = listOf(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f))
         )
 
         else -> Brush.verticalGradient(
-            colors = listOf(Color(0xFF252326), Color(0xFF1C1A1D))
+            colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
         )
     }
     val iconContainer = when {
-        budget.spentAmount > budget.limitAmount -> Color(0xFF4A373A)
-        budget.progressFraction >= 0.85f -> Color(0xFF5A3922)
-        else -> Color(0xFF343138)
+        budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
+        budget.progressFraction >= 0.85f -> MaterialTheme.colorScheme.tertiaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Column(
@@ -1100,7 +1112,7 @@ private fun CategoryBudgetCard(
             .background(containerBrush)
             .border(
                 width = 1.dp,
-                color = budget.accent.copy(alpha = 0.24f),
+                color = budgetAccentColor(budget.accent).copy(alpha = 0.24f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(16.dp),
@@ -1117,7 +1129,7 @@ private fun CategoryBudgetCard(
                 Icon(
                     imageVector = budget.icon,
                     contentDescription = budget.title,
-                    tint = budget.accent,
+                    tint = budgetAccentColor(budget.accent),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1127,7 +1139,7 @@ private fun CategoryBudgetCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = budget.title,
-                    color = Color(0xFFF4EFFA),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                     )
@@ -1137,7 +1149,7 @@ private fun CategoryBudgetCard(
 
                 Text(
                     text = budget.statusValueLabel,
-                    color = budget.accent,
+                    color = budgetAccentColor(budget.accent),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.8.sp
@@ -1148,7 +1160,7 @@ private fun CategoryBudgetCard(
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = budget.summaryLabel,
-                    color = Color(0xFFF4EFFA),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                     )
@@ -1158,7 +1170,7 @@ private fun CategoryBudgetCard(
 
                 Text(
                     text = budget.totalCaption,
-                    color = Color(0xFFB1ABBB),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         letterSpacing = 0.7.sp
@@ -1169,7 +1181,7 @@ private fun CategoryBudgetCard(
 
         Text(
             text = budget.statusCaption,
-            color = budget.accent,
+            color = budgetAccentColor(budget.accent),
             style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 1.sp
@@ -1179,7 +1191,7 @@ private fun CategoryBudgetCard(
         BudgetProgressBar(
             progress = budget.progressFraction,
             accent = Brush.horizontalGradient(
-                colors = listOf(budget.accent, budget.accent.copy(alpha = 0.8f))
+                colors = listOf(budgetAccentColor(budget.accent), budgetAccentColor(budget.accent).copy(alpha = 0.8f))
             )
         )
 
@@ -1196,7 +1208,7 @@ private fun CategoryBudgetCard(
 
             BudgetCardAction(
                 label = "DELETE",
-                accent = Color(0xFFFFB3B3),
+                accent = MaterialTheme.colorScheme.error,
                 onClick = onDeleteClick
             )
         }
@@ -1206,7 +1218,7 @@ private fun CategoryBudgetCard(
 @Composable
 private fun BudgetCardAction(
     label: String,
-    accent: Color = PurplePrimary,
+    accent: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
     Box(
@@ -1242,7 +1254,7 @@ private fun BudgetProgressBar(
             .fillMaxWidth()
             .height(12.dp)
             .clip(CircleShape)
-            .background(Color(0xFF08080A))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Box(
             modifier = Modifier
@@ -1266,7 +1278,7 @@ private fun BudgetActionButton(
             .clip(RoundedCornerShape(18.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(PurplePrimary, Color(0xFF8C64FF))
+                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                 )
             )
             .clickable(onClick = onClick)
@@ -1277,7 +1289,7 @@ private fun BudgetActionButton(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(18.dp)
         )
 
@@ -1285,7 +1297,7 @@ private fun BudgetActionButton(
 
         Text(
             text = title,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 1.2.sp
@@ -1297,9 +1309,9 @@ private fun BudgetActionButton(
 @Composable
 private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
     val containerColor = when {
-        item.dueLabel.contains("TODAY") -> Color(0xFF230C0D)
-        item.dueLabel.contains("TOMORROW") || item.dueLabel.contains("DUE IN") -> Color(0xFF2A1B08)
-        else -> Color(0xFF161025)
+        item.dueLabel.contains("TODAY") -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+        item.dueLabel.contains("TOMORROW") || item.dueLabel.contains("DUE IN") -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+        else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Row(
@@ -1308,7 +1320,7 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
             .background(containerColor)
             .border(
                 width = 1.dp,
-                color = item.accent.copy(alpha = 0.34f),
+                color = budgetAccentColor(item.accent).copy(alpha = 0.34f),
                 shape = RoundedCornerShape(18.dp)
             )
             .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -1318,13 +1330,13 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
             modifier = Modifier
                 .size(34.dp)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.24f)),
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.24f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = item.title,
-                tint = item.accent,
+                tint = budgetAccentColor(item.accent),
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -1334,7 +1346,7 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
         Column {
             Text(
                 text = item.dueLabel,
-                color = item.accent,
+                color = budgetAccentColor(item.accent),
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     letterSpacing = 0.8.sp
@@ -1345,7 +1357,7 @@ private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
 
             Text(
                 text = "${item.title} (${item.dueAmountLabel})",
-                color = Color(0xFFF6F1FB),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
@@ -1365,10 +1377,10 @@ private fun RecurringExpenseCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF1F1D20))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .border(
                 width = 1.dp,
-                color = expense.accent.copy(alpha = 0.18f),
+                color = budgetAccentColor(expense.accent).copy(alpha = 0.18f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(horizontal = 16.dp, vertical = 16.dp),
@@ -1379,13 +1391,13 @@ private fun RecurringExpenseCard(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF0F0F12)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = expense.icon,
                     contentDescription = expense.title,
-                    tint = expense.accent,
+                    tint = budgetAccentColor(expense.accent),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1395,7 +1407,7 @@ private fun RecurringExpenseCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = expense.title,
-                    color = Color(0xFFF5F0FB),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                     )
@@ -1405,7 +1417,7 @@ private fun RecurringExpenseCard(
 
                 Text(
                     text = expense.amountLabel,
-                    color = Color(0xFFBDB6C9),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                     )
@@ -1416,11 +1428,11 @@ private fun RecurringExpenseCard(
                 checked = expense.isEnabled,
                 onCheckedChange = onEnabledChange,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF24114C),
-                    checkedTrackColor = PurpleAccent,
-                    uncheckedThumbColor = Color(0xFFDDD6EC),
-                    uncheckedTrackColor = Color(0xFF3B3548),
-                    uncheckedBorderColor = Color(0xFF3B3548)
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
         }
@@ -1428,15 +1440,15 @@ private fun RecurringExpenseCard(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             RecurringMetaChip(
                 label = expense.categoryLabel,
-                accent = expense.accent
+                accent = budgetAccentColor(expense.accent)
             )
             RecurringMetaChip(
                 label = expense.frequencyLabel,
-                accent = expense.accent
+                accent = budgetAccentColor(expense.accent)
             )
             RecurringMetaChip(
                 label = "${expense.currentInstallment} OF ${expense.totalInstallments}",
-                accent = expense.accent
+                accent = budgetAccentColor(expense.accent)
             )
         }
 
@@ -1448,7 +1460,7 @@ private fun RecurringExpenseCard(
             Column {
                 Text(
                     text = expense.dueLabel,
-                    color = expense.accent,
+                    color = budgetAccentColor(expense.accent),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.8.sp
@@ -1459,14 +1471,14 @@ private fun RecurringExpenseCard(
 
                 Text(
                     text = expense.sourceDateLabel,
-                    color = Color(0xFFAAA2B8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
 
             Text(
                 text = expense.dueAmountLabel,
-                color = Color(0xFFF5F0FB),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                 )
@@ -1480,13 +1492,13 @@ private fun RecurringExpenseCard(
         ) {
             BudgetCardAction(
                 label = "EDIT",
-                accent = PurpleAccent,
+                accent = MaterialTheme.colorScheme.primary,
                 onClick = onEditClick
             )
             Spacer(modifier = Modifier.width(12.dp))
             BudgetCardAction(
                 label = "DELETE",
-                accent = Color(0xFFFFB3B3),
+                accent = MaterialTheme.colorScheme.error,
                 onClick = onDeleteClick
             )
         }
@@ -1528,12 +1540,12 @@ private fun InsightCard(insight: BudgetInsightUi) {
             .clip(RoundedCornerShape(22.dp))
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF201B26), Color(0xFF17141B))
+                    colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface)
                 )
             )
             .border(
                 width = 1.dp,
-                color = insight.accent.copy(alpha = 0.24f),
+                color = budgetAccentColor(insight.accent).copy(alpha = 0.24f),
                 shape = RoundedCornerShape(22.dp)
             )
             .padding(18.dp),
@@ -1544,13 +1556,13 @@ private fun InsightCard(insight: BudgetInsightUi) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(insight.accent.copy(alpha = 0.14f)),
+                    .background(budgetAccentColor(insight.accent).copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.AutoAwesome,
                     contentDescription = insight.title,
-                    tint = insight.accent,
+                    tint = budgetAccentColor(insight.accent),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1560,7 +1572,7 @@ private fun InsightCard(insight: BudgetInsightUi) {
             Column {
                 Text(
                     text = insight.title,
-                    color = Color(0xFFF4EFFA),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                     )
@@ -1570,7 +1582,7 @@ private fun InsightCard(insight: BudgetInsightUi) {
 
                 Text(
                     text = insight.supportingLabel,
-                    color = insight.accent,
+                    color = budgetAccentColor(insight.accent),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.8.sp
@@ -1581,7 +1593,7 @@ private fun InsightCard(insight: BudgetInsightUi) {
 
         Text(
             text = insight.body,
-            color = Color(0xFFD3CCDF),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium.copy(
                 lineHeight = 20.sp
             )
@@ -1593,7 +1605,6 @@ private fun InsightCard(insight: BudgetInsightUi) {
     name = "Budget Screen",
     showBackground = true,
     showSystemUi = true,
-    backgroundColor = 0xFF0A0A0A,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
@@ -1614,15 +1625,15 @@ private fun RecurringRuleEditorModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF141418),
-        scrimColor = Color.Black.copy(alpha = 0.65f),
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f),
         dragHandle = {
             Spacer(modifier = Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .size(width = 38.dp, height = 4.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.12f))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
         }
     ) {
@@ -1635,14 +1646,14 @@ private fun RecurringRuleEditorModal(
         ) {
             Text(
                 text = "Edit Commitment",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = "Frequency",
-                    color = Color(0xFFAAA2B8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelLarge
                 )
                 
@@ -1658,13 +1669,13 @@ private fun RecurringRuleEditorModal(
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
                                 contentDescription = null,
-                                tint = PurpleAccent
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = Color.White,
-                            disabledBorderColor = Color.White.copy(alpha = 0.12f),
-                            disabledContainerColor = Color(0xFF19191D)
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
                     
@@ -1678,15 +1689,15 @@ private fun RecurringRuleEditorModal(
                         expanded = isFrequencyDropdownExpanded,
                         onDismissRequest = { isFrequencyDropdownExpanded = false },
                         modifier = Modifier
-                            .background(Color(0xFF222228))
-                            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     ) {
                         RecurringFrequency.entries.forEach { frequency ->
                             DropdownMenuItem(
                                 text = { 
                                     Text(
                                         text = frequency.label,
-                                        color = if (frequency == selectedFrequency) PurpleAccent else Color.White
+                                        color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                     )
                                 },
                                 onClick = {
@@ -1702,7 +1713,7 @@ private fun RecurringRuleEditorModal(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = "Total Installments",
-                    color = Color(0xFFAAA2B8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelLarge
                 )
                 
@@ -1713,12 +1724,12 @@ private fun RecurringRuleEditorModal(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.12f),
-                        focusedContainerColor = Color(0xFF19191D),
-                        unfocusedContainerColor = Color(0xFF19191D)
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             }
@@ -1733,7 +1744,7 @@ private fun RecurringRuleEditorModal(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("CANCEL", color = Color(0xFFAAA2B8))
+                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 
                 TextButton(
@@ -1745,9 +1756,9 @@ private fun RecurringRuleEditorModal(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .background(PurplePrimary, RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
                 ) {
-                    Text("SAVE CHANGES", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("SAVE CHANGES", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }

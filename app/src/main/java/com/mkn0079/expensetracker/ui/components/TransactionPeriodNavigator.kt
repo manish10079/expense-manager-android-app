@@ -62,7 +62,7 @@ fun TransactionPeriodNavigator(
             .background(surfaceColor)
             .border(
                 width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha = 0.05f),
+                color = colorScheme.onSurface.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(24.dp)
             )
             .padding(horizontal = 16.dp, vertical = 10.dp),
@@ -112,7 +112,7 @@ fun TransactionPeriodNavigator(
                     ) {
                         Text(
                             text = periodLabel,
-                            color = Color.White,
+                            color = colorScheme.onSurface,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
@@ -154,7 +154,7 @@ fun TransactionPeriodNavigator(
                         color = if (isMenuExpanded) {
                             colorScheme.primary.copy(alpha = 0.55f)
                         } else {
-                            Color.Transparent
+                            colorScheme.surface.copy(alpha = 0f)
                         },
                         shape = RoundedCornerShape(18.dp)
                     )

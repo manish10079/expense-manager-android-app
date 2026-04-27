@@ -17,9 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,15 +27,15 @@ fun PremiumGateSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF0E0D12),
-        scrimColor = Color.Black.copy(alpha = 0.75f),
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim,
         dragHandle = {
             Box(
                 modifier = Modifier
                     .padding(vertical = 12.dp)
                     .size(width = 40.dp, height = 4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color.White.copy(alpha = 0.2f))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f))
             )
         }
     ) {
@@ -57,7 +55,7 @@ fun PremiumGateSheet(
                     .clip(RoundedCornerShape(24.dp))
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(PurplePrimary, PurpleAccent)
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -65,7 +63,7 @@ fun PremiumGateSheet(
                 Icon(
                     imageVector = Icons.Filled.AutoAwesome,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(40.dp)
                 )
             }
@@ -76,7 +74,7 @@ fun PremiumGateSheet(
                 text = "Unlock Pro Features",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Black,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 28.sp
                 ),
                 textAlign = TextAlign.Center
@@ -87,7 +85,7 @@ fun PremiumGateSheet(
             Text(
                 text = "Take control of your wealth with our most powerful tools.",
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = Color.White.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -111,7 +109,7 @@ fun PremiumGateSheet(
                     .height(64.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                 ),
                 contentPadding = PaddingValues(0.dp)
             ) {
@@ -120,7 +118,7 @@ fun PremiumGateSheet(
                         .fillMaxSize()
                         .background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(Color(0xFF7C4DFF), Color(0xFFC8B1FF))
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                             )
                         ),
                     contentAlignment = Alignment.Center
@@ -129,7 +127,7 @@ fun PremiumGateSheet(
                         text = "Upgrade to Pro",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF24114C)
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     )
                 }
@@ -141,7 +139,7 @@ fun PremiumGateSheet(
                 Text(
                     text = "NOT NOW",
                     style = MaterialTheme.typography.labelLarge.copy(
-                        color = Color.White.copy(alpha = 0.4f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         letterSpacing = 2.sp
                     )
                 )
@@ -161,14 +159,14 @@ private fun BenefitItem(text: String) {
         Icon(
             imageVector = Icons.Filled.Check,
             contentDescription = null,
-            tint = PurpleAccent,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = Color.White.copy(alpha = 0.9f),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
         )

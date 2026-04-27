@@ -43,8 +43,6 @@ import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.BottomNavBarItem
 import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 
 private val BottomBarContainerHeight = 72.dp
 private val BottomBarCenterActionSize = 40.dp
@@ -77,14 +75,14 @@ fun AppBottomBar(
                     .shadow(
                         elevation = 28.dp,
                         shape = shellShape,
-                        ambientColor = Color.Black.copy(alpha = 0.42f),
-                        spotColor = PurpleGlow.copy(alpha = 0.10f)
+                        ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.42f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)
                     )
                     .clip(shellShape)
-                    .background(Color(0xFF161518))
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.05f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                         shape = shellShape
                     )
                     .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -115,13 +113,13 @@ fun AppBottomBar(
                     .shadow(
                         elevation = 22.dp,
                         shape = CircleShape,
-                        ambientColor = PurplePrimary.copy(alpha = 0.30f),
-                        spotColor = PurpleGlow.copy(alpha = 0.22f)
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                     )
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFF9E84FF), PurplePrimary)
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     )
                     .clickable(onClick = onAddClick),
@@ -130,7 +128,7 @@ fun AppBottomBar(
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "Add transaction",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -169,11 +167,11 @@ private fun VaultNavItem(
     modifier: Modifier = Modifier
 ) {
     val iconTint by animateColorAsState(
-        targetValue = if (selected) Color.White else Color(0xFF8B8694),
+        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "bottom_bar_icon_tint"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFFD4C6FF) else Color.Transparent,
+        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
         label = "bottom_bar_label_tint"
     )
     val iconContainerSize by animateDpAsState(
@@ -182,7 +180,7 @@ private fun VaultNavItem(
     )
 
     val gradientBrush = Brush.verticalGradient(
-        colors = listOf(Color(0xFF9E84FF), PurplePrimary)
+        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
     )
 
     Column(
@@ -219,7 +217,7 @@ private fun VaultNavItem(
 
         Text(
             text = if (selected) item.title.uppercase() else " ",
-            color = if (selected) Color.Unspecified else labelColor,
+            color = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0f) else labelColor,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 8.sp,
@@ -230,14 +228,14 @@ private fun VaultNavItem(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF0A0A0A)
+@Preview(showBackground = true)
 @Composable
 private fun AppBottomBarPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0A0A0A))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(vertical = 24.dp)
         ) {
             AppBottomBar(

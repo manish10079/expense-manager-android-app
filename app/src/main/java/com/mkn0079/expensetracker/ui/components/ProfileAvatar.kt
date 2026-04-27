@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -35,9 +36,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.mkn0079.expensetracker.ui.theme.PurpleAccent
-import com.mkn0079.expensetracker.ui.theme.PurpleGlow
-import com.mkn0079.expensetracker.ui.theme.PurplePrimary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
@@ -54,7 +52,7 @@ fun ProfileAvatar(
     showGlow: Boolean = true,
     showBorder: Boolean = true,
     backgroundBrush: Brush? = null,
-    backgroundColor: Color = Color.Transparent,
+    backgroundColor: Color? = null,
     borderBrush: Brush? = null,
     placeholderIconBrush: Brush? = null
 ) {
@@ -85,14 +83,14 @@ fun ProfileAvatar(
                     .shadow(
                         elevation = 24.dp,
                         shape = CircleShape,
-                        ambientColor = PurplePrimary.copy(alpha = 0.26f),
-                        spotColor = PurpleGlow.copy(alpha = 0.22f)
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                     )
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                PurpleGlow.copy(alpha = 0.18f),
-                                Color.Transparent
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                             )
                         ),
                         shape = CircleShape
@@ -107,7 +105,10 @@ fun ProfileAvatar(
                 .then(
                     backgroundBrush?.let { brush ->
                         Modifier.background(brush = brush, shape = CircleShape)
-                    } ?: Modifier.background(color = backgroundColor, shape = CircleShape)
+                    } ?: Modifier.background(
+                        color = backgroundColor ?: MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        shape = CircleShape
+                    )
                 )
                 .then(
                     if (showBorder) {
@@ -120,7 +121,7 @@ fun ProfileAvatar(
                         } else {
                             Modifier.border(
                                 width = 2.dp,
-                                color = PurpleAccent.copy(alpha = 0.88f),
+                                color = MaterialTheme.colorScheme.primary,
                                 shape = CircleShape
                             )
                         }
@@ -144,7 +145,7 @@ fun ProfileAvatar(
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Profile placeholder",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(size * 1.10f)
                         .align(Alignment.Center)
@@ -175,7 +176,7 @@ fun ProfileAvatar(
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(PurplePrimary, PurpleAccent)
+                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -183,7 +184,7 @@ fun ProfileAvatar(
                 Icon(
                     imageVector = badgeIcon,
                     contentDescription = null,
-                    tint = Color(0xFF24114C),
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(size * 0.12f)
                 )
             }

@@ -72,7 +72,7 @@ fun SelectionHeader(
             onClick = onSelectAllClick,
             modifier = Modifier
                 .size(31.dp)
-                .background(Color(0x1EA0A0A2), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
         ) {
             Icon(
                 imageVector = Icons.Default.SelectAll,
@@ -87,12 +87,12 @@ fun SelectionHeader(
             onClick = onDeleteClick,
             modifier = Modifier
                 .size(31.dp)
-                .background(Color(0x33FF4D4D), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(12.dp))
         ) {
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = "Delete Selected",
-                tint = Color(0xFFFF4D4D)
+                tint = MaterialTheme.colorScheme.error
             )
         }
     }
