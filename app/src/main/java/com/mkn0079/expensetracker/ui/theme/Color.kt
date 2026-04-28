@@ -40,6 +40,7 @@ val LightGradientStart = Color(0xFFF8F5FF)
 val LightGradientEnd = Color(0xFF9480EE)
 
 val IconColor = Color(0xFFCDBDFF)
+val FeatureGateLockGold = Color(0xFFFFC857)
 
 private val DarkOnPrimary = Color(0xFF24114C)
 private val DarkPrimaryContainer = Color(0xFF2D243F)
@@ -120,3 +121,6 @@ internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme(
     outlineVariant = DividerLight,
     scrim = BackgroundLight
 )
+
+val ColorScheme.featureGateLock: Color
+    get() = FeatureGateLockGold

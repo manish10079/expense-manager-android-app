@@ -58,6 +58,7 @@ import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatAmount
 import com.mkn0079.expensetracker.utils.formatDate
@@ -321,7 +322,7 @@ private fun TransactionCardToggleRow(
             Icon(
                 imageVector = if (isLocked) Icons.Filled.Lock else item.icon,
                 contentDescription = item.title,
-                tint = if (isLocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
+                tint = if (isLocked) MaterialTheme.colorScheme.featureGateLock else MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(22.dp)
             )
         }

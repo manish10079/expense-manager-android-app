@@ -106,6 +106,7 @@ import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
@@ -275,12 +276,12 @@ fun TransactionScreen(
                                         .size(26.dp)
                                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), RoundedCornerShape(15.dp))
                                 ) {
-                                    Icon(
-                                        imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
-                                        contentDescription = "Search transactions",
-                                        tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
-                                        modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
-                                    )
+                                      Icon(
+                                          imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
+                                          contentDescription = "Search transactions",
+                                          tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.featureGateLock,
+                                          modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
+                                      )
                                 }
                             }
 
@@ -350,12 +351,12 @@ fun TransactionScreen(
                             ) { status, onClick ->
                                 if (status !is AccessStatus.Granted) {
                                     IconButton(onClick = onClick) {
-                                        Icon(
-                                            imageVector = Icons.Default.Lock,
-                                            contentDescription = "Unlock Advanced Search",
-                                            tint = MaterialTheme.colorScheme.tertiary,
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                                         Icon(
+                                             imageVector = Icons.Default.Lock,
+                                             contentDescription = "Unlock Advanced Search",
+                                             tint = MaterialTheme.colorScheme.featureGateLock,
+                                             modifier = Modifier.size(16.dp)
+                                         )
                                     }
                                 }
                             }

@@ -68,6 +68,7 @@ import com.mkn0079.expensetracker.utils.getDefaultOrder
 import com.mkn0079.expensetracker.utils.getOrderOptions
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 
 const val FILTER_DATE_LAST_7_DAYS = "Last 7 Days"
 const val FILTER_DATE_LAST_15_DAYS = "Last 15 Days"
@@ -317,7 +318,7 @@ fun FilterBottomSheet(
                                 Icon(
                                     imageVector = Icons.Filled.Lock,
                                     contentDescription = "Locked",
-                                    tint = MaterialTheme.colorScheme.secondary,
+                                    tint = MaterialTheme.colorScheme.featureGateLock,
                                     modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
                                 )
                             }
@@ -358,7 +359,7 @@ fun FilterBottomSheet(
                                 Icon(
                                     imageVector = Icons.Filled.Lock,
                                     contentDescription = "Locked",
-                                    tint = MaterialTheme.colorScheme.secondary,
+                                    tint = MaterialTheme.colorScheme.featureGateLock,
                                     modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
                                 )
                             }

@@ -39,6 +39,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 
@@ -221,7 +222,7 @@ private fun SecurityToggleRow(
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = "Locked",
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    tint = MaterialTheme.colorScheme.featureGateLock,
                     modifier = Modifier.size(16.dp).padding(end = 8.dp)
                 )
             }
@@ -474,6 +475,7 @@ private fun AutoLockDurationPickerSheet(
                                     Icon(
                                         imageVector = Icons.Filled.Lock,
                                         contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.featureGateLock,
                                         modifier = Modifier.size(16.dp).padding(end = 8.dp)
                                     )
                                 }
@@ -535,7 +537,7 @@ private fun DurationPickerRow(
             Icon(
                 imageVector = if (isLocked) Icons.Filled.Lock else Icons.Filled.AccessTime,
                 contentDescription = label,
-                tint = if (isSelected) MaterialTheme.colorScheme.secondary else if (isLocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface,
+                tint = if (isSelected) MaterialTheme.colorScheme.secondary else if (isLocked) MaterialTheme.colorScheme.featureGateLock else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }

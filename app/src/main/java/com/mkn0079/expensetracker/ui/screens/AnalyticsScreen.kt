@@ -95,6 +95,7 @@ import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
@@ -478,7 +479,7 @@ private fun RowScope.PeriodTabItem(
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = "Locked",
-                    tint = animatedColor,
+                    tint = MaterialTheme.colorScheme.featureGateLock,
                     modifier = Modifier.size(12.dp)
                 )
             }
@@ -551,7 +552,7 @@ private fun CustomRangeSelector(
                         Icon(
                             imageVector = Icons.Filled.Lock,
                             contentDescription = "Locked",
-                            tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = MaterialTheme.colorScheme.featureGateLock,
                             modifier = Modifier.size(12.dp)
                         )
                     }
@@ -1894,7 +1895,7 @@ private fun BoxScope.PremiumLockedOverlay(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = MaterialTheme.colorScheme.featureGateLock,
                         modifier = Modifier.size(24.dp)
                     )
                 }

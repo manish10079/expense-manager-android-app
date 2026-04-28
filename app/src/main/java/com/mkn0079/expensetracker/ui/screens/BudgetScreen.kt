@@ -58,6 +58,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -87,6 +88,7 @@ import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.FeatureLockedOverlay
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
@@ -94,6 +96,7 @@ import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetAccent
@@ -282,7 +285,27 @@ fun BudgetScreen(
                     }
                 }
 
-                item { InsightCard(insight = uiState.insight) }
+                item {
+                    GatedAction(
+                        feature = Feature.BUDGET_INSIGHTS,
+                        displayName = "Budget Insights",
+                        onAction = {}
+                    ) { status, onClick ->
+                        val isLocked = status !is AccessStatus.Granted
+                        Box {
+                            InsightCard(
+                                insight = uiState.insight,
+                                modifier = if (isLocked) Modifier.blur(16.dp) else Modifier
+                            )
+                            if (isLocked) {
+                                FeatureLockedOverlay(
+                                    displayText = "Unlock Insights",
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -514,7 +537,7 @@ private fun BudgetPeriodChip(
                     tint = if (selected) {
                         MaterialTheme.colorScheme.onPrimary
                     } else {
-                        MaterialTheme.colorScheme.tertiary
+                        MaterialTheme.colorScheme.featureGateLock
                     },
                     modifier = Modifier.size(12.dp)
                 )
@@ -1251,6 +1274,7 @@ private fun CategoryBudgetCard(
 private fun BudgetCardAction(
     label: String,
     accent: Color = MaterialTheme.colorScheme.primary,
+    isLocked: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
@@ -1265,14 +1289,28 @@ private fun BudgetCardAction(
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(
-            text = label,
-            color = accent,
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                letterSpacing = 0.8.sp
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = label,
+                color = accent,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    letterSpacing = 0.8.sp
+                )
             )
-        )
+
+            if (isLocked) {
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "$label locked",
+                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }
 
@@ -1522,11 +1560,19 @@ private fun RecurringExpenseCard(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BudgetCardAction(
-                label = "EDIT",
-                accent = MaterialTheme.colorScheme.primary,
-                onClick = onEditClick
-            )
+            GatedAction(
+                feature = Feature.RECURRING_RULE_EDIT,
+                displayName = "Edit Recurring Rule",
+                onAction = onEditClick
+            ) { status, onClick ->
+                val isLocked = status !is AccessStatus.Granted
+                BudgetCardAction(
+                    label = "EDIT",
+                    accent = MaterialTheme.colorScheme.primary,
+                    isLocked = isLocked,
+                    onClick = if (isLocked) onClick else onEditClick
+                )
+            }
             Spacer(modifier = Modifier.width(12.dp))
             BudgetCardAction(
                 label = "DELETE",
@@ -1565,9 +1611,12 @@ private fun RecurringMetaChip(
 }
 
 @Composable
-private fun InsightCard(insight: BudgetInsightUi) {
+private fun InsightCard(
+    insight: BudgetInsightUi,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
             .background(

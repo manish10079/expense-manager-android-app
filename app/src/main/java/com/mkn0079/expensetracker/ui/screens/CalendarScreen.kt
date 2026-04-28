@@ -30,6 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,9 +89,13 @@ import com.mkn0079.expensetracker.ui.models.CalendarDayUi
 import com.mkn0079.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.TransactionCard
+import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.horizontalSwipe
 import com.mkn0079.expensetracker.utils.getAmountColor
@@ -164,11 +170,24 @@ fun CalendarScreen(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item {
-                    ViewModeToggle(
-                        isYearView = uiState.isYearView,
-                        onSelectMonth = { calendarViewModel.setYearView(false) },
-                        onSelectYear = { calendarViewModel.setYearView(true) }
-                    )
+                    GatedAction(
+                        feature = Feature.CALENDAR_YEAR_VIEW,
+                        displayName = "Calendar Year View",
+                        onAction = { calendarViewModel.setYearView(true) }
+                    ) { status, onClick ->
+                        val isYearLocked = status !is AccessStatus.Granted
+                        LaunchedEffect(isYearLocked, uiState.isYearView) {
+                            if (isYearLocked && uiState.isYearView) {
+                                calendarViewModel.setYearView(false)
+                            }
+                        }
+                        ViewModeToggle(
+                            isYearView = uiState.isYearView,
+                            isYearLocked = isYearLocked,
+                            onSelectMonth = { calendarViewModel.setYearView(false) },
+                            onSelectYear = { if (isYearLocked) onClick() else calendarViewModel.setYearView(true) }
+                        )
+                    }
                 }
 
                 item {
@@ -200,13 +219,26 @@ fun CalendarScreen(
                                             ),
                                         verticalArrangement = Arrangement.spacedBy(18.dp)
                                     ) {
-                                        YearHeading(
-                                            year = targetYear,
-                                            onPreviousYear = calendarViewModel::goToPreviousYear,
-                                            onNextYear = calendarViewModel::goToNextYear,
-                                            onTodayClick = calendarViewModel::jumpToToday,
-                                            onOpenYearPicker = { isYearPickerVisible = true }
-                                        )
+                                        GatedAction(
+                                            feature = Feature.CALENDAR_DIRECT_YEAR_PICKER,
+                                            displayName = "Calendar Year Picker",
+                                            onAction = { isYearPickerVisible = true }
+                                        ) { status, onClick ->
+                                            YearHeading(
+                                                year = targetYear,
+                                                isPickerLocked = status !is AccessStatus.Granted,
+                                                onPreviousYear = calendarViewModel::goToPreviousYear,
+                                                onNextYear = calendarViewModel::goToNextYear,
+                                                onTodayClick = calendarViewModel::jumpToToday,
+                                                onOpenYearPicker = {
+                                                    if (status is AccessStatus.Granted) {
+                                                        isYearPickerVisible = true
+                                                    } else {
+                                                        onClick()
+                                                    }
+                                                }
+                                            )
+                                        }
 
                                         AnnualSummaryCard(
                                             totalIncome = uiState.yearlyIncomeLabel,
@@ -232,13 +264,26 @@ fun CalendarScreen(
                                     label = "month_navigation_transition"
                                 ) { targetMonthStart ->
                                     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                                        MonthHeading(
-                                            monthStart = targetMonthStart,
-                                            onPreviousMonth = calendarViewModel::goToPreviousMonth,
-                                            onNextMonth = calendarViewModel::goToNextMonth,
-                                            onTodayClick = calendarViewModel::jumpToToday,
-                                            onOpenPicker = { isMonthYearPickerVisible = true }
-                                        )
+                                        GatedAction(
+                                            feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
+                                            displayName = "Calendar Month Picker",
+                                            onAction = { isMonthYearPickerVisible = true }
+                                        ) { status, onClick ->
+                                            MonthHeading(
+                                                monthStart = targetMonthStart,
+                                                isPickerLocked = status !is AccessStatus.Granted,
+                                                onPreviousMonth = calendarViewModel::goToPreviousMonth,
+                                                onNextMonth = calendarViewModel::goToNextMonth,
+                                                onTodayClick = calendarViewModel::jumpToToday,
+                                                onOpenPicker = {
+                                                    if (status is AccessStatus.Granted) {
+                                                        isMonthYearPickerVisible = true
+                                                    } else {
+                                                        onClick()
+                                                    }
+                                                }
+                                            )
+                                        }
 
                                         MonthCalendarCard(
                                             days = uiState.monthDays,
@@ -313,6 +358,7 @@ fun CalendarScreen(
 @Composable
 private fun ViewModeToggle(
     isYearView: Boolean,
+    isYearLocked: Boolean,
     onSelectMonth: () -> Unit,
     onSelectYear: () -> Unit
 ) {
@@ -360,12 +406,14 @@ private fun ViewModeToggle(
                 modifier = Modifier.weight(1f),
                 label = "Month",
                 selected = !isYearView,
+                isLocked = false,
                 onClick = onSelectMonth
             )
             ToggleSegment(
                 modifier = Modifier.weight(1f),
                 label = "Year",
                 selected = isYearView,
+                isLocked = isYearLocked,
                 onClick = onSelectYear
             )
         }
@@ -377,10 +425,15 @@ private fun ToggleSegment(
     modifier: Modifier = Modifier,
     label: String,
     selected: Boolean,
+    isLocked: Boolean,
     onClick: () -> Unit
 ) {
     val animatedColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = when {
+            selected -> MaterialTheme.colorScheme.onPrimary
+            isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        },
         label = "calendar_toggle_text_color"
     )
 
@@ -391,18 +444,30 @@ private fun ToggleSegment(
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = animatedColor,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label,
+                color = animatedColor,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
+            if (isLocked) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "$label locked",
+                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun MonthHeading(
     monthStart: Long,
+    isPickerLocked: Boolean,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onTodayClick: () -> Unit,
@@ -416,13 +481,26 @@ private fun MonthHeading(
         ) {
             CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, onClick = onPreviousMonth)
 
-            Text(
-                text = calendarMonthTitle(monthStart),
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.clickable(onClick = onOpenPicker)
-            )
+            Row(
+                modifier = Modifier.clickable(onClick = onOpenPicker),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = calendarMonthTitle(monthStart),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                if (isPickerLocked) {
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "Month picker locked",
+                        tint = MaterialTheme.colorScheme.featureGateLock,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
 
             CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, onClick = onNextMonth)
         }
@@ -663,6 +741,7 @@ private fun EmptyTransactionsCard(
 @Composable
 private fun YearHeading(
     year: Int,
+    isPickerLocked: Boolean,
     onPreviousYear: () -> Unit,
     onNextYear: () -> Unit,
     onTodayClick: () -> Unit,
@@ -682,13 +761,26 @@ private fun YearHeading(
                 contentDescription = "Previous year",
                 onClick = onPreviousYear
             )
-            Text(
-                text = year.toString(),
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.clickable(onClick = onOpenYearPicker)
-            )
+            Row(
+                modifier = Modifier.clickable(onClick = onOpenYearPicker),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = year.toString(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                if (isPickerLocked) {
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "Year picker locked",
+                        tint = MaterialTheme.colorScheme.featureGateLock,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
             SimpleIconButton(
                 icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Next year",
