@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -21,11 +20,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
@@ -33,8 +30,6 @@ import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
-import com.mkn0079.expensetracker.ui.theme.BackgroundDark
-import com.mkn0079.expensetracker.ui.theme.BackgroundLight
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.InitTask
@@ -66,8 +61,6 @@ class MainActivity : FragmentActivity() {
         }
 
         super.onCreate(savedInstanceState)
-
-        applySystemBarColors(isSystemInDarkMode())
 
         enableEdgeToEdge()
 
@@ -115,11 +108,9 @@ class MainActivity : FragmentActivity() {
                     val settings = appSettings!!
 
                     LaunchedEffect(
-                        darkTheme,
                         settings.blurInRecentsEnabled,
                         settings.screenshotProtectionEnabled
                     ) {
-                        applySystemBarColors(darkTheme)
                         applyPrivacySettings(
                             shouldBlurInRecents = settings.blurInRecentsEnabled,
                             shouldBlockScreenshots = settings.screenshotProtectionEnabled
@@ -163,30 +154,5 @@ class MainActivity : FragmentActivity() {
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
-    }
-
-    private fun applySystemBarColors(darkTheme: Boolean) {
-        val systemBarColor = if (darkTheme) {
-            BackgroundDark.toArgb()
-        } else {
-            BackgroundLight.toArgb()
-        }
-
-        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isStatusBarContrastEnforced = false
-            window.isNavigationBarContrastEnforced = false
-        }
-
-        window.statusBarColor = systemBarColor
-        window.navigationBarColor = systemBarColor
-        insetsController.isAppearanceLightStatusBars = !darkTheme
-        insetsController.isAppearanceLightNavigationBars = !darkTheme
-    }
-
-    private fun isSystemInDarkMode(): Boolean {
-        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 }

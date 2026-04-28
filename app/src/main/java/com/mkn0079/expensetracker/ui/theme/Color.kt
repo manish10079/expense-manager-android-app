@@ -52,6 +52,20 @@ private val DarkTertiaryContainer = Color(0xFF533B2A)
 private val DarkErrorContainer = Color(0xFF4B1E20)
 private val DarkOnErrorContainer = Color(0xFFFFAAA0)
 
+private val LightOnPrimary = Color(0xFFFFFFFF)
+private val LightPrimaryContainer = Color(0xFFE5DEFF)
+private val LightOnPrimaryContainer = Color(0xFF21005D)
+private val LightSecondary = Color(0xFF6750A4)
+private val LightOnSecondary = Color(0xFFFFFFFF)
+private val LightSecondaryContainer = Color(0xFFE8DEF8)
+private val LightOnSecondaryContainer = Color(0xFF1D192B)
+private val LightTertiary = IncomeGreen
+private val LightOnTertiary = Color(0xFF07361A)
+private val LightTertiaryContainer = Color(0xFFD8F3DD)
+private val LightOnTertiaryContainer = Color(0xFF0F2417)
+private val LightErrorContainer = Color(0xFFFFDAD6)
+private val LightOnErrorContainer = Color(0xFF410002)
+
 internal val ExpenseTrackerDarkColorScheme: ColorScheme = darkColorScheme(
     primary = PurplePrimary,
     onPrimary = DarkOnPrimary,
@@ -79,4 +93,30 @@ internal val ExpenseTrackerDarkColorScheme: ColorScheme = darkColorScheme(
     scrim = BackgroundDark
 )
 
-internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme()
+internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme(
+    primary = PurplePrimaryLight,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightOnPrimaryContainer,
+    secondary = LightSecondary,
+    onSecondary = LightOnSecondary,
+    secondaryContainer = LightSecondaryContainer,
+    onSecondaryContainer = LightOnSecondaryContainer,
+    tertiary = LightTertiary,
+    onTertiary = LightOnTertiary,
+    tertiaryContainer = LightTertiaryContainer,
+    onTertiaryContainer = LightOnTertiaryContainer,
+    error = ExpenseRed,
+    onError = LightOnPrimary,
+    errorContainer = LightErrorContainer,
+    onErrorContainer = LightOnErrorContainer,
+    background = BackgroundLight,
+    onBackground = TextPrimaryLight,
+    surface = SurfaceLight,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = CardLight,
+    onSurfaceVariant = TextSecondaryLight,
+    outline = DividerLight,
+    outlineVariant = DividerLight,
+    scrim = BackgroundLight
+)

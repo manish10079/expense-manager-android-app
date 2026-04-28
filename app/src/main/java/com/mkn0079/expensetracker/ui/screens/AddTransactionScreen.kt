@@ -541,13 +541,13 @@ private fun HeaderRow(
                 modifier = Modifier
                     .size(if (compact) 36.dp else 40.dp)
                     .clip(CircleShape)
-                    .background(colorScheme.onSurface.copy(alpha = 0.65f)),
+                    .background(colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = colorScheme.primary,
                     modifier = Modifier.size(if (compact) 17.dp else 19.dp)
                 )
             }

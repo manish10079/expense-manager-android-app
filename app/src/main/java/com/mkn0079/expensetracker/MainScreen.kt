@@ -12,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -132,6 +134,8 @@ fun MainScreen(
         mutableStateOf(false)
     }
     var isAppLockSuppressed by remember { mutableStateOf(false) }
+    val shouldBlurForAppLock = appLockFlow != null &&
+        (appLockFlow == AppLockFlow.Setup || !isAppUnlocked)
 
     val showToast: (String) -> Unit = { message ->
         Toast.makeText(rawContext, message, Toast.LENGTH_SHORT).show()
@@ -343,215 +347,221 @@ fun MainScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        MainScaffold(
-            currentRoute = navigationState.currentRoute,
-            previousRoute = navigationState.previousRoute,
-            profileOriginRoute = navigationState.profileOriginRoute,
-            isBottomBarVisible = navigationState.isBottomBarVisible,
-            transactions = mainUiState.transactions,
-            transactionCount = mainUiState.transactionCount,
-            recurringRules = mainUiState.recurringRules,
-            selectedTransaction = navigationState.selectedTransaction,
-            addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
-            addTransactionDraftNote = navigationState.addTransactionDraftNote,
-            categories = mainUiState.categories,
-            paymentMethods = mainUiState.paymentMethods,
-            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-            userProfile = userProfile,
-            selectedCurrencyId = selectedCurrencyId,
-            amountFormatPreferences = amountFormatPreferences,
-            selectedDateFormatPattern = selectedDateFormatPattern,
-            selectedTimeFormat = selectedTimeFormat,
-            isAppLockEnabled = isAppLockEnabled,
-            hasAppLockPin = hasAppLockPin,
-            isBiometricEnabled = isBiometricEnabled,
-            isBlurInRecentsEnabled = isBlurInRecentsEnabled,
-            isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
-            isDailyReminderEnabled = isDailyReminderEnabled,
-            isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-            isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-            autoLockDurationMinutes = autoLockDurationMinutes,
-            isAutoBackupEnabled = isAutoBackupEnabled,
-            autoBackupFrequencyDays = autoBackupFrequencyDays,
-            onRouteChange = navigationState::navigateTo,
-            onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
-            onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
-            onSelectedTransactionChange = navigationState::updateSelectedTransaction,
-            onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
-            onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
-            onSaveTransaction = mainViewModel::saveTransaction,
-            onDeleteTransaction = mainViewModel::deleteTransaction,
-            onDeleteRecurring = mainViewModel::deleteRecurring,
-            onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
-            onUpdateRecurringRule = mainViewModel::updateRecurringRule,
-            onCreateCustomCategory = mainViewModel::createCustomCategory,
-            onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
-            onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
-            onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
-            onTransactionCardCustomizationSettingsChange = { updatedSettings ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.withTransactionCardCustomizationSettings(updatedSettings)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .blur(if (shouldBlurForAppLock) 24.dp else 0.dp)
+        ) {
+            MainScaffold(
+                currentRoute = navigationState.currentRoute,
+                previousRoute = navigationState.previousRoute,
+                profileOriginRoute = navigationState.profileOriginRoute,
+                isBottomBarVisible = navigationState.isBottomBarVisible,
+                transactions = mainUiState.transactions,
+                transactionCount = mainUiState.transactionCount,
+                recurringRules = mainUiState.recurringRules,
+                selectedTransaction = navigationState.selectedTransaction,
+                addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
+                addTransactionDraftNote = navigationState.addTransactionDraftNote,
+                categories = mainUiState.categories,
+                paymentMethods = mainUiState.paymentMethods,
+                transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                userProfile = userProfile,
+                selectedCurrencyId = selectedCurrencyId,
+                amountFormatPreferences = amountFormatPreferences,
+                selectedDateFormatPattern = selectedDateFormatPattern,
+                selectedTimeFormat = selectedTimeFormat,
+                isAppLockEnabled = isAppLockEnabled,
+                hasAppLockPin = hasAppLockPin,
+                isBiometricEnabled = isBiometricEnabled,
+                isBlurInRecentsEnabled = isBlurInRecentsEnabled,
+                isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
+                isDailyReminderEnabled = isDailyReminderEnabled,
+                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                autoLockDurationMinutes = autoLockDurationMinutes,
+                isAutoBackupEnabled = isAutoBackupEnabled,
+                autoBackupFrequencyDays = autoBackupFrequencyDays,
+                onRouteChange = navigationState::navigateTo,
+                onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
+                onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
+                onSelectedTransactionChange = navigationState::updateSelectedTransaction,
+                onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
+                onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
+                onSaveTransaction = mainViewModel::saveTransaction,
+                onDeleteTransaction = mainViewModel::deleteTransaction,
+                onDeleteRecurring = mainViewModel::deleteRecurring,
+                onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
+                onUpdateRecurringRule = mainViewModel::updateRecurringRule,
+                onCreateCustomCategory = mainViewModel::createCustomCategory,
+                onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
+                onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
+                onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
+                onTransactionCardCustomizationSettingsChange = { updatedSettings ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.withTransactionCardCustomizationSettings(updatedSettings)
+                        }
                     }
-                }
-            },
-            onUserProfileChange = { updatedProfile ->
-                coroutineScope.launch {
-                    UserProfileDataStore.updateUserProfile(context) {
-                        updatedProfile
+                },
+                onUserProfileChange = { updatedProfile ->
+                    coroutineScope.launch {
+                        UserProfileDataStore.updateUserProfile(context) {
+                            updatedProfile
+                        }
                     }
-                }
-            },
-            onDailyReminderChange = { isEnabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(notificationsEnabled = isEnabled)
+                },
+                onDailyReminderChange = { isEnabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(notificationsEnabled = isEnabled)
+                        }
                     }
-                }
-            },
-            onBudgetLimitAlertsChange = { isEnabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(budgetLimitAlertsEnabled = isEnabled)
+                },
+                onBudgetLimitAlertsChange = { isEnabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(budgetLimitAlertsEnabled = isEnabled)
+                        }
                     }
-                }
-            },
-            onMissedEntryReminderChange = { isEnabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(missedEntryReminderEnabled = isEnabled)
+                },
+                onMissedEntryReminderChange = { isEnabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(missedEntryReminderEnabled = isEnabled)
+                        }
                     }
-                }
-            },
-            onDatabaseBackupFileSelected = { uri ->
-                mainViewModel.backupDatabase(
-                    uri = uri,
-                    onComplete = {
-                        showToast("Database backup saved.")
-                    },
-                    onError = {
-                        showToast("Unable to save the database backup. Please try again.")
+                },
+                onDatabaseBackupFileSelected = { uri ->
+                    mainViewModel.backupDatabase(
+                        uri = uri,
+                        onComplete = {
+                            showToast("Database backup saved.")
+                        },
+                        onError = {
+                            showToast("Unable to save the database backup. Please try again.")
+                        }
+                    )
+                },
+                onDatabaseRestoreFileSelected = { uri ->
+                    mainViewModel.restoreDatabase(
+                        uri = uri,
+                        onComplete = {
+                            navigationState.clearTransactionDraftContext()
+                            showToast("Database restored. Reloading app.")
+                            AppRestartUtils.restartApp(rawContext)
+                        },
+                        onError = {
+                            showToast("Unable to restore the database backup. Please try again.")
+                        }
+                    )
+                },
+                onJsonExportFileSelected = { uri ->
+                    mainViewModel.exportJson(
+                        uri = uri,
+                        onComplete = { result ->
+                            showToast(
+                                "JSON exported: ${result.exportedTransactions} transactions, " +
+                                    "${result.exportedBudgets} budgets."
+                            )
+                        },
+                        onError = {
+                            showToast("Unable to export JSON. Please try again.")
+                        }
+                    )
+                },
+                onJsonImportFileSelected = { uri ->
+                    mainViewModel.importJson(
+                        uri = uri,
+                        onComplete = { result ->
+                            showToast(result.toJsonImportMessage())
+                        },
+                        onError = {
+                            showToast("Unable to import JSON. Check the file and try again.")
+                        }
+                    )
+                },
+                onLegacyImportFileSelected = { uri ->
+                    mainViewModel.importLegacyBackup(
+                        uri = uri,
+                        onComplete = { result ->
+                            showToast(
+                                "Imported ${result.importedTransactions} legacy transactions. " +
+                                    "Skipped ${result.skippedTransactions} existing."
+                            )
+                        },
+                        onError = {
+                            showToast("Legacy import failed. Check the backup file and try again.")
+                        }
+                    )
+                },
+                onDeleteAllTransactionsClick = {
+                    mainViewModel.deleteAllTransactions(
+                        onComplete = {
+                            navigationState.clearTransactionDraftContext()
+                            showToast("All transactions deleted.")
+                        },
+                        onError = {
+                            showToast("Unable to delete transactions. Please try again.")
+                        }
+                    )
+                },
+                onBiometricLockChange = updateBiometricLockEnabled,
+                onBlurInRecentsChange = { enabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(blurInRecentsEnabled = enabled)
+                        }
                     }
-                )
-            },
-            onDatabaseRestoreFileSelected = { uri ->
-                mainViewModel.restoreDatabase(
-                    uri = uri,
-                    onComplete = {
-                        navigationState.clearTransactionDraftContext()
-                        showToast("Database restored. Reloading app.")
-                        AppRestartUtils.restartApp(rawContext)
-                    },
-                    onError = {
-                        showToast("Unable to restore the database backup. Please try again.")
+                },
+                onScreenshotProtectionChange = { enabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(screenshotProtectionEnabled = enabled)
+                        }
                     }
-                )
-            },
-            onJsonExportFileSelected = { uri ->
-                mainViewModel.exportJson(
-                    uri = uri,
-                    onComplete = { result ->
-                        showToast(
-                            "JSON exported: ${result.exportedTransactions} transactions, " +
-                                "${result.exportedBudgets} budgets."
-                        )
-                    },
-                    onError = {
-                        showToast("Unable to export JSON. Please try again.")
+                },
+                onAutoLockDurationChange = { minutes ->
+                    AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
+                    appLockState = AppLockPreferences.getCachedState()
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(appLockTimeoutMinutes = minutes)
+                        }
                     }
-                )
-            },
-            onJsonImportFileSelected = { uri ->
-                mainViewModel.importJson(
-                    uri = uri,
-                    onComplete = { result ->
-                        showToast(result.toJsonImportMessage())
-                    },
-                    onError = {
-                        showToast("Unable to import JSON. Check the file and try again.")
+                },
+                onAutoBackupEnabledChange = { enabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(isAutoBackupEnabled = enabled)
+                        }
                     }
-                )
-            },
-            onLegacyImportFileSelected = { uri ->
-                mainViewModel.importLegacyBackup(
-                    uri = uri,
-                    onComplete = { result ->
-                        showToast(
-                            "Imported ${result.importedTransactions} legacy transactions. " +
-                                "Skipped ${result.skippedTransactions} existing."
-                        )
-                    },
-                    onError = {
-                        showToast("Legacy import failed. Check the backup file and try again.")
+                },
+                onAutoBackupFrequencyChange = { days ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(autoBackupFrequencyDays = days)
+                        }
                     }
-                )
-            },
-            onDeleteAllTransactionsClick = {
-                mainViewModel.deleteAllTransactions(
-                    onComplete = {
-                        navigationState.clearTransactionDraftContext()
-                        showToast("All transactions deleted.")
-                    },
-                    onError = {
-                        showToast("Unable to delete transactions. Please try again.")
-                    }
-                )
-            },
-            onBiometricLockChange = updateBiometricLockEnabled,
-            onBlurInRecentsChange = { enabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(blurInRecentsEnabled = enabled)
-                    }
-                }
-            },
-            onScreenshotProtectionChange = { enabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(screenshotProtectionEnabled = enabled)
-                    }
-                }
-            },
-            onAutoLockDurationChange = { minutes ->
-                AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
-                appLockState = AppLockPreferences.getCachedState()
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(appLockTimeoutMinutes = minutes)
-                    }
-                }
-            },
-            onAutoBackupEnabledChange = { enabled ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(isAutoBackupEnabled = enabled)
-                    }
-                }
-            },
-            onAutoBackupFrequencyChange = { days ->
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(autoBackupFrequencyDays = days)
-                    }
-                }
-            },
-            onAppLockToggleChange = { shouldEnable ->
-                if (shouldEnable) {
-                    if (hasAppLockPin) {
-                        coroutineScope.launch {
-                            AppSettingsDataStore.updateAppSettings(context) { settings ->
-                                settings.copy(appLockEnabled = true)
+                },
+                onAppLockToggleChange = { shouldEnable ->
+                    if (shouldEnable) {
+                        if (hasAppLockPin) {
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(appLockEnabled = true)
+                                }
                             }
+                        } else {
+                            appLockFlow = AppLockFlow.Setup
                         }
                     } else {
-                        appLockFlow = AppLockFlow.Setup
+                        disableAppLock(false)
                     }
-                } else {
-                    disableAppLock(false)
-                }
-            },
-            onPrepareForExternalActivity = { isAppLockSuppressed = true }
-        )
+                },
+                onPrepareForExternalActivity = { isAppLockSuppressed = true }
+            )
+        }
 
         AppLockOverlay(
             appLockFlow = appLockFlow,

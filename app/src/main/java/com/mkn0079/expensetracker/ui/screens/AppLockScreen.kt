@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -213,6 +214,7 @@ fun AppLockScreen(
     }
     val primaryActionLabel = if (isRecoveryMode) "Disable App Lock" else "Save"
     val density = LocalDensity.current
+    val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val imeBottom = WindowInsets.ime.getBottom(density)
     val navigationBottom = WindowInsets.navigationBars.getBottom(density)
     val primaryActionBottomPadding = with(density) {
@@ -247,212 +249,256 @@ fun AppLockScreen(
         headerAction?.invoke()
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.background
-                    )
-                )
-            )
-            .statusBarsPadding()
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
-                    .then(
-                        if (headerAction != null) {
-                            Modifier.clickable(onClick = headerAction)
-                        } else {
-                            Modifier
-                        }
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                if (headerAction != null) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(28.dp)
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background.copy(
+                                alpha = if (isDarkPalette) 0.64f else 0.78f
+                            ),
+                            MaterialTheme.colorScheme.surface.copy(
+                                alpha = if (isDarkPalette) 0.74f else 0.82f
+                            ),
+                            MaterialTheme.colorScheme.background.copy(
+                                alpha = if (isDarkPalette) 0.88f else 0.92f
+                            )
+                        )
                     )
-                }
-            }
-
-            if (title.isNotBlank()) {
-                Text(
-                    text = title,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    ),
-                    textAlign = TextAlign.Start
                 )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
+        )
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 22.dp),
-            contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
-        ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(width = 300.dp, height = 240.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                            )
-                        ),
-                        shape = CircleShape
-                    )
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (isPinEntryVisible) {
-                            Modifier
-                        } else {
-                            Modifier.verticalScroll(rememberScrollState())
-                        }
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (eyebrow.isNotBlank()) {
-                    Text(
-                        text = eyebrow,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 4.sp,
-                            fontSize = 12.sp
-                        ),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-                }
-
-                if (headline.isNotBlank()) {
-                    Text(
-                        text = headline,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 34.sp
-                        ),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                if (supportText.isNotBlank()) {
-                    Text(
-                        text = supportText,
-                        color = if (message == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                when {
-                    isRecoveryMode -> {
-                        RecoveryQuestionContent(
-                            questionPrompt = securityQuestionPrompt,
-                            answer = recoveryAnswer,
-                            onAnswerChange = {
-                                recoveryAnswer = it
-                                message = null
-                            }
+                .fillMaxSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(
+                                alpha = if (isDarkPalette) 0.16f else 0.08f
+                            ),
+                            Color.Transparent
                         )
-                    }
-
-                    mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion -> {
-                        SetupSecurityQuestionContent(
-                            selectedQuestionId = selectedSecurityQuestionId,
-                            answer = securityAnswer,
-                            onQuestionSelected = {
-                                selectedSecurityQuestionId = it
-                                message = null
-                            },
-                            onAnswerChange = {
-                                securityAnswer = it
-                                message = null
-                            }
-                        )
-                    }
-
-                    else -> {
-                        PinEntryContent(
-                            enteredPin = enteredPin,
-                            mode = mode,
-                            onDigitClick = { digit ->
-                                if (enteredPin.length < 4) {
-                                    enteredPin += digit
-                                }
-                            },
-                            onDeleteClick = {
-                                if (enteredPin.isNotEmpty()) {
-                                    enteredPin = enteredPin.dropLast(1)
-                                }
-                            },
-                            onForgotClick = {
-                                triggerForgotRecovery()
-                            }
-                        )
-
-                        if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
-                            Spacer(modifier = Modifier.height(34.dp))
-                            
-                            BiometricActionButton(
-                                onClick = onBiometricClick
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(22.dp))
-            }
-        }
-
-        if (!isPinEntryVisible) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = primaryActionBottomPadding)
-            ) {
-                PrimaryActionButton(
-                    label = primaryActionLabel,
-                    onClick = onPrimaryActionClick
+                    )
                 )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 22.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+                        .then(
+                            if (headerAction != null) {
+                                Modifier.clickable(onClick = headerAction)
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (headerAction != null) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+                if (title.isNotBlank()) {
+                    Text(
+                        text = title,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        textAlign = TextAlign.Start
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 22.dp),
+                contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(width = 300.dp, height = 240.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(
+                                        alpha = if (isDarkPalette) 0.14f else 0.08f
+                                    ),
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                                )
+                            ),
+                            shape = CircleShape
+                        )
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(34.dp))
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(
+                                alpha = if (isDarkPalette) 0.42f else 0.72f
+                            )
+                        )
+                        .padding(horizontal = 20.dp, vertical = 28.dp)
+                        .then(
+                            if (isPinEntryVisible) {
+                                Modifier
+                            } else {
+                                Modifier.verticalScroll(rememberScrollState())
+                            }
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (eyebrow.isNotBlank()) {
+                        Text(
+                            text = eyebrow,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Medium,
+                                letterSpacing = 4.sp,
+                                fontSize = 12.sp
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+                    }
+
+                    if (headline.isNotBlank()) {
+                        Text(
+                            text = headline,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 34.sp
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    if (supportText.isNotBlank()) {
+                        Text(
+                            text = supportText,
+                            color = if (message == null) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                    } else {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    when {
+                        isRecoveryMode -> {
+                            RecoveryQuestionContent(
+                                questionPrompt = securityQuestionPrompt,
+                                answer = recoveryAnswer,
+                                onAnswerChange = {
+                                    recoveryAnswer = it
+                                    message = null
+                                }
+                            )
+                        }
+
+                        mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion -> {
+                            SetupSecurityQuestionContent(
+                                selectedQuestionId = selectedSecurityQuestionId,
+                                answer = securityAnswer,
+                                onQuestionSelected = {
+                                    selectedSecurityQuestionId = it
+                                    message = null
+                                },
+                                onAnswerChange = {
+                                    securityAnswer = it
+                                    message = null
+                                }
+                            )
+                        }
+
+                        else -> {
+                            PinEntryContent(
+                                enteredPin = enteredPin,
+                                mode = mode,
+                                onDigitClick = { digit ->
+                                    if (enteredPin.length < 4) {
+                                        enteredPin += digit
+                                    }
+                                },
+                                onDeleteClick = {
+                                    if (enteredPin.isNotEmpty()) {
+                                        enteredPin = enteredPin.dropLast(1)
+                                    }
+                                },
+                                onForgotClick = {
+                                    triggerForgotRecovery()
+                                }
+                            )
+
+                            if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
+                                Spacer(modifier = Modifier.height(34.dp))
+
+                                BiometricActionButton(
+                                    onClick = onBiometricClick
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(22.dp))
+                }
+            }
+
+            if (!isPinEntryVisible) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = primaryActionBottomPadding)
+                ) {
+                    PrimaryActionButton(
+                        label = primaryActionLabel,
+                        onClick = onPrimaryActionClick
+                    )
+                }
             }
         }
     }
