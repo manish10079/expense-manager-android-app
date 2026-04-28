@@ -1,6 +1,13 @@
 package com.mkn0079.expensetracker.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,8 +49,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +62,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import kotlinx.coroutines.launch
 
 enum class AppLockScreenMode {
     Setup,
@@ -78,6 +89,7 @@ private enum class PinSetupStage {
 fun AppLockScreen(
     mode: AppLockScreenMode,
     biometricEnabled: Boolean = false,
+    scrambledPinKeypadEnabled: Boolean = false,
     isBiometricAvailable: Boolean = false,
     securityQuestionPrompt: String? = null,
     onBackClick: (() -> Unit)? = null,
@@ -99,8 +111,28 @@ fun AppLockScreen(
     var securityAnswer by rememberSaveable(mode) { mutableStateOf("") }
     var isRecoveryMode by rememberSaveable(mode) { mutableStateOf(false) }
     var recoveryAnswer by rememberSaveable(mode) { mutableStateOf("") }
+    var keypadLayout by remember(mode, scrambledPinKeypadEnabled) {
+        mutableStateOf(
+            buildAppLockKeypadLayout(
+                scrambled = mode == AppLockScreenMode.Unlock && scrambledPinKeypadEnabled
+            )
+        )
+    }
+    var keypadLayoutVersion by remember(mode, scrambledPinKeypadEnabled) {
+        mutableIntStateOf(0)
+    }
+    val keypadShakeOffsetPx = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
 
     val isPinEntryVisible = !isRecoveryMode && !(mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion)
+    fun refreshKeypadLayout() {
+        keypadLayout = buildAppLockKeypadLayout(
+            scrambled = mode == AppLockScreenMode.Unlock &&
+                scrambledPinKeypadEnabled &&
+                !isRecoveryMode
+        )
+        keypadLayoutVersion += 1
+    }
     val triggerForgotRecovery: () -> Unit = {
         failedUnlockAttempts = 0
         enteredPin = ""
@@ -111,6 +143,11 @@ fun AppLockScreen(
         } else if (mode == AppLockScreenMode.Unlock) {
             message = "Recovery question is not configured for this app lock."
         }
+    }
+
+    LaunchedEffect(mode, isRecoveryMode, scrambledPinKeypadEnabled) {
+        refreshKeypadLayout()
+        keypadShakeOffsetPx.snapTo(0f)
     }
 
     LaunchedEffect(enteredPin, mode, setupStage, isRecoveryMode) {
@@ -147,6 +184,12 @@ fun AppLockScreen(
                     } else {
                         enteredPin = ""
                         message = "Incorrect PIN. Try again."
+                        if (scrambledPinKeypadEnabled) {
+                            refreshKeypadLayout()
+                            coroutineScope.launch {
+                                keypadShakeOffsetPx.animateAppLockKeypadError()
+                            }
+                        }
                     }
                 }
             }
@@ -458,6 +501,13 @@ fun AppLockScreen(
                         else -> {
                             PinEntryContent(
                                 enteredPin = enteredPin,
+                                keypadLayout = keypadLayout,
+                                keypadLayoutVersion = keypadLayoutVersion,
+                                keypadShakeOffsetPx = if (scrambledPinKeypadEnabled) {
+                                    keypadShakeOffsetPx.value
+                                } else {
+                                    0f
+                                },
                                 mode = mode,
                                 onDigitClick = { digit ->
                                     if (enteredPin.length < 4) {
@@ -507,6 +557,9 @@ fun AppLockScreen(
 @Composable
 private fun PinEntryContent(
     enteredPin: String,
+    keypadLayout: List<List<String>>,
+    keypadLayoutVersion: Int,
+    keypadShakeOffsetPx: Float,
     mode: AppLockScreenMode,
     onDigitClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
@@ -541,28 +594,37 @@ private fun PinEntryContent(
 
     Spacer(modifier = Modifier.height(34.dp))
 
-    val keypadRows = listOf(
-        listOf("1", "2", "3"),
-        listOf("4", "5", "6"),
-        listOf("7", "8", "9"),
-        listOf("forgot", "0", "delete")
-    )
-
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        keypadRows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                row.forEach { key ->
-                    AppLockKey(
-                        key = key,
-                        enabled = key != "forgot" || mode == AppLockScreenMode.Unlock,
-                        onClick = {
-                            when (key) {
-                                "delete" -> onDeleteClick()
-                                "forgot" -> onForgotClick()
-                                else -> onDigitClick(key)
-                            }
+    Column(
+        modifier = Modifier.graphicsLayer {
+            translationX = keypadShakeOffsetPx
+        },
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        AnimatedContent(
+            targetState = keypadLayoutVersion,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 140))
+            },
+            label = "app_lock_keypad_layout"
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                keypadLayout.forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        row.forEach { key ->
+                            AppLockKey(
+                                key = key,
+                                enabled = key != APP_LOCK_FORGOT_KEY || mode == AppLockScreenMode.Unlock,
+                                onClick = {
+                                    when (key) {
+                                        APP_LOCK_DELETE_KEY -> onDeleteClick()
+                                        APP_LOCK_FORGOT_KEY -> onForgotClick()
+                                        else -> onDigitClick(key)
+                                    }
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
@@ -772,8 +834,8 @@ private fun AppLockKey(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
-    val isForgot = key == "forgot"
-    val isDelete = key == "delete"
+    val isForgot = key == APP_LOCK_FORGOT_KEY
+    val isDelete = key == APP_LOCK_DELETE_KEY
     val shape = RoundedCornerShape(38.dp)
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -856,6 +918,17 @@ private fun AppLockSetupPreview() {
         AppLockScreen(
             mode = AppLockScreenMode.Setup,
             onBackClick = {}
+        )
+    }
+}
+
+private suspend fun Animatable<Float, AnimationVector1D>.animateAppLockKeypadError() {
+    val shakeOffsets = listOf(-10f, 10f, -6f, 6f, -3f, 3f, 0f)
+    snapTo(0f)
+    shakeOffsets.forEach { target ->
+        animateTo(
+            targetValue = target,
+            animationSpec = tween(durationMillis = 36)
         )
     }
 }

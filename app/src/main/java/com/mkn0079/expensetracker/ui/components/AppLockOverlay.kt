@@ -17,6 +17,7 @@ fun AppLockOverlay(
     appLockFlow: AppLockFlow?,
     isAppUnlocked: Boolean,
     biometricEnabled: Boolean, 
+    scrambledPinKeypadEnabled: Boolean,
     isBiometricAvailable: Boolean,
     securityQuestionPrompt: String,
     onBackClick: () -> Unit,
@@ -42,6 +43,7 @@ fun AppLockOverlay(
             AppLockScreen(
                 mode = if (flow == AppLockFlow.Setup) AppLockScreenMode.Setup else AppLockScreenMode.Unlock,
                 biometricEnabled = biometricEnabled,
+                scrambledPinKeypadEnabled = scrambledPinKeypadEnabled,
                 isBiometricAvailable = isBiometricAvailable,
                 securityQuestionPrompt = securityQuestionPrompt,
                 onBackClick = if (flow == AppLockFlow.Setup) onBackClick else null,

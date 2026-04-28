@@ -20,6 +20,7 @@ data class AppSettings(
     val missedEntryReminderEnabled: Boolean,
     val appLockEnabled: Boolean,
     val biometricLockEnabled: Boolean,
+    val scrambledPinKeypadEnabled: Boolean,
     val blurInRecentsEnabled: Boolean,
     val screenshotProtectionEnabled: Boolean,
     val appLockTimeoutMinutes: Int,

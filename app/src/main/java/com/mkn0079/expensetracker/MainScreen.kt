@@ -28,6 +28,8 @@ import com.mkn0079.expensetracker.domain.repository.JsonImportResult
 import com.mkn0079.expensetracker.models.AppSettings
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
+import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import com.mkn0079.expensetracker.ui.components.MainScaffold
 import com.mkn0079.expensetracker.ui.navigation.AppRoute
@@ -37,6 +39,7 @@ import com.mkn0079.expensetracker.ui.navigation.routesKeepingTransactionsWarm
 import com.mkn0079.expensetracker.notifications.NotificationScheduler
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.utils.toAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
@@ -84,6 +87,7 @@ fun MainScreen(
     }
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
+    val monetizationViewModel: MonetizationViewModel = viewModel()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
@@ -95,6 +99,7 @@ fun MainScreen(
     val selectedTimeFormat = appSettings.timeFormat
     val isAppLockEnabled = appSettings.appLockEnabled
     val isBiometricEnabled = appSettings.biometricLockEnabled
+    val isScrambledPinKeypadEnabled = appSettings.scrambledPinKeypadEnabled
     val isBlurInRecentsEnabled = appSettings.blurInRecentsEnabled
     val isScreenshotProtectionEnabled = appSettings.screenshotProtectionEnabled
     val autoLockDurationMinutes = appSettings.appLockTimeoutMinutes
@@ -106,6 +111,12 @@ fun MainScreen(
     val transactionCardCustomizationSettings = remember(appSettings) {
         appSettings.toTransactionCardCustomizationSettings()
     }
+    val scrambledPinKeypadAccessStatus by monetizationViewModel
+        .getAccessStatus(Feature.SCRAMBLED_PIN_KEYPAD)
+        .collectAsStateWithLifecycle()
+    val isScrambledPinKeypadAccessGranted = scrambledPinKeypadAccessStatus is AccessStatus.Granted
+    val isScrambledPinKeypadEffective =
+        isScrambledPinKeypadEnabled && isScrambledPinKeypadAccessGranted
     val biometricAvailability = BiometricAuthManager.getAvailability(rawContext)
     val hasAppLockPin = appLockState.hasPin
     val canUseBiometricOnLockScreen = isBiometricEnabled && hasAppLockPin && biometricAvailability.isAvailable
@@ -313,6 +324,14 @@ fun MainScreen(
         AutoBackupScheduler.scheduleOrUpdate(context, isAutoBackupEnabled, autoBackupFrequencyDays)
     }
 
+    LaunchedEffect(isScrambledPinKeypadEnabled, isScrambledPinKeypadAccessGranted) {
+        if (isScrambledPinKeypadEnabled && !isScrambledPinKeypadAccessGranted) {
+            AppSettingsDataStore.updateAppSettings(context) { settings ->
+                settings.copy(scrambledPinKeypadEnabled = false)
+            }
+        }
+    }
+
     LaunchedEffect(
         showOnboarding,
         isAppLockEnabled,
@@ -374,6 +393,7 @@ fun MainScreen(
                 isAppLockEnabled = isAppLockEnabled,
                 hasAppLockPin = hasAppLockPin,
                 isBiometricEnabled = isBiometricEnabled,
+                isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,
                 isBlurInRecentsEnabled = isBlurInRecentsEnabled,
                 isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
                 isDailyReminderEnabled = isDailyReminderEnabled,
@@ -507,6 +527,13 @@ fun MainScreen(
                     )
                 },
                 onBiometricLockChange = updateBiometricLockEnabled,
+                onScrambledPinKeypadChange = { enabled ->
+                    coroutineScope.launch {
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(scrambledPinKeypadEnabled = enabled)
+                        }
+                    }
+                },
                 onBlurInRecentsChange = { enabled ->
                     coroutineScope.launch {
                         AppSettingsDataStore.updateAppSettings(context) { settings ->
@@ -567,6 +594,7 @@ fun MainScreen(
             appLockFlow = appLockFlow,
             isAppUnlocked = isAppUnlocked,
             biometricEnabled = canUseBiometricOnLockScreen,
+            scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
             isBiometricAvailable = canUseBiometricOnLockScreen,
             securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
                 appLockState.securityQuestionId

@@ -46,6 +46,7 @@ object AppSettingsDataStore {
         val missedEntryReminderEnabled = booleanPreferencesKey("missed_entry_reminder_enabled")
         val appLockEnabled = booleanPreferencesKey("app_lock_enabled")
         val biometricLockEnabled = booleanPreferencesKey("biometric_lock_enabled")
+        val scrambledPinKeypadEnabled = booleanPreferencesKey("scrambled_pin_keypad_enabled")
         val blurInRecentsEnabled = booleanPreferencesKey("blur_in_recents_enabled")
         val screenshotProtectionEnabled = booleanPreferencesKey("screenshot_protection_enabled")
         val appLockTimeoutMinutes = intPreferencesKey("app_lock_timeout_minutes")
@@ -139,6 +140,8 @@ object AppSettingsDataStore {
             appLockEnabled = this[Keys.appLockEnabled] ?: defaultAppSettings.appLockEnabled,
             biometricLockEnabled = this[Keys.biometricLockEnabled]
                 ?: defaultAppSettings.biometricLockEnabled,
+            scrambledPinKeypadEnabled = this[Keys.scrambledPinKeypadEnabled]
+                ?: defaultAppSettings.scrambledPinKeypadEnabled,
             blurInRecentsEnabled = this[Keys.blurInRecentsEnabled]
                 ?: defaultAppSettings.blurInRecentsEnabled,
             screenshotProtectionEnabled = this[Keys.screenshotProtectionEnabled]
@@ -189,6 +192,7 @@ object AppSettingsDataStore {
         this[Keys.missedEntryReminderEnabled] = settings.missedEntryReminderEnabled
         this[Keys.appLockEnabled] = settings.appLockEnabled
         this[Keys.biometricLockEnabled] = settings.biometricLockEnabled
+        this[Keys.scrambledPinKeypadEnabled] = settings.scrambledPinKeypadEnabled
         this[Keys.blurInRecentsEnabled] = settings.blurInRecentsEnabled
         this[Keys.screenshotProtectionEnabled] = settings.screenshotProtectionEnabled
         this[Keys.appLockTimeoutMinutes] = settings.appLockTimeoutMinutes

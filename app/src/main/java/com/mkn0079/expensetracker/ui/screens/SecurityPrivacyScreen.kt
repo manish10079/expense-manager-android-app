@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
+import com.mkn0079.expensetracker.data.constants.DEFAULT_SCRAMBLED_PIN_KEYPAD_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SCREENSHOT_PROTECTION_ENABLED
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
@@ -47,11 +48,13 @@ fun SecurityPrivacyScreen(
     isAppLockEnabled: Boolean = false,
     hasAppLockPin: Boolean = false,
     isBiometricEnabled: Boolean = DEFAULT_BIOMETRIC_LOCK_ENABLED,
+    isScrambledPinKeypadEnabled: Boolean = DEFAULT_SCRAMBLED_PIN_KEYPAD_ENABLED,
     isBlurInRecentsEnabled: Boolean = DEFAULT_BLUR_IN_RECENTS_ENABLED,
     isScreenshotProtectionEnabled: Boolean = DEFAULT_SCREENSHOT_PROTECTION_ENABLED,
     autoLockDurationMinutes: Int = DEFAULT_APP_LOCK_TIMEOUT_MINUTES,
     onAppLockChange: (Boolean) -> Unit = {},
     onBiometricChange: (Boolean) -> Unit = {},
+    onScrambledPinKeypadChange: (Boolean) -> Unit = {},
     onBlurInRecentsChange: (Boolean) -> Unit = {},
     onScreenshotProtectionChange: (Boolean) -> Unit = {},
     onAutoLockDurationChange: (Int) -> Unit = {},
@@ -103,6 +106,27 @@ fun SecurityPrivacyScreen(
                     enabled = isAppLockEnabled && hasAppLockPin,
                     onCheckedChange = onBiometricChange
                 )
+                GatedAction(
+                    feature = Feature.SCRAMBLED_PIN_KEYPAD,
+                    onAction = { onScrambledPinKeypadChange(true) }
+                ) { status, onClick ->
+                    val isToggleEnabled = isAppLockEnabled && hasAppLockPin
+                    val isLocked = !isScrambledPinKeypadEnabled && status !is AccessStatus.Granted
+                    SecurityToggleRow(
+                        title = "Scrambled Keypad",
+                        icon = Icons.Filled.Security,
+                        isChecked = isScrambledPinKeypadEnabled,
+                        enabled = isToggleEnabled,
+                        isLocked = isLocked,
+                        onCheckedChange = { shouldEnable ->
+                            if (!shouldEnable) {
+                                onScrambledPinKeypadChange(false)
+                            } else {
+                                onClick()
+                            }
+                        }
+                    )
+                }
                 GatedAction(
                     feature = Feature.PRIVACY_PROTECTION,
                     onAction = { onBlurInRecentsChange(!isBlurInRecentsEnabled) }
