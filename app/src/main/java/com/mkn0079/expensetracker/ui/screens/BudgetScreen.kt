@@ -33,6 +33,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -86,8 +87,11 @@ import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.income
@@ -183,16 +187,22 @@ fun BudgetScreen(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item {
-                    BudgetPeriodRow(
-                        selectedPeriod = uiState.selectedPeriod,
-                        onPeriodSelected = { period ->
-                            if (period == BudgetPeriodFilter.CustomMonth) {
-                                isMonthPickerVisible = true
-                            } else {
-                                budgetViewModel.selectPeriod(period)
+                    GatedAction(
+                        feature = Feature.BUDGET_CUSTOM_MONTH,
+                        onAction = { isMonthPickerVisible = true }
+                    ) { status, onCustomMonthClick ->
+                        BudgetPeriodRow(
+                            selectedPeriod = uiState.selectedPeriod,
+                            isCustomMonthLocked = status !is AccessStatus.Granted,
+                            onPeriodSelected = { period ->
+                                if (period == BudgetPeriodFilter.CustomMonth) {
+                                    onCustomMonthClick()
+                                } else {
+                                    budgetViewModel.selectPeriod(period)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
 
                 item { BudgetSummaryCard(summary = uiState.summary) }
@@ -396,6 +406,7 @@ private fun BoxScope.BudgetGlow() {
 @Composable
 private fun BudgetPeriodRow(
     selectedPeriod: BudgetPeriodFilter,
+    isCustomMonthLocked: Boolean,
     onPeriodSelected: (BudgetPeriodFilter) -> Unit
 ) {
     val periods = remember { BudgetPeriodFilter.entries }
@@ -450,6 +461,7 @@ private fun BudgetPeriodRow(
                         BudgetPeriodFilter.CustomMonth -> "CUSTOM MONTH"
                     },
                     selected = period == selectedPeriod,
+                    isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked,
                     onClick = { onPeriodSelected(period) },
                     modifier = Modifier.weight(1f)
                 )
@@ -462,6 +474,7 @@ private fun BudgetPeriodRow(
 private fun BudgetPeriodChip(
     label: String,
     selected: Boolean,
+    isLocked: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -477,17 +490,36 @@ private fun BudgetPeriodChip(
             .padding(horizontal = 4.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = animatedColor,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.Bold,
-                lineHeight = 15.sp,
-                letterSpacing = 0.sp,
-                fontSize = 11.sp
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                color = animatedColor,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 15.sp,
+                    letterSpacing = 0.sp,
+                    fontSize = 11.sp
+                )
             )
-        )
+
+            if (isLocked) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "$label locked",
+                    tint = if (selected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.tertiary
+                    },
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }
 
