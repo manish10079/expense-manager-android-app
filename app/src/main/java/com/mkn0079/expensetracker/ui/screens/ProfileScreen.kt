@@ -341,6 +341,9 @@ private fun ProfilePhotoSection(
     onRemovePhoto: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
+    val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
+    val photoActionIconColor = MaterialTheme.colorScheme.secondary
+
     ProfileAvatar(
         initials = initials,
         size = 150.dp,
@@ -364,12 +367,12 @@ private fun ProfilePhotoSection(
             enabled = !isPhotoProcessing,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f))
+                .background(photoActionContainerColor)
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = if (photoUri == null) "Add photo" else "Edit photo",
-                tint = MaterialTheme.colorScheme.secondary
+                tint = photoActionIconColor
             )
         }
 
@@ -378,15 +381,15 @@ private fun ProfilePhotoSection(
             enabled = photoUri != null && !isPhotoProcessing,
             modifier = Modifier
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f))
+                .background(photoActionContainerColor)
         ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Delete photo",
                 tint = if (photoUri != null && !isPhotoProcessing) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    photoActionIconColor
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f)
+                    photoActionIconColor.copy(alpha = 0.65f)
                 }
             )
         }
