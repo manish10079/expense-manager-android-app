@@ -13,7 +13,9 @@ import com.mkn0079.expensetracker.domain.usecase.UpdateCurrencyDecimalPlacesUseC
 import com.mkn0079.expensetracker.domain.usecase.UpdateCurrencyGroupingStyleUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateCurrencyUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateDateFormatUseCase
+import com.mkn0079.expensetracker.domain.usecase.UpdateThemeModeUseCase
 import com.mkn0079.expensetracker.domain.usecase.UpdateTimeFormatUseCase
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +32,7 @@ import javax.inject.Inject
 
 enum class PreferencesSheetType {
     Currency,
+    ThemeMode,
     DateFormat,
     TimeFormat,
     NumberFormat,
@@ -50,19 +53,29 @@ data class DecimalPlacesOptionUi(
 )
 
 @Immutable
+data class ThemeModeOptionUi(
+    val themeMode: AppThemeMode,
+    val label: String,
+    val description: String
+)
+
+@Immutable
 data class PreferencesScreenUiState(
     val selectedCurrencyId: Int = DEFAULT_CURRENCY_ID,
+    val selectedThemeMode: AppThemeMode = AppThemeMode.SYSTEM,
     val selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     val selectedTimeFormat: String = DEFAULT_TIME_FORMAT,
     val selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN,
     val selectedDecimalPlaces: Int = 2,
     val currentCurrencyLabel: String = "Select",
+    val currentThemeModeLabel: String = AppThemeMode.SYSTEM.toDisplayLabel(),
     val currentDateFormatLabel: String = getDateFormatPreviewLabel(DEFAULT_DATE_FORMAT_PATTERN),
     val currentTimeFormatLabel: String = getTimeFormatPreviewLabel(DEFAULT_TIME_FORMAT),
     val currentGroupingLabel: String = CurrencyGroupingStyle.INDIAN.toDisplayLabel(),
     val currentDecimalPlacesLabel: String = "2",
     val currencySearchQuery: String = "",
     val filteredCurrencies: List<Currency> = emptyList(),
+    val themeModeOptions: List<ThemeModeOptionUi> = buildThemeModeOptions(),
     val numberFormatOptions: List<NumberFormatOptionUi> = emptyList(),
     val decimalPlaceOptions: List<DecimalPlacesOptionUi> = emptyList(),
     val activeSheet: PreferencesSheetType? = null
@@ -77,12 +90,14 @@ class PreferencesViewModel @Inject constructor(
     private val updateCurrency = UpdateCurrencyUseCase(repository)
     private val updateDateFormat = UpdateDateFormatUseCase(repository)
     private val updateTimeFormat = UpdateTimeFormatUseCase(repository)
+    private val updateThemeMode = UpdateThemeModeUseCase(repository)
     private val updateCurrencyGroupingStyle = UpdateCurrencyGroupingStyleUseCase(repository)
     private val updateCurrencyDecimalPlaces = UpdateCurrencyDecimalPlacesUseCase(repository)
 
     private val allCurrencies = currencyMap.values.sortedBy { it.countryName.lowercase() }
 
     private var selectedCurrencyId: Int = DEFAULT_CURRENCY_ID
+    private var selectedThemeMode: AppThemeMode = AppThemeMode.SYSTEM
     private var selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var selectedTimeFormat: String = DEFAULT_TIME_FORMAT
     private var selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN
@@ -101,6 +116,7 @@ class PreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             getAppPreferences().collect { settings ->
                 selectedCurrencyId = settings.currencyId
+                selectedThemeMode = settings.themeMode
                 selectedDateFormatPattern = settings.dateFormatPattern
                 selectedTimeFormat = settings.timeFormat
                 selectedGroupingStyle = settings.currencyGroupingStyle
@@ -146,6 +162,13 @@ class PreferencesViewModel @Inject constructor(
         dismissSheet()
     }
 
+    fun selectThemeMode(themeMode: AppThemeMode) {
+        viewModelScope.launch {
+            updateThemeMode(themeMode)
+        }
+        dismissSheet()
+    }
+
     fun selectTimeFormat(timeFormat: String) {
         viewModelScope.launch {
             updateTimeFormat(timeFormat)
@@ -185,20 +208,45 @@ class PreferencesViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedCurrencyId = selectedCurrencyId,
+                selectedThemeMode = selectedThemeMode,
                 selectedDateFormatPattern = selectedDateFormatPattern,
                 selectedTimeFormat = selectedTimeFormat,
                 selectedGroupingStyle = selectedGroupingStyle,
                 selectedDecimalPlaces = selectedDecimalPlaces,
                 currentCurrencyLabel = selectedCurrencyLabel,
+                currentThemeModeLabel = selectedThemeMode.toDisplayLabel(),
                 currentDateFormatLabel = getDateFormatPreviewLabel(selectedDateFormatPattern),
                 currentTimeFormatLabel = getTimeFormatPreviewLabel(selectedTimeFormat),
                 currentGroupingLabel = selectedGroupingStyle.toDisplayLabel(),
                 currentDecimalPlacesLabel = selectedDecimalPlaces.toString(),
                 filteredCurrencies = filteredCurrencies,
+                themeModeOptions = buildThemeModeOptions(),
                 numberFormatOptions = buildNumberFormatOptions(selectedDecimalPlaces),
                 decimalPlaceOptions = buildDecimalPlaceOptions(selectedGroupingStyle)
             )
         }
+    }
+}
+
+private fun buildThemeModeOptions(): List<ThemeModeOptionUi> {
+    return AppThemeMode.entries.map { themeMode ->
+        ThemeModeOptionUi(
+            themeMode = themeMode,
+            label = themeMode.toDisplayLabel(),
+            description = when (themeMode) {
+                AppThemeMode.SYSTEM -> "Follow your device appearance"
+                AppThemeMode.LIGHT -> "Always use the light theme"
+                AppThemeMode.DARK -> "Always use the dark theme"
+            }
+        )
+    }
+}
+
+private fun AppThemeMode.toDisplayLabel(): String {
+    return when (this) {
+        AppThemeMode.SYSTEM -> "System"
+        AppThemeMode.LIGHT -> "Light"
+        AppThemeMode.DARK -> "Dark"
     }
 }
 

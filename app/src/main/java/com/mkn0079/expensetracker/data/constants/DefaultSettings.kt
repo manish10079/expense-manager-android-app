@@ -1,6 +1,7 @@
 package com.mkn0079.expensetracker.data.constants
 
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.utils.getDefaultOrder
@@ -26,7 +27,7 @@ const val DEFAULT_SCREENSHOT_PROTECTION_ENABLED = false
 const val DEFAULT_APP_LOCK_TIMEOUT_MINUTES = 0
 const val DEFAULT_SHOW_ONBOARDING_SCREEN = true
 const val DEFAULT_SHOW_SPLASH_SCREEN = true
-const val DEFAULT_IS_DARK_THEME = true
+val DEFAULT_THEME_MODE = AppThemeMode.SYSTEM
 const val DEFAULT_TRANSACTION_CARD_SHOW_INCOME_EXPENSE_LABELS = false
 const val DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_DATE = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_PAYMENT_METHOD = false
@@ -61,7 +62,7 @@ val defaultAppSettings = AppSettings(
     appLockTimeoutMinutes = DEFAULT_APP_LOCK_TIMEOUT_MINUTES,
     showOnboardingScreen = DEFAULT_SHOW_ONBOARDING_SCREEN,
     showSplashScreen = DEFAULT_SHOW_SPLASH_SCREEN,
-    darkThemeEnabled = DEFAULT_IS_DARK_THEME,
+    themeMode = DEFAULT_THEME_MODE,
     transactionCardShowIncomeExpenseLabels = DEFAULT_TRANSACTION_CARD_SHOW_INCOME_EXPENSE_LABELS,
     transactionCardShowTransactionDate = DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_DATE,
     transactionCardShowPaymentMethod = DEFAULT_TRANSACTION_CARD_SHOW_PAYMENT_METHOD,

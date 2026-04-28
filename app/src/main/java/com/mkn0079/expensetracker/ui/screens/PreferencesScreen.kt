@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,24 +28,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.Currency
 import com.mkn0079.expensetracker.ui.components.AppHeader
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.DecimalPlacesOptionUi
 import com.mkn0079.expensetracker.ui.viewmodels.NumberFormatOptionUi
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesScreenUiState
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesSheetType
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesViewModel
-import com.mkn0079.expensetracker.utils.DateFormatOption
-import com.mkn0079.expensetracker.utils.TimeFormatOption
+import com.mkn0079.expensetracker.ui.viewmodels.ThemeModeOptionUi
 import com.mkn0079.expensetracker.utils.supportedDateFormats
 import com.mkn0079.expensetracker.utils.supportedTimeFormats
 
@@ -90,6 +88,12 @@ fun PreferencesScreen(
                     icon = Icons.Filled.CurrencyRupee,
                     trailing = uiState.currentCurrencyLabel,
                     onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
+                )
+                PreferenceItemRow(
+                    title = "Theme",
+                    icon = Icons.Filled.Palette,
+                    trailing = uiState.currentThemeModeLabel,
+                    onClick = { preferencesViewModel.showSheet(PreferencesSheetType.ThemeMode) }
                 )
                 PreferenceItemRow(
                     title = "Date Format",
@@ -138,6 +142,16 @@ fun PreferencesScreen(
                 },
                 onSearchQueryChange = preferencesViewModel::updateCurrencySearchQuery,
                 onCurrencySelected = preferencesViewModel::selectCurrency
+            )
+        }
+
+        PreferencesSheetType.ThemeMode -> {
+            ThemeModePickerSheet(
+                options = uiState.themeModeOptions,
+                selectedThemeMode = uiState.selectedThemeMode,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismiss = preferencesViewModel::dismissSheet,
+                onSelected = preferencesViewModel::selectThemeMode
             )
         }
 
@@ -362,6 +376,64 @@ private fun CurrencyPickerRow(
         isSelected = isSelected,
         onClick = onClick
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeModePickerSheet(
+    options: List<ThemeModeOptionUi>,
+    selectedThemeMode: AppThemeMode,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSelected: (AppThemeMode) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Select Theme",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Choose whether the app follows your device or stays on a fixed theme.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(options, key = { option -> option.themeMode.name }) { option ->
+                    PickerRow(
+                        title = option.label,
+                        subtitle = option.description,
+                        leadingIcon = Icons.Filled.Palette,
+                        isSelected = option.themeMode == selectedThemeMode,
+                        onClick = { onSelected(option.themeMode) }
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

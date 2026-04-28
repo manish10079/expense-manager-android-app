@@ -4,6 +4,7 @@ import android.content.Context
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.domain.repository.AppPreferencesRepository
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import kotlinx.coroutines.flow.Flow
 
@@ -30,6 +31,12 @@ class AppPreferencesRepositoryImpl(
     override suspend fun updateTimeFormat(timeFormat: String) {
         AppSettingsDataStore.updateAppSettings(context) { settings ->
             settings.copy(timeFormat = timeFormat)
+        }
+    }
+
+    override suspend fun updateThemeMode(themeMode: AppThemeMode) {
+        AppSettingsDataStore.updateAppSettings(context) { settings ->
+            settings.copy(themeMode = themeMode)
         }
     }
 

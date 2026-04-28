@@ -1,6 +1,7 @@
 package com.mkn0079.expensetracker.domain.repository
 
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +13,8 @@ interface AppPreferencesRepository {
     suspend fun updateDateFormat(dateFormatPattern: String)
 
     suspend fun updateTimeFormat(timeFormat: String)
+
+    suspend fun updateThemeMode(themeMode: AppThemeMode)
 
     suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle)
 

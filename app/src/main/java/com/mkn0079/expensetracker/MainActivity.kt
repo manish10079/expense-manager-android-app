@@ -3,33 +3,33 @@ package com.mkn0079.expensetracker
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Bundle
 import android.os.Build
 import android.content.res.Configuration
+import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
@@ -101,7 +101,12 @@ class MainActivity : FragmentActivity() {
         val userProfile by UserProfileDataStore
             .getUserProfileFlow(context)
             .collectAsState(initial = defaultUserProfile)
-        val darkTheme = isSystemInDarkTheme()
+        val systemDarkTheme = isSystemInDarkTheme()
+        val darkTheme = when (appSettings?.themeMode ?: AppThemeMode.SYSTEM) {
+            AppThemeMode.SYSTEM -> systemDarkTheme
+            AppThemeMode.LIGHT -> false
+            AppThemeMode.DARK -> true
+        }
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
             Box(modifier = Modifier.fillMaxSize()) {

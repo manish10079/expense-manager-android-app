@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mkn0079.expensetracker.data.constants.defaultAppSettings
 import com.mkn0079.expensetracker.models.AppSettings
+import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.SortType
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ object AppSettingsDataStore {
         val appLockTimeoutMinutes = intPreferencesKey("app_lock_timeout_minutes")
         val showOnboardingScreen = booleanPreferencesKey("show_onboarding_screen")
         val showSplashScreen = booleanPreferencesKey("show_splash_screen")
-        val darkThemeEnabled = booleanPreferencesKey("dark_theme_enabled")
+        val themeMode = stringPreferencesKey("theme_mode")
         val transactionCardShowIncomeExpenseLabels =
             booleanPreferencesKey("transaction_card_show_income_expense_labels")
         val transactionCardShowTransactionDate =
@@ -148,7 +149,9 @@ object AppSettingsDataStore {
                 ?: defaultAppSettings.showOnboardingScreen,
             showSplashScreen = this[Keys.showSplashScreen]
                 ?: defaultAppSettings.showSplashScreen,
-            darkThemeEnabled = this[Keys.darkThemeEnabled] ?: defaultAppSettings.darkThemeEnabled,
+            themeMode = this[Keys.themeMode]
+                ?.let(::appThemeModeOrDefault)
+                ?: defaultAppSettings.themeMode,
             transactionCardShowIncomeExpenseLabels = this[Keys.transactionCardShowIncomeExpenseLabels]
                 ?: defaultAppSettings.transactionCardShowIncomeExpenseLabels,
             transactionCardShowTransactionDate = this[Keys.transactionCardShowTransactionDate]
@@ -191,7 +194,7 @@ object AppSettingsDataStore {
         this[Keys.appLockTimeoutMinutes] = settings.appLockTimeoutMinutes
         this[Keys.showOnboardingScreen] = settings.showOnboardingScreen
         this[Keys.showSplashScreen] = settings.showSplashScreen
-        this[Keys.darkThemeEnabled] = settings.darkThemeEnabled
+        this[Keys.themeMode] = settings.themeMode.name
         this[Keys.transactionCardShowIncomeExpenseLabels] =
             settings.transactionCardShowIncomeExpenseLabels
         this[Keys.transactionCardShowTransactionDate] =
@@ -218,6 +221,11 @@ object AppSettingsDataStore {
     private fun currencyGroupingStyleOrDefault(value: String): CurrencyGroupingStyle {
         return CurrencyGroupingStyle.entries.firstOrNull { it.name == value }
             ?: defaultAppSettings.currencyGroupingStyle
+    }
+
+    private fun appThemeModeOrDefault(value: String): AppThemeMode {
+        return AppThemeMode.entries.firstOrNull { it.name == value }
+            ?: defaultAppSettings.themeMode
     }
 
     private fun userTierOrDefault(value: String): com.mkn0079.expensetracker.models.UserTier {

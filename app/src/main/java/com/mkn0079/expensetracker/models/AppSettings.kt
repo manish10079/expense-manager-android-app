@@ -25,7 +25,7 @@ data class AppSettings(
     val appLockTimeoutMinutes: Int,
     val showOnboardingScreen: Boolean,
     val showSplashScreen: Boolean,
-    val darkThemeEnabled: Boolean,
+    val themeMode: AppThemeMode,
     val transactionCardShowIncomeExpenseLabels: Boolean,
     val transactionCardShowTransactionDate: Boolean,
     val transactionCardShowPaymentMethod: Boolean,
