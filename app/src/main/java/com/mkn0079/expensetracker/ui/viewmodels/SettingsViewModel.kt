@@ -8,6 +8,9 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Storage
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.update
 @Immutable
 data class SettingsItemUi(
     val title: String,
+    val subtitle: String? = null,
     val icon: ImageVector,
     val trailing: String? = null,
     val actionId: SettingsActionId? = null,
@@ -93,6 +97,7 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "Profile",
+                    subtitle = "Manage your account details",
                     icon = Icons.Filled.Person,
                     actionId = SettingsActionId.Profile
                 )
@@ -103,6 +108,7 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "App Preferences",
+                    subtitle = "Customize app settings",
                     icon = Icons.Filled.Tune,
                     actionId = SettingsActionId.AppPreferences
                 )
@@ -113,7 +119,8 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "Transaction Card",
-                    icon = Icons.Filled.Tune,
+                    subtitle = "Adjust transaction display",
+                    icon = Icons.Rounded.CreditCard,
                     actionId = SettingsActionId.TransactionCardCustomize
                 )
             )
@@ -123,6 +130,7 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "Security & Privacy",
+                    subtitle = "Protect your data and access",
                     icon = Icons.Filled.Security,
                     actionId = SettingsActionId.SecurityPrivacy
                 )
@@ -133,7 +141,8 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "Data Management",
-                    icon = Icons.Filled.Info,
+                    subtitle = "Backup and manage data",
+                    icon = Icons.Rounded.Dns,
                     actionId = SettingsActionId.DataManagement
                 )
             )
@@ -143,6 +152,7 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "Notifications",
+                    subtitle = "Control alerts and reminders",
                     icon = Icons.Filled.Notifications,
                     actionId = SettingsActionId.Notifications
                 )
@@ -153,6 +163,7 @@ private fun buildSettingsSections(
             items = listOf(
                 SettingsItemUi(
                     title = "About",
+                    subtitle = "App info and details",
                     icon = Icons.Filled.Info,
                     actionId = SettingsActionId.About
                 )

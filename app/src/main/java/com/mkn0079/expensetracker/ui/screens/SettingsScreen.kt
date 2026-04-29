@@ -305,6 +305,7 @@ private fun SettingsSection(
             SettingsItemCard(
                 icon = item.icon,
                 title = item.title,
+                subtitle = item.subtitle,
                 type = itemType,
                 valueText = item.trailing,
                 isEnabled = true,
