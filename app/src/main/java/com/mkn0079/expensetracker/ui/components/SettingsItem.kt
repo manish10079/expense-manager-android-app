@@ -27,12 +27,14 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -176,26 +178,27 @@ fun SettingsItem(
 
             when (type) {
                 SettingsItemType.Toggle -> {
-                    Switch(
-                        checked = isChecked,
-                        onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
-                        enabled = finalEnabled,
-                        colors = androidx.compose.material3.SwitchDefaults.colors(
-                            checkedThumbColor = colorScheme.onPrimary,
-                            checkedTrackColor = primary,
-                            checkedBorderColor = Color.Transparent,
-                            uncheckedThumbColor = colorScheme.surface,
-                            uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
-                            uncheckedBorderColor = Color.Transparent,
-                            disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
-                            disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
-                            disabledCheckedBorderColor = Color.Transparent,
-                            disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
-                            disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
-                            disabledUncheckedBorderColor = Color.Transparent
-                        ),
-
-                    )
+                    CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                        Switch(
+                            checked = isChecked,
+                            onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
+                            enabled = finalEnabled,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = colorScheme.onPrimary,
+                                checkedTrackColor = primary,
+                                checkedBorderColor = Color.Transparent,
+                                uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
+                                uncheckedBorderColor = Color.Gray,
+                                disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
+                                disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
+                                disabledCheckedBorderColor = Color.Transparent,
+                                disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
+                                disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
+                                disabledUncheckedBorderColor = Color.Transparent
+                            )
+                        )
+                    }
                 }
 
                 SettingsItemType.Navigation -> {
