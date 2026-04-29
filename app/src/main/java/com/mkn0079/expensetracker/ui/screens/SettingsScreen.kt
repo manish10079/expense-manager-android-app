@@ -86,7 +86,9 @@ import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
+import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
@@ -282,131 +284,44 @@ private fun SettingsSection(
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit
 ) {
-    Column {
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            section.items.forEach { item ->
-                val toggleState = when (item.toggleId) {
-                    SettingsToggleId.DailyReminder -> isDailyReminderEnabled
-                    SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
-                    SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
-                    else -> null
-                }
-                val isEnabled = true
-
-                SettingsRow(
-                    item = item,
-                    enabled = isEnabled,
-                    toggleState = toggleState,
-                    onClick = {
-                        onItemClick(item.actionId)
-                    },
-                    onToggleChange = { isChecked ->
-                        when (item.toggleId) {
-                            SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
-                            SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
-                            SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
-                            null -> Unit
-                            else -> Unit
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsRow(
-    item: SettingsItemUi,
-    enabled: Boolean = true,
-    toggleState: Boolean? = null,
-    onClick: () -> Unit = {},
-    onToggleChange: (Boolean) -> Unit = {}
-) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .clickable(enabled = enabled) {
-                if (toggleState != null) {
-                    onToggleChange(!toggleState)
-                } else {
-                    onClick()
-                }
-            }
-            .padding(horizontal = 6.dp, vertical = 8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = item.title,
-                    tint = if (enabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    modifier = Modifier.size(16.dp)
-                )
+        section.items.forEach { item ->
+            val toggleState = when (item.toggleId) {
+                SettingsToggleId.DailyReminder -> isDailyReminderEnabled
+                SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
+                SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
+                else -> null
+            }
+            val itemType = when {
+                toggleState != null -> SettingsItemType.Toggle
+                !item.trailing.isNullOrEmpty() && !item.showChevron -> SettingsItemType.Value
+                item.showChevron -> SettingsItemType.Navigation
+                else -> SettingsItemType.Value
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = item.title,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.weight(1f)
+            SettingsItemCard(
+                icon = item.icon,
+                title = item.title,
+                type = itemType,
+                valueText = item.trailing,
+                isEnabled = true,
+                isChecked = toggleState ?: false,
+                onCheckedChange = { isChecked ->
+                    when (item.toggleId) {
+                        SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
+                        SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
+                        SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
+                        null -> Unit
+                        else -> Unit
+                    }
+                },
+                onClick = {
+                    onItemClick(item.actionId)
+                }
             )
-
-            item.trailing?.let {
-                Text(
-                    text = it,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp
-                    )
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
-            }
-
-            if (toggleState != null) {
-                Switch(
-                    checked = toggleState,
-                    onCheckedChange = onToggleChange,
-                    enabled = enabled,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                        checkedTrackColor = MaterialTheme.colorScheme.secondary,
-                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
-                        uncheckedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-                    )
-                )
-            } else if (item.showChevron) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Open ${item.title}",
-                    tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
         }
     }
 }

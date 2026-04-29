@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Surface
@@ -52,8 +53,9 @@ import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsItem(
+fun SettingsItemCard(
     icon: ImageVector,
     title: String,
     subtitle: String? = null,
@@ -205,7 +207,7 @@ fun SettingsItem(
                     Icon(
                         imageVector = Icons.Rounded.ChevronRight,
                         contentDescription = "Open",
-                        tint = onSurfaceVariant,
+                        tint = onSurfaceVariant.copy(alpha = 0.35f),
                         modifier = Modifier.size(40.dp)
                     )
                 }
@@ -238,7 +240,61 @@ fun SettingsItem(
 
 @Preview(showBackground = true, backgroundColor = 0xFF101417)
 @Composable
-private fun SettingsItemPreview() {
+private fun SettingsItemCardPreviewDark() {
+    var notificationsEnabled by remember { mutableStateOf(true) }
+
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                SettingsItemCard(
+                    icon = Icons.Rounded.Notifications,
+                    title = "Notifications",
+                    subtitle = "Manage reminders and alerts",
+                    type = SettingsItemType.Toggle,
+                    isChecked = notificationsEnabled,
+                    onCheckedChange = { notificationsEnabled = it }
+                )
+
+                SettingsItemCard(
+                    icon = Icons.Rounded.Palette,
+                    title = "Appearance",
+                    subtitle = "Theme and accent preferences",
+                    type = SettingsItemType.Navigation
+                )
+
+                SettingsItemCard(
+                    icon = Icons.Rounded.Sync,
+                    title = "Sync",
+                    subtitle = "Current provider",
+                    type = SettingsItemType.Value,
+                    valueText = "Google Drive"
+                )
+
+                SettingsItemCard(
+                    icon = Icons.Rounded.Security,
+                    title = "Reset Security",
+                    subtitle = "This action requires verification",
+                    type = SettingsItemType.Button,
+                    valueText = "Verify",
+                    isLocked = true
+                )
+            }
+        }
+    }
+}
+
+
+
+
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun SettingsItemCardPreviewLight() {
     var notificationsEnabled by remember { mutableStateOf(true) }
 
     ExpenseTrackerTheme(darkTheme = false) {
@@ -249,7 +305,7 @@ private fun SettingsItemPreview() {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                SettingsItem(
+                SettingsItemCard (
                     icon = Icons.Rounded.Notifications,
                     title = "Notifications",
                     subtitle = "Manage reminders and alerts",
@@ -258,14 +314,14 @@ private fun SettingsItemPreview() {
                     onCheckedChange = { notificationsEnabled = it }
                 )
 
-                SettingsItem(
+                SettingsItemCard(
                     icon = Icons.Rounded.Palette,
                     title = "Appearance",
                     subtitle = "Theme and accent preferences",
                     type = SettingsItemType.Navigation
                 )
 
-                SettingsItem(
+                SettingsItemCard(
                     icon = Icons.Rounded.Sync,
                     title = "Sync",
                     subtitle = "Current provider",
@@ -273,7 +329,7 @@ private fun SettingsItemPreview() {
                     valueText = "Google Drive"
                 )
 
-                SettingsItem(
+                SettingsItemCard(
                     icon = Icons.Rounded.Security,
                     title = "Reset Security",
                     subtitle = "This action requires verification",
