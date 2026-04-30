@@ -85,7 +85,7 @@ import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.AppHeader
-import com.mkn0079.expensetracker.ui.components.ProfileAvatar
+import com.mkn0079.expensetracker.ui.components.ProfileCard
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.models.SettingsItemType
@@ -141,8 +141,12 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            ProfileHero(
-                userProfile = userProfile
+            ProfileCard(
+                name = userProfile.fullName,
+                email = userProfile.emailAddress,
+                initials = userProfile.avatarInitials(),
+                photoUri = userProfile.photoUri,
+                onClick = onProfileClick
             )
 
             Spacer(modifier = Modifier.height(22.dp))
@@ -189,88 +193,6 @@ fun SettingsScreen(
 
  
 
-}
-
-@Composable
-private fun ProfileHero(
-    userProfile: UserProfile
-) {
-    val profileAvatarGradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.86f)
-        )
-    )
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ProfileAvatar(
-            initials = userProfile.avatarInitials(),
-            size = 140.dp,
-            textSize = 32.sp,
-            photoUri = userProfile.photoUri,
-            showGlow = false,
-            showBorder = true,
-            backgroundColor = MaterialTheme.colorScheme.background,
-            borderBrush = profileAvatarGradient,
-            placeholderIconBrush = profileAvatarGradient
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = userProfile.fullName
-                .lowercase()
-                .split(" ")
-                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            softWrap = true,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 30.sp,
-                letterSpacing = 0.5.sp,
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
-                    )
-                )
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(999.dp))
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
-                        )
-                    )
-                )
-                .padding(horizontal = 12.dp, vertical = 5.dp)
-        ) {
-            Text(
-                text = "PREMIUM MEMBER",
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 10.sp,
-                    letterSpacing = 1.1.sp
-                )
-            )
-        }
-    }
 }
 
 @Composable

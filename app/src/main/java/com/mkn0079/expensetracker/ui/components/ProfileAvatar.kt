@@ -36,6 +36,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Surface
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
@@ -248,4 +252,36 @@ private fun calculateInSampleSize(
 private fun openImageInputStream(context: Context, uri: Uri) = when (uri.scheme) {
     "file" -> uri.path?.let(::FileInputStream)
     else -> context.contentResolver.openInputStream(uri)
+}
+
+@Preview(name = "Light Mode", showBackground = true)
+@Composable
+fun ProfileAvatarLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
+                ProfileAvatar(
+                    initials = "JD",
+                    textSize = 20.sp,
+                    showBadge = true
+                )
+            }
+        }
+    }
+}
+
+@Preview(name = "Dark Mode", showBackground = true)
+@Composable
+fun ProfileAvatarDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
+                ProfileAvatar(
+                    initials = "JD",
+                    textSize = 20.sp,
+                    showBadge = true
+                )
+            }
+        }
+    }
 }
