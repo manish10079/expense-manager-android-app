@@ -52,6 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.monetization.AccessLevel
+import com.mkn0079.expensetracker.ui.theme.featureGateLock
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +66,7 @@ fun SettingsItemCard(
     isEnabled: Boolean = true,
     isDanger: Boolean = false,
     isLocked: Boolean = false,
+    accessLevel: AccessLevel = AccessLevel.FREE,
     isChecked: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -71,6 +74,7 @@ fun SettingsItemCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val finalEnabled = isEnabled && !isLocked
+    val isGated = isLocked && accessLevel != AccessLevel.FREE
     val containerShape = RoundedCornerShape(28.dp)
 
     val updatedOnClick by rememberUpdatedState(onClick)
@@ -86,21 +90,31 @@ fun SettingsItemCard(
         alpha = if (finalEnabled) 0.4f else 0.2f
     )
 
+    val lockColor = colorScheme.featureGateLock
+
     val iconTint = when {
+        isGated -> lockColor
         !finalEnabled -> onSurfaceVariant.copy(alpha = 0.5f)
         isDanger -> danger
         else -> primary
     }
 
+    val iconBackground = when {
+        isGated -> lockColor.copy(alpha = 0.12f)
+        else -> primary.copy(alpha = 0.1f)
+    }
+
     val titleColor = when {
+        isGated -> onSurface.copy(alpha = 0.38f)
         !finalEnabled -> onSurface.copy(alpha = 0.5f)
         isDanger -> danger
         else -> onSurface
     }
 
-    val subtitleColor = onSurfaceVariant.copy(
-        alpha = if (finalEnabled) 1f else 0.6f
-    )
+    val subtitleColor = when {
+        isGated -> onSurfaceVariant.copy(alpha = 0.38f)
+        else -> onSurfaceVariant.copy(alpha = if (finalEnabled) 1f else 0.6f)
+    }
 
     Surface(
         modifier = modifier
@@ -114,7 +128,7 @@ fun SettingsItemCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    enabled = finalEnabled && type != SettingsItemType.Toggle,
+                    enabled = (finalEnabled && type != SettingsItemType.Toggle) || isLocked,
                     interactionSource = interactionSource,
                     indication = LocalIndication.current
                 ) {
@@ -125,12 +139,12 @@ fun SettingsItemCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
-                icon = icon,
+                icon = if (isGated) Icons.Rounded.Lock else icon,
                 contentDescription = title,
                 size = 44.dp,
                 iconSize = 22.dp,
                 tint = iconTint,
-                backgroundColor = primary.copy(alpha = 0.1f)
+                backgroundColor = iconBackground
             )
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -149,7 +163,7 @@ fun SettingsItemCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    if (isLocked) {
+                    if (isLocked && !isGated) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.Rounded.Lock,
@@ -172,59 +186,70 @@ fun SettingsItemCard(
                 }
             }
 
-            when (type) {
-                SettingsItemType.Toggle -> {
-                    CompositionLocalProvider(LocalRippleConfiguration provides null) {
-                        Switch(
-                            checked = isChecked,
-                            onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
-                            enabled = finalEnabled,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = colorScheme.onPrimary,
-                                checkedTrackColor = primary,
-                                checkedBorderColor = Color.Transparent,
-                                uncheckedThumbColor = Color.Gray,
-                                uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
-                                uncheckedBorderColor = Color.Gray,
-                                disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
-                                disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
-                                disabledCheckedBorderColor = Color.Transparent,
-                                disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
-                                disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
-                                disabledUncheckedBorderColor = Color.Transparent
+            if (isGated) {
+                Text(
+                    text = if (accessLevel == AccessLevel.AD_SUPPORTED) "Watch Ad" else "Premium",
+                    color = lockColor,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            } else {
+                when (type) {
+                    SettingsItemType.Toggle -> {
+                        CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                            Switch(
+                                checked = isChecked,
+                                onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
+                                enabled = finalEnabled,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = colorScheme.onPrimary,
+                                    checkedTrackColor = primary,
+                                    checkedBorderColor = Color.Transparent,
+                                    uncheckedThumbColor = Color.Gray,
+                                    uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
+                                    uncheckedBorderColor = Color.Gray,
+                                    disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
+                                    disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
+                                    disabledCheckedBorderColor = Color.Transparent,
+                                    disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
+                                    disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
+                                    disabledUncheckedBorderColor = Color.Transparent
+                                )
                             )
+                        }
+                    }
+
+                    SettingsItemType.Navigation -> {
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = "Open",
+                            tint = onSurfaceVariant.copy(alpha = 0.35f),
+                            modifier = Modifier.size(40.dp)
                         )
                     }
-                }
 
-                SettingsItemType.Navigation -> {
-                    Icon(
-                        imageVector = Icons.Rounded.ChevronRight,
-                        contentDescription = "Open",
-                        tint = onSurfaceVariant.copy(alpha = 0.35f),
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-
-                SettingsItemType.Value -> {
-                    if (!valueText.isNullOrEmpty()) {
-                        Text(
-                            text = valueText,
-                            color = onSurfaceVariant,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                    SettingsItemType.Value -> {
+                        if (!valueText.isNullOrEmpty()) {
+                            Text(
+                                text = valueText,
+                                color = onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
-                }
 
-                SettingsItemType.Button -> {
-                    TextButton(
-                        onClick = { updatedOnClick?.invoke() },
-                        enabled = finalEnabled
-                    ) {
-                        Text(
-                            text = valueText ?: "Action",
-                            color = primary
-                        )
+                    SettingsItemType.Button -> {
+                        TextButton(
+                            onClick = { updatedOnClick?.invoke() },
+                            enabled = finalEnabled
+                        ) {
+                            Text(
+                                text = valueText ?: "Action",
+                                color = primary
+                            )
+                        }
                     }
                 }
             }

@@ -68,6 +68,10 @@ import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 
+import com.mkn0079.expensetracker.ui.components.SettingsItemCard
+import com.mkn0079.expensetracker.models.SettingsItemType
+import com.mkn0079.expensetracker.monetization.FeatureRegistry
+
 private data class TransactionCardToggleItem(
     val title: String,
     val subtitle: String,
@@ -89,12 +93,9 @@ fun TransactionCardCustomizeScreen(
     onBackClick: () -> Unit = {}
 ) {
     // Local state — initialized once from settings, then owned locally.
-    // No key on remember: avoids DataStore round-trip overriding user's uncommitted changes.
     var localSettings by remember { mutableStateOf(settings) }
 
     // Debounced persistence: write to DataStore 300ms after the last toggle.
-    // No early-return guard — DataStore is idempotent, and skipping writes caused
-    // "toggle not responding" when the user toggled back within the debounce window.
     LaunchedEffect(localSettings) {
         delay(300)
         onSettingsChange(localSettings)
@@ -119,12 +120,12 @@ fun TransactionCardCustomizeScreen(
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Payment Method",
-                subtitle = "Display wallet or card used",
-                icon = Icons.Outlined.Wallet,
-                optionId = "showPaymentMethod",
-                checked = localSettings.showPaymentMethod,
-                onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
+                title = "Show Category Icon",
+                subtitle = "Visual category indicators",
+                icon = Icons.Outlined.Paid,
+                optionId = "showCategoryIcon",
+                checked = localSettings.showCategoryIcon,
+                onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Transaction Time",
@@ -135,12 +136,12 @@ fun TransactionCardCustomizeScreen(
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Category Icon",
-                subtitle = "Visual category indicators",
-                icon = Icons.Outlined.Paid,
-                optionId = "showCategoryIcon",
-                checked = localSettings.showCategoryIcon,
-                onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
+                title = "Show Payment Method",
+                subtitle = "Display wallet or card used",
+                icon = Icons.Outlined.Wallet,
+                optionId = "showPaymentMethod",
+                checked = localSettings.showPaymentMethod,
+                onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
             ),
             TransactionCardToggleItem(
                 title = "Show Date Separators",
@@ -285,84 +286,25 @@ fun TransactionCardCustomizeScreen(
                         displayName = item.title,
                         onAction = { item.onCheckedChange(!item.checked) }
                     ) { status, onClick ->
-                        TransactionCardToggleRow(
-                            item = item,
+                        val accessLevel = FeatureRegistry.getAccessLevel(
+                            feature = Feature.CARD_CUSTOMIZATION,
+                            optionId = item.optionId
+                        )
+                        SettingsItemCard(
+                            icon = item.icon,
+                            title = item.title,
+                            subtitle = item.subtitle,
+                            type = SettingsItemType.Toggle,
+                            accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
+                            isChecked = item.checked,
+                            onCheckedChange = { onClick() },
                             onClick = onClick
                         )
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun TransactionCardToggleRow(
-    item: TransactionCardToggleItem,
-    isLocked: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 18.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = if (isLocked) Icons.Filled.Lock else item.icon,
-                contentDescription = item.title,
-                tint = if (isLocked) MaterialTheme.colorScheme.featureGateLock else MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.title,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 16.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = item.subtitle,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 13.sp
-                )
-            )
-        }
-
-        Switch(
-            checked = item.checked,
-            onCheckedChange = { onClick() },
-            enabled = !isLocked,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedTrackColor = MaterialTheme.colorScheme.secondary,
-                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f),
-                uncheckedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-            )
-        )
     }
 }
 
@@ -375,3 +317,4 @@ private fun TransactionCardCustomizeScreenPreview() {
         )
     }
 }
+
