@@ -33,7 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Dialpad
@@ -109,6 +108,7 @@ import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -269,13 +269,11 @@ fun AddTransactionScreen(
                     vertical = if (dense) 12.dp else 14.dp
                 )
         ) {
-            HeaderRow(
-                onBackClick = onBackClick,
+            AppHeader(
                 title = if (isEditMode) "Edit Transaction" else "Add Transaction",
-                compact = compact
+                onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
             Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
 
             Column(
@@ -513,65 +511,6 @@ fun AddTransactionScreen(
             }
         }
     }
-}
-
-@Composable
-private fun HeaderRow(
-    onBackClick: () -> Unit,
-    title: String,
-    compact: Boolean
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clickable(onClick = onBackClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(if (compact) 36.dp else 40.dp)
-                    .clip(CircleShape)
-                    .background(colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.size(if (compact) 17.dp else 19.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        )
-    }
-}
-
-@Composable
-private fun DividerLine() {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(colorScheme.onSurface.copy(alpha = 0.65f))
-    )
 }
 
 @Composable

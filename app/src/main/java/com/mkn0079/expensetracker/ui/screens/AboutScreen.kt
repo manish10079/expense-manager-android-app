@@ -22,20 +22,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.ui.components.AppHeader
 // Legacy theme imports removed
 
 @Composable
@@ -88,7 +87,11 @@ fun AboutScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        AboutHeader(onBackClick = onBackClick)
+        AppHeader(
+            title = "About",
+            onBackClick = onBackClick,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
+        )
 
         Column(
             modifier = Modifier
@@ -188,7 +191,7 @@ fun AboutScreen(
                     onClick = { openUrl("https://example.com/terms") }
                 )
                 AboutActionItem(
-                    icon = Icons.Filled.ListAlt,
+                    icon = Icons.AutoMirrored.Filled.ListAlt,
                     title = "Open Source Licenses",
                     onClick = { /* Show licenses */ }
                 )
@@ -235,31 +238,6 @@ fun AboutScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
-    }
-}
-
-@Composable
-private fun AboutHeader(onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        Text(
-            text = "About",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 8.dp)
-        )
     }
 }
 

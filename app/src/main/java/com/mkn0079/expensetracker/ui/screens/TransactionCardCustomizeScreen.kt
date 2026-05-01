@@ -15,12 +15,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Schedule
@@ -69,6 +66,7 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.monetization.FeatureRegistry
 
@@ -168,37 +166,10 @@ fun TransactionCardCustomizeScreen(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clickable(onClick = onBackClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ChevronLeft,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Text(
-                    text = "Card Settings",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 20.sp
-                    )
-                )
-            }
+            AppHeader(
+                title = "Card Settings",
+                onBackClick = onBackClick
+            )
         }
 
 
