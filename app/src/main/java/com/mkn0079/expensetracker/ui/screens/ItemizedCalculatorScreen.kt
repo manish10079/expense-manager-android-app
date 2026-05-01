@@ -103,13 +103,6 @@ fun ItemizedCalculatorScreen(
     ) {
         CalculatorHeader(onBackClick = onBackClick)
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
-        )
-
         CalculatorModeTabs(
             selectedMode = uiState.selectedMode,
             onModeSelected = viewModel::setMode

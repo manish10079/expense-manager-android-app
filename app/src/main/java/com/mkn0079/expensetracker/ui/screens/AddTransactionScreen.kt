@@ -276,9 +276,6 @@ fun AddTransactionScreen(
             )
 
             Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
-
-            DividerLine()
-
             Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
 
             Column(
