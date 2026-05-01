@@ -93,7 +93,6 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
-import com.mkn0079.expensetracker.ui.components.AddTransactionFab
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.FilterBottomSheet
 import com.mkn0079.expensetracker.ui.components.TransactionPeriodFilter
