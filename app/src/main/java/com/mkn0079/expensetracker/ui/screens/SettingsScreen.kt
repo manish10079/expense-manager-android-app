@@ -84,8 +84,8 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_NOTIFICATIONS_ENABLED
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
-import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.ProfileCard
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.models.SettingsItemType
@@ -141,16 +141,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            ProfileCard(
-                name = userProfile.fullName,
-                email = userProfile.emailAddress,
-                initials = userProfile.avatarInitials(),
-                photoUri = userProfile.photoUri,
-                onClick = onProfileClick
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -158,6 +148,16 @@ fun SettingsScreen(
                 contentPadding = PaddingValues(bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
+                item {
+                    ProfileCard(
+                        name = userProfile.fullName,
+                        email = userProfile.emailAddress,
+                        initials = userProfile.avatarInitials(),
+                        photoUri = userProfile.photoUri,
+                        onClick = onProfileClick
+                    )
+                }
+
                 uiState.settingsSections.forEach { section ->
                     item(key = section.title) {
                         SettingsSection(
@@ -167,7 +167,6 @@ fun SettingsScreen(
                             isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
                             onItemClick = { actionId ->
                                 when (actionId) {
-                                    SettingsActionId.Profile -> onProfileClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()

@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.CreditCard
@@ -45,7 +44,6 @@ enum class SettingsToggleId {
 }
 
 enum class SettingsActionId {
-    Profile,
     AppPreferences,
     SecurityPrivacy,
     TransactionCardCustomize,
@@ -92,17 +90,6 @@ private fun buildSettingsSections(
     transactionCountLabel: String
 ): List<SettingsSectionUi> {
     return listOf(
-        SettingsSectionUi(
-            title = "USER PROFILE",
-            items = listOf(
-                SettingsItemUi(
-                    title = "Profile",
-                    subtitle = "Manage your account details",
-                    icon = Icons.Filled.Person,
-                    actionId = SettingsActionId.Profile
-                )
-            )
-        ),
         SettingsSectionUi(
             title = "PREFERENCE",
             items = listOf(

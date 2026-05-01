@@ -82,12 +82,16 @@ import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.GenderPickerSheet
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
+import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
+import androidx.compose.material.icons.rounded.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -186,55 +190,66 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
-            ProfileTextFieldCard(
-                label = "FULL NAME",
+            InputFieldCard(
+                title = "FULL NAME",
                 value = fullName,
-                leadingIcon = Icons.Filled.Person,
-                placeholder = "Guest User",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                onValueChange = { fullName = it }
+                onValueChange = { fullName = it },
+                inputType = InputType.Text,
+                leadingIcon = Icons.Rounded.Person,
+                placeholder = "Guest User"
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            ProfileTextFieldCard(
-                label = "EMAIL ADDRESS",
+            InputFieldCard(
+                title = "EMAIL ADDRESS",
                 value = emailAddress,
-                leadingIcon = Icons.Filled.Email,
-                placeholder = "alex.j@example.com",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                onValueChange = { emailAddress = it }
+                onValueChange = { emailAddress = it },
+                inputType = InputType.Email,
+                leadingIcon = Icons.Rounded.Email,
+                placeholder = "alex.j@example.com"
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            ProfileTextFieldCard(
-                label = "PHONE NUMBER",
+            InputFieldCard(
+                title = "PHONE NUMBER",
                 value = phoneNumber,
-                leadingIcon = Icons.Filled.Call,
-                placeholder = "+1234 567 8900",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                onValueChange = { phoneNumber = it }
+                onValueChange = { phoneNumber = it },
+                inputType = InputType.Phone,
+                leadingIcon = Icons.Rounded.Call,
+                placeholder = "+1234 567 8900"
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            ReadOnlyFieldCard(
-                label = "DATE OF BIRTH",
+            InputFieldCard(
+                title = "DATE OF BIRTH",
                 value = dateOfBirthMillis?.let { formatDate(it, dateFormatPattern) }.orEmpty(),
-                leadingIcon = Icons.Filled.CalendarMonth,
+                onValueChange = {},
+                inputType = InputType.Date,
+                leadingIcon = Icons.Rounded.CalendarMonth,
                 placeholder = "Select Date of Birth",
                 onClick = { isDatePickerVisible = true }
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            GenderFieldCard(
-                label = "GENDER",
+            InputFieldCard(
+                title = "GENDER",
                 value = gender,
+                onValueChange = {},
+                inputType = InputType.Date,
+                leadingIcon = genderToIcon(gender),
                 placeholder = GenderPlaceholder,
-                onClick = { isGenderPickerVisible = true }
+                onClick = { isGenderPickerVisible = true },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Open gender options",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -397,311 +412,13 @@ private fun ProfilePhotoSection(
 }
 
 
-@Composable
-private fun ProfileTextFieldCard(
-    label: String,
-    value: String,
-    leadingIcon: ImageVector,
-    placeholder: String,
-    keyboardOptions: KeyboardOptions,
-    onValueChange: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 18.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        // Label or other content can go here
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                keyboardOptions = keyboardOptions,
-                textStyle = MaterialTheme.typography.titleLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                decorationBox = { innerTextField ->
-                    if (value.isBlank()) {
-                        Text(
-                            text = placeholder,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 18.sp
-                            )
-                        )
-                    }
-                    innerTextField()
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ReadOnlyFieldCard(
-    label: String,
-    value: String,
-    leadingIcon: ImageVector,
-    placeholder: String,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.1.sp,
-                fontSize = 13.sp
-            )
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Text(
-                text = value.ifBlank { placeholder },
-                color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun GenderFieldCard(
-    label: String,
-    value: String,
-    placeholder: String,
-    onClick: () -> Unit
-) {
-    val genderIcon = genderToIcon(value)
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.1.sp,
-                fontSize = 13.sp
-            )
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = genderIcon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Text(
-                text = value.ifBlank { placeholder },
-                color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                ),
-                modifier = Modifier.weight(1f)
-            )
-
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = "Open gender options",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GenderPickerSheet(
-    selectedGender: String,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onGenderSelected: (String) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-        scrimColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.62f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Select Gender",
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Choose the gender label that best fits your profile.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(320.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(
-                    items = genderOptions,
-                    key = { option -> option }
-                ) { option ->
-                    GenderPickerRow(
-                        option = option,
-                        isSelected = option == selectedGender,
-                        onClick = { onGenderSelected(option) }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GenderPickerRow(
-    option: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val genderIcon = genderToIcon(option)
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (isSelected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = genderIcon,
-                contentDescription = option,
-                tint = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Text(
-            text = option,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            modifier = Modifier.weight(1f)
-        )
-
-        if (isSelected) {
-            Text(
-                text = "Selected",
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
-}
-
 private fun genderToIcon(gender: String): ImageVector {
     return when (gender) {
-        "Male" -> Icons.Filled.Male
-        "Female" -> Icons.Filled.Female
-        "Non-binary" -> Icons.Filled.Transgender
-        "Prefer not to say" -> Icons.Filled.Person
-        else -> Icons.Filled.Transgender
+        "Male" -> Icons.Rounded.Male
+        "Female" -> Icons.Rounded.Female
+        "Non-binary" -> Icons.Rounded.Transgender
+        "Prefer not to say" -> Icons.Rounded.Person
+        else -> Icons.Rounded.Transgender
     }
 }
 
