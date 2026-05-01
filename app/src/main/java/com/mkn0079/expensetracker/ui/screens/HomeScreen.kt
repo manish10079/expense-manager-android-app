@@ -20,7 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -336,9 +336,9 @@ fun SettingsButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Filled.Settings,
+            imageVector = Icons.Rounded.Settings,
             contentDescription = "Settings",
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
     }
