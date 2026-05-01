@@ -66,7 +66,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Fallback until a better icon is chosen
+            .setSmallIcon(R.drawable.ic_notification) // Fallback until a better icon is chosen
             .setContentTitle("Expense Tracker")
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
@@ -97,7 +97,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_BUDGET_ALERTS)
-            .setSmallIcon(android.R.drawable.ic_dialog_map)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Budget Alert!")
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
@@ -124,7 +124,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Missed Today?")
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
@@ -151,7 +151,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_RECURRING)
-            .setSmallIcon(android.R.drawable.stat_notify_chat)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_LOW)
