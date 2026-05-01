@@ -612,24 +612,31 @@ private fun calculateNextInstallmentInfo(
     frequency: RecurringFrequency,
     referenceTime: Long
 ): Pair<Long, Int> {
-    val referenceCalendar = Calendar.getInstance().apply {
-        timeInMillis = referenceTime
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
     val baseCalendar = Calendar.getInstance().apply {
         timeInMillis = baseTimestamp
     }
-    
+
     val nextCalendar = Calendar.getInstance().apply {
         timeInMillis = baseTimestamp
     }
-    
+
     var index = 1
-    
-    // Catch up to reference time
+
+    // If the base transaction itself is in the future or exactly now, its index is 1
+    // and the next due date is the base date.
+    // However, usually baseTimestamp is the "first" occurrence that already happened.
+    // The user wants to see "1 out of 6" when the first one is added.
+    // In our UI, "currentInstallment" seems to represent the NEXT one to be paid,
+    // or the one currently being tracked.
+
+    // If we want "1 out of 6" immediately after adding, and it represents the *next* due:
+    // Then if nextCalendar (base) <= referenceTime, it means the base one is 'processed' (or is the current one).
+
+    // Let's adjust the logic:
+    // Installment 1 is at baseTimestamp.
+    // If baseTimestamp > referenceTime, then next is installment 1 at baseTimestamp.
+    // If baseTimestamp <= referenceTime, then installment 1 is "done", and we look for installment 2.
+
     while (nextCalendar.timeInMillis <= referenceTime) {
         when (frequency) {
             RecurringFrequency.Daily -> {
@@ -653,10 +660,19 @@ private fun calculateNextInstallmentInfo(
         }
         index++
     }
-    
-    return nextCalendar.timeInMillis to index
-}
 
+    // If the user says "it shows 2 out of 6 but i only added the first main transaction",
+    // and our logic currently results in index=2 because baseTimestamp <= referenceTime (which is true for a newly added transaction),
+    // then 'index' represents the next upcoming installment.
+    // To show "1 out of 6", we should probably subtract 1 if we consider the 'currently active' installment
+    // or the one that was just created.
+
+    // However, if the UI says "1/6", it usually means "we are on the 1st installment".
+    // If the loop ran once, index became 2.
+    // If the user expects 1, then we should return index - 1.
+
+    return nextCalendar.timeInMillis to (index - 1).coerceAtLeast(1)
+}
 private fun dueLabelFor(
     nextDueAt: Long,
     referenceTime: Long

@@ -64,7 +64,6 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
 
-        NotificationHelper.createNotificationChannels(this)
         checkAndRequestNotificationPermission()
 
         setContent {

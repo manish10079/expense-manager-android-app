@@ -15,6 +15,7 @@ object NotificationHelper {
 
     const val CHANNEL_DAILY_REMINDERS = "daily_reminders"
     const val CHANNEL_BUDGET_ALERTS = "budget_alerts"
+    const val CHANNEL_RECURRING = "recurring_transactions"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
@@ -39,8 +40,17 @@ object NotificationHelper {
                 description = "Alerts when you exceed your monthly budget."
             }
 
+            val recurringChannel = NotificationChannel(
+                CHANNEL_RECURRING,
+                "Recurring Transactions",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Notifications when recurring transactions are automatically added."
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
+            notificationManager.createNotificationChannel(recurringChannel)
         }
     }
 
@@ -129,4 +139,29 @@ object NotificationHelper {
         }
     }
 
+    fun showGenericNotification(context: Context, title: String, message: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(EXTRA_NAV_DESTINATION, "home")
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, 4, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_RECURRING)
+            .setSmallIcon(android.R.drawable.stat_notify_chat)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(4, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
 }

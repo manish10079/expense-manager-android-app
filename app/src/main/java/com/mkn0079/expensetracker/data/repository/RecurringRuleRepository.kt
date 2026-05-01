@@ -21,6 +21,10 @@ class RecurringRuleRepository(context: Context) : DomainRecurringRuleRepository 
         }
     }
 
+    override suspend fun getActiveRules(): List<RecurringTransactionRule> {
+        return dao.getActiveRules().map { it.toDomain() }
+    }
+
     override suspend fun getActiveByTransactionId(transactionId: String): RecurringTransactionRule? {
         return dao.getActiveByTransactionId(transactionId)?.toDomain()
     }

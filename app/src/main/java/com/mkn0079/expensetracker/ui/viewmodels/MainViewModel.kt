@@ -32,7 +32,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import java.util.Calendar
 import javax.inject.Inject
+import kotlin.math.min
 
 data class MainDataUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -103,6 +105,10 @@ class MainViewModel @Inject constructor(
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
             when {
                 recurringDraft != null && savedTransaction.transactionTypeId == 2 -> {
+                    val initialNextRun = calculateInitialNextRun(
+                        savedTransaction.createdAt,
+                        recurringDraft.frequency
+                    )
                     recurringRuleRepository.upsertRule(
                         RecurringTransactionRule(
                             id = existingRule?.id.orEmpty(),
@@ -111,10 +117,10 @@ class MainViewModel @Inject constructor(
                             repeatCount = recurringDraft.repeatCount,
                             isEnabled = existingRule?.isEnabled ?: true,
                             intervalCount = existingRule?.intervalCount ?: 1,
-                            remainingCount = recurringDraft.repeatCount,
+                            remainingCount = recurringDraft.repeatCount - 1, // First one is already saved
                             anchorAt = existingRule?.anchorAt ?: savedTransaction.createdAt,
-                            nextRunAt = existingRule?.nextRunAt ?: savedTransaction.createdAt,
-                            lastRunAt = existingRule?.lastRunAt,
+                            nextRunAt = existingRule?.nextRunAt ?: initialNextRun,
+                            lastRunAt = existingRule?.lastRunAt ?: savedTransaction.createdAt,
                             createdAt = existingRule?.createdAt ?: System.currentTimeMillis(),
                             updatedAt = System.currentTimeMillis(),
                             syncState = existingRule?.syncState ?: savedTransaction.syncState,
@@ -128,6 +134,11 @@ class MainViewModel @Inject constructor(
             
             // Check budget and notify if needed
             transactionRepository.checkBudgetAndNotify(appContext, savedTransaction)
+
+            // If a recurring rule was added/updated, trigger immediate processing
+            if (recurringDraft != null) {
+                com.mkn0079.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
+            }
         }
     }
 
@@ -313,5 +324,31 @@ class MainViewModel @Inject constructor(
                 onError(throwable)
             }
         }
+    }
+
+    private fun calculateInitialNextRun(
+        baseAnchor: Long,
+        frequency: RecurringFrequency
+    ): Long {
+        val baseCalendar = Calendar.getInstance().apply { timeInMillis = baseAnchor }
+        val nextCalendar = Calendar.getInstance().apply { timeInMillis = baseAnchor }
+
+        when (frequency) {
+            RecurringFrequency.Daily -> nextCalendar.add(Calendar.DAY_OF_YEAR, 1)
+            RecurringFrequency.Weekly -> nextCalendar.add(Calendar.WEEK_OF_YEAR, 1)
+            RecurringFrequency.Monthly -> {
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                nextCalendar.add(Calendar.MONTH, 1)
+                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+            RecurringFrequency.Yearly -> {
+                nextCalendar.add(Calendar.YEAR, 1)
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+        }
+        return nextCalendar.timeInMillis
     }
 }
