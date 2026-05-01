@@ -19,9 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Sync
@@ -271,7 +271,7 @@ private fun SettingsItemCardPreviewDark() {
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 SettingsItemCard(
-                    icon = Icons.Rounded.Notifications,
+                    icon = Icons.Rounded.AccountBalanceWallet,
                     title = "Notifications",
                     subtitle = "Manage reminders and alerts",
                     type = SettingsItemType.Toggle,
@@ -325,7 +325,7 @@ private fun SettingsItemCardPreviewLight() {
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 SettingsItemCard (
-                    icon = Icons.Rounded.Notifications,
+                    icon = Icons.Rounded.AccountBalanceWallet,
                     title = "Notifications",
                     subtitle = "Manage reminders and alerts",
                     type = SettingsItemType.Toggle,

@@ -4,9 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Storage
@@ -140,7 +140,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Notifications",
                     subtitle = "Control alerts and reminders",
-                    icon = Icons.Filled.Notifications,
+                    icon = Icons.Rounded.AccountBalanceWallet,
                     actionId = SettingsActionId.Notifications
                 )
             )
