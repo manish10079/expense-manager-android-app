@@ -73,16 +73,17 @@ fun AppBottomBar(
                     .fillMaxWidth()
                     .height(BottomBarContainerHeight)
                     .shadow(
-                        elevation = 28.dp,
+                        elevation = 32.dp,
                         shape = shellShape,
-                        ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.42f),
-                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
                     )
                     .clip(shellShape)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.04f))
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
                         shape = shellShape
                     )
                     .padding(horizontal = 10.dp, vertical = 6.dp),
