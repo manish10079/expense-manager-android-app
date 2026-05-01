@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -41,13 +44,17 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -132,6 +139,7 @@ private val recurringModeOptions = listOf(
     RecurringModeOption(RecurringFrequency.Yearly, "Yearly")
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
@@ -196,6 +204,7 @@ fun AddTransactionScreen(
         }
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteDialogVisible by rememberSaveable { mutableStateOf(false) }
+        var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
         var isKeypadExpanded by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
 
         LaunchedEffect(initialAmountInput) {
@@ -287,23 +296,12 @@ fun AddTransactionScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "ENTER AMOUNT",
-                            color = colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                letterSpacing = 2.2.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = if (dense) 11.sp else 12.sp
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(if (dense) 10.dp else 14.dp))
-
                         CurrencyAmountCard(
                             amountText = amountInput,
                             currencyId = currencyId,
                             selectedTransactionTypeId = selectedTransactionTypeId,
-                            compact = compact
+                            compact = compact,
+                            onClick = { isKeypadExpanded = !isKeypadExpanded }
                         )
                     }
 
@@ -350,49 +348,41 @@ fun AddTransactionScreen(
                             onClick = { isDatePickerVisible = true }
                         )
 
-                        SelectionInfoCard(
-                            modifier = Modifier.weight(1f),
-                            leadingIcon = Icons.Filled.EditNote,
-                            label = "NOTE",
-                            value = note.ifBlank { "Add note" },
-                            isPlaceholder = note.isBlank(),
-                            compact = compact,
-                            onClick = {
-                                noteDraft = note
-                                isNoteDialogVisible = true
-                            }
-                        )
+                        if (selectedTransactionTypeId == expenseTypeId) {
+                            RecurringCompactCard(
+                                modifier = Modifier.weight(1f),
+                                isEnabled = isRecurringEnabled,
+                                frequency = selectedRecurringFrequency,
+                                compact = compact,
+                                onClick = { isRecurringModalVisible = true }
+                            )
+                        }
                     }
 
-                    if (selectedTransactionTypeId == expenseTypeId) {
-                        RecurringTransactionSection(
-                            isEnabled = isRecurringEnabled,
-                            selectedFrequency = selectedRecurringFrequency,
-                            repeatCountInput = recurringCountInput,
-                            compact = compact,
-                            onEnabledChange = { isRecurringEnabled = it },
-                            onFrequencySelected = { selectedRecurringFrequency = it },
-                            onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) }
-                        )
-                    }
+                    SelectionInfoCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = Icons.Filled.EditNote,
+                        label = "NOTE",
+                        value = note.ifBlank { "Add note" },
+                        isPlaceholder = note.isBlank(),
+                        compact = compact,
+                        onClick = {
+                            noteDraft = note
+                            isNoteDialogVisible = true
+                        }
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
-
-                KeypadToggle(
-                    expanded = isKeypadExpanded,
-                    compact = compact,
-                    onClick = { isKeypadExpanded = !isKeypadExpanded }
-                )
 
                 AnimatedVisibility(
                     visible = isKeypadExpanded,
-                    enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
-                    exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
                 ) {
-                    Column {
-                        Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
-
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
                         NumericKeypad(
                             compact = compact,
                             onKeyPressed = { pressedKey ->
@@ -414,6 +404,12 @@ fun AddTransactionScreen(
                         icon = Icons.Filled.DeleteOutline,
                         contentDescription = "Delete transaction",
                         onClick = onDeleteClick
+                    )
+
+                    SideActionButton(
+                        icon = Icons.Filled.Dialpad,
+                        contentDescription = "Enter amount",
+                        onClick = { isKeypadExpanded = !isKeypadExpanded }
                     )
 
                     AddTransactionButton(
@@ -516,6 +512,31 @@ fun AddTransactionScreen(
                 }
             )
         }
+
+        if (isRecurringModalVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { isRecurringModalVisible = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp)
+                ) {
+                    RecurringTransactionSection(
+                        isEnabled = isRecurringEnabled,
+                        selectedFrequency = selectedRecurringFrequency,
+                        repeatCountInput = recurringCountInput,
+                        compact = compact,
+                        onEnabledChange = { isRecurringEnabled = it },
+                        onFrequencySelected = { selectedRecurringFrequency = it },
+                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -594,7 +615,12 @@ private fun RecurringTransactionSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(colorScheme.surface)
+            .background(colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .border(
+                width = 1.dp,
+                color = if (isEnabled) colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,
+                shape = RoundedCornerShape(22.dp)
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -602,157 +628,209 @@ private fun RecurringTransactionSection(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
-                checked = isEnabled,
-                onCheckedChange = onEnabledChange
-            )
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isEnabled) colorScheme.primary.copy(alpha = 0.12f)
+                        else colorScheme.onSurface.copy(alpha = 0.08f)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    tint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Recurring Transaction",
                     color = colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = "Default is off. Turn it on to track this expense in Budget & Recurring.",
-                    color = colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
+
+            androidx.compose.material3.Switch(
+                checked = isEnabled,
+                onCheckedChange = onEnabledChange,
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedThumbColor = colorScheme.onPrimary,
+                    checkedTrackColor = colorScheme.primary,
+                    uncheckedThumbColor = colorScheme.outline,
+                    uncheckedTrackColor = colorScheme.surfaceVariant
+                )
+            )
         }
 
         if (isEnabled) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SectionHeader(title = "FREQUENCY")
-                
-                val density = LocalDensity.current
-                var containerWidthPx by remember { mutableIntStateOf(0) }
-                val selectedIndex = recurringModeOptions.indexOfFirst { it.frequency == selectedFrequency }.coerceAtLeast(0)
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
-                        .onSizeChanged { containerWidthPx = it.width }
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(colorScheme.surfaceVariant)
-                        .padding(4.dp)
-                ) {
-                    val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Frequency Selector (Sliding Pill)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SectionHeader(title = "FREQUENCY")
                     
-                    val indicatorOffset by animateDpAsState(
-                        targetValue = tabWidth * selectedIndex,
-                        animationSpec = spring(stiffness = Spring.StiffnessLow),
-                        label = "recurring_freq_indicator_offset"
-                    )
+                    val density = LocalDensity.current
+                    var containerWidthPx by remember { mutableIntStateOf(0) }
+                    val selectedIndex = recurringModeOptions.indexOfFirst { it.frequency == selectedFrequency }.coerceAtLeast(0)
 
-                    // Sliding indicator (Pill)
-                    if (containerWidthPx > 0) {
-                        Box(
-                            modifier = Modifier
-                                .offset(x = indicatorOffset)
-                                .width(tabWidth)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(
-                                    Brush.horizontalGradient(
-                                        colors = listOf(colorScheme.primary, colorScheme.secondary)
-                                    )
-                                )
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .onSizeChanged { containerWidthPx = it.width }
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(colorScheme.surface)
+                            .padding(4.dp)
                     ) {
-                        recurringModeOptions.forEach { option ->
-                            val selected = option.frequency == selectedFrequency
-                            val animatedColor by animateColorAsState(
-                                targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
-                                label = "recurring_freq_text_color"
-                            )
+                        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
+                        
+                        val indicatorOffset by animateDpAsState(
+                            targetValue = tabWidth * selectedIndex,
+                            animationSpec = spring(stiffness = Spring.StiffnessLow),
+                            label = "recurring_freq_indicator_offset"
+                        )
+
+                        if (containerWidthPx > 0) {
                             Box(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .clickable { onFrequencySelected(option.frequency) }
-                                    .padding(vertical = if (compact) 10.dp else 12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = option.label,
-                                    color = animatedColor,
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = FontWeight.Bold
+                                    .offset(x = indicatorOffset)
+                                    .width(tabWidth)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(colorScheme.primary, colorScheme.secondary)
+                                        )
                                     )
+                            )
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            recurringModeOptions.forEach { option ->
+                                val selected = option.frequency == selectedFrequency
+                                val animatedColor by animateColorAsState(
+                                    targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                                    label = "recurring_freq_text_color"
                                 )
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable { onFrequencySelected(option.frequency) }
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = option.label,
+                                        color = animatedColor,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            OutlinedTextField(
-                value = repeatCountInput,
-                onValueChange = onRepeatCountChange,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text("Total installments") },
-                placeholder = { Text("12") },
-                supportingText = {
-                    Column(
-                        modifier = Modifier.padding(top = 2.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                // Installments Picker
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SectionHeader(title = "TOTAL INSTALLMENTS")
+                    
+                    val presetInstallments = listOf("3", "6", "12", "24")
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Total number of payments for this commitment.",
-                            color = colorScheme.onSurfaceVariant
-                        )
-                        
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Current transaction is considered the 1st installment",
-                                color = colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontStyle = FontStyle.Italic,
-                                    letterSpacing = 0.4.sp
+                        presetInstallments.forEach { count ->
+                            val isSelected = repeatCountInput == count
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        if (isSelected) colorScheme.primary.copy(alpha = 0.15f)
+                                        else colorScheme.surface
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (isSelected) colorScheme.primary else Color.Transparent,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .clickable { onRepeatCountChange(count) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = count,
+                                    color = if (isSelected) colorScheme.primary else colorScheme.onSurface,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                            )
+                            }
                         }
+                        
+                        // Custom Input Field
+                        OutlinedTextField(
+                            value = if (repeatCountInput in presetInstallments) "" else repeatCountInput,
+                            onValueChange = { if (it.length <= 3) onRepeatCountChange(it) },
+                            modifier = Modifier.weight(1.2f).height(44.dp),
+                            singleLine = true,
+                            placeholder = { Text("Other", fontSize = 14.sp) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = colorScheme.surface,
+                                unfocusedContainerColor = colorScheme.surface,
+                                focusedBorderColor = colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedTextColor = colorScheme.primary
+                            )
+                        )
                     }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = colorScheme.onSurface,
-                    unfocusedTextColor = colorScheme.onSurface,
-                    focusedBorderColor = colorScheme.primary,
-                    unfocusedBorderColor = colorScheme.onSurface.copy(alpha =  0.65f),
-                    focusedContainerColor = colorScheme.surface,
-                    unfocusedContainerColor = colorScheme.surface,
-                    focusedLabelColor = colorScheme.primary,
-                    unfocusedLabelColor = colorScheme.onSurfaceVariant,
-                    cursorColor = colorScheme.primary
-                )
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = colorScheme.secondary.copy(alpha = 0.7f),
+                            modifier = Modifier.size(14.dp).padding(top = 2.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Current transaction is installment #1. Future entries will be generated automatically.",
+                            color = colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                lineHeight = 14.sp,
+                                letterSpacing = 0.2.sp
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            Text(
+                text = "Turn on to automatically track this commitment in the future.",
+                color = colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 52.dp)
             )
         }
     }
@@ -904,7 +982,8 @@ private fun CurrencyAmountCard(
     amountText: String,
     currencyId: Int,
     selectedTransactionTypeId: Int,
-    compact: Boolean
+    compact: Boolean,
+    onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
     val currency = getCurrency(currencyId)
@@ -913,6 +992,9 @@ private fun CurrencyAmountCard(
     } else {
         MaterialTheme.colorScheme.onSurface
     }
+
+    val density = LocalDensity.current
+    val labelTranslationY = with(density) { (-4).dp.toPx() }
 
     Box(
         modifier = Modifier
@@ -929,13 +1011,27 @@ private fun CurrencyAmountCard(
                     colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
                 )
             )
+            .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 20.dp else 24.dp,
                 vertical = if (compact) 18.dp else 22.dp
             )
     ) {
+        Text(
+            text = "ENTER AMOUNT",
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.2.sp,
+                fontSize = if (compact) 9.sp else 10.sp
+            ),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .graphicsLayer { translationY = labelTranslationY }
+        )
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = if (compact) 8.dp else 12.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -1094,12 +1190,13 @@ private fun SelectionInfoCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = if (compact) 56.dp else 64.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = if (compact) 14.dp else 16.dp,
-                    vertical = if (compact) 14.dp else 16.dp
+                    vertical = if (compact) 12.dp else 14.dp
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1115,13 +1212,15 @@ private fun SelectionInfoCard(
             Text(
                 text = value,
                 color = if (isPlaceholder) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = if (compact) 14.sp else 15.sp,
-                    fontStyle = if (isPlaceholder) FontStyle.Italic else FontStyle.Normal
-                )
+                    fontStyle = if (isPlaceholder) FontStyle.Italic else FontStyle.Normal,
+                    lineHeight = 18.sp
+                ),
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -1228,7 +1327,7 @@ private fun KeypadKey(
         modifier = modifier
             .height(if (compact) 46.dp else 52.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -1407,4 +1506,23 @@ private fun AddTransactionScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         AddTransactionScreen()
     }
+}
+
+@Composable
+private fun RecurringCompactCard(
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean,
+    frequency: RecurringFrequency,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    SelectionInfoCard(
+        modifier = modifier,
+        leadingIcon = Icons.Default.CalendarMonth,
+        label = "RECURRING",
+        value = if (isEnabled) frequency.name else "Off",
+        isPlaceholder = !isEnabled,
+        compact = compact,
+        onClick = onClick
+    )
 }
