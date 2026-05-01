@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -79,7 +80,16 @@ fun TransactionCard(
         Spacer(modifier = Modifier.width(14.dp))
 
         if (showCategoryIcon) {
-            BoxIcon(icon = icon, contentDescription = note)
+            AppIconBox(
+                icon = icon,
+                contentDescription = note,
+                size = 42.dp,
+                iconSize = 20.dp,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+                )
+            )
             Spacer(modifier = Modifier.width(12.dp))
         }
 
@@ -199,32 +209,6 @@ fun TransactionCard(
         }
 
         Spacer(modifier = Modifier.width(14.dp))
-    }
-}
-
-@Composable
-private fun BoxIcon(
-    icon: ImageVector,
-    contentDescription: String
-) {
-    androidx.compose.foundation.layout.Box(
-        modifier = Modifier
-            .size(42.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f),
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.size(20.dp)
-        )
     }
 }
 

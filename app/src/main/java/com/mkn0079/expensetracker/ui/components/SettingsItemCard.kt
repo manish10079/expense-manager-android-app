@@ -124,20 +124,14 @@ fun SettingsItemCard(
                 .heightIn(min = 76.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = iconTint,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+            AppIconBox(
+                icon = icon,
+                contentDescription = title,
+                size = 44.dp,
+                iconSize = 22.dp,
+                tint = iconTint,
+                backgroundColor = primary.copy(alpha = 0.1f)
+            )
 
             Spacer(modifier = Modifier.width(14.dp))
 
