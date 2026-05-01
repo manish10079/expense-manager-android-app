@@ -233,15 +233,32 @@ fun WheelDateTimePickerModal(
                             }
                         }
                     },
-                    modifier = Modifier.weight(1.5f).height(54.dp),
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .height(54.dp),
+                    contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                 ) {
-                    Text(
-                        text = if (mode == WheelPickerMode.DATE_RANGE) "Apply Range" else "Confirm",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.secondary
+                                    )
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (mode == WheelPickerMode.DATE_RANGE) "Apply Range" else "Confirm",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
