@@ -50,6 +50,7 @@ fun DataManagementScreen(
     val todayLabel = remember { LocalDate.now().toString() }
     
     var isFrequencyPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isRestorePickerVisible by rememberSaveable { mutableStateOf(false) }
     
     // Secret Unlock Logic: 7 clicks on Import JSON to show Legacy Import
     // Using remember (not saveable) so it resets on app kill/re-entry
@@ -156,7 +157,17 @@ fun DataManagementScreen(
                 }
 
                 // SECTION 2: DATA TRANSFER
-                item { SectionHeader(text = "DATA TRANSFER") }
+                item { 
+                    SectionHeader(
+                        text = "DATA TRANSFER",
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            indication = null // Silent clicks
+                        ) {
+                            importJsonClickCount++
+                        }
+                    ) 
+                }
                 item {
                     GatedAction(
                         feature = Feature.DATA_EXPORT,
@@ -186,7 +197,6 @@ fun DataManagementScreen(
                         type = SettingsItemType.Button,
                         valueText = "Import",
                         onClick = {
-                            importJsonClickCount++
                             onPrepareForExternalActivity()
                             jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
                         }
@@ -220,10 +230,7 @@ fun DataManagementScreen(
                         icon = Icons.Rounded.SettingsBackupRestore,
                         type = SettingsItemType.Button,
                         valueText = "Restore",
-                        onClick = {
-                            onPrepareForExternalActivity()
-                            databaseRestoreFilePicker.launch(arrayOf("*/*"))
-                        }
+                        onClick = { isRestorePickerVisible = true }
                     )
                 }
                 if (isLegacyImportVisible) {
@@ -388,10 +395,27 @@ fun DataManagementScreen(
             onDismiss = { isFrequencyPickerVisible = false }
         )
     }
+
+    if (isRestorePickerVisible) {
+        BackupRestoreSheet(
+            onDismiss = { isRestorePickerVisible = false },
+            onBackupSelected = { backup ->
+                pendingRestoreUri = backup.uri
+                isRestorePickerVisible = false
+            },
+            onManualSelectClick = {
+                onPrepareForExternalActivity()
+                databaseRestoreFilePicker.launch(arrayOf("*/*"))
+            }
+        )
+    }
 }
 
 @Composable
-private fun SectionHeader(text: String) {
+private fun SectionHeader(
+    text: String,
+    modifier: Modifier = Modifier
+) {
     Text(
         text = text,
         color = MaterialTheme.colorScheme.primary,
@@ -399,6 +423,6 @@ private fun SectionHeader(text: String) {
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp
         ),
-        modifier = Modifier.padding(start = 6.dp, top = 8.dp, bottom = 4.dp)
+        modifier = modifier.padding(start = 6.dp, top = 8.dp, bottom = 4.dp)
     )
 }

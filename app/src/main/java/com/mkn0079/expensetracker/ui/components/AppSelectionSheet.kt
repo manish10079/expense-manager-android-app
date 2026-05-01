@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,7 +35,8 @@ fun <T> AppSelectionSheet(
     onSearchQueryChange: (String) -> Unit = {},
     searchPlaceholder: String = "Search...",
     maxListHeight: Dp = 440.dp,
-    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    footerContent: (LazyListScope.() -> Unit)? = null
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -126,6 +128,8 @@ fun <T> AppSelectionSheet(
                         EmptySelectionState(text = "No results found.")
                     }
                 }
+
+                footerContent?.invoke(this)
             }
         }
     }
