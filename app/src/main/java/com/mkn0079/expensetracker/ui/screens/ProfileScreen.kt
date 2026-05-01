@@ -7,73 +7,26 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Male
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Transgender
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,13 +34,10 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
-import com.mkn0079.expensetracker.ui.components.AppHeader
-import com.mkn0079.expensetracker.ui.components.GenderPickerSheet
-import com.mkn0079.expensetracker.ui.components.ProfileAvatar
-import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
-import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.components.*
 import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
 import com.mkn0079.expensetracker.ui.components.input.InputType
+import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
@@ -125,6 +75,17 @@ fun ProfileScreen(
     var isGenderPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
     var isPhotoProcessing by remember { mutableStateOf(false) }
+
+    val genderItems = remember {
+        genderOptions.map { option ->
+            SelectionItem(
+                id = option,
+                title = option,
+                leadingIcon = genderToIcon(option)
+            )
+        }
+    }
+
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -335,11 +296,14 @@ fun ProfileScreen(
     }
 
     if (isGenderPickerVisible) {
-        GenderPickerSheet(
-            selectedGender = gender,
+        AppSelectionSheet(
+            title = "Select Gender",
+            description = "Choose the gender label that best fits your profile.",
+            items = genderItems,
+            selectedId = gender,
             sheetState = genderPickerSheetState,
             onDismiss = { isGenderPickerVisible = false },
-            onGenderSelected = { selectedGender ->
+            onItemSelected = { selectedGender ->
                 gender = selectedGender
                 isGenderPickerVisible = false
             }
