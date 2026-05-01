@@ -226,10 +226,13 @@ private fun StatItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (iconAtStart) {
-                StatIconBubble(
+                AppIconBox(
                     icon = icon,
-                    iconColor = iconColor,
-                    contentDescription = label
+                    contentDescription = label,
+                    size = 38.dp,
+                    iconSize = 20.dp,
+                    tint = iconColor,
+                    backgroundAlpha = 0.12f
                 )
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -246,10 +249,13 @@ private fun StatItem(
             if (!iconAtStart) {
                 Spacer(modifier = Modifier.width(12.dp))
 
-                StatIconBubble(
+                AppIconBox(
                     icon = icon,
-                    iconColor = iconColor,
-                    contentDescription = label
+                    contentDescription = label,
+                    size = 38.dp,
+                    iconSize = 20.dp,
+                    tint = iconColor,
+                    backgroundAlpha = 0.12f
                 )
             }
         }
@@ -263,27 +269,6 @@ private fun StatItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = if (iconAtStart) TextAlign.Start else TextAlign.End
-        )
-    }
-}
-
-@Composable
-private fun StatIconBubble(
-    icon: ImageVector,
-    iconColor: Color,
-    contentDescription: String
-) {
-    Box(
-        modifier = Modifier
-            .size(38.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = iconColor,
-            modifier = Modifier.size(20.dp)
         )
     }
 }
