@@ -28,7 +28,8 @@ enum class Feature(val id: String, val displayName: String) {
     ANALYTICS_CATEGORY_BREAKDOWN("analytics_category_breakdown", "Category Breakdown"),
     ANALYTICS_PAYMENT_BREAKDOWN("analytics_payment_breakdown", "Payment Mode Breakdown"),
     ANALYTICS_TOP_SPENDING("analytics_top_spending", "Top Spending Insights"),
-    ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips")
+    ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips"),
+    TRANSACTION_COUNT("transaction_count", "Transaction Statistics")
 }
 
 /**
@@ -50,6 +51,7 @@ object FeatureRegistry {
         Feature.RECURRING_RULE_EDIT to AccessLevel.AD_SUPPORTED,
         Feature.AUTO_BACKUP to AccessLevel.PREMIUM,
         Feature.DATA_EXPORT to AccessLevel.AD_SUPPORTED,
+        Feature.TRANSACTION_COUNT to AccessLevel.AD_SUPPORTED,
         Feature.BUDGET_CUSTOM_MONTH to AccessLevel.AD_SUPPORTED,
         Feature.BUDGET_INSIGHTS to AccessLevel.AD_SUPPORTED,
         Feature.SCRAMBLED_PIN_KEYPAD to AccessLevel.AD_SUPPORTED,
