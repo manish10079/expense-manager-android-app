@@ -303,13 +303,13 @@ fun AppLockScreen(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.background.copy(
-                                alpha = if (isDarkPalette) 0.82f else 0.88f
+                                alpha = 1.0f
                             ),
                             MaterialTheme.colorScheme.surface.copy(
-                                alpha = if (isDarkPalette) 0.92f else 0.94f
+                                alpha = 1.0f
                             ),
                             MaterialTheme.colorScheme.background.copy(
-                                alpha = if (isDarkPalette) 0.97f else 0.98f
+                                alpha = 1.0f
                             )
                         )
                     )

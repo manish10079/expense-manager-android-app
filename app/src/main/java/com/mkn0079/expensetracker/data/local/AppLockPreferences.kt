@@ -255,9 +255,11 @@ object AppLockPreferences {
             return false
         }
 
-        if (state.lastBackgroundedAtMillis <= 0L ||
-            state.lastBackgroundedAtMillis <= state.lastUnlockedAtMillis
-        ) {
+        if (state.lastBackgroundedAtMillis <= 0L) {
+            return true
+        }
+
+        if (state.lastBackgroundedAtMillis <= state.lastUnlockedAtMillis) {
             return false
         }
 
@@ -461,8 +463,13 @@ object AppLockPreferences {
         val lastBackgroundedAtMillis = preferences.getLong(KEY_LAST_BACKGROUND_AT_MILLIS, -1L)
         val lastUnlockedAtMillis = preferences.getLong(KEY_LAST_UNLOCKED_AT_MILLIS, -1L)
 
-        if (lastBackgroundedAtMillis <= 0L || lastBackgroundedAtMillis <= lastUnlockedAtMillis) {
-            return false
+        if (lastBackgroundedAtMillis <= 0L || lastUnlockedAtMillis <= 0L) {
+            return true
+        }
+
+        if (lastBackgroundedAtMillis < lastUnlockedAtMillis) {
+            // App was likely force-stopped or crashed while unlocked
+            return true
         }
 
         if (autoLockDurationMinutes <= 0) {

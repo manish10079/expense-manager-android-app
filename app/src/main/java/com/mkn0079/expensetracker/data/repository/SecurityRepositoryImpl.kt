@@ -1,0 +1,58 @@
+package com.mkn0079.expensetracker.data.repository
+
+import android.content.Context
+import com.mkn0079.expensetracker.data.local.AppLockPreferences
+import com.mkn0079.expensetracker.domain.repository.SecurityRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class SecurityRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context
+) : SecurityRepository {
+
+    override fun hasPin(): Boolean {
+        return AppLockPreferences.hasPin(context)
+    }
+
+    override fun isLockEnabled(): Boolean {
+        return AppLockPreferences.isEnabled(context)
+    }
+
+    override fun markBackgrounded(timestamp: Long) {
+        AppLockPreferences.markBackgrounded(context, timestamp)
+    }
+
+    override fun markUnlocked(timestamp: Long) {
+        AppLockPreferences.markUnlocked(context, timestamp)
+    }
+
+    override fun shouldRequireUnlock(): Boolean {
+        return AppLockPreferences.shouldRequireUnlock(
+            context = context,
+            autoLockDurationMinutes = getAutoLockDurationMinutes()
+        )
+    }
+
+    override fun validatePin(pin: String): Boolean {
+        val isValid = AppLockPreferences.validatePin(context, pin)
+        if (isValid) {
+            markUnlocked()
+        }
+        return isValid
+    }
+
+    override fun getAutoLockDurationMinutes(): Int {
+        return AppLockPreferences.getAutoLockDurationMinutes(context)
+    }
+
+    private val _appForegroundEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val appForegroundEvents = _appForegroundEvents.asSharedFlow()
+
+    override fun notifyAppForeground() {
+        _appForegroundEvents.tryEmit(Unit)
+    }
+}

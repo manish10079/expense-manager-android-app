@@ -118,35 +118,18 @@ fun MainScreen(
     val isScrambledPinKeypadEffective =
         isScrambledPinKeypadEnabled && isScrambledPinKeypadAccessGranted
     val biometricAvailability = BiometricAuthManager.getAvailability(rawContext)
-    val hasAppLockPin = appLockState.hasPin
-    val canUseBiometricOnLockScreen = isBiometricEnabled && hasAppLockPin && biometricAvailability.isAvailable
-    val initiallyRequiresUnlock = remember(
-        isAppLockEnabled,
-        hasAppLockPin,
-        autoLockDurationMinutes,
-        appLockState.lastBackgroundedAtMillis,
-        appLockState.lastUnlockedAtMillis
-    ) {
-        isAppLockEnabled &&
-            hasAppLockPin &&
-            AppLockPreferences.shouldRequireUnlockFromMemory(
-                autoLockDurationMinutes = autoLockDurationMinutes
-            )
+    val hasAppLockPin = remember(appLockState) {
+        AppLockPreferences.hasPin(context)
     }
-    var appLockFlow by remember {
-        mutableStateOf<AppLockFlow?>(
-            if (initiallyRequiresUnlock) AppLockFlow.Unlock else null
-        )
-    }
-    var isAppUnlocked by remember {
-        mutableStateOf(!initiallyRequiresUnlock)
-    }
-    var hasPromptedBiometricForCurrentUnlock by remember(appLockFlow, canUseBiometricOnLockScreen) {
+    var appLockFlow by remember { mutableStateOf<AppLockFlow?>(null) }
+    var isAppLockSuppressed by remember { mutableStateOf(false) }
+    var hasPromptedBiometricForCurrentUnlock by remember(appLockFlow) {
         mutableStateOf(false)
     }
-    var isAppLockSuppressed by remember { mutableStateOf(false) }
-    val shouldBlurForAppLock = appLockFlow != null &&
-        (appLockFlow == AppLockFlow.Setup || !isAppUnlocked)
+
+    val shouldBlurForAppLock = appLockFlow != null
+
+
 
     val showToast: (String) -> Unit = { message ->
         Toast.makeText(rawContext, message, Toast.LENGTH_SHORT).show()
@@ -187,7 +170,6 @@ fun MainScreen(
     val disableAppLock: (Boolean) -> Unit = { navigateHome ->
         AppLockPreferences.clear(context)
         appLockState = AppLockPreferences.getCachedState()
-        isAppUnlocked = true
         appLockFlow = null
         if (navigateHome) {
             navigationState.navigateTo(AppRoute.Home)
@@ -204,7 +186,6 @@ fun MainScreen(
     }
 
     val completeUnlock: () -> Unit = {
-        isAppUnlocked = true
         appLockFlow = null
         navigationState.updateBottomBarVisibility(false)
         val unlockedAtMillis = AppLockPreferences.markUnlockedInMemory()
@@ -235,58 +216,7 @@ fun MainScreen(
         }
     }
 
-    DisposableEffect(
-        lifecycleOwner,
-        showOnboarding,
-        isAppLockEnabled,
-        hasAppLockPin,
-        isAppUnlocked,
-        autoLockDurationMinutes
-    ) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (
-                event == Lifecycle.Event.ON_STOP &&
-                !showOnboarding &&
-                isAppLockEnabled &&
-                hasAppLockPin
-            ) {
-                val backgroundedAtMillis = AppLockPreferences.markBackgroundedInMemory()
-                appLockState = AppLockPreferences.getCachedState()
-                coroutineScope.launch(Dispatchers.IO) {
-                    AppLockPreferences.persistBackgrounded(context, backgroundedAtMillis)
-                }
-                if (autoLockDurationMinutes <= 0 && !isAppLockSuppressed) {
-                    isAppUnlocked = false
-                    appLockFlow = AppLockFlow.Unlock
-                }
-            }
 
-            if (
-                event == Lifecycle.Event.ON_START &&
-                !showOnboarding &&
-                isAppLockEnabled &&
-                hasAppLockPin
-            ) {
-                if (isAppLockSuppressed) {
-                    isAppLockSuppressed = false
-                } else if (
-                    isAppUnlocked &&
-                    appLockFlow == null &&
-                    AppLockPreferences.shouldRequireUnlockFromMemory(
-                        autoLockDurationMinutes = autoLockDurationMinutes
-                    )
-                ) {
-                    isAppUnlocked = false
-                    appLockFlow = AppLockFlow.Unlock
-                }
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     if (showOnboarding) {
         OnboardingScreen(
@@ -329,30 +259,6 @@ fun MainScreen(
             AppSettingsDataStore.updateAppSettings(context) { settings ->
                 settings.copy(scrambledPinKeypadEnabled = false)
             }
-        }
-    }
-
-    LaunchedEffect(
-        showOnboarding,
-        isAppLockEnabled,
-        hasAppLockPin,
-        isAppUnlocked,
-        autoLockDurationMinutes
-    ) {
-        if (!showOnboarding && isAppLockEnabled && hasAppLockPin && !isAppUnlocked && appLockFlow == null) {
-            appLockFlow = AppLockFlow.Unlock
-        }
-    }
-
-    LaunchedEffect(appLockFlow, canUseBiometricOnLockScreen, isReady) {
-        if (
-            isReady &&
-            appLockFlow == AppLockFlow.Unlock &&
-            canUseBiometricOnLockScreen &&
-            !hasPromptedBiometricForCurrentUnlock
-        ) {
-            hasPromptedBiometricForCurrentUnlock = true
-            unlockWithBiometric()
         }
     }
 
@@ -590,45 +496,49 @@ fun MainScreen(
             )
         }
 
-        AppLockOverlay(
-            appLockFlow = if (isReady) appLockFlow else null,
-            isAppUnlocked = isAppUnlocked,
-            biometricEnabled = canUseBiometricOnLockScreen,
-            scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
-            isBiometricAvailable = canUseBiometricOnLockScreen,
-            securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                appLockState.securityQuestionId
-            ).orEmpty(),
-            onBackClick = { appLockFlow = null },
-            onBiometricClick = unlockWithBiometric,
-            onSetupComplete = { pin, questionId, answer ->
-                // 1. Dismiss UI immediately
-                completeUnlock()
+        if (appLockFlow != null) {
+            AppLockOverlay(
+                isReady = isReady,
+                appSettings = appSettings,
+                initialFlow = appLockFlow!!,
+                isAppUnlocked = true, // MainScreen only exists in Unlocked state
+                biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
+                scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
+                isBiometricAvailable = biometricAvailability.isAvailable,
+                securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
+                    appLockState.securityQuestionId
+                ).orEmpty(),
+                onBackClick = { appLockFlow = null },
+                onBiometricClick = unlockWithBiometric,
+                onSetupComplete = { pin, questionId, answer ->
+                    // 1. Dismiss UI immediately
+                    completeUnlock()
 
-                // 2. Background heavy work
-                coroutineScope.launch(Dispatchers.Default) {
-                    AppLockPreferences.savePin(context, pin)
-                    AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                    appLockState = AppLockPreferences.getCachedState()
+                    // 2. Background heavy work
+                    coroutineScope.launch(Dispatchers.Default) {
+                        AppLockPreferences.savePin(context, pin)
+                        AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
+                        appLockState = AppLockPreferences.getCachedState()
 
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(appLockEnabled = true)
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(appLockEnabled = true)
+                        }
                     }
+                },
+                onUnlockSuccess = completeUnlock,
+                validateUnlockPin = { pin ->
+                    AppLockPreferences.validatePinForUnlock(context, pin).also {
+                        appLockState = AppLockPreferences.getCachedState()
+                    }
+                },
+                onForgotPinRecovery = {
+                    disableAppLock(true)
+                },
+                validateSecurityAnswer = { answer ->
+                    AppLockPreferences.validateSecurityAnswer(context, answer)
                 }
-            },
-            onUnlockSuccess = completeUnlock,
-            validateUnlockPin = { pin ->
-                AppLockPreferences.validatePinForUnlock(context, pin).also {
-                    appLockState = AppLockPreferences.getCachedState()
-                }
-            },
-            onForgotPinRecovery = {
-                disableAppLock(true)
-            },
-            validateSecurityAnswer = { answer ->
-                AppLockPreferences.validateSecurityAnswer(context, answer)
-            }
-        )
+            )
+        }
     }
 }
 

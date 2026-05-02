@@ -33,14 +33,22 @@ import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.utils.BiometricAuthManager
+import com.mkn0079.expensetracker.utils.findFragmentActivity
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.InitTask
+import com.mkn0079.expensetracker.ui.viewmodels.AppLockViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.AppLockState
+import com.mkn0079.expensetracker.ui.components.AppLockOverlay // We will use the component logic but possibly refactor it
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
+    private val appLockViewModel: AppLockViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -69,7 +77,7 @@ class MainActivity : FragmentActivity() {
         checkAndRequestNotificationPermission()
 
         setContent {
-            AppRoot(splashViewModel, intent)
+            AppRoot(splashViewModel, appLockViewModel, intent)
         }
     }
 
@@ -82,19 +90,24 @@ class MainActivity : FragmentActivity() {
     }
 
     @Composable
-    private fun AppRoot(viewModel: SplashViewModel, intent: Intent) {
-        val isReady by viewModel.isReady.collectAsState()
+    private fun AppRoot(
+        splashViewModel: SplashViewModel,
+        appLockViewModel: AppLockViewModel,
+        intent: Intent
+    ) {
+        val isReady by splashViewModel.isReady.collectAsState()
+        val appLockState by appLockViewModel.state.collectAsState()
         val context = applicationContext
         
         val initialNavDestination = intent.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
-        // Observe settings for theme and privacy
         val appSettings by AppSettingsDataStore
             .getAppSettingsFlow(context)
             .collectAsState(initial = null)
         val userProfile by UserProfileDataStore
             .getUserProfileFlow(context)
             .collectAsState(initial = defaultUserProfile)
+            
         val systemDarkTheme = isSystemInDarkTheme()
         val darkTheme = when (appSettings?.themeMode ?: AppThemeMode.SYSTEM) {
             AppThemeMode.SYSTEM -> systemDarkTheme
@@ -104,10 +117,8 @@ class MainActivity : FragmentActivity() {
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Main content renders underneath once settings are available
-                if (appSettings != null) {
-                    val settings = appSettings!!
-
+                // Apply privacy settings whenever settings are available
+                appSettings?.let { settings ->
                     LaunchedEffect(
                         settings.blurInRecentsEnabled,
                         settings.screenshotProtectionEnabled
@@ -117,28 +128,50 @@ class MainActivity : FragmentActivity() {
                             shouldBlockScreenshots = settings.screenshotProtectionEnabled
                         )
                     }
-
-                    MainScreen(
-                        isReady = isReady,
-                        appSettings = settings,
-                        userProfile = userProfile,
-                        initialNavDestination = initialNavDestination
-                    )
                 }
 
-                // Splash overlay on top of everything (including AppLock Popup)
                 if (!isReady) {
-                    Popup(
-                        onDismissRequest = {},
-                        properties = PopupProperties(
-                            focusable = true,
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false,
-                            excludeFromSystemGesture = false
-                        )
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            SplashOverlay(viewModel = viewModel)
+                    // 1. Splash Screen (Absolute priority during boot)
+                    SplashOverlay(viewModel = splashViewModel)
+                } else if (appSettings != null) {
+                    val settings = appSettings!!
+                    
+                    // 2. Decide what to show based on Lock State
+                    when (appLockState) {
+                        is AppLockState.Loading -> {
+                            // Fail-Secure: Show nothing while determining lock state
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                        is AppLockState.Locked -> {
+                            // 3. App Lock Screen (Blocks Main Content)
+                            // We use the same component but ensure it's not a Popup here for total replacement
+                            val activity = LocalContext.current.findFragmentActivity()
+                            val biometricAuthenticator = remember(activity) {
+                                activity?.let(BiometricAuthManager::createAuthenticator)
+                            }
+
+                            AppLockOverlay(
+                                isReady = true,
+                                appSettings = settings,
+                                onUnlockSuccess = { appLockViewModel.unlock() },
+                                onBiometricClick = {
+                                    biometricAuthenticator?.authenticate(
+                                        title = "Unlock Expense Tracker",
+                                        subtitle = "Verify your biometric to continue.",
+                                        negativeButtonText = "Use PIN",
+                                        onSuccess = { appLockViewModel.unlock() }
+                                    )
+                                }
+                            )
+                        }
+                        is AppLockState.Unlocked -> {
+                            // 4. Main App Content (Only accessible when Unlocked)
+                            MainScreen(
+                                isReady = true,
+                                appSettings = settings,
+                                userProfile = userProfile,
+                                initialNavDestination = initialNavDestination
+                            )
                         }
                     }
                 }

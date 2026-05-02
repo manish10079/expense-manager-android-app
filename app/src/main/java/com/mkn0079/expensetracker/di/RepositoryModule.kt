@@ -17,6 +17,8 @@ import com.mkn0079.expensetracker.domain.repository.LegacyImportRepository
 import com.mkn0079.expensetracker.domain.repository.PaymentMethodRepository
 import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
+import com.mkn0079.expensetracker.domain.repository.SecurityRepository
+import com.mkn0079.expensetracker.data.repository.SecurityRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -90,5 +92,13 @@ object RepositoryModule {
         @ApplicationContext context: Context
     ): LegacyImportRepository {
         return LegacyImportRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSecurityRepository(
+        @ApplicationContext context: Context
+    ): SecurityRepository {
+        return SecurityRepositoryImpl(context)
     }
 }
