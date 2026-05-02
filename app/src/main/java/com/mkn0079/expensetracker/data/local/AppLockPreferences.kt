@@ -9,8 +9,6 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTE
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import java.security.MessageDigest
 import java.security.SecureRandom
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
 
 private const val LEGACY_APP_LOCK_PREFS_NAME = "app_lock_prefs"
 private const val ENCRYPTED_APP_LOCK_PREFS_NAME = "app_lock_secure_prefs"
@@ -32,13 +30,8 @@ private const val KEY_LAST_UNLOCKED_AT_MILLIS = "last_unlocked_at_millis"
 private const val KEY_STORAGE_MIGRATION_COMPLETE = "storage_migration_complete"
 
 private const val HASH_VERSION_LEGACY_SHA256 = "legacy_sha256"
-private const val HASH_VERSION_PBKDF2_SHA256_V1 = "pbkdf2_sha256_v1"
-private const val HASH_VERSION_PBKDF2_SHA256_V2 = "pbkdf2_sha256_v2"
 private const val HASH_VERSION_FAST_SHA256_V1 = "fast_sha256_v1"
 private const val SALT_LENGTH_BYTES = 16
-private const val PBKDF2_ITERATION_COUNT_V1 = 120_000
-private const val PBKDF2_ITERATION_COUNT_V2 = 45_000
-private const val PBKDF2_KEY_LENGTH_BITS = 256
 
 data class AppLockCachedState(
     val isAppLockEnabled: Boolean = false,
@@ -94,7 +87,6 @@ object AppLockPreferences {
                 versionKey = KEY_APP_LOCK_PIN_HASH_VERSION,
                 normalizedSecret = normalizedPin
             )
-            .putFastPinVerifier(fastPinVerifier)
             .putBoolean(KEY_APP_LOCK_ENABLED, true)
             .apply()
         cacheFastPinVerifier(fastPinVerifier)
@@ -158,8 +150,7 @@ object AppLockPreferences {
     }
 
     fun validatePin(context: Context, pin: String): Boolean {
-        // Fast Path: Check against memory cache first (SHA-256 with salt)
-        // This provides near-instant validation for the correct PIN.
+        // 1. Memory Fast-Path
         if (validatePinFromMemory(pin)) {
             return true
         }
@@ -167,54 +158,22 @@ object AppLockPreferences {
         val preferences = prefs(context)
         val normalizedPin = normalizePin(pin)
         val savedHash = preferences.getString(KEY_APP_LOCK_PIN_HASH, null) ?: return false
-        val hashVersion = preferences.getString(KEY_APP_LOCK_PIN_HASH_VERSION, null)
-        val salt = preferences.getString(KEY_APP_LOCK_PIN_SALT, null)
+        val salt = preferences.getString(KEY_APP_LOCK_PIN_SALT, null) ?: return false
 
-        val isValid = when {
-            hashVersion == HASH_VERSION_PBKDF2_SHA256_V2 && !salt.isNullOrBlank() -> {
-                savedHash == hashSecret(
-                    normalizedSecret = normalizedPin,
-                    salt = salt,
-                    iterations = PBKDF2_ITERATION_COUNT_V2
-                )
-            }
-
-            hashVersion == HASH_VERSION_PBKDF2_SHA256_V1 && !salt.isNullOrBlank() -> {
-                savedHash == hashSecret(
-                    normalizedSecret = normalizedPin,
-                    salt = salt,
-                    iterations = PBKDF2_ITERATION_COUNT_V1
-                )
-            }
-
-            else -> {
-                savedHash == legacySha256(normalizedPin)
-            }
-        }
+        // 2. Direct SHA-256 with Salt (Instant)
+        val candidateHash = fastPinHash(normalizedPin, salt)
+        val isValid = MessageDigest.isEqual(
+            savedHash.toByteArray(),
+            candidateHash.toByteArray()
+        )
 
         if (isValid) {
-            val shouldUpgradeSecureHash = hashVersion != HASH_VERSION_PBKDF2_SHA256_V2 || salt.isNullOrBlank()
-            val existingFastPinVerifier = readFastPinVerifier(preferences)
-            val fastPinVerifier = existingFastPinVerifier ?: createFastPinVerifier(normalizedPin)
-
-            if (shouldUpgradeSecureHash || existingFastPinVerifier == null) {
-                preferences
-                    .edit()
-                    .apply {
-                        if (shouldUpgradeSecureHash) {
-                            putSaltedSecret(
-                                hashKey = KEY_APP_LOCK_PIN_HASH,
-                                saltKey = KEY_APP_LOCK_PIN_SALT,
-                                versionKey = KEY_APP_LOCK_PIN_HASH_VERSION,
-                                normalizedSecret = normalizedPin
-                            )
-                        }
-                    }
-                    .putFastPinVerifier(fastPinVerifier)
-                    .apply()
-            }
-
-            cacheFastPinVerifier(fastPinVerifier)
+            val verifier = FastPinVerifier(
+                hash = candidateHash,
+                salt = salt,
+                version = HASH_VERSION_FAST_SHA256_V1
+            )
+            cacheFastPinVerifier(verifier)
             updateCachedState {
                 it.copy(
                     isAppLockEnabled = preferences.getBoolean(KEY_APP_LOCK_ENABLED, false),
@@ -373,7 +332,7 @@ object AppLockPreferences {
         prefs(context)
             .edit()
             .putString(KEY_SECURITY_QUESTION_ID, questionId)
-            .putFastSaltedSecret(
+            .putSaltedSecret(
                 hashKey = KEY_SECURITY_ANSWER_HASH,
                 saltKey = KEY_SECURITY_ANSWER_SALT,
                 versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
@@ -396,48 +355,13 @@ object AppLockPreferences {
         val preferences = prefs(context)
         val normalizedAnswer = normalizeAnswer(answer)
         val savedHash = preferences.getString(KEY_SECURITY_ANSWER_HASH, null) ?: return false
-        val hashVersion = preferences.getString(KEY_SECURITY_ANSWER_HASH_VERSION, null)
-        val salt = preferences.getString(KEY_SECURITY_ANSWER_SALT, null)
+        val salt = preferences.getString(KEY_SECURITY_ANSWER_SALT, null) ?: return false
 
-        val isValid = when {
-            hashVersion == HASH_VERSION_FAST_SHA256_V1 && !salt.isNullOrBlank() -> {
-                savedHash == fastPinHash(normalizedAnswer, salt)
-            }
-
-            hashVersion == HASH_VERSION_PBKDF2_SHA256_V2 && !salt.isNullOrBlank() -> {
-                savedHash == hashSecret(
-                    normalizedSecret = normalizedAnswer,
-                    salt = salt,
-                    iterations = PBKDF2_ITERATION_COUNT_V2
-                )
-            }
-
-            hashVersion == HASH_VERSION_PBKDF2_SHA256_V1 && !salt.isNullOrBlank() -> {
-                savedHash == hashSecret(
-                    normalizedSecret = normalizedAnswer,
-                    salt = salt,
-                    iterations = PBKDF2_ITERATION_COUNT_V1
-                )
-            }
-
-            else -> {
-                savedHash == legacySha256(normalizedAnswer)
-            }
-        }
-
-        if (isValid && (hashVersion != HASH_VERSION_FAST_SHA256_V1 || salt.isNullOrBlank())) {
-            preferences
-                .edit()
-                .putFastSaltedSecret(
-                    hashKey = KEY_SECURITY_ANSWER_HASH,
-                    saltKey = KEY_SECURITY_ANSWER_SALT,
-                    versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
-                    normalizedSecret = normalizedAnswer
-                )
-                .apply()
-        }
-
-        return isValid
+        val candidateHash = fastPinHash(normalizedAnswer, salt)
+        return MessageDigest.isEqual(
+            savedHash.toByteArray(),
+            candidateHash.toByteArray()
+        )
     }
 
     fun markBackgrounded(
@@ -634,29 +558,12 @@ object AppLockPreferences {
         normalizedSecret: String
     ): SharedPreferences.Editor {
         val salt = generateSalt()
-        return putString(
-            hashKey,
-            hashSecret(
-                normalizedSecret = normalizedSecret,
-                salt = salt,
-                iterations = PBKDF2_ITERATION_COUNT_V2
-            )
-        )
-            .putString(saltKey, salt)
-            .putString(versionKey, HASH_VERSION_PBKDF2_SHA256_V2)
-    }
-
-    private fun SharedPreferences.Editor.putFastSaltedSecret(
-        hashKey: String,
-        saltKey: String,
-        versionKey: String,
-        normalizedSecret: String
-    ): SharedPreferences.Editor {
-        val salt = generateSalt()
         return putString(hashKey, fastPinHash(normalizedSecret, salt))
             .putString(saltKey, salt)
             .putString(versionKey, HASH_VERSION_FAST_SHA256_V1)
     }
+
+
 
     private fun generateSalt(): String {
         val saltBytes = ByteArray(SALT_LENGTH_BYTES)
@@ -664,26 +571,7 @@ object AppLockPreferences {
         return Base64.encodeToString(saltBytes, Base64.NO_WRAP)
     }
 
-    private fun hashSecret(
-        normalizedSecret: String,
-        salt: String,
-        iterations: Int
-    ): String {
-        val saltBytes = Base64.decode(salt, Base64.NO_WRAP)
-        val keySpec = PBEKeySpec(
-            normalizedSecret.toCharArray(),
-            saltBytes,
-            iterations,
-            PBKDF2_KEY_LENGTH_BITS
-        )
-        return try {
-            val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            val hashBytes = secretKeyFactory.generateSecret(keySpec).encoded
-            hashBytes.joinToString(separator = "") { byte -> "%02x".format(byte) }
-        } finally {
-            keySpec.clearPassword()
-        }
-    }
+
 
     private fun legacySha256(value: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
