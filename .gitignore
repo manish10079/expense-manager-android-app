@@ -1,5 +1,7 @@
 *.iml
 .gradle
+.gradle-user-home/
+.kotlin/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -7,6 +9,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+.idea/vcs.xml
 .DS_Store
 /build
 /captures
@@ -15,3 +18,10 @@
 local.properties
 build_output.txt
 kotlin_compile_log.txt
+gradle_build_err.txt
+gradle_build_out.txt
+gradle_compile_err.txt
+gradle_compile_out.txt
+gradle_settings_compile_err.txt
+gradle_settings_compile_out.txt
+*.log

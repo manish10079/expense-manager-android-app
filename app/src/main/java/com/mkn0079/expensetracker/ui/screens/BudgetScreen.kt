@@ -162,7 +162,7 @@ fun BudgetScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(surfaceGradient())
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -454,7 +454,7 @@ private fun BudgetPeriodRow(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(20.dp))
-                    .background(surfaceGradient())
+                    .background(brandGradient())
             )
         }
 

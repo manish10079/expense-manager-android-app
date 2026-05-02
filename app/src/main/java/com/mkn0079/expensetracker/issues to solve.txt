@@ -51,7 +51,7 @@ Flow to follow:
 2. [fixed] Implement strict budget edit limits and historical month locking (Ensures data integrity)
 3. [fixed] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
 4. [fixed] All screen top padding not aligned (Affects visual integrity of every screen)
-5. [fixed] Unify one gradient style across the app (Fixes inconsistent branding/design)
+5. [verified] Unify one gradient style across the app (Fixes inconsistent branding/design)
 6. [ ] after app lock when unlock it redirect to home
 7. [ ] make separate section for category of income and expense  right now it show all as all categories
 
