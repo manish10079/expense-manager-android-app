@@ -109,6 +109,7 @@ fun BudgetEntity.toDomain(): Budget {
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,
+        editCount = editCount,
         isDeleted = isDeleted
     )
 }
@@ -122,6 +123,7 @@ fun Budget.toEntity(): BudgetEntity {
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,
+        editCount = editCount,
         isDeleted = isDeleted
     )
 }

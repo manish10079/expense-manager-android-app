@@ -13,6 +13,7 @@ data class Budget(
     val createdAt: Long,
     val updatedAt: Long = createdAt,
     val syncState: SyncState = SyncState.LOCAL_ONLY,
+    val editCount: Int = 0,
     val isDeleted: Boolean = false
 ) {
     constructor(
@@ -23,6 +24,7 @@ data class Budget(
         createdAt: Long = System.currentTimeMillis(),
         updatedAt: Long = createdAt,
         syncState: SyncState = SyncState.LOCAL_ONLY,
+        editCount: Int = 0,
         isDeleted: Boolean = false
     ) : this(
         id = id,
@@ -32,6 +34,7 @@ data class Budget(
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,
+        editCount = editCount,
         isDeleted = isDeleted
     )
 

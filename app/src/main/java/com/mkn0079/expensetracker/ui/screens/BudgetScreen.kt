@@ -126,6 +126,7 @@ fun BudgetScreen(
     var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
     var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var budgetEditorSessionKey by rememberSaveable { mutableStateOf(0L) }
     var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
     var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
@@ -224,6 +225,7 @@ fun BudgetScreen(
                             budget = budget,
                             onEditClick = {
                                 editingBudgetId = budget.id
+                                budgetEditorSessionKey = System.currentTimeMillis()
                                 isBudgetEditorVisible = true
                             },
                             onDeleteClick = {
@@ -234,11 +236,14 @@ fun BudgetScreen(
                 }
 
                 item {
+                    val canAdd = uiState.canAddBudget
                     BudgetActionButton(
-                        title = "ADD NEW BUDGET",
-                        icon = Icons.Filled.Add,
+                        title = if (uiState.isMonthLocked) "HISTORY LOCKED" else "ADD NEW BUDGET",
+                        icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
+                        enabled = canAdd,
                         onClick = {
                             editingBudgetId = null
+                            budgetEditorSessionKey = System.currentTimeMillis()
                             isBudgetEditorVisible = true
                         }
                     )
@@ -323,6 +328,7 @@ fun BudgetScreen(
             monthLabel = uiState.summary.monthLabel,
             expenseCategories = expenseCategories,
             existingBudget = editingBudget,
+            sessionKey = budgetEditorSessionKey,
             onDismiss = {
                 isBudgetEditorVisible = false
                 editingBudgetId = null
@@ -739,15 +745,16 @@ private fun BudgetEditorDialog(
     monthLabel: String,
     expenseCategories: List<CategoryType>,
     existingBudget: BudgetCategoryBudgetUi?,
+    sessionKey: Any?,
     onDismiss: () -> Unit,
     onSave: (Int, Double) -> Unit
 ) {
-    var isCategoryPickerVisible by rememberSaveable(existingBudget?.id, monthLabel) { mutableStateOf(false) }
+    var isCategoryPickerVisible by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) { mutableStateOf(false) }
     val categoryPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedCategoryId by rememberSaveable(existingBudget?.id, monthLabel) {
+    var selectedCategoryId by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
         mutableStateOf(existingBudget?.categoryId ?: expenseCategories.firstOrNull()?.id)
     }
-    var amountInput by rememberSaveable(existingBudget?.id, monthLabel) {
+    var amountInput by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
         mutableStateOf(
             existingBudget?.limitAmount
                 ?.takeIf { it > 0.0 }
@@ -1224,14 +1231,31 @@ private fun CategoryBudgetCard(
             }
         }
 
-        Text(
-            text = budget.statusCaption,
-            color = budgetAccentColor(budget.accent),
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                letterSpacing = 1.sp
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = budget.statusCaption,
+                color = budgetAccentColor(budget.accent),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    letterSpacing = 1.sp
+                )
             )
-        )
+
+            if (budget.remainingEdits != null) {
+                Text(
+                    text = if (budget.remainingEdits == 0) "HISTORY LOCKED" else "${budget.remainingEdits} EDITS LEFT",
+                    color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                )
+            }
+        }
 
         BudgetProgressBar(
             progress = budget.progressFraction,
@@ -1245,8 +1269,9 @@ private fun CategoryBudgetCard(
             horizontalArrangement = Arrangement.End
         ) {
             BudgetCardAction(
-                label = "EDIT",
-                onClick = onEditClick
+                label = if (budget.canEdit) "EDIT" else "LOCKED",
+                isLocked = !budget.canEdit,
+                onClick = { if (budget.canEdit) onEditClick() }
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -1254,7 +1279,8 @@ private fun CategoryBudgetCard(
             BudgetCardAction(
                 label = "DELETE",
                 accent = MaterialTheme.colorScheme.error,
-                onClick = onDeleteClick
+                isLocked = !budget.canEdit,
+                onClick = { if (budget.canEdit) onDeleteClick() }
             )
         }
     }
@@ -1267,16 +1293,17 @@ private fun BudgetCardAction(
     isLocked: Boolean = false,
     onClick: () -> Unit
 ) {
+    val finalAccent = if (isLocked) MaterialTheme.colorScheme.outline else accent
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(accent.copy(alpha = 0.12f))
+            .background(finalAccent.copy(alpha = 0.12f))
             .border(
                 width = 1.dp,
-                color = accent.copy(alpha = 0.22f),
+                color = finalAccent.copy(alpha = 0.22f),
                 shape = RoundedCornerShape(12.dp)
             )
-            .clickable(onClick = onClick)
+            .clickable(enabled = !isLocked, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Row(
@@ -1285,7 +1312,7 @@ private fun BudgetCardAction(
         ) {
             Text(
                 text = label,
-                color = accent,
+                color = finalAccent,
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     letterSpacing = 0.8.sp
@@ -1296,7 +1323,7 @@ private fun BudgetCardAction(
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = "$label locked",
-                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    tint = finalAccent,
                     modifier = Modifier.size(12.dp)
                 )
             }
@@ -1330,18 +1357,25 @@ private fun BudgetProgressBar(
 private fun BudgetActionButton(
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val backgroundBrush = if (enabled) {
+        Brush.horizontalGradient(
+            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+        )
+    } else {
+        Brush.horizontalGradient(
+            colors = listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outlineVariant)
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                )
-            )
-            .clickable(onClick = onClick)
+            .background(backgroundBrush)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 18.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

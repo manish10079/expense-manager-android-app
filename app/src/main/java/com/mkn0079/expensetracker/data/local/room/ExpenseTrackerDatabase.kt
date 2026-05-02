@@ -27,7 +27,7 @@ import java.io.File
         BudgetEntity::class,
         RecurringRuleEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -52,7 +52,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build().also { INSTANCE = it }
             }
         }
@@ -74,6 +74,12 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 // Payment Methods
                 db.execSQL("DROP INDEX IF EXISTS `index_payment_methods_name_is_deleted` ")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_payment_methods_name_is_deleted` ON `payment_methods` (`name`, `is_deleted`)")
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE budgets ADD COLUMN edit_count INTEGER NOT NULL DEFAULT 0")
             }
         }
 

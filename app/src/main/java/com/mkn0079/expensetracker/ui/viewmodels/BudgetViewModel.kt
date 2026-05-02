@@ -69,7 +69,10 @@ data class BudgetCategoryBudgetUi(
     val spentAmount: Double,
     val limitAmount: Double,
     val icon: ImageVector,
-    val accent: BudgetAccent
+    val accent: BudgetAccent,
+    val canEdit: Boolean = true,
+    val remainingEdits: Int? = null,
+    val editCount: Int = 0
 )
 
 @Immutable
@@ -115,14 +118,17 @@ data class BudgetScreenUiState(
     ),
     val emptyCategoryMessage: String? = null,
     val emptyRecurringMessage: String? = null,
-    val customMonthStart: Long = startOfMonth(System.currentTimeMillis())
+    val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
+    val isMonthLocked: Boolean = false,
+    val canAddBudget: Boolean = true
 )
 
 private data class BudgetEntry(
     val id: String,
     val categoryId: Int,
     val monthStart: Long,
-    val limitAmount: Double
+    val limitAmount: Double,
+    val editCount: Int
 )
 
 private data class RecurringEntry(
@@ -234,17 +240,44 @@ class BudgetViewModel @Inject constructor(
 
         viewModelScope.launch {
             val monthStart = currentSelectedMonthStart()
+            val currentMonthStart = startOfMonth(System.currentTimeMillis())
+            val prevMonthStart = addMonths(currentMonthStart, -1)
+
+            val existingBudget = budgetEntries.firstOrNull { it.id == budgetId }
             val conflictingBudget = budgetEntries.firstOrNull {
                 it.monthStart == monthStart &&
                     it.categoryId == categoryId &&
                     it.id != budgetId
             }
+
+            // Logic:
+            // 1. Current/Future Month: Unlimited edits (editCount stays 0 or doesn't matter)
+            // 2. Previous Month: Limit 3 edits.
+            // 3. Older than Previous: No edits (should be blocked by UI, but guard here)
+
+            if (monthStart < prevMonthStart) {
+                // Strictly no edits for older months
+                return@launch
+            }
+
+            var newEditCount = existingBudget?.editCount ?: 0
+            if (monthStart == prevMonthStart) {
+                if (newEditCount >= 3) return@launch
+                newEditCount++
+            }
+
+            // If we are changing category and it conflicts with an existing budget
+            if (budgetId != null && conflictingBudget != null) {
+                budgetRepository.deleteBudget(budgetId)
+            }
+
             budgetRepository.upsertBudget(
                 Budget(
                     id = conflictingBudget?.id ?: budgetId.orEmpty(),
                     categoryId = categoryId,
                     monthStart = monthStart,
-                    limitAmount = limitAmount
+                    limitAmount = limitAmount,
+                    editCount = if (monthStart >= currentMonthStart) 0 else newEditCount
                 )
             )
         }
@@ -260,6 +293,24 @@ class BudgetViewModel @Inject constructor(
 
     private fun rebuildUiState() {
         val selectedMonthStart = currentSelectedMonthStart()
+        val currentMonthStart = startOfMonth(System.currentTimeMillis())
+        val prevMonthStart = addMonths(currentMonthStart, -1)
+
+        val isMonthLocked = selectedMonthStart < prevMonthStart
+        val canAddBudget = when {
+            selectedMonthStart >= currentMonthStart -> true
+            selectedMonthStart == prevMonthStart -> {
+                // If any budget in the previous month has already reached 3 edits, 
+                // we might want to block adding NEW budgets too to keep it consistent.
+                // Or we can say "adding a new budget" is itself an edit.
+                // Let's check the existing budget with highest edit count for this month.
+                val maxEdits = budgetEntries.filter { it.monthStart == selectedMonthStart }
+                    .maxOfOrNull { it.editCount } ?: 0
+                maxEdits < 3
+            }
+            else -> false
+        }
+
         val selectedMonthEnd = endOfMonth(selectedMonthStart)
         val expenseTransactions = currentTransactions.filter {
             it.transactionTypeId != 1 && it.createdAt in selectedMonthStart..selectedMonthEnd
@@ -304,7 +355,12 @@ class BudgetViewModel @Inject constructor(
                 recurringExpenses = activeRecurring,
                 insight = insight,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
-                    "No budgets added for ${monthFormatter.format(Date(selectedMonthStart))} yet. Tap ADD NEW BUDGET to start tracking this month."
+                    val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
+                    when {
+                        isMonthLocked -> "No budgets were set for $formattedMonth. History is now locked."
+                        !canAddBudget -> "No more budgets can be added for $formattedMonth (edit limit reached)."
+                        else -> "No budgets added for $formattedMonth yet. Tap ADD NEW BUDGET to start tracking this month."
+                    }
                 } else {
                     null
                 },
@@ -313,7 +369,9 @@ class BudgetViewModel @Inject constructor(
                 } else {
                     null
                 },
-                customMonthStart = customMonthStart
+                customMonthStart = customMonthStart,
+                isMonthLocked = isMonthLocked,
+                canAddBudget = canAddBudget
             )
         }
     }
@@ -370,6 +428,9 @@ private fun buildCategoryBudgets(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences
 ): List<BudgetCategoryBudgetUi> {
+    val currentMonthStart = startOfMonth(System.currentTimeMillis())
+    val prevMonthStart = addMonths(currentMonthStart, -1)
+
     return monthlyBudgets
         .mapNotNull { budgetEntry ->
             val category = categories[budgetEntry.categoryId] ?: return@mapNotNull null
@@ -403,6 +464,22 @@ private fun buildCategoryBudgets(
                 )
             }
 
+            // Logic:
+            // 1. Current/Future: canEdit = true
+            // 2. Previous: canEdit = editCount < 3
+            // 3. Older: canEdit = false
+            val canEdit = when {
+                budgetEntry.monthStart >= currentMonthStart -> true
+                budgetEntry.monthStart == prevMonthStart -> budgetEntry.editCount < 3
+                else -> false
+            }
+
+            val remainingEdits = if (budgetEntry.monthStart == prevMonthStart) {
+                (3 - budgetEntry.editCount).coerceAtLeast(0)
+            } else {
+                null
+            }
+
             BudgetCategoryBudgetUi(
                 id = budgetEntry.id,
                 categoryId = budgetEntry.categoryId,
@@ -415,7 +492,10 @@ private fun buildCategoryBudgets(
                 spentAmount = spentAmount,
                 limitAmount = budgetEntry.limitAmount,
                 icon = category.icon,
-                accent = accent
+                accent = accent,
+                canEdit = canEdit,
+                remainingEdits = remainingEdits,
+                editCount = budgetEntry.editCount
             )
         }
         .sortedWith(
@@ -596,18 +676,8 @@ private fun parseAmountValue(
 }
 
 private fun resolveAnchorMonthStart(transactions: List<Transaction>): Long {
-    val expenseTransactions = transactions.filter { it.transactionTypeId != 1 }
-    if (expenseTransactions.isEmpty()) {
-        return startOfMonth(System.currentTimeMillis())
-    }
-
-    val currentMonthStart = startOfMonth(System.currentTimeMillis())
-    val currentMonthEnd = endOfMonth(currentMonthStart)
-    return if (expenseTransactions.any { it.createdAt in currentMonthStart..currentMonthEnd }) {
-        currentMonthStart
-    } else {
-        startOfMonth(expenseTransactions.maxOf { it.createdAt })
-    }
+    // "This Month" should always mean the actual current calendar month
+    return startOfMonth(System.currentTimeMillis())
 }
 
 private fun calculateNextInstallmentInfo(
@@ -733,7 +803,8 @@ private fun Budget.toBudgetEntry(): BudgetEntry {
         id = id,
         categoryId = categoryId,
         monthStart = monthStart,
-        limitAmount = limitAmount
+        limitAmount = limitAmount,
+        editCount = editCount
     )
 }
 

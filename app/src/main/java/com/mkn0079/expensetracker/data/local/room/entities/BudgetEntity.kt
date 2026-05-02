@@ -38,6 +38,8 @@ data class BudgetEntity(
     val updatedAt: Long,
     @ColumnInfo(name = "sync_state")
     val syncState: SyncState,
+    @ColumnInfo(name = "edit_count")
+    val editCount: Int = 0,
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean
 )
