@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +80,7 @@ fun TransactionCard(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .height(70.dp),
+            .height(90.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -101,6 +102,7 @@ fun TransactionCard(
 
         Column(
             modifier = Modifier.weight(1f)
+
         ) {
             Text(
                 text = note,
@@ -117,7 +119,8 @@ fun TransactionCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                              .padding(top = 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (showTransactionDate) {
@@ -179,7 +182,10 @@ fun TransactionCard(
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 1.2.sp
-                    )
+                    ),
+
+                    modifier = Modifier.padding(top = 5 .dp)
+
                 )
             }
         }
@@ -195,7 +201,7 @@ fun TransactionCard(
                 maxLines = 1,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
                 )
             )
 
@@ -209,7 +215,9 @@ fun TransactionCard(
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 1.2.sp
-                    )
+                    ),
+                    modifier = Modifier.padding(top = 5.dp)
+
                 )
             }
         }
