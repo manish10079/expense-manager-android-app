@@ -20,6 +20,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -124,14 +126,21 @@ class MainActivity : FragmentActivity() {
                     )
                 }
 
-                // Splash overlay on top
-                AnimatedVisibility(
-                    visible = !isReady,
-                    exit = fadeOut(
-                        animationSpec = tween(durationMillis = 600)
-                    )
-                ) {
-                    SplashOverlay(viewModel = viewModel)
+                // Splash overlay on top of everything (including AppLock Popup)
+                if (!isReady) {
+                    Popup(
+                        onDismissRequest = {},
+                        properties = PopupProperties(
+                            focusable = true,
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false,
+                            excludeFromSystemGesture = false
+                        )
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            SplashOverlay(viewModel = viewModel)
+                        }
+                    }
                 }
             }
         }

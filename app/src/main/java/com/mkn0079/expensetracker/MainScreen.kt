@@ -591,7 +591,7 @@ fun MainScreen(
         }
 
         AppLockOverlay(
-            appLockFlow = appLockFlow,
+            appLockFlow = if (isReady) appLockFlow else null,
             isAppUnlocked = isAppUnlocked,
             biometricEnabled = canUseBiometricOnLockScreen,
             scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,

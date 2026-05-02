@@ -2,29 +2,22 @@
 
 ### 🔴 High Priority - Critical Bugs & Core UX
 1. [x] Not able to add more than one budget in Budget and Recurring screen (Blocks core functionality)
-2. [ ] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
-3. [ ] All screen top padding not aligned (Affects visual integrity of every screen)
-4. [ ] Unify one gradient style across the app (Fixes inconsistent branding/design)
+2. [x] Implement strict budget edit limits and historical month locking (Ensures data integrity)
+3. [x] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
+4. [ ] All screen top padding not aligned (Affects visual integrity of every screen)
+5. [ ] Unify one gradient style across the app (Fixes inconsistent branding/design)
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
-5. [ ] Remove navbar from Transactions screen
-6. [ ] Put Add Category and Cancel button in a single row in Add Category screen
-7. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
-8. [ ] Add search icons in Add Category screen
-9. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
+6. [ ] Remove navbar from Transactions screen
+7. [ ] Put Add Category and Cancel button in a single row in Add Category screen
+8. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
+9. [ ] Add search icons in Add Category screen
+10. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-10. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
-11. [ ] Remove "Personalize your vault" from Add Category screen
-12. [ ] Use app's icon in About screen
-13. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
-14. [ ] Add the same gradient style to "Create Category" button used across the app
+11. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
+12. [ ] Remove "Personalize your vault" from Add Category screen
+13. [ ] Use app's icon in About screen
+14. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
+15. [ ] Add the same gradient style to "Create Category" button used across the app
 
----
-
-### ✅ Completed & Notes
-**Budget Editing Policy (Strict Accountability):**
-- Current/Future Months: Unlimited edits.
-- Previous Month: Max 3 edits (shows counter, locks at 0).
-- Older Months: Automatically locked.
-- Implementation: Added `edit_count` to `budgets` table (Migration v3), enforced in `BudgetViewModel`.
