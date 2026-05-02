@@ -49,7 +49,7 @@ fun GatedAction(
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                // In a real app, trigger billing flow here
+                monetizationViewModel.onPurchaseSimulated()
                 showPremiumSheet = false
             }
         )

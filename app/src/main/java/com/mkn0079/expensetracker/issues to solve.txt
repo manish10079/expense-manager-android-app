@@ -1,14 +1,13 @@
-# ISSUES TO SOLVE
-
-## 1. Custom Category Fallback Improvement
-- **Description**: Currently, the app defaults to a "Question Mark" icon for all custom categories (even active ones) because icon resolution only checks a static system map.
-- **Goal**: Update the transaction loading logic to fetch custom category names and icon keys from the database, and use the `ExpenseTrackerIconRegistry` to resolve the correct icons.
-- **Benefit**: Users will see their chosen icons and names for all transactions, ensuring a premium experience even after categories or payment methods are soft-deleted.
-
----
-
-## 2. Recurring Transaction Deletion Crash
-- **Status**: Resolved ✅
-- **Priority**: High
-- **Fix**: Replaced unique constraints with non-unique indexes and implemented Database Migration (Version 1 → 2).
-- **Verified**: Build successful, prevents crash on multiple deletions across RecurringRules, Budgets, Categories, and PaymentMethods.
+all screen top padding not aligned
+not able to add more than one budget in budget and recurring screen
+app lock overlay while opening app fix opacity
+remove navbar from transactions Screen
+use same unified settingsItemCard reusable component in notification settings
+when click back button on top left of every screen show touch in square style remove show taps
+use app's icon in about screen
+add slide toggle animation in between categories in manage categories (expense, income, payment)
+put add (category and cancel button in single row in add category screen
+remove "personalize your vault" from add category screen
+add search icons in add category screen
+add the same gradient style to create category button which is used across the app
+unify one gradient across the app currently there are two or more gradient stylesl

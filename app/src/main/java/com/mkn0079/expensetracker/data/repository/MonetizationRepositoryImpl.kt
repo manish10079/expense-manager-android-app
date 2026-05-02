@@ -55,6 +55,12 @@ class MonetizationRepositoryImpl @Inject constructor(
         AdAccessStore.grantAccess(feature, optionId, durationMillis)
     }
 
+    override suspend fun becomePremium() {
+        AppSettingsDataStore.updateAppSettings(context) { settings ->
+            settings.copy(userTier = UserTier.PREMIUM)
+        }
+    }
+
     private fun getFeatureKey(feature: Feature, optionId: String?): String {
         return if (optionId != null) "${feature.id}_$optionId" else feature.id
     }

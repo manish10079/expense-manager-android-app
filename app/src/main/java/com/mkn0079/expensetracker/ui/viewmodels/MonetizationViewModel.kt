@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.domain.usecase.BecomePremiumUseCase
 import com.mkn0079.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mkn0079.expensetracker.monetization.AccessStatus
@@ -16,11 +17,21 @@ import javax.inject.Inject
 @HiltViewModel
 class MonetizationViewModel @Inject constructor(
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
-    private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase
+    private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
+    private val becomePremiumUseCase: BecomePremiumUseCase
 ) : ViewModel() {
 
     // Cache flows to prevent recreation and flickering on recomposition
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
+
+    /**
+     * Simulates a purchase and grants permanent pro access.
+     */
+    fun onPurchaseSimulated() {
+        viewModelScope.launch {
+            becomePremiumUseCase.execute()
+        }
+    }
 
     /**
      * Returns a reactive stream of the access status for a feature.
