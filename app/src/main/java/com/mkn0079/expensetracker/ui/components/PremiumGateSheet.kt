@@ -27,8 +27,11 @@ fun PremiumGateSheet(
     onDismiss: () -> Unit,
     onUpgradeClick: () -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = {
@@ -44,6 +47,7 @@ fun PremiumGateSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
