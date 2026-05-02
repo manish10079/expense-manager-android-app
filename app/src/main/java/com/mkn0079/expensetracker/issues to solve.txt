@@ -1,23 +1,77 @@
 # 📝 Expense Tracker - Issues to Solve (Prioritized)
 
+### 📌 Status Rules
+[ ] = Not started  
+[in-progress] = Currently working on it  
+[fixed] = Implementation completed  
+[verified] = Tested and confirmed working  
+[blocked] = Cannot proceed due to dependency/issue  
+
+Flow to follow:
+[ ] → [in-progress] → [fixed] → [verified]
+
+---
+
+### ⚙️ Update Instructions (For AI Agent / Developer)
+
+1. When starting any task:
+   → Change [ ] to [in-progress]
+
+2. When implementation/code is completed:
+   → Change [in-progress] to [fixed]
+
+3. After fixing any issue:
+   → Ask user to test the feature in real usage
+
+4. Based on user feedback:
+   → If user confirms working correctly → Change [fixed] to [verified]  
+   → If user reports issue or improvement → Change status back to [in-progress] and fix accordingly  
+
+5. If task cannot proceed due to dependency, bug, or missing requirement:
+   → Change status to [blocked]
+
+6. Do NOT mark [verified] without:
+   → Real user testing  
+   → UI validation  
+   → Edge case checks  
+
+7. If a fix introduces new issues:
+   → Change status back to [in-progress] or [blocked]
+
+8. After completing and updating any issue:
+   → Ask the user whether to proceed with the next issue or work on a specific issue they choose  
+   → Continue this loop until the user explicitly exits or stops  
+
+9. Always update status immediately after work (no delayed updates)
+
+---
+
 ### 🔴 High Priority - Critical Bugs & Core UX
-1. [x] Not able to add more than one budget in Budget and Recurring screen (Blocks core functionality)
-2. [x] Implement strict budget edit limits and historical month locking (Ensures data integrity)
-3. [x] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
-4. [ ] All screen top padding not aligned (Affects visual integrity of every screen)
+1. [fixed] Not able to add more than one budget in Budget and Recurring screen (Blocks core functionality)
+2. [fixed] Implement strict budget edit limits and historical month locking (Ensures data integrity)
+3. [fixed] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
+4. [fixed] All screen top padding not aligned (Affects visual integrity of every screen)
 5. [ ] Unify one gradient style across the app (Fixes inconsistent branding/design)
+6. [ ] after app lock when unlock it redirect to home
+7. [ ] make separate section for category of income and expense  right now it show all as all categories
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
-6. [ ] Remove navbar from Transactions screen
-7. [ ] Put Add Category and Cancel button in a single row in Add Category screen
-8. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
-9. [ ] Add search icons in Add Category screen
-10. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
+8. [ ] Remove navbar from Transactions screen
+9. [ ] Put Add Category and Cancel button in a single row in Add Category screen
+10. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
+11. [ ] Add search icons in Add Category screen
+12. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
+13. [ ] reduce top header padding to 10dp
+14. [ ] add a reset button to reset all fields in add transaction screen
+15. [ ] fix search and sort filter icon for dark mode and light mode
+16. [ ] in sortfilter sheet there bill and bills remove one
+17. [ ] make consistent arrow and label distance in calendar screen between month and year view
+18. [ ] in budget and recurring screen in custom month toggle date pick shows day month year, remove day
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-11. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
-12. [ ] Remove "Personalize your vault" from Add Category screen
-13. [ ] Use app's icon in About screen
-14. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
-15. [ ] Add the same gradient style to "Create Category" button used across the app
-
+19. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
+20. [ ] Remove "Personalize your vault" from Add Category screen
+21. [ ] Use app's icon in About screen
+22. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
+23. [ ] Add the same gradient style to "Create Category" button used across the app
+24. [ ] use same wheeldatetimepicker in calendar screen to jump over specific period

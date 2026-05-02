@@ -96,6 +96,7 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.horizontalSwipe
 import com.mkn0079.expensetracker.utils.getAmountColor
@@ -155,7 +156,7 @@ fun CalendarScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, top = 18.dp, end = 20.dp)
+                    .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
             ) {
                 AppHeader(title = "Calendar", onBackClick = onBackClick)
             }
@@ -166,7 +167,7 @@ fun CalendarScreen(
                     .weight(1f)
                     .navigationBarsPadding()
                     .background(MaterialTheme.colorScheme.background),
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 130.dp),
+                contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 20.dp, bottom = 130.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item {

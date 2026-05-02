@@ -98,7 +98,7 @@ fun ItemizedCalculatorScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 18.dp, vertical = 14.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         AppHeader(

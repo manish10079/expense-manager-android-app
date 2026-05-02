@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,7 +60,7 @@ import com.mkn0079.expensetracker.ui.components.ProfileAvatar
 import com.mkn0079.expensetracker.ui.components.TodaySpendingCard
 import com.mkn0079.expensetracker.ui.components.TotalBalanceCard
 import com.mkn0079.expensetracker.ui.components.TransactionCard
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
@@ -134,12 +136,13 @@ private fun HomeScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 15.dp, end = 15.dp, top = 15.dp)
+            .statusBarsPadding()
+            .padding(horizontal = Dimens.ScreenPadding)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

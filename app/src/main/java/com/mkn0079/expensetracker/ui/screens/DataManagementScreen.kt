@@ -23,6 +23,7 @@ import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.FeatureRegistry
 import com.mkn0079.expensetracker.models.SettingsItemType
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.components.*
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import java.time.LocalDate
@@ -98,9 +99,9 @@ fun DataManagementScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
                 title = "Data Management",

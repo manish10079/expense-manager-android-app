@@ -107,6 +107,7 @@ import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
@@ -265,8 +266,10 @@ fun AddTransactionScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(
-                    horizontal = if (dense) 16.dp else 18.dp,
-                    vertical = if (dense) 12.dp else 14.dp
+                    start = Dimens.ScreenPadding,
+                    end = Dimens.ScreenPadding,
+                    top = Dimens.HeaderSpacing,
+                    bottom = if (dense) 12.dp else 14.dp
                 )
         ) {
             AppHeader(

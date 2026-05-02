@@ -86,6 +86,7 @@ import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.ProfileCard
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
@@ -132,9 +133,9 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(title = "Settings", onBackClick = onBackClick)
 

@@ -30,6 +30,7 @@ import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
@@ -70,9 +71,9 @@ fun SecurityPrivacyScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
                 title = "Security & Privacy",

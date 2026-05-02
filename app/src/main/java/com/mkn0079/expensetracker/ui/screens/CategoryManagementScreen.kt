@@ -83,6 +83,7 @@ import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.models.CategoryIconOption
 import com.mkn0079.expensetracker.ui.models.CategoryManagementItemUi
 import com.mkn0079.expensetracker.ui.models.CategoryManagementTab
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryManagementViewModel
@@ -243,9 +244,9 @@ fun CategoryManagementScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
                 title = "Manage Category",
@@ -630,6 +631,14 @@ private fun AddCategoryBottomSheet(
 
 @Composable
 private fun CategorySheetLabel(text: String) {
+    Text(
+        text = text,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.labelLarge.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp
+        )
+    )
 }
 
 @Composable

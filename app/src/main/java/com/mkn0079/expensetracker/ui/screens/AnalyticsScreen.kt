@@ -68,7 +68,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -89,22 +88,24 @@ import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
+
 // Legacy theme imports removed
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
-import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
-import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
-import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
-import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
 import com.mkn0079.expensetracker.ui.viewmodels.PaymentTypeBreakdownUi
 import com.mkn0079.expensetracker.ui.viewmodels.TopSpendingItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.buildCustomRangeHeadline
 import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
+import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
+import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -133,7 +134,6 @@ fun AnalyticsScreen(
     var isTopSpendingSheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var heroDisplayMode by rememberSaveable { mutableStateOf(HeroDisplayMode.EXPENSE) }
 
-
     LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
@@ -156,7 +156,7 @@ fun AnalyticsScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 22.dp, top = 20.dp, end = 22.dp)
+                .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
         ) {
             AppHeader(title = "Analytics", onBackClick = onBackClick)
         }
@@ -166,7 +166,7 @@ fun AnalyticsScreen(
                 .fillMaxWidth()
                 .weight(1f)
                 .navigationBarsPadding(),
-            contentPadding = PaddingValues(start = 22.dp, top = 18.dp, end = 22.dp, bottom = 142.dp),
+            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 18.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             item {
@@ -583,7 +583,7 @@ private fun HeroToggle(
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        HeroDisplayMode.values().forEach { mode ->
+        HeroDisplayMode.entries.forEach { mode ->
             val isSelected = mode == selectedMode
             val backgroundColor by animateColorAsState(
                 if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
@@ -631,14 +631,11 @@ private fun HeroAnalyticsSection(
     }
     
     val changePercent = when (displayMode) {
-        HeroDisplayMode.EXPENSE -> -snapshot.changePercent // Inverting because lower expense is good? No, let's keep it simple.
-        HeroDisplayMode.INCOME -> snapshot.changePercent // Need income delta? ViewModel doesn't have separate delta yet.
-        HeroDisplayMode.BOTH -> snapshot.changePercent // Using flow delta for now
+        HeroDisplayMode.EXPENSE -> -snapshot.changePercent 
+        HeroDisplayMode.INCOME -> snapshot.changePercent 
+        HeroDisplayMode.BOTH -> snapshot.changePercent 
     }
     
-    // Actually, snapshot.changeDisplay is flow delta. We should probably just use it or simplify.
-    // For now, let's use the provided changeDisplay but handle color logic.
-
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -711,7 +708,6 @@ private fun AnalyticsLineChart(
         val maxValue = maxOf(maxExpense, maxIncome).coerceAtLeast(1f)
 
         Row(modifier = Modifier.fillMaxWidth().height(170.dp)) {
-            // Y-Axis Labels
             Column(
                 modifier = Modifier
                     .width(34.dp)
@@ -742,145 +738,128 @@ private fun AnalyticsLineChart(
             Spacer(modifier = Modifier.width(8.dp))
 
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            val gridColor = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f)
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-            if (!showExpense && !showIncome) return@Canvas
-            
-            val chartHeight = size.height * 0.82f
-            
-            // Draw horizontal grid lines
-            val gridLines = listOf(16.dp.toPx(), (chartHeight + 16.dp.toPx()) / 2)
-            gridLines.forEach { y ->
-                drawLine(
-                    color = gridColor,
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
-            
-            // Draw Expense Line
-            if (showExpense && expensePoints.isNotEmpty()) {
-                val stepX = if (expensePoints.size > 1) size.width / (expensePoints.size - 1) else size.width
-                val normalized = expensePoints.mapIndexed { index, value ->
-                    Offset(
-                        x = stepX * index,
-                        y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
-                    )
-                }
-                
-                val linePath = Path().apply {
-                    moveTo(normalized.first().x, normalized.first().y)
-                    for (index in 1 until normalized.size) {
-                        val previous = normalized[index - 1]
-                        val current = normalized[index]
-                        val controlX = (previous.x + current.x) / 2f
-                        cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
-                    }
-                }
-                
-                if (displayMode == HeroDisplayMode.EXPENSE) {
-                    val fillPath = Path().apply {
-                        addPath(linePath)
-                        lineTo(normalized.last().x, chartHeight)
-                        lineTo(normalized.first().x, chartHeight)
-                        close()
-                    }
-                    drawPath(
-                        path = fillPath,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                primaryColor.copy(alpha = 0.6f),
-                                primaryColor.copy(alpha = 0.2f),
-                                backgroundColor.copy(alpha = 0.1f)
-                            ),
-                            endY = chartHeight
+                val gridColor = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f)
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+                    if (!showExpense && !showIncome) return@Canvas
+                    
+                    val chartHeight = size.height * 0.82f
+                    
+                    val gridLines = listOf(16.dp.toPx(), (chartHeight + 16.dp.toPx()) / 2)
+                    gridLines.forEach { y ->
+                        drawLine(
+                            color = gridColor,
+                            start = Offset(0f, y),
+                            end = Offset(size.width, y),
+                            strokeWidth = 1.dp.toPx()
                         )
-                    )
-                }
-                
-                drawPath(
-                    path = linePath,
-                    color = expenseColor,
-                    style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
-                )
-                
-                if (displayMode == HeroDisplayMode.EXPENSE) {
-                    normalized.maxByOrNull { it.y * -1 }?.let { peak ->
-                        drawCircle(color = primaryColor.copy(alpha = 0.2f), radius = 9.dp.toPx(), center = peak)
-                        drawCircle(color = primaryColor, radius = 4.dp.toPx(), center = peak)
                     }
-                }
-            }
-            
-            // Draw Income Line
-            if (showIncome && incomePoints.isNotEmpty()) {
-                val stepX = if (incomePoints.size > 1) size.width / (incomePoints.size - 1) else size.width
-                val normalized = incomePoints.mapIndexed { index, value ->
-                    Offset(
-                        x = stepX * index,
-                        y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
-                    )
-                }
-                
-                val linePath = Path().apply {
-                    moveTo(normalized.first().x, normalized.first().y)
-                    for (index in 1 until normalized.size) {
-                        val previous = normalized[index - 1]
-                        val current = normalized[index]
-                        val controlX = (previous.x + current.x) / 2f
-                        cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
-                    }
-                }
-                
-                if (displayMode == HeroDisplayMode.INCOME) {
-                    val fillPath = Path().apply {
-                        addPath(linePath)
-                        lineTo(normalized.last().x, chartHeight)
-                        lineTo(normalized.first().x, chartHeight)
-                        close()
-                    }
-                    drawPath(
-                        path = fillPath,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                incomeColor.copy(alpha = 0.6f),
-                                incomeColor.copy(alpha = 0.2f),
-                                backgroundColor.copy(alpha = 0.1f)
-                            ),
-                            endY = chartHeight
+                    
+                    if (showExpense && expensePoints.isNotEmpty()) {
+                        val stepX = if (expensePoints.size > 1) size.width / (expensePoints.size - 1) else size.width
+                        val normalized = expensePoints.mapIndexed { index, value ->
+                            Offset(
+                                x = stepX * index,
+                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                            )
+                        }
+                        
+                        val linePath = Path().apply {
+                            moveTo(normalized.first().x, normalized.first().y)
+                            for (index in 1 until normalized.size) {
+                                val previous = normalized[index - 1]
+                                val current = normalized[index]
+                                val controlX = (previous.x + current.x) / 2f
+                                cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
+                            }
+                        }
+                        
+                        if (displayMode == HeroDisplayMode.EXPENSE) {
+                            val fillPath = Path().apply {
+                                addPath(linePath)
+                                lineTo(normalized.last().x, chartHeight)
+                                lineTo(normalized.first().x, chartHeight)
+                                close()
+                            }
+                            drawPath(
+                                path = fillPath,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        primaryColor.copy(alpha = 0.6f),
+                                        primaryColor.copy(alpha = 0.2f),
+                                        backgroundColor.copy(alpha = 0.1f)
+                                    ),
+                                    endY = chartHeight
+                                )
+                            )
+                        }
+                        
+                        drawPath(
+                            path = linePath,
+                            color = expenseColor,
+                            style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
                         )
-                    )
-                }
-                
-                drawPath(
-                    path = linePath,
-                    color = incomeColor,
-                    style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
-                )
-                
-                if (displayMode == HeroDisplayMode.INCOME) {
-                    normalized.maxByOrNull { it.y * -1 }?.let { peak ->
-                        drawCircle(color = incomeColor.copy(alpha = 0.2f), radius = 9.dp.toPx(), center = peak)
-                        drawCircle(color = incomeColor, radius = 4.dp.toPx(), center = peak)
                     }
-                }
-            }
+                    
+                    if (showIncome && incomePoints.isNotEmpty()) {
+                        val stepX = if (incomePoints.size > 1) size.width / (incomePoints.size - 1) else size.width
+                        val normalized = incomePoints.mapIndexed { index, value ->
+                            Offset(
+                                x = stepX * index,
+                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                            )
+                        }
+                        
+                        val linePath = Path().apply {
+                            moveTo(normalized.first().x, normalized.first().y)
+                            for (index in 1 until normalized.size) {
+                                val previous = normalized[index - 1]
+                                val current = normalized[index]
+                                val controlX = (previous.x + current.x) / 2f
+                                cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
+                            }
+                        }
+                        
+                        if (displayMode == HeroDisplayMode.INCOME) {
+                            val fillPath = Path().apply {
+                                addPath(linePath)
+                                lineTo(normalized.last().x, chartHeight)
+                                lineTo(normalized.first().x, chartHeight)
+                                close()
+                            }
+                            drawPath(
+                                path = fillPath,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        incomeColor.copy(alpha = 0.6f),
+                                        incomeColor.copy(alpha = 0.2f),
+                                        backgroundColor.copy(alpha = 0.1f)
+                                    ),
+                                    endY = chartHeight
+                                )
+                            )
+                        }
+                        
+                        drawPath(
+                            path = linePath,
+                            color = incomeColor,
+                            style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
 
-            drawLine(
-                color = gridColor,
-                start = Offset(0f, chartHeight),
-                end = Offset(size.width, chartHeight),
-                strokeWidth = 1.dp.toPx()
-            )
+                    drawLine(
+                        color = gridColor,
+                        start = Offset(0f, chartHeight),
+                        end = Offset(size.width, chartHeight),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
             }
+            Spacer(modifier = Modifier.width(42.dp))
         }
-        Spacer(modifier = Modifier.width(42.dp))
-    }
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier

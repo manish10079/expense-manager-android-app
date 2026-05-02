@@ -23,6 +23,7 @@ import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesSheetType
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mkn0079.expensetracker.utils.supportedDateFormats
 import com.mkn0079.expensetracker.utils.supportedTimeFormats
@@ -46,9 +47,9 @@ fun PreferencesScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
                 title = "App Preferences",

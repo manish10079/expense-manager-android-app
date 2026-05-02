@@ -162,7 +162,7 @@ fun TransactionCardCustomizeScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
-        contentPadding = PaddingValues(start = 22.dp, top = 12.dp, end = 22.dp, bottom = 32.dp),
+        contentPadding = PaddingValues(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         item {

@@ -38,6 +38,7 @@ import com.mkn0079.expensetracker.ui.components.*
 import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
 import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.models.SelectionItem
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
@@ -124,7 +125,7 @@ fun ProfileScreen(
         AppHeader(
             title = "Profile",
             onBackClick = onBackClick,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
         )
 
         Column(
@@ -132,7 +133,7 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 22.dp),
+                .padding(horizontal = Dimens.ScreenPadding, vertical = 22.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(

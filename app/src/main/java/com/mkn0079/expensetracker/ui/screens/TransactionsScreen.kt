@@ -84,6 +84,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.ui.components.GatedAction
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -102,7 +103,6 @@ import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.ui.components.SelectionHeader
 import com.mkn0079.expensetracker.ui.models.TransactionListItemUi
-import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
@@ -242,7 +242,7 @@ fun TransactionScreen(
                     }
                 }
             }
-            .padding(horizontal = 15.dp, vertical = 12.dp)
+            .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             AnimatedContent(

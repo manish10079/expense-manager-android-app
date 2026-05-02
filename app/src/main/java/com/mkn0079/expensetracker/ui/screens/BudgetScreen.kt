@@ -97,6 +97,7 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
 import com.mkn0079.expensetracker.ui.viewmodels.BudgetAccent
@@ -177,7 +178,7 @@ fun BudgetScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 14.dp, top = 22.dp, end = 14.dp)
+                    .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
             ) {
                 AppHeader(title = "Budget & Recurring", onBackClick = onBackClick)
             }
@@ -187,7 +188,7 @@ fun BudgetScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .navigationBarsPadding(),
-                contentPadding = PaddingValues(start = 14.dp, top = 18.dp, end = 14.dp, bottom = 126.dp),
+                contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 18.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item {
