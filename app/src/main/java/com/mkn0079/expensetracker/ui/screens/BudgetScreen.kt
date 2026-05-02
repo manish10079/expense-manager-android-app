@@ -253,16 +253,6 @@ fun BudgetScreen(
 
                 item { SectionTitle(title = "Recurring Expenses") }
 
-                if (uiState.recurringDueItems.isNotEmpty()) {
-                    item {
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            items(uiState.recurringDueItems, key = { it.id }) { item ->
-                                RecurringDueChip(item = item)
-                            }
-                        }
-                    }
-                }
-
                 if (uiState.recurringExpenses.isEmpty()) {
                     item {
                         EmptySectionCard(
@@ -1377,72 +1367,14 @@ private fun BudgetActionButton(
 }
 
 @Composable
-private fun RecurringDueChip(item: BudgetRecurringExpenseUi) {
-    val containerColor = when {
-        item.dueLabel.contains("TODAY") -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-        item.dueLabel.contains("TOMORROW") || item.dueLabel.contains("DUE IN") -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(containerColor)
-            .border(
-                width = 1.dp,
-                color = budgetAccentColor(item.accent).copy(alpha = 0.34f),
-                shape = RoundedCornerShape(18.dp)
-            )
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.24f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = item.title,
-                tint = budgetAccentColor(item.accent),
-                modifier = Modifier.size(16.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Column {
-            Text(
-                text = item.dueLabel,
-                color = budgetAccentColor(item.accent),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 0.8.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = "${item.title} (${item.dueAmountLabel})",
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                )
-            )
-        }
-    }
-}
-
-@Composable
 private fun RecurringExpenseCard(
     expense: BudgetRecurringExpenseUi,
     onEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1475,13 +1407,25 @@ private fun RecurringExpenseCard(
             Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = expense.title,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = expense.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        )
                     )
-                )
+                    
+                    if (isUrgent) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "Upcoming",
+                            tint = budgetAccentColor(expense.accent),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -1528,14 +1472,26 @@ private fun RecurringExpenseCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(
-                    text = expense.dueLabel,
-                    color = budgetAccentColor(expense.accent),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                        letterSpacing = 0.8.sp
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = expense.dueLabel,
+                        color = budgetAccentColor(expense.accent),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                            letterSpacing = 0.8.sp
+                        )
                     )
-                )
+                    
+                    if (expense.dueLabel.contains("TODAY")) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.error)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(2.dp))
 

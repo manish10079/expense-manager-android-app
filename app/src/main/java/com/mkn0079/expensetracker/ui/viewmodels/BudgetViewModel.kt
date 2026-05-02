@@ -107,7 +107,6 @@ data class BudgetScreenUiState(
     val summary: BudgetSummaryUi = BudgetSummaryUi(),
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
     val recurringExpenses: List<BudgetRecurringExpenseUi> = emptyList(),
-    val recurringDueItems: List<BudgetRecurringExpenseUi> = emptyList(),
     val insight: BudgetInsightUi = BudgetInsightUi(
         title = "Budget Insight",
         body = "Start tracking how your spending is pacing against your monthly limits.",
@@ -289,10 +288,6 @@ class BudgetViewModel @Inject constructor(
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
-        val dueItems = activeRecurring
-            .filter { it.isEnabled }
-            .sortedBy { it.nextDueAt }
-            .take(3)
         val insight = buildInsight(
             summary = summary,
             categoryBudgets = categoryBudgets,
@@ -307,7 +302,6 @@ class BudgetViewModel @Inject constructor(
                 summary = summary,
                 categoryBudgets = categoryBudgets,
                 recurringExpenses = activeRecurring,
-                recurringDueItems = dueItems,
                 insight = insight,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     "No budgets added for ${monthFormatter.format(Date(selectedMonthStart))} yet. Tap ADD NEW BUDGET to start tracking this month."
@@ -451,7 +445,9 @@ private fun buildRecurringExpenses(
             )
             val accent = recurringAccent(
                 isEnabled = recurringEntry.isEnabled,
-                frequency = recurringEntry.frequency
+                frequency = recurringEntry.frequency,
+                nextDueAt = nextDueAt,
+                referenceTime = referenceTime
             )
 
             BudgetRecurringExpenseUi(
@@ -556,9 +552,16 @@ private fun buildInsight(
 
 private fun recurringAccent(
     isEnabled: Boolean,
-    frequency: RecurringFrequency
+    frequency: RecurringFrequency,
+    nextDueAt: Long,
+    referenceTime: Long
 ): BudgetAccent {
     if (!isEnabled) return BudgetAccent.Disabled
+    
+    val diffDays = ((startOfDay(nextDueAt) - startOfDay(referenceTime)) / DAY_IN_MILLIS).toInt()
+    if (diffDays <= 0) return BudgetAccent.Overspent // Urgent/Today
+    if (diffDays <= 3) return BudgetAccent.Warning  // Soon
+    
     return when (frequency) {
         RecurringFrequency.Daily -> BudgetAccent.Daily
         RecurringFrequency.Weekly -> BudgetAccent.Warning
