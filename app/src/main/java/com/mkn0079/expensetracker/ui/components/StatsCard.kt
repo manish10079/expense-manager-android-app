@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 
 @Composable
@@ -122,12 +123,7 @@ fun TotalBalanceCard(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = if (isBalanceHidden) 32.sp else 40.sp,
                 lineHeight = 60.sp,
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
-                    )
-                )
+                brush = brandGradient(alpha = 0.95f)
             ),
             maxLines = 1
         )
@@ -152,12 +148,7 @@ fun TotalBalanceCard(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.3.sp,
                         lineHeight = 22.sp,
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.90f)
-                            )
-                        )
+                        brush = brandGradient(alpha = 0.95f)
                     ),
                     maxLines = 1
                 )

@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
 import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -76,12 +77,7 @@ fun TodaySpendingCard(
                     modifier = Modifier
                         .size(48.dp)
                         .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary
-                                )
-                            ),
+                            brush = brandGradient(),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center

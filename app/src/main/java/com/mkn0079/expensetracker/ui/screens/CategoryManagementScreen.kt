@@ -85,6 +85,8 @@ import com.mkn0079.expensetracker.ui.models.CategoryManagementItemUi
 import com.mkn0079.expensetracker.ui.models.CategoryManagementTab
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
@@ -482,9 +484,7 @@ private fun AddCategoryBottomSheet(
                                 .size(36.dp)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(
-                                    brush = Brush.linearGradient(
-                                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                                    )
+                                    brush = brandGradient()
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -582,13 +582,13 @@ private fun AddCategoryBottomSheet(
                             .fillMaxSize()
                             .clip(RoundedCornerShape(28.dp))
                             .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = if (canCreate) {
-                                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                                    } else {
-                                        listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                                    }
-                                )
+                                brush = if (canCreate) {
+                                    brandGradient()
+                                } else {
+                                    Brush.horizontalGradient(
+                                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                                    )
+                                }
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -661,9 +661,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                 .size(42.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                    )
+                    brush = brandGradient()
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -735,12 +733,7 @@ private fun CategoryTabSwitcher(
                     .clip(RoundedCornerShape(24.dp))
                     .background(
                         brush = if (isSelected) {
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary
-                                )
-                            )
+                            brandGradient()
                         } else {
                             Brush.verticalGradient(
                                 colors = listOf(
@@ -777,12 +770,7 @@ private fun CategoryManagementCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(34.dp))
             .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+                brush = surfaceGradient()
             )
             .border(
                 width = 1.dp,
@@ -871,13 +859,9 @@ private fun IconSelectionItem(
             .clip(CircleShape)
             .background(
                 brush = if (selected) {
-                    Brush.linearGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                    )
+                    brandGradient()
                 } else {
-                    Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                    )
+                    surfaceGradient()
                 }
             )
             .clickable(onClick = onClick),
@@ -958,12 +942,7 @@ private fun AddCategoryFab(
                 )
                 .clip(CircleShape)
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    )
+                    brush = brandGradient()
                 )
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center

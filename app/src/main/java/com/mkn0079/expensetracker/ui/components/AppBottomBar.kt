@@ -43,6 +43,7 @@ import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.BottomNavBarItem
 import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
 
 private val BottomBarContainerHeight = 72.dp
 private val BottomBarCenterActionSize = 40.dp
@@ -118,11 +119,7 @@ fun AppBottomBar(
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                     )
                     .clip(CircleShape)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    .background(brush = brandGradient())
                     .clickable(onClick = onAddClick),
                 contentAlignment = Alignment.Center
             ) {
@@ -180,9 +177,7 @@ private fun VaultNavItem(
         label = "bottom_bar_icon_size"
     )
 
-    val gradientBrush = Brush.verticalGradient(
-        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-    )
+    val gradientBrush = brandGradient()
 
     Column(
         modifier = modifier

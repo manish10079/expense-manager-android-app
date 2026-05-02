@@ -67,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 
 private data class OnboardingPage(
     val title: String,
@@ -363,12 +365,7 @@ private fun PrimaryOnboardingButton(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    ),
+                    brush = brandGradient(),
                     shape = RoundedCornerShape(999.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -462,12 +459,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             }
             .clip(RoundedCornerShape(38.dp))
             .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+                brush = surfaceGradient()
             )
             .padding(24.dp)
     ) {
@@ -550,12 +542,7 @@ private fun BoxScope.SecureTrackerIllustration() {
             .height(270.dp)
             .clip(RoundedCornerShape(42.dp))
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+                brush = surfaceGradient()
             )
     ) {
         Box(
@@ -579,12 +566,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                     .size(82.dp)
                     .clip(CircleShape)
                     .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
-                        )
+                        brush = brandGradient()
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -664,12 +646,7 @@ private fun BoxScope.AnalyticsIllustration() {
             .height(300.dp)
             .clip(RoundedCornerShape(40.dp))
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+                brush = surfaceGradient()
             )
             .padding(24.dp)
     ) {
@@ -717,12 +694,7 @@ private fun BoxScope.AnalyticsIllustration() {
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 18.dp, bottomEnd = 18.dp))
                         .background(
                             if (isActive) {
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.secondary,
-                                        MaterialTheme.colorScheme.primary
-                                    )
-                                )
+                                brandGradient()
                             } else {
                                 Brush.verticalGradient(
                                     colors = listOf(
@@ -817,12 +789,7 @@ private fun BoxScope.PremiumPrivacyIllustration() {
             .height(250.dp)
             .clip(RoundedCornerShape(42.dp))
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+                brush = surfaceGradient()
             ),
         contentAlignment = Alignment.Center
     ) {

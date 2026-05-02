@@ -94,6 +94,8 @@ import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
@@ -160,15 +162,7 @@ fun BudgetScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.background
-                    )
-                )
-            )
+            .background(surfaceGradient())
     ) {
         Column(
             modifier = Modifier
@@ -460,11 +454,7 @@ private fun BudgetPeriodRow(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    .background(surfaceGradient())
             )
         }
 
@@ -555,15 +545,9 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
             )
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
-            )
+            .background(surfaceGradient())
             .border(
+
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(24.dp)
@@ -658,9 +642,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
 
             BudgetProgressBar(
                 progress = summary.usageFraction,
-                accent = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                )
+                accent = brandGradient()
             )
         }
     }
@@ -1362,9 +1344,7 @@ private fun BudgetActionButton(
     onClick: () -> Unit
 ) {
     val backgroundBrush = if (enabled) {
-        Brush.horizontalGradient(
-            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-        )
+        brandGradient()
     } else {
         Brush.horizontalGradient(
             colors = listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outlineVariant)
@@ -1610,11 +1590,7 @@ private fun InsightCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface)
-                )
-            )
+            .background(surfaceGradient())
             .border(
                 width = 1.dp,
                 color = budgetAccentColor(insight.accent).copy(alpha = 0.24f),

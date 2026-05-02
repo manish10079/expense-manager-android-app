@@ -71,6 +71,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import kotlinx.coroutines.Dispatchers
@@ -791,12 +793,7 @@ private fun PrimaryActionButton(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    ),
+                    brush = brandGradient(),
                     shape = RoundedCornerShape(999.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -849,14 +846,7 @@ private fun AppLockKey(
         modifier = Modifier
             .size(width = 84.dp, height = 84.dp)
             .clip(shape)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        if (enabled) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                    )
-                )
-            )
+            .background(surfaceGradient())
             .then(
                 if (enabled) {
                     Modifier.clickable(

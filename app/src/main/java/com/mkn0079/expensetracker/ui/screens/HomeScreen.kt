@@ -61,6 +61,8 @@ import com.mkn0079.expensetracker.ui.components.TodaySpendingCard
 import com.mkn0079.expensetracker.ui.components.TotalBalanceCard
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.Dimens
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
@@ -125,12 +127,7 @@ private fun HomeScreenContent(
     onTodaySpendingClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit
 ) {
-    val profileAvatarGradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.86f)
-        )
-    )
+    val profileAvatarGradient = brandGradient()
 
     Box(
         modifier = Modifier
@@ -320,14 +317,7 @@ fun SettingsButton(onClick: () -> Unit) {
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(CircleShape)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
-            )
+            .background(surfaceGradient())
             .clickable {
                 isPressed = true
                 onClick()

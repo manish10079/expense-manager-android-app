@@ -109,6 +109,7 @@ import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
@@ -622,11 +623,7 @@ private fun RecurringTransactionSection(
                                     .width(tabWidth)
                                     .fillMaxHeight()
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors = listOf(colorScheme.primary, colorScheme.secondary)
-                                        )
-                                    )
+                                    .background(brandGradient())
                             )
                         }
 
@@ -789,11 +786,7 @@ private fun TransactionModeToggle(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(colorScheme.primary, colorScheme.secondary)
-                        )
-                    )
+                    .background(brandGradient())
             )
         }
 
@@ -1051,9 +1044,7 @@ private fun ChoiceChip(
                 .clip(CircleShape)
                 .background(
                     brush = if (isSelected) {
-                        Brush.linearGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
+                        brandGradient()
                     } else {
                         Brush.verticalGradient(
                             colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
@@ -1288,11 +1279,7 @@ private fun AddTransactionButton(
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
             )
             .clip(shape)
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                )
-            )
+            .background(brush = brandGradient())
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 18.dp),
         contentAlignment = Alignment.Center
@@ -1564,14 +1551,7 @@ private fun TransactionNoteBottomSheet(
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
                     )
                     .clip(RoundedCornerShape(28.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
-                        )
-                    )
+                    .background(brandGradient())
                     .clickable(onClick = onSave),
                 contentAlignment = Alignment.Center
             ) {
