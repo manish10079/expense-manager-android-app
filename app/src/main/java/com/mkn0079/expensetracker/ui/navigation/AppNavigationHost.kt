@@ -3,6 +3,8 @@ package com.mkn0079.expensetracker.ui.navigation
 import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -109,6 +111,8 @@ fun AppNavigationHost(
         recurringRules.firstOrNull { it.transactionId == transaction.id }
     }
 
+    val saveableStateHolder = rememberSaveableStateHolder()
+
     AnimatedContent(
         targetState = currentRoute,
         transitionSpec = {
@@ -120,8 +124,9 @@ fun AppNavigationHost(
         label = "main_navigation",
         modifier = Modifier.fillMaxSize()
     ) { route ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (route) {
+        saveableStateHolder.SaveableStateProvider(route) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                when (route) {
                 AppRoute.Home -> {
                     HomeScreen(
                         userProfile = userProfile,
@@ -472,3 +477,8 @@ fun AppNavigationHost(
         }
     }
 }
+}
+
+
+
+

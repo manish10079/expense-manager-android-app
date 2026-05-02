@@ -249,9 +249,8 @@ private fun AutoLockDurationPickerSheet(
         },
         selectedId = selectedDurationMinutes,
         onItemSelected = { duration ->
-            // Handle gating here manually or update AppSelectionSheet
-            // For now, let's keep it simple as the original logic was complex.
             onDurationSelected(duration)
+            onDismiss()
         },
         onDismiss = onDismiss
     )

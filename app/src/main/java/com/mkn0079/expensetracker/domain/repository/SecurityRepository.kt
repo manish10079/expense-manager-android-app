@@ -51,4 +51,14 @@ interface SecurityRepository {
      * A flow that emits when the app returns to the foreground.
      */
     val appForegroundEvents: kotlinx.coroutines.flow.Flow<Unit>
+
+    /**
+     * Notifies the repository that the app has moved to the background.
+     */
+    fun notifyAppBackground()
+
+    /**
+     * A flow that emits when the app moves to the background.
+     */
+    val appBackgroundEvents: kotlinx.coroutines.flow.Flow<Unit>
 }

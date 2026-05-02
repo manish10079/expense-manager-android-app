@@ -72,7 +72,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class AppLockScreenMode {
     Setup,
@@ -173,7 +175,10 @@ fun AppLockScreen(
             }
 
             AppLockScreenMode.Unlock -> {
-                if (validateUnlockPin(enteredPin)) {
+                val isValid = withContext(Dispatchers.Default) {
+                    validateUnlockPin(enteredPin)
+                }
+                if (isValid) {
                     failedUnlockAttempts = 0
                     onUnlockSuccess()
                 } else {

@@ -4,6 +4,7 @@ import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.togetherWith
 
 val primaryNavigationRoutes = setOf(
@@ -57,8 +58,11 @@ fun resolveBackNavigationRoute(
 }
 
 fun screenTransition(fromRoute: AppRoute, toRoute: AppRoute): ContentTransform {
-    val duration = 300
+    val duration = 400
 
-    return fadeIn(animationSpec = tween(duration)) togetherWith
-        fadeOut(animationSpec = tween(duration))
+    return fadeIn(
+        animationSpec = tween(duration, easing = FastOutSlowInEasing)
+    ) togetherWith fadeOut(
+        animationSpec = tween(duration, easing = FastOutSlowInEasing)
+    )
 }

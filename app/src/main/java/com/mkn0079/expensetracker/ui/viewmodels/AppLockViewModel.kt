@@ -32,11 +32,20 @@ class AppLockViewModel @Inject constructor(
         }
         checkLockState()
         observeForegroundEvents()
+        observeBackgroundEvents()
     }
 
     private fun observeForegroundEvents() {
         viewModelScope.launch {
             securityRepository.appForegroundEvents.collectLatest {
+                checkLockState()
+            }
+        }
+    }
+
+    private fun observeBackgroundEvents() {
+        viewModelScope.launch {
+            securityRepository.appBackgroundEvents.collectLatest {
                 checkLockState()
             }
         }

@@ -13,8 +13,9 @@ class AppLifecycleObserver @Inject constructor(
 ) : DefaultLifecycleObserver {
 
     override fun onStop(owner: LifecycleOwner) {
-        // App backgrounded: Record the time
+        // App backgrounded: Record the time and notify
         securityRepository.markBackgrounded()
+        securityRepository.notifyAppBackground()
     }
 
     override fun onStart(owner: LifecycleOwner) {

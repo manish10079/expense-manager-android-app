@@ -9,9 +9,15 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -136,42 +142,60 @@ class MainActivity : FragmentActivity() {
                 } else if (appSettings != null) {
                     val settings = appSettings!!
                     
-                    // 2. Decide what to show based on Lock State
-                    when (appLockState) {
-                        is AppLockState.Loading -> {
-                            // Fail-Secure: Show nothing while determining lock state
-                            Box(modifier = Modifier.fillMaxSize())
-                        }
-                        is AppLockState.Locked -> {
-                            // 3. App Lock Screen (Blocks Main Content)
-                            // We use the same component but ensure it's not a Popup here for total replacement
-                            val activity = LocalContext.current.findFragmentActivity()
-                            val biometricAuthenticator = remember(activity) {
-                                activity?.let(BiometricAuthManager::createAuthenticator)
+                    // 2. Decide what to show based on Lock State (with Premium Transition)
+                    AnimatedContent(
+                        targetState = appLockState,
+                        transitionSpec = {
+                            if (targetState is AppLockState.Unlocked) {
+                                // Unlock transition: Scale and Fade (Premium Feel)
+                                (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) + 
+                                 scaleIn(initialScale = 0.92f, animationSpec = tween(500, easing = LinearOutSlowInEasing)))
+                                .togetherWith(
+                                 fadeOut(animationSpec = tween(400)) + 
+                                 scaleOut(targetScale = 1.08f, animationSpec = tween(400)))
+                            } else {
+                                // Default transitions (Locking or Loading)
+                                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
                             }
-
-                            AppLockOverlay(
-                                isReady = true,
-                                appSettings = settings,
-                                onUnlockSuccess = { appLockViewModel.unlock() },
-                                onBiometricClick = {
-                                    biometricAuthenticator?.authenticate(
-                                        title = "Unlock Expense Tracker",
-                                        subtitle = "Verify your biometric to continue.",
-                                        negativeButtonText = "Use PIN",
-                                        onSuccess = { appLockViewModel.unlock() }
-                                    )
+                        },
+                        label = "app_lock_transition",
+                        modifier = Modifier.fillMaxSize()
+                    ) { state ->
+                        when (state) {
+                            is AppLockState.Loading -> {
+                                // Fail-Secure: Show nothing while determining lock state
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                            is AppLockState.Locked -> {
+                                // 3. App Lock Screen (Blocks Main Content)
+                                val activity = LocalContext.current.findFragmentActivity()
+                                val biometricAuthenticator = remember(activity) {
+                                    activity?.let(BiometricAuthManager::createAuthenticator)
                                 }
-                            )
-                        }
-                        is AppLockState.Unlocked -> {
-                            // 4. Main App Content (Only accessible when Unlocked)
-                            MainScreen(
-                                isReady = true,
-                                appSettings = settings,
-                                userProfile = userProfile,
-                                initialNavDestination = initialNavDestination
-                            )
+
+                                AppLockOverlay(
+                                    isReady = true,
+                                    appSettings = settings,
+                                    onUnlockSuccess = { appLockViewModel.unlock() },
+                                    onBiometricClick = {
+                                        biometricAuthenticator?.authenticate(
+                                            title = "Unlock Expense Tracker",
+                                            subtitle = "Verify your biometric to continue.",
+                                            negativeButtonText = "Use PIN",
+                                            onSuccess = { appLockViewModel.unlock() }
+                                        )
+                                    }
+                                )
+                            }
+                            is AppLockState.Unlocked -> {
+                                // 4. Main App Content (Only accessible when Unlocked)
+                                MainScreen(
+                                    isReady = true,
+                                    appSettings = settings,
+                                    userProfile = userProfile,
+                                    initialNavDestination = initialNavDestination
+                                )
+                            }
                         }
                     }
                 }

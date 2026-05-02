@@ -158,6 +158,12 @@ object AppLockPreferences {
     }
 
     fun validatePin(context: Context, pin: String): Boolean {
+        // Fast Path: Check against memory cache first (SHA-256 with salt)
+        // This provides near-instant validation for the correct PIN.
+        if (validatePinFromMemory(pin)) {
+            return true
+        }
+
         val preferences = prefs(context)
         val normalizedPin = normalizePin(pin)
         val savedHash = preferences.getString(KEY_APP_LOCK_PIN_HASH, null) ?: return false

@@ -55,4 +55,11 @@ class SecurityRepositoryImpl @Inject constructor(
     override fun notifyAppForeground() {
         _appForegroundEvents.tryEmit(Unit)
     }
+
+    private val _appBackgroundEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val appBackgroundEvents = _appBackgroundEvents.asSharedFlow()
+
+    override fun notifyAppBackground() {
+        _appBackgroundEvents.tryEmit(Unit)
+    }
 }
