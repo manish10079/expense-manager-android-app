@@ -20,6 +20,16 @@ fun brandGradient(alpha: Float = 1f): Brush {
 }
 
 @Composable
+fun standardCardGradient(): Brush {
+    return Brush.verticalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        )
+    )
+}
+
+@Composable
 fun surfaceGradient(): Brush {
     return Brush.verticalGradient(
         colors = listOf(

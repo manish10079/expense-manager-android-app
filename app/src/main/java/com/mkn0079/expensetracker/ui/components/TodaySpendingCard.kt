@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -48,18 +49,10 @@ fun TodaySpendingCard(
             .fillMaxWidth()
             .clip(shape)
             .clickable(onClick = onClick)
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        colorScheme.surface.copy(alpha = 0.96f),
-                        colorScheme.surfaceVariant.copy(alpha = 0.72f)
-                    )
-                ),
-                shape = shape
-            )
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha = 0.65f),
+                color = colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = shape
             )
             .padding(horizontal = Dimens.PaddingMedium, vertical = 18.dp)

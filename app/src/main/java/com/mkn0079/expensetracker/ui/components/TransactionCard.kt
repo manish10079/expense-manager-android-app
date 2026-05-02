@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.utils.formatTime
 import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.utils.getPaymentTypeName
@@ -56,14 +57,19 @@ fun TransactionCard(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(backgroundColor)
+            .then(
+                if (isSelected) {
+                    Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+                } else {
+                    Modifier.background(standardCardGradient())
+                }
+            )
             .border(
                 width = 1.dp,
                 color = borderColor,

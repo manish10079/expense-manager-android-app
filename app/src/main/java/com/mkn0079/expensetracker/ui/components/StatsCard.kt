@@ -41,6 +41,7 @@ import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 
 @Composable
@@ -66,10 +67,7 @@ fun TotalBalanceCard(
                 spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.36f)
             )
             .clip(cardShape)
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = cardShape
-            )
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),

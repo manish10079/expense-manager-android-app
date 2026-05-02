@@ -95,6 +95,7 @@ import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
@@ -434,8 +435,8 @@ private fun BudgetPeriodRow(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clip(RoundedCornerShape(26.dp))
+            .background(standardCardGradient())
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
@@ -545,7 +546,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
             )
             .clip(RoundedCornerShape(24.dp))
-            .background(surfaceGradient())
+            .background(standardCardGradient())
             .border(
 
                 width = 1.dp,
@@ -704,7 +705,7 @@ private fun EmptySectionCard(message: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
@@ -916,7 +917,7 @@ private fun SelectionDialogField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .background(standardCardGradient())
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
@@ -1130,9 +1131,7 @@ private fun CategoryBudgetCard(
             colors = listOf(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f))
         )
 
-        else -> Brush.verticalGradient(
-            colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
-        )
+        else -> standardCardGradient()
     }
     val iconContainer = when {
         budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
@@ -1590,7 +1589,7 @@ private fun InsightCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(surfaceGradient())
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = budgetAccentColor(insight.accent).copy(alpha = 0.24f),

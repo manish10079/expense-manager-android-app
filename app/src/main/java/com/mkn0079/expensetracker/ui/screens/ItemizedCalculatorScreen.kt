@@ -71,7 +71,7 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CalculatorLineItem
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.viewmodels.CalculatorMode
 import com.mkn0079.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
@@ -164,7 +164,7 @@ private fun CalculatorModeTabs(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / CalculatorMode.entries.size }
@@ -471,11 +471,7 @@ private fun NormalCalculatorDisplay(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(30.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                )
-            )
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
@@ -504,7 +500,7 @@ private fun NormalCalculatorDisplay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(22.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(standardCardGradient())
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
@@ -561,9 +557,7 @@ private fun CalculatorKeyButton(
                     accent -> Brush.verticalGradient(
                         colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
                     )
-                    else -> Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                    )
+                    else -> standardCardGradient()
                 }
             )
             .clickable(onClick = onClick),
@@ -600,7 +594,7 @@ private fun TotalAmountCard(
             .fillMaxWidth()
             .padding(top = 8.dp)
             .clip(RoundedCornerShape(30.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .padding(horizontal = 18.dp, vertical = 28.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -648,7 +642,7 @@ private fun BreakdownItemCard(
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
             )
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .drawBehind {
                 if (item.highlighted) {
                     drawRoundRect(
@@ -744,7 +738,7 @@ private fun AddItemInputCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -817,8 +811,8 @@ private fun ItemizedTextField(
         },
         shape = RoundedCornerShape(22.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
             cursorColor = MaterialTheme.colorScheme.primary,
@@ -886,7 +880,7 @@ private fun SecondaryActionButton(
         modifier = modifier
             .height(54.dp)
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

@@ -96,6 +96,7 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.horizontalSwipe
@@ -371,8 +372,8 @@ private fun ViewModeToggle(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clip(RoundedCornerShape(Dimens.CardRadius))
+            .background(standardCardGradient())
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / 2 }
@@ -542,14 +543,16 @@ private fun MonthCalendarCard(
     onSwipePrevious: () -> Unit,
     onSwipeNext: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(26.dp),
-        modifier = Modifier.horizontalSwipe(
-            key = days to selectedDate,
-            onSwipeLeft = onSwipeNext,
-            onSwipeRight = onSwipePrevious
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(26.dp))
+            .background(standardCardGradient())
+            .horizontalSwipe(
+                key = days to selectedDate,
+                onSwipeLeft = onSwipeNext,
+                onSwipeRight = onSwipePrevious
+            )
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
@@ -716,9 +719,11 @@ private fun CalendarTransactionCard(
 private fun EmptyTransactionsCard(
     message: String
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(24.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(standardCardGradient())
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(20.dp),

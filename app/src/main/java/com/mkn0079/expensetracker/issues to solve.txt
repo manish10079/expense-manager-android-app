@@ -2,7 +2,7 @@
 
 ### 📌 Status Rules
 [ ] = Not started  
-[in-progress] = Currently working on it  
+[in-progress] = Currently working on it 
 [fixed] = Implementation completed  
 [verified] = Tested and confirmed working  
 [blocked] = Cannot proceed due to dependency/issue  
@@ -47,10 +47,10 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & Core UX
-1. [fixed] Not able to add more than one budget in Budget and Recurring screen (Blocks core functionality)
-2. [fixed] Implement strict budget edit limits and historical month locking (Ensures data integrity)
-3. [fixed] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
-4. [fixed] All screen top padding not aligned (Affects visual integrity of every screen)
+1. [verified] Not able to add more than one budget in Budget and Recurring screen (Blocks core functionality)
+2. [verified] Implement strict budget edit limits and historical month locking (Ensures data integrity)
+3. [verified] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
+4. [verified] All screen top padding not aligned (Affects visual integrity of every screen)
 5. [verified] Unify one gradient style across the app (Fixes inconsistent branding/design)
 6. [ ] after app lock when unlock it redirect to home
 7. [ ] make separate section for category of income and expense  right now it show all as all categories
@@ -73,5 +73,11 @@ Flow to follow:
 20. [ ] Remove "Personalize your vault" from Add Category screen
 21. [ ] Use app's icon in About screen
 22. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
-23. [fixed] Add the same gradient style to "Create Category" button used across the app
+23. [verified] Add the same gradient style to "Create Category" button used across the app
 24. [ ] use same wheeldatetimepicker in calendar screen to jump over specific period
+
+
+25. fix  delete icon's circular background color in dark mode not
+visible delete icon 
+26. when clicked add item in  itemzed toggle view add item pop is open  it is hide behind keyboard 
+lift it up a little bit or make  keyboard aware which 

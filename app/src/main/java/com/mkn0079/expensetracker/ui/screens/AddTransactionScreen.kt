@@ -82,6 +82,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -110,6 +111,7 @@ import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
@@ -533,7 +535,7 @@ private fun RecurringTransactionSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = if (isEnabled) colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,
@@ -605,7 +607,7 @@ private fun RecurringTransactionSection(
                             .height(IntrinsicSize.Min)
                             .onSizeChanged { containerWidthPx = it.width }
                             .clip(RoundedCornerShape(20.dp))
-                            .background(colorScheme.surface)
+                            .background(standardCardGradient())
                             .padding(4.dp)
                     ) {
                         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
@@ -673,8 +675,8 @@ private fun RecurringTransactionSection(
                                     .height(44.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
-                                        if (isSelected) colorScheme.primary.copy(alpha = 0.15f)
-                                        else colorScheme.surface
+                                        if (isSelected) SolidColor(colorScheme.primary.copy(alpha = 0.15f))
+                                        else standardCardGradient()
                                     )
                                     .border(
                                         width = 1.dp,
@@ -706,8 +708,8 @@ private fun RecurringTransactionSection(
                             ),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = colorScheme.surface,
-                                unfocusedContainerColor = colorScheme.surface,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
                                 focusedBorderColor = colorScheme.primary,
                                 unfocusedBorderColor = Color.Transparent,
                                 focusedTextColor = colorScheme.primary
@@ -767,7 +769,7 @@ private fun TransactionModeToggle(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(24.dp))
-            .background(colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / transactionModes.size }
@@ -847,11 +849,7 @@ private fun AmountCard(
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(shape)
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                )
-            )
+            .background(standardCardGradient())
             .padding(
                 horizontal = if (compact) 20.dp else 24.dp,
                 vertical = if (compact) 18.dp else 22.dp
@@ -916,11 +914,7 @@ private fun CurrencyAmountCard(
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
             )
             .clip(shape)
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                )
-            )
+            .background(standardCardGradient())
             .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 20.dp else 24.dp,
@@ -1046,9 +1040,7 @@ private fun ChoiceChip(
                     brush = if (isSelected) {
                         brandGradient()
                     } else {
-                        Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-                        )
+                        standardCardGradient()
                     }
                 )
                 .clickable(onClick = onClick),
@@ -1100,7 +1092,7 @@ private fun SelectionInfoCard(
                 .fillMaxWidth()
                 .heightIn(min = if (compact) 56.dp else 64.dp)
                 .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(standardCardGradient())
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = if (compact) 14.dp else 16.dp,
@@ -1178,7 +1170,7 @@ private fun KeypadToggle(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 16.dp else 18.dp,
@@ -1235,7 +1227,7 @@ private fun KeypadKey(
         modifier = modifier
             .height(if (compact) 46.dp else 52.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+            .background(standardCardGradient())
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -1333,7 +1325,7 @@ private fun SideActionButton(
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
             )
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

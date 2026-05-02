@@ -98,6 +98,7 @@ import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.PaymentTypeBreakdownUi
@@ -373,8 +374,8 @@ private fun PeriodTabs(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clip(RoundedCornerShape(Dimens.CardRadius))
+            .background(standardCardGradient())
             .padding(4.dp)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
@@ -509,9 +510,7 @@ private fun CustomRangeSelector(
                             colors = listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
                         )
                     } else {
-                        Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
-                        )
+                        standardCardGradient()
                     }
                 )
                 .border(
@@ -580,7 +579,7 @@ private fun HeroToggle(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -944,7 +943,11 @@ private fun InsightStatCard(
     icon: ImageVector,
     iconTint: Color
 ) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -957,9 +960,9 @@ private fun InsightStatCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(standardCardGradient()),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
@@ -995,7 +998,12 @@ private fun InsightStatCard(
 
 @Composable
 private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
-    Surface(shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1103,10 +1111,10 @@ private fun CategoryCard(
     snapshot: AnalyticsSnapshotUi,
     onViewAllClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
     ) {
         Column(
             modifier = Modifier
@@ -1265,9 +1273,9 @@ private fun CategoryBreakdownRow(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(standardCardGradient()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -1376,10 +1384,10 @@ private fun TopSpendingCard(
     topTransactions: List<TopSpendingItemUi>,
     onViewAllClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
     ) {
         Column(
             modifier = Modifier
@@ -1435,9 +1443,9 @@ private fun TopSpendingRow(
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(standardCardGradient()),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -1479,19 +1487,14 @@ private fun SmartTipCard(
     modifier: Modifier = Modifier,
     tip: String
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surface
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), MaterialTheme.colorScheme.surface)
-                    )
-                )
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -1557,10 +1560,10 @@ private fun PaymentTypeCard(
     snapshot: AnalyticsSnapshotUi,
     onViewAllClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
     ) {
         Column(
             modifier = Modifier
@@ -1775,9 +1778,9 @@ private fun PaymentBreakdownRow(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(standardCardGradient()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
