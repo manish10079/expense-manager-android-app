@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -382,7 +384,7 @@ private fun BoxScope.CategoryManagementGlow() {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun AddCategoryBottomSheet(
     sheetState: SheetState,
@@ -562,65 +564,85 @@ private fun AddCategoryBottomSheet(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = onCreateClick,
-                    enabled = canCreate,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(76.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    contentPadding = PaddingValues(0.dp)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    maxItemsInEachRow = 2
                 ) {
-                    Box(
+                    // CANCEL BUTTON
+                    Button(
+                        onClick = onDismiss,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(28.dp))
-                            .background(
-                                brush = if (canCreate) {
-                                    brandGradient()
-                                } else {
-                                    Brush.horizontalGradient(
-                                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                                    )
-                                }
-                            ),
-                        contentAlignment = Alignment.Center
+                            .weight(1f)
+                            .height(58.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     ) {
                         Text(
-                            text = if (targetTab == CategoryManagementTab.Payment) {
-                                "Create Payment Type"
-                            } else {
-                                "Create Category"
-                            },
-                            color = if (canCreate) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 18.sp
+                            text = "CANCEL",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
                             )
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        text = "CANCEL",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 2.sp
-                        )
-                    )
+                    // CREATE BUTTON
+                    Button(
+                        onClick = onCreateClick,
+                        enabled = canCreate,
+                        modifier = Modifier
+                            .weight(1.5f)
+                            .height(58.dp)
+                            .shadow(
+                                elevation = if (canCreate) 8.dp else 0.dp,
+                                shape = RoundedCornerShape(22.dp),
+                                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                            ),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(
+                                    brush = if (canCreate) {
+                                        brandGradient()
+                                    } else {
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                MaterialTheme.colorScheme.surfaceVariant,
+                                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (targetTab == CategoryManagementTab.Payment) {
+                                    "Create Type"
+                                } else {
+                                    "Create Category"
+                                },
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
