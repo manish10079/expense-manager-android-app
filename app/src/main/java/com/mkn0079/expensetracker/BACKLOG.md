@@ -56,7 +56,7 @@ Flow to follow:
 6. [verified] After app lock when unlock it redirect to home
 7. [verified] Make separate section for category of income and expense (Right now it shows all as all categories)
 8. [verified] Lock the app's orientation to portrait mode (Ensures layout stability across all devices)
-9. [in-progress] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
+9. [verified] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
 10. [ ] Remove navbar from Transactions screen

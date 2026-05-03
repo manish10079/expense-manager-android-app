@@ -1,5 +1,6 @@
 package com.mkn0079.expensetracker.ui.components
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -85,18 +86,28 @@ fun FilterBottomSheet(
     onClose: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val orderOptions = getOrderOptions(selectedSort)
+    val orderOptions = remember(selectedSort) { getOrderOptions(selectedSort) }
+
+    // PERFORMANCE: Cache gradients to prevent per-frame allocation
+    val brandBrush = brandGradient()
+    val cardBrush = standardCardGradient()
+    val chipSelectedBrush = brandGradient(alpha = 0.2f)
+    val chipUnselectedBrush = subtlePrimaryGradient()
+
+    // UI-only expansion states to hide categories by default
+    var isExpenseExpanded by remember { mutableStateOf(false) }
+    var isIncomeExpanded by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        item {
+        item(key = "drag_handle") {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -111,7 +122,7 @@ fun FilterBottomSheet(
             }
         }
 
-        item {
+        item(key = "header") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top,
@@ -145,7 +156,11 @@ fun FilterBottomSheet(
                     )
                 }
 
-                TextButton(onClick = onReset) {
+                TextButton(onClick = {
+                    isExpenseExpanded = false
+                    isIncomeExpanded = false
+                    onReset()
+                }) {
                     Text(
                         text = "Reset",
                         color = colorScheme.primary,
@@ -155,11 +170,12 @@ fun FilterBottomSheet(
             }
         }
 
-        item {
+        item(key = "sort_section") {
             FilterSection(
                 title = "Sort by",
                 subtitle = "Choose the main attribute used to arrange the list.",
-                icon = Icons.Default.Tune
+                icon = Icons.Default.Tune,
+                backgroundBrush = cardBrush
             ) {
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -172,6 +188,8 @@ fun FilterBottomSheet(
                             title = title,
                             icon = icon,
                             selected = selectedSort == title,
+                            selectedBrush = chipSelectedBrush,
+                            unselectedBrush = chipUnselectedBrush,
                             onClick = {
                                 onSortChange(title)
                                 onOrderChange(getDefaultOrder(title))
@@ -182,11 +200,12 @@ fun FilterBottomSheet(
             }
         }
 
-        item {
+        item(key = "order_section") {
             FilterSection(
                 title = "Order",
                 subtitle = "Fine-tune how results are ranked inside the selected sort.",
-                icon = Icons.AutoMirrored.Filled.Sort
+                icon = Icons.AutoMirrored.Filled.Sort,
+                backgroundBrush = cardBrush
             ) {
                 orderOptions.forEachIndexed { index, option ->
                     OrderOption(
@@ -205,11 +224,12 @@ fun FilterBottomSheet(
             }
         }
 
-        item {
+        item(key = "filters_section") {
             FilterSection(
                 title = "Filters",
                 subtitle = "Stack multiple filters to narrow the transaction list.",
-                icon = Icons.Default.Tune
+                icon = Icons.Default.Tune,
+                backgroundBrush = cardBrush
             ) {
                 FilterGroup(title = "Date") {
                     FlowRow(
@@ -221,6 +241,8 @@ fun FilterBottomSheet(
                                 title = dateFilter,
                                 icon = Icons.Default.DateRange,
                                 selected = selectedDateRange == dateFilter,
+                                selectedBrush = chipSelectedBrush,
+                                unselectedBrush = chipUnselectedBrush,
                                 onClick = {
                                     onDateRangeChange(if (selectedDateRange == dateFilter) null else dateFilter)
                                 }
@@ -232,19 +254,43 @@ fun FilterBottomSheet(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 FilterGroup(title = "Transaction Type") {
+                    val isAllTypesActive = selectedTransactionTypeIds.size == 2 || selectedTransactionTypeIds.isEmpty()
+                    
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         FilterChip(
                             title = "Expense",
-                            selected = selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
-                            onClick = { onTransactionTypeToggle(FILTER_TYPE_EXPENSE) }
+                            selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
+                            selectedBrush = chipSelectedBrush,
+                            unselectedBrush = chipUnselectedBrush,
+                            onClick = { 
+                                if (isAllTypesActive) {
+                                    onTransactionTypeToggle(FILTER_TYPE_INCOME)
+                                    isExpenseExpanded = true
+                                    isIncomeExpanded = false
+                                } else {
+                                    onTransactionTypeToggle(FILTER_TYPE_EXPENSE)
+                                    isExpenseExpanded = !isExpenseExpanded
+                                }
+                            }
                         )
                         FilterChip(
                             title = "Income",
-                            selected = selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
-                            onClick = { onTransactionTypeToggle(FILTER_TYPE_INCOME) }
+                            selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
+                            selectedBrush = chipSelectedBrush,
+                            unselectedBrush = chipUnselectedBrush,
+                            onClick = { 
+                                if (isAllTypesActive) {
+                                    onTransactionTypeToggle(FILTER_TYPE_EXPENSE)
+                                    isIncomeExpanded = true
+                                    isExpenseExpanded = false
+                                } else {
+                                    onTransactionTypeToggle(FILTER_TYPE_INCOME)
+                                    isIncomeExpanded = !isIncomeExpanded
+                                }
+                            }
                         )
                     }
                 }
@@ -263,53 +309,69 @@ fun FilterBottomSheet(
                     }
 
                     Column {
-                        if (expenseCategories.isNotEmpty()) {
-                            FilterGroup(title = "Expense Categories") {
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    expenseCategories.forEach { category ->
-                                        FilterChip(
-                                            title = category.name,
-                                            icon = category.icon,
-                                            selected = selectedCategoryIds.contains(category.id),
-                                            onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
-                                        )
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = isExpenseExpanded && expenseCategories.isNotEmpty(),
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Column {
+                                FilterGroup(title = "Expense Categories") {
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        expenseCategories.forEach { category ->
+                                            FilterChip(
+                                                title = category.name,
+                                                icon = category.icon,
+                                                selected = selectedCategoryIds.contains(category.id),
+                                                selectedBrush = chipSelectedBrush,
+                                                unselectedBrush = chipUnselectedBrush,
+                                                onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
+                                            )
+                                        }
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(24.dp))
                             }
                         }
 
-                        if (expenseCategories.isNotEmpty() && incomeCategories.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                        }
-
-                        if (incomeCategories.isNotEmpty()) {
-                            FilterGroup(title = "Income Categories") {
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    incomeCategories.forEach { category ->
-                                        FilterChip(
-                                            title = category.name,
-                                            icon = category.icon,
-                                            selected = selectedCategoryIds.contains(category.id),
-                                            onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
-                                        )
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = isIncomeExpanded && incomeCategories.isNotEmpty(),
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Column {
+                                FilterGroup(title = "Income Categories") {
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        incomeCategories.forEach { category ->
+                                            FilterChip(
+                                                title = category.name,
+                                                icon = category.icon,
+                                                selected = selectedCategoryIds.contains(category.id),
+                                                selectedBrush = chipSelectedBrush,
+                                                unselectedBrush = chipUnselectedBrush,
+                                                onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
+                                            )
+                                        }
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(24.dp))
                             }
                         }
 
-                        if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
-                            FilterGroup(title = "Categories") {
-                                Text(
-                                    text = "No categories available for selected type.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                        if ((isExpenseExpanded && expenseCategories.isEmpty()) || (isIncomeExpanded && incomeCategories.isEmpty())) {
+                            if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
+                                FilterGroup(title = "Categories") {
+                                    Text(
+                                        text = "No categories available for selected type.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
@@ -331,6 +393,8 @@ fun FilterBottomSheet(
                                     title = paymentType.name,
                                     icon = paymentType.icon,
                                     selected = selectedPaymentTypeIds.contains(paymentType.id),
+                                    selectedBrush = chipSelectedBrush,
+                                    unselectedBrush = chipUnselectedBrush,
                                     onClick = { if (isLocked) onClick() else onPaymentModeToggle(paymentType.id) }
                                 )
                             }
@@ -359,17 +423,17 @@ fun FilterBottomSheet(
             }
         }
 
-        item {
+        item(key = "apply_button") {
             Button(
                 onClick = onApply,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(58.dp)
                     .shadow(
-                        elevation = 8.dp,
+                        elevation = 4.dp, // Reduced for performance
                         shape = RoundedCornerShape(22.dp),
-                        ambientColor = colorScheme.primary.copy(alpha = 0.25f),
-                        spotColor = colorScheme.primary.copy(alpha = 0.25f)
+                        ambientColor = colorScheme.primary.copy(alpha = 0.15f),
+                        spotColor = colorScheme.primary.copy(alpha = 0.15f)
                     ),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -381,7 +445,7 @@ fun FilterBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(brandGradient()),
+                        .background(brandBrush),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -497,12 +561,11 @@ private fun FilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null
+    icon: ImageVector? = null,
+    selectedBrush: Brush = brandGradient(alpha = 0.2f),
+    unselectedBrush: Brush = subtlePrimaryGradient()
 ) {
     val colorScheme = MaterialTheme.colorScheme
-
-    val selectedBrush = brandGradient(alpha = 0.2f)
-    val unselectedBrush = subtlePrimaryGradient()
 
     val selectedBorderColor = colorScheme.primary.copy(alpha = 0.35f)
     val unselectedBorderColor = colorScheme.onSurface.copy(alpha = 0.15f)
@@ -579,6 +642,7 @@ private fun FilterSection(
     title: String,
     subtitle: String,
     icon: ImageVector,
+    backgroundBrush: Brush = standardCardGradient(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -587,7 +651,7 @@ private fun FilterSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(standardCardGradient())
+            .background(backgroundBrush)
             .border(
                 width = 1.dp,
                 color = colorScheme.primary.copy(alpha = 0.15f),
@@ -602,7 +666,7 @@ private fun FilterSection(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
-                    .background(brandGradient(alpha = 0.15f))
+                    .background(colorScheme.primary.copy(alpha = 0.15f))
                     .padding(10.dp)
             ) {
                 Icon(
