@@ -69,7 +69,9 @@ import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CalculatorLineItem
+import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.models.TabItem
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.viewmodels.CalculatorMode
@@ -106,9 +108,10 @@ fun ItemizedCalculatorScreen(
             onBackClick = onBackClick
         )
 
-        CalculatorModeTabs(
-            selectedMode = uiState.selectedMode,
-            onModeSelected = viewModel::setMode
+        AnimatedTabSwitcher(
+            items = CalculatorMode.entries.map { TabItem(it, it.title) },
+            selectedItemId = uiState.selectedMode,
+            onItemSelected = viewModel::setMode
         )
 
         when (uiState.selectedMode) {
@@ -144,80 +147,6 @@ fun ItemizedCalculatorScreen(
                     expression = viewModel.buildExpression(),
                     onAction = viewModel::handleNormalAction
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CalculatorModeTabs(
-    selectedMode: CalculatorMode,
-    onModeSelected: (CalculatorMode) -> Unit
-) {
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableIntStateOf(0) }
-    val selectedIndex = CalculatorMode.entries.indexOf(selectedMode).coerceAtLeast(0)
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / CalculatorMode.entries.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "calculator_mode_indicator_offset"
-        )
-
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            CalculatorMode.entries.forEach { mode ->
-                val isSelected = selectedMode == mode
-                val animatedColor by animateColorAsState(
-                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    label = "calculator_mode_text_color"
-                )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(20.dp))
-                        .clickable { onModeSelected(mode) }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = mode.title,
-                        color = animatedColor,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                    )
-                }
             }
         }
     }

@@ -114,6 +114,8 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.components.AppHeader
+import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mkn0079.expensetracker.ui.models.TabItem
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -293,10 +295,10 @@ fun AddTransactionScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
                 ) {
-                    TransactionModeToggle(
-                        selectedModeId = selectedTransactionTypeId,
-                        compact = compact,
-                        onModeSelected = { selectedTransactionTypeId = it }
+                    AnimatedTabSwitcher(
+                        items = transactionModes.map { TabItem(it.id, it.label) },
+                        selectedItemId = selectedTransactionTypeId,
+                        onItemSelected = { selectedTransactionTypeId = it }
                     )
 
                     Column(
@@ -772,77 +774,6 @@ private fun RecurringTransactionSection(
     }
 }
 
-@Composable
-private fun TransactionModeToggle(
-    selectedModeId: Int,
-    compact: Boolean,
-    onModeSelected: (Int) -> Unit
-) {
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableIntStateOf(0) }
-    val selectedIndex = transactionModes.indexOfFirst { it.id == selectedModeId }.coerceAtLeast(0)
-    val colorScheme = MaterialTheme.colorScheme
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / transactionModes.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "transaction_mode_indicator_offset"
-        )
-
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(brandGradient())
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            transactionModes.forEach { mode ->
-                val isSelected = mode.id == selectedModeId
-                val animatedColor by animateColorAsState(
-                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    label = "transaction_mode_text_color"
-                )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(20.dp))
-                        .clickable { onModeSelected(mode.id) }
-                        .padding(vertical = if (compact) 10.dp else 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = mode.label,
-                        color = animatedColor,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 14.sp else 15.sp
-                        )
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun AmountCard(

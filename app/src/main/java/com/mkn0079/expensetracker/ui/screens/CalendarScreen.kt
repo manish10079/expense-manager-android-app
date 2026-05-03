@@ -105,6 +105,8 @@ import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.calendarMonthTitle
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
+import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mkn0079.expensetracker.ui.models.TabItem
 import java.util.Calendar
 
 // Theme colors are now derived from MaterialTheme.colorScheme
@@ -184,11 +186,18 @@ fun CalendarScreen(
                                 calendarViewModel.setYearView(false)
                             }
                         }
-                        ViewModeToggle(
-                            isYearView = uiState.isYearView,
-                            isYearLocked = isYearLocked,
-                            onSelectMonth = { calendarViewModel.setYearView(false) },
-                            onSelectYear = { if (isYearLocked) onClick() else calendarViewModel.setYearView(true) }
+                        AnimatedTabSwitcher(
+                            items = listOf(
+                                TabItem(false, "Month"),
+                                TabItem(
+                                    id = true,
+                                    label = "Year",
+                                    isLocked = isYearLocked,
+                                    onLockedClick = { onClick() }
+                                )
+                            ),
+                            selectedItemId = uiState.isYearView,
+                            onItemSelected = { isYearView -> calendarViewModel.setYearView(isYearView) }
                         )
                     }
                 }
@@ -357,115 +366,6 @@ fun CalendarScreen(
     }
 }
 
-
-@Composable
-private fun ViewModeToggle(
-    isYearView: Boolean,
-    isYearLocked: Boolean,
-    onSelectMonth: () -> Unit,
-    onSelectYear: () -> Unit
-) {
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(Dimens.CardRadius))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / 2 }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = if (isYearView) tabWidth else 0.dp,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "calendar_indicator_offset"
-        )
-
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            ToggleSegment(
-                modifier = Modifier.weight(1f),
-                label = "Month",
-                selected = !isYearView,
-                isLocked = false,
-                onClick = onSelectMonth
-            )
-            ToggleSegment(
-                modifier = Modifier.weight(1f),
-                label = "Year",
-                selected = isYearView,
-                isLocked = isYearLocked,
-                onClick = onSelectYear
-            )
-        }
-    }
-}
-
-@Composable
-private fun ToggleSegment(
-    modifier: Modifier = Modifier,
-    label: String,
-    selected: Boolean,
-    isLocked: Boolean,
-    onClick: () -> Unit
-) {
-    val animatedColor by animateColorAsState(
-        targetValue = when {
-            selected -> MaterialTheme.colorScheme.onPrimary
-            isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        label = "calendar_toggle_text_color"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = label,
-                color = animatedColor,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-            if (isLocked) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = "$label locked",
-                    tint = MaterialTheme.colorScheme.featureGateLock,
-                    modifier = Modifier.size(12.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun MonthHeading(

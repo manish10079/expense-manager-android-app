@@ -81,6 +81,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
+import com.mkn0079.expensetracker.utils.formatCurrencyValue
+import com.mkn0079.expensetracker.utils.getAmountColor
+import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mkn0079.expensetracker.ui.models.TabItem
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.Transaction
@@ -172,15 +176,28 @@ fun AnalyticsScreen(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             item {
-                PeriodTabs(
-                    selectedPeriod = uiState.selectedPeriod,
-                    onPeriodSelected = { period ->
-                        if (period == AnalyticsPeriod.YEAR) {
-                            // Handled via GatedAction wrapper in PeriodTabs or here
+                GatedAction(
+                    feature = Feature.ANALYTICS_PERIOD_YEAR,
+                    displayName = "Yearly Analytics",
+                    onAction = { analyticsViewModel.selectPeriod(AnalyticsPeriod.YEAR) }
+                ) { status, onLockedClick ->
+                    val isYearLocked = status !is AccessStatus.Granted
+
+                    AnimatedTabSwitcher(
+                        items = AnalyticsPeriod.entries.filter { it != AnalyticsPeriod.CUSTOM }.map { period ->
+                            TabItem(
+                                id = period,
+                                label = period.label,
+                                isLocked = period == AnalyticsPeriod.YEAR && isYearLocked,
+                                onLockedClick = { if (period == AnalyticsPeriod.YEAR && isYearLocked) onLockedClick() }
+                            )
+                        },
+                        selectedItemId = uiState.selectedPeriod,
+                        onItemSelected = { period ->
+                            analyticsViewModel.selectPeriod(period)
                         }
-                        analyticsViewModel.selectPeriod(period)
-                    }
-                )
+                    )
+                }
             }
             item {
                 CustomRangeSelector(
@@ -357,137 +374,7 @@ fun AnalyticsScreen(
 }
 
 
-@Composable
-private fun PeriodTabs(
-    selectedPeriod: AnalyticsPeriod,
-    onPeriodSelected: (AnalyticsPeriod) -> Unit
-) {
-    val periods = remember { AnalyticsPeriod.entries.filter { it != AnalyticsPeriod.CUSTOM } }
-    val selectedIndex = periods.indexOf(selectedPeriod)
-    val isTabSelected = selectedIndex != -1
 
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    var containerWidthPx by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(Dimens.CardRadius))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = if (isTabSelected) tabWidth * selectedIndex else 0.dp,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "period_indicator_offset"
-        )
-
-        val indicatorAlpha by animateFloatAsState(
-            targetValue = if (isTabSelected) 1f else 0f,
-            label = "period_indicator_alpha"
-        )
-
-        // Sliding indicator (Pill)
-        if (indicatorAlpha > 0f && containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .graphicsLayer { alpha = indicatorAlpha }
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
-            )
-        }
-
-        // Tab Content
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            periods.forEach { period ->
-                val selected = period == selectedPeriod
-                
-                if (period == AnalyticsPeriod.YEAR) {
-                    GatedAction(
-                        feature = Feature.ANALYTICS_PERIOD_YEAR,
-                        displayName = "Yearly Analytics",
-                        onAction = { onPeriodSelected(period) }
-                    ) { status, onClick ->
-                        val isLocked = status !is AccessStatus.Granted
-                        PeriodTabItem(
-                            period = period,
-                            selected = selected,
-                            isLocked = isLocked,
-                            onClick = { if (isLocked) onClick() else onPeriodSelected(period) }
-                        )
-                    }
-                } else {
-                    PeriodTabItem(
-                        period = period,
-                        selected = selected,
-                        isLocked = false,
-                        onClick = { onPeriodSelected(period) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.PeriodTabItem(
-    period: AnalyticsPeriod,
-    selected: Boolean,
-    isLocked: Boolean,
-    onClick: () -> Unit
-) {
-    val animatedColor by animateColorAsState(
-        targetValue = when {
-            selected -> MaterialTheme.colorScheme.onPrimary
-            isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        label = "period_text_color"
-    )
-
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = period.label,
-                color = animatedColor,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp
-                ),
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-            if (isLocked) {
-                Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = "Locked",
-                    tint = MaterialTheme.colorScheme.featureGateLock,
-                    modifier = Modifier.size(12.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun CustomRangeSelector(
@@ -571,46 +458,7 @@ private fun CustomRangeSelector(
     }
 }
 
-@Composable
-private fun HeroToggle(
-    selectedMode: HeroDisplayMode,
-    onModeSelected: (HeroDisplayMode) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(standardCardGradient())
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        HeroDisplayMode.entries.forEach { mode ->
-            val isSelected = mode == selectedMode
-            val backgroundColor by animateColorAsState(
-                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                label = "bg"
-            )
-            val textColor by animateColorAsState(
-                if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                label = "text"
-            )
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(backgroundColor)
-                    .clickable { onModeSelected(mode) }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = mode.label,
-                    color = textColor,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun HeroAnalyticsSection(
@@ -650,7 +498,13 @@ private fun HeroAnalyticsSection(
                     fontWeight = FontWeight.Medium
                 )
             )
-            HeroToggle(selectedMode = displayMode, onModeSelected = onDisplayModeChange)
+            AnimatedTabSwitcher(
+                items = HeroDisplayMode.entries.map { TabItem(it, it.label) },
+                selectedItemId = displayMode,
+                onItemSelected = onDisplayModeChange,
+                modifier = Modifier.width(180.dp),
+                compact = true
+            )
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(

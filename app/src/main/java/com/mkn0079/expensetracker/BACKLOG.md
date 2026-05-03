@@ -36,12 +36,12 @@ Flow to follow:
 ---
 
 ### 🟡 Medium Priority - Functional Improvements
-39. 16. [fixed] Add a reset button to clear all fields in Add Transaction screen
+16. [verified] Add a reset button to clear all fields in Add Transaction screen
 
 ---
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-21. [ ] Add slide animations between tabs in Manage Categories screen
+21. [verified] Add slide animations between tabs in Manage Categories screen
 22. [ ] Remove "Personalize your vault" text from Add Category screen
 23. [ ] Use official app icon in the About screen
 24. [ ] Refactor Notification settings to use SettingsItemCard
