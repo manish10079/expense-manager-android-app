@@ -11,6 +11,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -136,67 +138,90 @@ class MainActivity : FragmentActivity() {
                     }
                 }
 
-                if (!isReady) {
-                    // 1. Splash Screen (Absolute priority during boot)
-                    SplashOverlay(viewModel = splashViewModel)
-                } else if (appSettings != null) {
-                    val settings = appSettings!!
-                    
-                    // 2. Decide what to show based on Lock State (with Premium Transition)
-                    AnimatedContent(
-                        targetState = appLockState,
-                        transitionSpec = {
-                            if (targetState is AppLockState.Unlocked) {
-                                // Unlock transition: Scale and Fade (Premium Feel)
-                                (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) + 
-                                 scaleIn(initialScale = 0.92f, animationSpec = tween(500, easing = LinearOutSlowInEasing)))
-                                .togetherWith(
-                                 fadeOut(animationSpec = tween(400)) + 
-                                 scaleOut(targetScale = 1.08f, animationSpec = tween(400)))
-                            } else {
-                                // Default transitions (Locking or Loading)
-                                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
-                            }
-                        },
-                        label = "app_lock_transition",
-                        modifier = Modifier.fillMaxSize()
-                    ) { state ->
-                        when (state) {
-                            is AppLockState.Loading -> {
-                                // Fail-Secure: Show nothing while determining lock state
-                                Box(modifier = Modifier.fillMaxSize())
-                            }
-                            is AppLockState.Locked -> {
-                                // 3. App Lock Screen (Blocks Main Content)
-                                val activity = LocalContext.current.findFragmentActivity()
-                                val biometricAuthenticator = remember(activity) {
-                                    activity?.let(BiometricAuthManager::createAuthenticator)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // 1. Main App Content (Always present if ready, but can be covered)
+                    if (isReady && appSettings != null) {
+                        MainScreen(
+                            isReady = true,
+                            appSettings = appSettings!!,
+                            userProfile = userProfile,
+                            initialNavDestination = initialNavDestination
+                        )
+                    }
+
+                    // 2. Decide what to show based on Lock State (Overlay Layer)
+                    if (appSettings != null) {
+                        val settings = appSettings!!
+                        AnimatedContent(
+                            targetState = appLockState,
+                            transitionSpec = {
+                                if (targetState is AppLockState.Unlocked) {
+                                    // Unlock transition: Scale and Fade (Premium Feel)
+                                    (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
+                                            scaleIn(
+                                                initialScale = 0.92f,
+                                                animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                                            ))
+                                        .togetherWith(
+                                            fadeOut(animationSpec = tween(400)) +
+                                                    scaleOut(
+                                                        targetScale = 1.08f,
+                                                        animationSpec = tween(400)
+                                                    )
+                                        )
+                                } else {
+                                    // Default transitions (Locking or Loading)
+                                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
+                                        animationSpec = tween(300)
+                                    )
+                                }
+                            },
+                            label = "app_lock_transition",
+                            modifier = Modifier.fillMaxSize()
+                        ) { state ->
+                            when (state) {
+                                is AppLockState.Loading -> {
+                                    // Fail-Secure: Show black screen while determining lock state
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black)
+                                    )
                                 }
 
-                                AppLockOverlay(
-                                    isReady = true,
-                                    appSettings = settings,
-                                    onUnlockSuccess = { appLockViewModel.unlock() },
-                                    onBiometricClick = {
-                                        biometricAuthenticator?.authenticate(
-                                            title = "Unlock Expense Tracker",
-                                            subtitle = "Verify your biometric to continue.",
-                                            negativeButtonText = "Use PIN",
-                                            onSuccess = { appLockViewModel.unlock() }
-                                        )
+                                is AppLockState.Locked -> {
+                                    // 3. App Lock Screen (Blocks Main Content)
+                                    val activity = LocalContext.current.findFragmentActivity()
+                                    val biometricAuthenticator = remember(activity) {
+                                        activity?.let(BiometricAuthManager::createAuthenticator)
                                     }
-                                )
-                            }
-                            is AppLockState.Unlocked -> {
-                                // 4. Main App Content (Only accessible when Unlocked)
-                                MainScreen(
-                                    isReady = true,
-                                    appSettings = settings,
-                                    userProfile = userProfile,
-                                    initialNavDestination = initialNavDestination
-                                )
+
+                                    AppLockOverlay(
+                                        isReady = true,
+                                        appSettings = settings,
+                                        onUnlockSuccess = { appLockViewModel.unlock() },
+                                        onBiometricClick = {
+                                            biometricAuthenticator?.authenticate(
+                                                title = "Unlock Expense Tracker",
+                                                subtitle = "Verify your biometric to continue.",
+                                                negativeButtonText = "Use PIN",
+                                                onSuccess = { appLockViewModel.unlock() }
+                                            )
+                                        }
+                                    )
+                                }
+
+                                is AppLockState.Unlocked -> {
+                                    // Unlocked: Overlay is gone
+                                    Box(modifier = Modifier.fillMaxSize())
+                                }
                             }
                         }
+                    }
+
+                    // 3. Splash Screen (Absolute priority during boot, stays on top of everything)
+                    if (!isReady) {
+                        SplashOverlay(viewModel = splashViewModel)
                     }
                 }
             }

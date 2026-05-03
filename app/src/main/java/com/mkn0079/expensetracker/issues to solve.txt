@@ -52,7 +52,7 @@ Flow to follow:
 3. [verified] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
 4. [verified] All screen top padding not aligned (Affects visual integrity of every screen)
 5. [verified] Unify one gradient style across the app (Fixes inconsistent branding/design)
-6. [ ] After app lock when unlock it redirect to home
+6. [fixed] After app lock when unlock it redirect to home
 7. [verified] Make separate section for category of income and expense (Right now it shows all as all categories)
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
@@ -82,3 +82,5 @@ Flow to follow:
 28.[ ] sortfilterbottom sheet  is color pallelte is fully differnt
         from the app fix it make such that it will a part of the app 
         for both light and dark mode 
+29.[] lock the app's orientation to potrait mode 
+30.[] in Manage category screen make the icons background  cirlce from squircle
