@@ -36,7 +36,7 @@ Flow to follow:
 ---
 
 ### 🟡 Medium Priority - Functional Improvements
-13. [fixed] Add search icons in Add Category screen (Ready for verification)
+13. [verified] Add search icons in Add Category screen (Ready for verification)
 15. [ ] Reduce top header padding to 10dp (Global layout polish)
 17. [ ] Fix search and sort filter icon colors for dark/light mode
 18. [ ] In sortfilter sheet: remove duplicate "bill/bills" categories
