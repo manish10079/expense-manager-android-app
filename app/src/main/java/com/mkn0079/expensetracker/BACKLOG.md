@@ -36,29 +36,22 @@ Flow to follow:
 ---
 
 ### 🟡 Medium Priority - Functional Improvements
-13. [verified] Add search icons in Add Category screen (Ready for verification)
-15. [verified] Reduce top header padding to 10dp (Global layout polish)
-17. [verified] Fix search and sort filter icon colors for dark/light mode
-18. [verified] In sortfilter sheet: remove duplicate "bill/bills" categories
-16. [ ]  a reset button to clear all fields in Add Transaction screen
-14. [verified] Add calendar icon in Calendar screen near labels (Jump-to-date indicator)
-19. [verified] Fix label/arrow alignment consistency in Calendar screen between month and year view  and color of arrows 
-20. [verified] Budget screen: Remove "Day" from custom month date picker (Show only Month/Year)
+39. 16. [fixed] Add a reset button to clear all fields in Add Transaction screen
 
 ---
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
+21. [ ] Add slide animations between tabs in Manage Categories screen
 22. [ ] Remove "Personalize your vault" text from Add Category screen
 23. [ ] Use official app icon in the About screen
+24. [ ] Refactor Notification settings to use SettingsItemCard
+26. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
 27. [ ] Fix circular background color of Delete icon in Dark Mode
 28. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
-21. [ ] Add slide animations between tabs in Manage Categories screen
+29. [ ] Standardize all card/toggle backgrounds with unified gradient
 30. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories
 31. [ ] Apply unified gradient to all toggle switches
 32. [ ] StatsCard: Auto-hide balance/income/expense (Show for 10s on click)
-24. [ ] Refactor Notification settings to use SettingsItemCard
-26. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
-29. [ ] Standardize all card/toggle backgrounds with unified gradient
 
 ---
 
@@ -76,5 +69,11 @@ Flow to follow:
 11. [verified] Aligned Add Category buttons in a single row
 12. [verified] Changed back button touch feedback to circular ripple
 13. [verified] Add search icons in Add Category screen
+14. [verified] Add calendar icon in Calendar screen near labels (Jump-to-date indicator)
+15. [verified] Reduce top header padding to 10dp (Global layout polish)
+17. [verified] Fix search and sort filter icon colors for dark/light mode
+18. [verified] In sortfilter sheet: remove duplicate "bill/bills" categories
+19. [verified] Fix label/arrow alignment consistency in Calendar screen between month and year view and color of arrows
+20. [verified] Budget screen: Remove "Day" from custom month date picker (Show only Month/Year)
 25. [verified] Added gradient style to "Create Category" button
 33. [verified] Made Add Category sheet scrollable and keyboard-aware

@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -463,6 +464,25 @@ fun AddTransactionScreen(
                         contentDescription = "Open calculator",
                         onClick = onCalculatorClick
                     )
+
+                    if (!isEditMode) {
+                        SideActionButton(
+                            icon = Icons.Filled.Refresh,
+                            contentDescription = "Clear fields",
+                            onClick = {
+                                selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
+                                selectedCategoryId = 0
+                                selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
+                                amountInput = "0"
+                                selectedDateMillis = System.currentTimeMillis()
+                                note = ""
+                                noteDraft = ""
+                                isRecurringEnabled = false
+                                selectedRecurringFrequency = RecurringFrequency.Monthly
+                                recurringCountInput = "12"
+                            }
+                        )
+                    }
                 }
             }
         }
