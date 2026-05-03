@@ -1,4 +1,4 @@
-# 📝 Expense Tracker - Issues to Solve (Prioritized)
+# 📝 Expense Tracker - Backlog
 
 ### 📌 Status Rules
 [ ] = Not started  
@@ -52,35 +52,32 @@ Flow to follow:
 3. [verified] App lock overlay while opening app: fix opacity (Affects privacy/security feel)
 4. [verified] All screen top padding not aligned (Affects visual integrity of every screen)
 5. [verified] Unify one gradient style across the app (Fixes inconsistent branding/design)
-6. [fixed] After app lock when unlock it redirect to home
+6. [verified] After app lock when unlock it redirect to home
 7. [verified] Make separate section for category of income and expense (Right now it shows all as all categories)
+8. [ ] Lock the app's orientation to portrait mode (Ensures layout stability across all devices)
+9. [ ] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
-8. [ ] Remove navbar from Transactions screen
-9. [ ] Put Add Category and Cancel button in a single row in Add Category screen
-10. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
-11. [ ] Add search icons in Add Category screen
-12. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
-13. [ ] Reduce top header padding to 10dp
-14. [ ] Add a reset button to reset all fields in add transaction screen
-15. [ ] Fix search and sort filter icon for dark mode and light mode
-16. [ ] In sortfilter sheet there bill and bills remove one
-17. [ ] Make consistent arrow and label distance in calendar screen between month and year view
-18. [ ] In budget and recurring screen in custom month toggle date picker shows day month year, remove day
+10. [ ] Remove navbar from Transactions screen
+11. [ ] Put Add Category and Cancel button in a single row in Add Category screen
+12. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
+13. [ ] Add search icons in Add Category screen
+14. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
+15. [ ] Reduce top header padding to 10dp
+16. [ ] Add a reset button to reset all fields in add transaction screen
+17. [ ] Fix search and sort filter icon for dark mode and light mode
+18. [ ] In sortfilter sheet there bill and bills remove one
+19. [ ] Make consistent arrow and label distance in calendar screen between month and year view
+20. [ ] In budget and recurring screen in custom month toggle date picker shows day month year, remove day
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-19. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
-20. [ ] Remove "Personalize your vault" from Add Category screen
-21. [ ] Use app's icon in About screen
-22. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
-23. [verified] Add the same gradient style to "Create Category" button used across the app
-24. [ ] Use same wheeldatetimepicker in calendar screen to jump over specific period
-25. [ ] Fix delete icon's circular background color in dark mode
-26. [ ] Itemized calculator "Add Item" popup: Lift up or make keyboard aware to prevent being hidden
-27. [ ] Standardize card and toggle backgrounds with unified gradient across the app
-
-28.[ ] sortfilterbottom sheet  is color pallelte is fully differnt
-        from the app fix it make such that it will a part of the app 
-        for both light and dark mode 
-29.[] lock the app's orientation to potrait mode 
-30.[] in Manage category screen make the icons background  cirlce from squircle
+21. [ ] Add slide toggle animation between categories in Manage Categories (Expense, Income, Payment)
+22. [ ] Remove "Personalize your vault" from Add Category screen
+23. [ ] Use app's icon in About screen
+24. [ ] Use same unified `SettingsItemCard` reusable component in Notification settings
+25. [verified] Add the same gradient style to "Create Category" button used across the app
+26. [ ] Use same wheeldatetimepicker in calendar screen to jump over specific period
+27. [ ] Fix delete icon's circular background color in dark mode
+28. [ ] Itemized calculator "Add Item" popup: Lift up or make keyboard aware to prevent being hidden
+29. [ ] Standardize card and toggle backgrounds with unified gradient across the app
+30. [ ] In Manage category screen  category card should use appiconbox component if not using and  use settingsItemCard component if not used only if possible
