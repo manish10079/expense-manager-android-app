@@ -43,7 +43,7 @@ Flow to follow:
 16. [ ] Add a reset button to clear all fields in Add Transaction screen
 14. [verified] Add calendar icon in Calendar screen near labels (Jump-to-date indicator)
 19. [verified] Fix label/arrow alignment consistency in Calendar screen between month and year view  and color of arrows 
-20. [ ] Budget screen: Remove "Day" from custom month date picker (Show only Month/Year)
+20. [verified] Budget screen: Remove "Day" from custom month date picker (Show only Month/Year)
 
 ---
 

@@ -303,7 +303,7 @@ fun BudgetScreen(
 
     if (isMonthPickerVisible) {
         WheelDateTimePickerModal(
-            mode = WheelPickerMode.SINGLE_DATE,
+            mode = WheelPickerMode.MONTH_YEAR,
             initialStartMillis = uiState.customMonthStart,
             onDismissRequest = { isMonthPickerVisible = false },
             onConfirm = { pickedDateMillis, _ ->
