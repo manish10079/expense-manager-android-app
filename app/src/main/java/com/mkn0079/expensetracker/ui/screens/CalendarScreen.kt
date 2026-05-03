@@ -30,6 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -494,6 +495,12 @@ private fun MonthHeading(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
+                Icon(
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = "Jump to date",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
                 if (isPickerLocked) {
                     Icon(
                         imageVector = Icons.Filled.Lock,
@@ -777,6 +784,12 @@ private fun YearHeading(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.ExtraBold
+                )
+                Icon(
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = "Jump to year",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
                 if (isPickerLocked) {
                     Icon(
