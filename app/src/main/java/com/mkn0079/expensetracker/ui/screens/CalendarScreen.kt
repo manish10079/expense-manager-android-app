@@ -766,14 +766,11 @@ private fun YearHeading(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(18.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            SimpleIconButton(
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Previous year",
-                onClick = onPreviousYear
-            )
+            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, onClick = onPreviousYear)
             Row(
                 modifier = Modifier.clickable(onClick = onOpenYearPicker),
                 verticalAlignment = Alignment.CenterVertically,
@@ -782,14 +779,14 @@ private fun YearHeading(
                 Text(
                     text = year.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 30.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = "Jump to year",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
                     Icon(
@@ -800,11 +797,7 @@ private fun YearHeading(
                     )
                 }
             }
-            SimpleIconButton(
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Next year",
-                onClick = onNextYear
-            )
+            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, onClick = onNextYear)
         }
 
         Row(
