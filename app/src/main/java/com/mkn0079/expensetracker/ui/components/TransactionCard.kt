@@ -90,8 +90,8 @@ fun TransactionCard(
             AppIconBox(
                 icon = icon,
                 contentDescription = note,
-                size = 42.dp,
-                iconSize = 20.dp,
+                size = 50.dp,
+                iconSize = 25.dp,
                 border = BorderStroke(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)

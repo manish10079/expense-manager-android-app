@@ -495,7 +495,7 @@ fun TransactionScreen(
                     state = lazyListState,
                     modifier = Modifier
                         .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 180.dp)
                 ) {
                     items(
@@ -690,10 +690,4 @@ private fun TransactionDateHeader(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TransactionScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        TransactionScreen()
-    }
-}
+
