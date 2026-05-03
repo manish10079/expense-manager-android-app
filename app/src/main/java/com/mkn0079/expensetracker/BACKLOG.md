@@ -59,7 +59,7 @@ Flow to follow:
 9. [verified] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
-10. [ ] Remove navbar from Transactions screen
+10. [verified] Remove navbar from Transactions screen
 11. [ ] Put Add Category and Cancel button in a single row in Add Category screen
 12. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
 13. [ ] Add search icons in Add Category screen

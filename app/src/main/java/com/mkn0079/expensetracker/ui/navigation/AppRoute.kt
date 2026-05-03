@@ -8,7 +8,7 @@ enum class AppRoute(
     Analytics("analytics", true),
     Budget("budget", true),
     Calendar("calendar", true),
-    Transactions("transactions", true),
+    Transactions("transactions", false),
     Settings("settings", false),
     Preferences("preferences", false),
     SecurityPrivacy("security_privacy", false),
