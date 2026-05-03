@@ -303,41 +303,119 @@ fun FilterBottomSheet(
                 ) { status, onClick ->
                     val isLocked = status !is AccessStatus.Granted
                     
+                    val expenseCategories = remember(availableCategories) {
+                        availableCategories.filter { it.transactionTypeId == FILTER_TYPE_EXPENSE }
+                    }
+                    val incomeCategories = remember(availableCategories) {
+                        availableCategories.filter { it.transactionTypeId == FILTER_TYPE_INCOME }
+                    }
+
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            FilterGroupLabel(
-                                title = when {
-                                    selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "All Categories"
-                                    selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE) -> "Expense Categories"
-                                    selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME) -> "Income Categories"
-                                    else -> "Categories"
-                                }
-                            )
-                            if (isLocked) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(
-                                    imageVector = Icons.Filled.Lock,
-                                    contentDescription = "Locked",
-                                    tint = MaterialTheme.colorScheme.featureGateLock,
-                                    modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                        if (expenseCategories.isNotEmpty()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Expense Categories",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                 )
+                                if (isLocked) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Filled.Lock,
+                                        contentDescription = "Locked",
+                                        tint = MaterialTheme.colorScheme.featureGateLock,
+                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                expenseCategories.forEach { category ->
+                                    FilterOptionChip(
+                                        title = category.name,
+                                        icon = category.icon,
+                                        selected = selectedCategoryIds.contains(category.id),
+                                        onClick = { 
+                                            if (isLocked) onClick() else onCategoryToggle(category.id)
+                                        }
+                                    )
+                                }
                             }
                         }
-                        
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            availableCategories.forEach { category ->
-                                FilterOptionChip(
-                                    title = category.name,
-                                    icon = category.icon,
-                                    selected = selectedCategoryIds.contains(category.id),
-                                    onClick = { 
-                                        if (isLocked) onClick() else onCategoryToggle(category.id)
-                                    }
+
+                        if (expenseCategories.isNotEmpty() && incomeCategories.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
+
+                        if (incomeCategories.isNotEmpty()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Income Categories",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                 )
+                                if (isLocked) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Filled.Lock,
+                                        contentDescription = "Locked",
+                                        tint = MaterialTheme.colorScheme.featureGateLock,
+                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                                    )
+                                }
                             }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                incomeCategories.forEach { category ->
+                                    FilterOptionChip(
+                                        title = category.name,
+                                        icon = category.icon,
+                                        selected = selectedCategoryIds.contains(category.id),
+                                        onClick = { 
+                                            if (isLocked) onClick() else onCategoryToggle(category.id)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Categories",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                                if (isLocked) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Filled.Lock,
+                                        contentDescription = "Locked",
+                                        tint = MaterialTheme.colorScheme.featureGateLock,
+                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "No categories available for selected type.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
@@ -353,7 +431,13 @@ fun FilterBottomSheet(
                     
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FilterGroupLabel(title = "Payment Mode")
+                            Text(
+                                text = "Payment Mode",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
                             if (isLocked) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
@@ -364,6 +448,7 @@ fun FilterBottomSheet(
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
                         
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
