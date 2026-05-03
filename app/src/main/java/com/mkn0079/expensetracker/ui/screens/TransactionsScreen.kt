@@ -273,12 +273,12 @@ fun TransactionScreen(
                                     onClick = onClick,
                                     modifier = Modifier
                                         .size(26.dp)
-                                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), RoundedCornerShape(15.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
                                 ) {
                                       Icon(
                                           imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
                                           contentDescription = "Search transactions",
-                                          tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.featureGateLock,
+                                          tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.featureGateLock,
                                           modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
                                       )
                                 }
@@ -297,12 +297,12 @@ fun TransactionScreen(
                                 },
                                 modifier = Modifier
                                     .size(26.dp)
-                                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), RoundedCornerShape(15.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Tune,
                                     contentDescription = "Sort & Filter",
-                                    tint = MaterialTheme.colorScheme.secondary
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
