@@ -40,7 +40,7 @@ Flow to follow:
 15. [verified] Reduce top header padding to 10dp (Global layout polish)
 17. [verified] Fix search and sort filter icon colors for dark/light mode
 18. [verified] In sortfilter sheet: remove duplicate "bill/bills" categories
-16. [ ] Add a reset button to clear all fields in Add Transaction screen
+16. [ ]  a reset button to clear all fields in Add Transaction screen
 14. [verified] Add calendar icon in Calendar screen near labels (Jump-to-date indicator)
 19. [verified] Fix label/arrow alignment consistency in Calendar screen between month and year view  and color of arrows 
 20. [verified] Budget screen: Remove "Day" from custom month date picker (Show only Month/Year)

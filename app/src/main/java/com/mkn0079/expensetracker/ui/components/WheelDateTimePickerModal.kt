@@ -168,7 +168,7 @@ fun WheelDateTimePickerModal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Error message slot
             Box(modifier = Modifier.height(24.dp), contentAlignment = Alignment.Center) {
@@ -181,7 +181,7 @@ fun WheelDateTimePickerModal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
