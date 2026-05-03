@@ -27,7 +27,7 @@ import java.io.File
         BudgetEntity::class,
         RecurringRuleEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -52,7 +52,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build().also { INSTANCE = it }
             }
         }
@@ -80,6 +80,16 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE budgets ADD COLUMN edit_count INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Migrate transactions and budgets using duplicate 'Bill' (21) to 'Bills' (4)
+                db.execSQL("UPDATE transactions SET category_id = 4 WHERE category_id = 21")
+                db.execSQL("UPDATE budgets SET category_id = 4 WHERE category_id = 21")
+                // Remove the duplicate category
+                db.execSQL("DELETE FROM categories WHERE id = 21")
             }
         }
 

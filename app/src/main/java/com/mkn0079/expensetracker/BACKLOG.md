@@ -39,7 +39,7 @@ Flow to follow:
 13. [verified] Add search icons in Add Category screen (Ready for verification)
 15. [verified] Reduce top header padding to 10dp (Global layout polish)
 17. [verified] Fix search and sort filter icon colors for dark/light mode
-18. [ ] In sortfilter sheet: remove duplicate "bill/bills" categories
+18. [verified] In sortfilter sheet: remove duplicate "bill/bills" categories
 16. [ ] Add a reset button to clear all fields in Add Transaction screen
 14. [ ] Add calendar icon in Calendar screen near labels (Jump-to-date indicator)
 19. [ ] Fix label/arrow alignment consistency in Calendar screen
