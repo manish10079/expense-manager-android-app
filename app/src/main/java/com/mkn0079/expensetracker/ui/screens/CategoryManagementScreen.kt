@@ -45,6 +45,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -402,6 +403,18 @@ private fun AddCategoryBottomSheet(
     onCreateClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var iconSearchQuery by rememberSaveable { mutableStateOf("") }
+    
+    val filteredIcons = remember(iconSearchQuery) {
+        if (iconSearchQuery.isBlank()) {
+            categoryIconOptions
+        } else {
+            categoryIconOptions.filter { 
+                it.label.contains(iconSearchQuery, ignoreCase = true) 
+            }
+        }
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -554,6 +567,46 @@ private fun AddCategoryBottomSheet(
                     )
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextField(
+                    value = iconSearchQuery,
+                    onValueChange = { iconSearchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            text = "Search icons (e.g. 'Food', 'Cash')...",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    trailingIcon = {
+                        if (iconSearchQuery.isNotEmpty()) {
+                            IconButton(onClick = { iconSearchQuery = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear search",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+
                 Spacer(modifier = Modifier.height(20.dp))
 
                 FlowRow(
@@ -561,11 +614,26 @@ private fun AddCategoryBottomSheet(
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    categoryIconOptions.forEach { option ->
+                    filteredIcons.forEach { option ->
                         IconSelectionItem(
                             option = option,
                             selected = option.id == selectedIcon.id,
                             onClick = { onIconSelected(option.id) }
+                        )
+                    }
+                }
+
+                if (filteredIcons.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No icons found for \"$iconSearchQuery\"",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
