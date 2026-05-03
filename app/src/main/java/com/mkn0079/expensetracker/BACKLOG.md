@@ -39,6 +39,7 @@ Flow to follow:
    → Change status back to [in-progress] or [blocked]
 
 8. After completing and updating any issue:
+   → compile the code if build successuful if not analyze  the error and fix it  then go to next step
    → Ask the user whether to proceed with the next issue or work on a specific issue they choose  
    → Continue this loop until the user explicitly exits or stops  
 
@@ -54,8 +55,8 @@ Flow to follow:
 5. [verified] Unify one gradient style across the app (Fixes inconsistent branding/design)
 6. [verified] After app lock when unlock it redirect to home
 7. [verified] Make separate section for category of income and expense (Right now it shows all as all categories)
-8. [ ] Lock the app's orientation to portrait mode (Ensures layout stability across all devices)
-9. [ ] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
+8. [verified] Lock the app's orientation to portrait mode (Ensures layout stability across all devices)
+9. [in-progress] Align Sort/Filter bottom sheet color palette with the rest of the app for both light and dark modes
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
 10. [ ] Remove navbar from Transactions screen
@@ -81,3 +82,7 @@ Flow to follow:
 28. [ ] Itemized calculator "Add Item" popup: Lift up or make keyboard aware to prevent being hidden
 29. [ ] Standardize card and toggle backgrounds with unified gradient across the app
 30. [ ] In Manage category screen  category card should use appiconbox component if not using and  use settingsItemCard component if not used only if possible
+31. [] use the same gradient  background used on all toggle  switches in mange category toggle( income, expense, payment) 
+not selected toggle 
+32. [] in statscard by default total balance, income amount and expnse amount should hidden  when user clicks to unhide it will
+unhide for 10 seconds and then hides it again

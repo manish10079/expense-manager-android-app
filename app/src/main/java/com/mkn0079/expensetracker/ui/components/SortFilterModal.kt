@@ -4,49 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -57,13 +27,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_ORDER
-import com.mkn0079.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_FILTER_ID
 import com.mkn0079.expensetracker.data.constants.categoryMap
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.SortType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.Dimens
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.theme.surfaceGradient
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
+import com.mkn0079.expensetracker.ui.theme.subtlePrimaryGradient
 import com.mkn0079.expensetracker.utils.getDefaultOrder
 import com.mkn0079.expensetracker.utils.getOrderOptions
 import com.mkn0079.expensetracker.monetization.Feature
@@ -77,6 +51,7 @@ const val FILTER_DATE_LAST_60_DAYS = "Last 60 Days"
 
 private const val FILTER_TYPE_INCOME = 1
 private const val FILTER_TYPE_EXPENSE = 2
+
 private val quickDateFilters = listOf(
     FILTER_DATE_LAST_7_DAYS,
     FILTER_DATE_LAST_15_DAYS,
@@ -116,7 +91,7 @@ fun FilterBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
@@ -131,7 +106,7 @@ fun FilterBottomSheet(
                         .width(54.dp)
                         .height(5.dp)
                         .clip(CircleShape)
-                        .background(colorScheme.onSurface.copy(alpha = 0.65f))
+                        .background(colorScheme.onSurface.copy(alpha = 0.25f))
                 )
             }
         }
@@ -186,38 +161,22 @@ fun FilterBottomSheet(
                 subtitle = "Choose the main attribute used to arrange the list.",
                 icon = Icons.Default.Tune
             ) {
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    SortChip(
-                        modifier = Modifier.weight(1f),
-                        title = "Date",
-                        icon = Icons.Default.DateRange,
-                        selected = selectedSort == "Date"
-                    ) {
-                        onSortChange("Date")
-                        onOrderChange(getDefaultOrder("Date"))
-                    }
-
-                    SortChip(
-                        modifier = Modifier.weight(1f),
-                        title = "Amount",
-                        icon = Icons.Default.AttachMoney,
-                        selected = selectedSort == "Amount"
-                    ) {
-                        onSortChange("Amount")
-                        onOrderChange(getDefaultOrder("Amount"))
-                    }
-
-                    SortChip(
-                        modifier = Modifier.weight(1f),
-                        title = "Category",
-                        icon = Icons.Default.GridView,
-                        selected = selectedSort == "Category"
-                    ) {
-                        onSortChange("Category")
-                        onOrderChange(getDefaultOrder("Category"))
+                    val sortOptions = listOf("Date" to Icons.Default.DateRange, "Amount" to Icons.Default.AttachMoney, "Category" to Icons.Default.GridView)
+                    sortOptions.forEach { (title, icon) ->
+                        FilterChip(
+                            title = title,
+                            icon = icon,
+                            selected = selectedSort == title,
+                            onClick = {
+                                onSortChange(title)
+                                onOrderChange(getDefaultOrder(title))
+                            }
+                        )
                     }
                 }
             }
@@ -252,57 +211,50 @@ fun FilterBottomSheet(
                 subtitle = "Stack multiple filters to narrow the transaction list.",
                 icon = Icons.Default.Tune
             ) {
-                FilterGroupLabel(title = "Date")
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    quickDateFilters.forEach { dateFilter ->
-                        FilterOptionChip(
-                            title = dateFilter,
-                            icon = Icons.Default.DateRange,
-                            selected = selectedDateRange == dateFilter,
-                            onClick = {
-                                onDateRangeChange(
-                                    if (selectedDateRange == dateFilter) {
-                                        null
-                                    } else {
-                                        dateFilter
-                                    }
-                                )
-                            }
+                FilterGroup(title = "Date") {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        quickDateFilters.forEach { dateFilter ->
+                            FilterChip(
+                                title = dateFilter,
+                                icon = Icons.Default.DateRange,
+                                selected = selectedDateRange == dateFilter,
+                                onClick = {
+                                    onDateRangeChange(if (selectedDateRange == dateFilter) null else dateFilter)
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                FilterGroup(title = "Transaction Type") {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        FilterChip(
+                            title = "Expense",
+                            selected = selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
+                            onClick = { onTransactionTypeToggle(FILTER_TYPE_EXPENSE) }
+                        )
+                        FilterChip(
+                            title = "Income",
+                            selected = selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
+                            onClick = { onTransactionTypeToggle(FILTER_TYPE_INCOME) }
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroupLabel(title = "Transaction Type")
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    FilterOptionChip(
-                        title = "Expense",
-                        selected = selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
-                        onClick = { onTransactionTypeToggle(FILTER_TYPE_EXPENSE) }
-                    )
-                    FilterOptionChip(
-                        title = "Income",
-                        selected = selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
-                        onClick = { onTransactionTypeToggle(FILTER_TYPE_INCOME) }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                GatedAction(
+                GatedFilterGroup(
                     feature = Feature.ADVANCED_SEARCH_SCOPE,
-                    displayName = "Filter by Category",
-                    onAction = { /* Handle inside content via onClick */ }
-                ) { status, onClick ->
-                    val isLocked = status !is AccessStatus.Granted
-                    
+                    displayName = "Filter by Category"
+                ) { isLocked, onClick ->
                     val expenseCategories = remember(availableCategories) {
                         availableCategories.filter { it.transactionTypeId == FILTER_TYPE_EXPENSE }
                     }
@@ -312,39 +264,19 @@ fun FilterBottomSheet(
 
                     Column {
                         if (expenseCategories.isNotEmpty()) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "Expense Categories",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                )
-                                if (isLocked) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(
-                                        imageVector = Icons.Filled.Lock,
-                                        contentDescription = "Locked",
-                                        tint = MaterialTheme.colorScheme.featureGateLock,
-                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                expenseCategories.forEach { category ->
-                                    FilterOptionChip(
-                                        title = category.name,
-                                        icon = category.icon,
-                                        selected = selectedCategoryIds.contains(category.id),
-                                        onClick = { 
-                                            if (isLocked) onClick() else onCategoryToggle(category.id)
-                                        }
-                                    )
+                            FilterGroup(title = "Expense Categories") {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    expenseCategories.forEach { category ->
+                                        FilterChip(
+                                            title = category.name,
+                                            icon = category.icon,
+                                            selected = selectedCategoryIds.contains(category.id),
+                                            onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -354,114 +286,52 @@ fun FilterBottomSheet(
                         }
 
                         if (incomeCategories.isNotEmpty()) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "Income Categories",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                )
-                                if (isLocked) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(
-                                        imageVector = Icons.Filled.Lock,
-                                        contentDescription = "Locked",
-                                        tint = MaterialTheme.colorScheme.featureGateLock,
-                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                incomeCategories.forEach { category ->
-                                    FilterOptionChip(
-                                        title = category.name,
-                                        icon = category.icon,
-                                        selected = selectedCategoryIds.contains(category.id),
-                                        onClick = { 
-                                            if (isLocked) onClick() else onCategoryToggle(category.id)
-                                        }
-                                    )
+                            FilterGroup(title = "Income Categories") {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    incomeCategories.forEach { category ->
+                                        FilterChip(
+                                            title = category.name,
+                                            icon = category.icon,
+                                            selected = selectedCategoryIds.contains(category.id),
+                                            onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
+                                        )
+                                    }
                                 }
                             }
                         }
 
                         if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            FilterGroup(title = "Categories") {
                                 Text(
-                                    text = "Categories",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    )
+                                    text = "No categories available for selected type.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                if (isLocked) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(
-                                        imageVector = Icons.Filled.Lock,
-                                        contentDescription = "Locked",
-                                        tint = MaterialTheme.colorScheme.featureGateLock,
-                                        modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
-                                    )
-                                }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = "No categories available for selected type.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                GatedAction(
+                GatedFilterGroup(
                     feature = Feature.ADVANCED_SEARCH_SCOPE,
-                    displayName = "Filter by Wallet/Payment Mode",
-                    onAction = { /* Handle inside content */ }
-                ) { status, onClick ->
-                    val isLocked = status !is AccessStatus.Granted
-                    
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Payment Mode",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            )
-                            if (isLocked) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(
-                                    imageVector = Icons.Filled.Lock,
-                                    contentDescription = "Locked",
-                                    tint = MaterialTheme.colorScheme.featureGateLock,
-                                    modifier = Modifier.size(14.dp).padding(bottom = 8.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        
+                    displayName = "Filter by Wallet/Payment Mode"
+                ) { isLocked, onClick ->
+                    FilterGroup(title = "Payment Mode") {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             paymentModes.forEach { paymentType ->
-                                FilterOptionChip(
+                                FilterChip(
                                     title = paymentType.name,
                                     icon = paymentType.icon,
                                     selected = selectedPaymentTypeIds.contains(paymentType.id),
-                                    onClick = { 
-                                        if (isLocked) onClick() else onPaymentModeToggle(paymentType.id)
-                                    }
+                                    onClick = { if (isLocked) onClick() else onPaymentModeToggle(paymentType.id) }
                                 )
                             }
                         }
@@ -470,20 +340,21 @@ fun FilterBottomSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroupLabel(title = "Amount Range")
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    AmountFilterField(
-                        modifier = Modifier.weight(1f),
-                        value = minAmount,
-                        placeholder = "Min",
-                        onValueChange = onMinAmountChange
-                    )
-                    AmountFilterField(
-                        modifier = Modifier.weight(1f),
-                        value = maxAmount,
-                        placeholder = "Max",
-                        onValueChange = onMaxAmountChange
-                    )
+                FilterGroup(title = "Amount Range") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AmountFilterField(
+                            modifier = Modifier.weight(1f),
+                            value = minAmount,
+                            placeholder = "Min",
+                            onValueChange = onMinAmountChange
+                        )
+                        AmountFilterField(
+                            modifier = Modifier.weight(1f),
+                            value = maxAmount,
+                            placeholder = "Max",
+                            onValueChange = onMaxAmountChange
+                        )
+                    }
                 }
             }
         }
@@ -493,76 +364,153 @@ fun FilterBottomSheet(
                 onClick = onApply,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(58.dp),
+                    .height(58.dp)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(22.dp),
+                        ambientColor = colorScheme.primary.copy(alpha = 0.25f),
+                        spotColor = colorScheme.primary.copy(alpha = 0.25f)
+                    ),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.primary,
+                    containerColor = Color.Transparent,
                     contentColor = colorScheme.onPrimary
-                )
+                ),
+                contentPadding = PaddingValues(0.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Done,
-                    contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "Apply Filters",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(brandGradient()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Apply Filters",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun FilterGroupLabel(title: String) {
-    Text(
-        text = title,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.titleSmall.copy(
-            fontWeight = FontWeight.SemiBold
+private fun FilterGroup(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    Column {
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontWeight = FontWeight.SemiBold
+            )
         )
-    )
-    Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+        content()
+    }
 }
 
 @Composable
-private fun FilterOptionChip(
+private fun GatedFilterGroup(
+    feature: Feature,
+    displayName: String,
+    content: @Composable (Boolean, () -> Unit) -> Unit
+) {
+    GatedAction(
+        feature = feature,
+        displayName = displayName,
+        onAction = { /* Handled via content onClick */ }
+    ) { status, onClick ->
+        val isLocked = status !is AccessStatus.Granted
+        Box {
+            content(isLocked, onClick)
+            if (isLocked) {
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = "Locked",
+                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(start = (displayName.length * 7).dp) // Rough estimate for title width
+                        .offset(x = 12.dp, y = 2.dp)
+                        .size(14.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Enhanced GatedFilterGroup with better Lock positioning
+ */
+@Composable
+private fun GatedFilterGroup(
+    feature: Feature,
+    displayName: String,
+    title: String,
+    content: @Composable (Boolean, () -> Unit) -> Unit
+) {
+    GatedAction(
+        feature = feature,
+        displayName = displayName,
+        onAction = { /* Handled via content onClick */ }
+    ) { status, onClick ->
+        val isLocked = status !is AccessStatus.Granted
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                if (isLocked) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "Locked",
+                        tint = MaterialTheme.colorScheme.featureGateLock,
+                        modifier = Modifier.size(14.dp).padding(bottom = 2.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            content(isLocked, onClick)
+        }
+    }
+}
+
+@Composable
+private fun FilterChip(
     title: String,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     icon: ImageVector? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    val selectedBrush = remember(colorScheme.primary, colorScheme.secondary) {
-        Brush.horizontalGradient(
-            colors = listOf(
-                colorScheme.primary.copy(alpha = 0.26f),
-                colorScheme.secondary.copy(alpha = 0.18f)
-            )
-        )
-    }
+    val selectedBrush = brandGradient(alpha = 0.2f)
+    val unselectedBrush = subtlePrimaryGradient()
 
-    val unselectedBrush = remember(colorScheme.surface, colorScheme.surfaceVariant) {
-        Brush.horizontalGradient(
-            colors = listOf(
-                colorScheme.surface.copy(alpha = 0.92f),
-                colorScheme.surfaceVariant.copy(alpha = 0.72f)
-            )
-        )
-    }
-
-    val selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
-    val unselectedBorderColor = remember(colorScheme.onSurface) { colorScheme.onSurface.copy(alpha =  0.65f) }
+    val selectedBorderColor = colorScheme.primary.copy(alpha = 0.35f)
+    val unselectedBorderColor = colorScheme.onSurface.copy(alpha = 0.15f)
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(
-                brush = if (selected) selectedBrush else unselectedBrush
-            )
+            .background(if (selected) selectedBrush else unselectedBrush)
             .border(
                 width = 1.dp,
                 color = if (selected) selectedBorderColor else unselectedBorderColor,
@@ -570,16 +518,17 @@ private fun FilterOptionChip(
             )
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) MaterialTheme.colorScheme.primary else colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(16.dp)
+                tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
             )
+            Spacer(modifier = Modifier.width(8.dp))
         }
 
         Text(
@@ -609,16 +558,16 @@ private fun AmountFilterField(
         placeholder = {
             Text(
                 text = placeholder,
-                color = colorScheme.onSurfaceVariant
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = colorScheme.surface.copy(alpha = 0.92f),
-            unfocusedContainerColor = colorScheme.surface.copy(alpha = 0.92f),
-            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
-            unfocusedBorderColor = colorScheme.onSurface.copy(alpha =  0.65f),
-            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = colorScheme.surface.copy(alpha = 0.5f),
+            unfocusedContainerColor = colorScheme.surface.copy(alpha = 0.3f),
+            focusedBorderColor = colorScheme.primary.copy(alpha = 0.35f),
+            unfocusedBorderColor = colorScheme.onSurface.copy(alpha = 0.15f),
+            cursorColor = colorScheme.primary,
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface
         )
@@ -638,10 +587,10 @@ private fun FilterSection(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
             .border(
                 width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha = 0.65f),
+                color = colorScheme.primary.copy(alpha = 0.15f),
                 shape = RoundedCornerShape(28.dp)
             )
             .padding(18.dp)
@@ -653,14 +602,7 @@ private fun FilterSection(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                colorScheme.primary.copy(alpha = 0.20f),
-                                colorScheme.secondary.copy(alpha = 0.14f)
-                            )
-                        )
-                    )
+                    .background(brandGradient(alpha = 0.15f))
                     .padding(10.dp)
             ) {
                 Icon(
