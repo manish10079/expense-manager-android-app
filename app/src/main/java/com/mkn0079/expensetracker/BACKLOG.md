@@ -61,7 +61,7 @@ Flow to follow:
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
 10. [verified] Remove navbar from Transactions screen
 11. [verified] Put Add Category and Cancel button in a single row in Add Category screen
-12. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
+12. [fixed] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
 13. [ ] Add search icons in Add Category screen
 14. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
 15. [ ] Reduce top header padding to 10dp

@@ -157,7 +157,9 @@ private fun HomeScreenContent(
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                         borderBrush = profileAvatarGradient,
                         placeholderIconBrush = profileAvatarGradient,
-                        modifier = Modifier.clickable(onClick = onProfileClick)
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable(onClick = onProfileClick)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))

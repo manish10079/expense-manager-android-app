@@ -81,15 +81,15 @@ fun AppHeader(
 private fun BackButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(48.dp)
-            .clickable(onClick = onClick),
+            .size(48.dp), // Outer padding for accessibility
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(40.dp) // The visible circle
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .clickable(onClick = onClick), // Ripple now limited to 40dp
             contentAlignment = Alignment.Center
         ) {
             Icon(
