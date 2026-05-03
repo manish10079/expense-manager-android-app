@@ -28,6 +28,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,6 +54,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -411,11 +415,19 @@ private fun AddCategoryBottomSheet(
                 .imePadding()
                 .navigationBarsPadding()
         ) {
-            val gridHeight = if (maxHeight < 760.dp) 250.dp else 320.dp
+            val scrollState = rememberScrollState()
+            val isKeyboardVisible = WindowInsets.ime.asPaddingValues().calculateBottomPadding() > 0.dp
+
+            LaunchedEffect(isKeyboardVisible) {
+                if (isKeyboardVisible) {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
+            }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(scrollState)
                     .padding(horizontal = 24.dp)
             ) {
                 Box(
@@ -544,16 +556,12 @@ private fun AddCategoryBottomSheet(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 220.dp, max = gridHeight),
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding = PaddingValues(bottom = 12.dp)
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(categoryIconOptions, key = { it.id }) { option ->
+                    categoryIconOptions.forEach { option ->
                         IconSelectionItem(
                             option = option,
                             selected = option.id == selectedIcon.id,

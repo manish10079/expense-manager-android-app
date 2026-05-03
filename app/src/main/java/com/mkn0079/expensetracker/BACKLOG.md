@@ -60,7 +60,7 @@ Flow to follow:
 
 ### 🟡 Medium Priority - Screen-Specific UI & Navigation
 10. [verified] Remove navbar from Transactions screen
-11. [in-progress] Put Add Category and Cancel button in a single row in Add Category screen
+11. [verified] Put Add Category and Cancel button in a single row in Add Category screen
 12. [ ] Back button touch feedback: change from square style to standard ripple (Fixes "show taps" look)
 13. [ ] Add search icons in Add Category screen
 14. [ ] Add calendar icon in Calendar screen near year/month labels (Indicates jump-to-date functionality)
@@ -86,3 +86,4 @@ Flow to follow:
 not selected toggle 
 32. [] in statscard by default total balance, income amount and expnse amount should hidden  when user clicks to unhide it will
 unhide for 10 seconds and then hides it again
+33. [verified] Make Add Category sheet scrollable and keyboard-aware (Ensures icons and buttons are pushed up and visible)
