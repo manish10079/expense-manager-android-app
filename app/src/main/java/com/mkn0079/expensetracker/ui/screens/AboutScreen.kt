@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,12 +44,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.theme.Dimens
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
+import com.mkn0079.expensetracker.ui.theme.brandGradient
+import com.mkn0079.expensetracker.ui.components.AppIconBox
+import androidx.compose.foundation.border
 // Legacy theme imports removed
 
 @Composable
@@ -106,16 +115,24 @@ fun AboutScreen(
             // App Icon
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(110.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                            )
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Public, // Placeholder for app icon
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(48.dp)
+                Image(
+                    painter = painterResource(id = R.mipmap.ic_launcher_round),
+                    contentDescription = "App Icon",
+                    modifier = Modifier
+                        .size(110.dp)
+                        .clip(CircleShape)
                 )
             }
 
@@ -204,22 +221,22 @@ fun AboutScreen(
             AboutSectionHeader(title = "FOLLOW US")
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 SocialButton(
-                    modifier = Modifier.weight(1f),
                     icon = Icons.Filled.Public,
                     label = "WEBSITE",
                     onClick = { openUrl("https://example.com") }
                 )
+                Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
-                    modifier = Modifier.weight(1f),
                     icon = Icons.Filled.Code,
                     label = "GITHUB",
                     onClick = { openUrl("https://github.com/manish10079") }
                 )
+                Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
-                    modifier = Modifier.weight(1f),
                     icon = Icons.Filled.Work,
                     label = "LINKEDIN",
                     onClick = { openUrl("https://linkedin.com/in/manishkumar10079") }
@@ -252,7 +269,12 @@ private fun AboutInfoCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(24.dp)
+            )
             .padding(24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -290,7 +312,12 @@ private fun DeveloperCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(24.dp)
+            )
             .clickable(onClick = onEmailClick)
             .padding(24.dp)
     ) {
@@ -319,6 +346,16 @@ private fun DeveloperCard(
 
 @Composable
 private fun AboutSectionHeader(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+        fontSize = 12.sp,
+        fontWeight = FontWeight.ExtraBold,
+        letterSpacing = 1.5.sp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, bottom = 12.dp)
+    )
 }
 
 @Composable
@@ -327,7 +364,12 @@ private fun SupportLegalSection(content: @Composable () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(standardCardGradient())
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(24.dp)
+            )
     ) {
         content()
     }
@@ -371,32 +413,45 @@ private fun AboutActionItem(
 
 @Composable
 private fun SocialButton(
-    modifier: Modifier = Modifier,
     icon: ImageVector,
     label: String,
     onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(onClick = onClick)
-            .padding(vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(24.dp)
+        AppIconBox(
+            icon = icon,
+            contentDescription = label,
+            size = 60.dp,
+            iconSize = 28.dp,
+            backgroundBrush = brandGradient(),
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.clickable(onClick = onClick)
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "About Screen - Light Mode")
+@Composable
+fun AboutScreenPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        AboutScreen(onBackClick = {})
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "About Screen - Dark Mode")
+@Composable
+fun AboutScreenPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        AboutScreen(onBackClick = {})
     }
 }

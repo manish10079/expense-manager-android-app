@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.graphics.Brush
+
 @Composable
 fun AppIconBox(
     icon: ImageVector,
@@ -27,13 +29,20 @@ fun AppIconBox(
     tint: Color = MaterialTheme.colorScheme.primary,
     backgroundAlpha: Float = 0.1f,
     backgroundColor: Color = tint.copy(alpha = backgroundAlpha),
+    backgroundBrush: Brush? = null,
     border: BorderStroke? = null
 ) {
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(backgroundColor)
+            .then(
+                if (backgroundBrush != null) {
+                    Modifier.background(backgroundBrush)
+                } else {
+                    Modifier.background(backgroundColor)
+                }
+            )
             .then(
                 if (border != null) Modifier.border(border, CircleShape) else Modifier
             ),

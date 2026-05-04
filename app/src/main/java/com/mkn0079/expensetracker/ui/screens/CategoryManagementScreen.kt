@@ -511,17 +511,7 @@ private fun AddCategoryBottomSheet(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = "PERSONALIZE YOUR VAULT",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 3.sp,
-                        fontSize = 12.sp
-                    )
-                )
 
                 Spacer(modifier = Modifier.height(28.dp))
 

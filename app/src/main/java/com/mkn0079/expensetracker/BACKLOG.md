@@ -42,15 +42,15 @@ Flow to follow:
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
 21. [verified] Add slide animations between tabs in Manage Categories screen
-22. [ ] Remove "Personalize your vault" text from Add Category screen
-23. [ ] Use official app icon in the About screen
+22. [verified] Remove "Personalize your vault" text from Add Category screen
+23. [verified] Use official app icon in the About screen
 24. [ ] Refactor Notification settings to use SettingsItemCard
 26. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
 27. [ ] Fix circular background color of Delete icon in Dark Mode
 28. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
 29. [ ] Standardize all card/toggle backgrounds with unified gradient
 30. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories
-31. [ ] Apply unified gradient to all toggle switches
+31. [verified] Apply unified gradient to all toggle switches
 32. [ ] StatsCard: Auto-hide balance/income/expense (Show for 10s on click)
 
 ---
