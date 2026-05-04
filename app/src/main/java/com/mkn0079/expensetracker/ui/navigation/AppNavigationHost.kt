@@ -3,7 +3,11 @@ package com.mkn0079.expensetracker.ui.navigation
 import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.mkn0079.expensetracker.ui.models.CategoryManagementTab
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
@@ -21,6 +25,7 @@ import com.mkn0079.expensetracker.ui.screens.AboutScreen
 import com.mkn0079.expensetracker.ui.screens.AddTransactionScreen
 import com.mkn0079.expensetracker.ui.screens.AnalyticsScreen
 import com.mkn0079.expensetracker.ui.screens.BudgetScreen
+import com.mkn0079.expensetracker.ui.screens.AddCategoryScreen
 import com.mkn0079.expensetracker.ui.screens.CalendarScreen
 import com.mkn0079.expensetracker.ui.screens.CategoryManagementScreen
 import com.mkn0079.expensetracker.ui.screens.DataManagementScreen
@@ -103,6 +108,7 @@ fun AppNavigationHost(
     onAutoBackupFrequencyChange: (Int) -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
+    var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
     val saveableStateHolder = rememberSaveableStateHolder()
     val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
         if (destinationRoute != AppRoute.ItemizedCalculator) {
@@ -137,7 +143,7 @@ fun AppNavigationHost(
                         timeFormat = selectedTimeFormat,
                         categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-                        onTransactionClick = { transaction ->
+                        onTransactionClick = { transaction: Transaction ->
                             onSelectedTransactionChange(transaction)
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)
@@ -206,7 +212,7 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
                         },
-                        onTransactionClick = { transaction ->
+                        onTransactionClick = { transaction: Transaction ->
                             onSelectedTransactionChange(transaction)
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)
@@ -231,7 +237,7 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)
                         },
-                        onTransactionClick = { transaction ->
+                        onTransactionClick = { transaction: Transaction ->
                             onSelectedTransactionChange(transaction)
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)
@@ -373,9 +379,34 @@ fun AppNavigationHost(
                         onCreateCustomPaymentType = onCreateCustomPaymentType,
                         onDeleteCustomCategory = onDeleteCustomCategory,
                         onDeleteCustomPaymentType = onDeleteCustomPaymentType,
+                        onAddCategoryClick = { targetTab ->
+                            addingCategoryTargetTab = targetTab
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.AddCategory)
+                        },
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Preferences)
+                        }
+                    )
+                }
+
+                AppRoute.AddCategory -> {
+                    val addCategoryViewModel: com.mkn0079.expensetracker.ui.viewmodels.AddCategoryViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(addingCategoryTargetTab) {
+                        addCategoryViewModel.setTargetTab(addingCategoryTargetTab)
+                    }
+                    AddCategoryScreen(
+                        viewModel = addCategoryViewModel,
+                        existingCategories = categories,
+                        existingPaymentMethods = paymentMethods,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.CategoryManagement)
+                        },
+                        onCategoryCreated = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.CategoryManagement)
                         }
                     )
                 }

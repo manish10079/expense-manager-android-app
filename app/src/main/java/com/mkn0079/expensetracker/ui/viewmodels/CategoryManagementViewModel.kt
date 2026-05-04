@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import com.mkn0079.expensetracker.data.constants.categoryFallbackDescriptions
+import com.mkn0079.expensetracker.data.constants.paymentFallbackDescriptions
 
 @Immutable
 data class CategoryManagementUiState(
@@ -75,41 +77,6 @@ class CategoryManagementViewModel : ViewModel() {
     }
 }
 
-private val categoryFallbackDescriptions = mapOf(
-    1 to "Meals & dining",
-    2 to "Fuel & commute",
-    3 to "Retail & essentials",
-    4 to "Monthly recurring",
-    5 to "Wellness & care",
-    6 to "Streaming & leisure",
-    7 to "Home & stay",
-    8 to "Daily essentials",
-    9 to "Courses & books",
-    10 to "Bills & renewals",
-    11 to "Coverage & safety",
-    12 to "Celebrations & giving",
-    13 to "Self care routine",
-    14 to "Fuel & commute",
-    15 to "Repairs & upkeep",
-    16 to "Mandatory dues",
-    17 to "Pet care expenses",
-    18 to "Kids & school",
-    19 to "Charity & giving",
-    20 to "Flexible spending",
-    101 to "Salary & payroll",
-    102 to "Business earnings",
-    103 to "Returns & gains",
-    104 to "Projects & gigs",
-    105 to "Other credits"
-)
-
-private val paymentFallbackDescriptions = mapOf(
-    1 to "UPI transfers & scans",
-    2 to "Cash in hand",
-    3 to "Bank transfers",
-    4 to "Debit & credit cards",
-    5 to "Flexible payment mode"
-)
 
 private fun buildCategoryManagementItems(
     categories: List<CategoryType>,

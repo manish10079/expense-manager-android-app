@@ -1,0 +1,95 @@
+package com.mkn0079.expensetracker.data.constants
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.*
+import com.mkn0079.expensetracker.ui.models.CategoryIconOption
+
+val categoryIconOptions = listOf(
+    CategoryIconOption("shopping_cart", "Shopping Cart", Icons.Filled.ShoppingCart),
+    CategoryIconOption("restaurant", "Restaurant", Icons.Filled.Restaurant),
+    CategoryIconOption("home", "Home", Icons.Filled.Home),
+    CategoryIconOption("directions_bus", "Bus", Icons.Filled.DirectionsBus),
+    CategoryIconOption("directions_car", "Car", Icons.Filled.DirectionsCar),
+    CategoryIconOption("flight", "Flight", Icons.Filled.Flight),
+    CategoryIconOption("local_cafe", "Cafe", Icons.Filled.LocalCafe),
+    CategoryIconOption("pets", "Pets", Icons.Filled.Pets),
+    CategoryIconOption("school", "School", Icons.Filled.School),
+    CategoryIconOption("fitness_center", "Fitness", Icons.Filled.FitnessCenter),
+    CategoryIconOption("spa", "Spa", Icons.Filled.Spa),
+    CategoryIconOption("movie", "Movie", Icons.Filled.Movie),
+    CategoryIconOption("music_note", "Music", Icons.Filled.MusicNote),
+    CategoryIconOption("sports_esports", "Gaming", Icons.Filled.SportsEsports),
+    CategoryIconOption("favorite", "Health", Icons.Filled.Favorite),
+    CategoryIconOption("work", "Work", Icons.Filled.Work),
+    CategoryIconOption("business", "Business", Icons.Filled.Business),
+    CategoryIconOption("laptop_mac", "Laptop", Icons.Filled.LaptopMac),
+    CategoryIconOption("phone_android", "Phone", Icons.Filled.PhoneAndroid),
+    CategoryIconOption("camera_alt", "Camera", Icons.Filled.CameraAlt),
+    CategoryIconOption("celebration", "Party", Icons.Filled.Celebration),
+    CategoryIconOption("card_giftcard", "Gift", Icons.Filled.CardGiftcard),
+    CategoryIconOption("child_care", "Childcare", Icons.Filled.ChildCare),
+    CategoryIconOption("volunteer_activism", "Charity", Icons.Filled.VolunteerActivism),
+    CategoryIconOption("local_hospital", "Hospital", Icons.Filled.LocalHospital),
+    CategoryIconOption("medication", "Medicine", Icons.Filled.Medication),
+    CategoryIconOption("two_wheeler", "Bike", Icons.Filled.TwoWheeler),
+    CategoryIconOption("train", "Train", Icons.Filled.Train),
+    CategoryIconOption("hotel", "Hotel", Icons.Filled.Hotel),
+    CategoryIconOption("beach_access", "Beach", Icons.Filled.BeachAccess),
+    CategoryIconOption("park", "Park", Icons.Filled.Park),
+    CategoryIconOption("hiking", "Hiking", Icons.Filled.Hiking),
+    CategoryIconOption("sports_soccer", "Soccer", Icons.Filled.SportsSoccer),
+    CategoryIconOption("sports_basketball", "Basketball", Icons.Filled.SportsBasketball),
+    CategoryIconOption("pool", "Pool", Icons.Filled.Pool),
+    CategoryIconOption("directions_boat", "Boat", Icons.Filled.DirectionsBoat),
+    CategoryIconOption("build", "Build", Icons.Filled.Build),
+    CategoryIconOption("subscriptions", "Subscription", Icons.Filled.Subscriptions),
+    CategoryIconOption("receipt_long", "Bills", Icons.AutoMirrored.Filled.ReceiptLong),
+    CategoryIconOption("account_balance", "Bank", Icons.Filled.AccountBalance),
+    CategoryIconOption("credit_card", "Card", Icons.Filled.CreditCard),
+    CategoryIconOption("payments", "Cash", Icons.Filled.Payments),
+    CategoryIconOption("qr_code", "QR", Icons.Filled.QrCode),
+    CategoryIconOption("savings", "Savings", Icons.Filled.Savings),
+    CategoryIconOption("attach_money", "Money", Icons.Filled.AttachMoney),
+    CategoryIconOption("wallet", "Wallet", Icons.Filled.AccountBalanceWallet),
+    CategoryIconOption("currency_exchange", "Exchange", Icons.Filled.CurrencyExchange),
+    CategoryIconOption("storefront", "Store", Icons.Filled.Storefront),
+    CategoryIconOption("fastfood", "Fast Food", Icons.Filled.Fastfood),
+    CategoryIconOption("cake", "Cake", Icons.Filled.Cake)
+)
+
+val categoryFallbackDescriptions = mapOf(
+    1 to "Meals & dining",
+    2 to "Fuel & commute",
+    3 to "Retail & essentials",
+    4 to "Monthly recurring",
+    5 to "Wellness & care",
+    6 to "Streaming & leisure",
+    7 to "Home & stay",
+    8 to "Daily essentials",
+    9 to "Courses & books",
+    10 to "Bills & renewals",
+    11 to "Coverage & safety",
+    12 to "Celebrations & giving",
+    13 to "Self care routine",
+    14 to "Fuel & commute",
+    15 to "Repairs & upkeep",
+    16 to "Mandatory dues",
+    17 to "Pet care expenses",
+    18 to "Kids & school",
+    19 to "Charity & giving",
+    20 to "Flexible spending",
+    101 to "Salary & payroll",
+    102 to "Business earnings",
+    103 to "Returns & gains",
+    104 to "Projects & gigs",
+    105 to "Other credits"
+)
+
+val paymentFallbackDescriptions = mapOf(
+    1 to "UPI transfers & scans",
+    2 to "Cash in hand",
+    3 to "Bank transfers",
+    4 to "Debit & credit cards",
+    5 to "Flexible payment mode"
+)

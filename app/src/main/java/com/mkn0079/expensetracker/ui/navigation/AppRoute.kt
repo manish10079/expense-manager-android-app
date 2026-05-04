@@ -19,7 +19,8 @@ enum class AppRoute(
     NotificationSettings("notification_settings", false),
     Profile("profile", false),
     AddTransaction("add_transaction", false),
-    ItemizedCalculator("itemized_calculator", false);
+    ItemizedCalculator("itemized_calculator", false),
+    AddCategory("add_category", false);
 
     companion object {
         fun fromRoute(route: String?): AppRoute? {
