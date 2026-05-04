@@ -154,8 +154,7 @@ fun SettingsScreen(
                         name = userProfile.fullName,
                         email = userProfile.emailAddress,
                         initials = userProfile.avatarInitials(),
-                        photoUri = userProfile.photoUri,
-                        onClick = onProfileClick
+                        photoUri = userProfile.photoUri
                     )
                 }
 
@@ -168,6 +167,7 @@ fun SettingsScreen(
                             isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
                             onItemClick = { actionId ->
                                 when (actionId) {
+                                    SettingsActionId.EditProfile -> onProfileClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
@@ -46,6 +47,7 @@ enum class SettingsToggleId {
 
 enum class SettingsActionId {
     AppPreferences,
+    EditProfile,
     SecurityPrivacy,
     TransactionCardCustomize,
     DatabaseBackup,
@@ -92,6 +94,17 @@ private fun buildSettingsSections(
     transactionCountLabel: String
 ): List<SettingsSectionUi> {
     return listOf(
+        SettingsSectionUi(
+            title = "ACCOUNT",
+            items = listOf(
+                SettingsItemUi(
+                    title = "Edit Profile",
+                    subtitle = "Update your name, email and avatar",
+                    icon = Icons.Filled.Person,
+                    actionId = SettingsActionId.EditProfile
+                )
+            )
+        ),
         SettingsSectionUi(
             title = "PREFERENCE",
             items = listOf(

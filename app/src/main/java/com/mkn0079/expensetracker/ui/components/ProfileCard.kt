@@ -38,8 +38,7 @@ fun ProfileCard(
     email: String,
     initials: String,
     photoUri: String? = null,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -53,7 +52,6 @@ fun ProfileCard(
     ) {
         Row(
             modifier = Modifier
-                .clickable { onClick() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -91,12 +89,6 @@ fun ProfileCard(
                 }
             }
 
-            Icon(
-                imageVector = Icons.Rounded.ChevronRight,
-                contentDescription = "Open",
-                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f) ,
-                modifier = Modifier.size(32.dp)
-            )
         }
     }
 }
@@ -111,8 +103,7 @@ private fun ProfileCardPreview() {
                 name = "Johnathan Doe",
                 email = "john.doe@example.com",
                 initials = "JD",
-                modifier = Modifier.padding(16.dp),
-                onClick = {}
+                modifier = Modifier.padding(16.dp)
             )
         }
     }
