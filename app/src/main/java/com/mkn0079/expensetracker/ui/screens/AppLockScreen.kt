@@ -74,6 +74,7 @@ import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -304,26 +305,21 @@ fun AppLockScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        // Base background to ensure opacity
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.background.copy(
-                                alpha = 1.0f
-                            ),
-                            MaterialTheme.colorScheme.surface.copy(
-                                alpha = 1.0f
-                            ),
-                            MaterialTheme.colorScheme.background.copy(
-                                alpha = 1.0f
-                            )
-                        )
-                    )
-                )
+                .background(MaterialTheme.colorScheme.background)
         )
 
+        // Premium theme-aware card gradient overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(standardCardGradient())
+        )
+
+        // Subtle radial glow for depth
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -331,7 +327,7 @@ fun AppLockScreen(
                     brush = Brush.radialGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary.copy(
-                                alpha = if (isDarkPalette) 0.16f else 0.08f
+                                alpha = if (isDarkPalette) 0.12f else 0.06f
                             ),
                             Color.Transparent
                         )
@@ -347,12 +343,12 @@ fun AppLockScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 10.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 0.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(18.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
                         .then(
@@ -393,7 +389,8 @@ fun AppLockScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(horizontal = 22.dp),
+                    .padding(horizontal = 20.dp)
+                ,
                 contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
             ) {
                 Box(
@@ -816,7 +813,7 @@ private fun BiometricActionButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.size(84.dp),
+        modifier = Modifier.size(90.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -826,7 +823,7 @@ private fun BiometricActionButton(
         Icon(
             imageVector = Icons.Filled.Fingerprint,
             contentDescription = "Use biometric",
-            modifier = Modifier.size(42.dp)
+            modifier = Modifier.size(100.dp)
         )
     }
 }
@@ -896,27 +893,27 @@ private fun AppLockKey(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Dark")
-@Composable
-private fun AppLockUnlockDarkPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        AppLockScreen(
-            mode = AppLockScreenMode.Unlock,
-            securityQuestionPrompt = "What was the name of your first school?"
-        )
-    }
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Dark")
+//@Composable
+//private fun AppLockUnlockDarkPreview() {
+//    ExpenseTrackerTheme(darkTheme = true) {
+//        AppLockScreen(
+//            mode = AppLockScreenMode.Unlock,
+//            securityQuestionPrompt = "What was the name of your first school?"
+//        )
+//    }
+//}
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Light")
-@Composable
-private fun AppLockUnlockLightPreview() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        AppLockScreen(
-            mode = AppLockScreenMode.Unlock,
-            securityQuestionPrompt = "What was the name of your first school?"
-        )
-    }
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Light")
+//@Composable
+//private fun AppLockUnlockLightPreview() {
+//    ExpenseTrackerTheme(darkTheme = false) {
+//        AppLockScreen(
+//            mode = AppLockScreenMode.Unlock,
+//            securityQuestionPrompt = "What was the name of your first school?"
+//        )
+//    }
+//}
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Dark")
 @Composable
@@ -944,27 +941,27 @@ private fun AppLockBiometricLightPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Dark")
-@Composable
-private fun AppLockSetupDarkPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        AppLockScreen(
-            mode = AppLockScreenMode.Setup,
-            onBackClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Light")
-@Composable
-private fun AppLockSetupLightPreview() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        AppLockScreen(
-            mode = AppLockScreenMode.Setup,
-            onBackClick = {}
-        )
-    }
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Dark")
+//@Composable
+//private fun AppLockSetupDarkPreview() {
+//    ExpenseTrackerTheme(darkTheme = true) {
+//        AppLockScreen(
+//            mode = AppLockScreenMode.Setup,
+//            onBackClick = {}
+//        )
+//    }
+//}
+//
+//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Light")
+//@Composable
+//private fun AppLockSetupLightPreview() {
+//    ExpenseTrackerTheme(darkTheme = false) {
+//        AppLockScreen(
+//            mode = AppLockScreenMode.Setup,
+//            onBackClick = {}
+//        )
+//    }
+//}
 
 private suspend fun Animatable<Float, AnimationVector1D>.animateAppLockKeypadError() {
     val shakeOffsets = listOf(-10f, 10f, -6f, 6f, -3f, 3f, 0f)

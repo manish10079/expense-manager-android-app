@@ -283,22 +283,7 @@ private fun HomeScreenContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        HomeScreenContent(
-            userProfile = defaultUserProfile,
-            uiState = HomeScreenUiState(),
-            onViewAllClick = {},
-            onTransactionClick = {},
-            onProfileClick = {},
-            onSettingsClick = {},
-            onTodaySpendingClick = {},
-            onToggleBalanceVisibility = {}
-        )
-    }
-}
+
 @Composable
 fun SettingsButton(onClick: () -> Unit) {
     var isPressed by remember { mutableStateOf(false) }
@@ -335,6 +320,43 @@ fun SettingsButton(onClick: () -> Unit) {
             contentDescription = "Settings",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        HomeScreenContent(
+            userProfile = defaultUserProfile,
+            uiState = HomeScreenUiState(),
+            onViewAllClick = {},
+            onTransactionClick = {},
+            onProfileClick = {},
+            onSettingsClick = {},
+            onTodaySpendingClick = {},
+            onToggleBalanceVisibility = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        HomeScreenContent(
+            userProfile = defaultUserProfile,
+            uiState = HomeScreenUiState(),
+            onViewAllClick = {},
+            onTransactionClick = {},
+            onProfileClick = {},
+            onSettingsClick = {},
+            onTodaySpendingClick = {},
+            onToggleBalanceVisibility = {}
         )
     }
 }
