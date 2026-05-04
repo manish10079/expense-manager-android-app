@@ -2,7 +2,6 @@ package com.mkn0079.expensetracker.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +60,6 @@ fun TotalBalanceCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
-            .clickable(onClick = onToggleVisibility)
             .shadow(
                 elevation = 26.dp,
                 shape = cardShape,
@@ -117,7 +115,7 @@ fun TotalBalanceCard(
         Spacer(modifier = Modifier.height(5.dp))
 
         Text(
-            text = if (isBalanceHidden) "••••" else totalBalance,
+            text = if (isBalanceHidden) "••••••••" else totalBalance,
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
@@ -143,7 +141,7 @@ fun TotalBalanceCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (isBalanceHidden) "••••" else previousMonthBalance,
+                    text = if (isBalanceHidden) "••••••" else previousMonthBalance,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.3.sp,
@@ -172,7 +170,7 @@ fun TotalBalanceCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = "INCOME",
-                value = if (isBalanceHidden) "••••" else formatStatAmount(income, '+'),
+                value = if (isBalanceHidden) "••••••" else formatStatAmount(income, '+'),
                 icon = Icons.Filled.ArrowUpward,
                 iconColor = MaterialTheme.colorScheme.income,
                 iconAtStart = true
@@ -189,7 +187,7 @@ fun TotalBalanceCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = "EXPENSE",
-                value = if (isBalanceHidden) "••••" else formatStatAmount(expense, '-'),
+                value = if (isBalanceHidden) "••••••" else formatStatAmount(expense, '-'),
                 icon = Icons.Filled.ArrowDownward,
                 iconColor = MaterialTheme.colorScheme.expense,
                 iconAtStart = false

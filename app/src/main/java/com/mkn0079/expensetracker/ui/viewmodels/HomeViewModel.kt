@@ -38,7 +38,7 @@ data class HomeScreenUiState(
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
-    val isBalanceHidden: Boolean = true
+    val isBalanceHidden: Boolean = false
 )
 
 private data class HomeInputState(
@@ -145,11 +145,12 @@ class HomeViewModel @Inject constructor(
         val newState = !_uiState.value.isBalanceHidden
         _uiState.update { it.copy(isBalanceHidden = newState) }
         
+        // Handle Smart Hide logic (Always active for everyone)
         smartHideJob?.cancel()
         if (!newState) {
-            // If we just showed the balance, start a 10-second timer to hide it again
+            // If we just showed the balance, start a timer to hide it again
             smartHideJob = viewModelScope.launch {
-                delay(10000)
+                delay(10000) // 10 seconds of inactivity
                 _uiState.update { it.copy(isBalanceHidden = true) }
             }
         }

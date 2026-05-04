@@ -1032,7 +1032,6 @@ private fun SelectionInfoCard(
     compact: Boolean,
     onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(if (compact) 24.dp else 28.dp)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -1043,13 +1042,7 @@ private fun SelectionInfoCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = if (compact) 56.dp else 64.dp)
-                .shadow(
-                    elevation = 12.dp,
-                    shape = shape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
-                )
-                .clip(shape)
+                .clip(RoundedCornerShape(24.dp))
                 .background(standardCardGradient())
                 .clickable(onClick = onClick)
                 .padding(
