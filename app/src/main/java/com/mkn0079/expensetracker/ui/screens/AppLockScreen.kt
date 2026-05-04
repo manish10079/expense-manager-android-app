@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -266,17 +268,7 @@ fun AppLockScreen(
         else -> "Choose one of the five questions and enter an answer you will remember."
     }
     val primaryActionLabel = if (isRecoveryMode) "Disable App Lock" else "Save"
-    val density = LocalDensity.current
     val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val imeBottom = WindowInsets.ime.getBottom(density)
-    val navigationBottom = WindowInsets.navigationBars.getBottom(density)
-    val primaryActionBottomPadding = with(density) {
-        if (imeBottom > navigationBottom) {
-            imeBottom.toDp() * 0.5f
-        } else {
-            navigationBottom.toDp()
-        }
-    }
     val onPrimaryActionClick: () -> Unit = {
         if (isRecoveryMode) {
             if (securityQuestionPrompt == null) {
@@ -342,6 +334,8 @@ fun AppLockScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .navigationBarsPadding()
+                .imePadding()
         ) {
             if (headerAction != null) {
                 if (isRecoveryMode) {
@@ -521,7 +515,7 @@ fun AppLockScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = primaryActionBottomPadding)
+                        .padding(bottom = 24.dp)
                 ) {
                     PrimaryActionButton(
                         label = primaryActionLabel,

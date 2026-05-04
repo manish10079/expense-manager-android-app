@@ -125,7 +125,7 @@ fun ProfileScreen(
         AppHeader(
             title = "Profile",
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 2.dp, bottom = 8.dp)
         )
 
         Column(
@@ -133,7 +133,7 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Dimens.ScreenPadding, vertical = 22.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 4.dp, bottom = 22.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(

@@ -53,9 +53,9 @@ Flow to follow:
 ### 🟢 Low Priority - Visual Polish & Refactoring
 12. [verified] Add space between select all and delete icon
 13. [verified] Remove glow in disable app lock screen
-14. [ ] Reduce scrollable top padding in profile screen
-15. [ ] Make profile card unclickable
-16. [ ] Reduce font size of text 'track every move with confidence' in homescreen
+14. [verified] Reduce scrollable top padding in profile screen
+15. [verified] Make profile card unclickable
+16. [verified] Reduce font size of text 'track every move with confidence' in homescreen
 17. [ ] Use icons.round.settings icon in homescreen
 18. [ ] Standardize all card/toggle backgrounds with unified gradient
 19. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories

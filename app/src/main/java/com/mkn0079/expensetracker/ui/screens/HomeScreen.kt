@@ -159,7 +159,6 @@ private fun HomeScreenContent(
                         placeholderIconBrush = profileAvatarGradient,
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable(onClick = onProfileClick)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
@@ -182,7 +181,7 @@ private fun HomeScreenContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
