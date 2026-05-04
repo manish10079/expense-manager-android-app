@@ -76,6 +76,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -106,6 +107,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.calendarMonthTitle
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePicker
 import com.mkn0079.expensetracker.ui.models.TabItem
 import java.util.Calendar
 
@@ -966,53 +968,35 @@ private fun MonthYearPickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Long) -> Unit
 ) {
-    val years = remember(yearRange) { yearRange.toList() }
-    var selectedMonth by remember(initialMonthStart) {
-        mutableStateOf(getField(initialMonthStart, Calendar.MONTH))
-    }
-    var selectedYear by remember(initialMonthStart) {
-        mutableStateOf(getField(initialMonthStart, Calendar.YEAR))
-    }
-    val monthListState = rememberLazyListState(initialFirstVisibleItemIndex = selectedMonth)
-    val yearListState = rememberLazyListState(
-        initialFirstVisibleItemIndex = years.indexOf(selectedYear).coerceAtLeast(0)
-    )
+    var tempDate by remember { mutableStateOf(initialMonthStart) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Choose Month",
+                text = "Choose Month & Year",
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         },
         text = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                PickerWheel(
-                    modifier = Modifier.weight(1f),
-                    title = "Month",
-                    items = monthNames,
-                    selectedIndex = selectedMonth,
-                    state = monthListState,
-                    onSelectIndex = { selectedMonth = it }
-                )
-                PickerWheel(
-                    modifier = Modifier.weight(1f),
-                    title = "Year",
-                    items = years.map(Int::toString),
-                    selectedIndex = years.indexOf(selectedYear).coerceAtLeast(0),
-                    state = yearListState,
-                    onSelectIndex = { selectedYear = years[it] }
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                WheelDateTimePicker(
+                    initialDateMillis = initialMonthStart,
+                    showDay = false,
+                    showMonth = true,
+                    showDate = true,
+                    showTime = false,
+                    yearRange = yearRange,
+                    onDateChanged = { _, month, year, _, _, _ ->
+                        tempDate = createDate(year, month, 1)
+                    }
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(createDate(selectedYear, selectedMonth, 1)) }) {
-                Text("Apply")
+            TextButton(onClick = { onConfirm(tempDate) }) {
+                Text("Apply", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -1020,7 +1004,8 @@ private fun MonthYearPickerDialog(
                 Text("Cancel")
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(28.dp)
     )
 }
 
@@ -1031,11 +1016,8 @@ private fun YearPickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
-    val years = remember(yearRange) { yearRange.toList() }
-    var selectedYear by remember(initialYear) { mutableStateOf(initialYear) }
-    val yearListState = rememberLazyListState(
-        initialFirstVisibleItemIndex = years.indexOf(selectedYear).coerceAtLeast(0)
-    )
+    var tempYear by remember { mutableIntStateOf(initialYear) }
+    val initialDateMillis = remember(initialYear) { createDate(initialYear, 0, 1) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1043,22 +1025,27 @@ private fun YearPickerDialog(
             Text(
                 text = "Choose Year",
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         },
         text = {
-            PickerWheel(
-                modifier = Modifier.fillMaxWidth(),
-                title = "Year",
-                items = years.map(Int::toString),
-                selectedIndex = years.indexOf(selectedYear).coerceAtLeast(0),
-                state = yearListState,
-                onSelectIndex = { selectedYear = years[it] }
-            )
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                WheelDateTimePicker(
+                    initialDateMillis = initialDateMillis,
+                    showDay = false,
+                    showMonth = false,
+                    showDate = true,
+                    showTime = false,
+                    yearRange = yearRange,
+                    onDateChanged = { _, _, year, _, _, _ ->
+                        tempYear = year
+                    }
+                )
+            }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(selectedYear) }) {
-                Text("Apply")
+            TextButton(onClick = { onConfirm(tempYear) }) {
+                Text("Apply", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -1066,87 +1053,11 @@ private fun YearPickerDialog(
                 Text("Cancel")
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(28.dp)
     )
 }
 
-@Composable
-private fun PickerWheel(
-    modifier: Modifier = Modifier,
-    title: String,
-    items: List<String>,
-    selectedIndex: Int,
-    state: androidx.compose.foundation.lazy.LazyListState,
-    onSelectIndex: (Int) -> Unit
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
-
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            shape = RoundedCornerShape(18.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            LazyColumn(
-                state = state,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                itemsIndexed(items) { index, item ->
-                    PickerWheelItem(
-                        label = item,
-                        selected = index == selectedIndex,
-                        onClick = { onSelectIndex(index) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PickerWheelItem(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-            .border(
-                width = 1.dp,
-                color = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                shape = RoundedCornerShape(14.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
