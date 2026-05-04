@@ -25,6 +25,9 @@ class AppLockViewModel @Inject constructor(
     private val _state = MutableStateFlow<AppLockState>(AppLockState.Loading)
     val state: StateFlow<AppLockState> = _state.asStateFlow()
 
+    private val _recoveryPerformed = MutableStateFlow(false)
+    val recoveryPerformed: StateFlow<Boolean> = _recoveryPerformed.asStateFlow()
+
     init {
         // Immediate pessimistic check: if lock is enabled, start as Locked
         if (securityRepository.isLockEnabled() && securityRepository.hasPin()) {
@@ -74,5 +77,17 @@ class AppLockViewModel @Inject constructor(
         if (securityRepository.isLockEnabled() && securityRepository.hasPin()) {
             _state.value = AppLockState.Locked
         }
+    }
+
+    fun disableLock() {
+        viewModelScope.launch {
+            securityRepository.disableLock()
+            _recoveryPerformed.value = true
+            _state.value = AppLockState.Unlocked
+        }
+    }
+
+    fun consumeRecovery() {
+        _recoveryPerformed.value = false
     }
 }

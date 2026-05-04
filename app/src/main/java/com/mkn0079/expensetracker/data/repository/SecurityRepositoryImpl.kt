@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.data.repository
 
 import android.content.Context
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
+import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.domain.repository.SecurityRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -61,5 +62,18 @@ class SecurityRepositoryImpl @Inject constructor(
 
     override fun notifyAppBackground() {
         _appBackgroundEvents.tryEmit(Unit)
+    }
+
+    override suspend fun disableLock() {
+        // 1. Clear PIN and security questions from encrypted preferences
+        AppLockPreferences.clear(context)
+        
+        // 2. Update DataStore settings to reflect that lock is disabled
+        AppSettingsDataStore.updateAppSettings(context) { settings ->
+            settings.copy(
+                appLockEnabled = false,
+                biometricLockEnabled = false
+            )
+        }
     }
 }

@@ -105,6 +105,7 @@ class MainActivity : FragmentActivity() {
     ) {
         val isReady by splashViewModel.isReady.collectAsState()
         val appLockState by appLockViewModel.state.collectAsState()
+        val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsState()
         val context = applicationContext
         
         val initialNavDestination = intent.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
@@ -145,7 +146,9 @@ class MainActivity : FragmentActivity() {
                             isReady = true,
                             appSettings = appSettings!!,
                             userProfile = userProfile,
-                            initialNavDestination = initialNavDestination
+                            initialNavDestination = initialNavDestination,
+                            isRecoveryPerformed = recoveryPerformed,
+                            onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
                         )
                     }
 
@@ -207,7 +210,8 @@ class MainActivity : FragmentActivity() {
                                                 negativeButtonText = "Use PIN",
                                                 onSuccess = { appLockViewModel.unlock() }
                                             )
-                                        }
+                                        },
+                                        onForgotPinRecovery = appLockViewModel::disableLock
                                     )
                                 }
 

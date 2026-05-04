@@ -77,10 +77,14 @@ fun MainScreen(
     isReady: Boolean,
     appSettings: AppSettings,
     userProfile: UserProfile,
-    initialNavDestination: String? = null
+    initialNavDestination: String? = null,
+    isRecoveryPerformed: Boolean = false,
+    onRecoveryConsumed: () -> Unit = {}
 ) {
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
+    val mainViewModel: MainViewModel = viewModel()
+    val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val activity = rawContext.findFragmentActivity()
     val biometricAuthenticator = remember(activity) {
         activity?.let(BiometricAuthManager::createAuthenticator)
@@ -168,20 +172,12 @@ fun MainScreen(
     }
 
     val disableAppLock: (Boolean) -> Unit = { navigateHome ->
-        AppLockPreferences.clear(context)
+        mainViewModel.disableAppLock()
         appLockState = AppLockPreferences.getCachedState()
         appLockFlow = null
         if (navigateHome) {
             navigationState.navigateTo(AppRoute.Home)
             navigationState.updateBottomBarVisibility(false)
-        }
-        coroutineScope.launch {
-            AppSettingsDataStore.updateAppSettings(context) { settings ->
-                settings.copy(
-                    appLockEnabled = false,
-                    biometricLockEnabled = false
-                )
-            }
         }
     }
 
@@ -242,6 +238,14 @@ fun MainScreen(
         }
     }
 
+    LaunchedEffect(isRecoveryPerformed) {
+        if (isRecoveryPerformed) {
+            navigationState.navigateTo(AppRoute.Home)
+            navigationState.clearTransactionDraftContext()
+            onRecoveryConsumed()
+        }
+    }
+
     LaunchedEffect(isDailyReminderEnabled) {
         if (isDailyReminderEnabled) {
             NotificationScheduler.startDailyReminders(context)
@@ -261,9 +265,6 @@ fun MainScreen(
             }
         }
     }
-
-    val mainViewModel: MainViewModel = viewModel()
-    val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(navigationState.currentRoute) {
         mainViewModel.setTransactionObservationEnabled(

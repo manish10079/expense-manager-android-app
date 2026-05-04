@@ -12,6 +12,7 @@ import com.mkn0079.expensetracker.domain.repository.LegacyImportRepository
 import com.mkn0079.expensetracker.domain.repository.LegacyImportResult
 import com.mkn0079.expensetracker.domain.repository.PaymentMethodRepository
 import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
+import com.mkn0079.expensetracker.domain.repository.SecurityRepository
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
@@ -55,7 +56,8 @@ class MainViewModel @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository,
     private val recurringRuleRepository: RecurringRuleRepository,
     private val dataManagementRepository: DataManagementRepository,
-    private val legacyImportRepository: LegacyImportRepository
+    private val legacyImportRepository: LegacyImportRepository,
+    private val securityRepository: SecurityRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -238,6 +240,12 @@ class MainViewModel @Inject constructor(
     fun deleteCustomPaymentMethod(paymentMethodId: Int) {
         viewModelScope.launch {
             paymentMethodRepository.deleteCustomPaymentMethod(paymentMethodId)
+        }
+    }
+
+    fun disableAppLock() {
+        viewModelScope.launch {
+            securityRepository.disableLock()
         }
     }
 

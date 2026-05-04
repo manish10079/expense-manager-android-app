@@ -61,4 +61,10 @@ interface SecurityRepository {
      * A flow that emits when the app moves to the background.
      */
     val appBackgroundEvents: kotlinx.coroutines.flow.Flow<Unit>
+
+    /**
+     * Disables the app lock by clearing PIN and security questions, 
+     * and updating app settings.
+     */
+    suspend fun disableLock()
 }
