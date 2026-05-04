@@ -42,8 +42,8 @@ Flow to follow:
 4. [verified] Fix in add button get chipped, reduce its size or use icon instead of text
 5. [verified] In multi select mode, change select all icon, and fix select icon background
 6. [verified] Increase fingerprint icon size in applock
-7. [ ] Add 50 more most used icons for user dont add which are already exist
-8. [ ] Refactor Notification settings to use SettingsItemCard
+7. [fixed] Add 50 more most used icons for user dont add which are already exist
+8. [fixed] Refactor Notification settings to use SettingsItemCard
 9. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
 10. [ ] Fix circular background color of Delete icon in Dark Mode
 11. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
