@@ -75,6 +75,7 @@ import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.standardCardGradient
+import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -319,70 +320,41 @@ fun AppLockScreen(
                 .background(standardCardGradient())
         )
 
-        // Subtle radial glow for depth
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(
-                                alpha = if (isDarkPalette) 0.12f else 0.06f
-                            ),
-                            Color.Transparent
+        // Subtle radial glow for depth (Hidden in recovery/disable mode)
+        if (!isRecoveryMode) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(
+                                    alpha = if (isDarkPalette) 0.12f else 0.06f
+                                ),
+                                Color.Transparent
+                            )
                         )
                     )
-                )
-        )
+            )
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 0.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(18.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
-                        .then(
-                            if (headerAction != null) {
-                                Modifier.clickable(onClick = headerAction)
-                            } else {
-                                Modifier
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (headerAction != null) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
+            if (headerAction != null) {
+                if (isRecoveryMode) {
+                    Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
                 }
 
-                if (title.isNotBlank()) {
-                    Text(
-                        text = title,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
+                AppHeader(
+                    title = title,
+                    onBackClick = headerAction,
+                    modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
+                )
+            } else {
+                Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
             }
 
             Box(
@@ -393,22 +365,24 @@ fun AppLockScreen(
                 ,
                 contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
             ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(width = 300.dp, height = 240.dp)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = if (isDarkPalette) 0.14f else 0.08f
-                                    ),
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                                )
-                            ),
-                            shape = CircleShape
-                        )
-                )
+                if (!isRecoveryMode) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(width = 300.dp, height = 240.dp)
+                            .background(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary.copy(
+                                            alpha = if (isDarkPalette) 0.14f else 0.08f
+                                        ),
+                                        MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                                    )
+                                ),
+                                shape = CircleShape
+                            )
+                    )
+                }
 
                 Column(
                     modifier = Modifier

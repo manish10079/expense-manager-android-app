@@ -51,8 +51,8 @@ Flow to follow:
 ---
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-12. [ ] Add space between select all and delete icon
-13. [ ] Remove glow in disable app lock screen
+12. [verified] Add space between select all and delete icon
+13. [verified] Remove glow in disable app lock screen
 14. [ ] Reduce scrollable top padding in profile screen
 15. [ ] Make profile card unclickable
 16. [ ] Reduce font size of text 'track every move with confidence' in homescreen
