@@ -44,9 +44,9 @@ Flow to follow:
 6. [verified] Increase fingerprint icon size in applock
 7. [verified] Add 50 more most used icons for user dont add which are already exist
 8. [verified] Refactor Notification settings to use SettingsItemCard
-9. [fixed] Sync Calendar screen jump-to-date with WheelDateTimePicker
-10. [ ] Fix circular background color of Delete icon in Dark Mode
-11. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
+9. [verified] Sync Calendar screen jump-to-date with WheelDateTimePicker
+10. [verified] Fix circular background color of Delete icon in Dark Mode
+11. [verified] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
 
 ---
 

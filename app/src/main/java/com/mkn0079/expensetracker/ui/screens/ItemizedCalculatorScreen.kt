@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -100,6 +104,7 @@ fun ItemizedCalculatorScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding()
+            .imePadding()
             .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
@@ -172,12 +177,19 @@ private fun ItemizedCalculatorContent(
     onApplyToNoteClick: () -> Unit
 ) {
     val canApply = items.isNotEmpty()
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(isAddingItem) {
+        if (isAddingItem) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             TotalAmountCard(
@@ -211,10 +223,7 @@ private fun ItemizedCalculatorContent(
             }
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 320.dp)
-                    .verticalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items.forEach { item ->
@@ -637,14 +646,14 @@ private fun BreakdownItemCard(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f))
+                        .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f))
                         .clickable(onClick = onDeleteClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DeleteOutline,
                         contentDescription = "Delete ${item.description}",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -691,6 +700,10 @@ private fun AddItemInputCard(
             value = amount,
             label = "Amount",
             placeholder = "0.00",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Done
+            ),
             onValueChange = onAmountChange
         )
 
@@ -719,6 +732,7 @@ private fun ItemizedTextField(
     value: String,
     label: String,
     placeholder: String,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -726,6 +740,7 @@ private fun ItemizedTextField(
         onValueChange = onValueChange,
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        keyboardOptions = keyboardOptions,
         label = {
             Text(
                 text = label,
