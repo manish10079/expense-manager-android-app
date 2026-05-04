@@ -56,11 +56,10 @@ Flow to follow:
 14. [verified] Reduce scrollable top padding in profile screen
 15. [verified] Make profile card unclickable
 16. [verified] Reduce font size of text 'track every move with confidence' in homescreen
-17. [ ] Use icons.round.settings icon in homescreen
-18. [ ] Standardize all card/toggle backgrounds with unified gradient
-19. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories
-20. [ ] StatsCard: Auto-hide balance/income/expense (Show for 10s on click)
-21. [ ] In Add Transaction screen, the Note card and Amount card background should have same color
+17. [verified] Use icons.round.settings icon in homescreen
+18. [verified] Standardize all card/toggle backgrounds with unified gradient
+20. [verified] StatsCard: Auto-hide balance/income/expense (Show for 10s on click) by default it should be hidden and on click of card it should appear
+21. [verified] In Add Transaction screen, the Note card and Amount card background should have same color
 
 ---
 
