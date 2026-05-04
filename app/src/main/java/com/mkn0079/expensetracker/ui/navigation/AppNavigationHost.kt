@@ -103,15 +103,17 @@ fun AppNavigationHost(
     onAutoBackupFrequencyChange: (Int) -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
+    val saveableStateHolder = rememberSaveableStateHolder()
     val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
+        if (destinationRoute != AppRoute.ItemizedCalculator) {
+            saveableStateHolder.removeState(AppRoute.AddTransaction)
+        }
         onBottomBarVisibilityChange(false)
         onRouteChange(destinationRoute)
     }
     val selectedRecurringRule = selectedTransaction?.let { transaction ->
         recurringRules.firstOrNull { it.transactionId == transaction.id }
     }
-
-    val saveableStateHolder = rememberSaveableStateHolder()
 
     AnimatedContent(
         targetState = currentRoute,

@@ -31,9 +31,10 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-34. [fixed] Disable app lock button is not working
-35. [] Reset the add transaction form when add button clicked inside add transaction screen
+34. [verified] Disable app lock button is not working
+35. [fixed] Reset the add transaction form when add button clicked inside add transaction screen
 36. [ ] Fix number input in profilescreen
+37. [ ] Fix security question screen: white background on 'Your Answer' text in light mode
 
 ---
 
