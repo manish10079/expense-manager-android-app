@@ -304,8 +304,15 @@ class TransactionsViewModel @Inject constructor(
             .map { it.card.id }
             .toSet()
         
-        _selectedTransactionIds.value = allIds
-        _isSelectionMode.value = allIds.isNotEmpty()
+        val currentlySelected = _selectedTransactionIds.value
+        
+        // If everything is already selected, clear it. Otherwise, select all.
+        if (currentlySelected.size >= allIds.size && allIds.isNotEmpty()) {
+            clearSelection()
+        } else {
+            _selectedTransactionIds.value = allIds
+            _isSelectionMode.value = allIds.isNotEmpty()
+        }
     }
 
     fun deleteSelectedTransactions() {
