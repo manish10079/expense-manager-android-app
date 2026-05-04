@@ -182,24 +182,25 @@ fun InputFieldCard(
 
                             InputType.Phone -> {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "+91",
-                                        color = onSurface,
-                                        fontSize = 16.sp,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-
                                     BasicTextField(
                                         value = value,
-                                        onValueChange = {
-                                            if (it.length <= 10) onValueChange(it)
-                                        },
+                                        onValueChange = onValueChange,
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = KeyboardType.Phone
                                         ),
                                         textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
                                         cursorBrush = SolidColor(primary),
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        decorationBox = { innerTextField ->
+                                            if (value.isEmpty() && placeholder != null) {
+                                                Text(
+                                                    text = placeholder,
+                                                    color = onSurfaceVariant.copy(alpha = 0.5f),
+                                                    fontSize = 16.sp
+                                                )
+                                            }
+                                            innerTextField()
+                                        }
                                     )
                                 }
                             }
