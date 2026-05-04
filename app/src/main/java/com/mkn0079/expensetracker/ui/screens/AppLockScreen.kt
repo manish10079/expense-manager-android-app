@@ -816,7 +816,7 @@ private fun BiometricActionButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.size(68.dp),
+        modifier = Modifier.size(84.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -826,7 +826,7 @@ private fun BiometricActionButton(
         Icon(
             imageVector = Icons.Filled.Fingerprint,
             contentDescription = "Use biometric",
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier.size(42.dp)
         )
     }
 }
@@ -866,7 +866,7 @@ private fun AppLockKey(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = "Delete PIN digit",
                     tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(34.dp)
                 )
             }
 
@@ -896,9 +896,9 @@ private fun AppLockKey(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Dark")
 @Composable
-private fun AppLockUnlockPreview() {
+private fun AppLockUnlockDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         AppLockScreen(
             mode = AppLockScreenMode.Unlock,
@@ -907,10 +907,58 @@ private fun AppLockUnlockPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Light")
 @Composable
-private fun AppLockSetupPreview() {
+private fun AppLockUnlockLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        AppLockScreen(
+            mode = AppLockScreenMode.Unlock,
+            securityQuestionPrompt = "What was the name of your first school?"
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Dark")
+@Composable
+private fun AppLockBiometricDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
+        AppLockScreen(
+            mode = AppLockScreenMode.Unlock,
+            biometricEnabled = true,
+            isBiometricAvailable = true,
+            onBiometricClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Dark")
+@Composable
+private fun AppLockBiometricLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        AppLockScreen(
+            mode = AppLockScreenMode.Unlock,
+            biometricEnabled = true,
+            isBiometricAvailable = true,
+            onBiometricClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Dark")
+@Composable
+private fun AppLockSetupDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        AppLockScreen(
+            mode = AppLockScreenMode.Setup,
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Light")
+@Composable
+private fun AppLockSetupLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
         AppLockScreen(
             mode = AppLockScreenMode.Setup,
             onBackClick = {}
