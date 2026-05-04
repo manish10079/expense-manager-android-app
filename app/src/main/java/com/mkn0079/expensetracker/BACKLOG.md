@@ -36,8 +36,8 @@ Flow to follow:
 ---
 
 ### 🟡 Medium Priority - Functional Improvements
-1. [fixed] Instead of bottomsheet make add category a screen
-2. [ ] Shift manage category card to settings screen from app preference screen
+1. [verified] Instead of bottomsheet make add category a screen
+2. [verified] Shift manage category card to settings screen from app preference screen
 3. [ ] Add edit profile card in settings
 4. [ ] Fix in add button get chipped, reduce its size or use icon instead of text
 5. [ ] In multi select mode, change select all icon, and fix select icon background

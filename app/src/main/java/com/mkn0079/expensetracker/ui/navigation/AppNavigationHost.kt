@@ -284,6 +284,10 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.TransactionCardCustomize)
                         },
+                        onManageCategoryClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.CategoryManagement)
+                        },
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
@@ -317,10 +321,6 @@ fun AppNavigationHost(
 
                 AppRoute.Preferences -> {
                     PreferencesScreen(
-                        onManageCategoryClick = {
-                            onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.CategoryManagement)
-                        },
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
@@ -386,7 +386,7 @@ fun AppNavigationHost(
                         },
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.Preferences)
+                            onRouteChange(AppRoute.Settings)
                         }
                     )
                 }

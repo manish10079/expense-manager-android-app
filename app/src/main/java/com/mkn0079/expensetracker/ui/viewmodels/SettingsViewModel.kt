@@ -3,6 +3,7 @@ package com.mkn0079.expensetracker.ui.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Tune
@@ -55,7 +56,8 @@ enum class SettingsActionId {
     DeleteAllTransactions,
     DataManagement,
     About,
-    Notifications
+    Notifications,
+    ManageCategories
 }
 
 @Immutable
@@ -109,6 +111,12 @@ private fun buildSettingsSections(
                     subtitle = "Adjust transaction display",
                     icon = Icons.Rounded.CreditCard,
                     actionId = SettingsActionId.TransactionCardCustomize
+                ),
+                SettingsItemUi(
+                    title = "Manage Category",
+                    subtitle = "Add or edit categories",
+                    icon = Icons.Filled.Apps,
+                    actionId = SettingsActionId.ManageCategories
                 )
             )
         ),

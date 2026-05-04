@@ -113,6 +113,7 @@ fun SettingsScreen(
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
+    onManageCategoryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
@@ -173,6 +174,7 @@ fun SettingsScreen(
                                     SettingsActionId.DataManagement -> onDataManagementClick()
                                     SettingsActionId.About -> onAboutClick()
                                     SettingsActionId.Notifications -> onNotificationsClick()
+                                    SettingsActionId.ManageCategories -> onManageCategoryClick()
                                     else -> Unit
                                 }
                             },

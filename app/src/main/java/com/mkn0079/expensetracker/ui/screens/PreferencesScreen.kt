@@ -122,15 +122,6 @@ fun PreferencesScreen(
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
                     )
                 }
-                item {
-                    SettingsItemCard(
-                        title = "Manage Category",
-                        subtitle = "Add or edit categories",
-                        icon = Icons.Filled.Apps,
-                        type = SettingsItemType.Navigation,
-                        onClick = onManageCategoryClick
-                    )
-                }
             }
         }
     }
