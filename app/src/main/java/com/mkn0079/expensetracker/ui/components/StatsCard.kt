@@ -305,10 +305,10 @@ private fun String.toZeroPlaceholder(): String {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun TotalBalanceCardPreview() {
-    ExpenseTrackerTheme(darkTheme = false) {
+    ExpenseTrackerTheme(darkTheme = true) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {

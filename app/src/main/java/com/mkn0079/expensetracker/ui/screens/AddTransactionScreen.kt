@@ -314,6 +314,19 @@ fun AddTransactionScreen(
                         )
                     }
 
+                    SelectionInfoCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = Icons.Filled.EditNote,
+                        label = "NOTE",
+                        value = note.ifBlank { "Add note" },
+                        isPlaceholder = note.isBlank(),
+                        compact = compact,
+                        onClick = {
+                            noteDraft = note
+                            isNoteSheetVisible = true
+                        }
+                    )
+
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
                     ) {
@@ -367,19 +380,6 @@ fun AddTransactionScreen(
                             )
                         }
                     }
-
-                    SelectionInfoCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = Icons.Filled.EditNote,
-                        label = "NOTE",
-                        value = note.ifBlank { "Add note" },
-                        isPlaceholder = note.isBlank(),
-                        compact = compact,
-                        onClick = {
-                            noteDraft = note
-                            isNoteSheetVisible = true
-                        }
-                    )
                 }
 
                 AnimatedVisibility(
@@ -775,66 +775,6 @@ private fun RecurringTransactionSection(
 }
 
 
-@Composable
-private fun AmountCard(
-    amountText: String,
-    currencyId: Int,
-    selectedTransactionTypeId: Int,
-    compact: Boolean
-) {
-    val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
-    val currency = getCurrency(currencyId)
-    val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 22.dp,
-                shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
-            )
-            .clip(shape)
-            .background(standardCardGradient())
-            .padding(
-                horizontal = if (compact) 20.dp else 24.dp,
-                vertical = if (compact) 18.dp else 22.dp
-            )
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "₹",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 22.sp else 24.sp
-                ),
-                modifier = Modifier.padding(bottom = 6.dp, end = 8.dp)
-            )
-
-            Text(
-                text = amountText,
-                color = amountColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 42.sp else 50.sp,
-                    lineHeight = if (compact) 46.sp else 54.sp
-                )
-            )
-        }
-    }
-}
 
 @Composable
 private fun CurrencyAmountCard(
@@ -858,73 +798,100 @@ private fun CurrencyAmountCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = if (compact) 120.dp else 140.dp) // Tightened height
             .shadow(
-                elevation = 22.dp,
+                elevation = 8.dp,
                 shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
             )
             .clip(shape)
-            .background(standardCardGradient())
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                shape = shape
+            )
             .clickable(onClick = onClick)
-            .padding(
-                horizontal = if (compact) 20.dp else 24.dp,
-                vertical = if (compact) 18.dp else 22.dp
-            )
     ) {
-        Text(
-            text = "ENTER AMOUNT",
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp,
-                fontSize = if (compact) 9.sp else 10.sp
-            ),
+        Column(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .graphicsLayer { translationY = labelTranslationY }
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = if (compact) 8.dp else 12.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+                .fillMaxWidth()
+                .padding(
+                    horizontal = if (compact) 16.dp else 20.dp, // Tightened horizontal padding
+                    vertical = if (compact) 12.dp else 16.dp    // Tightened vertical padding
+                )
+                .matchParentSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (currency.position == CurrencyPosition.PREFIX) {
+            // Top Section
+            Column {
                 Text(
-                    text = currency.currencySymbol,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    text = "ENTER AMOUNT",
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = if (compact) 22.sp else 24.sp
+                        letterSpacing = 1.2.sp,
+                        fontSize = 12.sp // Slightly reduced label size for tightness
                     ),
-                    modifier = Modifier.padding(bottom = 6.dp, end = 8.dp)
+                    modifier = Modifier
+                        .graphicsLayer { translationY = labelTranslationY }
+                )
+
+                Spacer(modifier = Modifier.height(if (compact) 2.dp else 4.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.1f)
+                        .height(1.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                 )
             }
 
-            Text(
-                text = amountText,
-                color = amountColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 42.sp else 50.sp,
-                    lineHeight = if (compact) 46.sp else 54.sp
-                )
-            )
+            // Middle/Bottom Section: Amount Display
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                if (currency.position == CurrencyPosition.PREFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 22.sp else 24.sp
+                        ),
+                        modifier = Modifier.padding(bottom = if (compact) 4.dp else 5.dp, end = 8.dp)
+                    )
+                }
 
-            if (currency.position == CurrencyPosition.POSTFIX) {
                 Text(
-                    text = currency.currencySymbol,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    text = amountText,
+                    color = amountColor, // Restored solid color
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = if (compact) 22.sp else 24.sp
-                    ),
-                    modifier = Modifier.padding(start = 8.dp, bottom = 6.dp)
+                        fontSize = if (compact) 42.sp else 50.sp,
+                        lineHeight = if (compact) 46.sp else 54.sp
+                    )
                 )
+
+                if (currency.position == CurrencyPosition.POSTFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 22.sp else 24.sp
+                        ),
+                        modifier = Modifier.padding(start = 8.dp, bottom = 6.dp)
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(1.dp))
         }
     }
 }
@@ -1041,13 +1008,24 @@ private fun SelectionInfoCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = if (compact) 56.dp else 64.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .heightIn(min = if (compact) 48.dp else 56.dp) // Tightened min height
+                .shadow(
+                    elevation = 6.dp, // Reduced elevation for a flatter, tighter look
+                    shape = RoundedCornerShape(20.dp), // Slightly tighter corner radius
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f),
+                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.06f)
+                )
+                .clip(RoundedCornerShape(20.dp))
                 .background(standardCardGradient())
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(20.dp)
+                )
                 .clickable(onClick = onClick)
                 .padding(
-                    horizontal = if (compact) 14.dp else 16.dp,
-                    vertical = if (compact) 12.dp else 14.dp
+                    horizontal = if (compact) 12.dp else 16.dp, // Tightened horizontal padding
+                    vertical = if (compact) 8.dp else 12.dp    // Tightened vertical padding
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1344,12 +1322,7 @@ private fun formatEditableAmount(amount: Double): String {
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
-@Preview(
-    name = "Add Transaction Compact",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=360dp,height=740dp,dpi=420"
-)
+
 @Composable
 private fun AddTransactionScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
