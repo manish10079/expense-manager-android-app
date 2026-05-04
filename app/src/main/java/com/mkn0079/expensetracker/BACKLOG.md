@@ -39,7 +39,7 @@ Flow to follow:
 1. [verified] Instead of bottomsheet make add category a screen
 2. [verified] Shift manage category card to settings screen from app preference screen
 3. [verified] Add edit profile card in settings
-4. [ ] Fix in add button get chipped, reduce its size or use icon instead of text
+4. [verified] Fix in add button get chipped, reduce its size or use icon instead of text
 5. [ ] In multi select mode, change select all icon, and fix select icon background
 6. [ ] Increase fingerprint icon size in applock
 7. [ ] Add 50 more most used icons for user dont add which are already exist

@@ -1224,7 +1224,7 @@ private fun AddTransactionButton(
             .clip(shape)
             .background(brush = brandGradient())
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 24.dp, vertical = 18.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -1234,17 +1234,19 @@ private fun AddTransactionButton(
             Text(
                 text = label,
                 color = MaterialTheme.colorScheme.onPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 16.sp
                 )
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             Box(
                 modifier = Modifier
-                    .size(26.dp)
+                    .size(22.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
