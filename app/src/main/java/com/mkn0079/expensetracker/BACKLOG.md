@@ -31,39 +31,36 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-34. [verified] Disable app lock button is not working
-35. [verified] Reset the add transaction form when add button clicked inside add transaction screen
-36. [verified] Fix number input in profilescreen (Simplified input with placeholder)
-37. [ ] Fix security question screen: white background on 'Your Answer' text in light mode
+*(All current high priority items are completed and verified)*
 
 ---
 
 ### 🟡 Medium Priority - Functional Improvements
-37. [ ] Instead of bottomsheet make add category a screen
-38. [ ] Shift manage category card to settings screen from app preference screen
-39. [ ] Add edit profile card in settings
-40. [ ] Fix in add button get chipped, reduce its size or use icon instead of text
-41. [ ] In multi select mode, change select all icon, and fix select icon background
-42. [ ] Increase fingerprint icon size in applock
-43. [ ] Add 50 more most used icons for user dont add which are already exist
-24. [ ] Refactor Notification settings to use SettingsItemCard
-26. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
-27. [ ] Fix circular background color of Delete icon in Dark Mode
-28. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
+1. [ ] Instead of bottomsheet make add category a screen
+2. [ ] Shift manage category card to settings screen from app preference screen
+3. [ ] Add edit profile card in settings
+4. [ ] Fix in add button get chipped, reduce its size or use icon instead of text
+5. [ ] In multi select mode, change select all icon, and fix select icon background
+6. [ ] Increase fingerprint icon size in applock
+7. [ ] Add 50 more most used icons for user dont add which are already exist
+8. [ ] Refactor Notification settings to use SettingsItemCard
+9. [ ] Sync Calendar screen jump-to-date with WheelDateTimePicker
+10. [ ] Fix circular background color of Delete icon in Dark Mode
+11. [ ] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
 
 ---
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-44. [ ] Add space between select all and delete icon
-45. [ ] Remove glow in disable app lock screen
-46. [ ] Reduce scrollable top padding in profile screen
-47. [ ] Make profile card unclickable
-48. [ ] Reduce font size of text 'track every move with confidence' in homescreen
-49. [ ] Use icons.round.settings icon in homescreen
-29. [ ] Standardize all card/toggle backgrounds with unified gradient
-30. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories
-32. [ ] StatsCard: Auto-hide balance/income/expense (Show for 10s on click)
-50. [ ] In Add Transaction screen, the Note card and Amount card background should have same color
+12. [ ] Add space between select all and delete icon
+13. [ ] Remove glow in disable app lock screen
+14. [ ] Reduce scrollable top padding in profile screen
+15. [ ] Make profile card unclickable
+16. [ ] Reduce font size of text 'track every move with confidence' in homescreen
+17. [ ] Use icons.round.settings icon in homescreen
+18. [ ] Standardize all card/toggle backgrounds with unified gradient
+19. [ ] Unify components (AppIconBox/SettingsItemCard) in Manage Categories
+20. [ ] StatsCard: Auto-hide balance/income/expense (Show for 10s on click)
+21. [ ] In Add Transaction screen, the Note card and Amount card background should have same color
 
 ---
 
@@ -91,6 +88,10 @@ Flow to follow:
 21. [verified] Add slide animations between tabs in Manage Categories screen
 22. [verified] Remove "Personalize your vault" text from Add Category screen
 23. [verified] Use official app icon in the About screen
-25. [verified] Added gradient style to "Create Category" button
-31. [verified] Apply unified gradient to all toggle switches
-33. [verified] Made Add Category sheet scrollable and keyboard-aware
+24. [verified] Added gradient style to "Create Category" button
+25. [verified] Apply unified gradient to all toggle switches
+26. [verified] Made Add Category sheet scrollable and keyboard-aware
+27. [verified] Disable app lock button is not working
+28. [verified] Reset the add transaction form when add button clicked inside add transaction screen
+29. [verified] Fix number input in profilescreen (Simplified input with placeholder)
+30. [verified] Fix security question screen: white background on 'Your Answer' text in light mode
