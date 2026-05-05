@@ -164,75 +164,72 @@ fun TransactionCardCustomizeScreen(
         previewTransactions.groupBy { formatDate(it.createdAt, dateFormatPattern) }.entries.toList()
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
-            .navigationBarsPadding(),
-        contentPadding = PaddingValues(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .navigationBarsPadding()
     ) {
-        item {
+        // Fixed Top Section: Header and Preview
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             AppHeader(
                 title = "Card Settings",
                 onBackClick = onBackClick
             )
-        }
 
-        item {
             Text(
                 text = "Preview",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.6.sp
-                ),
-                modifier = Modifier.padding(bottom = 8.dp)
+                )
             )
-        }
 
-        if (localSettings.showDateSeparators) {
-            previewGroups.forEach { group ->
-                item(key = "preview_header_${group.key}") {
-                    Text(
-                        text = group.key,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.6.sp
-                        ),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+            if (localSettings.showDateSeparators) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    previewGroups.forEach { group ->
+                        Text(
+                            text = group.key,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.6.sp
+                            ),
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        group.value.forEach { transaction ->
+                            TransactionCard(
+                                note = transaction.note,
+                                transactionDate = formatDate(transaction.createdAt, dateFormatPattern),
+                                transactionTime = formatTime(transaction.createdAt, timeFormat),
+                                amount = formatAmount(
+                                    amount = transaction.amount,
+                                    transactionTypeId = transaction.transactionTypeId,
+                                    currencyId = currencyId,
+                                    amountFormatPreferences = amountFormatPreferences
+                                ),
+                                transactionTypeId = transaction.transactionTypeId,
+                                icon = transaction.categoryIcon,
+                                paymentType = getPaymentTypeName(transaction.paymentTypeId),
+                                categoryLabel = "Category",
+                                showTypeLabel = localSettings.showIncomeExpenseLabels,
+                                showTransactionDate = localSettings.showTransactionDate,
+                                showPaymentMethod = localSettings.showPaymentMethod,
+                                showTransactionTime = localSettings.showTransactionTime,
+                                showCategoryIcon = localSettings.showCategoryIcon,
+                                showCategoryLabel = localSettings.showCategoryLabel
+                            )
+                        }
+                    }
                 }
-
-                items(group.value.size) { index ->
-                    val transaction = group.value[index]
-                    TransactionCard(
-                        note = transaction.note,
-                        transactionDate = formatDate(transaction.createdAt, dateFormatPattern),
-                        transactionTime = formatTime(transaction.createdAt, timeFormat),
-                        amount = formatAmount(
-                            amount = transaction.amount,
-                            transactionTypeId = transaction.transactionTypeId,
-                            currencyId = currencyId,
-                            amountFormatPreferences = amountFormatPreferences
-                        ),
-                        transactionTypeId = transaction.transactionTypeId,
-                        icon = transaction.categoryIcon,
-                        paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                        categoryLabel = "Category",
-                        showTypeLabel = localSettings.showIncomeExpenseLabels,
-                        showTransactionDate = localSettings.showTransactionDate,
-                        showPaymentMethod = localSettings.showPaymentMethod,
-                        showTransactionTime = localSettings.showTransactionTime,
-                        showCategoryIcon = localSettings.showCategoryIcon,
-                        showCategoryLabel = localSettings.showCategoryLabel
-                    )
-                }
-            }
-        } else {
-            item {
+            } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     previewTransactions.forEach { transaction ->
                         TransactionCard(
@@ -254,46 +251,57 @@ fun TransactionCardCustomizeScreen(
                             showPaymentMethod = localSettings.showPaymentMethod,
                             showTransactionTime = localSettings.showTransactionTime,
                             showCategoryIcon = localSettings.showCategoryIcon,
-                            showCategoryLabel = localSettings.showCategoryLabel                        )
+                            showCategoryLabel = localSettings.showCategoryLabel
+                        )
                     }
                 }
             }
         }
 
-        item {
-            Text(
-                text = "Customize how your data is visualized",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium
+        // Scrollable Bottom Section: Customization Toggles
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            item {
+                Text(
+                    text = "Customize how your data is visualized",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
-            )
-        }
+            }
 
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                toggleItems.forEach { item ->
-                    GatedAction(
-                        feature = Feature.CARD_CUSTOMIZATION,
-                        optionId = item.optionId,
-                        displayName = item.title,
-                        onAction = { item.onCheckedChange(!item.checked) }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    toggleItems.forEach { item ->
+                        GatedAction(
                             feature = Feature.CARD_CUSTOMIZATION,
-                            optionId = item.optionId
-                        )
-                        SettingsItemCard(
-                            icon = item.icon,
-                            title = item.title,
-                            subtitle = item.subtitle,
-                            type = SettingsItemType.Toggle,
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            isChecked = item.checked,
-                            onCheckedChange = { onClick() },
-                            onClick = onClick
-                        )
+                            optionId = item.optionId,
+                            displayName = item.title,
+                            onAction = { item.onCheckedChange(!item.checked) }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(
+                                feature = Feature.CARD_CUSTOMIZATION,
+                                optionId = item.optionId
+                            )
+                            SettingsItemCard(
+                                icon = item.icon,
+                                title = item.title,
+                                subtitle = item.subtitle,
+                                type = SettingsItemType.Toggle,
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                isChecked = item.checked,
+                                onCheckedChange = { onClick() },
+                                onClick = onClick
+                            )
+                        }
                     }
                 }
             }
