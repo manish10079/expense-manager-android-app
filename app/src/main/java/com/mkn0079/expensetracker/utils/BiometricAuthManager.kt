@@ -7,7 +7,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import androidx.core.content.ContextCompat
 
-private const val BIOMETRIC_AUTHENTICATORS = BiometricManager.Authenticators.BIOMETRIC_WEAK
+private const val BIOMETRIC_AUTHENTICATORS = BiometricManager.Authenticators.BIOMETRIC_STRONG
 
 data class BiometricAvailability(
     val isAvailable: Boolean,
@@ -101,31 +101,8 @@ object BiometricAuthManager {
     }
 
     class BiometricAuthenticator internal constructor(
-        activity: FragmentActivity
+        private val activity: FragmentActivity
     ) {
-        private var onSuccess: () -> Unit = {}
-        private var onFailure: (String) -> Unit = {}
-        private var onCancel: () -> Unit = {}
-        private val prompt = BiometricPrompt(
-            activity,
-            ContextCompat.getMainExecutor(activity),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    onSuccess()
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    when (errorCode) {
-                        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
-                        BiometricPrompt.ERROR_USER_CANCELED,
-                        BiometricPrompt.ERROR_CANCELED -> onCancel()
-
-                        else -> onFailure(errString.toString())
-                    }
-                }
-            }
-        )
-
         fun authenticate(
             title: String,
             subtitle: String,
@@ -135,9 +112,26 @@ object BiometricAuthManager {
             onFailure: (String) -> Unit = {},
             onCancel: () -> Unit = {}
         ) {
-            this.onSuccess = onSuccess
-            this.onFailure = onFailure
-            this.onCancel = onCancel
+            val executor = ContextCompat.getMainExecutor(activity)
+            val prompt = BiometricPrompt(
+                activity,
+                executor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        onSuccess()
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        when (errorCode) {
+                            BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                            BiometricPrompt.ERROR_USER_CANCELED,
+                            BiometricPrompt.ERROR_CANCELED -> onCancel()
+
+                            else -> onFailure(errString.toString())
+                        }
+                    }
+                }
+            )
 
             prompt.authenticate(
                 buildPromptInfo(

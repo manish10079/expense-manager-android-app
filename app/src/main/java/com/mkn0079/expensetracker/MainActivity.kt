@@ -106,7 +106,8 @@ class MainActivity : FragmentActivity() {
         val isReady by splashViewModel.isReady.collectAsState()
         val appLockState by appLockViewModel.state.collectAsState()
         val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsState()
-        val context = applicationContext
+        val context = LocalContext.current
+        val activity = context.findFragmentActivity()
         
         val initialNavDestination = intent.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
@@ -194,9 +195,24 @@ class MainActivity : FragmentActivity() {
 
                                 is AppLockState.Locked -> {
                                     // 3. App Lock Screen (Blocks Main Content)
-                                    val activity = LocalContext.current.findFragmentActivity()
                                     val biometricAuthenticator = remember(activity) {
                                         activity?.let(BiometricAuthManager::createAuthenticator)
+                                    }
+                                    val biometricAvailability = remember(activity) {
+                                        activity?.let { BiometricAuthManager.getAvailability(it) }
+                                    }
+
+                                    LaunchedEffect(biometricAuthenticator, biometricAvailability) {
+                                        if (settings.biometricLockEnabled && 
+                                            biometricAvailability?.isAvailable == true && 
+                                            biometricAuthenticator != null) {
+                                            biometricAuthenticator.authenticate(
+                                                title = "Unlock Expense Tracker",
+                                                subtitle = "Verify your biometric to continue.",
+                                                negativeButtonText = "Use PIN",
+                                                onSuccess = { appLockViewModel.unlock() }
+                                            )
+                                        }
                                     }
 
                                     AppLockOverlay(
