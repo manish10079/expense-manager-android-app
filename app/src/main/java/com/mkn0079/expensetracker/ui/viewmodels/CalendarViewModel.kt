@@ -17,6 +17,7 @@ import com.mkn0079.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
 import com.mkn0079.expensetracker.ui.models.TransactionCardItemUi
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
+import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.formatDateWithWeekday
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -209,8 +210,8 @@ class CalendarViewModel : ViewModel() {
                 },
                 selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
                 selectedDayIncomeLabel = "Income ${formatConfiguredCurrency(selectedDayIncomeTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
-                selectedDayTitle = formatDateWithWeekday(safeSelectedDate, currentDateFormatPattern),
-                emptyTransactionsMessage = "There are no entries recorded for ${formatDateWithWeekday(safeSelectedDate, currentDateFormatPattern)}.",
+                selectedDayTitle = formatDate(safeSelectedDate, currentDateFormatPattern),
+                emptyTransactionsMessage = "There are no entries recorded for ${formatDate(safeSelectedDate, currentDateFormatPattern)}.",
                 yearSummaries = yearSummaries,
                 yearlyIncomeLabel = formatConfiguredCurrency(yearlyIncome, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
                 yearlyExpenseLabel = formatConfiguredCurrency(yearlyExpense, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),

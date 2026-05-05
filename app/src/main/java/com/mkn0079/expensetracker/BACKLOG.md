@@ -35,10 +35,10 @@ Flow to follow:
 2. [verified] Analytics: Clicking "View All" in Top Spending should display transaction cards.
 
 ### 🟡 Medium Priority - Functional Improvements
-1. [fixed] Add custom date filter to the Sort/Filter sheet.
+1. [verified] Add custom date filter to the Sort/Filter sheet.
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-1. [ ] Calendar screen: Standardize date format under 'Transactions' label based on app preferences (No Day of week).
+1. [fixed] Calendar screen: Standardize date format under 'Transactions' label based on app preferences (No Day of week).
 
 ---
 
