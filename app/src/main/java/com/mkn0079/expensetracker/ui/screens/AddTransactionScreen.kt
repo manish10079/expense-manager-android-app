@@ -850,9 +850,11 @@ private fun CurrencyAmountCard(
 
             // Middle/Bottom Section: Amount Display
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 if (currency.position == CurrencyPosition.PREFIX) {
                     Text(

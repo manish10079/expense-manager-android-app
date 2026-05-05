@@ -175,6 +175,7 @@ fun AppNavigationHost(
                     AnalyticsScreen(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = selectedDateFormatPattern,
                         transactions = transactions,
                         categories = categories,
                         paymentMethods = paymentMethods,

@@ -112,6 +112,8 @@ import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
+import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mkn0079.expensetracker.utils.formatDate
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -128,6 +130,7 @@ enum class HeroDisplayMode(val label: String) {
 fun AnalyticsScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     transactions: List<Transaction> = transactionList,
     categories: List<CategoryType> = emptyList(),
     paymentMethods: List<PaymentType> = emptyList(),
@@ -273,6 +276,7 @@ fun AnalyticsScreen(
                         TopSpendingCard(
                             modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
                             topTransactions = snapshot.topTransactions,
+                            dateFormatPattern = dateFormatPattern,
                             onViewAllClick = { isTopSpendingSheetVisible = true }
                         )
                         if (isLocked) {
@@ -368,6 +372,7 @@ fun AnalyticsScreen(
     if (isTopSpendingSheetVisible) {
         TopSpendingBottomSheet(
             transactions = snapshot.allTopTransactions,
+            dateFormatPattern = dateFormatPattern,
             onDismiss = { isTopSpendingSheetVisible = false }
         )
     }
@@ -1236,6 +1241,7 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
 private fun TopSpendingCard(
     modifier: Modifier = Modifier,
     topTransactions: List<TopSpendingItemUi>,
+    dateFormatPattern: String,
     onViewAllClick: () -> Unit
 ) {
     Box(
@@ -1280,7 +1286,7 @@ private fun TopSpendingCard(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     topTransactions.forEach { transaction ->
-                        TopSpendingRow(transaction = transaction)
+                        TopSpendingRow(transaction = transaction, dateFormatPattern = dateFormatPattern)
                     }
                 }
             }
@@ -1290,7 +1296,8 @@ private fun TopSpendingCard(
 
 @Composable
 private fun TopSpendingRow(
-    transaction: TopSpendingItemUi
+    transaction: TopSpendingItemUi,
+    dateFormatPattern: String
 ) {
     val truncatedNote = transaction.note.truncateWithEllipsis(maxCharacters = 10)
 
@@ -1317,11 +1324,25 @@ private fun TopSpendingRow(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = transaction.categoryLabel,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = transaction.categoryLabel,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "•",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = formatDate(transaction.createdAt, dateFormatPattern),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
         Text(
             text = transaction.amountDisplay,
@@ -1750,6 +1771,7 @@ private fun BoxScope.PremiumLockedOverlay(
 @Composable
 private fun TopSpendingBottomSheet(
     transactions: List<TopSpendingItemUi>,
+    dateFormatPattern: String,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -1791,7 +1813,7 @@ private fun TopSpendingBottomSheet(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     transactions.forEach { transaction ->
-                        TopSpendingRow(transaction = transaction)
+                        TopSpendingRow(transaction = transaction, dateFormatPattern = dateFormatPattern)
                     }
                 }
             }
@@ -1803,6 +1825,6 @@ private fun TopSpendingBottomSheet(
 @Composable
 private fun AnalyticsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        AnalyticsScreen()
+        AnalyticsScreen(dateFormatPattern = "dd MMM yyyy")
     }
 }

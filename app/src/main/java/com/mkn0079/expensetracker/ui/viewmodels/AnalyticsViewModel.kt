@@ -57,7 +57,8 @@ data class TopSpendingItemUi(
     val note: String,
     val amountDisplay: String,
     val categoryLabel: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val createdAt: Long
 )
 
 @Immutable
@@ -274,7 +275,8 @@ private fun buildAnalyticsSnapshot(
                     prefix = "-"
                 ),
                 categoryLabel = category?.name ?: "General",
-                icon = category?.icon ?: categoryFallbackIcon
+                icon = category?.icon ?: categoryFallbackIcon,
+                createdAt = transaction.createdAt
             )
         }
 
@@ -292,7 +294,8 @@ private fun buildAnalyticsSnapshot(
                     prefix = "-"
                 ),
                 categoryLabel = category?.name ?: "General",
-                icon = category?.icon ?: categoryFallbackIcon
+                icon = category?.icon ?: categoryFallbackIcon,
+                createdAt = transaction.createdAt
             )
         }
     val flowChange = percentageChange(totalFlow, previousFlow)

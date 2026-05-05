@@ -31,7 +31,7 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-1. [ ] Fix navigation propagation: Clicking a transaction card on the home screen should correctly open the edit transaction screen.
+1. [verified] Fix navigation propagation: Clicking a transaction card on the home screen should correctly open the edit transaction screen.
 2. [ ] Analytics: Clicking "View All" in Top Spending should display transaction cards.
 
 ### 🟡 Medium Priority - Functional Improvements
