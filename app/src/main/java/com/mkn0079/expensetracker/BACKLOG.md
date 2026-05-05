@@ -31,7 +31,14 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-*(All current high priority items are completed and verified)*
+1. [ ] Fix navigation propagation: Clicking a transaction card on the home screen should correctly open the edit transaction screen.
+2. [ ] Analytics: Clicking "View All" in Top Spending should display transaction cards.
+
+### 🟡 Medium Priority - Functional Improvements
+1. [ ] Add custom date filter to the Sort/Filter sheet.
+
+### 🟢 Low Priority - Visual Polish & Refactoring
+1. [ ] Calendar screen: Standardize date format under 'Transactions' label based on app preferences (No Day of week).
 
 ---
 
@@ -58,7 +65,7 @@ Flow to follow:
 16. [verified] Reduce font size of text 'track every move with confidence' in homescreen
 17. [verified] Use icons.round.settings icon in homescreen
 18. [verified] Standardize all card/toggle backgrounds with unified gradient
-20. [verified] StatsCard: Auto-hide balance/income/expense (Show for 10s on click) by default it should be hidden and on click of card it should appear
+19. [verified] StatsCard: Auto-hide balance/income/expense (Show for 10s on click) by default it should be hidden and on click of card it should appear
 
 
 ---

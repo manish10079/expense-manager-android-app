@@ -113,6 +113,9 @@ fun AppNavigationHost(
     val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
         if (destinationRoute != AppRoute.ItemizedCalculator) {
             saveableStateHolder.removeState(AppRoute.AddTransaction)
+            onSelectedTransactionChange(null)
+            onAddTransactionDraftAmountChange(null)
+            onAddTransactionDraftNoteChange(null)
         }
         onBottomBarVisibilityChange(false)
         onRouteChange(destinationRoute)
