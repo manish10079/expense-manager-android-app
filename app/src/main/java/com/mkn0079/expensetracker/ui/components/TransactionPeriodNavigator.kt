@@ -95,7 +95,7 @@ fun TransactionPeriodNavigator(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = "Previous period",
-                                tint = colorScheme.onSurface
+                                tint = colorScheme.primary
                             )
                         }
                     )
@@ -136,7 +136,7 @@ fun TransactionPeriodNavigator(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = "Next period",
-                                tint = colorScheme.onSurface
+                                tint = colorScheme.primary
                             )
                         }
                     )

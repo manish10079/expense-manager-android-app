@@ -885,7 +885,7 @@ private fun CircularNavButton(
         modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
     }
 }
 

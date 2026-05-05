@@ -405,7 +405,7 @@ private fun AboutActionItem(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
             modifier = Modifier.size(20.dp)
         )
     }

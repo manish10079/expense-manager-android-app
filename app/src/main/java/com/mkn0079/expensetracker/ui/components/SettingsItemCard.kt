@@ -225,7 +225,7 @@ fun SettingsItemCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = "Open",
-                            tint = onSurfaceVariant.copy(alpha = 0.35f),
+                            tint = primary.copy(alpha = 0.8f),
                             modifier = Modifier.size(40.dp)
                         )
                     }
