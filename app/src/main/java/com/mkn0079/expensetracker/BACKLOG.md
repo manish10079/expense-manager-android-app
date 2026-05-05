@@ -32,10 +32,10 @@ Flow to follow:
 
 ### 🔴 High Priority - Critical Bugs & UX
 1. [verified] Fix navigation propagation: Clicking a transaction card on the home screen should correctly open the edit transaction screen.
-2. [ ] Analytics: Clicking "View All" in Top Spending should display transaction cards.
+2. [verified] Analytics: Clicking "View All" in Top Spending should display transaction cards.
 
 ### 🟡 Medium Priority - Functional Improvements
-1. [ ] Add custom date filter to the Sort/Filter sheet.
+1. [fixed] Add custom date filter to the Sort/Filter sheet.
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
 1. [ ] Calendar screen: Standardize date format under 'Transactions' label based on app preferences (No Day of week).

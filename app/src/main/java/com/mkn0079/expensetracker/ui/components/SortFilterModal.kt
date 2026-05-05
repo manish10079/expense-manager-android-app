@@ -66,6 +66,8 @@ fun FilterBottomSheet(
     selectedSort: String,
     selectedOrder: SortType,
     selectedDateRange: String?,
+    selectedCustomStartDate: Long?,
+    selectedCustomEndDate: Long?,
     selectedTransactionTypeIds: Set<Int>,
     availableCategories: List<CategoryType>,
     selectedCategoryIds: Set<Int>,
@@ -76,6 +78,7 @@ fun FilterBottomSheet(
     onSortChange: (String) -> Unit,
     onOrderChange: (SortType) -> Unit,
     onDateRangeChange: (String?) -> Unit,
+    onCustomDateRangeChange: (Long?, Long?) -> Unit,
     onTransactionTypeToggle: (Int) -> Unit,
     onCategoryToggle: (Int) -> Unit,
     onPaymentModeToggle: (Int) -> Unit,
@@ -97,6 +100,10 @@ fun FilterBottomSheet(
     // UI-only expansion states to hide categories by default
     var isExpenseExpanded by remember { mutableStateOf(false) }
     var isIncomeExpanded by remember { mutableStateOf(false) }
+    
+    var showDatePicker by remember { mutableStateOf(false) }
+    var tempFromMillis by remember { mutableStateOf<Long?>(selectedCustomStartDate) }
+    var tempToMillis by remember { mutableStateOf<Long?>(selectedCustomEndDate) }
 
     LazyColumn(
         modifier = Modifier
@@ -248,6 +255,57 @@ fun FilterBottomSheet(
                                 }
                             )
                         }
+                        
+                        GatedAction(
+                            feature = Feature.ANALYTICS_CUSTOM_RANGE,
+                            displayName = "Custom Range Filter",
+                            onAction = { showDatePicker = true }
+                        ) { status, gatedOnClick ->
+                            val isLocked = status !is AccessStatus.Granted
+                            Box {
+                                val customRangeText = if (selectedDateRange == "Custom Range" && selectedCustomStartDate != null && selectedCustomEndDate != null) {
+                                    com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel(
+                                        selectedCustomStartDate..selectedCustomEndDate
+                                    )
+                                } else {
+                                    "Custom Range"
+                                }
+                                FilterChip(
+                                    title = customRangeText,
+                                    icon = Icons.Default.DateRange,
+                                    selected = selectedDateRange == "Custom Range",
+                                    selectedBrush = chipSelectedBrush,
+                                    unselectedBrush = chipUnselectedBrush,
+                                    onClick = { if (isLocked) gatedOnClick() else showDatePicker = true }
+                                )
+                                if (isLocked) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Lock,
+                                        contentDescription = "Locked",
+                                        tint = colorScheme.featureGateLock,
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = (-4).dp, y = 4.dp)
+                                            .size(12.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (showDatePicker) {
+                        WheelDateTimePickerModal(
+                            mode = WheelPickerMode.DATE_RANGE,
+                            initialStartMillis = tempFromMillis ?: System.currentTimeMillis(),
+                            initialEndMillis = tempToMillis,
+                            onDismissRequest = { showDatePicker = false },
+                            onConfirm = { start, end ->
+                                tempFromMillis = start
+                                tempToMillis = end
+                                onCustomDateRangeChange(start, end)
+                                showDatePicker = false
+                            }
+                        )
                     }
                 }
 
@@ -745,6 +803,8 @@ fun FilterBottomSheetPreview() {
             selectedSort = selectedSort,
             selectedOrder = selectedOrder,
             selectedDateRange = selectedDateRange,
+            selectedCustomStartDate = null,
+            selectedCustomEndDate = null,
             selectedTransactionTypeIds = selectedTransactionTypeIds,
             availableCategories = availableCategories,
             selectedCategoryIds = selectedCategoryIds,
@@ -755,6 +815,7 @@ fun FilterBottomSheetPreview() {
             onSortChange = { selectedSort = it },
             onOrderChange = { selectedOrder = it },
             onDateRangeChange = { selectedDateRange = it },
+            onCustomDateRangeChange = { start, end -> /* Dummy */ },
             onTransactionTypeToggle = {
                 selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(it)
                 selectedCategoryIds = emptySet()

@@ -578,6 +578,8 @@ fun TransactionScreen(
                     selectedSort = uiState.selectedSort,
                     selectedOrder = uiState.selectedOrder,
                     selectedDateRange = uiState.selectedDateRange,
+                    selectedCustomStartDate = uiState.selectedCustomStartDate,
+                    selectedCustomEndDate = uiState.selectedCustomEndDate,
                     selectedTransactionTypeIds = uiState.selectedTransactionTypeIds,
                     availableCategories = uiState.availableCategories,
                     selectedCategoryIds = uiState.selectedCategoryIds,
@@ -588,6 +590,9 @@ fun TransactionScreen(
                     onSortChange = { transactionsViewModel.updateSort(it) },
                     onOrderChange = { transactionsViewModel.updateOrder(it) },
                     onDateRangeChange = { transactionsViewModel.updateDateRange(it) },
+                    onCustomDateRangeChange = { start, end ->
+                            transactionsViewModel.updateCustomDateRange(start, end)
+                        },
                     onTransactionTypeToggle = {
                         transactionsViewModel.toggleTransactionTypeFilter(it)
                     },
@@ -601,7 +606,6 @@ fun TransactionScreen(
                     onMaxAmountChange = { transactionsViewModel.updateMaxAmount(it) },
                     onApply = {
                         transactionsViewModel.applyFilters()
-
                         scope.launch {
                             sheetState.hide()
                             showBottomSheet = false

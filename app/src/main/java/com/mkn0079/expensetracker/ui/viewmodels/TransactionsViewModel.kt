@@ -56,6 +56,8 @@ data class TransactionsScreenUiState(
     val selectedSort: String = DEFAULT_SORT_BY,
     val selectedOrder: SortType = DEFAULT_SORT_ORDER,
     val selectedDateRange: String? = null,
+    val selectedCustomStartDate: Long? = null,
+    val selectedCustomEndDate: Long? = null,
     val selectedTransactionTypeIds: Set<Int> = setOf(1, 2),
     val selectedCategoryIds: Set<Int> = emptySet(),
     val selectedPaymentTypeIds: Set<Int> = emptySet(),
@@ -98,6 +100,8 @@ class TransactionsViewModel @Inject constructor(
     private var selectedSort: String = DEFAULT_SORT_BY
     private var selectedOrder: SortType = DEFAULT_SORT_ORDER
     private var selectedDateRange: String? = null
+    private var customStartDate: Long? = null
+    private var customEndDate: Long? = null
     private var selectedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var selectedCategoryIds: Set<Int> = emptySet()
     private var selectedPaymentTypeIds: Set<Int> = emptySet()
@@ -106,6 +110,8 @@ class TransactionsViewModel @Inject constructor(
 
     private var appliedSortType: SortType = DEFAULT_SORT_ORDER
     private var appliedDateRange: String? = null
+    private var appliedCustomStartDate: Long? = null
+    private var appliedCustomEndDate: Long? = null
     private var appliedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var appliedCategoryIds: Set<Int> = emptySet()
     private var appliedPaymentTypeIds: Set<Int> = emptySet()
@@ -202,6 +208,13 @@ class TransactionsViewModel @Inject constructor(
         rebuildUiState()
     }
 
+    fun updateCustomDateRange(start: Long?, end: Long?) {
+        customStartDate = start
+        customEndDate = end ?: start
+        selectedDateRange = "Custom Range"
+        rebuildUiState()
+    }
+
     fun toggleTransactionTypeFilter(transactionTypeId: Int) {
         selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(transactionTypeId)
         selectedCategoryIds = emptySet()
@@ -231,6 +244,8 @@ class TransactionsViewModel @Inject constructor(
     fun applyFilters() {
         appliedSortType = selectedOrder
         appliedDateRange = selectedDateRange
+        appliedCustomStartDate = customStartDate
+        appliedCustomEndDate = customEndDate
         appliedTransactionTypeIds = selectedTransactionTypeIds
         appliedCategoryIds = selectedCategoryIds
         appliedPaymentTypeIds = selectedPaymentTypeIds
@@ -243,6 +258,8 @@ class TransactionsViewModel @Inject constructor(
         selectedSort = DEFAULT_SORT_BY
         selectedOrder = DEFAULT_SORT_ORDER
         selectedDateRange = null
+        customStartDate = null
+        customEndDate = null
         selectedTransactionTypeIds = setOf(1, 2)
         selectedCategoryIds = emptySet()
         selectedPaymentTypeIds = emptySet()
@@ -382,10 +399,12 @@ class TransactionsViewModel @Inject constructor(
                 ) &&
                     matchesSearchQuery &&
                     matchesQuickDateFilter(
-                    transactionTimestamp = transaction.createdAt,
-                    selectedDateRange = appliedDateRange,
-                    anchorTimestamp = System.currentTimeMillis()
-                ) &&
+                        transactionTimestamp = transaction.createdAt,
+                        selectedDateRange = appliedDateRange,
+                        anchorTimestamp = System.currentTimeMillis(),
+                        customStart = appliedCustomStartDate,
+                        customEnd = appliedCustomEndDate
+                    ) &&
                     matchesTransactionTypeFilter(
                         transactionTypeId = transaction.transactionTypeId,
                         selectedTransactionTypeIds = appliedTransactionTypeIds
@@ -429,6 +448,8 @@ class TransactionsViewModel @Inject constructor(
             selectedSort = selectedSort,
             selectedOrder = selectedOrder,
             selectedDateRange = selectedDateRange,
+            selectedCustomStartDate = customStartDate,
+            selectedCustomEndDate = customEndDate,
             selectedTransactionTypeIds = selectedTransactionTypeIds,
             selectedCategoryIds = selectedCategoryIds,
             selectedPaymentTypeIds = selectedPaymentTypeIds,
@@ -464,8 +485,28 @@ class TransactionsViewModel @Inject constructor(
 private fun matchesQuickDateFilter(
     transactionTimestamp: Long,
     selectedDateRange: String?,
-    anchorTimestamp: Long
+    anchorTimestamp: Long,
+    customStart: Long? = null,
+    customEnd: Long? = null
 ): Boolean {
+    if (selectedDateRange == "Custom Range" && customStart != null && customEnd != null) {
+        val startCal = Calendar.getInstance().apply {
+            timeInMillis = customStart
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val endCal = Calendar.getInstance().apply {
+            timeInMillis = customEnd
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        return transactionTimestamp in startCal.timeInMillis..endCal.timeInMillis
+    }
+
     val rangeDays = when (selectedDateRange) {
         FILTER_DATE_LAST_7_DAYS -> 7
         FILTER_DATE_LAST_15_DAYS -> 15
