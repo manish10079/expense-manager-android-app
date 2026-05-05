@@ -14,7 +14,8 @@ data class TransactionCardItemUi(
     val amount: String,
     val icon: ImageVector,
     val transactionTypeId: Int,
-    val paymentType: String
+    val paymentType: String,
+    val categoryLabel: String
 )
 
 sealed interface TransactionListItemUi {

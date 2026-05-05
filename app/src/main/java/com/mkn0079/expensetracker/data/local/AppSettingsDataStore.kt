@@ -63,6 +63,8 @@ object AppSettingsDataStore {
             booleanPreferencesKey("transaction_card_show_transaction_time")
         val transactionCardShowCategoryIcon =
             booleanPreferencesKey("transaction_card_show_category_icon")
+        val transactionCardShowCategoryLabel =
+            booleanPreferencesKey("transaction_card_show_category_label")
         val transactionCardShowDateSeparators =
             booleanPreferencesKey("transaction_card_show_date_separators")
         val installDateMillis = longPreferencesKey("install_date_millis")
@@ -165,6 +167,8 @@ object AppSettingsDataStore {
                 ?: defaultAppSettings.transactionCardShowTransactionTime,
             transactionCardShowCategoryIcon = this[Keys.transactionCardShowCategoryIcon]
                 ?: defaultAppSettings.transactionCardShowCategoryIcon,
+            transactionCardShowCategoryLabel = this[Keys.transactionCardShowCategoryLabel]
+                ?: defaultAppSettings.transactionCardShowCategoryLabel,
             transactionCardShowDateSeparators = this[Keys.transactionCardShowDateSeparators]
                 ?: defaultAppSettings.transactionCardShowDateSeparators,
             installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis,
@@ -209,6 +213,8 @@ object AppSettingsDataStore {
             settings.transactionCardShowTransactionTime
         this[Keys.transactionCardShowCategoryIcon] =
             settings.transactionCardShowCategoryIcon
+        this[Keys.transactionCardShowCategoryLabel] =
+            settings.transactionCardShowCategoryLabel
         this[Keys.transactionCardShowDateSeparators] =
             settings.transactionCardShowDateSeparators
         this[Keys.installDateMillis] = settings.installDateMillis

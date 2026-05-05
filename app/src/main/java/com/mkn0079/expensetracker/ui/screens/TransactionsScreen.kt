@@ -530,11 +530,13 @@ fun TransactionScreen(
                                     icon = card.icon,
                                     transactionTypeId = card.transactionTypeId,
                                     paymentType = card.paymentType,
+                                    categoryLabel = card.categoryLabel,
                                     showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
                                     showTransactionDate = uiState.customizationSettings.showTransactionDate,
                                     showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
                                     showTransactionTime = uiState.customizationSettings.showTransactionTime,
                                     showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                                    showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
                                     isSelected = uiState.selectedTransactionIds.contains(card.id),
                                     selectionMode = uiState.isSelectionMode,
                                     onClick = {

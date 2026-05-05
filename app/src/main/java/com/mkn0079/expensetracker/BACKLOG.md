@@ -31,10 +31,10 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-1. [ ] while unlocking app with biometric doesnot work sometimes works sometimes not, analyze code related to it and fix it
+1. [fixed(pending verification)] while unlocking app with biometric doesnot work sometimes works sometimes not, analyze code related to it and fix it
 
 ### 🟡 Medium Priority - Functional Improvements
-1. [ ] Role
+1. [fixed(pending verification)] Role
 
 You are a senior Android UI engineer and design system builder. Your job is to create reusable, scalable, and responsive UI components with clean structure and consistency across the app.
 

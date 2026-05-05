@@ -32,6 +32,7 @@ data class AppSettings(
     val transactionCardShowPaymentMethod: Boolean,
     val transactionCardShowTransactionTime: Boolean,
     val transactionCardShowCategoryIcon: Boolean,
+    val transactionCardShowCategoryLabel: Boolean,
     val transactionCardShowDateSeparators: Boolean,
     val installDateMillis: Long,
     val isAutoBackupEnabled: Boolean,

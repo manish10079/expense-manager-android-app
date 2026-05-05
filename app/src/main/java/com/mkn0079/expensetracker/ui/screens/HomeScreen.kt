@@ -269,11 +269,13 @@ private fun HomeScreenContent(
                         icon = card.icon,
                         transactionTypeId = card.transactionTypeId,
                         paymentType = card.paymentType,
+                        categoryLabel = card.categoryLabel,
                         showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
                         showTransactionDate = uiState.customizationSettings.showTransactionDate,
                         showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
                         showTransactionTime = uiState.customizationSettings.showTransactionTime,
                         showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                        showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
                         onClick = { onTransactionClick(card.transaction) }
                     )
                 }

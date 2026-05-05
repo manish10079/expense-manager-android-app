@@ -39,6 +39,11 @@ import com.mkn0079.expensetracker.utils.formatTime
 import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.utils.getPaymentTypeName
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import com.mkn0079.expensetracker.ui.theme.expense
+import com.mkn0079.expensetracker.ui.theme.income
+
 @Composable
 fun TransactionCard(
     note: String,
@@ -48,11 +53,13 @@ fun TransactionCard(
     transactionTypeId: Int,
     icon: ImageVector,
     paymentType: String,
+    categoryLabel: String = "",
     showTypeLabel: Boolean = true,
     showTransactionDate: Boolean = true,
     showPaymentMethod: Boolean = true,
     showTransactionTime: Boolean = true,
     showCategoryIcon: Boolean = true,
+    showCategoryLabel: Boolean = true,
     isSelected: Boolean = false,
     selectionMode: Boolean = false,
     onClick: () -> Unit = {},
@@ -80,7 +87,7 @@ fun TransactionCard(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .height(90.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -102,7 +109,6 @@ fun TransactionCard(
 
         Column(
             modifier = Modifier.weight(1f)
-
         ) {
             Text(
                 text = note,
@@ -119,8 +125,7 @@ fun TransactionCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth()
-                              .padding(top = 5.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (showTransactionDate) {
@@ -166,63 +171,78 @@ fun TransactionCard(
                 }
             }
 
-            if (showPaymentMethod) {
-                Spacer(
-                    modifier = Modifier.height(
-                        if (showTransactionDate || showTransactionTime) 1.dp else 4.dp
+            // New Pills Section
+            Spacer(modifier = Modifier.height(6.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                if (showTypeLabel) {
+                    TransactionPill(
+                        text = if (transactionTypeId == 1) "INCOME" else "EXPENSE",
+                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
+                        backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
                     )
-                )
+                }
 
-                Text(
-                    text = paymentType,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.2.sp
-                    ),
+                if (showCategoryLabel && categoryLabel.isNotBlank()) {
+                    TransactionPill(
+                        text = categoryLabel.uppercase(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                    )
+                }
 
-                    modifier = Modifier.padding(top = 5 .dp)
-
-                )
+                if (showPaymentMethod && paymentType.isNotBlank()) {
+                    TransactionPill(
+                        text = paymentType.uppercase(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Column(
-            horizontalAlignment = Alignment.End
-        ) {
-            Text(
-                text = amount,
-                color = getAmountColor(transactionTypeId),
-                maxLines = 1,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp,
-                )
-            )
-
-            if (showTypeLabel) {
-                Spacer(modifier = Modifier.height(1.dp))
-
-                Text(
-                    text = if (transactionTypeId == 1) "INCOME" else "EXPENSE",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.2.sp
-                    ),
-                    modifier = Modifier.padding(top = 5.dp)
-
-                )
-            }
-        }
+        Text(
+            text = amount,
+            color = getAmountColor(transactionTypeId),
+            maxLines = 1,
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 18.sp,
+            ),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
 
         Spacer(modifier = Modifier.width(14.dp))
+    }
+}
+
+@Composable
+private fun TransactionPill(
+    text: String,
+    color: Color,
+    backgroundColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(backgroundColor)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = color,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 10.sp,
+                letterSpacing = 0.5.sp
+            )
+        )
     }
 }
 
@@ -235,10 +255,11 @@ fun TransactionCardLightPreview() {
                 note = "Salary Credit",
                 transactionDate = "31 Dec",
                 transactionTime = formatTime(1738368000000, "12-hour"),
-                amount = "+$55,000",
+                amount = "+₹55,000",
                 transactionTypeId = 1,
                 icon = Icons.Filled.QuestionMark,
-                paymentType = getPaymentTypeName(3)
+                paymentType = getPaymentTypeName(3),
+                categoryLabel = "Salary"
             )
         }
     }
@@ -250,14 +271,16 @@ fun TransactionCardDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface {
             TransactionCard(
-                note = "Salary Credit",
+                note = "Groceries",
                 transactionDate = "31 Dec",
                 transactionTime = formatTime(1738368000000, "24-hour"),
-                amount = "+$55,000",
-                transactionTypeId = 1,
+                amount = "-₹2,500",
+                transactionTypeId = 2,
                 icon = Icons.Filled.QuestionMark,
-                paymentType = getPaymentTypeName(3)
+                paymentType = getPaymentTypeName(1),
+                categoryLabel = "Food"
             )
         }
     }
 }
+

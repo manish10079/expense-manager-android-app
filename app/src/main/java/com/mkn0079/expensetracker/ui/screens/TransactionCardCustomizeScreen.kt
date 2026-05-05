@@ -134,6 +134,14 @@ fun TransactionCardCustomizeScreen(
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
             ),
             TransactionCardToggleItem(
+                title = "Show Category",
+                subtitle = "Display category label on card",
+                icon = Icons.Outlined.Paid,
+                optionId = "showCategoryLabel",
+                checked = localSettings.showCategoryLabel,
+                onCheckedChange = { localSettings = localSettings.copy(showCategoryLabel = it) }
+            ),
+            TransactionCardToggleItem(
                 title = "Show Payment Method",
                 subtitle = "Display wallet or card used",
                 icon = Icons.Outlined.Wallet,
@@ -172,6 +180,17 @@ fun TransactionCardCustomizeScreen(
             )
         }
 
+        item {
+            Text(
+                text = "Preview",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.6.sp
+                ),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
 
         if (localSettings.showDateSeparators) {
             previewGroups.forEach { group ->
@@ -202,11 +221,13 @@ fun TransactionCardCustomizeScreen(
                         transactionTypeId = transaction.transactionTypeId,
                         icon = transaction.categoryIcon,
                         paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                        showTypeLabel = settings.showIncomeExpenseLabels,
-                        showTransactionDate = settings.showTransactionDate,
-                        showPaymentMethod = settings.showPaymentMethod,
-                        showTransactionTime = settings.showTransactionTime,
-                        showCategoryIcon = settings.showCategoryIcon
+                        categoryLabel = "Category",
+                        showTypeLabel = localSettings.showIncomeExpenseLabels,
+                        showTransactionDate = localSettings.showTransactionDate,
+                        showPaymentMethod = localSettings.showPaymentMethod,
+                        showTransactionTime = localSettings.showTransactionTime,
+                        showCategoryIcon = localSettings.showCategoryIcon,
+                        showCategoryLabel = localSettings.showCategoryLabel
                     )
                 }
             }
@@ -227,12 +248,13 @@ fun TransactionCardCustomizeScreen(
                             transactionTypeId = transaction.transactionTypeId,
                             icon = transaction.categoryIcon,
                             paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                            showTypeLabel = settings.showIncomeExpenseLabels,
-                            showTransactionDate = settings.showTransactionDate,
-                            showPaymentMethod = settings.showPaymentMethod,
-                            showTransactionTime = settings.showTransactionTime,
-                            showCategoryIcon = settings.showCategoryIcon
-                        )
+                            categoryLabel = "Category",
+                            showTypeLabel = localSettings.showIncomeExpenseLabels,
+                            showTransactionDate = localSettings.showTransactionDate,
+                            showPaymentMethod = localSettings.showPaymentMethod,
+                            showTransactionTime = localSettings.showTransactionTime,
+                            showCategoryIcon = localSettings.showCategoryIcon,
+                            showCategoryLabel = localSettings.showCategoryLabel                        )
                     }
                 }
             }

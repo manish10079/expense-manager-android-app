@@ -39,7 +39,8 @@ fun Transaction.toTransactionCardItemUi(
         ),
         icon = resolvedIcon,
         transactionTypeId = transactionTypeId,
-        paymentType = paymentTypeName
+        paymentType = paymentTypeName,
+        categoryLabel = category?.name ?: "General"
     )
 }
 

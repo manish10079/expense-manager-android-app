@@ -615,11 +615,13 @@ private fun CalendarTransactionCard(
         transactionTypeId = transaction.transactionTypeId,
         icon = transaction.icon,
         paymentType = transaction.paymentType,
+        categoryLabel = transaction.categoryLabel,
         showTypeLabel = transactionCardCustomizationSettings.showIncomeExpenseLabels,
         showTransactionDate = transactionCardCustomizationSettings.showTransactionDate,
         showPaymentMethod = transactionCardCustomizationSettings.showPaymentMethod,
         showTransactionTime = transactionCardCustomizationSettings.showTransactionTime,
         showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
+        showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
         onClick = onClick
     )
 }

@@ -55,6 +55,7 @@ private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCar
         showPaymentMethod = transactionCardShowPaymentMethod,
         showTransactionTime = transactionCardShowTransactionTime,
         showCategoryIcon = transactionCardShowCategoryIcon,
+        showCategoryLabel = transactionCardShowCategoryLabel,
         showDateSeparators = transactionCardShowDateSeparators
     )
 }
@@ -68,6 +69,7 @@ private fun AppSettings.withTransactionCardCustomizationSettings(
         transactionCardShowPaymentMethod = settings.showPaymentMethod,
         transactionCardShowTransactionTime = settings.showTransactionTime,
         transactionCardShowCategoryIcon = settings.showCategoryIcon,
+        transactionCardShowCategoryLabel = settings.showCategoryLabel,
         transactionCardShowDateSeparators = settings.showDateSeparators
     )
 }
