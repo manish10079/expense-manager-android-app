@@ -274,28 +274,29 @@ private fun BoxScope.PreloadSecondaryScreenData(
     val budgetViewModel: BudgetViewModel = viewModel()
     val calendarViewModel: CalendarViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = viewModel()
-
-    LaunchedEffect(
-        transactions,
-        categories,
-        recurringRules,
-        selectedCurrencyId,
-        amountFormatPreferences,
-        selectedDateFormatPattern,
-        selectedTimeFormat,
-        transactionCount,
-        autoLockDurationMinutes,
-        transactionCardCustomizationSettings,
-        paymentMethods
-    ) {
-        homeViewModel.updateInputs(
-            userProfile,
-            selectedCurrencyId,
-            amountFormatPreferences,
-            selectedTimeFormat,
-            categories,
-            transactionCardCustomizationSettings
-        )
+androidx.compose.runtime.LaunchedEffect(
+    userProfile,
+    transactions,
+    categories,
+    recurringRules,
+    selectedCurrencyId,
+    amountFormatPreferences,
+    selectedDateFormatPattern,
+    selectedTimeFormat,
+    transactionCount,
+    autoLockDurationMinutes,
+    transactionCardCustomizationSettings,
+    paymentMethods
+) {
+    homeViewModel.updateInputs(
+        userProfile = userProfile,
+        currencyId = selectedCurrencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        dateFormatPattern = selectedDateFormatPattern,
+        timeFormat = selectedTimeFormat,
+        categories = categories,
+        customizationSettings = transactionCardCustomizationSettings
+    )
         analyticsViewModel.updateInputs(
             transactions,
             categories,

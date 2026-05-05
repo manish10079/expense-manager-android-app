@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CategoryType
@@ -75,6 +76,7 @@ fun HomeScreen(
     userProfile: UserProfile = defaultUserProfile,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
@@ -89,6 +91,7 @@ fun HomeScreen(
         userProfile,
         currencyId,
         amountFormatPreferences,
+        dateFormatPattern,
         timeFormat,
         categories,
         transactionCardCustomizationSettings
@@ -97,6 +100,7 @@ fun HomeScreen(
             userProfile = userProfile,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = dateFormatPattern,
             timeFormat = timeFormat,
             categories = categories,
             customizationSettings = transactionCardCustomizationSettings
@@ -298,14 +302,8 @@ fun SettingsButton(onClick: () -> Unit) {
         modifier = Modifier
             .size(52.dp)
             .scale(scale)
-            .shadow(
-                elevation = 20.dp,
-                shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
-            )
             .clip(CircleShape)
-            .background(surfaceGradient())
+            .background(brandGradient())
             .clickable {
                 isPressed = true
                 onClick()
@@ -319,7 +317,7 @@ fun SettingsButton(onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Rounded.Settings,
             contentDescription = "Settings",
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(24.dp)
         )
     }

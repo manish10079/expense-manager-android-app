@@ -45,6 +45,7 @@ private data class HomeInputState(
     val userProfile: UserProfile = defaultUserProfile,
     val currencyId: Int = DEFAULT_CURRENCY_ID,
     val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    val dateFormatPattern: String = "dd MMM",
     val timeFormat: String = DEFAULT_TIME_FORMAT,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val categories: List<CategoryType> = emptyList()
@@ -106,7 +107,7 @@ class HomeViewModel @Inject constructor(
                         recentTransaction.transaction.toTransactionCardItemUi(
                             currencyId = inputs.currencyId,
                             amountFormatPreferences = inputs.amountFormatPreferences,
-                            dateFormatPattern = "dd MMM",
+                            dateFormatPattern = inputs.dateFormatPattern,
                             timeFormat = inputs.timeFormat,
                             paymentTypeName = recentTransaction.paymentTypeName,
                             categories = inputs.categories
@@ -125,6 +126,7 @@ class HomeViewModel @Inject constructor(
         userProfile: UserProfile,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
+        dateFormatPattern: String,
         timeFormat: String,
         categories: List<CategoryType>,
         customizationSettings: TransactionCardCustomizationSettings
@@ -134,6 +136,7 @@ class HomeViewModel @Inject constructor(
                 userProfile = userProfile,
                 currencyId = currencyId,
                 amountFormatPreferences = amountFormatPreferences,
+                dateFormatPattern = dateFormatPattern,
                 timeFormat = timeFormat,
                 categories = categories,
                 customizationSettings = customizationSettings

@@ -143,6 +143,7 @@ fun AppNavigationHost(
                         userProfile = userProfile,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
                         categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
