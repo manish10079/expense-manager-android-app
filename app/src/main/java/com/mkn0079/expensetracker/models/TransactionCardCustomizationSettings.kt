@@ -9,5 +9,6 @@ data class TransactionCardCustomizationSettings(
     val showPaymentMethod: Boolean = true,
     val showTransactionTime: Boolean = true,
     val showCategoryIcon: Boolean = true,
+    val showCategoryLabel: Boolean = true,
     val showDateSeparators: Boolean = false
 )

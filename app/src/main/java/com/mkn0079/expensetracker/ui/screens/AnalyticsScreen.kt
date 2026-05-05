@@ -1091,14 +1091,14 @@ private fun CategoryBreakdownBottomSheet(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
             } else {
-                Column(
+                LazyColumn(
                     modifier = Modifier.padding(bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    categories.forEachIndexed { index, category ->
+                    items(categories.size) { index ->
                         CategoryBreakdownRow(
                             rank = index + 1,
-                            category = category
+                            category = categories[index]
                         )
                     }
                 }
@@ -1612,14 +1612,14 @@ private fun PaymentTypeBreakdownBottomSheet(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
             } else {
-                Column(
+                LazyColumn(
                     modifier = Modifier.padding(bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    filteredCategories.forEachIndexed { index, category ->
+                    items(filteredCategories.size) { index ->
                         PaymentBreakdownRow(
                             rank = index + 1,
-                            item = category
+                            item = filteredCategories[index]
                         )
                     }
                 }
@@ -1808,12 +1808,12 @@ private fun TopSpendingBottomSheet(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
             } else {
-                Column(
+                LazyColumn(
                     modifier = Modifier.padding(bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    transactions.forEach { transaction ->
-                        TopSpendingRow(transaction = transaction, dateFormatPattern = dateFormatPattern)
+                    items(transactions.size) { index ->
+                        TopSpendingRow(transaction = transactions[index], dateFormatPattern = dateFormatPattern)
                     }
                 }
             }

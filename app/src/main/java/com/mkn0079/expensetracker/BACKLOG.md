@@ -31,42 +31,14 @@ Flow to follow:
 ---
 
 ### 🔴 High Priority - Critical Bugs & UX
-1. [verified] Fix navigation propagation: Clicking a transaction card on the home screen should correctly open the edit transaction screen.
-2. [verified] Analytics: Clicking "View All" in Top Spending should display transaction cards.
+1. [fixed] in top spending in category and payment mode when i click view all some the category cards not visible , specifically from 6th card, make it lazycloumn just a suggestion , fix it
+2. [ ] while unlocking app with biometric doesnot work sometimes works sometimes not, analyze code related to it and fix it
 
 ### 🟡 Medium Priority - Functional Improvements
-1. [verified] Add custom date filter to the Sort/Filter sheet.
+1. [ ] Upgrade the existing reusable "TransactionCard" component to include additional labels (pills), consistent styling, responsiveness, and user-controlled visibility. Implement everything in one pass.
 
 ### 🟢 Low Priority - Visual Polish & Refactoring
-1. [fixed] Calendar screen: Standardize date format under 'Transactions' label based on app preferences (No Day of week).
-
----
-
-### 🟡 Medium Priority - Functional Improvements
-1. [verified] Instead of bottomsheet make add category a screen
-2. [verified] Shift manage category card to settings screen from app preference screen
-3. [verified] Add edit profile card in settings
-4. [verified] Fix in add button get chipped, reduce its size or use icon instead of text
-5. [verified] In multi select mode, change select all icon, and fix select icon background
-6. [verified] Increase fingerprint icon size in applock
-7. [verified] Add 50 more most used icons for user dont add which are already exist
-8. [verified] Refactor Notification settings to use SettingsItemCard
-9. [verified] Sync Calendar screen jump-to-date with WheelDateTimePicker
-10. [verified] Fix circular background color of Delete icon in Dark Mode
-11. [verified] Itemized calculator: Make "Add Item" popup keyboard-aware (Auto-lift)
-
----
-
-### 🟢 Low Priority - Visual Polish & Refactoring
-12. [verified] Add space between select all and delete icon
-13. [verified] Remove glow in disable app lock screen
-14. [verified] Reduce scrollable top padding in profile screen
-15. [verified] Make profile card unclickable
-16. [verified] Reduce font size of text 'track every move with confidence' in homescreen
-17. [verified] Use icons.round.settings icon in homescreen
-18. [verified] Standardize all card/toggle backgrounds with unified gradient
-19. [verified] StatsCard: Auto-hide balance/income/expense (Show for 10s on click) by default it should be hidden and on click of card it should appear
-
+1. [ ] use same background color for homescreen settings icon from todays spending icon add allthis to backlog.md file sort by highest to lowest criticallity
 
 ---
 
