@@ -22,6 +22,9 @@ import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +39,10 @@ import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.min
+
+sealed class MainUiEvent {
+    object TransactionOperationCompleted : MainUiEvent()
+}
 
 data class MainDataUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -62,6 +69,10 @@ class MainViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()
+    
+    private val _uiEvent = MutableSharedFlow<MainUiEvent>()
+    val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()
+    
     private val observeTransactions = MutableStateFlow(false)
 
     init {
@@ -141,6 +152,7 @@ class MainViewModel @Inject constructor(
             if (recurringDraft != null) {
                 com.mkn0079.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
             }
+            _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
         }
     }
 
@@ -150,6 +162,7 @@ class MainViewModel @Inject constructor(
             recurringRuleRepository.getActiveByTransactionId(transactionId)?.let { rule ->
                 recurringRuleRepository.deleteRule(rule.id)
             }
+            _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
         }
     }
 

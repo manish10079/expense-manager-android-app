@@ -166,10 +166,12 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                     value = loadingProgress.value,
                     onValueChange = {},
                     colors = MaterialSliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                        disabledThumbColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        thumbColor = Color.Transparent,
+                        disabledThumbColor = Color.Transparent,
                         activeTrackColor = MaterialTheme.colorScheme.secondary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                        activeTickColor = Color.Transparent,
+                        inactiveTickColor = Color.Transparent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()

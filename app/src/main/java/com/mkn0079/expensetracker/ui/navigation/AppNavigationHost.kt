@@ -444,6 +444,16 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.AddTransaction -> {
+                    val mainViewModel: com.mkn0079.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
+                    
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        mainViewModel.uiEvent.collect { event ->
+                            if (event is com.mkn0079.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted) {
+                                exitAddTransactionScreen(previousRoute)
+                            }
+                        }
+                    }
+                    
                     AddTransactionScreen(
                         currencyId = selectedCurrencyId,
                         transactions = transactions,
@@ -462,7 +472,6 @@ fun AppNavigationHost(
                                 exitAddTransactionScreen(previousRoute)
                             } else {
                                 onDeleteTransaction(transactionToDelete.id)
-                                exitAddTransactionScreen(previousRoute)
                             }
                         },
                         onCalculatorClick = {
@@ -482,7 +491,6 @@ fun AppNavigationHost(
                                 recurringDraft,
                                 selectedRecurringRule
                             )
-                            exitAddTransactionScreen(previousRoute)
                         }
                     )
                 }
