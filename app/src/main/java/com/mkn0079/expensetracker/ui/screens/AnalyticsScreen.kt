@@ -73,6 +73,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -773,8 +774,8 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             title = "AVG DAILY",
             value = snapshot.avgDailyDisplay,
             delta = snapshot.dailyDeltaDisplay,
-            deltaColor = MaterialTheme.colorScheme.error,
-            deltaBackground = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+            deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
+            deltaBackground = (if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
             icon = Icons.Filled.Wallet,
             iconTint = MaterialTheme.colorScheme.primary
         )
@@ -783,8 +784,8 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             title = "SAVINGS",
             value = snapshot.savingsDisplay,
             delta = snapshot.savingsDeltaDisplay,
-            deltaColor = MaterialTheme.colorScheme.income,
-            deltaBackground = MaterialTheme.colorScheme.income.copy(alpha = 0.15f),
+            deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
+            deltaBackground = (if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
             icon = Icons.Filled.ArrowOutward,
             iconTint = MaterialTheme.colorScheme.secondary
         )
@@ -986,10 +987,13 @@ private fun CategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Top Spending by\nCategory",
+                    text = "Top Spending \nby Category",
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
+                         fontSize = 16.sp,
                         lineHeight = 28.sp
                     )
                 )
@@ -1451,10 +1455,13 @@ private fun PaymentTypeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Top Spending by\nPayment Mode",
+                    text = "Top Spending by \nPayment Mode",
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
+                         fontSize = 16.sp,
                         lineHeight = 28.sp
                     )
                 )
