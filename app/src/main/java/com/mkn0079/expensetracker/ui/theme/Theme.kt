@@ -29,6 +29,24 @@ val ColorScheme.income: Color
 val ColorScheme.expense: Color get() = error
 
 @Composable
+private fun ApplySystemBarStyle(darkTheme: Boolean) {
+    val view = LocalView.current
+
+    if (view.isInEditMode) return
+
+    SideEffect {
+        val window = (view.context as Activity).window
+        
+        // Task 5: Fix System Bars (Android 15+ Compatible)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        val insetsController = WindowCompat.getInsetsController(window, view)
+        insetsController.isAppearanceLightStatusBars = !darkTheme
+        insetsController.isAppearanceLightNavigationBars = !darkTheme
+    }
+}
+
+@Composable
 fun ExpenseTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
@@ -39,7 +57,7 @@ fun ExpenseTrackerTheme(
         ExpenseTrackerLightColorScheme
     }
 
-    ApplySystemBarStyle(colorScheme = colorScheme)
+    ApplySystemBarStyle(darkTheme = darkTheme)
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -47,30 +65,4 @@ fun ExpenseTrackerTheme(
         shapes = Shapes,
         content = content
     )
-}
-
-@Composable
-private fun ApplySystemBarStyle(colorScheme: ColorScheme) {
-    val view = LocalView.current
-
-    if (view.isInEditMode) return
-
-    SideEffect {
-        val window = (view.context as Activity).window
-        val systemBarColor = colorScheme.systemBarColor.toArgb()
-        val insetsController = WindowCompat.getInsetsController(window, view)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isStatusBarContrastEnforced = false
-            window.isNavigationBarContrastEnforced = false
-        }
-
-        window.statusBarColor = systemBarColor
-        window.navigationBarColor = systemBarColor
-        insetsController.isAppearanceLightStatusBars = colorScheme.useDarkSystemBarIcons
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            insetsController.isAppearanceLightNavigationBars = colorScheme.useDarkSystemBarIcons
-        }
-    }
 }

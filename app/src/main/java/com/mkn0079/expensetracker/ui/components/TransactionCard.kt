@@ -144,7 +144,8 @@ fun TransactionCard(
 
                     if (showTransactionDate && showTransactionTime) {
                         Text(
-                            text = " | ",
+                            text = " • ",//• ● ⬤ 
+
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,

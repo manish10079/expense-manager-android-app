@@ -23,6 +23,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,7 +34,8 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.models.AppThemeMode
@@ -43,6 +45,7 @@ import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
+import com.mkn0079.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
@@ -53,12 +56,21 @@ import com.mkn0079.expensetracker.ui.components.AppLockOverlay // We will use th
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
     private val appLockViewModel: AppLockViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Task 2: Apply Theme BEFORE super.onCreate()
+        val syncTheme = ThemePreferenceSync.getTheme(this)
+        val mode = when (syncTheme) {
+            "LIGHT" -> AppCompatDelegate.MODE_NIGHT_NO
+            "DARK" -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        AppCompatDelegate.setDefaultNightMode(mode)
+
         val splashScreen = installSplashScreen()
         
         // Keep the system splash screen visible until our custom splash screen is ready to take over.
@@ -119,14 +131,30 @@ class MainActivity : FragmentActivity() {
             .collectAsState(initial = defaultUserProfile)
             
         val systemDarkTheme = isSystemInDarkTheme()
-        val darkTheme = when (appSettings?.themeMode ?: AppThemeMode.SYSTEM) {
-            AppThemeMode.SYSTEM -> systemDarkTheme
-            AppThemeMode.LIGHT -> false
-            AppThemeMode.DARK -> true
+        
+        // Use synchronous preference for initial state to match AppCompatDelegate
+        val syncTheme = remember { ThemePreferenceSync.getTheme(context) }
+        
+        val darkTheme = if (appSettings == null) {
+            when (syncTheme) {
+                "LIGHT" -> false
+                "DARK" -> true
+                else -> systemDarkTheme
+            }
+        } else {
+            when (appSettings!!.themeMode) {
+                AppThemeMode.SYSTEM -> systemDarkTheme
+                AppThemeMode.LIGHT -> false
+                AppThemeMode.DARK -> true
+            }
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            // Task 6: Draw Behind System Bars
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+            ) {
                 // Apply privacy settings whenever settings are available
                 appSettings?.let { settings ->
                     LaunchedEffect(

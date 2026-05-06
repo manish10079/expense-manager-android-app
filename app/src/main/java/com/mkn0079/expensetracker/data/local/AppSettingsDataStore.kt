@@ -15,6 +15,7 @@ import com.mkn0079.expensetracker.models.AppSettings
 import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.CurrencyGroupingStyle
 import com.mkn0079.expensetracker.models.SortType
+import com.mkn0079.expensetracker.utils.ThemePreferenceSync
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -106,6 +107,10 @@ object AppSettingsDataStore {
     ) {
         context.applicationContext.appSettingsDataStore.edit { preferences ->
             val updatedSettings = transform(preferences.toAppSettings())
+            
+            // Task 3: Sync DataStore + SharedPreferences
+            ThemePreferenceSync.setTheme(context, updatedSettings.themeMode.name)
+            
             preferences.writeAppSettings(updatedSettings)
             preferences[Keys.initialized] = true
         }
