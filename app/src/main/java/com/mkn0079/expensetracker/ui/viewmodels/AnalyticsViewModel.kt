@@ -34,6 +34,7 @@ enum class AnalyticsPeriod(val label: String) {
 
 @Immutable
 data class CategoryBreakdownUi(
+    val id: Int,
     val label: String,
     val amountDisplay: String,
     val fraction: Float,
@@ -43,6 +44,7 @@ data class CategoryBreakdownUi(
 
 @Immutable
 data class PaymentTypeBreakdownUi(
+    val id: Int,
     val label: String,
     val amountDisplay: String,
     val fraction: Float,
@@ -94,6 +96,7 @@ data class AnalyticsScreenUiState(
     val selectedPeriod: AnalyticsPeriod = AnalyticsPeriod.MONTH,
     val customRangeStart: Long? = null,
     val customRangeEnd: Long? = null,
+    val activeRange: LongRange = System.currentTimeMillis()..System.currentTimeMillis(),
     val snapshot: AnalyticsSnapshotUi = AnalyticsSnapshotUi()
 ) {
     val customRange: LongRange?
@@ -163,17 +166,19 @@ class AnalyticsViewModel : ViewModel() {
     }
 
     private fun rebuildUiState() {
-        val customRange = customRangeStart?.let { start ->
+        val latestTimestamp = System.currentTimeMillis()
+        val range = customRangeStart?.let { start ->
             customRangeEnd?.let { end ->
                 startOfDay(start)..endOfDay(end)
             }
-        }
+        } ?: periodRangeFor(latestTimestamp, selectedPeriod)
 
         _uiState.update {
             it.copy(
                 selectedPeriod = selectedPeriod,
                 customRangeStart = customRangeStart,
                 customRangeEnd = customRangeEnd,
+                activeRange = range,
                 snapshot = buildAnalyticsSnapshot(
                     period = selectedPeriod,
                     currencyId = currentCurrencyId,
@@ -181,7 +186,7 @@ class AnalyticsViewModel : ViewModel() {
                     transactions = currentTransactions,
                     categories = currentCategories,
                     paymentTypes = currentPaymentTypes,
-                    customRange = customRange
+                    customRange = range
                 )
             )
         }
@@ -230,6 +235,7 @@ private fun buildAnalyticsSnapshot(
     val totalExpenseForShare = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
     val allBreakdown = categoryTotals.mapIndexed { index, (categoryId, amount) ->
         CategoryBreakdownUi(
+            id = categoryId,
             label = categoryMap[categoryId]?.name ?: "Other",
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
@@ -249,6 +255,7 @@ private fun buildAnalyticsSnapshot(
     val allPaymentBreakdown = paymentTotals.mapIndexed { index, (paymentId, amount) ->
         val paymentType = paymentTypeMap[paymentId]
         PaymentTypeBreakdownUi(
+            id = paymentId,
             label = paymentType?.name ?: "Wallet",
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),

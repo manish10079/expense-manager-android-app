@@ -4,57 +4,19 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.ArrowOutward
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Wallet
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -63,11 +25,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -83,7 +42,6 @@ import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.transactionList
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
-import com.mkn0079.expensetracker.utils.getAmountColor
 import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mkn0079.expensetracker.ui.models.TabItem
 import com.mkn0079.expensetracker.models.CategoryType
@@ -94,8 +52,6 @@ import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
-
-// Legacy theme imports removed
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.ui.theme.income
@@ -108,13 +64,13 @@ import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsPeriod
 import com.mkn0079.expensetracker.ui.viewmodels.PaymentTypeBreakdownUi
 import com.mkn0079.expensetracker.ui.viewmodels.TopSpendingItemUi
-import com.mkn0079.expensetracker.ui.viewmodels.buildCustomRangeHeadline
 import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.utils.formatDate
+import com.mkn0079.expensetracker.ui.components.TransactionCard
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -138,11 +94,16 @@ fun AnalyticsScreen(
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = viewModel()
 ) {
-    var isCustomRangePickerVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    var isCategorySheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    var isPaymentSheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    var isTopSpendingSheetVisible by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var isCustomRangePickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isTopSpendingSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isTransactionSheetVisible by rememberSaveable { mutableStateOf(false) }
     var heroDisplayMode by rememberSaveable { mutableStateOf(HeroDisplayMode.EXPENSE) }
+
+    var selectedFilterId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var selectedFilterLabel by rememberSaveable { mutableStateOf("") }
+    var filterByPayment by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
@@ -154,6 +115,16 @@ fun AnalyticsScreen(
         )
     }
     val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()
+    val filteredTransactions = remember(selectedFilterId, uiState.activeRange, filterByPayment, transactions) {
+        if (selectedFilterId == null) emptyList()
+        else {
+            transactions.filter {
+                it.createdAt in uiState.activeRange &&
+                        it.transactionTypeId == 2 &&
+                        (if (filterByPayment) it.paymentTypeId == selectedFilterId else it.categoryId == selectedFilterId)
+            }.sortedByDescending { it.createdAt }
+        }
+    }
     val customRange = uiState.customRange
     val snapshot = uiState.snapshot
 
@@ -233,7 +204,13 @@ fun AnalyticsScreen(
                         CategoryCard(
                             modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
                             snapshot = snapshot,
-                            onViewAllClick = { isCategorySheetVisible = true }
+                            onViewAllClick = { isCategorySheetVisible = true },
+                            onShowTransactions = { id, label ->
+                                selectedFilterId = id
+                                selectedFilterLabel = label
+                                filterByPayment = false
+                                isTransactionSheetVisible = true
+                            }
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
@@ -255,7 +232,13 @@ fun AnalyticsScreen(
                         PaymentTypeCard(
                             modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
                             snapshot = snapshot,
-                            onViewAllClick = { isPaymentSheetVisible = true }
+                            onViewAllClick = { isPaymentSheetVisible = true },
+                            onShowTransactions = { id, label ->
+                                selectedFilterId = id
+                                selectedFilterLabel = label
+                                filterByPayment = true
+                                isTransactionSheetVisible = true
+                            }
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
@@ -339,7 +322,13 @@ fun AnalyticsScreen(
             if (status is AccessStatus.Granted) {
                 CategoryBreakdownBottomSheet(
                     categories = snapshot.allCategoryBreakdown,
-                    onDismiss = { isCategorySheetVisible = false }
+                    onDismiss = { isCategorySheetVisible = false },
+                    onShowTransactions = { id, label ->
+                        selectedFilterId = id
+                        selectedFilterLabel = label
+                        filterByPayment = false
+                        isTransactionSheetVisible = true
+                    }
                 )
             } else {
                 LaunchedEffect(Unit) { 
@@ -359,7 +348,13 @@ fun AnalyticsScreen(
             if (status is AccessStatus.Granted) {
                 PaymentTypeBreakdownBottomSheet(
                     categories = snapshot.allPaymentTypeBreakdown,
-                    onDismiss = { isPaymentSheetVisible = false }
+                    onDismiss = { isPaymentSheetVisible = false },
+                    onShowTransactions = { id, label ->
+                        selectedFilterId = id
+                        selectedFilterLabel = label
+                        filterByPayment = true
+                        isTransactionSheetVisible = true
+                    }
                 )
             } else {
                 LaunchedEffect(Unit) { 
@@ -370,6 +365,22 @@ fun AnalyticsScreen(
         }
     }
 
+    if (isTransactionSheetVisible) {
+        FilteredTransactionsBottomSheet(
+            label = selectedFilterLabel,
+            transactions = filteredTransactions,
+            categories = categories,
+            paymentTypes = paymentMethods,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = dateFormatPattern,
+            onDismiss = {
+                isTransactionSheetVisible = false
+                selectedFilterId = null
+            }
+        )
+    }
+
     if (isTopSpendingSheetVisible) {
         TopSpendingBottomSheet(
             transactions = snapshot.allTopTransactions,
@@ -378,9 +389,6 @@ fun AnalyticsScreen(
         )
     }
 }
-
-
-
 
 @Composable
 private fun CustomRangeSelector(
@@ -464,8 +472,6 @@ private fun CustomRangeSelector(
     }
 }
 
-
-
 @Composable
 private fun HeroAnalyticsSection(
     snapshot: AnalyticsSnapshotUi,
@@ -482,12 +488,6 @@ private fun HeroAnalyticsSection(
         HeroDisplayMode.EXPENSE -> snapshot.expenseDisplay
         HeroDisplayMode.INCOME -> snapshot.incomeDisplay
         HeroDisplayMode.BOTH -> snapshot.savingsDisplay
-    }
-    
-    val changePercent = when (displayMode) {
-        HeroDisplayMode.EXPENSE -> -snapshot.changePercent 
-        HeroDisplayMode.INCOME -> snapshot.changePercent 
-        HeroDisplayMode.BOTH -> snapshot.changePercent 
     }
     
     Column {
@@ -598,7 +598,7 @@ private fun AnalyticsLineChart(
             Spacer(modifier = Modifier.width(8.dp))
 
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                val gridColor = MaterialTheme.colorScheme.outline.copy(alpha =  0.65f)
+                val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
                 Canvas(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -946,7 +946,7 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
             .fillMaxWidth()
             .height(8.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val incomeWidth = size.width * incomeFraction.coerceIn(0f, 1f)
@@ -969,7 +969,8 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
 private fun CategoryCard(
     modifier: Modifier = Modifier,
     snapshot: AnalyticsSnapshotUi,
-    onViewAllClick: () -> Unit
+    onViewAllClick: () -> Unit,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -1027,6 +1028,7 @@ private fun CategoryCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(
+                                modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
@@ -1039,14 +1041,29 @@ private fun CategoryCard(
                                 Text(
                                     text = category.label,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
-                            Text(
-                                text = "${category.percentLabel}%",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = "${category.percentLabel}%",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.List,
+                                    contentDescription = "Show Transactions",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable { onShowTransactions(category.id, category.label) }
+                                )
+                            }
                         }
                     }
                 }
@@ -1059,7 +1076,8 @@ private fun CategoryCard(
 @Composable
 private fun CategoryBreakdownBottomSheet(
     categories: List<CategoryBreakdownUi>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1102,7 +1120,8 @@ private fun CategoryBreakdownBottomSheet(
                     items(categories.size) { index ->
                         CategoryBreakdownRow(
                             rank = index + 1,
-                            category = categories[index]
+                            category = categories[index],
+                            onShowTransactions = onShowTransactions
                         )
                     }
                 }
@@ -1114,7 +1133,8 @@ private fun CategoryBreakdownBottomSheet(
 @Composable
 private fun CategoryBreakdownRow(
     rank: Int,
-    category: CategoryBreakdownUi
+    category: CategoryBreakdownUi,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
@@ -1131,6 +1151,7 @@ private fun CategoryBreakdownRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -1160,16 +1181,31 @@ private fun CategoryBreakdownRow(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
-                        )
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    text = "${category.percentLabel}%",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "${category.percentLabel}%",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.List,
+                        contentDescription = "Show Transactions",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onShowTransactions(category.id, category.label) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -1179,7 +1215,7 @@ private fun CategoryBreakdownRow(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
             ) {
                 Box(
                     modifier = Modifier
@@ -1437,7 +1473,8 @@ private fun SparkleCluster() {
 private fun PaymentTypeCard(
     modifier: Modifier = Modifier,
     snapshot: AnalyticsSnapshotUi,
-    onViewAllClick: () -> Unit
+    onViewAllClick: () -> Unit,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -1495,6 +1532,7 @@ private fun PaymentTypeCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(
+                                modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
@@ -1513,14 +1551,29 @@ private fun PaymentTypeCard(
                                 Text(
                                     text = item.label,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
-                            Text(
-                                text = "${item.percentLabel}%",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = "${item.percentLabel}%",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.List,
+                                    contentDescription = "Show Transactions",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable { onShowTransactions(item.id, item.label) }
+                                )
+                            }
                         }
                     }
                 }
@@ -1579,7 +1632,8 @@ private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier:
 @Composable
 private fun PaymentTypeBreakdownBottomSheet(
     categories: List<PaymentTypeBreakdownUi>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1626,7 +1680,8 @@ private fun PaymentTypeBreakdownBottomSheet(
                     items(filteredCategories.size) { index ->
                         PaymentBreakdownRow(
                             rank = index + 1,
-                            item = filteredCategories[index]
+                            item = filteredCategories[index],
+                            onShowTransactions = onShowTransactions
                         )
                     }
                 }
@@ -1638,7 +1693,8 @@ private fun PaymentTypeBreakdownBottomSheet(
 @Composable
 private fun PaymentBreakdownRow(
     rank: Int,
-    item: PaymentTypeBreakdownUi
+    item: PaymentTypeBreakdownUi,
+    onShowTransactions: (Int, String) -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
@@ -1655,6 +1711,7 @@ private fun PaymentBreakdownRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -1684,16 +1741,31 @@ private fun PaymentBreakdownRow(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
-                        )
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    text = "${item.percentLabel}%",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "${item.percentLabel}%",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.List,
+                        contentDescription = "Show Transactions",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onShowTransactions(item.id, item.label) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -1703,7 +1775,7 @@ private fun PaymentBreakdownRow(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
             ) {
                 Box(
                     modifier = Modifier
@@ -1721,6 +1793,72 @@ private fun PaymentBreakdownRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilteredTransactionsBottomSheet(
+    label: String,
+    transactions: List<Transaction>,
+    categories: List<CategoryType>,
+    paymentTypes: List<PaymentType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp, vertical = 10.dp)
+        ) {
+            Text(
+                text = "$label Transactions",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (transactions.isEmpty()) {
+                Text(
+                    text = "No transactions found in this range.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(transactions.size) { index ->
+                        val transaction = transactions[index]
+                        val category = categories.find { it.id == transaction.categoryId }
+                        val payment = paymentTypes.find { it.id == transaction.paymentTypeId }
+                        
+                        TransactionCard(
+                            note = transaction.note,
+                            transactionDate = formatDate(transaction.createdAt, "dd MMM"),
+                            transactionTime = com.mkn0079.expensetracker.utils.formatTime(transaction.createdAt, "24-hour"),
+                            amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
+                            transactionTypeId = transaction.transactionTypeId,
+                            icon = category?.icon ?: Icons.Filled.QuestionMark,
+                            paymentType = payment?.name ?: "Unknown",
+                            categoryLabel = category?.name ?: "Other"
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -1751,8 +1889,8 @@ private fun BoxScope.PremiumLockedOverlay(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f))
-                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha =  0.65f), CircleShape),
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f))
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
