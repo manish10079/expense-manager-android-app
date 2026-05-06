@@ -123,9 +123,9 @@ fun ProfileScreen(
             .statusBarsPadding()
     ) {
         AppHeader(
-            title = "Profile",
+            title = "Edit Profile",
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 2.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp, bottom = 8.dp)
         )
 
         Column(
