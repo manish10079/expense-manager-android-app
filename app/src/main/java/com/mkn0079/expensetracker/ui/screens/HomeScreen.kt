@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -58,12 +59,11 @@ import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
+import com.mkn0079.expensetracker.ui.components.StatsCard
 import com.mkn0079.expensetracker.ui.components.TodaySpendingCard
-import com.mkn0079.expensetracker.ui.components.TotalBalanceCard
 import com.mkn0079.expensetracker.ui.components.TransactionCard
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.brandGradient
-import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.HomeViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.HomeScreenUiState
@@ -195,7 +195,7 @@ private fun HomeScreenContent(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            TotalBalanceCard(
+            StatsCard(
                 totalBalance = uiState.totalBalance,
                 previousMonthBalance = uiState.previousMonthBalance,
                 income = uiState.totalIncome,
@@ -315,10 +315,10 @@ fun SettingsButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Rounded.Settings,
+            imageVector = Icons.Outlined.Settings,
             contentDescription = "Settings",
             tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(30.dp)
         )
     }
 }

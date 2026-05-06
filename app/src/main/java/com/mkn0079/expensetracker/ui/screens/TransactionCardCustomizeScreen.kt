@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -91,6 +92,7 @@ fun TransactionCardCustomizeScreen(
     onBackClick: () -> Unit = {}
 ) {
     // Local state — initialized once from settings, then owned locally.
+    val isInPreview = LocalInspectionMode.current
     var localSettings by remember { mutableStateOf(settings) }
 
     // Debounced persistence: write to DataStore 300ms after the last toggle.
@@ -175,12 +177,13 @@ fun TransactionCardCustomizeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AppHeader(
-                title = "Card Settings",
-                onBackClick = onBackClick
+                title = "Transaction Card Settings",
+                onBackClick = onBackClick,
+                modifier = Modifier.padding(top = 10.dp)
             )
 
             Text(
@@ -258,6 +261,16 @@ fun TransactionCardCustomizeScreen(
             }
         }
 
+            Text(
+                text = "Customize Transaction Card",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                modifier = Modifier.padding(start = 20.dp,top = 20.dp, bottom = 10.dp)
+            )
+
+
         // Scrollable Bottom Section: Customization Toggles
         LazyColumn(
             modifier = Modifier
@@ -266,41 +279,46 @@ fun TransactionCardCustomizeScreen(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            item {
-                Text(
-                    text = "Customize how your data is visualized",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
+
 
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     toggleItems.forEach { item ->
-                        GatedAction(
+                        val accessLevel = FeatureRegistry.getAccessLevel(
                             feature = Feature.CARD_CUSTOMIZATION,
-                            optionId = item.optionId,
-                            displayName = item.title,
-                            onAction = { item.onCheckedChange(!item.checked) }
-                        ) { status, onClick ->
-                            val accessLevel = FeatureRegistry.getAccessLevel(
-                                feature = Feature.CARD_CUSTOMIZATION,
-                                optionId = item.optionId
-                            )
+                            optionId = item.optionId
+                        )
+                        if (isInPreview) {
                             SettingsItemCard(
                                 icon = item.icon,
                                 title = item.title,
                                 subtitle = item.subtitle,
                                 type = SettingsItemType.Toggle,
                                 accessLevel = accessLevel,
-                                isLocked = status !is AccessStatus.Granted,
+                                isLocked = false,
                                 isChecked = item.checked,
-                                onCheckedChange = { onClick() },
-                                onClick = onClick
+                                onCheckedChange = item.onCheckedChange,
+                                onClick = { item.onCheckedChange(!item.checked) }
                             )
+                        } else {
+                            GatedAction(
+                                feature = Feature.CARD_CUSTOMIZATION,
+                                optionId = item.optionId,
+                                displayName = item.title,
+                                onAction = { item.onCheckedChange(!item.checked) }
+                            ) { status, onClick ->
+                                SettingsItemCard(
+                                    icon = item.icon,
+                                    title = item.title,
+                                    subtitle = item.subtitle,
+                                    type = SettingsItemType.Toggle,
+                                    accessLevel = accessLevel,
+                                    isLocked = status !is AccessStatus.Granted,
+                                    isChecked = item.checked,
+                                    onCheckedChange = { onClick() },
+                                    onClick = onClick
+                                )
+                            }
                         }
                     }
                 }
@@ -309,7 +327,12 @@ fun TransactionCardCustomizeScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    name = "Card Settings Screen",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
 @Composable
 private fun TransactionCardCustomizeScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

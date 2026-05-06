@@ -3,24 +3,22 @@ package com.mkn0079.expensetracker.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.NoPhotography
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
@@ -90,7 +88,7 @@ fun SecurityPrivacyScreen(
                     SettingsItemCard(
                         title = "App Lock",
                         subtitle = "Secure app with a PIN code",
-                        icon = Icons.Filled.Lock,
+                        icon = Icons.Rounded.Lock,
                         type = SettingsItemType.Toggle,
                         isChecked = isAppLockEnabled,
                         onCheckedChange = onAppLockChange
@@ -101,7 +99,7 @@ fun SecurityPrivacyScreen(
                     SettingsItemCard(
                         title = "Biometric",
                         subtitle = "Use fingerprint or face ID",
-                        icon = Icons.Filled.Security,
+                        icon = Icons.Rounded.Fingerprint,
                         type = SettingsItemType.Toggle,
                         isEnabled = isAppLockEnabled && hasAppLockPin,
                         isChecked = isBiometricEnabled,
@@ -118,7 +116,7 @@ fun SecurityPrivacyScreen(
                         SettingsItemCard(
                             title = "Scrambled Keypad",
                             subtitle = "Randomize PIN layout for security",
-                            icon = Icons.Filled.Security,
+                            icon = Icons.Rounded.GridView,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
                             isLocked = !isScrambledPinKeypadEnabled && status !is AccessStatus.Granted,
@@ -139,7 +137,7 @@ fun SecurityPrivacyScreen(
                         SettingsItemCard(
                             title = "Blur In Recents",
                             subtitle = "Hide app content in app switcher",
-                            icon = Icons.Filled.Security,
+                            icon = Icons.Rounded.BlurOn,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
                             isLocked = !isBlurInRecentsEnabled && status !is AccessStatus.Granted,
@@ -159,7 +157,7 @@ fun SecurityPrivacyScreen(
                         SettingsItemCard(
                             title = "Block Screenshots",
                             subtitle = "Prevent screen capture of app",
-                            icon = Icons.Filled.PhotoCamera,
+                            icon = Icons.Rounded.NoPhotography,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
                             isLocked = !isScreenshotProtectionEnabled && status !is AccessStatus.Granted,

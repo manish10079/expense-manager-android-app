@@ -46,7 +46,7 @@ import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.utils.getCurrentDateLabel
 
 @Composable
-fun TotalBalanceCard(
+fun StatsCard(
     totalBalance: String,
     previousMonthBalance: String = "",
     income: String,
@@ -312,7 +312,7 @@ fun TotalBalanceCardPreview() {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            TotalBalanceCard(
+            StatsCard(
                 totalBalance = "₹42,850.00",
                 income = "₹12,500.00",
                 expense = "₹5,320.00"

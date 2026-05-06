@@ -53,6 +53,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -299,7 +300,7 @@ fun TransactionScreen(
                                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.Tune,
+                                    imageVector = Icons.Rounded.FilterAlt,
                                     contentDescription = "Sort & Filter",
                                     tint = MaterialTheme.colorScheme.primary
                                 )

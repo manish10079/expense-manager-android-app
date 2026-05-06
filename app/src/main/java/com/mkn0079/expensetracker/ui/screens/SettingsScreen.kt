@@ -30,9 +30,11 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.NotificationAdd
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Refresh
@@ -41,6 +43,7 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SettingsApplications
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -124,6 +127,47 @@ fun SettingsScreen(
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
+    SettingsScreenContent(
+        userProfile = userProfile,
+        settingsSections = uiState.settingsSections,
+        isDailyReminderEnabled = isDailyReminderEnabled,
+        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+        onDailyReminderChange = onDailyReminderChange,
+        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+        onMissedEntryReminderChange = onMissedEntryReminderChange,
+        onProfileClick = onProfileClick,
+        onPreferencesClick = onPreferencesClick,
+        onSecurityPrivacyClick = onSecurityPrivacyClick,
+        onTransactionCardCustomizeClick = onTransactionCardCustomizeClick,
+        onDataManagementClick = onDataManagementClick,
+        onAboutClick = onAboutClick,
+        onNotificationsClick = onNotificationsClick,
+        onManageCategoryClick = onManageCategoryClick,
+        onBackClick = onBackClick
+    )
+}
+
+@Composable
+private fun SettingsScreenContent(
+    userProfile: UserProfile,
+    settingsSections: List<SettingsSectionUi>,
+    isDailyReminderEnabled: Boolean,
+    isBudgetLimitAlertsEnabled: Boolean,
+    isMissedEntryReminderEnabled: Boolean,
+    onDailyReminderChange: (Boolean) -> Unit,
+    onBudgetLimitAlertsChange: (Boolean) -> Unit,
+    onMissedEntryReminderChange: (Boolean) -> Unit,
+    onProfileClick: () -> Unit,
+    onPreferencesClick: () -> Unit,
+    onSecurityPrivacyClick: () -> Unit,
+    onTransactionCardCustomizeClick: () -> Unit,
+    onDataManagementClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onManageCategoryClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -158,7 +202,7 @@ fun SettingsScreen(
                     )
                 }
 
-                uiState.settingsSections.forEach { section ->
+                settingsSections.forEach { section ->
                     item(key = section.title) {
                         SettingsSection(
                             section = section,
@@ -191,9 +235,6 @@ fun SettingsScreen(
             }
         }
     }
-
- 
-
 }
 
 @Composable
@@ -253,14 +294,137 @@ private fun SettingsSection(
  
 
 @Preview(
-    name = "Settings Screen",
+    name = "Settings Screen Preview",
     showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
+    widthDp = 412,
+    heightDp = 1600
 )
 @Composable
 private fun SettingsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        SettingsScreen()
+        SettingsScreenContent(
+            userProfile = defaultUserProfile,
+            settingsSections = listOf(
+                SettingsSectionUi(
+                    title = "ACCOUNT",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "Edit Profile",
+                            subtitle = "Update your name, email and avatar",
+                            icon = Icons.Filled.Person,
+                            actionId = SettingsActionId.EditProfile
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "PREFERENCE",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "App Preferences",
+                            subtitle = "Customize app settings",
+                            icon = Icons.Filled.Tune,
+                            actionId = SettingsActionId.AppPreferences
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "CUSTOMIZE",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "Transaction Card",
+                            subtitle = "Adjust transaction display",
+                            icon = Icons.Filled.SettingsApplications,
+                            actionId = SettingsActionId.TransactionCardCustomize
+                        ),
+                        SettingsItemUi(
+                            title = "Manage Category",
+                            subtitle = "Add or edit categories",
+                            icon = Icons.Filled.Category,
+                            actionId = SettingsActionId.ManageCategories
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "SECURITY & PRIVACY",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "Security & Privacy",
+                            subtitle = "Protect your data and access",
+                            icon = Icons.Filled.Security,
+                            actionId = SettingsActionId.SecurityPrivacy
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "DATA MANAGEMENT",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "Data Management",
+                            subtitle = "Backup and manage data",
+                            icon = Icons.Filled.Sync,
+                            actionId = SettingsActionId.DataManagement
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "NOTIFICATIONS",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "Notifications",
+                            subtitle = "Control alerts and reminders",
+                            icon = Icons.Filled.NotificationAdd,
+                            actionId = SettingsActionId.Notifications
+                        ),
+                        SettingsItemUi(
+                            title = "Daily Reminder",
+                            subtitle = "Remind me to log expenses",
+                            icon = Icons.Filled.CalendarMonth,
+                            toggleId = SettingsToggleId.DailyReminder,
+                            showChevron = false
+                        ),
+                        SettingsItemUi(
+                            title = "Budget Limit Alerts",
+                            subtitle = "Alert when spending nears budget",
+                            icon = Icons.Filled.CurrencyRupee,
+                            toggleId = SettingsToggleId.BudgetLimitAlerts,
+                            showChevron = false
+                        ),
+                        SettingsItemUi(
+                            title = "Missed Entry Reminder",
+                            subtitle = "Detect and remind for skipped logs",
+                            icon = Icons.Filled.Refresh,
+                            toggleId = SettingsToggleId.MissedEntryReminder,
+                            showChevron = false
+                        )
+                    )
+                ),
+                SettingsSectionUi(
+                    title = "ABOUT",
+                    items = listOf(
+                        SettingsItemUi(
+                            title = "About",
+                            subtitle = "App info and details",
+                            icon = Icons.Filled.Info,
+                            actionId = SettingsActionId.About
+                        )
+                    )
+                )
+            ),
+            isDailyReminderEnabled = true,
+            isBudgetLimitAlertsEnabled = true,
+            isMissedEntryReminderEnabled = false,
+            onDailyReminderChange = {},
+            onBudgetLimitAlertsChange = {},
+            onMissedEntryReminderChange = {},
+            onProfileClick = {},
+            onPreferencesClick = {},
+            onSecurityPrivacyClick = {},
+            onTransactionCardCustomizeClick = {},
+            onDataManagementClick = {},
+            onAboutClick = {},
+            onNotificationsClick = {},
+            onManageCategoryClick = {},
+            onBackClick = {}
+        )
     }
 }

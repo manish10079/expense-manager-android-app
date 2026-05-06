@@ -9,6 +9,11 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.CurrencyRupee
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.MoreTime
+import androidx.compose.material.icons.rounded.Pin
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,7 +73,7 @@ fun PreferencesScreen(
                     SettingsItemCard(
                         title = "Currency",
                         subtitle = "Primary app currency",
-                        icon = Icons.Filled.CurrencyRupee,
+                        icon = Icons.Rounded.CurrencyRupee,
                         valueText = uiState.currentCurrencyLabel,
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
@@ -88,7 +93,7 @@ fun PreferencesScreen(
                     SettingsItemCard(
                         title = "Date Format",
                         subtitle = "How dates are shown",
-                        icon = Icons.Filled.CalendarMonth,
+                        icon = Icons.Rounded.DateRange,
                         valueText = uiState.currentDateFormatLabel,
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DateFormat) }
@@ -98,7 +103,7 @@ fun PreferencesScreen(
                     SettingsItemCard(
                         title = "Time Format",
                         subtitle = "12h or 24h clock",
-                        icon = Icons.Filled.Tune,
+                        icon = Icons.Rounded.MoreTime,
                         valueText = uiState.currentTimeFormatLabel,
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
@@ -108,7 +113,7 @@ fun PreferencesScreen(
                     SettingsItemCard(
                         title = "Number Format",
                         subtitle = "Digit grouping style",
-                        icon = Icons.Filled.Tune,
+                        icon = Icons.Rounded.Pin,
                         valueText = uiState.currentGroupingLabel,
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
@@ -118,7 +123,7 @@ fun PreferencesScreen(
                     SettingsItemCard(
                         title = "Decimal Places",
                         subtitle = "Amount precision",
-                        icon = Icons.Filled.Tune,
+                        icon = Icons.Rounded.Straighten,
                         valueText = uiState.currentDecimalPlacesLabel,
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }

@@ -3,15 +3,14 @@ package com.mkn0079.expensetracker.ui.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.rounded.AccountBalanceWallet
+import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.Dns
-import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.NotificationAdd
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.Tune
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,10 +35,7 @@ data class SettingsSectionUi(
 )
 
 enum class SettingsToggleId {
-    PinLock,
     Biometric,
-    BlurInRecents,
-    ScreenshotProtection,
     DailyReminder,
     BudgetLimitAlerts,
     MissedEntryReminder
@@ -50,12 +46,6 @@ enum class SettingsActionId {
     EditProfile,
     SecurityPrivacy,
     TransactionCardCustomize,
-    DatabaseBackup,
-    DatabaseRestore,
-    JsonExport,
-    JsonImport,
-    LegacyImport,
-    DeleteAllTransactions,
     DataManagement,
     About,
     Notifications,
@@ -100,7 +90,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Edit Profile",
                     subtitle = "Update your name, email and avatar",
-                    icon = Icons.Filled.Person,
+                    icon = Icons.Rounded.Person,
                     actionId = SettingsActionId.EditProfile
                 )
             )
@@ -111,7 +101,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "App Preferences",
                     subtitle = "Customize app settings",
-                    icon = Icons.Filled.Tune,
+                    icon = Icons.Rounded.Tune,
                     actionId = SettingsActionId.AppPreferences
                 )
             )
@@ -128,7 +118,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Manage Category",
                     subtitle = "Add or edit categories",
-                    icon = Icons.Filled.Apps,
+                    icon = Icons.Rounded.Category,
                     actionId = SettingsActionId.ManageCategories
                 )
             )
@@ -139,7 +129,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Security & Privacy",
                     subtitle = "Protect your data and access",
-                    icon = Icons.Filled.Security,
+                    icon = Icons.Rounded.Security,
                     actionId = SettingsActionId.SecurityPrivacy
                 )
             )
@@ -161,7 +151,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "Notifications",
                     subtitle = "Control alerts and reminders",
-                    icon = Icons.Rounded.AccountBalanceWallet,
+                    icon = Icons.Rounded.NotificationAdd,
                     actionId = SettingsActionId.Notifications
                 )
             )
@@ -172,7 +162,7 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     title = "About",
                     subtitle = "App info and details",
-                    icon = Icons.Filled.Info,
+                    icon = Icons.Rounded.Info,
                     actionId = SettingsActionId.About
                 )
             )
