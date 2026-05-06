@@ -43,6 +43,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 
 @Composable
 fun AppNavigationHost(
+    saveableStateHolder: androidx.compose.runtime.saveable.SaveableStateHolder,
     currentRoute: AppRoute,
     previousRoute: AppRoute,
     profileOriginRoute: AppRoute,
@@ -109,14 +110,8 @@ fun AppNavigationHost(
     onPrepareForExternalActivity: () -> Unit
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
-    val saveableStateHolder = rememberSaveableStateHolder()
+    
     val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
-        if (destinationRoute != AppRoute.ItemizedCalculator) {
-            saveableStateHolder.removeState(AppRoute.AddTransaction)
-            onSelectedTransactionChange(null)
-            onAddTransactionDraftAmountChange(null)
-            onAddTransactionDraftNoteChange(null)
-        }
         onBottomBarVisibilityChange(false)
         onRouteChange(destinationRoute)
     }

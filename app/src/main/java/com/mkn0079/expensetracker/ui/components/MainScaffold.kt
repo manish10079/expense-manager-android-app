@@ -106,6 +106,7 @@ fun MainScaffold(
     val transactionsViewModel: TransactionsViewModel = viewModel()
     val transactionsUiState by transactionsViewModel.uiState.collectAsState()
     val isSelectionMode = currentRoute == AppRoute.Transactions && transactionsUiState.isSelectionMode
+    val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 
     val showFixedBottomNavBar = currentRoute.showsFixedBottomBar && !isSelectionMode
     val backNavigationRoute = resolveBackNavigationRoute(
@@ -115,13 +116,9 @@ fun MainScaffold(
     )
     val colorScheme = MaterialTheme.colorScheme
 
-    val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
-        onBottomBarVisibilityChange(false)
-        onRouteChange(destinationRoute)
-    }
-
     LaunchedEffect(currentRoute) {
         if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
+            saveableStateHolder.removeState(AppRoute.AddTransaction)
             onSelectedTransactionChange(null)
             onAddTransactionDraftAmountChange(null)
             onAddTransactionDraftNoteChange(null)
@@ -134,7 +131,8 @@ fun MainScaffold(
     BackHandler(enabled = backNavigationRoute != null) {
         when {
             currentRoute == AppRoute.AddTransaction -> {
-                exitAddTransactionScreen(previousRoute)
+                onBottomBarVisibilityChange(false)
+                onRouteChange(previousRoute)
             }
             currentRoute == AppRoute.ItemizedCalculator -> {
                 onBottomBarVisibilityChange(false)
@@ -168,6 +166,7 @@ fun MainScaffold(
         )
 
         AppNavigationHost(
+            saveableStateHolder = saveableStateHolder,
             currentRoute = currentRoute,
             previousRoute = previousRoute,
             profileOriginRoute = profileOriginRoute,
