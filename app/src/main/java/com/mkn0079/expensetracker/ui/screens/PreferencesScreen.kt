@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +25,7 @@ import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesSheetType
 import com.mkn0079.expensetracker.ui.theme.Dimens
+import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mkn0079.expensetracker.utils.supportedDateFormats
 import com.mkn0079.expensetracker.utils.supportedTimeFormats
@@ -265,3 +267,4 @@ fun PreferencesScreen(
         }
     }
 }
+

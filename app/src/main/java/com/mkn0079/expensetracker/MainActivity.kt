@@ -55,6 +55,9 @@ import com.mkn0079.expensetracker.ui.viewmodels.AppLockState
 import com.mkn0079.expensetracker.ui.components.AppLockOverlay // We will use the component logic but possibly refactor it
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.activity.SystemBarStyle
+import androidx.compose.runtime.DisposableEffect
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -147,6 +150,22 @@ class MainActivity : AppCompatActivity() {
                 AppThemeMode.LIGHT -> false
                 AppThemeMode.DARK -> true
             }
+        }
+
+        DisposableEffect(darkTheme) {
+            enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT,
+                    detectDarkMode = { darkTheme }
+                ),
+                navigationBarStyle = SystemBarStyle.auto(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT,
+                    detectDarkMode = { darkTheme }
+                )
+            )
+            onDispose { }
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
