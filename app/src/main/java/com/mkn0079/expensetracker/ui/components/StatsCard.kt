@@ -61,7 +61,6 @@ fun StatsCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
-            .clickable(onClick = onToggleVisibility)
             .shadow(
                 elevation = 26.dp,
                 shape = cardShape,
@@ -69,6 +68,7 @@ fun StatsCard(
                 spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.36f)
             )
             .clip(cardShape)
+            .clickable(onClick = onToggleVisibility)
             .background(standardCardGradient())
             .border(
                 width = 1.dp,
@@ -308,7 +308,8 @@ private fun String.toZeroPlaceholder(): String {
 @Preview(showBackground = false)
 @Composable
 fun TotalBalanceCardPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
+    ExpenseTrackerTheme(darkTheme = false
+    ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {

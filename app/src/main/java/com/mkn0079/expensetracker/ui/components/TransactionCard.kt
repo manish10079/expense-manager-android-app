@@ -213,7 +213,7 @@ fun TransactionCard(
             maxLines = 1,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp,
+                fontSize = 15.sp,
             ),
             modifier = Modifier.padding(bottom = 4.dp)
         )

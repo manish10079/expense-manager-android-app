@@ -39,17 +39,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.R
+import com.mkn0079.expensetracker.ui.components.WavyLoadingBar
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
-import ir.mahozad.multiplatform.wavyslider.WaveDirection.HEAD
-import ir.mahozad.multiplatform.wavyslider.material.WavySlider as WavySlider2
-import androidx.compose.material.SliderDefaults as MaterialSliderDefaults
 
 private val SplashLogoSize = 148.dp
 
@@ -162,37 +159,18 @@ fun SplashOverlay(viewModel: SplashViewModel) {
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                WavySlider2(
-                    value = loadingProgress.value,
-                    onValueChange = {},
-                    colors = MaterialSliderDefaults.colors(
-                        thumbColor = Color.Transparent,
-                        disabledThumbColor = Color.Transparent,
-                        activeTrackColor = MaterialTheme.colorScheme.secondary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
-                        activeTickColor = Color.Transparent,
-                        inactiveTickColor = Color.Transparent
-                    ),
+                WavyLoadingBar(
+                    progress = loadingProgress.value,
+                    activeColor = MaterialTheme.colorScheme.secondary,
+                    inactiveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(28.dp),
                     waveLength = 30.dp,
                     waveHeight = 11.5.dp,
-                    waveVelocity = 40.dp to HEAD,
-                    waveThickness = 4.dp,
-                    trackThickness = 0.dp,
-                    incremental = false
+                    strokeWidth = 4.dp
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "${(loadingProgress.value * 100).toInt()}%",
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
             }
         }
     }

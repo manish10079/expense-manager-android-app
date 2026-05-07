@@ -22,7 +22,7 @@ sealed class InitTask(val label: String, val progress: Int) {
     object Start : InitTask("Initializing", 0)
     object AppLock : InitTask("Starting security services", 15)
     object LoadPrefs : InitTask("Loading your preferences", 30)
-    object LoadProfile : InitTask("Preparing your profile", 45)
+    object LoadProfile : InitTask("Preparing your Database", 45)
     object InitDB : InitTask("Initializing database", 70)
     object WarmUp : InitTask("Warming up engine", 85)
     object Finalize : InitTask("Getting things ready", 95)
