@@ -10,7 +10,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -46,11 +45,11 @@ import com.mkn0079.expensetracker.utils.findFragmentActivity
 import com.mkn0079.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.InitTask
+import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AppLockViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AppLockState
-import com.mkn0079.expensetracker.ui.components.AppLockOverlay // We will use the component logic but possibly refactor it
+import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import dagger.hilt.android.AndroidEntryPoint
 
 import androidx.activity.SystemBarStyle
@@ -76,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         
         // Keep the system splash screen visible until our custom splash screen is ready to take over.
         // This prevents the "flicker" or "blank frame" during the hand-off.
-        splashScreen.setKeepOnScreenCondition { 
+        splashScreen.setKeepOnScreenCondition {
             splashViewModel.currentTask.value == InitTask.Start
         }
         
@@ -199,7 +198,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     // 2. Decide what to show based on Lock State (Overlay Layer)
-                    if (appSettings != null) {
+                    if (isReady && appSettings != null) {
                         val settings = appSettings!!
                         AnimatedContent(
                             targetState = appLockState,
@@ -242,9 +241,6 @@ class MainActivity : AppCompatActivity() {
                                     // 3. App Lock Screen (Blocks Main Content)
                                     val biometricAuthenticator = remember(activity) {
                                         activity?.let(BiometricAuthManager::createAuthenticator)
-                                    }
-                                    val biometricAvailability = remember(activity) {
-                                        activity?.let { BiometricAuthManager.getAvailability(it) }
                                     }
 
                                     AppLockOverlay(
