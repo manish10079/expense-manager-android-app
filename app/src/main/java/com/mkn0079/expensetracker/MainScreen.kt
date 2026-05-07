@@ -512,6 +512,7 @@ fun MainScreen(
                     appLockState.securityQuestionId
                 ).orEmpty(),
                 onBackClick = { appLockFlow = null },
+                autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
                 onBiometricClick = unlockWithBiometric,
                 onSetupComplete = { pin, questionId, answer ->
                     // 1. Dismiss UI immediately

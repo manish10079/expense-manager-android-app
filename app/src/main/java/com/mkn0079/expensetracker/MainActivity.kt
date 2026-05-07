@@ -29,8 +29,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -249,23 +247,12 @@ class MainActivity : AppCompatActivity() {
                                         activity?.let { BiometricAuthManager.getAvailability(it) }
                                     }
 
-                                    LaunchedEffect(biometricAuthenticator, biometricAvailability) {
-                                        if (settings.biometricLockEnabled && 
-                                            biometricAvailability?.isAvailable == true && 
-                                            biometricAuthenticator != null) {
-                                            biometricAuthenticator.authenticate(
-                                                title = "Unlock Expense Tracker",
-                                                subtitle = "Verify your biometric to continue.",
-                                                negativeButtonText = "Use PIN",
-                                                onSuccess = { appLockViewModel.unlock() }
-                                            )
-                                        }
-                                    }
-
                                     AppLockOverlay(
                                         isReady = true,
                                         appSettings = settings,
+                                        onDismiss = {},
                                         onUnlockSuccess = { appLockViewModel.unlock() },
+                                        autoTriggerBiometricOnShow = true,
                                         onBiometricClick = {
                                             biometricAuthenticator?.authenticate(
                                                 title = "Unlock Expense Tracker",

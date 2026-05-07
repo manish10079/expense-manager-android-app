@@ -7,11 +7,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.models.AppSettings
 import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
@@ -19,10 +23,13 @@ import com.mkn0079.expensetracker.ui.screens.AppLockScreen
 import com.mkn0079.expensetracker.ui.screens.AppLockScreenMode
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.data.constants.getAppLockSecurityQuestionPrompt // Corrected import path
+import kotlinx.coroutines.delay
+
+private const val APP_LOCK_BIOMETRIC_AUTO_TRIGGER_DELAY_MS = 650L
 
 /**
  * A wrapper component that handles the App Lock screen logic.
- * It can be used as a standalone screen (Root Mode) or as a Popup overlay.
+ * It can be used as a standalone screen (Root Mode) or as a dialog overlay.
  */
 @Composable
 fun AppLockOverlay(
@@ -39,6 +46,7 @@ fun AppLockOverlay(
     securityQuestionPrompt: String = "",
     onBackClick: (() -> Unit)? = onDismiss,
     onBiometricClick: (() -> Unit)? = null,
+    autoTriggerBiometricOnShow: Boolean = false,
     onSetupComplete: ((String, String, String) -> Unit)? = null,
     validateUnlockPin: ((String) -> Boolean)? = null,
     onForgotPinRecovery: (() -> Unit)? = null,
@@ -53,10 +61,32 @@ fun AppLockOverlay(
         val questionId = AppLockPreferences.getSecurityQuestionId(context)
         getAppLockSecurityQuestionPrompt(questionId).orEmpty()
     }
+    var hasAutoTriggeredBiometric by remember(initialFlow) { mutableStateOf(false) }
 
-    // If we are in "Overlay" mode (onDismiss is not null), we use a Popup.
+    // If we are in "Overlay" mode (onDismiss is not null), we use a full-screen dialog.
     // If we are in "Root" mode (onDismiss is null), we render directly as a screen.
     val isOverlay = onDismiss != null
+
+    LaunchedEffect(
+        initialFlow,
+        biometricEnabled,
+        effectiveBiometricAvailable,
+        autoTriggerBiometricOnShow,
+        onBiometricClick
+    ) {
+        if (
+            !hasAutoTriggeredBiometric &&
+            autoTriggerBiometricOnShow &&
+            initialFlow == AppLockFlow.Unlock &&
+            biometricEnabled &&
+            effectiveBiometricAvailable &&
+            onBiometricClick != null
+        ) {
+            hasAutoTriggeredBiometric = true
+            delay(APP_LOCK_BIOMETRIC_AUTO_TRIGGER_DELAY_MS)
+            onBiometricClick()
+        }
+    }
     
     val content = @Composable {
         AnimatedContent(
@@ -90,13 +120,13 @@ fun AppLockOverlay(
     }
 
     if (isOverlay) {
-        Popup(
+        Dialog(
             onDismissRequest = { onDismiss?.invoke() },
-            properties = PopupProperties(
-                focusable = true,
+            properties = DialogProperties(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false,
-                excludeFromSystemGesture = false
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
             )
         ) {
             content()
