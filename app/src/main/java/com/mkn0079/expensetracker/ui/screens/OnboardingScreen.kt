@@ -1,5 +1,9 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -153,6 +157,14 @@ fun OnboardingScreen(
     val page = onboardingPages[currentPage]
     val isSetupPage = currentPage == 4
 
+    // Finishing Animation State
+    var isFinishing by remember { mutableStateOf(false) }
+    val finishProgress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isFinishing) 1f else 0f,
+        animationSpec = tween(durationMillis = 850, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+        label = "onboarding_finish_expansion"
+    )
+
     // Setup state
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
@@ -171,6 +183,12 @@ fun OnboardingScreen(
         }
     }
 
+    LaunchedEffect(finishProgress) {
+        if (finishProgress == 1f) {
+            onFinish(userName, userGender, userDobMillis)
+        }
+    }
+
     val genderOptions = listOf("Male", "Female", "Non-binary", "Prefer not to say")
     val genderItems = remember {
         genderOptions.map { option ->
@@ -182,7 +200,7 @@ fun OnboardingScreen(
         }
     }
 
-    BackHandler(enabled = currentPage > 0) {
+    BackHandler(enabled = currentPage > 0 && !isFinishing) {
         currentPage -= 1
     }
 
@@ -199,6 +217,7 @@ fun OnboardingScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 16.dp)
+                .alpha(1f - finishProgress) // Fade out content as we expand
         ) {
             if (!isSetupPage) {
                 Box(
@@ -333,6 +352,8 @@ fun OnboardingScreen(
             PrimaryOnboardingButton(
                 label = page.actionLabel,
                 onClick = {
+                    if (isFinishing) return@PrimaryOnboardingButton
+                    
                     val lastIndex = onboardingPages.lastIndex
                     Log.d("Onboarding", "Button clicked at page $currentPage. Target page: $lastIndex")
                     
@@ -345,7 +366,7 @@ fun OnboardingScreen(
                         Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
 
                         if (missingFields.isEmpty()) {
-                            onFinish(userName, userGender, userDobMillis)
+                            isFinishing = true
                         } else {
                             toastMessage = "Please provide your ${missingFields.joinToString(", ")}"
                         }
@@ -370,6 +391,26 @@ fun OnboardingScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        // Expansion Overlay
+        if (finishProgress > 0f) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        // Expansion starts from the bottom area where the button is
+                        val scale = finishProgress * 8f
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = if (finishProgress < 0.1f) finishProgress * 10f else 1f
+                        translationY = size.height * 0.35f // Offset expansion center towards button
+                    }
+                    .background(
+                        brush = brandGradient(),
+                        shape = CircleShape
+                    )
+            )
         }
     }
 
@@ -483,11 +524,25 @@ private fun PrimaryOnboardingButton(
     label: String,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "onboarding_button_scale"
+    )
+
     Button(
         onClick = onClick,
+        interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth()
             .height(78.dp)
+            .scale(scale)
             .shadow(
                 elevation = 34.dp,
                 shape = RoundedCornerShape(999.dp),
