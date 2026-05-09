@@ -218,10 +218,20 @@ fun MainScreen(
 
     if (showOnboarding) {
         OnboardingScreen(
-            onFinish = {
+            onFinish = { name, gender, dobMillis ->
                 navigationState.navigateTo(AppRoute.Home)
                 navigationState.updateBottomBarVisibility(false)
                 coroutineScope.launch {
+                    // 1. Update Profile
+                    UserProfileDataStore.updateUserProfile(context) { profile ->
+                        profile.copy(
+                            fullName = name.ifBlank { "Guest User" },
+                            gender = gender,
+                            dateOfBirthMillis = dobMillis
+                        )
+                    }
+
+                    // 2. Hide Onboarding
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(
                             showOnboardingScreen = false

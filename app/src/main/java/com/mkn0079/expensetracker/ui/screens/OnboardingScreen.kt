@@ -1,5 +1,8 @@
 package com.mkn0079.expensetracker.ui.screens
 
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -34,14 +37,25 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SsidChart
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Female
+import androidx.compose.material.icons.rounded.Male
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Transgender
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,6 +70,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -65,10 +80,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
+import com.mkn0079.expensetracker.ui.components.ProfileAvatar
+import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
+import com.mkn0079.expensetracker.ui.components.input.InputType
+import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
+import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
+import com.mkn0079.expensetracker.utils.formatDate
 
 private data class OnboardingPage(
     val title: String,
@@ -103,21 +128,63 @@ private val onboardingPages = listOf(
     OnboardingPage(
         title = "Premium by Design,\nPrivate by Nature",
         description = "Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.",
-        actionLabel = "Get Started",
+        actionLabel = "Continue",
         accentedText = "Private by Nature",
         titleFontSize = 34.sp,
         titleLineHeight = 40.sp,
         supportingContent = { PremiumBenefitCards() },
         illustration = { PremiumPrivacyIllustration() }
+    ),
+    OnboardingPage(
+        title = "Let's Get Started",
+        description = "Tell us a bit about yourself to personalize your experience.",
+        actionLabel = "Get Started",
+        illustration = { /* No illustration for setup page */ }
     )
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    onFinish: () -> Unit = {}
+    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> }
 ) {
+    val context = LocalContext.current
     var currentPage by remember { mutableIntStateOf(0) }
     val page = onboardingPages[currentPage]
+    val isSetupPage = currentPage == 4
+
+    // Setup state
+    var userName by remember { mutableStateOf("") }
+    var userGender by remember { mutableStateOf("") }
+    var userDobMillis by remember { mutableLongStateOf(0L) }
+    var isGenderPickerVisible by remember { mutableStateOf(false) }
+    var isDatePickerVisible by remember { mutableStateOf(false) }
+    val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var toastMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(toastMessage) {
+        if (toastMessage != null) {
+            Log.d("Onboarding", "Displaying Toast: $toastMessage")
+            Toast.makeText(context.applicationContext, toastMessage, Toast.LENGTH_LONG).show()
+            toastMessage = null
+        }
+    }
+
+    val genderOptions = listOf("Male", "Female", "Non-binary", "Prefer not to say")
+    val genderItems = remember {
+        genderOptions.map { option ->
+            SelectionItem(
+                id = option,
+                title = option,
+                leadingIcon = genderToIcon(option)
+            )
+        }
+    }
+
+    BackHandler(enabled = currentPage > 0) {
+        currentPage -= 1
+    }
 
     Box(
         modifier = Modifier
@@ -133,24 +200,28 @@ fun OnboardingScreen(
                 .navigationBarsPadding()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                AnimatedContent(
-                    targetState = currentPage,
-                    label = "onboarding_illustration"
-                ) { pageIndex ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(390.dp)
-                    ) {
-                        onboardingPages[pageIndex].illustration(this)
+            if (!isSetupPage) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedContent(
+                        targetState = currentPage,
+                        label = "onboarding_illustration"
+                    ) { pageIndex ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(390.dp)
+                        ) {
+                            onboardingPages[pageIndex].illustration(this)
+                        }
                     }
                 }
+            } else {
+                Spacer(modifier = Modifier.height(56.dp))
             }
 
             AnimatedContent(
@@ -158,6 +229,8 @@ fun OnboardingScreen(
                 label = "onboarding_copy"
             ) { pageIndex ->
                 val current = onboardingPages[pageIndex]
+                val isSetup = pageIndex == 4
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -184,33 +257,98 @@ fun OnboardingScreen(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                    Text(
-                        text = current.description,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 15.sp,
-                            lineHeight = 27.sp
-                        ),
-                        modifier = Modifier.fillMaxWidth(0.88f)
-                    )
+                    if (isSetup) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            InputFieldCard(
+                                title = "FULL NAME",
+                                value = userName,
+                                onValueChange = { userName = it },
+                                inputType = InputType.Text,
+                                leadingIcon = Icons.Rounded.Person,
+                                placeholder = "Enter your name"
+                            )
 
-                    current.supportingContent?.let { content ->
-                        Spacer(modifier = Modifier.height(28.dp))
-                        content()
+                            InputFieldCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = "GENDER",
+                                value = userGender,
+                                onValueChange = {},
+                                inputType = InputType.Date,
+                                leadingIcon = genderToIcon(userGender),
+                                placeholder = "Select Gender",
+                                onClick = { isGenderPickerVisible = true },
+                                trailingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            )
+
+                            InputFieldCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = "DATE OF BIRTH",
+                                value = if (userDobMillis == 0L) "" else formatDate(userDobMillis, DEFAULT_DATE_FORMAT_PATTERN),
+                                onValueChange = {},
+                                inputType = InputType.Date,
+                                leadingIcon = Icons.Filled.CalendarMonth,
+                                placeholder = "Select Date of Birth",
+                                onClick = { isDatePickerVisible = true }
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = current.description,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 15.sp,
+                                lineHeight = 27.sp
+                            ),
+                            modifier = Modifier.fillMaxWidth(0.88f)
+                        )
+
+                        current.supportingContent?.let { content ->
+                            Spacer(modifier = Modifier.height(28.dp))
+                            content()
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(if (page.supportingContent == null) 34.dp else 24.dp))
+            if (isSetupPage) {
+                Spacer(modifier = Modifier.weight(1f))
+            } else {
+                Spacer(modifier = Modifier.height(if (page.supportingContent == null) 34.dp else 24.dp))
+            }
 
             PrimaryOnboardingButton(
                 label = page.actionLabel,
                 onClick = {
-                    if (currentPage == onboardingPages.lastIndex) {
-                        onFinish()
+                    val lastIndex = onboardingPages.lastIndex
+                    Log.d("Onboarding", "Button clicked at page $currentPage. Target page: $lastIndex")
+                    
+                    if (currentPage == lastIndex) {
+                        val missingFields = mutableListOf<String>()
+                        if (userName.trim().isEmpty()) missingFields.add("Name")
+                        if (userGender.trim().isEmpty()) missingFields.add("Gender")
+                        if (userDobMillis == 0L) missingFields.add("Date of Birth")
+
+                        Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
+
+                        if (missingFields.isEmpty()) {
+                            onFinish(userName, userGender, userDobMillis)
+                        } else {
+                            toastMessage = "Please provide your ${missingFields.joinToString(", ")}"
+                        }
                     } else {
                         currentPage += 1
                     }
@@ -222,16 +360,47 @@ fun OnboardingScreen(
             BottomControls(
                 pageCount = onboardingPages.size,
                 currentPage = currentPage,
+                showSkip = currentPage < 4,
                 onPreviousClick = {
                     if (currentPage > 0) {
                         currentPage -= 1
                     }
                 },
-                onSkipClick = onFinish
+                onSkipClick = { currentPage = onboardingPages.lastIndex }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    if (isGenderPickerVisible) {
+        AppSelectionSheet(
+            title = "Select Gender",
+            description = "Choose the gender label that best fits your profile.",
+            items = genderItems,
+            selectedId = userGender,
+            sheetState = genderPickerSheetState,
+            onDismiss = { isGenderPickerVisible = false },
+            onItemSelected = { selectedGender ->
+                userGender = selectedGender
+                isGenderPickerVisible = false
+            }
+        )
+    }
+
+    if (isDatePickerVisible) {
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.SINGLE_DATE,
+            initialStartMillis = if (userDobMillis == 0L) System.currentTimeMillis() else userDobMillis,
+            onDismissRequest = { isDatePickerVisible = false },
+            onConfirm = { pickedDateMillis, _ ->
+                userDobMillis = datePickerSelectionToLocalDateTimestamp(
+                    selectedDateMillis = pickedDateMillis,
+                    referenceTimestamp = if (userDobMillis == 0L) null else userDobMillis
+                )
+                isDatePickerVisible = false
+            }
+        )
     }
 }
 
@@ -259,6 +428,7 @@ private fun BoxScope.AmbientBackdrop() {
 private fun BottomControls(
     pageCount: Int,
     currentPage: Int,
+    showSkip: Boolean = true,
     onPreviousClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
@@ -290,19 +460,21 @@ private fun BottomControls(
             modifier = Modifier.align(Alignment.Center)
         )
 
-        Text(
-            text = "SKIP",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.4.sp,
-                fontSize = 14.sp
-            ),
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .clickable(onClick = onSkipClick)
-                .padding(vertical = 12.dp)
-        )
+        if (showSkip) {
+            Text(
+                text = "SKIP",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.4.sp,
+                    fontSize = 14.sp
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .clickable(onClick = onSkipClick)
+                    .padding(vertical = 12.dp)
+            )
+        }
     }
 }
 
@@ -908,6 +1080,34 @@ private fun Modifier.borderGlowCircle(
             shape = CircleShape
         )
 )
+
+@Composable
+private fun BoxScope.SetupIllustration() {
+    Box(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .size(240.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
+    ) {
+        ProfileAvatar(
+            initials = "U",
+            size = 200.dp,
+            textSize = 54.sp
+        )
+    }
+}
+
+private fun genderToIcon(gender: String): ImageVector {
+    return when (gender) {
+        "Male" -> Icons.Rounded.Male
+        "Female" -> Icons.Rounded.Female
+        "Non-binary" -> Icons.Rounded.Transgender
+        "Prefer not to say" -> Icons.Rounded.Person
+        else -> Icons.Rounded.Transgender
+    }
+}
 
 @Preview(
     name = "Onboarding Screen",
