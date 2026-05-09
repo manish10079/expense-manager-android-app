@@ -1,6 +1,16 @@
 package com.mkn0079.expensetracker
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -216,342 +226,370 @@ fun MainScreen(
 
 
 
-    if (showOnboarding) {
-        OnboardingScreen(
-            onFinish = { name, gender, dobMillis ->
-                navigationState.navigateTo(AppRoute.Home)
-                navigationState.updateBottomBarVisibility(false)
-                coroutineScope.launch {
-                    // 1. Update Profile
-                    UserProfileDataStore.updateUserProfile(context) { profile ->
-                        profile.copy(
-                            fullName = name.ifBlank { "Guest User" },
-                            gender = gender,
-                            dateOfBirthMillis = dobMillis
+    AnimatedContent(
+        targetState = showOnboarding,
+        transitionSpec = {
+            if (!targetState) {
+                // Premium Onboarding -> Home Transition
+                (fadeIn(animationSpec = tween(500, easing = FastOutSlowInEasing)) +
+                    scaleIn(
+                        initialScale = 0.95f,
+                        animationSpec = tween(500, easing = FastOutSlowInEasing)
+                    ) +
+                    slideInVertically(
+                        initialOffsetY = { it / 20 }, // Subtle 5% upward movement
+                        animationSpec = tween(500, easing = FastOutSlowInEasing)
+                    ))
+                    .togetherWith(
+                        fadeOut(animationSpec = tween(350, easing = LinearOutSlowInEasing)) +
+                        scaleOut(
+                            targetScale = 1.05f,
+                            animationSpec = tween(350, easing = LinearOutSlowInEasing)
                         )
-                    }
+                    )
+            } else {
+                fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(400))
+            }
+        },
+        label = "onboarding_to_main_transition",
+        modifier = Modifier.fillMaxSize()
+    ) { isShowingOnboarding ->
+        if (isShowingOnboarding) {
+            OnboardingScreen(
+                onFinish = { name, gender, dobMillis ->
+                    navigationState.navigateTo(AppRoute.Home)
+                    navigationState.updateBottomBarVisibility(false)
+                    coroutineScope.launch {
+                        // 1. Update Profile
+                        UserProfileDataStore.updateUserProfile(context) { profile ->
+                            profile.copy(
+                                fullName = name.ifBlank { "Guest User" },
+                                gender = gender,
+                                dateOfBirthMillis = dobMillis
+                            )
+                        }
 
-                    // 2. Hide Onboarding
+                        // 2. Hide Onboarding
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(
+                                showOnboardingScreen = false
+                            )
+                        }
+                    }
+                }
+            )
+        } else {
+            LaunchedEffect(initialNavDestination) {
+                if (AppRoute.fromRoute(initialNavDestination) == AppRoute.AddTransaction) {
+                    navigationState.navigateTo(AppRoute.AddTransaction)
+                    navigationState.updateBottomBarVisibility(false)
+                }
+            }
+
+            LaunchedEffect(isRecoveryPerformed) {
+                if (isRecoveryPerformed) {
+                    navigationState.navigateTo(AppRoute.Home)
+                    navigationState.clearTransactionDraftContext()
+                    onRecoveryConsumed()
+                }
+            }
+
+            LaunchedEffect(isDailyReminderEnabled) {
+                if (isDailyReminderEnabled) {
+                    NotificationScheduler.startDailyReminders(context)
+                } else {
+                    NotificationScheduler.stopDailyReminders(context)
+                }
+            }
+
+            LaunchedEffect(isAutoBackupEnabled, autoBackupFrequencyDays) {
+                AutoBackupScheduler.scheduleOrUpdate(context, isAutoBackupEnabled, autoBackupFrequencyDays)
+            }
+
+            LaunchedEffect(isScrambledPinKeypadEnabled, isScrambledPinKeypadAccessGranted) {
+                if (isScrambledPinKeypadEnabled && !isScrambledPinKeypadAccessGranted) {
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(
-                            showOnboardingScreen = false
-                        )
+                        settings.copy(scrambledPinKeypadEnabled = false)
                     }
                 }
             }
-        )
-        return
-    }
 
-    LaunchedEffect(initialNavDestination) {
-        if (AppRoute.fromRoute(initialNavDestination) == AppRoute.AddTransaction) {
-            navigationState.navigateTo(AppRoute.AddTransaction)
-            navigationState.updateBottomBarVisibility(false)
-        }
-    }
-
-    LaunchedEffect(isRecoveryPerformed) {
-        if (isRecoveryPerformed) {
-            navigationState.navigateTo(AppRoute.Home)
-            navigationState.clearTransactionDraftContext()
-            onRecoveryConsumed()
-        }
-    }
-
-    LaunchedEffect(isDailyReminderEnabled) {
-        if (isDailyReminderEnabled) {
-            NotificationScheduler.startDailyReminders(context)
-        } else {
-            NotificationScheduler.stopDailyReminders(context)
-        }
-    }
-
-    LaunchedEffect(isAutoBackupEnabled, autoBackupFrequencyDays) {
-        AutoBackupScheduler.scheduleOrUpdate(context, isAutoBackupEnabled, autoBackupFrequencyDays)
-    }
-
-    LaunchedEffect(isScrambledPinKeypadEnabled, isScrambledPinKeypadAccessGranted) {
-        if (isScrambledPinKeypadEnabled && !isScrambledPinKeypadAccessGranted) {
-            AppSettingsDataStore.updateAppSettings(context) { settings ->
-                settings.copy(scrambledPinKeypadEnabled = false)
+            LaunchedEffect(navigationState.currentRoute) {
+                mainViewModel.setTransactionObservationEnabled(
+                    navigationState.currentRoute in routesKeepingTransactionsWarm
+                )
             }
-        }
-    }
 
-    LaunchedEffect(navigationState.currentRoute) {
-        mainViewModel.setTransactionObservationEnabled(
-            navigationState.currentRoute in routesKeepingTransactionsWarm
-        )
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .blur(if (shouldBlurForAppLock) 24.dp else 0.dp)
-        ) {
-            MainScaffold(
-                currentRoute = navigationState.currentRoute,
-                previousRoute = navigationState.previousRoute,
-                profileOriginRoute = navigationState.profileOriginRoute,
-                isBottomBarVisible = navigationState.isBottomBarVisible,
-                transactions = mainUiState.transactions,
-                transactionCount = mainUiState.transactionCount,
-                recurringRules = mainUiState.recurringRules,
-                selectedTransaction = navigationState.selectedTransaction,
-                addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
-                addTransactionDraftNote = navigationState.addTransactionDraftNote,
-                categories = mainUiState.categories,
-                paymentMethods = mainUiState.paymentMethods,
-                transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-                userProfile = userProfile,
-                selectedCurrencyId = selectedCurrencyId,
-                amountFormatPreferences = amountFormatPreferences,
-                selectedDateFormatPattern = selectedDateFormatPattern,
-                selectedTimeFormat = selectedTimeFormat,
-                isAppLockEnabled = isAppLockEnabled,
-                hasAppLockPin = hasAppLockPin,
-                isBiometricEnabled = isBiometricEnabled,
-                isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,
-                isBlurInRecentsEnabled = isBlurInRecentsEnabled,
-                isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
-                isDailyReminderEnabled = isDailyReminderEnabled,
-                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                autoLockDurationMinutes = autoLockDurationMinutes,
-                isAutoBackupEnabled = isAutoBackupEnabled,
-                autoBackupFrequencyDays = autoBackupFrequencyDays,
-                onRouteChange = navigationState::navigateTo,
-                onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
-                onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
-                onSelectedTransactionChange = navigationState::updateSelectedTransaction,
-                onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
-                onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
-                onSaveTransaction = mainViewModel::saveTransaction,
-                onDeleteTransaction = mainViewModel::deleteTransaction,
-                onDeleteRecurring = mainViewModel::deleteRecurring,
-                onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
-                onUpdateRecurringRule = mainViewModel::updateRecurringRule,
-                onCreateCustomCategory = mainViewModel::createCustomCategory,
-                onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
-                onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
-                onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
-                onTransactionCardCustomizationSettingsChange = { updatedSettings ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.withTransactionCardCustomizationSettings(updatedSettings)
-                        }
-                    }
-                },
-                onUserProfileChange = { updatedProfile ->
-                    coroutineScope.launch {
-                        UserProfileDataStore.updateUserProfile(context) {
-                            updatedProfile
-                        }
-                    }
-                },
-                onDailyReminderChange = { isEnabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(notificationsEnabled = isEnabled)
-                        }
-                    }
-                },
-                onBudgetLimitAlertsChange = { isEnabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(budgetLimitAlertsEnabled = isEnabled)
-                        }
-                    }
-                },
-                onMissedEntryReminderChange = { isEnabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(missedEntryReminderEnabled = isEnabled)
-                        }
-                    }
-                },
-                onDatabaseBackupFileSelected = { uri ->
-                    mainViewModel.backupDatabase(
-                        uri = uri,
-                        onComplete = {
-                            showToast("Database backup saved.")
-                        },
-                        onError = {
-                            showToast("Unable to save the database backup. Please try again.")
-                        }
-                    )
-                },
-                onDatabaseRestoreFileSelected = { uri ->
-                    mainViewModel.restoreDatabase(
-                        uri = uri,
-                        onComplete = {
-                            navigationState.clearTransactionDraftContext()
-                            showToast("Database restored. Reloading app.")
-                            AppRestartUtils.restartApp(rawContext)
-                        },
-                        onError = {
-                            showToast("Unable to restore the database backup. Please try again.")
-                        }
-                    )
-                },
-                onJsonExportFileSelected = { uri ->
-                    mainViewModel.exportJson(
-                        uri = uri,
-                        onComplete = { result ->
-                            showToast(
-                                "JSON exported: ${result.exportedTransactions} transactions, " +
-                                    "${result.exportedBudgets} budgets."
-                            )
-                        },
-                        onError = {
-                            showToast("Unable to export JSON. Please try again.")
-                        }
-                    )
-                },
-                onJsonImportFileSelected = { uri ->
-                    mainViewModel.importJson(
-                        uri = uri,
-                        onComplete = { result ->
-                            showToast(result.toJsonImportMessage())
-                        },
-                        onError = {
-                            showToast("Unable to import JSON. Check the file and try again.")
-                        }
-                    )
-                },
-                onLegacyImportFileSelected = { uri ->
-                    mainViewModel.importLegacyBackup(
-                        uri = uri,
-                        onComplete = { result ->
-                            showToast(
-                                "Imported ${result.importedTransactions} legacy transactions. " +
-                                    "Skipped ${result.skippedTransactions} existing."
-                            )
-                        },
-                        onError = {
-                            showToast("Legacy import failed. Check the backup file and try again.")
-                        }
-                    )
-                },
-                onDeleteAllTransactionsClick = {
-                    mainViewModel.deleteAllTransactions(
-                        onComplete = {
-                            navigationState.clearTransactionDraftContext()
-                            showToast("All transactions deleted.")
-                        },
-                        onError = {
-                            showToast("Unable to delete transactions. Please try again.")
-                        }
-                    )
-                },
-                onBiometricLockChange = updateBiometricLockEnabled,
-                onScrambledPinKeypadChange = { enabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(scrambledPinKeypadEnabled = enabled)
-                        }
-                    }
-                },
-                onBlurInRecentsChange = { enabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(blurInRecentsEnabled = enabled)
-                        }
-                    }
-                },
-                onScreenshotProtectionChange = { enabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(screenshotProtectionEnabled = enabled)
-                        }
-                    }
-                },
-                onAutoLockDurationChange = { minutes ->
-                    AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
-                    appLockState = AppLockPreferences.getCachedState()
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(appLockTimeoutMinutes = minutes)
-                        }
-                    }
-                },
-                onAutoBackupEnabledChange = { enabled ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(isAutoBackupEnabled = enabled)
-                        }
-                    }
-                },
-                onAutoBackupFrequencyChange = { days ->
-                    coroutineScope.launch {
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(autoBackupFrequencyDays = days)
-                        }
-                    }
-                },
-                onAppLockToggleChange = { shouldEnable ->
-                    if (shouldEnable) {
-                        if (hasAppLockPin) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(if (shouldBlurForAppLock) 24.dp else 0.dp)
+                ) {
+                    MainScaffold(
+                        currentRoute = navigationState.currentRoute,
+                        previousRoute = navigationState.previousRoute,
+                        profileOriginRoute = navigationState.profileOriginRoute,
+                        isBottomBarVisible = navigationState.isBottomBarVisible,
+                        transactions = mainUiState.transactions,
+                        transactionCount = mainUiState.transactionCount,
+                        recurringRules = mainUiState.recurringRules,
+                        selectedTransaction = navigationState.selectedTransaction,
+                        addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
+                        addTransactionDraftNote = navigationState.addTransactionDraftNote,
+                        categories = mainUiState.categories,
+                        paymentMethods = mainUiState.paymentMethods,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        userProfile = userProfile,
+                        selectedCurrencyId = selectedCurrencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        selectedDateFormatPattern = selectedDateFormatPattern,
+                        selectedTimeFormat = selectedTimeFormat,
+                        isAppLockEnabled = isAppLockEnabled,
+                        hasAppLockPin = hasAppLockPin,
+                        isBiometricEnabled = isBiometricEnabled,
+                        isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,
+                        isBlurInRecentsEnabled = isBlurInRecentsEnabled,
+                        isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
+                        isDailyReminderEnabled = isDailyReminderEnabled,
+                        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        autoLockDurationMinutes = autoLockDurationMinutes,
+                        isAutoBackupEnabled = isAutoBackupEnabled,
+                        autoBackupFrequencyDays = autoBackupFrequencyDays,
+                        onRouteChange = navigationState::navigateTo,
+                        onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
+                        onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
+                        onSelectedTransactionChange = navigationState::updateSelectedTransaction,
+                        onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
+                        onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
+                        onSaveTransaction = mainViewModel::saveTransaction,
+                        onDeleteTransaction = mainViewModel::deleteTransaction,
+                        onDeleteRecurring = mainViewModel::deleteRecurring,
+                        onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
+                        onUpdateRecurringRule = mainViewModel::updateRecurringRule,
+                        onCreateCustomCategory = mainViewModel::createCustomCategory,
+                        onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
+                        onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
+                        onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
+                        onTransactionCardCustomizationSettingsChange = { updatedSettings ->
                             coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.withTransactionCardCustomizationSettings(updatedSettings)
+                                }
+                            }
+                        },
+                        onUserProfileChange = { updatedProfile ->
+                            coroutineScope.launch {
+                                UserProfileDataStore.updateUserProfile(context) {
+                                    updatedProfile
+                                }
+                            }
+                        },
+                        onDailyReminderChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(notificationsEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onBudgetLimitAlertsChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(budgetLimitAlertsEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onMissedEntryReminderChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(missedEntryReminderEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onDatabaseBackupFileSelected = { uri ->
+                            mainViewModel.backupDatabase(
+                                uri = uri,
+                                onComplete = {
+                                    showToast("Database backup saved.")
+                                },
+                                onError = {
+                                    showToast("Unable to save the database backup. Please try again.")
+                                }
+                            )
+                        },
+                        onDatabaseRestoreFileSelected = { uri ->
+                            mainViewModel.restoreDatabase(
+                                uri = uri,
+                                onComplete = {
+                                    navigationState.clearTransactionDraftContext()
+                                    showToast("Database restored. Reloading app.")
+                                    AppRestartUtils.restartApp(rawContext)
+                                },
+                                onError = {
+                                    showToast("Unable to restore the database backup. Please try again.")
+                                }
+                            )
+                        },
+                        onJsonExportFileSelected = { uri ->
+                            mainViewModel.exportJson(
+                                uri = uri,
+                                onComplete = { result ->
+                                    showToast(
+                                        "JSON exported: ${result.exportedTransactions} transactions, " +
+                                            "${result.exportedBudgets} budgets."
+                                    )
+                                },
+                                onError = {
+                                    showToast("Unable to export JSON. Please try again.")
+                                }
+                            )
+                        },
+                        onJsonImportFileSelected = { uri ->
+                            mainViewModel.importJson(
+                                uri = uri,
+                                onComplete = { result ->
+                                    showToast(result.toJsonImportMessage())
+                                },
+                                onError = {
+                                    showToast("Unable to import JSON. Check the file and try again.")
+                                }
+                            )
+                        },
+                        onLegacyImportFileSelected = { uri ->
+                            mainViewModel.importLegacyBackup(
+                                uri = uri,
+                                onComplete = { result ->
+                                    showToast(
+                                        "Imported ${result.importedTransactions} legacy transactions. " +
+                                            "Skipped ${result.skippedTransactions} existing."
+                                    )
+                                },
+                                onError = {
+                                    showToast("Legacy import failed. Check the backup file and try again.")
+                                }
+                            )
+                        },
+                        onDeleteAllTransactionsClick = {
+                            mainViewModel.deleteAllTransactions(
+                                onComplete = {
+                                    navigationState.clearTransactionDraftContext()
+                                    showToast("All transactions deleted.")
+                                },
+                                onError = {
+                                    showToast("Unable to delete transactions. Please try again.")
+                                }
+                            )
+                        },
+                        onBiometricLockChange = updateBiometricLockEnabled,
+                        onScrambledPinKeypadChange = { enabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(scrambledPinKeypadEnabled = enabled)
+                                }
+                            }
+                        },
+                        onBlurInRecentsChange = { enabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(blurInRecentsEnabled = enabled)
+                                }
+                            }
+                        },
+                        onScreenshotProtectionChange = { enabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(screenshotProtectionEnabled = enabled)
+                                }
+                            }
+                        },
+                        onAutoLockDurationChange = { minutes ->
+                            AppLockPreferences.setAutoLockDurationMinutes(context, minutes)
+                            appLockState = AppLockPreferences.getCachedState()
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(appLockTimeoutMinutes = minutes)
+                                }
+                            }
+                        },
+                        onAutoBackupEnabledChange = { enabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(isAutoBackupEnabled = enabled)
+                                }
+                            }
+                        },
+                        onAutoBackupFrequencyChange = { days ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(autoBackupFrequencyDays = days)
+                                }
+                            }
+                        },
+                        onAppLockToggleChange = { shouldEnable ->
+                            if (shouldEnable) {
+                                if (hasAppLockPin) {
+                                    coroutineScope.launch {
+                                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                            settings.copy(appLockEnabled = true)
+                                        }
+                                    }
+                                } else {
+                                    appLockFlow = AppLockFlow.Setup
+                                }
+                            } else {
+                                disableAppLock(false)
+                            }
+                        },
+                        onPrepareForExternalActivity = { isAppLockSuppressed = true }
+                    )
+                }
+
+                if (appLockFlow != null) {
+                    AppLockOverlay(
+                        isReady = isReady,
+                        appSettings = appSettings,
+                        initialFlow = appLockFlow!!,
+                        isAppUnlocked = true, // MainScreen only exists in Unlocked state
+                        biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
+                        scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
+                        isBiometricAvailable = biometricAvailability.isAvailable,
+                        securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
+                            appLockState.securityQuestionId
+                        ).orEmpty(),
+                        onBackClick = { appLockFlow = null },
+                        autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
+                        onBiometricClick = unlockWithBiometric,
+                        onSetupComplete = { pin, questionId, answer ->
+                            // 1. Dismiss UI immediately
+                            completeUnlock()
+
+                            // 2. Background heavy work
+                            coroutineScope.launch(Dispatchers.Default) {
+                                AppLockPreferences.savePin(context, pin)
+                                AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
+                                appLockState = AppLockPreferences.getCachedState()
+
                                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                                     settings.copy(appLockEnabled = true)
                                 }
                             }
-                        } else {
-                            appLockFlow = AppLockFlow.Setup
+                        },
+                        onUnlockSuccess = completeUnlock,
+                        validateUnlockPin = { pin ->
+                            AppLockPreferences.validatePinForUnlock(context, pin).also {
+                                appLockState = AppLockPreferences.getCachedState()
+                            }
+                        },
+                        onForgotPinRecovery = {
+                            disableAppLock(true)
+                        },
+                        validateSecurityAnswer = { answer ->
+                            AppLockPreferences.validateSecurityAnswer(context, answer)
                         }
-                    } else {
-                        disableAppLock(false)
-                    }
-                },
-                onPrepareForExternalActivity = { isAppLockSuppressed = true }
-            )
-        }
-
-        if (appLockFlow != null) {
-            AppLockOverlay(
-                isReady = isReady,
-                appSettings = appSettings,
-                initialFlow = appLockFlow!!,
-                isAppUnlocked = true, // MainScreen only exists in Unlocked state
-                biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
-                scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
-                isBiometricAvailable = biometricAvailability.isAvailable,
-                securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                    appLockState.securityQuestionId
-                ).orEmpty(),
-                onBackClick = { appLockFlow = null },
-                autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
-                onBiometricClick = unlockWithBiometric,
-                onSetupComplete = { pin, questionId, answer ->
-                    // 1. Dismiss UI immediately
-                    completeUnlock()
-
-                    // 2. Background heavy work
-                    coroutineScope.launch(Dispatchers.Default) {
-                        AppLockPreferences.savePin(context, pin)
-                        AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                        appLockState = AppLockPreferences.getCachedState()
-
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(appLockEnabled = true)
-                        }
-                    }
-                },
-                onUnlockSuccess = completeUnlock,
-                validateUnlockPin = { pin ->
-                    AppLockPreferences.validatePinForUnlock(context, pin).also {
-                        appLockState = AppLockPreferences.getCachedState()
-                    }
-                },
-                onForgotPinRecovery = {
-                    disableAppLock(true)
-                },
-                validateSecurityAnswer = { answer ->
-                    AppLockPreferences.validateSecurityAnswer(context, answer)
+                    )
                 }
-            )
+            }
         }
     }
 }
