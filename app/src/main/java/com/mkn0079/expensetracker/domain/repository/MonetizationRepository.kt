@@ -16,7 +16,7 @@ interface MonetizationRepository {
     suspend fun grantTemporaryAccess(feature: Feature, optionId: String? = null, durationMillis: Long)
 
     /**
-     * Grants permanent premium access (simulates a purchase).
+     * Simulates premium access for testing.
      */
     suspend fun becomePremium()
 }

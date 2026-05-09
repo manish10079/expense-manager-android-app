@@ -185,19 +185,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // 1. Main App Content (Always present if ready, but can be covered)
-                    if (isReady && appSettings != null) {
-                        MainScreen(
-                            isReady = true,
-                            appSettings = appSettings!!,
-                            userProfile = userProfile,
-                            initialNavDestination = initialNavDestination,
-                            isRecoveryPerformed = recoveryPerformed,
-                            onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
-                        )
-                    }
-
-                    // 2. Decide what to show based on Lock State (Overlay Layer)
                     if (isReady && appSettings != null) {
                         val settings = appSettings!!
                         AnimatedContent(
@@ -206,16 +193,16 @@ class MainActivity : AppCompatActivity() {
                                 if (targetState is AppLockState.Unlocked) {
                                     // Unlock transition: Scale and Fade (Premium Feel)
                                     (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
-                                            scaleIn(
-                                                initialScale = 0.92f,
-                                                animationSpec = tween(500, easing = LinearOutSlowInEasing)
-                                            ))
+                                        scaleIn(
+                                            initialScale = 0.92f,
+                                            animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                                        ))
                                         .togetherWith(
                                             fadeOut(animationSpec = tween(400)) +
-                                                    scaleOut(
-                                                        targetScale = 1.08f,
-                                                        animationSpec = tween(400)
-                                                    )
+                                                scaleOut(
+                                                    targetScale = 1.08f,
+                                                    animationSpec = tween(400)
+                                                )
                                         )
                                 } else {
                                     // Default transitions (Locking or Loading)
@@ -238,7 +225,6 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 is AppLockState.Locked -> {
-                                    // 3. App Lock Screen (Blocks Main Content)
                                     val biometricAuthenticator = remember(activity) {
                                         activity?.let(BiometricAuthManager::createAuthenticator)
                                     }
@@ -246,7 +232,6 @@ class MainActivity : AppCompatActivity() {
                                     AppLockOverlay(
                                         isReady = true,
                                         appSettings = settings,
-                                        onDismiss = {},
                                         onUnlockSuccess = { appLockViewModel.unlock() },
                                         autoTriggerBiometricOnShow = true,
                                         onBiometricClick = {
@@ -262,14 +247,20 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 is AppLockState.Unlocked -> {
-                                    // Unlocked: Overlay is gone
-                                    Box(modifier = Modifier.fillMaxSize())
+                                    MainScreen(
+                                        isReady = true,
+                                        appSettings = settings,
+                                        userProfile = userProfile,
+                                        initialNavDestination = initialNavDestination,
+                                        isRecoveryPerformed = recoveryPerformed,
+                                        onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
+                                    )
                                 }
                             }
                         }
                     }
 
-                    // 3. Splash Screen (Absolute priority during boot, stays on top of everything)
+                    // Splash Screen stays on top until boot work is complete.
                     if (!isReady) {
                         SplashOverlay(viewModel = splashViewModel)
                     }

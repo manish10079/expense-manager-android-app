@@ -3,7 +3,6 @@ package com.mkn0079.expensetracker.data.repository
 import android.content.Context
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
-import com.mkn0079.expensetracker.models.UserTier
 import com.mkn0079.expensetracker.monetization.AccessLevel
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.AdAccessStore
@@ -20,6 +19,9 @@ import javax.inject.Singleton
 class MonetizationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : MonetizationRepository {
+    private companion object {
+        const val TEST_PREMIUM_DURATION_MILLIS = 2 * 60 * 60 * 1000L
+    }
 
     override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> {
         val featureKey = getFeatureKey(feature, optionId)
@@ -28,12 +30,14 @@ class MonetizationRepositoryImpl @Inject constructor(
             AppSettingsDataStore.getAppSettingsFlow(context),
             AdAccessStore.unlockedFeatures
         ) { settings, temporaryUnlocks ->
-            val tier = settings.userTier
+            if (AdAccessStore.hasFullAccess(temporaryUnlocks)) {
+                return@combine AccessStatus.Granted
+            }
+
+            if (settings.userTier.name == "PREMIUM") {
+                return@combine AccessStatus.Granted
+            }
             
-            // 1. Premium users have full access
-            if (tier == UserTier.PREMIUM) return@combine AccessStatus.Granted
-            
-            // 2. Check registry for level
             val requiredLevel = FeatureRegistry.getAccessLevel(feature, optionId)
             
             when (requiredLevel) {
@@ -57,8 +61,9 @@ class MonetizationRepositoryImpl @Inject constructor(
 
     override suspend fun becomePremium() {
         AppSettingsDataStore.updateAppSettings(context) { settings ->
-            settings.copy(userTier = UserTier.PREMIUM)
+            settings.copy(userTier = com.mkn0079.expensetracker.models.UserTier.FREE)
         }
+        AdAccessStore.grantFullAccess(TEST_PREMIUM_DURATION_MILLIS)
     }
 
     private fun getFeatureKey(feature: Feature, optionId: String?): String {

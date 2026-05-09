@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
  * Features in this store have an expiration time.
  */
 object AdAccessStore {
+    private const val FULL_PREMIUM_ACCESS_KEY = "__full_premium_access__"
     
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     
@@ -49,6 +50,22 @@ object AdAccessStore {
         val expiry = System.currentTimeMillis() + durationMillis
         
         _unlockedFeatures.update { it + (key to expiry) }
+    }
+
+    /**
+     * Grants temporary full-access unlock across all gated features.
+     */
+    fun grantFullAccess(durationMillis: Long) {
+        val expiry = System.currentTimeMillis() + durationMillis
+        _unlockedFeatures.update { it + (FULL_PREMIUM_ACCESS_KEY to expiry) }
+    }
+
+    /**
+     * Checks whether the app currently has a temporary full-access unlock.
+     */
+    fun hasFullAccess(unlocks: Map<String, Long> = _unlockedFeatures.value): Boolean {
+        val expiry = unlocks[FULL_PREMIUM_ACCESS_KEY] ?: return false
+        return expiry > System.currentTimeMillis()
     }
 
     /**

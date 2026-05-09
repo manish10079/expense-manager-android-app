@@ -89,6 +89,7 @@ object FeatureRegistry {
             "showIncomeExpenseLabels" to AccessLevel.FREE,
             "showTransactionDate" to AccessLevel.FREE,
             "showCategoryIcon" to AccessLevel.FREE,
+            "showCategoryLabel" to AccessLevel.AD_SUPPORTED,
             "showTransactionTime" to AccessLevel.AD_SUPPORTED,
             "showPaymentMethod" to AccessLevel.PREMIUM,
             "showDateSeparators" to AccessLevel.PREMIUM

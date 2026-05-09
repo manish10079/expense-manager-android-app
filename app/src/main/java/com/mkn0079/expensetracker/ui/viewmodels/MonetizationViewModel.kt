@@ -25,7 +25,7 @@ class MonetizationViewModel @Inject constructor(
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
 
     /**
-     * Simulates a purchase and grants permanent pro access.
+     * Simulates a purchase and grants full access for a limited test window.
      */
     fun onPurchaseSimulated() {
         viewModelScope.launch {

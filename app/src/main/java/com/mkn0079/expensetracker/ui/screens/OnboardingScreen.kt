@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -84,25 +84,25 @@ private data class OnboardingPage(
 private val onboardingPages = listOf(
     OnboardingPage(
         title = "Track Expenses\nEasily",
-        description = "Log your daily spending in seconds with our intuitive, high-speed interface.",
+        description = "Log your daily spending in seconds with an optimized keypad and smart category ranking.",
         actionLabel = "Next",
         illustration = { ExpenseCardIllustration() }
     ),
     OnboardingPage(
         title = "Secure & Private",
-        description = "Your financial data is encrypted and protected by bank-grade biometric security.",
+        description = "Your financial data is stored locally and protected by biometric security.",
         actionLabel = "Next",
         illustration = { SecureTrackerIllustration() }
     ),
     OnboardingPage(
         title = "Visual Analytics",
-        description = "Gain deep insights into your financial habits with high-fidelity charts and automated reports.",
+        description = "Visualize your spending habits with interactive charts and detailed category breakdowns.",
         actionLabel = "Next",
         illustration = { AnalyticsIllustration() }
     ),
     OnboardingPage(
         title = "Premium by Design,\nPrivate by Nature",
-        description = "Every feature unlocked. No paywalls, no subscriptions. Fully offline, your data never leaves your device.",
+        description = "Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.",
         actionLabel = "Get Started",
         accentedText = "Private by Nature",
         titleFontSize = 34.sp,
@@ -133,10 +133,6 @@ fun OnboardingScreen(
                 .navigationBarsPadding()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 16.dp)
         ) {
-            BrandBar()
-
-            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,34 +253,6 @@ private fun BoxScope.AmbientBackdrop() {
                 )
             )
     )
-}
-
-@Composable
-private fun BrandBar(
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Lock,
-            contentDescription = "Expense Tracker",
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(30.dp)
-        )
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = "EXPENSE TRACKER",
-            color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 0.5.sp,
-                fontSize = 21.sp
-            )
-        )
-    }
 }
 
 @Composable
@@ -503,7 +471,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "PRIVATE MEMBER",
+                text = "SECURE LOGGING",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.titleMedium.copy(
                     letterSpacing = 2.2.sp,
@@ -844,7 +812,7 @@ private fun PremiumBenefitCards() {
             icon = Icons.Filled.CheckCircle,
             iconTint = MaterialTheme.colorScheme.tertiary,
             title = "ACCESS",
-            value = "Lifetime Pro"
+            value = "Full Control"
         )
     }
 }
