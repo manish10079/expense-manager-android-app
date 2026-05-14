@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker</string>
+
+    <string name="app_name">Expense Tracker: Budget &amp; Spend</string>
 
     <!-- General -->
     <string name="msg_a_security_update_is_required">A security update is required before biometric unlock can be used.</string>
@@ -36,7 +37,7 @@
     <string name="title_block_screenshots">Block Screenshots</string>
     <string name="title_lock_as_soon_as_the_app_moves">Lock as soon as the app moves to the background.</string>
     <string name="title_require_the_pin_again_after_va">Require the PIN again after %1$s minutes away from the app.</string>
-    <string name="title_unlock_expense_tracker">Unlock Expense Tracker</string>
+    <string name="title_unlock_expense_tracker">Unlock Budget &amp; Spend</string>
     <string name="title_verify_biometric_to_enable_bio">Verify biometric to enable biometric lock.</string>
     <string name="title_verify_your_biometric_to_conti">Verify your biometric to continue.</string>
     <string name="toast_biometric_authentication_is_un">Biometric authentication is unavailable on this screen.</string>
@@ -47,7 +48,7 @@
     <string name="desc_add_transaction">Add transaction</string>
     <string name="desc_confirm_val_transaction">Confirm %1$s transaction</string>
     <string name="desc_delete_transaction">Delete transaction</string>
-    <string name="desc_expense_tracker_logo">Expense Tracker logo</string>
+    <string name="desc_expense_tracker_logo">Budget &amp; Spend logo</string>
     <string name="desc_search_transactions">Search transactions</string>
     <string name="desc_todays_spending">Today\'s spending</string>
     <string name="dialog_budget_limit_alerts">Budget Limit Alerts</string>
@@ -67,8 +68,8 @@
     <string name="label_enter_amount">ENTER AMOUNT</string>
     <string name="label_expense">EXPENSE</string>
     <string name="label_expense_category">Expense category</string>
-    <string name="label_expense_tracker">Expense Tracker</string>
-    <string name="label_expense_tracker_1">EXPENSE TRACKER</string>
+    <string name="label_expense_tracker">Budget &amp; Spend</string>
+    <string name="label_expense_tracker_1">BUDGET &amp; SPEND</string>
     <string name="label_how_many_times_this_recurring">How many times this recurring transaction should repeat.</string>
     <string name="label_income">INCOME</string>
     <string name="label_monthly_budget">MONTHLY BUDGET</string>
@@ -86,8 +87,8 @@
     <string name="label_this_removes_only_transactions">This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.</string>
     <string name="label_todays_spending">Today\'s Spending</string>
     <string name="label_top_spending">Top Spending</string>
-    <string name="label_top_spending_byncategory">Top Spending by\nCategory</string>
-    <string name="label_top_spending_bynpayment_mode">Top Spending by\nPayment Mode</string>
+    <string name="label_top_spending_by_category">Top Spending by\nCategory</string>
+    <string name="label_top_spending_by_payment_mode">Top Spending by\nPayment Mode</string>
     <string name="label_total_amount">TOTAL AMOUNT</string>
     <string name="label_total_expenses">TOTAL EXPENSES</string>
     <string name="label_total_income">TOTAL INCOME</string>
@@ -366,4 +367,30 @@
     <string name="title_time_format">Time Format</string>
     <string name="title_toggle_visibility_of_transacti">Toggle visibility of transaction tags</string>
     <string name="title_visual_analytics">Visual Analytics</string>
+    <!-- Analytics -->
+    <string name="title_yearly_analytics">Yearly Analytics</string>
+    <string name="title_full_category_breakdown">Full Category Breakdown</string>
+    <string name="title_full_payment_breakdown">Full Payment Breakdown</string>
+    <string name="title_payment_mode_breakdown">Payment Mode Breakdown</string>
+    <string name="title_top_spending_details">Top Spending Details</string>
+    <string name="title_spending_insights">Spending Insights</string>
+    <string name="label_both">Both</string>
+    <string name="label_total_spent">TOTAL SPENT</string>
+    <string name="label_net_balance">NET BALANCE</string>
+    <string name="label_unlock_breakdown">Unlock Breakdown</string>
+    <string name="label_unlock_top_spending">Unlock Top Spending</string>
+    <string name="label_unlock_insights">Unlock Insights</string>
+    <string name="label_val_transactions">%1$s Transactions</string>
+    <string name="label_no_transactions_found_in_this">No transactions found in this range.</string>
+    <string name="label_top_val">Top: %1$s</string>
+    <string name="desc_show_transactions">Show transactions</string>
+    <string name="label_unknown">Unknown</string>
+    <string name="label_other">Other</string>
+    <string name="label_not_available">N/A</string>
+    <string name="format_percentage">%1$s%%</string>
+    <string name="format_thousands">%1$.1fk</string>
+    <string name="format_millions">%1$.1fM</string>
+    <string name="separator_bullet">•</string>
+    <string name="format_ellipsis">%1$s…</string>
+    <string name="label_zero">0</string>
 </resources>

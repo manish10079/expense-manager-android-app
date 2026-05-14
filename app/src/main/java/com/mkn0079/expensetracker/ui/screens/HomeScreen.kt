@@ -47,6 +47,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -188,7 +190,7 @@ private fun HomeScreenContent(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Hi, ${uiState.greetingName} 👋",
+                            text = stringResource(id = R.string.label_hi_val, uiState.greetingName),
                             color = MaterialTheme.colorScheme.onBackground,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -200,7 +202,7 @@ private fun HomeScreenContent(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "Track every move with confidence.",
+                            text = stringResource(id = R.string.label_track_every_move_with_confiden),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -238,7 +240,7 @@ private fun HomeScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Recent Activity",
+                    text = stringResource(id = R.string.label_recent_activity),
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
@@ -252,7 +254,7 @@ private fun HomeScreenContent(
                 val scope = rememberCoroutineScope()
 
                 Text(
-                    text = "VIEW ALL",
+                    text = stringResource(id = R.string.label_view_all),
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
@@ -335,7 +337,7 @@ fun SettingsButton(onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.Outlined.Settings,
-            contentDescription = "Settings",
+            contentDescription = stringResource(id = R.string.desc_settings),
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(30.dp)
         )

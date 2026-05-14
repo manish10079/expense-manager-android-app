@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -98,7 +99,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.splash_logo),
-                    contentDescription = "Expense Tracker logo",
+                    contentDescription = stringResource(id = R.string.desc_expense_tracker_logo),
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -106,7 +107,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             Spacer(modifier = Modifier.height(28.dp))
 
             Text(
-                text = "Expense Tracker",
+                text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 32.sp
@@ -118,7 +119,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "App is starting, please wait...",
+                text = stringResource(id = R.string.label_app_is_starting_please_wait),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium

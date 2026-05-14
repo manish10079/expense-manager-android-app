@@ -28,7 +28,7 @@ fun WavyLoadingBar(
     activeColor: Color,
     inactiveColor: Color,
     showInactiveTrack: Boolean = false,
-    waveHeight: Dp = 11.5.dp,
+    waveHeight: Dp = 5.5.dp,
     waveLength: Dp = 30.dp,
     strokeWidth: Dp = 4.dp,
     animationDurationMillis: Int = 900

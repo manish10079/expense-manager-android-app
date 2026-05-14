@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,10 +79,10 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 
-enum class HeroDisplayMode(val label: String) {
-    EXPENSE("Expense"),
-    INCOME("Income"),
-    BOTH("Both")
+enum class HeroDisplayMode(val labelRes: Int) {
+    EXPENSE(R.string.label_expense),
+    INCOME(R.string.label_income),
+    BOTH(R.string.label_both)
 }
 
 @Composable
@@ -139,7 +141,7 @@ fun AnalyticsScreen(
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
         ) {
-            AppHeader(title = "Analytics", onBackClick = onBackClick)
+            AppHeader(title = stringResource(id = R.string.title_analytics), onBackClick = onBackClick)
         }
 
         LazyColumn(
@@ -153,7 +155,7 @@ fun AnalyticsScreen(
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_PERIOD_YEAR,
-                    displayName = "Yearly Analytics",
+                    displayName = stringResource(id = R.string.title_yearly_analytics),
                     onAction = { analyticsViewModel.selectPeriod(AnalyticsPeriod.YEAR) }
                 ) { status, onLockedClick ->
                     val isYearLocked = status !is AccessStatus.Granted
@@ -196,7 +198,7 @@ fun AnalyticsScreen(
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
-                    displayName = "Category Breakdown",
+                    displayName = stringResource(id = R.string.title_full_category_breakdown),
                     onAction = {}
                 ) { status, onClick ->
                     val isLocked = status !is AccessStatus.Granted
@@ -214,7 +216,7 @@ fun AnalyticsScreen(
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
-                                displayText = "Unlock Breakdown",
+                                displayText = stringResource(id = R.string.label_unlock_breakdown),
                                 onClick = onClick
                             )
                         }
@@ -224,7 +226,7 @@ fun AnalyticsScreen(
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
-                    displayName = "Payment Mode Breakdown",
+                    displayName = stringResource(id = R.string.title_payment_mode_breakdown),
                     onAction = {}
                 ) { status, onClick ->
                     val isLocked = status !is AccessStatus.Granted
@@ -242,7 +244,7 @@ fun AnalyticsScreen(
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
-                                displayText = "Unlock Breakdown",
+                                displayText = stringResource(id = R.string.label_unlock_breakdown),
                                 onClick = onClick
                             )
                         }
@@ -252,7 +254,7 @@ fun AnalyticsScreen(
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_TOP_SPENDING,
-                    displayName = "Top Spending Details",
+                    displayName = stringResource(id = R.string.title_top_spending_details),
                     onAction = {}
                 ) { status, onClick ->
                     Box {
@@ -265,7 +267,7 @@ fun AnalyticsScreen(
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
-                                displayText = "Unlock Top Spending",
+                                displayText = stringResource(id = R.string.label_unlock_top_spending),
                                 onClick = onClick
                             )
                         }
@@ -275,7 +277,7 @@ fun AnalyticsScreen(
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_SMART_TIPS,
-                    displayName = "Spending Insights",
+                    displayName = stringResource(id = R.string.title_spending_insights),
                     onAction = {}
                 ) { status, onClick ->
                     Box {
@@ -286,7 +288,7 @@ fun AnalyticsScreen(
                         )
                         if (isLocked) {
                             PremiumLockedOverlay(
-                                displayText = "Unlock Insights",
+                                displayText = stringResource(id = R.string.label_unlock_insights),
                                 icon = Icons.Filled.AutoAwesome,
                                 onClick = onClick
                             )
@@ -316,7 +318,7 @@ fun AnalyticsScreen(
     if (isCategorySheetVisible) {
         GatedAction(
             feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
-            displayName = "Full Category Breakdown",
+            displayName = stringResource(id = R.string.title_full_category_breakdown),
             onAction = { isCategorySheetVisible = true }
         ) { status, onClick ->
             if (status is AccessStatus.Granted) {
@@ -342,7 +344,7 @@ fun AnalyticsScreen(
     if (isPaymentSheetVisible) {
         GatedAction(
             feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
-            displayName = "Full Payment Breakdown",
+            displayName = stringResource(id = R.string.title_full_payment_breakdown),
             onAction = { isPaymentSheetVisible = true }
         ) { status, onClick ->
             if (status is AccessStatus.Granted) {
@@ -426,7 +428,7 @@ private fun CustomRangeSelector(
         ) {
             GatedAction(
                 feature = Feature.ANALYTICS_CUSTOM_RANGE,
-                displayName = "Custom Range Analytics",
+                displayName = stringResource(id = R.string.desc_custom_range),
                 onAction = onClick
             ) { status, gatedOnClick ->
                 val isLocked = status !is AccessStatus.Granted
@@ -440,19 +442,19 @@ private fun CustomRangeSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DateRange,
-                        contentDescription = "Custom range",
+                        contentDescription = stringResource(id = R.string.desc_custom_range),
                         tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = customRange?.let { formatCustomRangeLabel(it) } ?: "Custom Range",
+                        text = customRange?.let { formatCustomRangeLabel(it) } ?: stringResource(id = R.string.desc_custom_range),
                         color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
                     if (isLocked) {
                         Icon(
                             imageVector = Icons.Filled.Lock,
-                            contentDescription = "Locked",
+                            contentDescription = stringResource(id = R.string.desc_locked),
                             tint = MaterialTheme.colorScheme.featureGateLock,
                             modifier = Modifier.size(12.dp)
                         )
@@ -463,7 +465,7 @@ private fun CustomRangeSelector(
 
         if (selectedPeriod == AnalyticsPeriod.CUSTOM && customRange != null) {
             Text(
-                text = "Clear",
+                text = stringResource(id = R.string.label_clear),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.clickable(onClick = onClear)
@@ -479,9 +481,9 @@ private fun HeroAnalyticsSection(
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
     val title = when (displayMode) {
-        HeroDisplayMode.EXPENSE -> "TOTAL SPENT"
-        HeroDisplayMode.INCOME -> "TOTAL INCOME"
-        HeroDisplayMode.BOTH -> "NET BALANCE"
+        HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spent)
+        HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
+        HeroDisplayMode.BOTH -> stringResource(id = R.string.label_net_balance)
     }
     
     val amount = when (displayMode) {
@@ -505,7 +507,7 @@ private fun HeroAnalyticsSection(
                 )
             )
             AnimatedTabSwitcher(
-                items = HeroDisplayMode.entries.map { TabItem(it, it.label) },
+                items = HeroDisplayMode.entries.map { TabItem(it, stringResource(id = it.labelRes)) },
                 selectedItemId = displayMode,
                 onItemSelected = onDisplayModeChange,
                 modifier = Modifier.width(180.dp),
@@ -588,7 +590,7 @@ private fun AnalyticsLineChart(
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 Text(
-                    text = "0",
+                    text = stringResource(id = R.string.label_zero),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(bottom = 28.dp)
@@ -745,20 +747,21 @@ private fun AnalyticsLineChart(
             ) {
                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(expenseColor))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Expense", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(id = R.string.label_expense), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.width(20.dp))
                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(incomeColor))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Income", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(id = R.string.label_income), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
 }
 
+@Composable
 private fun formatYAxisAmount(amount: Float): String {
     return when {
-        amount >= 1_000_000f -> String.format(java.util.Locale.US, "%.1fM", amount / 1_000_000f)
-        amount >= 1_000f -> String.format(java.util.Locale.US, "%.1fk", amount / 1_000f)
+        amount >= 1_000_000f -> stringResource(id = R.string.format_millions, amount / 1_000_000f)
+        amount >= 1_000f -> stringResource(id = R.string.format_thousands, amount / 1_000f)
         else -> amount.toInt().toString()
     }
 }
@@ -771,7 +774,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
     ) {
         InsightStatCard(
             modifier = Modifier.weight(1f),
-            title = "AVG DAILY",
+            title = stringResource(id = R.string.title_avg_daily),
             value = snapshot.avgDailyDisplay,
             delta = snapshot.dailyDeltaDisplay,
             deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
@@ -781,7 +784,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
         )
         InsightStatCard(
             modifier = Modifier.weight(1f),
-            title = "SAVINGS",
+            title = stringResource(id = R.string.title_savings),
             value = snapshot.savingsDisplay,
             delta = snapshot.savingsDeltaDisplay,
             deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
@@ -875,7 +878,7 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Cash Flow Ratio",
+                    text = stringResource(id = R.string.label_cash_flow_ratio),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
@@ -883,8 +886,8 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                     )
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    LegendDot("INCOME", MaterialTheme.colorScheme.income)
-                    LegendDot("EXPENSE", MaterialTheme.colorScheme.expense)
+                    LegendDot(stringResource(id = R.string.label_income).uppercase(), MaterialTheme.colorScheme.income)
+                    LegendDot(stringResource(id = R.string.label_expense).uppercase(), MaterialTheme.colorScheme.expense)
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -988,7 +991,7 @@ private fun CategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Top Spending \nby Category",
+                    text = stringResource(id = R.string.label_top_spending_by_category),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -1000,7 +1003,7 @@ private fun CategoryCard(
                 )
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
                     Text(
-                        text = "VIEW ALL",
+                        text = stringResource(id = R.string.label_view_all),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -1015,7 +1018,7 @@ private fun CategoryCard(
             Spacer(modifier = Modifier.height(20.dp))
             if (snapshot.categoryBreakdown.isEmpty()) {
                 Text(
-                    text = "No category spending found in this range.",
+                    text = stringResource(id = R.string.label_no_category_spending_found_in),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -1051,13 +1054,13 @@ private fun CategoryCard(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "${category.percentLabel}%",
+                                    text = stringResource(id = R.string.format_percentage, category.percentLabel),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                                 )
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
-                                    contentDescription = "Show Transactions",
+                                    contentDescription = stringResource(id = R.string.desc_show_transactions),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
                                         .size(20.dp)
@@ -1091,7 +1094,7 @@ private fun CategoryBreakdownBottomSheet(
                 .padding(horizontal = 22.dp, vertical = 10.dp)
         ) {
             Text(
-                text = "All Categories",
+                text = stringResource(id = R.string.label_all_categories),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
@@ -1099,7 +1102,7 @@ private fun CategoryBreakdownBottomSheet(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Ranked by spending for the selected analytics range.",
+                text = stringResource(id = R.string.label_ranked_by_spending_for_the_sel),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -1107,7 +1110,7 @@ private fun CategoryBreakdownBottomSheet(
 
             if (categories.isEmpty()) {
                 Text(
-                    text = "No category spending found in this range.",
+                    text = stringResource(id = R.string.label_no_category_spending_found_in),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
@@ -1191,7 +1194,7 @@ private fun CategoryBreakdownRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "${category.percentLabel}%",
+                        text = stringResource(id = R.string.format_percentage, category.percentLabel),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
@@ -1199,7 +1202,7 @@ private fun CategoryBreakdownRow(
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = "Show Transactions",
+                        contentDescription = stringResource(id = R.string.desc_show_transactions),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(24.dp)
@@ -1268,7 +1271,7 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Top: ${breakdown.firstOrNull()?.label ?: "N/A"}",
+                text = stringResource(id = R.string.label_top_val, (breakdown.firstOrNull()?.label ?: stringResource(id = R.string.label_not_available))),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
@@ -1300,13 +1303,13 @@ private fun TopSpendingCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Top Spending",
+                    text = stringResource(id = R.string.label_top_spending),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 if (topTransactions.isNotEmpty()) {
                     Text(
-                        text = "VIEW ALL",
+                        text = stringResource(id = R.string.label_view_all),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -1319,7 +1322,7 @@ private fun TopSpendingCard(
             Spacer(modifier = Modifier.height(18.dp))
             if (topTransactions.isEmpty()) {
                 Text(
-                    text = "No spending transactions in the selected range.",
+                    text = stringResource(id = R.string.label_no_spending_transactions_in_th),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -1339,7 +1342,11 @@ private fun TopSpendingRow(
     transaction: TopSpendingItemUi,
     dateFormatPattern: String
 ) {
-    val truncatedNote = transaction.note.truncateWithEllipsis(maxCharacters = 10)
+    val truncatedNote = if (transaction.note.length > 10) {
+        stringResource(id = R.string.format_ellipsis, transaction.note.take(10))
+    } else {
+        transaction.note
+    }
 
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -1372,7 +1379,7 @@ private fun TopSpendingRow(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "•",
+                    text = stringResource(id = R.string.separator_bullet),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -1390,11 +1397,6 @@ private fun TopSpendingRow(
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
         )
     }
-}
-
-private fun String.truncateWithEllipsis(maxCharacters: Int): String {
-    if (length <= maxCharacters) return this
-    return take(maxCharacters) + "..."
 }
 
 @Composable
@@ -1422,13 +1424,13 @@ private fun SmartTipCard(
             ) {
                 Icon(
                     imageVector = Icons.Filled.AutoAwesome,
-                    contentDescription = "AI Tip",
+                    contentDescription = stringResource(id = R.string.desc_ai_tip),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Smart AI Tip",
+                    text = stringResource(id = R.string.label_smart_ai_tip),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
@@ -1492,7 +1494,7 @@ private fun PaymentTypeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Top Spending by \nPayment Mode",
+                    text = stringResource(id = R.string.label_top_spending_by_payment_mode),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -1504,7 +1506,7 @@ private fun PaymentTypeCard(
                 )
                 if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
                     Text(
-                        text = "VIEW ALL",
+                        text = stringResource(id = R.string.label_view_all),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -1519,7 +1521,7 @@ private fun PaymentTypeCard(
             Spacer(modifier = Modifier.height(20.dp))
             if (snapshot.paymentTypeBreakdown.isEmpty()) {
                 Text(
-                    text = "No payment data found in this range.",
+                    text = stringResource(id = R.string.label_no_payment_data_found_in_this),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -1561,13 +1563,13 @@ private fun PaymentTypeCard(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "${item.percentLabel}%",
+                                    text = stringResource(id = R.string.format_percentage, item.percentLabel),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                                 )
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
-                                    contentDescription = "Show Transactions",
+                                    contentDescription = stringResource(id = R.string.desc_show_transactions),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
                                         .size(20.dp)
@@ -1619,7 +1621,7 @@ private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier:
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = breakdown.firstOrNull()?.label ?: "N/A",
+                text = breakdown.firstOrNull()?.label ?: stringResource(id = R.string.label_not_available),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
@@ -1651,7 +1653,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             }
             
             Text(
-                text = "Spending by Payment Mode",
+                text = stringResource(id = R.string.label_spending_by_payment_mode),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
@@ -1659,7 +1661,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Breakdown of expenses based on the wallet or payment method used.",
+                text = stringResource(id = R.string.label_breakdown_of_expenses_based_on),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -1667,7 +1669,7 @@ private fun PaymentTypeBreakdownBottomSheet(
 
             if (filteredCategories.isEmpty()) {
                 Text(
-                    text = "No payment data found in this range.",
+                    text = stringResource(id = R.string.label_no_payment_data_found_in_this),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
@@ -1751,7 +1753,7 @@ private fun PaymentBreakdownRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "${item.percentLabel}%",
+                        text = stringResource(id = R.string.format_percentage, item.percentLabel),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
@@ -1759,7 +1761,7 @@ private fun PaymentBreakdownRow(
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = "Show Transactions",
+                        contentDescription = stringResource(id = R.string.desc_show_transactions),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(24.dp)
@@ -1821,7 +1823,7 @@ private fun FilteredTransactionsBottomSheet(
                 .padding(horizontal = 22.dp, vertical = 10.dp)
         ) {
             Text(
-                text = "$label Transactions",
+                text = stringResource(id = R.string.label_val_transactions, label),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
@@ -1831,7 +1833,7 @@ private fun FilteredTransactionsBottomSheet(
 
             if (transactions.isEmpty()) {
                 Text(
-                    text = "No transactions found in this range.",
+                    text = stringResource(id = R.string.label_no_transactions_found_in_this),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
@@ -1853,8 +1855,8 @@ private fun FilteredTransactionsBottomSheet(
                             amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                             transactionTypeId = transaction.transactionTypeId,
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
-                            paymentType = payment?.name ?: "Unknown",
-                            categoryLabel = category?.name ?: "Other"
+                            paymentType = payment?.name ?: stringResource(id = R.string.label_unknown),
+                            categoryLabel = category?.name ?: stringResource(id = R.string.label_other)
                         )
                     }
                 }
@@ -1931,7 +1933,7 @@ private fun TopSpendingBottomSheet(
                 .padding(horizontal = 22.dp, vertical = 10.dp)
         ) {
             Text(
-                text = "Top Spending",
+                text = stringResource(id = R.string.label_top_spending),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold
@@ -1939,7 +1941,7 @@ private fun TopSpendingBottomSheet(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Your highest expenses in the selected period.",
+                text = stringResource(id = R.string.label_your_highest_expenses_in_the_s),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -1947,7 +1949,7 @@ private fun TopSpendingBottomSheet(
 
             if (transactions.isEmpty()) {
                 Text(
-                    text = "No spending data found.",
+                    text = stringResource(id = R.string.label_no_spending_data_found),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 24.dp)
