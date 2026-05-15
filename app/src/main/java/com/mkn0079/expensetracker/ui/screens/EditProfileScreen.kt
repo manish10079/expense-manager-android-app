@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.models.avatarInitials
@@ -48,8 +50,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
-private const val GenderPlaceholder = "Select Gender"
-private val genderOptions = listOf("Male", "Female", "Non-binary", "Prefer not to say")
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,25 +64,42 @@ fun ProfileScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val initialPhotoUri = userProfile.photoUri
+    val selectGenderPlaceholder = stringResource(id = R.string.placeholder_select_gender)
+    val guestUserPlaceholder = stringResource(id = R.string.placeholder_guest_user)
+    val unableToLoadMsg = stringResource(id = R.string.msg_unable_to_load_photo)
     var fullName by rememberSaveable(userProfile) { mutableStateOf(userProfile.fullName) }
     var emailAddress by rememberSaveable(userProfile) { mutableStateOf(userProfile.emailAddress) }
     var phoneNumber by rememberSaveable(userProfile) { mutableStateOf(userProfile.phoneNumber) }
     var dateOfBirthMillis by rememberSaveable(userProfile) { mutableStateOf(userProfile.dateOfBirthMillis) }
     var gender by rememberSaveable(userProfile) {
-        mutableStateOf(userProfile.gender.takeUnless { it == GenderPlaceholder }.orEmpty())
+        mutableStateOf(userProfile.gender.takeUnless { it == "Select Gender" }.orEmpty())
     }
     var photoUri by rememberSaveable(userProfile) { mutableStateOf(userProfile.photoUri) }
     var isGenderPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
     var isPhotoProcessing by remember { mutableStateOf(false) }
 
-    val genderItems = remember {
-        genderOptions.map { option ->
-            SelectionItem(
-                id = option,
-                title = option,
-                leadingIcon = genderToIcon(option)
-            )
+    val maleLabel = stringResource(id = R.string.label_male)
+    val femaleLabel = stringResource(id = R.string.label_female)
+    val nonBinaryLabel = stringResource(id = R.string.label_non_binary)
+    val preferNotToSayLabel = stringResource(id = R.string.label_prefer_not_to_say)
+
+    val genderItems = remember(maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel) {
+        listOf(
+            SelectionItem(id = "Male", title = maleLabel, leadingIcon = Icons.Rounded.Male),
+            SelectionItem(id = "Female", title = femaleLabel, leadingIcon = Icons.Rounded.Female),
+            SelectionItem(id = "Non-binary", title = nonBinaryLabel, leadingIcon = Icons.Rounded.Transgender),
+            SelectionItem(id = "Prefer not to say", title = preferNotToSayLabel, leadingIcon = Icons.Rounded.Person)
+        )
+    }
+
+    val displayGender = remember(gender, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel) {
+        when (gender) {
+            "Male" -> maleLabel
+            "Female" -> femaleLabel
+            "Non-binary" -> nonBinaryLabel
+            "Prefer not to say" -> preferNotToSayLabel
+            else -> gender
         }
     }
 
@@ -107,7 +124,7 @@ fun ProfileScreen(
             } else {
                 Toast.makeText(
                     context,
-                    "Unable to load that image. Please try another photo.",
+                    unableToLoadMsg,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -122,7 +139,7 @@ fun ProfileScreen(
             .statusBarsPadding()
     ) {
         AppHeader(
-            title = "Edit Profile",
+            title = stringResource(id = R.string.title_edit_profile),
             onBackClick = onBackClick,
             modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp, bottom = 8.dp)
         )
@@ -152,62 +169,62 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             InputFieldCard(
-                title = "FULL NAME",
+                title = stringResource(id = R.string.label_full_name_caps),
                 value = fullName,
                 onValueChange = { fullName = it },
                 inputType = InputType.Text,
                 leadingIcon = Icons.Rounded.Person,
-                placeholder = "Guest User"
+                placeholder = stringResource(id = R.string.placeholder_guest_user)
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             InputFieldCard(
-                title = "EMAIL ADDRESS",
+                title = stringResource(id = R.string.label_email_address_caps),
                 value = emailAddress,
                 onValueChange = { emailAddress = it },
                 inputType = InputType.Email,
                 leadingIcon = Icons.Rounded.Email,
-                placeholder = "alex.j@example.com"
+                placeholder = stringResource(id = R.string.placeholder_email_example)
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             InputFieldCard(
-                title = "PHONE NUMBER",
+                title = stringResource(id = R.string.label_phone_number_caps),
                 value = phoneNumber,
                 onValueChange = { phoneNumber = it },
                 inputType = InputType.Phone,
                 leadingIcon = Icons.Rounded.Call,
-                placeholder = "+1234 567 8900"
+                placeholder = stringResource(id = R.string.placeholder_phone_example)
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             InputFieldCard(
-                title = "DATE OF BIRTH",
+                title = stringResource(id = R.string.label_date_of_birth_caps),
                 value = dateOfBirthMillis?.let { formatDate(it, dateFormatPattern) }.orEmpty(),
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = Icons.Rounded.CalendarMonth,
-                placeholder = "Select Date of Birth",
+                placeholder = stringResource(id = R.string.placeholder_select_dob),
                 onClick = { isDatePickerVisible = true }
             )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             InputFieldCard(
-                title = "GENDER",
-                value = gender,
+                title = stringResource(id = R.string.label_gender_caps),
+                value = displayGender,
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = genderToIcon(gender),
-                placeholder = GenderPlaceholder,
+                placeholder = selectGenderPlaceholder,
                 onClick = { isGenderPickerVisible = true },
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "Open gender options",
+                        contentDescription = stringResource(id = R.string.content_desc_open_gender_options),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -226,7 +243,7 @@ fun ProfileScreen(
                 onClick = {
                     onSaveClick(
                         userProfile.copy(
-                            fullName = fullName.trim().ifBlank { "Guest User" },
+                            fullName = fullName.trim().ifBlank { guestUserPlaceholder },
                             emailAddress = emailAddress.trim(),
                             phoneNumber = phoneNumber.trim(),
                             dateOfBirthMillis = dateOfBirthMillis,
@@ -268,7 +285,7 @@ fun ProfileScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Save Changes",
+                        text = stringResource(id = R.string.label_save_changes),
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
@@ -297,8 +314,8 @@ fun ProfileScreen(
 
     if (isGenderPickerVisible) {
         AppSelectionSheet(
-            title = "Select Gender",
-            description = "Choose the gender label that best fits your profile.",
+            title = stringResource(id = R.string.placeholder_select_gender),
+            description = stringResource(id = R.string.desc_choose_gender_label),
             items = genderItems,
             selectedId = gender,
             sheetState = genderPickerSheetState,
@@ -350,7 +367,7 @@ private fun ProfilePhotoSection(
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
-                contentDescription = if (photoUri == null) "Add photo" else "Edit photo",
+                contentDescription = if (photoUri == null) stringResource(id = R.string.content_desc_add_photo) else stringResource(id = R.string.content_desc_edit_photo),
                 tint = photoActionIconColor
             )
         }
@@ -364,7 +381,7 @@ private fun ProfilePhotoSection(
         ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
-                contentDescription = "Delete photo",
+                contentDescription = stringResource(id = R.string.content_desc_delete_photo),
                 tint = if (photoUri != null && !isPhotoProcessing) {
                     photoActionIconColor
                 } else {

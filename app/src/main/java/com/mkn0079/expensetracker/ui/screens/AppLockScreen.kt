@@ -72,6 +72,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
@@ -100,7 +102,7 @@ fun AppLockScreen(
     biometricEnabled: Boolean = false,
     scrambledPinKeypadEnabled: Boolean = false,
     isBiometricAvailable: Boolean = false,
-    securityQuestionPrompt: String? = null,
+    securityQuestionPrompt: Int? = null,
     onBackClick: (() -> Unit)? = null,
     onBiometricClick: (() -> Unit)? = null,
     onSetupComplete: (String, String, String) -> Unit = { _, _, _ -> },
@@ -142,6 +144,7 @@ fun AppLockScreen(
         )
         keypadLayoutVersion += 1
     }
+    val recoveryQuestionNotFoundMsg = stringResource(R.string.msg_recovery_question_is_not_confi)
     val triggerForgotRecovery: () -> Unit = {
         failedUnlockAttempts = 0
         enteredPin = ""
@@ -150,7 +153,7 @@ fun AppLockScreen(
             recoveryAnswer = ""
             message = null
         } else if (mode == AppLockScreenMode.Unlock) {
-            message = "Recovery question is not configured for this app lock."
+            message = recoveryQuestionNotFoundMsg
         }
     }
 
@@ -159,8 +162,14 @@ fun AppLockScreen(
         keypadShakeOffsetPx.snapTo(0f)
     }
 
+    val confirmPinMsg = stringResource(R.string.msg_enter_the_same_pin_once_more_t)
+    val chooseQuestionMsg = stringResource(R.string.msg_choose_one_security_question_f)
+    val pinMismatchMsg = stringResource(R.string.msg_pins_did_not_match_start_again)
+    val incorrectPinMsg = stringResource(R.string.msg_incorrect_pin_try_again)
+
     LaunchedEffect(enteredPin, mode, setupStage, isRecoveryMode) {
         if (!isPinEntryVisible || enteredPin.length != 4) return@LaunchedEffect
+
 
         when (mode) {
             AppLockScreenMode.Setup -> {
@@ -168,16 +177,16 @@ fun AppLockScreen(
                     firstPin = enteredPin
                     enteredPin = ""
                     setupStage = PinSetupStage.Confirm
-                    message = "Enter the same PIN once more to confirm."
+                    message = confirmPinMsg
                 } else if (enteredPin == firstPin) {
                     enteredPin = ""
                     setupStage = PinSetupStage.SecurityQuestion
-                    message = "Choose one security question for PIN recovery."
+                    message = chooseQuestionMsg
                 } else {
                     firstPin = ""
                     enteredPin = ""
                     setupStage = PinSetupStage.Create
-                    message = "PINs did not match. Start again."
+                    message = pinMismatchMsg
                 }
             }
 
@@ -195,7 +204,7 @@ fun AppLockScreen(
                         triggerForgotRecovery()
                     } else {
                         enteredPin = ""
-                        message = "Incorrect PIN. Try again."
+                        message = incorrectPinMsg
                         if (scrambledPinKeypadEnabled) {
                             refreshKeypadLayout()
                             coroutineScope.launch {
@@ -208,6 +217,7 @@ fun AppLockScreen(
         }
     }
 
+    val repeatDigitsMsg = stringResource(R.string.msg_repeat_the_same_4_digits_to_fi)
     val headerAction: (() -> Unit)? = when {
         isRecoveryMode -> {
             {
@@ -221,7 +231,7 @@ fun AppLockScreen(
             {
                 setupStage = PinSetupStage.Confirm
                 securityAnswer = ""
-                message = "Repeat the same 4 digits to finish setup."
+                message = repeatDigitsMsg
             }
         }
 
@@ -229,61 +239,65 @@ fun AppLockScreen(
     }
 
     val title = when {
-        isRecoveryMode -> "Recover Access"
+        isRecoveryMode -> stringResource(R.string.title_recover_access)
         mode == AppLockScreenMode.Unlock -> ""
-        else -> "App Lock"
+        else -> stringResource(R.string.title_app_lock)
     }
     val eyebrow = when {
-        isRecoveryMode -> "VERIFY SECURITY QUESTION"
+        isRecoveryMode -> stringResource(R.string.label_verify_security_question)
         mode == AppLockScreenMode.Unlock -> if (biometricEnabled) {
-            "BIOMETRIC SECURITY ACTIVE"
+            stringResource(R.string.label_biometric_security_active)
         } else {
-            "PIN SECURITY ACTIVE"
+            stringResource(R.string.label_pin_security_active)
         }
 
-        setupStage == PinSetupStage.Create -> "CREATE A 4-DIGIT PIN"
-        setupStage == PinSetupStage.Confirm -> "CONFIRM YOUR PIN"
+        setupStage == PinSetupStage.Create -> stringResource(R.string.label_create_4digit_pin)
+        setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_your_pin)
         else -> ""
     }
     val headline = when {
-        isRecoveryMode -> "Forgot Your PIN?"
-        mode == AppLockScreenMode.Unlock -> "Welcome Back"
+        isRecoveryMode -> stringResource(R.string.label_forgot_your_pin)
+        mode == AppLockScreenMode.Unlock -> stringResource(R.string.label_welcome_back)
         setupStage == PinSetupStage.Create -> ""
-        setupStage == PinSetupStage.Confirm -> "Confirm PIN"
-        else -> "Security Question"
+        setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_pin)
+        else -> stringResource(R.string.label_security_question)
     }
     val supportText = message ?: when {
         isRecoveryMode -> securityQuestionPrompt?.let {
-            "Answer your saved security question to disable app lock."
-        } ?: "Recovery question is not configured for this app lock."
+            stringResource(R.string.msg_answer_saved_security_question)
+        } ?: stringResource(R.string.msg_recovery_question_is_not_confi)
 
         mode == AppLockScreenMode.Unlock -> if (biometricEnabled && isBiometricAvailable) {
-            "Use your biometric or enter your PIN to continue."
+            stringResource(R.string.msg_biometric_or_pin_to_continue)
         } else {
-            "Enter your PIN to continue."
+            stringResource(R.string.msg_enter_pin_to_continue)
         }
 
         setupStage == PinSetupStage.Create -> ""
-        setupStage == PinSetupStage.Confirm -> "Repeat the same 4 digits to finish setup."
-        else -> "Choose one of the five questions and enter an answer you will remember."
+        setupStage == PinSetupStage.Confirm -> repeatDigitsMsg
+        else -> stringResource(R.string.msg_choose_question_remember)
     }
-    val primaryActionLabel = if (isRecoveryMode) "Disable App Lock" else "Save"
+    val primaryActionLabel = if (isRecoveryMode) stringResource(R.string.label_disable_app_lock) else stringResource(R.string.label_save)
     val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val recoveryAnswerPlaceholder = stringResource(R.string.placeholder_type_recovery_answer)
+    val enterAnswerMsg = stringResource(R.string.msg_enter_an_answer_for_your_secur)
+    val incorrectAnswerMsg = stringResource(R.string.msg_incorrect_answer_try_again)
+    val enterAnswerToDisableMsg = stringResource(R.string.msg_enter_your_answer_to_disable_a)
     val onPrimaryActionClick: () -> Unit = {
         if (isRecoveryMode) {
             if (securityQuestionPrompt == null) {
-                message = "Recovery question is not configured for this app lock."
+                message = recoveryQuestionNotFoundMsg
             } else if (recoveryAnswer.isBlank()) {
-                message = "Enter your answer to disable app lock."
+                message = enterAnswerToDisableMsg
             } else if (validateSecurityAnswer(recoveryAnswer)) {
                 onForgotPinRecovery()
             } else {
                 recoveryAnswer = ""
-                message = "Incorrect answer. Try again."
+                message = incorrectAnswerMsg
             }
         } else {
             if (securityAnswer.isBlank()) {
-                message = "Enter an answer for your security question."
+                message = enterAnswerMsg
             } else {
                 onSetupComplete(firstPin, selectedSecurityQuestionId, securityAnswer)
             }
@@ -447,7 +461,7 @@ fun AppLockScreen(
                     when {
                         isRecoveryMode -> {
                             RecoveryQuestionContent(
-                                questionPrompt = securityQuestionPrompt,
+                                questionPrompt = securityQuestionPrompt?.let { stringResource(it) },
                                 answer = recoveryAnswer,
                                 onAnswerChange = {
                                     recoveryAnswer = it
@@ -617,7 +631,7 @@ private fun SetupSecurityQuestionContent(
     ) {
         appLockSecurityQuestions.forEach { question ->
             SecurityQuestionCard(
-                prompt = question.prompt,
+                prompt = stringResource(question.promptResId),
                 isSelected = question.id == selectedQuestionId,
                 onClick = { onQuestionSelected(question.id) }
             )
@@ -627,8 +641,8 @@ private fun SetupSecurityQuestionContent(
 
         AppLockAnswerField(
             value = answer,
-            label = "Your Answer",
-            placeholder = "Type your recovery answer",
+            label = stringResource(R.string.label_your_answer),
+            placeholder = stringResource(R.string.placeholder_type_recovery_answer),
             onValueChange = onAnswerChange
         )
     }
@@ -652,7 +666,7 @@ private fun RecoveryQuestionContent(
                 .padding(horizontal = 18.dp, vertical = 18.dp)
         ) {
             Text(
-                text = questionPrompt ?: "No recovery question is saved for this app lock yet.",
+                text = questionPrompt ?: stringResource(R.string.msg_no_recovery_question_saved),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
@@ -662,8 +676,8 @@ private fun RecoveryQuestionContent(
 
         AppLockAnswerField(
             value = answer,
-            label = "Security Answer",
-            placeholder = "Enter your answer",
+            label = stringResource(R.string.label_security_answer),
+            placeholder = stringResource(R.string.placeholder_enter_your_answer),
             onValueChange = onAnswerChange
         )
     }
@@ -790,7 +804,7 @@ private fun BiometricActionButton(
     ) {
         Icon(
             imageVector = Icons.Filled.Fingerprint,
-            contentDescription = "Use biometric",
+            contentDescription = stringResource(R.string.desc_use_biometric),
             modifier = Modifier.size(100.dp)
         )
     }
@@ -829,7 +843,7 @@ private fun AppLockKey(
             isDelete -> {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
-                    contentDescription = "Delete PIN digit",
+                    contentDescription = stringResource(R.string.desc_delete_pin_digit),
                     tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     modifier = Modifier.size(34.dp)
                 )
@@ -837,7 +851,7 @@ private fun AppLockKey(
 
             isForgot -> {
                 Text(
-                    text = "FORGOT",
+                    text = stringResource(R.string.label_forgot),
                     color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Medium,

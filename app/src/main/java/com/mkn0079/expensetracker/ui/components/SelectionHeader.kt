@@ -24,10 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 
 @Composable
 fun SelectionHeader(
@@ -49,7 +51,7 @@ fun SelectionHeader(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Close,
-                contentDescription = "Exit Selection",
+                contentDescription = stringResource(R.string.desc_exit_selection),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -57,7 +59,7 @@ fun SelectionHeader(
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(
-            text = "$selectedCount Selected",
+            text = stringResource(R.string.label_val_selected, selectedCount),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
@@ -76,7 +78,7 @@ fun SelectionHeader(
         ) {
             Icon(
                 imageVector = Icons.Rounded.DoneAll,
-                contentDescription = "Select All",
+                contentDescription = stringResource(R.string.desc_select_all),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
             )
@@ -92,7 +94,7 @@ fun SelectionHeader(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Delete,
-                contentDescription = "Delete Selected",
+                contentDescription = stringResource(R.string.desc_delete_selected),
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(18.dp)
             )

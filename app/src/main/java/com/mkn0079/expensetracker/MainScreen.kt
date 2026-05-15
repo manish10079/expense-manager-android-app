@@ -30,7 +30,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mkn0079.expensetracker.data.constants.getAppLockSecurityQuestionPrompt
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
@@ -554,9 +553,7 @@ fun MainScreen(
                         biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
                         scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
                         isBiometricAvailable = biometricAvailability.isAvailable,
-                        securityQuestionPrompt = getAppLockSecurityQuestionPrompt(
-                            appLockState.securityQuestionId
-                        ).orEmpty(),
+                        securityQuestionPrompt = null, // Handled internally by AppLockOverlay
                         onBackClick = { appLockFlow = null },
                         autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
                         onBiometricClick = unlockWithBiometric,

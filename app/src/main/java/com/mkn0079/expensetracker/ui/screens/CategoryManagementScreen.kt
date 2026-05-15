@@ -84,6 +84,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.categoryMap
 import com.mkn0079.expensetracker.data.constants.paymentTypeMap
 import com.mkn0079.expensetracker.data.constants.transactionList
@@ -149,14 +151,14 @@ fun CategoryManagementScreen(
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
-                title = "Manage Category",
+                title = stringResource(R.string.title_manage_category),
                 onBackClick = onBackClick
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             AnimatedTabSwitcher(
-                items = CategoryManagementTab.entries.map { TabItem(it, it.title) },
+                items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,
                 onItemSelected = categoryManagementViewModel::selectTab
             )
@@ -164,7 +166,11 @@ fun CategoryManagementScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = uiState.categoryCountLabel,
+                text = when (activeTab) {
+                    CategoryManagementTab.Income -> stringResource(R.string.label_income_categories_count, uiState.itemCount)
+                    CategoryManagementTab.Expense -> stringResource(R.string.label_expense_categories_count, uiState.itemCount)
+                    CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, uiState.itemCount)
+                },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold,
@@ -192,10 +198,14 @@ fun CategoryManagementScreen(
                 label = "category_tab_content_animation",
                 modifier = Modifier.fillMaxSize()
             ) { currentTab ->
-                val animatingItems = remember(currentTab, customCategories, customPaymentTypes) {
+                val incomeSourceDesc = stringResource(R.string.desc_income_source)
+                val expenseCategoryDesc = stringResource(R.string.desc_expense_category)
+                val paymentMethodFallbackDesc = stringResource(R.string.desc_payment_method_fallback)
+
+                val animatingItems = remember(currentTab, customCategories, customPaymentTypes, incomeSourceDesc, expenseCategoryDesc, paymentMethodFallbackDesc) {
                     when (currentTab) {
-                        CategoryManagementTab.Income -> buildCategoryManagementItems(customCategories, 1, "Income source")
-                        CategoryManagementTab.Expense -> buildCategoryManagementItems(customCategories, 2, "Expense category")
+                        CategoryManagementTab.Income -> buildCategoryManagementItems(customCategories, 1, incomeSourceDesc)
+                        CategoryManagementTab.Expense -> buildCategoryManagementItems(customCategories, 2, expenseCategoryDesc)
                         CategoryManagementTab.Payment -> {
                             val customItems = customPaymentTypes.sortedByDescending { it.id }
                             val builtinItems = paymentTypeMap.values.sortedBy { it.id }
@@ -203,7 +213,8 @@ fun CategoryManagementScreen(
                                 CategoryManagementItemUi(
                                     id = payment.id,
                                     title = payment.name,
-                                    subtitle = paymentFallbackDescriptions[payment.id] ?: "Payment method",
+                                    subtitleRes = paymentFallbackDescriptions[payment.id],
+                                    subtitle = if (paymentFallbackDescriptions[payment.id] == null) paymentMethodFallbackDesc else null,
                                     icon = payment.icon,
                                     isUserCreated = payment.id !in paymentTypeMap
                                 )
@@ -330,7 +341,7 @@ private fun CategoryManagementCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = item.subtitle,
+                text = item.subtitleRes?.let { stringResource(it) } ?: item.subtitle ?: "",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
@@ -350,7 +361,7 @@ private fun CategoryManagementCard(
             ) {
                 Icon(
                     imageVector = Icons.Filled.DeleteOutline,
-                    contentDescription = "Delete ${item.title}",
+                    contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
                     tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.size(20.dp)
                 )
@@ -387,7 +398,7 @@ private fun IconSelectionItem(
     ) {
         Icon(
             imageVector = option.icon,
-            contentDescription = option.label,
+            contentDescription = stringResource(option.labelRes),
             tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(30.dp)
         )
@@ -418,7 +429,8 @@ private fun buildCategoryManagementItems(
         CategoryManagementItemUi(
             id = category.id,
             title = category.name,
-            subtitle = categoryFallbackDescriptions[category.id] ?: fallbackSubtitle,
+            subtitleRes = categoryFallbackDescriptions[category.id],
+            subtitle = if (categoryFallbackDescriptions[category.id] == null) fallbackSubtitle else null,
             icon = category.icon,
             isUserCreated = category.id !in categoryMap
         )
@@ -467,7 +479,7 @@ private fun AddCategoryFab(
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "Add category",
+                contentDescription = stringResource(R.string.desc_add_category),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(26.dp)
             )

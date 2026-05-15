@@ -70,6 +70,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.CalculatorLineItem
@@ -109,7 +111,7 @@ fun ItemizedCalculatorScreen(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         AppHeader(
-            title = "Itemized Calculator",
+            title = stringResource(id = R.string.label_itemized_calculator),
             onBackClick = onBackClick
         )
 
@@ -204,7 +206,7 @@ private fun ItemizedCalculatorContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Breakdown",
+                    text = stringResource(id = R.string.label_breakdown),
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -213,7 +215,7 @@ private fun ItemizedCalculatorContent(
                 )
 
                 Text(
-                    text = "${items.size} ITEMS",
+                    text = stringResource(id = R.string.label_items_count_formatted, items.size),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         letterSpacing = 1.2.sp,
@@ -538,7 +540,7 @@ private fun TotalAmountCard(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "TOTAL AMOUNT",
+                text = stringResource(id = R.string.label_total_amount),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium.copy(
                     letterSpacing = 2.2.sp,
@@ -598,7 +600,7 @@ private fun BreakdownItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "DESCRIPTION",
+                    text = stringResource(id = R.string.label_description_caps),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall.copy(
                         letterSpacing = 0.8.sp,
@@ -607,7 +609,7 @@ private fun BreakdownItemCard(
                 )
 
                 Text(
-                    text = "AMOUNT",
+                    text = stringResource(id = R.string.label_amount_caps),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall.copy(
                         letterSpacing = 0.8.sp,
@@ -652,7 +654,7 @@ private fun BreakdownItemCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DeleteOutline,
-                        contentDescription = "Delete ${item.description}",
+                        contentDescription = stringResource(id = R.string.content_desc_delete_item, item.description),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(18.dp)
                     )
@@ -681,7 +683,7 @@ private fun AddItemInputCard(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "NEW ITEM",
+            text = stringResource(id = R.string.label_new_item),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelLarge.copy(
                 letterSpacing = 1.2.sp,
@@ -691,15 +693,15 @@ private fun AddItemInputCard(
 
         ItemizedTextField(
             value = description,
-            label = "Description",
-            placeholder = "Ex. Coffee House",
+            label = stringResource(id = R.string.label_description),
+            placeholder = stringResource(id = R.string.placeholder_description_ex),
             onValueChange = onDescriptionChange
         )
 
         ItemizedTextField(
             value = amount,
-            label = "Amount",
-            placeholder = "0.00",
+            label = stringResource(id = R.string.label_amount),
+            placeholder = stringResource(id = R.string.placeholder_amount_zero),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Done
@@ -713,13 +715,13 @@ private fun AddItemInputCard(
         ) {
             SecondaryActionButton(
                 modifier = Modifier.weight(1f),
-                label = "Cancel",
+                label = stringResource(id = R.string.label_cancel_1),
                 onClick = onCancel
             )
 
             PrimaryActionButton(
                 modifier = Modifier.weight(1f),
-                label = "Add Item",
+                label = stringResource(id = R.string.label_add_item),
                 enabled = canAddItem,
                 onClick = onAddClick
             )
@@ -796,7 +798,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
-            contentDescription = "Add item",
+            contentDescription = stringResource(id = R.string.content_desc_add_item),
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(20.dp)
         )
@@ -804,7 +806,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = "Add New Item",
+            text = stringResource(id = R.string.label_add_new_item),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold,
@@ -906,7 +908,7 @@ private fun ApplyToNoteButton(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
-                    contentDescription = "Apply to note",
+                    contentDescription = stringResource(id = R.string.label_apply_to_note),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(14.dp)
                 )
@@ -915,7 +917,7 @@ private fun ApplyToNoteButton(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = "Apply to Note",
+                text = stringResource(id = R.string.label_apply_to_note),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,

@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.mkn0079.expensetracker.R
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -70,6 +74,9 @@ import com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
 import com.mkn0079.expensetracker.ui.viewmodels.CategoryBreakdownUi
+import com.mkn0079.expensetracker.ui.viewmodels.SummaryLabelUi
+import com.mkn0079.expensetracker.ui.viewmodels.SmartTipUi
+import com.mkn0079.expensetracker.ui.viewmodels.ChartLabelUi
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.ui.components.TransactionCard
@@ -164,7 +171,7 @@ fun AnalyticsScreen(
                         items = AnalyticsPeriod.entries.filter { it != AnalyticsPeriod.CUSTOM }.map { period ->
                             TabItem(
                                 id = period,
-                                label = period.label,
+                                label = stringResource(id = period.labelRes),
                                 isLocked = period == AnalyticsPeriod.YEAR && isYearLocked,
                                 onLockedClick = { if (period == AnalyticsPeriod.YEAR && isYearLocked) onLockedClick() }
                             )
@@ -481,9 +488,9 @@ private fun HeroAnalyticsSection(
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
     val title = when (displayMode) {
-        HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spent)
+        HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spending)
         HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
-        HeroDisplayMode.BOTH -> stringResource(id = R.string.label_net_balance)
+        HeroDisplayMode.BOTH -> stringResource(id = R.string.label_net_savings)
     }
     
     val amount = when (displayMode) {
@@ -516,7 +523,7 @@ private fun HeroAnalyticsSection(
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = snapshot.summaryLabel,
+            text = resolveSummaryLabel(snapshot.summaryLabel),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -554,7 +561,7 @@ private fun HeroAnalyticsSection(
 private fun AnalyticsLineChart(
     expensePoints: List<Float>,
     incomePoints: List<Float>,
-    labels: List<String>,
+    labels: List<ChartLabelUi>,
     displayMode: HeroDisplayMode
 ) {
     val expenseColor = MaterialTheme.colorScheme.expense
@@ -729,9 +736,9 @@ private fun AnalyticsLineChart(
                 .padding(horizontal = 42.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            labels.forEach { label ->
+            labels.forEach { labelUi ->
                 Text(
-                    text = label,
+                    text = resolveChartLabel(labelUi),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -1042,7 +1049,7 @@ private fun CategoryCard(
                                         .background(categoryBreakdownColor(category.colorIndex))
                                 )
                                 Text(
-                                    text = category.label,
+                                    text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge,
                                     maxLines = 1,
@@ -1180,7 +1187,7 @@ private fun CategoryBreakdownRow(
                             .background(categoryBreakdownColor(category.colorIndex))
                     )
                     Text(
-                        text = category.label,
+                        text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
@@ -1271,7 +1278,7 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = stringResource(id = R.string.label_top_val, (breakdown.firstOrNull()?.label ?: stringResource(id = R.string.label_not_available))),
+                text = stringResource(id = R.string.label_top_val, (breakdown.firstOrNull()?.let { if (it.isOther) stringResource(id = R.string.label_other) else it.label } ?: stringResource(id = R.string.label_not_available))),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center
@@ -1347,6 +1354,7 @@ private fun TopSpendingRow(
     } else {
         transaction.note
     }
+    val categoryLabel = if (transaction.isGeneral) stringResource(id = R.string.label_general) else transaction.categoryLabel
 
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -1373,7 +1381,7 @@ private fun TopSpendingRow(
             Spacer(modifier = Modifier.height(2.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = transaction.categoryLabel,
+                    text = categoryLabel,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -1402,7 +1410,7 @@ private fun TopSpendingRow(
 @Composable
 private fun SmartTipCard(
     modifier: Modifier = Modifier,
-    tip: String
+    tip: SmartTipUi
 ) {
     Box(
         modifier = modifier
@@ -1436,7 +1444,7 @@ private fun SmartTipCard(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = tip,
+                    text = resolveSmartTip(tip),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 23.sp)
                 )
@@ -1551,7 +1559,7 @@ private fun PaymentTypeCard(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
-                                    text = item.label,
+                                    text = if (item.isOther) stringResource(id = R.string.label_wallet) else item.label,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge,
                                     maxLines = 1,
@@ -1621,7 +1629,7 @@ private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier:
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = breakdown.firstOrNull()?.label ?: stringResource(id = R.string.label_not_available),
+                text = breakdown.firstOrNull()?.let { if (it.isOther) stringResource(id = R.string.label_wallet) else it.label } ?: stringResource(id = R.string.label_not_available),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
@@ -1661,7 +1669,7 @@ private fun PaymentTypeBreakdownBottomSheet(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(id = R.string.label_breakdown_of_expenses_based_on),
+                text = stringResource(id = R.string.label_spending_by_payment_mode_breakdown),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -1739,7 +1747,7 @@ private fun PaymentBreakdownRow(
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = item.label,
+                        text = if (item.isOther) stringResource(id = R.string.label_wallet) else item.label,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
@@ -1839,6 +1847,7 @@ private fun FilteredTransactionsBottomSheet(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
             } else {
+                val dateShortFormat = stringResource(id = R.string.format_date_short)
                 LazyColumn(
                     modifier = Modifier.padding(bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -1850,7 +1859,7 @@ private fun FilteredTransactionsBottomSheet(
                         
                         TransactionCard(
                             note = transaction.note,
-                            transactionDate = formatDate(transaction.createdAt, "dd MMM"),
+                            transactionDate = formatDate(transaction.createdAt, dateShortFormat),
                             transactionTime = com.mkn0079.expensetracker.utils.formatTime(transaction.createdAt, "24-hour"),
                             amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                             transactionTypeId = transaction.transactionTypeId,
@@ -1965,6 +1974,45 @@ private fun TopSpendingBottomSheet(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun resolveSummaryLabel(summary: SummaryLabelUi): String {
+    return when {
+        summary.resId != null -> stringResource(id = summary.resId)
+        summary.datePattern != null && summary.timestamp != null -> {
+            SimpleDateFormat(summary.datePattern, Locale.getDefault()).format(Date(summary.timestamp))
+        }
+        summary.customRange != null -> summary.customRange
+        else -> ""
+    }
+}
+
+@Composable
+private fun resolveSmartTip(tip: SmartTipUi): String {
+    return if (tip.resId == R.string.msg_spending_trend) {
+        stringResource(
+            id = tip.resId,
+            tip.flowChange ?: "",
+            tip.directionResId?.let { stringResource(id = it) } ?: "",
+            tip.topCategory ?: stringResource(id = R.string.label_spending),
+            tip.savingAmount ?: ""
+        )
+    } else {
+        stringResource(id = tip.resId)
+    }
+}
+
+@Composable
+private fun resolveChartLabel(label: ChartLabelUi): String {
+    return when {
+        label.resId != null && label.index != null -> {
+            val array = stringArrayResource(id = label.resId)
+            if (label.index in array.indices) array[label.index] else ""
+        }
+        label.label != null -> label.label
+        else -> ""
     }
 }
 

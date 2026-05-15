@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.income
 import com.mkn0079.expensetracker.ui.theme.expense
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -84,7 +86,7 @@ fun StatsCard(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "TOTAL BALANCE",
+                    text = stringResource(R.string.label_total_balance),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -99,7 +101,7 @@ fun StatsCard(
                 ) {
                     Icon(
                         imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = if (isBalanceHidden) "Show Balance" else "Hide Balance",
+                        contentDescription = if (isBalanceHidden) stringResource(R.string.desc_show_balance) else stringResource(R.string.desc_hide_balance),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -135,7 +137,7 @@ fun StatsCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "LAST MONTH",
+                    text = stringResource(R.string.label_last_month),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.3.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -171,7 +173,7 @@ fun StatsCard(
         ) {
             StatItem(
                 modifier = Modifier.weight(1f),
-                label = "INCOME",
+                label = stringResource(R.string.label_income),
                 value = if (isBalanceHidden) "••••" else formatStatAmount(income, '+'),
                 icon = Icons.Filled.ArrowUpward,
                 iconColor = MaterialTheme.colorScheme.income,
@@ -188,7 +190,7 @@ fun StatsCard(
 
             StatItem(
                 modifier = Modifier.weight(1f),
-                label = "EXPENSE",
+                label = stringResource(R.string.label_expense),
                 value = if (isBalanceHidden) "••••" else formatStatAmount(expense, '-'),
                 icon = Icons.Filled.ArrowDownward,
                 iconColor = MaterialTheme.colorScheme.expense,

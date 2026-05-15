@@ -43,6 +43,8 @@ import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.BottomNavBarItem
 import com.mkn0079.expensetracker.ui.navigation.bottomNavBarItems
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 
 private val BottomBarContainerHeight = 72.dp
@@ -125,7 +127,7 @@ fun AppBottomBar(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Add transaction",
+                    contentDescription = stringResource(R.string.desc_add_transaction),
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(18.dp)
                 )

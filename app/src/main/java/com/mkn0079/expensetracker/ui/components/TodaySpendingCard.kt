@@ -27,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
@@ -77,7 +79,7 @@ fun TodaySpendingCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "Today's spending",
+                        contentDescription = stringResource(R.string.desc_todays_spending),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -86,7 +88,7 @@ fun TodaySpendingCard(
 
                 Column {
                     Text(
-                        text = "Today's Spending",
+                        text = stringResource(R.string.label_todays_spending),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )
@@ -112,7 +114,7 @@ fun TodaySpendingCard(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = "Open calendar",
+                    contentDescription = stringResource(R.string.desc_open_calendar),
                     tint = colorScheme.primary
                 )
             }

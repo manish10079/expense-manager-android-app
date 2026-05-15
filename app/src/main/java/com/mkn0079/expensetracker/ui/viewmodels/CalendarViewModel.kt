@@ -1,8 +1,10 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -19,6 +21,7 @@ import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.utils.formatDateWithWeekday
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.max
 
 @Immutable
@@ -48,7 +52,10 @@ data class CalendarScreenUiState(
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
 )
 
-class CalendarViewModel : ViewModel() {
+@HiltViewModel
+class CalendarViewModel @Inject constructor(
+    private val application: Application
+) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: List<CategoryType> = emptyList()
@@ -205,7 +212,8 @@ class CalendarViewModel : ViewModel() {
                         dateFormatPattern = "dd MMM",
                         timeFormat = currentTimeFormat,
                         paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
-                        categories = currentCategories
+                        categories = currentCategories,
+                        fallbackCategoryName = application.getString(R.string.label_other)
                     )
                 },
                 selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",

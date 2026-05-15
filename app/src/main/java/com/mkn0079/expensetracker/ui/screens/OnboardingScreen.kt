@@ -84,6 +84,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
@@ -110,49 +112,50 @@ private data class OnboardingPage(
     val illustration: @Composable BoxScope.() -> Unit
 )
 
-private val onboardingPages = listOf(
-    OnboardingPage(
-        title = "Track Expenses\nEasily",
-        description = "Log your daily spending in seconds with an optimized keypad and smart category ranking.",
-        actionLabel = "Next",
-        illustration = { ExpenseCardIllustration() }
-    ),
-    OnboardingPage(
-        title = "Secure & Private",
-        description = "Your financial data is stored locally and protected by biometric security.",
-        actionLabel = "Next",
-        illustration = { SecureTrackerIllustration() }
-    ),
-    OnboardingPage(
-        title = "Visual Analytics",
-        description = "Visualize your spending habits with interactive charts and detailed category breakdowns.",
-        actionLabel = "Next",
-        illustration = { AnalyticsIllustration() }
-    ),
-    OnboardingPage(
-        title = "Premium by Design,\nPrivate by Nature",
-        description = "Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.",
-        actionLabel = "Continue",
-        accentedText = "Private by Nature",
-        titleFontSize = 34.sp,
-        titleLineHeight = 40.sp,
-        supportingContent = { PremiumBenefitCards() },
-        illustration = { PremiumPrivacyIllustration() }
-    ),
-    OnboardingPage(
-        title = "Let's Get Started",
-        description = "Tell us a bit about yourself to personalize your experience.",
-        actionLabel = "Get Started",
-        illustration = { /* No illustration for setup page */ }
-    )
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
+    val onboardingPages = remember {
+        listOf(
+            OnboardingPage(
+                title = context.getString(R.string.title_track_expensesneasily),
+                description = context.getString(R.string.desc_log_daily_spending),
+                actionLabel = context.getString(R.string.label_next),
+                illustration = { ExpenseCardIllustration() }
+            ),
+            OnboardingPage(
+                title = context.getString(R.string.title_secure_private),
+                description = context.getString(R.string.desc_financial_data_secure),
+                actionLabel = context.getString(R.string.label_next),
+                illustration = { SecureTrackerIllustration() }
+            ),
+            OnboardingPage(
+                title = context.getString(R.string.title_visual_analytics),
+                description = context.getString(R.string.desc_visualize_spending),
+                actionLabel = context.getString(R.string.label_next),
+                illustration = { AnalyticsIllustration() }
+            ),
+            OnboardingPage(
+                title = context.getString(R.string.title_premium_by_designnprivate_by_n),
+                description = context.getString(R.string.desc_modern_finance),
+                actionLabel = context.getString(R.string.label_continue),
+                accentedText = context.getString(R.string.label_private_by_nature),
+                titleFontSize = 34.sp,
+                titleLineHeight = 40.sp,
+                supportingContent = { PremiumBenefitCards() },
+                illustration = { PremiumPrivacyIllustration() }
+            ),
+            OnboardingPage(
+                title = context.getString(R.string.title_lets_get_started),
+                description = context.getString(R.string.desc_tell_us_about_yourself),
+                actionLabel = context.getString(R.string.label_get_started),
+                illustration = { /* No illustration for setup page */ }
+            )
+        )
+    }
     var currentPage by remember { mutableIntStateOf(0) }
     val page = onboardingPages[currentPage]
     val isSetupPage = currentPage == 4
@@ -189,13 +192,17 @@ fun OnboardingScreen(
         }
     }
 
-    val genderOptions = listOf("Male", "Female", "Non-binary", "Prefer not to say")
-    val genderItems = remember {
+    val maleLabel = stringResource(id = R.string.label_male)
+    val femaleLabel = stringResource(id = R.string.label_female)
+    val nonBinaryLabel = stringResource(id = R.string.label_non_binary)
+    val preferNotToSayLabel = stringResource(id = R.string.label_prefer_not_to_say)
+    val genderOptions = listOf(maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel)
+    val genderItems = remember(maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel) {
         genderOptions.map { option ->
             SelectionItem(
                 id = option,
                 title = option,
-                leadingIcon = genderToIcon(option)
+                leadingIcon = genderToIcon(option, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel)
             )
         }
     }
@@ -286,22 +293,22 @@ fun OnboardingScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             InputFieldCard(
-                                title = "FULL NAME",
+                                title = stringResource(id = R.string.label_full_name),
                                 value = userName,
                                 onValueChange = { userName = it },
                                 inputType = InputType.Text,
                                 leadingIcon = Icons.Rounded.Person,
-                                placeholder = "Enter your name"
+                                placeholder = stringResource(id = R.string.placeholder_enter_name)
                             )
 
                             InputFieldCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                title = "GENDER",
+                                title = stringResource(id = R.string.label_gender),
                                 value = userGender,
                                 onValueChange = {},
                                 inputType = InputType.Date,
-                                leadingIcon = genderToIcon(userGender),
-                                placeholder = "Select Gender",
+                                leadingIcon = genderToIcon(userGender, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel),
+                                placeholder = stringResource(id = R.string.label_select_gender),
                                 onClick = { isGenderPickerVisible = true },
                                 trailingContent = {
                                     Icon(
@@ -314,12 +321,12 @@ fun OnboardingScreen(
 
                             InputFieldCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                title = "DATE OF BIRTH",
+                                title = stringResource(id = R.string.label_date_of_birth),
                                 value = if (userDobMillis == 0L) "" else formatDate(userDobMillis, DEFAULT_DATE_FORMAT_PATTERN),
                                 onValueChange = {},
                                 inputType = InputType.Date,
                                 leadingIcon = Icons.Filled.CalendarMonth,
-                                placeholder = "Select Date of Birth",
+                                placeholder = stringResource(id = R.string.placeholder_select_dob),
                                 onClick = { isDatePickerVisible = true }
                             )
                         }
@@ -349,6 +356,11 @@ fun OnboardingScreen(
                 Spacer(modifier = Modifier.height(if (page.supportingContent == null) 34.dp else 24.dp))
             }
 
+            val nameStr = stringResource(id = R.string.label_name_capitalized)
+            val genderStr = stringResource(id = R.string.label_gender_capitalized)
+            val dobStr = stringResource(id = R.string.label_dob_capitalized)
+            val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
+            
             PrimaryOnboardingButton(
                 label = page.actionLabel,
                 onClick = {
@@ -359,16 +371,16 @@ fun OnboardingScreen(
                     
                     if (currentPage == lastIndex) {
                         val missingFields = mutableListOf<String>()
-                        if (userName.trim().isEmpty()) missingFields.add("Name")
-                        if (userGender.trim().isEmpty()) missingFields.add("Gender")
-                        if (userDobMillis == 0L) missingFields.add("Date of Birth")
+                        if (userName.trim().isEmpty()) missingFields.add(nameStr)
+                        if (userGender.trim().isEmpty()) missingFields.add(genderStr)
+                        if (userDobMillis == 0L) missingFields.add(dobStr)
 
                         Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
 
                         if (missingFields.isEmpty()) {
                             isFinishing = true
                         } else {
-                            toastMessage = "Please provide your ${missingFields.joinToString(", ")}"
+                            toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
                         }
                     } else {
                         currentPage += 1
@@ -416,8 +428,8 @@ fun OnboardingScreen(
 
     if (isGenderPickerVisible) {
         AppSelectionSheet(
-            title = "Select Gender",
-            description = "Choose the gender label that best fits your profile.",
+            title = stringResource(id = R.string.label_select_gender),
+            description = stringResource(id = R.string.label_choose_the_gender_label_that_b),
             items = genderItems,
             selectedId = userGender,
             sheetState = genderPickerSheetState,
@@ -477,7 +489,7 @@ private fun BottomControls(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "PREV",
+            text = stringResource(id = R.string.label_prev),
             color = if (currentPage == 0) {
                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f)
             } else {
@@ -503,7 +515,7 @@ private fun BottomControls(
 
         if (showSkip) {
             Text(
-                text = "SKIP",
+                text = stringResource(id = R.string.label_skip),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
@@ -659,7 +671,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             .padding(24.dp)
     ) {
         Text(
-            text = "EXPENSE TRACKER",
+            text = stringResource(id = R.string.label_expense_tracker_caps),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
@@ -698,7 +710,7 @@ private fun BoxScope.ExpenseCardIllustration() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "SECURE LOGGING",
+                text = stringResource(id = R.string.label_secure_logging),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.titleMedium.copy(
                     letterSpacing = 2.2.sp,
@@ -781,7 +793,7 @@ private fun BoxScope.SecureTrackerIllustration() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "ENCRYPTED MODE",
+                text = stringResource(id = R.string.label_encrypted_mode),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
@@ -805,7 +817,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
-                    text = "System Active",
+                    text = stringResource(id = R.string.label_system_active),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
@@ -846,7 +858,7 @@ private fun BoxScope.AnalyticsIllustration() {
             .padding(24.dp)
     ) {
         Text(
-            text = "GROWTH INDEX",
+            text = stringResource(id = R.string.label_growth_index),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.titleMedium.copy(
                 letterSpacing = 1.4.sp,
@@ -855,7 +867,7 @@ private fun BoxScope.AnalyticsIllustration() {
         )
 
         Text(
-            text = "+24.8%",
+            text = stringResource(id = R.string.label_248),
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
@@ -934,7 +946,7 @@ private fun BoxScope.AnalyticsIllustration() {
 
             Column {
                 Text(
-                    text = "ACCURACY",
+                    text = stringResource(id = R.string.label_accuracy),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.titleMedium.copy(
                         letterSpacing = 1.8.sp,
@@ -945,7 +957,7 @@ private fun BoxScope.AnalyticsIllustration() {
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "High Fidelity",
+                    text = stringResource(id = R.string.label_high_fidelity),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
@@ -1030,16 +1042,16 @@ private fun PremiumBenefitCards() {
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.CloudOff,
             iconTint = MaterialTheme.colorScheme.secondary,
-            title = "ARCHITECTURE",
-            value = "100% Offline"
+            title = stringResource(id = R.string.label_architecture),
+            value = stringResource(id = R.string.label_100_offline)
         )
 
         BenefitCard(
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.CheckCircle,
             iconTint = MaterialTheme.colorScheme.tertiary,
-            title = "ACCESS",
-            value = "Full Control"
+            title = stringResource(id = R.string.label_access),
+            value = stringResource(id = R.string.label_full_control)
         )
     }
 }
@@ -1154,12 +1166,12 @@ private fun BoxScope.SetupIllustration() {
     }
 }
 
-private fun genderToIcon(gender: String): ImageVector {
+private fun genderToIcon(gender: String, male: String, female: String, nonBinary: String, preferNotToSay: String): ImageVector {
     return when (gender) {
-        "Male" -> Icons.Rounded.Male
-        "Female" -> Icons.Rounded.Female
-        "Non-binary" -> Icons.Rounded.Transgender
-        "Prefer not to say" -> Icons.Rounded.Person
+        male -> Icons.Rounded.Male
+        female -> Icons.Rounded.Female
+        nonBinary -> Icons.Rounded.Transgender
+        preferNotToSay -> Icons.Rounded.Person
         else -> Icons.Rounded.Transgender
     }
 }

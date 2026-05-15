@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.models.BackupInfo
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.utils.BackupFileManager
@@ -49,8 +51,8 @@ fun BackupRestoreSheet(
     }
 
     AppSelectionSheet(
-        title = "Restore Database",
-        description = "Select a backup file to restore your data. This will overwrite current data.",
+        title = stringResource(R.string.title_restore_database),
+        description = stringResource(R.string.label_select_a_backup_file),
         items = selectionItems,
         selectedId = null,
         onItemSelected = { onBackupSelected(it) },
@@ -97,7 +99,7 @@ fun BackupRestoreSheet(
                     Spacer(modifier = Modifier.width(14.dp))
                     
                     Text(
-                        text = "Select file manually...",
+                        text = stringResource(R.string.label_select_file_manually),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary

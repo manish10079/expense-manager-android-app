@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.utils.formatTime
@@ -181,7 +183,7 @@ fun TransactionCard(
             ) {
                 if (showTypeLabel) {
                     TransactionPill(
-                        text = if (transactionTypeId == 1) "INCOME" else "EXPENSE",
+                        text = if (transactionTypeId == 1) stringResource(R.string.label_income) else stringResource(R.string.label_expense),
                         color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
                         backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
                     )

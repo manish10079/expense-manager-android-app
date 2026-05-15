@@ -1,5 +1,6 @@
 package com.mkn0079.expensetracker.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,15 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 
-enum class TransactionPeriodFilter(val label: String) {
-    ALL("All"),
-    DAILY("Daily"),
-    MONTHLY("Monthly"),
-    YEARLY("Yearly")
+enum class TransactionPeriodFilter(@StringRes val labelRes: Int) {
+    ALL(R.string.label_all),
+    DAILY(R.string.label_daily),
+    MONTHLY(R.string.label_monthly),
+    YEARLY(R.string.label_yearly)
 }
 
 @Composable
@@ -94,7 +97,7 @@ fun TransactionPeriodNavigator(
                         icon = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = "Previous period",
+                                contentDescription = stringResource(R.string.desc_previous_period),
                                 tint = colorScheme.primary
                             )
                         }
@@ -123,7 +126,7 @@ fun TransactionPeriodNavigator(
 
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = "Select period",
+                            contentDescription = stringResource(R.string.desc_select_period),
                             tint = colorScheme.onSurface.copy(alpha = 0.86f),
                             modifier = Modifier.size(18.dp)
                         )
@@ -135,7 +138,7 @@ fun TransactionPeriodNavigator(
                         icon = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = "Next period",
+                                contentDescription = stringResource(R.string.desc_next_period),
                                 tint = colorScheme.primary
                             )
                         }
@@ -163,7 +166,7 @@ fun TransactionPeriodNavigator(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = selectedFilter.label,
+                    text = stringResource(selectedFilter.labelRes),
                     color = colorScheme.onSurface.copy(alpha = 0.88f),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium,
@@ -185,7 +188,7 @@ fun TransactionPeriodNavigator(
                     DropdownMenuItem(
                         text = {
                             Text(
-                                text = filter.label,
+                                text = stringResource(filter.labelRes),
                                 color = if (filter == selectedFilter) {
                                     colorScheme.onSurface
                                 } else {

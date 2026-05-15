@@ -92,9 +92,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
@@ -128,27 +130,28 @@ import java.math.BigDecimal
 
 private const val incomeTypeId = 1
 private const val expenseTypeId = 2
+private const val KEYPAD_DELETE_KEY = "delete"
 
 private data class TransactionMode(
     val id: Int,
-    val label: String
+    @androidx.annotation.StringRes val label: Int
 )
 
 private val transactionModes = listOf(
-    TransactionMode(id = incomeTypeId, label = "Income"),
-    TransactionMode(id = expenseTypeId, label = "Expense")
+    TransactionMode(id = incomeTypeId, label = R.string.title_income),
+    TransactionMode(id = expenseTypeId, label = R.string.title_expense)
 )
 
 private data class RecurringModeOption(
     val frequency: RecurringFrequency,
-    val label: String
+    @androidx.annotation.StringRes val label: Int
 )
 
 private val recurringModeOptions = listOf(
-    RecurringModeOption(RecurringFrequency.Daily, "Daily"),
-    RecurringModeOption(RecurringFrequency.Weekly, "Weekly"),
-    RecurringModeOption(RecurringFrequency.Monthly, "Monthly"),
-    RecurringModeOption(RecurringFrequency.Yearly, "Yearly")
+    RecurringModeOption(RecurringFrequency.Daily, R.string.label_daily),
+    RecurringModeOption(RecurringFrequency.Weekly, R.string.label_weekly),
+    RecurringModeOption(RecurringFrequency.Monthly, R.string.label_monthly),
+    RecurringModeOption(RecurringFrequency.Yearly, R.string.label_yearly)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -279,7 +282,7 @@ fun AddTransactionScreen(
                 )
         ) {
             AppHeader(
-                title = if (isEditMode) "Edit Transaction" else "Add Transaction",
+                title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
                 onBackClick = onBackClick
             )
 
@@ -296,7 +299,7 @@ fun AddTransactionScreen(
                     verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
                 ) {
                     AnimatedTabSwitcher(
-                        items = transactionModes.map { TabItem(it.id, it.label) },
+                        items = transactionModes.map { TabItem(it.id, stringResource(it.label)) },
                         selectedItemId = selectedTransactionTypeId,
                         onItemSelected = { selectedTransactionTypeId = it }
                     )
@@ -317,8 +320,8 @@ fun AddTransactionScreen(
                     SelectionInfoCard(
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = Icons.Filled.EditNote,
-                        label = "NOTE",
-                        value = note.ifBlank { "Add note" },
+                        label = stringResource(R.string.label_note),
+                        value = note.ifBlank { stringResource(R.string.label_add_note) },
                         isPlaceholder = note.isBlank(),
                         compact = compact,
                         onClick = {
@@ -330,7 +333,7 @@ fun AddTransactionScreen(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
                     ) {
-                        SectionHeader(title = "CATEGORY")
+                        SectionHeader(title = stringResource(R.string.title_category_1))
                         ChoiceChipRow(
                             items = categoriesForType,
                             selectedId = selectedCategoryId,
@@ -345,7 +348,7 @@ fun AddTransactionScreen(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
                     ) {
-                        SectionHeader(title = "PAYMENT METHOD")
+                        SectionHeader(title = stringResource(R.string.title_payment_method))
                         ChoiceChipRow(
                             items = paymentMethods,
                             selectedId = selectedPaymentId,
@@ -364,7 +367,7 @@ fun AddTransactionScreen(
                         SelectionInfoCard(
                             modifier = Modifier.weight(1f),
                             leadingIcon = Icons.Filled.CalendarMonth,
-                            label = "DATE",
+                            label = stringResource(R.string.label_date),
                             value = formatTransactionDate(selectedDateMillis, dateFormatPattern),
                             compact = compact,
                             onClick = { isDatePickerVisible = true }
@@ -411,13 +414,13 @@ fun AddTransactionScreen(
                 ) {
                     SideActionButton(
                         icon = Icons.Filled.DeleteOutline,
-                        contentDescription = "Delete transaction",
+                        contentDescription = stringResource(R.string.desc_delete_transaction),
                         onClick = onDeleteClick
                     )
 
                     SideActionButton(
                         icon = Icons.Filled.Dialpad,
-                        contentDescription = "Enter amount",
+                        contentDescription = stringResource(R.string.desc_enter_amount),
                         onClick = { isKeypadExpanded = !isKeypadExpanded }
                     )
 
@@ -463,14 +466,14 @@ fun AddTransactionScreen(
 
                     SideActionButton(
                         icon = Icons.Filled.Calculate,
-                        contentDescription = "Open calculator",
+                        contentDescription = stringResource(R.string.desc_open_calculator),
                         onClick = onCalculatorClick
                     )
 
                     if (!isEditMode) {
                         SideActionButton(
                             icon = Icons.Filled.Refresh,
-                            contentDescription = "Clear fields",
+                            contentDescription = stringResource(R.string.desc_clear_fields),
                             onClick = {
                                 selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
                                 selectedCategoryId = 0
@@ -592,7 +595,7 @@ private fun RecurringTransactionSection(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Recurring Transaction",
+                    text = stringResource(R.string.label_recurring_transaction),
                     color = colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -617,7 +620,7 @@ private fun RecurringTransactionSection(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 // Frequency Selector (Sliding Pill)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader(title = "FREQUENCY")
+                    SectionHeader(title = stringResource(R.string.title_frequency))
                     
                     val density = LocalDensity.current
                     var containerWidthPx by remember { mutableIntStateOf(0) }
@@ -667,7 +670,7 @@ private fun RecurringTransactionSection(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = option.label,
+                                        text = stringResource(option.label),
                                         color = animatedColor,
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             fontWeight = FontWeight.Bold
@@ -681,7 +684,7 @@ private fun RecurringTransactionSection(
 
                 // Installments Picker
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader(title = "TOTAL INSTALLMENTS")
+                    SectionHeader(title = stringResource(R.string.label_total_installments))
                     
                     val presetInstallments = listOf("3", "6", "12", "24")
                     
@@ -765,7 +768,7 @@ private fun RecurringTransactionSection(
             }
         } else {
             Text(
-                text = "Turn on to automatically track this commitment in the future.",
+                text = stringResource(R.string.label_recurring_track),
                 color = colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 52.dp)
@@ -827,7 +830,7 @@ private fun CurrencyAmountCard(
             // Top Section
             Column {
                 Text(
-                    text = "ENTER AMOUNT",
+                    text = stringResource(R.string.label_enter_amount),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
@@ -1066,7 +1069,7 @@ private fun NumericKeypad(
         listOf("1", "2", "3"),
         listOf("4", "5", "6"),
         listOf("7", "8", "9"),
-        listOf(".", "0", "delete")
+        listOf(".", "0", KEYPAD_DELETE_KEY)
     )
 
     Column(
@@ -1112,7 +1115,7 @@ private fun KeypadToggle(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                text = "Amount Keypad",
+                text = stringResource(R.string.label_amount_keypad),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
@@ -1120,7 +1123,7 @@ private fun KeypadToggle(
                 )
             )
             Text(
-                text = if (expanded) "Tap to hide keypad" else "Tap to slide up keypad",
+                text = stringResource(if (expanded) R.string.label_tap_to_hide_keypad else R.string.label_tap_to_slide_up_keypad),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -1139,7 +1142,7 @@ private fun KeypadToggle(
                 } else {
                     Icons.Filled.KeyboardArrowUp
                 },
-                contentDescription = if (expanded) "Collapse keypad" else "Expand keypad",
+                contentDescription = stringResource(if (expanded) R.string.desc_collapse_keypad else R.string.desc_expand_keypad),
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
             )
@@ -1162,10 +1165,10 @@ private fun KeypadKey(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        if (label == "delete") {
+        if (label == KEYPAD_DELETE_KEY) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Backspace,
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.desc_delete),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(if (compact) 22.dp else 24.dp)
             )
@@ -1328,8 +1331,8 @@ private fun RecurringCompactCard(
     SelectionInfoCard(
         modifier = modifier,
         leadingIcon = Icons.Default.CalendarMonth,
-        label = "RECURRING",
-        value = if (isEnabled) frequency.name else "Off",
+        label = stringResource(R.string.label_recurring),
+        value = if (isEnabled) stringResource(recurringModeOptions.first { it.frequency == frequency }.label) else stringResource(R.string.label_off),
         isPlaceholder = !isEnabled,
         compact = compact,
         onClick = onClick
@@ -1376,7 +1379,7 @@ private fun TransactionNoteBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "What's this for?",
+                    text = stringResource(R.string.label_what_is_this_for),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -1386,7 +1389,7 @@ private fun TransactionNoteBottomSheet(
                 IconButton(onClick = onDismissRequest) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.desc_close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -1408,7 +1411,7 @@ private fun TransactionNoteBottomSheet(
                         ),
                     placeholder = {
                         Text(
-                            "Add a note...",
+                            stringResource(R.string.placeholder_add_note),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
@@ -1417,7 +1420,7 @@ private fun TransactionNoteBottomSheet(
                             IconButton(onClick = { onNoteChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear note",
+                                    contentDescription = stringResource(R.string.desc_clear_note),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -1461,7 +1464,7 @@ private fun TransactionNoteBottomSheet(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Save Note",
+                    text = stringResource(R.string.label_save_note),
                     color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )

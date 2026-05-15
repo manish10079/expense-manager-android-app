@@ -22,7 +22,7 @@ import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
 import com.mkn0079.expensetracker.ui.screens.AppLockScreen
 import com.mkn0079.expensetracker.ui.screens.AppLockScreenMode
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
-import com.mkn0079.expensetracker.data.constants.getAppLockSecurityQuestionPrompt // Corrected import path
+import com.mkn0079.expensetracker.data.constants.appLockSecurityQuestions
 import kotlinx.coroutines.delay
 
 private const val APP_LOCK_BIOMETRIC_AUTO_TRIGGER_DELAY_MS = 650L
@@ -43,7 +43,7 @@ fun AppLockOverlay(
     biometricEnabled: Boolean = appSettings.biometricLockEnabled,
     scrambledPinKeypadEnabled: Boolean = appSettings.scrambledPinKeypadEnabled,
     isBiometricAvailable: Boolean = false,
-    securityQuestionPrompt: String = "",
+    securityQuestionPrompt: Int? = null,
     onBackClick: (() -> Unit)? = onDismiss,
     onBiometricClick: (() -> Unit)? = null,
     autoTriggerBiometricOnShow: Boolean = false,
@@ -57,9 +57,9 @@ fun AppLockOverlay(
     
     // Compute defaults if not provided
     val effectiveBiometricAvailable = biometricAvailability.isAvailable
-    val effectiveSecurityQuestionPrompt = remember(context) {
+    val effectiveSecurityQuestionPromptResId = remember(context) {
         val questionId = AppLockPreferences.getSecurityQuestionId(context)
-        getAppLockSecurityQuestionPrompt(questionId).orEmpty()
+        appLockSecurityQuestions.firstOrNull { it.id == questionId }?.promptResId
     }
     var hasAutoTriggeredBiometric by remember(initialFlow) { mutableStateOf(false) }
 
@@ -103,7 +103,7 @@ fun AppLockOverlay(
                 biometricEnabled = biometricEnabled,
                 scrambledPinKeypadEnabled = scrambledPinKeypadEnabled,
                 isBiometricAvailable = effectiveBiometricAvailable,
-                securityQuestionPrompt = effectiveSecurityQuestionPrompt,
+                securityQuestionPrompt = effectiveSecurityQuestionPromptResId,
                 onBackClick = if (flow == AppLockFlow.Setup) onBackClick else null,
                 onBiometricClick = if (flow == AppLockFlow.Unlock) onBiometricClick else null,
                 onSetupComplete = onSetupComplete ?: { _, _, _ -> },

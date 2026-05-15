@@ -62,6 +62,12 @@ com.mkn0079.expensetracker/
   - Repositories: Integration tests with in-memory Room database.
   - UI: Compose tests for critical flows.
 
+### 5. Internationalization (i18n)
+- **Strings:** Never use hardcoded strings for user-facing UI text. All strings must be extracted to `app/src/main/res/values/strings.xml`.
+- **Compose:** Use `stringResource(R.string.id)` for UI text in Composables.
+- **ViewModels:** ViewModels should avoid resolving strings directly. Instead, expose the `@StringRes Int` resource ID or use a UI model that holds both a raw string (for user data) and a resource ID (for system labels/fallbacks).
+- **Accessibility:** Always provide localized `contentDescription` for all icons and interactive elements.
+
 ## 🚀 Workflow for New Features
 
 1. **Analyze:** Identify the impact across Data, Domain, and UI layers.
@@ -76,6 +82,7 @@ com.mkn0079.expensetracker/
 - No business logic or database calls directly in Composables.
 - No usage of `ExpenseTrackerRepositoryProvider` (deprecated/forbidden).
 - No skipping of `Result` wrapping for critical data operations.
+- No hardcoded strings in UI or ViewModels (Mandatory use of `strings.xml`).
 
 ---
 *Refer to `CODING_GUIDELINES.md` and `AI_CODING_PROMPT.md` for more detailed technical specifications.*

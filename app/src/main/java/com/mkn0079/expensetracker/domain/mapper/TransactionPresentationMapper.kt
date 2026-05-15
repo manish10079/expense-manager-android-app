@@ -21,7 +21,8 @@ fun Transaction.toTransactionCardItemUi(
     dateFormatPattern: String,
     timeFormat: String,
     paymentTypeName: String,
-    categories: List<CategoryType>
+    categories: List<CategoryType>,
+    fallbackCategoryName: String = "Other"
 ): TransactionCardItemUi {
     val category = categories.find { it.id == categoryId }
     val resolvedIcon = category?.icon ?: categoryIcon
@@ -40,14 +41,17 @@ fun Transaction.toTransactionCardItemUi(
         icon = resolvedIcon,
         transactionTypeId = transactionTypeId,
         paymentType = paymentTypeName,
-        categoryLabel = category?.name ?: "General"
+        categoryLabel = category?.name ?: fallbackCategoryName
     )
 }
 
 fun buildTransactionListItems(
     transactions: List<TransactionCardItemUi>,
     groupByDate: Boolean,
-    sortType: SortType
+    sortType: SortType,
+    todayLabel: String = "Today",
+    yesterdayLabel: String = "Yesterday",
+    tomorrowLabel: String = "Tomorrow"
 ): List<TransactionListItemUi> {
     if (!groupByDate) {
         return transactions.map { transaction ->
@@ -71,7 +75,12 @@ fun buildTransactionListItems(
                 TransactionListItemUi.Header(
                     id = "header_$dayTimestamp",
                     timestamp = dayTimestamp,
-                    dayLabel = getTransactionDayLabel(dayTimestamp),
+                    dayLabel = getTransactionDayLabel(
+                        timestamp = dayTimestamp,
+                        todayLabel = todayLabel,
+                        yesterdayLabel = yesterdayLabel,
+                        tomorrowLabel = tomorrowLabel
+                    ),
                     dateLabel = formatTransactionHeaderDate(dayTimestamp)
                 )
             )
@@ -94,7 +103,10 @@ fun getStartOfDayTimestamp(timestamp: Long): Long {
 
 private fun getTransactionDayLabel(
     timestamp: Long,
-    referenceTimestamp: Long = System.currentTimeMillis()
+    referenceTimestamp: Long = System.currentTimeMillis(),
+    todayLabel: String,
+    yesterdayLabel: String,
+    tomorrowLabel: String
 ): String {
     val dayDifference = getDayDifference(
         firstTimestamp = getStartOfDayTimestamp(timestamp),
@@ -102,9 +114,9 @@ private fun getTransactionDayLabel(
     )
 
     return when (dayDifference) {
-        0L -> "Today"
-        -1L -> "Yesterday"
-        1L -> "Tomorrow"
+        0L -> todayLabel
+        -1L -> yesterdayLabel
+        1L -> tomorrowLabel
         else -> SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(timestamp))
     }
 }

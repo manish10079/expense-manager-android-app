@@ -15,12 +15,12 @@ import androidx.compose.material.icons.rounded.MoreTime
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mkn0079.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.models.SettingsItemType
@@ -59,7 +59,7 @@ fun PreferencesScreen(
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
-                title = "App Preferences",
+                title = stringResource(R.string.title_app_preferences),
                 onBackClick = onBackClick
             )
             Spacer(modifier = Modifier.height(18.dp))
@@ -71,8 +71,8 @@ fun PreferencesScreen(
             ) {
                 item {
                     SettingsItemCard(
-                        title = "Currency",
-                        subtitle = "Primary app currency",
+                        title = stringResource(R.string.title_currency),
+                        subtitle = stringResource(R.string.label_primary_currency),
                         icon = Icons.Rounded.CurrencyRupee,
                         valueText = uiState.currentCurrencyLabel,
                         type = SettingsItemType.Value,
@@ -81,8 +81,8 @@ fun PreferencesScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Theme",
-                        subtitle = "App color appearance",
+                        title = stringResource(R.string.title_theme),
+                        subtitle = stringResource(R.string.label_theme_subtitle),
                         icon = Icons.Filled.Palette,
                         valueText = uiState.currentThemeModeLabel,
                         type = SettingsItemType.Value,
@@ -91,8 +91,8 @@ fun PreferencesScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Date Format",
-                        subtitle = "How dates are shown",
+                        title = stringResource(R.string.title_date_format),
+                        subtitle = stringResource(R.string.label_date_format_subtitle),
                         icon = Icons.Rounded.DateRange,
                         valueText = uiState.currentDateFormatLabel,
                         type = SettingsItemType.Value,
@@ -101,8 +101,8 @@ fun PreferencesScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Time Format",
-                        subtitle = "12h or 24h clock",
+                        title = stringResource(R.string.title_time_format),
+                        subtitle = stringResource(R.string.label_time_format_subtitle),
                         icon = Icons.Rounded.MoreTime,
                         valueText = uiState.currentTimeFormatLabel,
                         type = SettingsItemType.Value,
@@ -111,8 +111,8 @@ fun PreferencesScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Number Format",
-                        subtitle = "Digit grouping style",
+                        title = stringResource(R.string.title_number_format),
+                        subtitle = stringResource(R.string.label_number_format_subtitle),
                         icon = Icons.Rounded.Pin,
                         valueText = uiState.currentGroupingLabel,
                         type = SettingsItemType.Value,
@@ -121,8 +121,8 @@ fun PreferencesScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Decimal Places",
-                        subtitle = "Amount precision",
+                        title = stringResource(R.string.title_decimal_places),
+                        subtitle = stringResource(R.string.label_decimal_places_subtitle),
                         icon = Icons.Rounded.Straighten,
                         valueText = uiState.currentDecimalPlacesLabel,
                         type = SettingsItemType.Value,
@@ -148,9 +148,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Currency",
-                    description = "Search by country and pick the currency you want to use across the app.",
+                AppSelectionSheet<Int>(
+                    title = stringResource(R.string.label_select_currency),
+                    description = stringResource(R.string.label_search_by_country_and_pick_the),
                     items = currencyItems,
                     selectedId = uiState.selectedCurrencyId,
                     onItemSelected = { preferencesViewModel.selectCurrency(it) },
@@ -161,7 +161,7 @@ fun PreferencesScreen(
                     showSearch = true,
                     searchQuery = uiState.currencySearchQuery,
                     onSearchQueryChange = preferencesViewModel::updateCurrencySearchQuery,
-                    searchPlaceholder = "Search country"
+                    searchPlaceholder = stringResource(R.string.label_search_country)
                 )
             }
 
@@ -176,9 +176,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Theme",
-                    description = "Choose whether the app follows your device or stays on a fixed theme.",
+                AppSelectionSheet<com.mkn0079.expensetracker.models.AppThemeMode>(
+                    title = stringResource(R.string.label_select_theme),
+                    description = stringResource(R.string.label_theme_selection_desc),
                     items = themeItems,
                     selectedId = uiState.selectedThemeMode,
                     onItemSelected = { preferencesViewModel.selectThemeMode(it) },
@@ -197,9 +197,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Date Format",
-                    description = "Choose the date style you want to see across the app.",
+                AppSelectionSheet<String>(
+                    title = stringResource(R.string.label_select_date_format),
+                    description = stringResource(R.string.label_choose_the_date_style_you_want),
                     items = dateItems,
                     selectedId = uiState.selectedDateFormatPattern,
                     onItemSelected = { preferencesViewModel.selectDateFormat(it) },
@@ -218,9 +218,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Time Format",
-                    description = "Choose whether time is shown in 12-hour or 24-hour style.",
+                AppSelectionSheet<String>(
+                    title = stringResource(R.string.label_select_time_format),
+                    description = stringResource(R.string.label_choose_whether_time_is_shown_i),
                     items = timeItems,
                     selectedId = uiState.selectedTimeFormat,
                     onItemSelected = { preferencesViewModel.selectTimeFormat(it) },
@@ -239,9 +239,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Number Format",
-                    description = "Choose how large amounts are grouped across the app.",
+                AppSelectionSheet<com.mkn0079.expensetracker.models.CurrencyGroupingStyle>(
+                    title = stringResource(R.string.label_select_number_format),
+                    description = stringResource(R.string.label_number_format_desc),
                     items = numberItems,
                     selectedId = uiState.selectedGroupingStyle,
                     onItemSelected = { preferencesViewModel.selectGroupingStyle(it) },
@@ -260,9 +260,9 @@ fun PreferencesScreen(
                         )
                     }
                 }
-                AppSelectionSheet(
-                    title = "Select Decimal Places",
-                    description = "Choose how many decimal places are shown in currency values.",
+                AppSelectionSheet<Int>(
+                    title = stringResource(R.string.label_select_decimal_places),
+                    description = stringResource(R.string.label_choose_how_many_decimal_places),
                     items = decimalItems,
                     selectedId = uiState.selectedDecimalPlaces,
                     onItemSelected = { preferencesViewModel.selectDecimalPlaces(it) },

@@ -18,15 +18,17 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class InitTask(val label: String, val progress: Int) {
-    object Start : InitTask("Initializing", 0)
-    object AppLock : InitTask("Starting security services", 15)
-    object LoadPrefs : InitTask("Loading your preferences", 30)
-    object LoadProfile : InitTask("Preparing your Database", 45)
-    object InitDB : InitTask("Initializing database", 70)
-    object WarmUp : InitTask("Warming up engine", 85)
-    object Finalize : InitTask("Getting things ready", 95)
-    object Complete : InitTask("Done", 100)
+import com.mkn0079.expensetracker.R
+
+sealed class InitTask(val labelResId: Int, val progress: Int) {
+    object Start : InitTask(R.string.msg_initializing, 0)
+    object AppLock : InitTask(R.string.msg_starting_security_services, 15)
+    object LoadPrefs : InitTask(R.string.msg_loading_preferences, 30)
+    object LoadProfile : InitTask(R.string.msg_preparing_database, 45)
+    object InitDB : InitTask(R.string.msg_initializing_database, 70)
+    object WarmUp : InitTask(R.string.msg_warming_up_engine, 85)
+    object Finalize : InitTask(R.string.msg_getting_things_ready, 95)
+    object Complete : InitTask(R.string.label_done, 100)
 }
 
 @HiltViewModel

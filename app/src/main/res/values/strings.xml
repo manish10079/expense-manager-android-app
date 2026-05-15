@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Expense Tracker: Budget &amp; Spend</string>
@@ -17,6 +17,8 @@
     <string name="toast_database_restored_reloading_ap">Database restored. Reloading app.</string>
 
     <!-- Authentication -->
+    <string name="desc_show_balance">Show Balance</string>
+    <string name="desc_hide_balance">Hide Balance</string>
     <string name="btn_use_pin">Use PIN</string>
     <string name="desc_delete_pin_digit">Delete PIN digit</string>
     <string name="desc_locked">Locked</string>
@@ -32,7 +34,52 @@
     <string name="msg_incorrect_pin_try_again">Incorrect PIN. Try again.</string>
     <string name="msg_pins_did_not_match_start_again">PINs did not match. Start again.</string>
     <string name="title_app_lock">App Lock</string>
+    <string name="title_recover_access">Recover Access</string>
+    <string name="label_verify_security_question">VERIFY SECURITY QUESTION</string>
+    <string name="label_biometric_security_active">BIOMETRIC SECURITY ACTIVE</string>
+    <string name="label_pin_security_active">PIN SECURITY ACTIVE</string>
+    <string name="label_create_4digit_pin">CREATE A 4-DIGIT PIN</string>
+    <string name="label_confirm_your_pin">CONFIRM YOUR PIN</string>
+    <string name="label_forgot_your_pin">Forgot Your PIN?</string>
+    <string name="label_welcome_back">Welcome Back</string>
+    <string name="label_confirm_pin">Confirm PIN</string>
+    <string name="label_security_question">Security Question</string>
+    <string name="msg_answer_saved_security_question">Answer your saved security question to disable app lock.</string>
+    <string name="msg_biometric_or_pin_to_continue">Use your biometric or enter your PIN to continue.</string>
+    <string name="msg_enter_pin_to_continue">Enter your PIN to continue.</string>
+    <string name="msg_choose_question_remember">Choose one of the five questions and enter an answer you will remember.</string>
+    <string name="label_disable_app_lock">Disable App Lock</string>
+    <string name="msg_no_recovery_question_saved">No recovery question is saved for this app lock yet.</string>
+    <string name="placeholder_type_recovery_answer">Type your recovery answer</string>
+    <string name="placeholder_enter_your_answer">Enter your answer</string>
+
+    <string name="question_childhood_crush">What was your first childhood crush name?</string>
+    <string name="question_first_school">What was the name of your first school?</string>
+    <string name="question_childhood_friend">What is the first name of your childhood best friend?</string>
+    <string name="question_birth_city">In which city were you born?</string>
+    <string name="question_favorite_teacher">What was the last name of your favorite teacher?</string>
+    <string name="question_pet_name">What was the name of your first pet?</string>
+
+    <string name="title_add_category">Add Category</string>
+    <string name="label_category_type_section">CATEGORY TYPE</string>
+    <string name="label_category_name_section">CATEGORY NAME</string>
+    <string name="label_select_visual_identity_section">SELECT VISUAL IDENTITY</string>
+    <string name="placeholder_income_example">e.g. Performance Bonus</string>
+    <string name="placeholder_expense_example">e.g. Weekend Escapes</string>
+    <string name="placeholder_payment_example">e.g. Digital Wallet</string>
+    <string name="msg_name_already_exists">This name already exists in %1$s.</string>
+    <string name="msg_choose_icons_info">Choose from 50 icons. Color styling stays automatic.</string>
+    <string name="placeholder_search_icons">Search icons (e.g. \'Food\')Ã¢â‚¬Â¦</string>
+    <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
+    <string name="label_create_type">Create Type</string>
+    <string name="label_create_category">Create Category</string>
+    <string name="label_payment_type_item">Payment Type</string>
+    <string name="label_income_category_item">Income Category</string>
+    <string name="label_expense_category_item">Expense Category</string>
+    <string name="msg_item_added_under">This new item will be added under %1$s.</string>
+
     <string name="title_auto_lock_duration">Auto Lock Duration</string>
+
     <string name="title_biometric">Biometric</string>
     <string name="title_block_screenshots">Block Screenshots</string>
     <string name="title_lock_as_soon_as_the_app_moves">Lock as soon as the app moves to the background.</string>
@@ -44,9 +91,27 @@
     <string name="toast_biometric_initialization_faile">Biometric initialization failed.</string>
 
     <!-- Transactions -->
+    <string name="title_add_transaction">Add Transaction</string>
+    <string name="title_edit_transaction">Edit Transaction</string>
+    <string name="label_add_note">Add note</string>
+    <string name="label_off">Off</string>
+    <string name="label_weekly">Weekly</string>
+    <string name="label_recurring">RECURRING</string>
+    <string name="label_save_note">Save Note</string>
+    <string name="label_what_is_this_for">What\'s this for?</string>
+    <string name="placeholder_add_note">Add a note...</string>
+    <string name="desc_clear_fields">Clear fields</string>
+    <string name="desc_clear_note">Clear note</string>
+    <string name="desc_close">Close</string>
+    <string name="desc_enter_amount">Enter amount</string>
+    <string name="label_recurring_track">Turn on to automatically track this commitment in the future.</string>
     <string name="desc_add_category">Add category</string>
     <string name="desc_add_transaction">Add transaction</string>
     <string name="desc_confirm_val_transaction">Confirm %1$s transaction</string>
+    <string name="desc_collapse_keypad">Collapse keypad</string>
+    <string name="desc_expand_keypad">Expand keypad</string>
+    <string name="label_tap_to_hide_keypad">Tap to hide keypad</string>
+    <string name="label_tap_to_slide_up_keypad">Tap to slide up keypad</string>
     <string name="desc_delete_transaction">Delete transaction</string>
     <string name="desc_expense_tracker_logo">Budget &amp; Spend logo</string>
     <string name="desc_search_transactions">Search transactions</string>
@@ -57,8 +122,8 @@
     <string name="label_amount_keypad">Amount Keypad</string>
     <string name="label_breakdown_of_expenses_based_on">Breakdown of expenses based on the wallet or payment method used.</string>
     <string name="label_budgets_are_no_longer_preloade">Budgets are no longer preloaded. Add the category cap you want to track for this month.</string>
-    <string name="label_category_name">CATEGORY NAME</string>
-    <string name="label_category_type">CATEGORY TYPE</string>
+    <string name="label_category_name_label">CATEGORY NAME</string>
+    <string name="label_category_type_label">CATEGORY TYPE</string>
     <string name="label_choose_from_all_expense_catego">Choose from all expense categories, including preloaded and custom ones.</string>
     <string name="label_choose_how_many_decimal_places">Choose how many decimal places are shown in currency values.</string>
     <string name="label_delete_all_transactions">Delete all transactions?</string>
@@ -141,6 +206,19 @@
     <string name="title_preference">PREFERENCE</string>
     <string name="title_profile">Profile</string>
     <string name="title_user_profile">USER PROFILE</string>
+    <string name="title_account">ACCOUNT</string>
+    <string name="title_customize_caps">CUSTOMIZE</string>
+    <string name="title_about_caps">ABOUT</string>
+    <string name="label_edit_profile">Edit Profile</string>
+    <string name="label_edit_profile_subtitle">Update your name, email and avatar</string>
+    <string name="label_app_preferences_subtitle">Customize app settings</string>
+    <string name="label_transaction_card_subtitle">Adjust transaction display</string>
+    <string name="label_manage_category_subtitle">Add or edit categories</string>
+    <string name="label_security_privacy_subtitle">Protect your data and access</string>
+    <string name="label_data_management_subtitle">Backup and manage data</string>
+    <string name="label_notifications_subtitle">Control alerts and reminders</string>
+    <string name="label_about_subtitle">App info and details</string>
+    <string name="label_val_min">%1$d min</string>
 
     <!-- Errors -->
     <string name="toast_authentication_failed">Authentication failed.</string>
@@ -157,7 +235,7 @@
     <string name="desc_add_item">Add item</string>
     <string name="desc_ai_tip">AI Tip</string>
     <string name="desc_apply_to_note">Apply to note</string>
-    <string name="desc_back">Back</string>
+    <string name="desc_back">Go back</string>
     <string name="desc_close_filters">Close filters</string>
     <string name="desc_close_search">Close search</string>
     <string name="desc_custom_range">Custom range</string>
@@ -234,7 +312,7 @@
     <string name="label_growth_index">GROWTH INDEX</string>
     <string name="label_handcrafted_with_precision_and">HANDCRAFTED WITH PRECISION AND LOVE</string>
     <string name="label_headertransition">HeaderTransition</string>
-    <string name="label_hi_val">Hi, %1$s 👋</string>
+    <string name="label_hi_val">Hi, %1$s Ã°Å¸â€˜â€¹</string>
     <string name="label_high_fidelity">High Fidelity</string>
     <string name="label_iconkey">iconKey</string>
     <string name="label_id">id</string>
@@ -286,6 +364,8 @@
     <string name="label_this_new_item_will_be_added_un">This new item will be added under %1$s.</string>
     <string name="label_this_will_overwrite_your_curre">This will overwrite your current database with the selected .db backup. It will not merge missing records. Existing database data will be replaced.</string>
     <string name="label_today">Today</string>
+    <string name="label_yesterday">Yesterday</string>
+    <string name="label_tomorrow">Tomorrow</string>
     <string name="label_top_breakdownfirstornulllabel">Top: ${breakdown.firstOrNull()?.label ?: </string>
     <string name="label_total_analytics">TOTAL ANALYTICS</string>
     <string name="label_total_balance">TOTAL BALANCE</string>
@@ -367,6 +447,32 @@
     <string name="title_time_format">Time Format</string>
     <string name="title_toggle_visibility_of_transacti">Toggle visibility of transaction tags</string>
     <string name="title_visual_analytics">Visual Analytics</string>
+    <string name="label_secure_app_pin">Secure app with a PIN code</string>
+    <string name="label_use_biometric_subtitle">Use fingerprint or face ID</string>
+    <string name="label_scrambled_keypad">Scrambled Keypad</string>
+    <string name="label_scrambled_keypad_subtitle">Randomize PIN layout for security</string>
+    <string name="label_blur_in_recents">Blur In Recents</string>
+    <string name="label_blur_in_recents_subtitle">Hide app content in app switcher</string>
+    <string name="label_block_screenshots_subtitle">Prevent screen capture of app</string>
+    <string name="label_auto_lock_subtitle">When to require PIN again</string>
+    <string name="label_lock_immediately">Lock as soon as app backgrounded</string>
+    <string name="label_val_minutes_away">Lock after %1$d minutes away</string>
+    <string name="label_auto_lock_desc">Choose when the app should automatically lock itself.</string>
+    <string name="label_primary_currency">Primary app currency</string>
+    <string name="label_theme_subtitle">App color appearance</string>
+    <string name="label_date_format_subtitle">How dates are shown</string>
+    <string name="label_time_format_subtitle">12h or 24h clock</string>
+    <string name="label_number_format_subtitle">Digit grouping style</string>
+    <string name="label_decimal_places_subtitle">Amount precision</string>
+    <string name="label_theme_selection_desc">Choose whether the app follows your device or stays on a fixed theme.</string>
+    <string name="label_number_format_desc">Choose how large amounts are grouped across the app.</string>
+    <string name="label_select_theme">Select Theme</string>
+    <string name="title_theme">Theme</string>
+    <!-- About -->
+    <string name="label_app_name_display">Expense Tracker</string>
+    <string name="label_follow_us">FOLLOW US</string>
+    <string name="desc_app_icon">App Icon</string>
+    <string name="label_about_app_desc">A simple app to manage your daily transactions with elegance. Designed for the modern user who values financial clarity and a premium interface experience. Every data point is treated as part of a high-end editorial vault.</string>
     <!-- Analytics -->
     <string name="title_yearly_analytics">Yearly Analytics</string>
     <string name="title_full_category_breakdown">Full Category Breakdown</string>
@@ -390,7 +496,449 @@
     <string name="format_percentage">%1$s%%</string>
     <string name="format_thousands">%1$.1fk</string>
     <string name="format_millions">%1$.1fM</string>
-    <string name="separator_bullet">•</string>
-    <string name="format_ellipsis">%1$s…</string>
+    <string name="separator_bullet">Ã¢â‚¬Â¢</string>
+    <string name="format_ellipsis">%1$sÃ¢â‚¬Â¦</string>
+    <!-- Onboarding -->
+    <string name="desc_log_daily_spending">Log your daily spending in seconds with an optimized keypad and smart category ranking.</string>
+    <string name="label_next">Next</string>
+    <string name="desc_financial_data_secure">Your financial data is stored locally and protected by biometric security.</string>
+    <string name="desc_visualize_spending">Visualize your spending habits with interactive charts and detailed category breakdowns.</string>
+    <string name="desc_modern_finance">Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.</string>
+    <string name="label_continue">Continue</string>
+    <string name="label_private_by_nature">Private by Nature</string>
+    <string name="title_lets_get_started">Let\'s Get Started</string>
+    <string name="desc_tell_us_about_yourself">Tell us a bit about yourself to personalize your experience.</string>
+    <string name="label_get_started">Get Started</string>
+    <string name="placeholder_enter_name">Enter your name</string>
+    <string name="placeholder_select_dob">Select Date of Birth</string>
+    <string name="label_male">Male</string>
+    <string name="label_female">Female</string>
+    <string name="label_non_binary">Non-binary</string>
+    <string name="label_prefer_not_to_say">Prefer not to say</string>
+    <string name="msg_please_provide_your_val">Please provide your %1$s</string>
+    <string name="label_name_capitalized">Name</string>
+    <string name="label_gender_capitalized">Gender</string>
+    <string name="label_dob_capitalized">Date of Birth</string>
+    <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
+    <string name="label_secure_logging">SECURE LOGGING</string>
+    <string name="label_architecture">ARCHITECTURE</string>
+    <string name="label_100_offline">100% Offline</string>
+    <string name="label_access">ACCESS</string>
+    <string name="label_full_control">Full Control</string>
     <string name="label_zero">0</string>
+    <!-- Itemized Calculator -->
+    <string name="label_items_count_formatted">%1$d ITEMS</string>
+    <string name="label_description_caps">DESCRIPTION</string>
+    <string name="label_amount_caps">AMOUNT</string>
+    <string name="content_desc_delete_item">Delete %1$s</string>
+    <string name="placeholder_description_ex">Ex. Coffee House</string>
+    <string name="placeholder_amount_zero">0.00</string>
+    <string name="content_desc_add_item">Add item</string>
+    <!-- Data Management -->
+    <string name="label_automated_sync">AUTOMATED SYNC</string>
+    <string name="desc_auto_backup_subtitle">Automatic cloud/local sync</string>
+    <string name="desc_backup_frequency_subtitle">How often to sync data</string>
+    <string name="label_days_count_formatted">%1$d days</string>
+    <string name="label_data_transfer">DATA TRANSFER</string>
+    <string name="label_export_data_json">Export Data (JSON)</string>
+    <string name="desc_export_data_subtitle">Download merge-safe JSON file</string>
+    <string name="label_export">Export</string>
+    <string name="label_import_data_json">Import Data (JSON)</string>
+    <string name="desc_import_data_subtitle">Restore or merge from JSON</string>
+    <string name="label_import">Import</string>
+    <string name="label_backup_database_db">Backup Database (.db)</string>
+    <string name="desc_backup_db_subtitle">Direct SQLite file backup</string>
+    <string name="label_restore_database_db">Restore Database (.db)</string>
+    <string name="desc_restore_db_subtitle">Full database overwrite</string>
+    <string name="label_legacy_import">Legacy Import</string>
+    <string name="desc_legacy_import_subtitle">Import from older app versions</string>
+    <string name="label_migrate">Migrate</string>
+    <string name="label_utilities_and_stats">UTILITIES &amp; STATS</string>
+    <string name="desc_transaction_count_subtitle">Total records in database</string>
+    <string name="label_delete_all_data">Delete All Data</string>
+    <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
+    <string name="desc_auto_backup_every_days">Automatically backup every %1$d days</string>
+    <string name="desc_choose_backup_frequency">Choose how often the app should perform automated backups.</string>
+    <!-- Budget Screen -->
+    <string name="msg_no_category_budget_data">No category budget data is available for this month yet.</string>
+    <string name="label_history_locked">HISTORY LOCKED</string>
+    <string name="msg_no_recurring_items">No recurring items added yet.</string>
+    <string name="label_budget_insights">Budget Insights</string>
+    <string name="label_this_month_caps">THIS MONTH</string>
+    <string name="label_custom_month_caps">CUSTOM MONTH</string>
+    <string name="label_remaining">REMAINING</string>
+    <string name="label_over">OVER</string>
+    <string name="title_add_budget">Add Budget</string>
+    <string name="title_edit_budget">Edit Budget</string>
+    <string name="msg_no_expense_categories_available">No expense categories available</string>
+    <string name="label_change_caps">CHANGE</string>
+    <string name="label_edits_left_formatted">%1$d EDITS LEFT</string>
+    <string name="label_locked">LOCKED</string>
+    <string name="content_desc_locked_formatted">%1$s locked</string>
+    <string name="content_desc_upcoming">Upcoming</string>
+    <string name="label_installments_formatted">%1$d OF %2$d</string>
+    <string name="label_edit_recurring_rule">Edit Recurring Rule</string>
+    <string name="title_edit_commitment">Edit Commitment</string>
+    <string name="label_frequency_capitalized">Frequency</string>
+    <string name="label_total_installments">Total Installments</string>
+    <string name="label_save_changes_caps">SAVE CHANGES</string>
+    <string name="label_cancel_caps">CANCEL</string>
+    <string name="label_category_1">Category</string>
+    <string name="label_save_1">Save</string>
+    <string name="label_update_1">Update</string>
+    <string name="label_delete_1">Delete</string>
+    <!-- Calendar Screen -->
+    <string name="label_calendar_year_view">Calendar Year View</string>
+    <string name="label_calendar_year_picker">Calendar Year Picker</string>
+    <string name="label_calendar_month_picker">Calendar Month Picker</string>
+    <string name="content_desc_jump_to_date">Jump to date</string>
+    <string name="content_desc_month_picker_locked">Month picker locked</string>
+    <string name="content_desc_jump_to_year">Jump to year</string>
+    <string name="content_desc_year_picker_locked">Year picker locked</string>
+    <string name="title_choose_month_year">Choose Month &amp; Year</string>
+    <!-- Transaction Card Customize Screen -->
+    <string name="title_show_category">Show Category</string>
+    <string name="desc_display_category_label">Display category label on card</string>
+    <string name="desc_display_wallet_or_card">Display wallet or card used</string>
+    <string name="desc_group_transactions_by_day">Group transactions by day</string>
+    <string name="title_transaction_card_settings">Transaction Card Settings</string>
+    <string name="label_preview">Preview</string>
+    <string name="title_customize_transaction_card">Customize Transaction Card</string>
+    <!-- Edit Profile Screen -->
+    <string name="placeholder_select_gender">Select Gender</string>
+    <string name="msg_unable_to_load_photo">Unable to load that image. Please try another photo.</string>
+    <string name="title_edit_profile">Edit Profile</string>
+    <string name="label_full_name_caps">FULL NAME</string>
+    <string name="placeholder_guest_user">Guest User</string>
+    <string name="label_email_address_caps">EMAIL ADDRESS</string>
+    <string name="placeholder_email_example">alex.j@example.com</string>
+    <string name="label_phone_number_caps">PHONE NUMBER</string>
+    <string name="placeholder_phone_example">+1234 567 8900</string>
+    <string name="label_date_of_birth_caps">DATE OF BIRTH</string>
+    <string name="label_gender_caps">GENDER</string>
+    <string name="content_desc_open_gender_options">Open gender options</string>
+    <string name="desc_choose_gender_label">Choose the gender label that best fits your profile.</string>
+    <string name="content_desc_add_photo">Add photo</string>
+    <string name="content_desc_edit_photo">Edit photo</string>
+    <string name="content_desc_delete_photo">Delete photo</string>
+    <!-- Notification Settings Screen -->
+    <string name="desc_daily_reminder">Get notified to log your daily transactions.</string>
+    <string name="title_budget_limit_alerts">Budget Limit Alerts</string>
+    <string name="desc_budget_limit_alerts">Get notified when you exceed your monthly budget.</string>
+    <string name="desc_missed_entry_reminder">Get notified if you forget to add a transaction for 2 days.</string>
+    <!-- Splash Screen Tasks -->
+    <string name="msg_initializing">Initializing</string>
+    <string name="msg_starting_security_services">Starting security services</string>
+    <string name="msg_loading_preferences">Loading your preferences</string>
+    <string name="msg_preparing_database">Preparing your Database</string>
+    <string name="msg_initializing_database">Initializing database</string>
+    <string name="msg_warming_up_engine">Warming up engine</string>
+    <string name="msg_getting_things_ready">Getting things ready</string>
+    <string name="label_done">Done</string>
+    <string name="desc_select_period">Select period</string>
+    <string name="label_all">All</string>
+    <string name="label_daily">Daily</string>
+    <string name="label_monthly">Monthly</string>
+    <string name="label_yearly">Yearly</string>
+    <string name="label_no_results_found">No results found.</string>
+    <string name="label_select_a_backup_file">Select a backup file to restore your data. This will overwrite current data.</string>
+    <string name="label_select_file_manually">Select file manually...</string>
+    <string name="label_advanced_analytics_trends">Advanced Analytics &amp; Trends</string>
+    <string name="label_automatic_cloud_backups">Automatic Cloud Backups</string>
+    <string name="label_unlimited_recurring_rules">Unlimited Recurring Rules</string>
+    <string name="label_privacy_mode_biometric_lock">Privacy Mode &amp; Biometric Lock</string>
+    <string name="label_last_7_days">Last 7 Days</string>
+    <string name="label_last_15_days">Last 15 Days</string>
+    <string name="label_last_30_days">Last 30 Days</string>
+    <string name="label_last_60_days">Last 60 Days</string>
+    <string name="label_expense_categories">Expense Categories</string>
+    <string name="label_income_categories">Income Categories</string>
+    <string name="label_no_categories_available">No categories available for selected type.</string>
+    <string name="label_min">Min</string>
+    <string name="label_max">Max</string>
+    <string name="desc_newest_order">Most recent transactions appear at the top.</string>
+    <string name="desc_oldest_order">Earlier transactions show up first.</string>
+    <string name="desc_highest_order">Larger amounts take priority in the list.</string>
+    <string name="desc_lowest_order">Smaller amounts appear before bigger ones.</string>
+    <string name="desc_income_first_order">Income transactions are grouped before expenses.</string>
+    <string name="desc_expense_first_order">Expense transactions are shown before income.</string>
+    <string name="label_search_dots">SearchÃ¢â‚¬Â¦</string>
+    <string name="label_action">Action</string>
+    <string name="label_watch_ad">Watch Ad</string>
+    <string name="label_premium">Premium</string>
+    <string name="label_open">Open</string>
+    <string name="title_restore_database">Restore Database</string>
+    <string name="label_restore">Restore</string>
+    <string name="label_premium_features">Premium Features</string>
+    <string name="label_sort_by">SORT BY</string>
+    <string name="title_date_range">DATE RANGE</string>
+    <string name="label_custom_range_filter">Custom Range Filter</string>
+    <string name="label_custom_range">Custom Range</string>
+    <string name="label_order">Order</string>
+    <string name="label_filters">Filters</string>
+    <string name="desc_order_subtitle">Fine-tune how results are ranked inside the selected sort.</string>
+    <string name="desc_filters_subtitle">Stack multiple filters to narrow the transaction list.</string>
+    <string name="desc_sort_subtitle">Choose the main attribute used to arrange the list.</string>
+    <string name="title_transaction_type_caps">TRANSACTION TYPE</string>
+    <string name="label_newest_first">Newest First</string>
+    <string name="label_oldest_first">Oldest First</string>
+    <string name="label_highest_first">Highest First</string>
+    <string name="label_lowest_first">Lowest First</string>
+    <string name="label_income_first">Income First</string>
+    <string name="label_expense_first">Expense First</string>
+    <string name="label_payment_mode">Payment Mode</string>
+    <string name="label_amount_range">Amount Range</string>
+    <string name="label_categories">Categories</string>
+    <string name="desc_no_categories">No categories available for selected type.</string>
+    <string name="label_sort_filter_subtitle">Shape how your transactions are organized and displayed.</string>
+    <string name="label_search_placeholder">Notes or AmountÃ¢â‚¬Â¦</string>
+    <string name="label_search_by_category_wallet">Search by Category &amp; Wallet</string>
+    <string name="msg_delete_transactions_confirm">Are you sure you want to delete %1$d transactions? This action cannot be undone.</string>
+    <string name="label_delete_confirm">Delete</string>
+    <string name="label_cancel_confirm">Cancel</string>
+
+    <!-- Analytics Periods -->
+    <string name="label_week">Week</string>
+    <string name="label_month_period">Month</string>
+    <string name="label_year_period">Year</string>
+    <string name="label_custom">Custom</string>
+    <string name="label_this_week">This week</string>
+    <string name="label_this_month">This month</string>
+
+    <!-- Analytics Labels &amp; Tips -->
+    <string name="label_wallet">Wallet</string>
+    <string name="label_general">General</string>
+    <string name="label_spending">spending</string>
+    <string name="msg_unlock_insights_hint">Pick a different range or add more transactions to unlock tailored spending insights.</string>
+    <string name="label_up">up</string>
+    <string name="label_down">down</string>
+    <string name="msg_spending_trend">Your spending trend is %1$s %2$s this period. Keep an eye on %3$s and you can save about %4$s next cycle.</string>
+    <string name="msg_choose_range_dates">Choose start and end dates</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="title_select_date">Select Date</string>
+    <string name="title_select_time">Select Time</string>
+    <string name="title_select_date_time">Select Date &amp; Time</string>
+    <string name="title_select_month">Select Month</string>
+    <string name="title_select_year">Select Year</string>
+    <string name="title_select_date_range">Select Date Range</string>
+    <string name="btn_apply_range">Apply Range</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="label_from">FROM</string>
+    <string name="label_to">TO</string>
+    <string name="error_invalid_date_month">Invalid date for selected month.</string>
+    <string name="format_date_short">dd MMM</string>
+    <string name="label_total_spending">Total Spending</string>
+    <string name="label_net_savings">Net Savings</string>
+    <string name="label_spending_by_payment_mode_breakdown">Breakdown of expenses based on the wallet or payment method used.</string>
+
+    <string-array name="days_of_week_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
+    <string-array name="months_short">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+        <item>Your wallet\'s too quiet today.</item>
+        <item>404: Transactions Not Found.</item>
+        <item>Nothing here! maybe grab a coffee?</item>
+        <item>Haven\'t found any.</item>
+        <item>Looks emptyÃ¢â‚¬Â¦</item>
+        <item>No transactions to display.</item>
+        <item>No records yet</item>
+        <item>Did you forget to add something?</item>
+        <item>Empty page. Peaceful life.</item>
+        <item>Your transactions ghosted you.</item>
+        <item>Financial activity: 0%</item>
+        <item>No data found in this range.</item>
+        <item>Database says: null.</item>
+        <item>Your wallet is in airplane mode.</item>
+        <item>SilenceÃ¢â‚¬Â¦ even your money is meditating.</item>
+        <item>No spending, no stress. Interesting strategy.</item>
+        <item>Your ledger is taking a nap.</item>
+        <item>Nothing moved. Not even a rupee.</item>
+        <item>Your expenses are on vacation.</item>
+        <item>Zero activity. Zen achieved.</item>
+        <item>This page is cleaner than your room.</item>
+        <item>No transactions. Suspiciously responsible.</item>
+        <item>Your bank account is playing hide and seek.</item>
+        <item>No entries. Did time stop?</item>
+        <item>All quiet on the financial front.</item>
+        <item>No spending detected. Impressive.</item>
+        <item>Your wallet is on strike.</item>
+        <item>Nothing to report, captain.</item>
+        <item>Your money stayed loyal today.</item>
+        <item>No chaos, no expenses. Rare moment.</item>
+        <item>Even your wallet is confused.</item>
+        <item>This space is intentionally blank.</item>
+        <item>No financial drama today.</item>
+        <item>Your balance is chilling.</item>
+        <item>No activity. Are you even alive financially?</item>
+        <item>Your wallet is in stealth mode.</item>
+        <item>No transactions. Too good to be true.</item>
+        <item>Nothing happened here. Move along.</item>
+    </string-array>
+
+    <!-- Category Management -->
+    <string name="desc_income_source">Income source</string>
+    <string name="desc_expense_category">Expense category</string>
+    <string name="desc_payment_method_fallback">Payment method</string>
+
+    <!-- Input Field -->
+    <string name="error_invalid_email">Invalid email</string>
+
+    <string name="title_payment">Payment</string>
+
+    <!-- Icons and Fallbacks -->
+    <string name="icon_label_shopping_cart">Shopping</string>
+    <string name="icon_label_restaurant">Dining</string>
+    <string name="icon_label_home">Rent &amp; Home</string>
+    <string name="icon_label_directions_bus">Transport</string>
+    <string name="icon_label_directions_car">Vehicle</string>
+    <string name="icon_label_flight">Travel</string>
+    <string name="icon_label_local_cafe">Cafe &amp; Snacks</string>
+    <string name="icon_label_pets">Pets</string>
+    <string name="icon_label_school">Education</string>
+    <string name="icon_label_fitness_center">Fitness</string>
+    <string name="icon_label_spa">Personal Care</string>
+    <string name="icon_label_movie">Entertainment</string>
+    <string name="icon_label_music_note">Music</string>
+    <string name="icon_label_sports_esports">Gaming</string>
+    <string name="icon_label_favorite">Health</string>
+    <string name="icon_label_work">Salary</string>
+    <string name="icon_label_business">Business</string>
+    <string name="icon_label_laptop_mac">Gadgets</string>
+    <string name="icon_label_phone_android">Phone &amp; Bills</string>
+    <string name="icon_label_camera_alt">Photography</string>
+    <string name="icon_label_celebration">Party</string>
+    <string name="icon_label_card_giftcard">Gifts</string>
+    <string name="icon_label_child_care">Childcare</string>
+    <string name="icon_label_volunteer_activism">Charity</string>
+    <string name="icon_label_local_hospital">Hospital</string>
+    <string name="icon_label_medication">Medicine</string>
+    <string name="icon_label_two_wheeler">Bike</string>
+    <string name="icon_label_train">Train</string>
+    <string name="icon_label_hotel">Stay</string>
+    <string name="icon_label_beach_access">Vacation</string>
+    <string name="icon_label_park">Nature</string>
+    <string name="icon_label_hiking">Hiking</string>
+    <string name="icon_label_sports_soccer">Sports</string>
+    <string name="icon_label_sports_basketball">Basketball</string>
+    <string name="icon_label_pool">Swimming</string>
+    <string name="icon_label_directions_boat">Boat</string>
+    <string name="icon_label_build">Maintenance</string>
+    <string name="icon_label_subscriptions">Streaming</string>
+    <string name="icon_label_receipt_long">Bills</string>
+    <string name="icon_label_account_balance">Bank</string>
+    <string name="icon_label_credit_card">Card</string>
+    <string name="icon_label_payments">Cash</string>
+    <string name="icon_label_qr_code">QR Scan</string>
+    <string name="icon_label_savings">Savings</string>
+    <string name="icon_label_attach_money">Finance</string>
+    <string name="icon_label_wallet">Wallet</string>
+    <string name="icon_label_currency_exchange">Exchange</string>
+    <string name="icon_label_storefront">Store</string>
+    <string name="icon_label_fastfood">Fast Food</string>
+    <string name="icon_label_cake">Cake</string>
+    <string name="icon_label_water_drop">Water</string>
+    <string name="icon_label_electric_bolt">Electricity</string>
+    <string name="icon_label_gas_meter">Gas</string>
+    <string name="icon_label_wifi">Internet</string>
+    <string name="icon_label_tv">TV</string>
+    <string name="icon_label_local_shipping">Delivery</string>
+    <string name="icon_label_cleaning_services">Cleaning</string>
+    <string name="icon_label_pest_control">Pest Control</string>
+    <string name="icon_label_yard">Gardening</string>
+    <string name="icon_label_plumbing">Plumbing</string>
+    <string name="icon_label_hvac">AC/Heating</string>
+    <string name="icon_label_garage">Parking</string>
+    <string name="icon_label_local_laundry_service">Laundry</string>
+    <string name="icon_label_checkroom">Clothing</string>
+    <string name="icon_label_ice_skating">Ice Skating</string>
+    <string name="icon_label_skiing">Skiing</string>
+    <string name="icon_label_sports_tennis">Tennis</string>
+    <string name="icon_label_sports_golf">Golf</string>
+    <string name="icon_label_kayaking">Kayaking</string>
+    <string name="icon_label_surfing">Surfing</string>
+    <string name="icon_label_directions_run">Running</string>
+    <string name="icon_label_pedal_bike">Cycling</string>
+    <string name="icon_label_sailing">Sailing</string>
+    <string name="icon_label_theater_comedy">Theater</string>
+    <string name="icon_label_casino">Casino</string>
+    <string name="icon_label_toys">Toys</string>
+    <string name="icon_label_piano">Piano</string>
+    <string name="icon_label_brush">Art</string>
+    <string name="icon_label_palette">Palette</string>
+    <string name="icon_label_auto_stories">Books</string>
+    <string name="icon_label_menu_book">Study</string>
+    <string name="icon_label_computer">Computer</string>
+    <string name="icon_label_memory">Tech</string>
+    <string name="icon_label_mouse">Accessories</string>
+    <string name="icon_label_keyboard">Keyboard</string>
+    <string name="icon_label_headset">Audio</string>
+    <string name="icon_label_speaker">Speakers</string>
+    <string name="icon_label_router">Networking</string>
+    <string name="icon_label_monitor">Monitor</string>
+    <string name="icon_label_print">Printing</string>
+    <string name="icon_label_smart_home">Smart Home</string>
+    <string name="icon_label_videocam">Video</string>
+    <string name="icon_label_mic">Recording</string>
+    <string name="icon_label_radio">Radio</string>
+    <string name="icon_label_satellite">Satellite</string>
+    <string name="icon_label_explore">Explore</string>
+    <string name="icon_label_terrain">Mountains</string>
+    <string name="icon_label_landscape">Scenery</string>
+    <string name="icon_label_forest">Forest</string>
+    <string name="fallback_desc_cat_1">Meals &amp; dining</string>
+    <string name="fallback_desc_cat_2">Fuel &amp; commute</string>
+    <string name="fallback_desc_cat_3">Retail &amp; essentials</string>
+    <string name="fallback_desc_cat_4">Monthly recurring</string>
+    <string name="fallback_desc_cat_5">Wellness &amp; care</string>
+    <string name="fallback_desc_cat_6">Streaming &amp; leisure</string>
+    <string name="fallback_desc_cat_7">Home &amp; stay</string>
+    <string name="fallback_desc_cat_8">Daily essentials</string>
+    <string name="fallback_desc_cat_9">Courses &amp; books</string>
+    <string name="fallback_desc_cat_10">Bills &amp; renewals</string>
+    <string name="fallback_desc_cat_11">Coverage &amp; safety</string>
+    <string name="fallback_desc_cat_12">Celebrations &amp; giving</string>
+    <string name="fallback_desc_cat_13">Self care routine</string>
+    <string name="fallback_desc_cat_14">Fuel &amp; commute</string>
+    <string name="fallback_desc_cat_15">Repairs &amp; upkeep</string>
+    <string name="fallback_desc_cat_16">Mandatory dues</string>
+    <string name="fallback_desc_cat_17">Pet care expenses</string>
+    <string name="fallback_desc_cat_18">Kids &amp; school</string>
+    <string name="fallback_desc_cat_19">Charity &amp; giving</string>
+    <string name="fallback_desc_cat_20">Flexible spending</string>
+    <string name="fallback_desc_cat_101">Salary &amp; payroll</string>
+    <string name="fallback_desc_cat_102">Business earnings</string>
+    <string name="fallback_desc_cat_103">Returns &amp; gains</string>
+    <string name="fallback_desc_cat_104">Projects &amp; gigs</string>
+    <string name="fallback_desc_cat_105">Other credits</string>
+    <string name="fallback_desc_pay_1">UPI transfers &amp; scans</string>
+    <string name="fallback_desc_pay_2">Cash in hand</string>
+    <string name="fallback_desc_pay_3">Bank transfers</string>
+    <string name="fallback_desc_pay_4">Debit &amp; credit cards</string>
+    <string name="fallback_desc_pay_5">Flexible payment mode</string>
+    <string name="label_income_categories_count">%1$d income categories</string>
+    <string name="label_expense_categories_count">%1$d expense categories</string>
+    <string name="label_payment_methods_count">%1$d payment methods</string>
 </resources>
+

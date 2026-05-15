@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Surface
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -139,7 +141,7 @@ fun ProfileAvatar(
             if (resolvedAvatarBitmap != null) {
                 Image(
                     bitmap = resolvedAvatarBitmap,
-                    contentDescription = "Profile photo",
+                    contentDescription = stringResource(R.string.desc_profile_photo),
                     modifier = Modifier
                         .matchParentSize()
                         .clip(CircleShape),
@@ -148,7 +150,7 @@ fun ProfileAvatar(
             } else {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
-                    contentDescription = "Profile placeholder",
+                    contentDescription = stringResource(R.string.desc_profile_placeholder),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(size * 1.10f)

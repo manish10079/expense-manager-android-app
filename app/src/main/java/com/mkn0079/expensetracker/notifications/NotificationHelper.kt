@@ -67,7 +67,7 @@ object NotificationHelper {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
-            .setContentTitle("Expense Tracker")
+            .setContentTitle(context.getString(R.string.app_name))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

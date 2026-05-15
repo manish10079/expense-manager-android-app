@@ -46,10 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.monetization.AccessLevel
@@ -167,7 +169,7 @@ fun SettingsItemCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.Rounded.Lock,
-                            contentDescription = "Locked",
+                            contentDescription = stringResource(R.string.desc_locked),
                             tint = onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
@@ -188,7 +190,7 @@ fun SettingsItemCard(
 
             if (isGated) {
                 Text(
-                    text = if (accessLevel == AccessLevel.AD_SUPPORTED) "Watch Ad" else "Premium",
+                    text = if (accessLevel == AccessLevel.AD_SUPPORTED) stringResource(R.string.label_watch_ad) else stringResource(R.string.label_premium),
                     color = lockColor,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Bold
@@ -224,7 +226,7 @@ fun SettingsItemCard(
                     SettingsItemType.Navigation -> {
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
-                            contentDescription = "Open",
+                            contentDescription = stringResource(R.string.label_open),
                             tint = primary.copy(alpha = 0.8f),
                             modifier = Modifier.size(40.dp)
                         )
@@ -246,7 +248,7 @@ fun SettingsItemCard(
                             enabled = finalEnabled
                         ) {
                             Text(
-                                text = valueText ?: "Action",
+                                text = valueText ?: stringResource(R.string.label_action),
                                 color = primary
                             )
                         }
@@ -306,10 +308,6 @@ private fun SettingsItemCardPreviewDark() {
         }
     }
 }
-
-
-
-
 
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable

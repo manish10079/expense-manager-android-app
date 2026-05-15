@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
@@ -48,7 +50,7 @@ fun NotificationSettingsScreen(
             .navigationBarsPadding()
     ) {
         AppHeader(
-            title = "Notification Settings",
+            title = stringResource(id = R.string.title_notification_settings),
             onBackClick = onBackClick,
             modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
         )
@@ -63,7 +65,7 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "ALERTS & REMINDERS",
+                text = stringResource(id = R.string.dialog_alerts_reminders),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
@@ -74,8 +76,8 @@ fun NotificationSettingsScreen(
 
             SettingsItemCard(
                 icon = Icons.Rounded.NotificationsActive,
-                title = "Daily Reminder",
-                subtitle = "Get notified to log your daily transactions.",
+                title = stringResource(id = R.string.title_daily_reminder),
+                subtitle = stringResource(id = R.string.desc_daily_reminder),
                 type = SettingsItemType.Toggle,
                 isChecked = isDailyReminderEnabled,
                 onCheckedChange = onDailyReminderChange
@@ -83,8 +85,8 @@ fun NotificationSettingsScreen(
 
             SettingsItemCard(
                 icon = Icons.Rounded.PriceCheck,
-                title = "Budget Limit Alerts",
-                subtitle = "Get notified when you exceed your monthly budget.",
+                title = stringResource(id = R.string.title_budget_limit_alerts),
+                subtitle = stringResource(id = R.string.desc_budget_limit_alerts),
                 type = SettingsItemType.Toggle,
                 isChecked = isBudgetLimitAlertsEnabled,
                 onCheckedChange = onBudgetLimitAlertsChange
@@ -92,8 +94,8 @@ fun NotificationSettingsScreen(
 
             SettingsItemCard(
                 icon = Icons.Rounded.History,
-                title = "Missed Entry Reminder",
-                subtitle = "Get notified if you forget to add a transaction for 2 days.",
+                title = stringResource(id = R.string.title_missed_entry_reminder),
+                subtitle = stringResource(id = R.string.desc_missed_entry_reminder),
                 type = SettingsItemType.Toggle,
                 isChecked = isMissedEntryReminderEnabled,
                 onCheckedChange = onMissedEntryReminderChange

@@ -15,11 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.mkn0079.expensetracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,9 +53,6 @@ fun PremiumGateSheet(
                 .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Scrollable Content Area: Use weight(1f, fill = false) to ensure 
-            // the action buttons stay visible at the bottom if screen is small
-            // but the content can scroll if font size is huge.
             Column(
                 modifier = Modifier
                     .weight(1f, fill = false)
@@ -63,7 +61,6 @@ fun PremiumGateSheet(
             ) {
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Premium Icon/Badge - Slightly smaller for better fit
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -86,7 +83,7 @@ fun PremiumGateSheet(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 Text(
-                    text = "Unlock Pro Features",
+                    text = stringResource(R.string.label_unlock_pro_features),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -98,7 +95,7 @@ fun PremiumGateSheet(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Take control of your wealth with our most powerful tools.",
+                    text = stringResource(R.string.label_take_control_of_your_wealth_wi),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
@@ -108,21 +105,18 @@ fun PremiumGateSheet(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Benefit List - Tightened vertical spacing
-                BenefitItem("Advanced Analytics & Trends")
-                BenefitItem("Automatic Cloud Backups")
-                BenefitItem("Unlimited Recurring Rules")
-                BenefitItem("Privacy Mode & Biometric Lock")
+                BenefitItem(stringResource(R.string.label_advanced_analytics_trends))
+                BenefitItem(stringResource(R.string.label_automatic_cloud_backups))
+                BenefitItem(stringResource(R.string.label_unlimited_recurring_rules))
+                BenefitItem(stringResource(R.string.label_privacy_mode_biometric_lock))
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // Fixed Action Section: Stays at the bottom
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Upgrade Button
                 Button(
                     onClick = onUpgradeClick,
                     modifier = Modifier
@@ -145,7 +139,7 @@ fun PremiumGateSheet(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Upgrade to Pro",
+                            text = stringResource(R.string.label_upgrade_to_pro),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.onPrimary,
@@ -162,7 +156,7 @@ fun PremiumGateSheet(
                     modifier = Modifier.height(48.dp)
                 ) {
                     Text(
-                        text = "NOT NOW",
+                        text = stringResource(R.string.label_not_now),
                         style = MaterialTheme.typography.labelLarge.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             letterSpacing = 1.5.sp,

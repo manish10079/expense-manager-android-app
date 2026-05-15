@@ -11,11 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.mkn0079.expensetracker.R
 
 @Composable
 fun AdRewardDialog(
@@ -46,7 +47,7 @@ fun AdRewardDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "2 Hour Access",
+                    text = stringResource(R.string.label_2_hour_access),
                     color = MaterialTheme.colorScheme.secondary, // Gold/Accent color for emphasis
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
@@ -55,7 +56,7 @@ fun AdRewardDialog(
         },
         text = {
             Text(
-                text = "Watch a short video to unlock $featureName.",
+                text = stringResource(R.string.label_watch_a_short_video_to_unlock, featureName),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -69,7 +70,7 @@ fun AdRewardDialog(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Watch Ad & Unlock", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                Text(stringResource(R.string.label_watch_ad_unlock), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
             }
         },
         dismissButton = {
@@ -77,7 +78,7 @@ fun AdRewardDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                Text(stringResource(R.string.label_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
             }
         }
     )

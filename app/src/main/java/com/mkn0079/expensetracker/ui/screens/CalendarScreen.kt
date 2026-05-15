@@ -61,6 +61,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -164,7 +166,7 @@ fun CalendarScreen(
                     .fillMaxWidth()
                     .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
             ) {
-                AppHeader(title = "Calendar", onBackClick = onBackClick)
+                AppHeader(title = stringResource(id = R.string.title_calendar), onBackClick = onBackClick)
             }
 
             LazyColumn(
@@ -179,7 +181,7 @@ fun CalendarScreen(
                 item {
                     GatedAction(
                         feature = Feature.CALENDAR_YEAR_VIEW,
-                        displayName = "Calendar Year View",
+                        displayName = stringResource(id = R.string.label_calendar_year_view),
                         onAction = { calendarViewModel.setYearView(true) }
                     ) { status, onClick ->
                         val isYearLocked = status !is AccessStatus.Granted
@@ -190,10 +192,10 @@ fun CalendarScreen(
                         }
                         AnimatedTabSwitcher(
                             items = listOf(
-                                TabItem(false, "Month"),
+                                TabItem(false, stringResource(id = R.string.label_month_1)),
                                 TabItem(
                                     id = true,
-                                    label = "Year",
+                                    label = stringResource(id = R.string.label_year),
                                     isLocked = isYearLocked,
                                     onLockedClick = { onClick() }
                                 )
@@ -235,7 +237,7 @@ fun CalendarScreen(
                                     ) {
                                         GatedAction(
                                             feature = Feature.CALENDAR_DIRECT_YEAR_PICKER,
-                                            displayName = "Calendar Year Picker",
+                                            displayName = stringResource(id = R.string.label_calendar_year_picker),
                                             onAction = { isYearPickerVisible = true }
                                         ) { status, onClick ->
                                             YearHeading(
@@ -280,7 +282,7 @@ fun CalendarScreen(
                                     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
                                         GatedAction(
                                             feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
-                                            displayName = "Calendar Month Picker",
+                                            displayName = stringResource(id = R.string.label_calendar_month_picker),
                                             onAction = { isMonthYearPickerVisible = true }
                                         ) { status, onClick ->
                                             MonthHeading(
@@ -399,14 +401,14 @@ private fun MonthHeading(
                 )
                 Icon(
                     imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Jump to date",
+                    contentDescription = stringResource(id = R.string.content_desc_jump_to_date),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
                     Icon(
                         imageVector = Icons.Filled.Lock,
-                        contentDescription = "Month picker locked",
+                        contentDescription = stringResource(id = R.string.content_desc_month_picker_locked),
                         tint = MaterialTheme.colorScheme.featureGateLock,
                         modifier = Modifier.size(14.dp)
                     )
@@ -436,7 +438,7 @@ private fun TodayShortcutButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Today",
+            text = stringResource(id = R.string.label_today),
             color = MaterialTheme.colorScheme.primary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
@@ -585,7 +587,7 @@ private fun TransactionSectionHeader(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "TRANSACTIONS",
+            text = stringResource(id = R.string.label_transactions),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -641,7 +643,7 @@ private fun EmptyTransactionsCard(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                text = "No transactions found",
+                text = stringResource(id = R.string.label_no_transactions_found),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold
@@ -688,14 +690,14 @@ private fun YearHeading(
                 )
                 Icon(
                     imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Jump to year",
+                    contentDescription = stringResource(id = R.string.content_desc_jump_to_year),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
                     Icon(
                         imageVector = Icons.Filled.Lock,
-                        contentDescription = "Year picker locked",
+                        contentDescription = stringResource(id = R.string.content_desc_year_picker_locked),
                         tint = MaterialTheme.colorScheme.featureGateLock,
                         modifier = Modifier.size(16.dp)
                     )
@@ -732,12 +734,12 @@ private fun AnnualSummaryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SummaryStat(
-                    label = "TOTAL INCOME",
+                    label = stringResource(id = R.string.label_total_income),
                     value = totalIncome,
                     valueColor = MaterialTheme.colorScheme.onSurface
                 )
                 SummaryStat(
-                    label = "TOTAL EXPENSES",
+                    label = stringResource(id = R.string.label_total_expenses),
                     value = totalExpense,
                     valueColor = MaterialTheme.colorScheme.onSurface
                 )
@@ -976,7 +978,7 @@ private fun MonthYearPickerDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Choose Month & Year",
+                text = stringResource(id = R.string.title_choose_month_year),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
@@ -998,12 +1000,12 @@ private fun MonthYearPickerDialog(
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(tempDate) }) {
-                Text("Apply", fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.label_cancel_1))
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -1025,7 +1027,7 @@ private fun YearPickerDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Choose Year",
+                text = stringResource(id = R.string.label_choose_year),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
@@ -1047,12 +1049,12 @@ private fun YearPickerDialog(
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(tempYear) }) {
-                Text("Apply", fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.label_cancel_1))
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,

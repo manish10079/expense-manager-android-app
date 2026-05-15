@@ -78,6 +78,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -175,7 +177,7 @@ fun BudgetScreen(
                     .fillMaxWidth()
                     .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
             ) {
-                AppHeader(title = "Budget & Recurring", onBackClick = onBackClick)
+                AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
             }
 
             LazyColumn(
@@ -206,13 +208,13 @@ fun BudgetScreen(
                 }
 
                 item { BudgetSummaryCard(summary = uiState.summary) }
-                item { SectionTitle(title = "Category Budgets") }
+                item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
 
                 if (uiState.categoryBudgets.isEmpty()) {
                     item {
                         EmptySectionCard(
                             message = uiState.emptyCategoryMessage
-                                ?: "No category budget data is available for this month yet."
+                                ?: stringResource(id = R.string.msg_no_category_budget_data)
                         )
                     }
                 } else {
@@ -234,7 +236,7 @@ fun BudgetScreen(
                 item {
                     val canAdd = uiState.canAddBudget
                     BudgetActionButton(
-                        title = if (uiState.isMonthLocked) "HISTORY LOCKED" else "ADD NEW BUDGET",
+                        title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
                         icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
                         enabled = canAdd,
                         onClick = {
@@ -252,13 +254,13 @@ fun BudgetScreen(
                     )
                 }
 
-                item { SectionTitle(title = "Recurring Expenses") }
+                item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
 
                 if (uiState.recurringExpenses.isEmpty()) {
                     item {
                         EmptySectionCard(
                             message = uiState.emptyRecurringMessage
-                                ?: "No recurring items added yet."
+                                ?: stringResource(id = R.string.msg_no_recurring_items)
                         )
                     }
                 } else {
@@ -279,7 +281,7 @@ fun BudgetScreen(
                 item {
                     GatedAction(
                         feature = Feature.BUDGET_INSIGHTS,
-                        displayName = "Budget Insights",
+                        displayName = stringResource(id = R.string.label_budget_insights),
                         onAction = {}
                     ) { status, onClick ->
                         val isLocked = status !is AccessStatus.Granted
@@ -290,7 +292,7 @@ fun BudgetScreen(
                             )
                             if (isLocked) {
                                 FeatureLockedOverlay(
-                                    displayText = "Unlock Insights",
+                                    displayText = stringResource(id = R.string.label_unlock_insights),
                                     onClick = onClick
                                 )
                             }
@@ -467,9 +469,9 @@ private fun BudgetPeriodRow(
             periods.forEach { period ->
                 BudgetPeriodChip(
                     label = when (period) {
-                        BudgetPeriodFilter.ThisMonth -> "THIS MONTH"
-                        BudgetPeriodFilter.LastMonth -> "LAST MONTH"
-                        BudgetPeriodFilter.CustomMonth -> "CUSTOM MONTH"
+                        BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
+                        BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
+                        BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
                     },
                     selected = period == selectedPeriod,
                     isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked,
@@ -521,7 +523,7 @@ private fun BudgetPeriodChip(
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = "$label locked",
+                    contentDescription = stringResource(id = R.string.content_desc_locked_formatted, label),
                     tint = if (selected) {
                         MaterialTheme.colorScheme.onPrimary
                     } else {
@@ -562,7 +564,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "MONTHLY BUDGET",
+                text = stringResource(id = R.string.label_monthly_budget),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
@@ -592,7 +594,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = "/ month",
+                text = stringResource(id = R.string.label_month),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
@@ -603,14 +605,14 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             BudgetMetricCard(
                 modifier = Modifier.weight(1f),
-                title = "SPENT",
+                title = stringResource(id = R.string.title_spent),
                 value = summary.spentLabel,
                 valueColor = MaterialTheme.colorScheme.expense
             )
 
             BudgetMetricCard(
                 modifier = Modifier.weight(1f),
-                title = if (summary.remainingAmount >= 0.0) "REMAINING" else "OVER",
+                title = if (summary.remainingAmount >= 0.0) stringResource(id = R.string.label_remaining) else stringResource(id = R.string.label_over),
                 value = summary.remainingLabel,
                 valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
@@ -758,7 +760,7 @@ private fun BudgetEditorDialog(
         title = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = if (existingBudget == null) "Add Budget" else "Edit Budget",
+                    text = if (existingBudget == null) stringResource(id = R.string.title_add_budget) else stringResource(id = R.string.title_edit_budget),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                     )
@@ -775,13 +777,13 @@ private fun BudgetEditorDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
-                    text = "Budgets are no longer preloaded. Add the category cap you want to track for this month.",
+                    text = stringResource(id = R.string.label_budgets_are_no_longer_preloade),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Category",
+                        text = stringResource(id = R.string.label_category_1),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -790,8 +792,8 @@ private fun BudgetEditorDialog(
 
                     SelectionDialogField(
                         label = "",
-                        value = selectedCategory?.name ?: "No expense categories available",
-                        actionLabel = "CHANGE",
+                        value = selectedCategory?.name ?: stringResource(id = R.string.msg_no_expense_categories_available),
+                        actionLabel = stringResource(id = R.string.label_change_caps),
                         enabled = expenseCategories.isNotEmpty(),
                         onClick = { isCategoryPickerVisible = true },
                         dropdownContent = {}
@@ -807,7 +809,7 @@ private fun BudgetEditorDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    label = { Text("Monthly limit") },
+                    label = { Text(stringResource(id = R.string.label_monthly_limit)) },
                     placeholder = {
                         Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
                     },
@@ -833,12 +835,12 @@ private fun BudgetEditorDialog(
                 },
                 enabled = isSaveEnabled
             ) {
-                Text(if (existingBudget == null) "Save" else "Update")
+                Text(if (existingBudget == null) stringResource(id = R.string.label_save_1) else stringResource(id = R.string.label_update_1))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.label_cancel_1))
             }
         }
     )
@@ -870,23 +872,23 @@ private fun DeleteBudgetDialog(
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
-                text = "Delete Budget",
+                text = stringResource(id = R.string.label_delete_budget),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                 )
             )
         },
         text = {
-            Text("Remove the budget for $budgetName? This only deletes the budget cap, not your transactions.")
+            Text(stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName))
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Delete")
+                Text(stringResource(id = R.string.label_delete_1))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.label_cancel_1))
             }
         }
     )
@@ -971,7 +973,7 @@ private fun BudgetCategoryPickerSheet(
         ) {
             item {
                 Text(
-                    text = "Select Category",
+                    text = stringResource(id = R.string.label_select_category),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -981,7 +983,7 @@ private fun BudgetCategoryPickerSheet(
 
             item {
                 Text(
-                    text = "Choose from all expense categories, including preloaded and custom ones.",
+                    text = stringResource(id = R.string.label_choose_from_all_expense_catego),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -1061,7 +1063,7 @@ private fun BudgetCategoryPickerRow(
             Spacer(modifier = Modifier.height(2.dp))
 
             Text(
-                text = "Expense category",
+                text = stringResource(id = R.string.label_expense_category),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -1069,7 +1071,7 @@ private fun BudgetCategoryPickerRow(
 
         if (isSelected) {
             Text(
-                text = "Selected",
+                text = stringResource(id = R.string.label_selected),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -1092,23 +1094,23 @@ private fun DeleteRecurringDialog(
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
-                text = "Delete Recurring",
+                text = stringResource(id = R.string.label_delete_recurring),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                 )
             )
         },
         text = {
-            Text("Remove $recurringName from recurring tracking?")
+            Text(stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName))
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Delete")
+                Text(stringResource(id = R.string.label_delete_1))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.label_cancel_1))
             }
         }
     )
@@ -1229,7 +1231,7 @@ private fun CategoryBudgetCard(
 
             if (budget.remainingEdits != null) {
                 Text(
-                    text = if (budget.remainingEdits == 0) "HISTORY LOCKED" else "${budget.remainingEdits} EDITS LEFT",
+                    text = if (budget.remainingEdits == 0) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.label_edits_left_formatted, budget.remainingEdits),
                     color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
@@ -1251,7 +1253,7 @@ private fun CategoryBudgetCard(
             horizontalArrangement = Arrangement.End
         ) {
             BudgetCardAction(
-                label = if (budget.canEdit) "EDIT" else "LOCKED",
+                label = if (budget.canEdit) stringResource(id = R.string.label_edit) else stringResource(id = R.string.label_locked),
                 isLocked = !budget.canEdit,
                 onClick = { if (budget.canEdit) onEditClick() }
             )
@@ -1259,7 +1261,7 @@ private fun CategoryBudgetCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             BudgetCardAction(
-                label = "DELETE",
+                label = stringResource(id = R.string.label_delete),
                 accent = MaterialTheme.colorScheme.error,
                 isLocked = !budget.canEdit,
                 onClick = { if (budget.canEdit) onDeleteClick() }
@@ -1434,7 +1436,7 @@ private fun RecurringExpenseCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = "Upcoming",
+                            contentDescription = stringResource(id = R.string.content_desc_upcoming),
                             tint = budgetAccentColor(expense.accent),
                             modifier = Modifier.size(14.dp)
                         )
@@ -1475,7 +1477,7 @@ private fun RecurringExpenseCard(
                 accent = budgetAccentColor(expense.accent)
             )
             RecurringMetaChip(
-                label = "${expense.currentInstallment} OF ${expense.totalInstallments}",
+                label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
                 accent = budgetAccentColor(expense.accent)
             )
         }
@@ -1532,12 +1534,12 @@ private fun RecurringExpenseCard(
         ) {
             GatedAction(
                 feature = Feature.RECURRING_RULE_EDIT,
-                displayName = "Edit Recurring Rule",
+                displayName = stringResource(id = R.string.label_edit_recurring_rule),
                 onAction = onEditClick
             ) { status, onClick ->
                 val isLocked = status !is AccessStatus.Granted
                 BudgetCardAction(
-                    label = "EDIT",
+                    label = stringResource(id = R.string.label_edit),
                     accent = MaterialTheme.colorScheme.primary,
                     isLocked = isLocked,
                     onClick = if (isLocked) onClick else onEditClick
@@ -1545,7 +1547,7 @@ private fun RecurringExpenseCard(
             }
             Spacer(modifier = Modifier.width(12.dp))
             BudgetCardAction(
-                label = "DELETE",
+                label = stringResource(id = R.string.label_delete),
                 accent = MaterialTheme.colorScheme.error,
                 onClick = onDeleteClick
             )
@@ -1692,14 +1694,14 @@ private fun RecurringRuleEditorModal(
             verticalArrangement = Arrangement.spacedBy(22.dp)
         ) {
             Text(
-                text = "Edit Commitment",
+                text = stringResource(id = R.string.title_edit_commitment),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Frequency",
+                    text = stringResource(id = R.string.label_frequency_capitalized),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -1759,7 +1761,7 @@ private fun RecurringRuleEditorModal(
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Total Installments",
+                    text = stringResource(id = R.string.label_total_installments),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -1791,7 +1793,7 @@ private fun RecurringRuleEditorModal(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(id = R.string.label_cancel_caps), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 
                 TextButton(
@@ -1805,7 +1807,7 @@ private fun RecurringRuleEditorModal(
                         .weight(1f)
                         .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
                 ) {
-                    Text("SAVE CHANGES", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.label_save_changes_caps), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }

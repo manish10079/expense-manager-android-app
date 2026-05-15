@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,7 +99,7 @@ fun AboutScreen(
             .navigationBarsPadding()
     ) {
         AppHeader(
-            title = "About",
+            title = stringResource(R.string.title_about),
             onBackClick = onBackClick,
             modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
         )
@@ -129,7 +130,7 @@ fun AboutScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.mipmap.ic_launcher_round),
-                    contentDescription = "App Icon",
+                    contentDescription = stringResource(R.string.desc_app_icon),
                     modifier = Modifier
                         .size(110.dp)
                         .clip(CircleShape)
@@ -139,14 +140,14 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Expense Tracker",
+                text = stringResource(R.string.label_app_name_display),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
-                text = "VERSION 1.0.0",
+                text = stringResource(R.string.label_version_100),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -158,8 +159,8 @@ fun AboutScreen(
             // About App Card
             AboutInfoCard(
                 icon = Icons.Filled.Info,
-                title = "About App",
-                description = "A simple app to manage your daily transactions with elegance. Designed for the modern user who values financial clarity and a premium interface experience. Every data point is treated as part of a high-end editorial vault."
+                title = stringResource(R.string.title_about_app),
+                description = stringResource(R.string.label_about_app_desc)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -174,21 +175,21 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Support Section
-            AboutSectionHeader(title = "SUPPORT")
+            AboutSectionHeader(title = stringResource(R.string.title_support))
             SupportLegalSection {
                 AboutActionItem(
                     icon = Icons.Filled.Star,
-                    title = "Rate App",
+                    title = stringResource(R.string.title_rate_app),
                     onClick = { /* Handle rate app */ }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Email,
-                    title = "Send Feedback",
+                    title = stringResource(R.string.title_send_feedback),
                     onClick = { sendEmail("try.manish0079@gmail.com") }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.BugReport,
-                    title = "Report Bug",
+                    title = stringResource(R.string.title_report_bug),
                     onClick = { /* Handle report bug */ }
                 )
             }
@@ -196,21 +197,21 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Legal Section
-            AboutSectionHeader(title = "LEGAL")
+            AboutSectionHeader(title = stringResource(R.string.title_legal))
             SupportLegalSection {
                 AboutActionItem(
                     icon = Icons.Filled.Lock,
-                    title = "Privacy Policy",
+                    title = stringResource(R.string.title_privacy_policy),
                     onClick = { openUrl("https://example.com/privacy") }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Description,
-                    title = "Terms & Conditions",
+                    title = stringResource(R.string.title_terms_conditions),
                     onClick = { openUrl("https://example.com/terms") }
                 )
                 AboutActionItem(
                     icon = Icons.AutoMirrored.Filled.ListAlt,
-                    title = "Open Source Licenses",
+                    title = stringResource(R.string.title_open_source_licenses),
                     onClick = { /* Show licenses */ }
                 )
             }
@@ -218,7 +219,7 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Follow Us Section
-            AboutSectionHeader(title = "FOLLOW US")
+            AboutSectionHeader(title = stringResource(R.string.label_follow_us))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -226,19 +227,19 @@ fun AboutScreen(
             ) {
                 SocialButton(
                     icon = Icons.Filled.Public,
-                    label = "WEBSITE",
+                    label = stringResource(R.string.label_website),
                     onClick = { openUrl("https://example.com") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
                     icon = Icons.Filled.Code,
-                    label = "GITHUB",
+                    label = stringResource(R.string.label_github),
                     onClick = { openUrl("https://github.com/manish10079") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
                     icon = Icons.Filled.Work,
-                    label = "LINKEDIN",
+                    label = stringResource(R.string.label_linkedin),
                     onClick = { openUrl("https://linkedin.com/in/manishkumar10079") }
                 )
             }
@@ -246,7 +247,7 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = "HANDCRAFTED WITH PRECISION AND LOVE",
+                text = stringResource(R.string.label_handcrafted_with_precision_and),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
@@ -323,7 +324,7 @@ private fun DeveloperCard(
     ) {
         Column {
             Text(
-                text = "DEVELOPED BY",
+                text = stringResource(R.string.label_developed_by),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold

@@ -137,7 +137,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AnimatedContent(
-                    targetState = currentTask.label,
+                    targetState = currentTask.labelResId,
                     transitionSpec = {
                         fadeIn(animationSpec = tween(300)) +
                                 slideInVertically { it / 2 } togetherWith
@@ -145,10 +145,10 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                                 slideOutVertically { -it / 2 }
                     },
                     label = "StepAnimation"
-                ) { label ->
+                ) { labelResId ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = label,
+                            text = stringResource(id = labelResId),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Medium

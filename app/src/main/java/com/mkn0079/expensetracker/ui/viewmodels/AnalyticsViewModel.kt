@@ -24,12 +24,13 @@ import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import com.mkn0079.expensetracker.R
 
-enum class AnalyticsPeriod(val label: String) {
-    WEEK("Week"),
-    MONTH("Month"),
-    YEAR("Year"),
-    CUSTOM("Custom")
+enum class AnalyticsPeriod(val labelRes: Int) {
+    WEEK(R.string.label_week),
+    MONTH(R.string.label_month_period),
+    YEAR(R.string.label_year_period),
+    CUSTOM(R.string.label_custom)
 }
 
 @Immutable
@@ -39,7 +40,8 @@ data class CategoryBreakdownUi(
     val amountDisplay: String,
     val fraction: Float,
     val percentLabel: Int,
-    val colorIndex: Int
+    val colorIndex: Int,
+    val isOther: Boolean = false
 )
 
 @Immutable
@@ -50,7 +52,8 @@ data class PaymentTypeBreakdownUi(
     val fraction: Float,
     val percentLabel: Int,
     val colorIndex: Int,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val isOther: Boolean = false
 )
 
 @Immutable
@@ -60,12 +63,31 @@ data class TopSpendingItemUi(
     val amountDisplay: String,
     val categoryLabel: String,
     val icon: ImageVector,
-    val createdAt: Long
+    val createdAt: Long,
+    val isGeneral: Boolean = false
+)
+
+@Immutable
+data class SummaryLabelUi(
+    val resId: Int? = null,
+    val datePattern: String? = null,
+    val timestamp: Long? = null,
+    val customRange: String? = null
+)
+
+@Immutable
+data class SmartTipUi(
+    val resId: Int,
+    val flowChange: String? = null,
+    val directionResId: Int? = null,
+    val topCategory: String? = null,
+    val savingAmount: String? = null,
+    val hasSpendingData: Boolean = false
 )
 
 @Immutable
 data class AnalyticsSnapshotUi(
-    val summaryLabel: String = "This month",
+    val summaryLabel: SummaryLabelUi = SummaryLabelUi(resId = R.string.label_this_month),
     val totalDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val changeDisplay: String = "+0%",
     val changePercent: Float = 0f,
@@ -80,15 +102,22 @@ data class AnalyticsSnapshotUi(
     val incomeFraction: Float = 0f,
     val expenseChartPoints: List<Float> = emptyList(),
     val incomeChartPoints: List<Float> = emptyList(),
-    val chartLabels: List<String> = emptyList(),
+    val chartLabels: List<ChartLabelUi> = emptyList(),
     val categoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val allCategoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val paymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
     val allPaymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
     val topTransactions: List<TopSpendingItemUi> = emptyList(),
     val allTopTransactions: List<TopSpendingItemUi> = emptyList(),
-    val smartTip: String = "Pick a different range or add more transactions to unlock tailored spending insights.",
+    val smartTip: SmartTipUi = SmartTipUi(resId = R.string.msg_unlock_insights_hint),
     val hasSpendingData: Boolean = false
+)
+
+@Immutable
+data class ChartLabelUi(
+    val label: String? = null,
+    val resId: Int? = null,
+    val index: Int? = null // for array lookups
 )
 
 @Immutable
@@ -108,7 +137,7 @@ data class AnalyticsScreenUiState(
 }
 
 private data class ChartBucket(
-    val label: String,
+    val label: ChartLabelUi,
     val expenseValue: Double,
     val incomeValue: Double
 )
@@ -234,9 +263,11 @@ private fun buildAnalyticsSnapshot(
         .sortedByDescending { it.second }
     val totalExpenseForShare = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
     val allBreakdown = categoryTotals.mapIndexed { index, (categoryId, amount) ->
+        val category = categoryMap[categoryId]
         CategoryBreakdownUi(
             id = categoryId,
-            label = categoryMap[categoryId]?.name ?: "Other",
+            label = category?.name ?: "",
+            isOther = category == null,
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
@@ -256,7 +287,8 @@ private fun buildAnalyticsSnapshot(
         val paymentType = paymentTypeMap[paymentId]
         PaymentTypeBreakdownUi(
             id = paymentId,
-            label = paymentType?.name ?: "Wallet",
+            label = paymentType?.name ?: "",
+            isOther = paymentType == null,
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
@@ -283,7 +315,8 @@ private fun buildAnalyticsSnapshot(
                     amountFormatPreferences,
                     prefix = "-"
                 ),
-                categoryLabel = category?.name ?: "General",
+                categoryLabel = category?.name ?: "",
+                isGeneral = category == null,
                 icon = category?.icon ?: categoryFallbackIcon,
                 createdAt = transaction.createdAt
             )
@@ -302,7 +335,8 @@ private fun buildAnalyticsSnapshot(
                     amountFormatPreferences,
                     prefix = "-"
                 ),
-                categoryLabel = category?.name ?: "General",
+                categoryLabel = category?.name ?: "",
+                isGeneral = category == null,
                 icon = category?.icon ?: categoryFallbackIcon,
                 createdAt = transaction.createdAt
             )
@@ -336,7 +370,7 @@ private fun buildAnalyticsSnapshot(
         smartTip = buildSmartTip(
             flowChange = flowChange,
             avgDailyExpense = avgDailyExpense,
-            topCategory = breakdown.firstOrNull()?.label ?: "spending",
+            topCategory = breakdown.firstOrNull()?.label ?: "",
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             hasSpendingData = currentTransactions.isNotEmpty()
@@ -353,13 +387,12 @@ private fun buildChartBuckets(
 ): List<ChartBucket> {
     return when (period) {
         AnalyticsPeriod.WEEK -> {
-            val labels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
             val weekStart = startOfWeek(referenceTimestamp)
-            labels.mapIndexed { index, label ->
+            (0 until 7).map { index ->
                 val start = shiftByDays(weekStart, index)
                 val end = shiftByDays(start, 1) - 1
                 ChartBucket(
-                    label = label,
+                    label = ChartLabelUi(index = index, resId = R.array.days_of_week_short),
                     expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
                         .sumOf { it.amount },
@@ -383,12 +416,12 @@ private fun buildChartBuckets(
                 val label = if (dayIndex % 7 == 0 || dayIndex == totalDays - 1) {
                     val dayOfMonth = dayIndex + 1
                     when {
-                        dayOfMonth <= 7 -> "W1"
-                        dayOfMonth <= 14 -> "W2"
-                        dayOfMonth <= 21 -> "W3"
-                        else -> "W4"
+                        dayOfMonth <= 7 -> ChartLabelUi(label = "W1")
+                        dayOfMonth <= 14 -> ChartLabelUi(label = "W2")
+                        dayOfMonth <= 21 -> ChartLabelUi(label = "W3")
+                        else -> ChartLabelUi(label = "W4")
                     }
-                } else ""
+                } else ChartLabelUi(label = "")
                 
                 ChartBucket(
                     label = label,
@@ -404,7 +437,6 @@ private fun buildChartBuckets(
 
         AnalyticsPeriod.YEAR -> {
             val yearStart = startOfYear(referenceTimestamp)
-            val monthNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
             
             (0 until 12).map { monthIndex ->
                 val calendar = Calendar.getInstance().apply {
@@ -415,7 +447,9 @@ private fun buildChartBuckets(
                 val end = endOfMonth(calendar.timeInMillis)
                 
                 // Show labels for every 2nd month to keep it readable
-                val label = if (monthIndex % 2 == 0) monthNames[monthIndex] else ""
+                val label = if (monthIndex % 2 == 0) {
+                    ChartLabelUi(index = monthIndex, resId = R.array.months_short)
+                } else ChartLabelUi(label = "")
                 
                 ChartBucket(
                     label = label,
@@ -440,14 +474,19 @@ private fun buildSmartTip(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     hasSpendingData: Boolean
-): String {
+): SmartTipUi {
     if (!hasSpendingData) {
-        return "Pick a different range or add more transactions to unlock tailored spending insights."
+        return SmartTipUi(resId = R.string.msg_unlock_insights_hint)
     }
-    val direction = if (flowChange >= 0f) "up" else "down"
-    return "Your spending trend is ${formatPercent(flowChange)} $direction this period. Keep an eye on $topCategory and you can save about ${
-        formatCurrencyValue(avgDailyExpense * 4, currencyId, amountFormatPreferences)
-    } next cycle."
+    
+    return SmartTipUi(
+        resId = R.string.msg_spending_trend,
+        flowChange = formatPercent(flowChange),
+        directionResId = if (flowChange >= 0f) R.string.label_up else R.string.label_down,
+        topCategory = topCategory.ifEmpty { null },
+        savingAmount = formatCurrencyValue(avgDailyExpense * 4, currencyId, amountFormatPreferences),
+        hasSpendingData = true
+    )
 }
 
 private fun formatPercent(value: Float): String {
@@ -519,15 +558,15 @@ private fun buildSummaryLabel(
     period: AnalyticsPeriod,
     range: LongRange,
     customRange: LongRange?
-): String {
+): SummaryLabelUi {
     return if (period == AnalyticsPeriod.CUSTOM && customRange != null) {
-        formatCustomRangeLabel(customRange)
+        SummaryLabelUi(customRange = formatCustomRangeLabel(customRange))
     } else {
         when (period) {
-            AnalyticsPeriod.WEEK -> "This week"
-            AnalyticsPeriod.MONTH -> SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date(range.first))
-            AnalyticsPeriod.YEAR -> SimpleDateFormat("yyyy", Locale.getDefault()).format(Date(range.first))
-            AnalyticsPeriod.CUSTOM -> formatCustomRangeLabel(range)
+            AnalyticsPeriod.WEEK -> SummaryLabelUi(resId = R.string.label_this_week)
+            AnalyticsPeriod.MONTH -> SummaryLabelUi(datePattern = "MMMM yyyy", timestamp = range.first)
+            AnalyticsPeriod.YEAR -> SummaryLabelUi(datePattern = "yyyy", timestamp = range.first)
+            AnalyticsPeriod.CUSTOM -> SummaryLabelUi(customRange = formatCustomRangeLabel(range))
         }
     }
 }
@@ -535,9 +574,9 @@ private fun buildSummaryLabel(
 fun buildCustomRangeHeadline(
     startMillis: Long?,
     endMillis: Long?
-): String {
+): String? {
     if (startMillis == null || endMillis == null) {
-        return "Choose start and end dates"
+        return null
     }
     return "${formatShortDate(startMillis)} - ${formatShortDate(endMillis)}"
 }
@@ -576,11 +615,11 @@ private fun buildCustomBucketLabel(
     index: Int,
     bucketCount: Int,
     start: Long
-): String {
+): ChartLabelUi {
     return if (bucketCount <= 4) {
-        SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(start))
+        ChartLabelUi(label = SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(start)))
     } else {
-        "P${index + 1}"
+        ChartLabelUi(label = "P${index + 1}")
     }
 }
 

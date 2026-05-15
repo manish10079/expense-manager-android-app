@@ -18,7 +18,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mkn0079.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
@@ -74,7 +76,7 @@ fun SecurityPrivacyScreen(
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
-                title = "Security & Privacy",
+                title = stringResource(R.string.title_security_privacy),
                 onBackClick = onBackClick
             )
             Spacer(modifier = Modifier.height(18.dp))
@@ -86,8 +88,8 @@ fun SecurityPrivacyScreen(
             ) {
                 item {
                     SettingsItemCard(
-                        title = "App Lock",
-                        subtitle = "Secure app with a PIN code",
+                        title = stringResource(R.string.title_app_lock),
+                        subtitle = stringResource(R.string.label_secure_app_pin),
                         icon = Icons.Rounded.Lock,
                         type = SettingsItemType.Toggle,
                         isChecked = isAppLockEnabled,
@@ -97,8 +99,8 @@ fun SecurityPrivacyScreen(
 
                 item {
                     SettingsItemCard(
-                        title = "Biometric",
-                        subtitle = "Use fingerprint or face ID",
+                        title = stringResource(R.string.title_biometric),
+                        subtitle = stringResource(R.string.label_use_biometric_subtitle),
                         icon = Icons.Rounded.Fingerprint,
                         type = SettingsItemType.Toggle,
                         isEnabled = isAppLockEnabled && hasAppLockPin,
@@ -114,8 +116,8 @@ fun SecurityPrivacyScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.SCRAMBLED_PIN_KEYPAD)
                         SettingsItemCard(
-                            title = "Scrambled Keypad",
-                            subtitle = "Randomize PIN layout for security",
+                            title = stringResource(R.string.label_scrambled_keypad),
+                            subtitle = stringResource(R.string.label_scrambled_keypad_subtitle),
                             icon = Icons.Rounded.GridView,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
@@ -135,8 +137,8 @@ fun SecurityPrivacyScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
                         SettingsItemCard(
-                            title = "Blur In Recents",
-                            subtitle = "Hide app content in app switcher",
+                            title = stringResource(R.string.label_blur_in_recents),
+                            subtitle = stringResource(R.string.label_blur_in_recents_subtitle),
                             icon = Icons.Rounded.BlurOn,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
@@ -155,8 +157,8 @@ fun SecurityPrivacyScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
                         SettingsItemCard(
-                            title = "Block Screenshots",
-                            subtitle = "Prevent screen capture of app",
+                            title = stringResource(R.string.title_block_screenshots),
+                            subtitle = stringResource(R.string.label_block_screenshots_subtitle),
                             icon = Icons.Rounded.NoPhotography,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
@@ -170,8 +172,8 @@ fun SecurityPrivacyScreen(
 
                 item {
                     SettingsItemCard(
-                        title = "Auto Lock Duration",
-                        subtitle = "When to require PIN again",
+                        title = stringResource(R.string.title_auto_lock_duration),
+                        subtitle = stringResource(R.string.label_auto_lock_subtitle),
                         icon = Icons.Filled.AccessTime,
                         type = SettingsItemType.Value,
                         valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
@@ -208,28 +210,33 @@ private fun AutoLockDurationPickerSheet(
             }
         )
     }
-    var customInputError by rememberSaveable { mutableStateOf<String?>(null) }
+    val immediatelyTitle = stringResource(R.string.label_immediately)
+    val immediatelySubtitle = stringResource(R.string.label_lock_immediately)
+    val autoLockTitle = stringResource(R.string.title_auto_lock_duration)
+    val autoLockDesc = stringResource(R.string.label_auto_lock_desc)
+    
+    // Resolve preset labels outside remember
+    val presetLabels = presetAutoLockDurations.map { duration ->
+        stringResource(R.string.label_val_minutes_away, duration) to stringResource(R.string.title_require_the_pin_again_after_va, duration)
+    }
 
-    val durationItems = remember {
+    val durationItems = remember(immediatelyTitle, immediatelySubtitle, presetLabels) {
         val items = mutableListOf<SelectionItem<Int>>()
-        
-        // Add Immediately
         items.add(
             SelectionItem(
                 id = 0,
-                title = "Immediately",
-                subtitle = "Lock as soon as app backgrounded",
+                title = immediatelyTitle,
+                subtitle = immediatelySubtitle,
                 leadingIcon = Icons.Filled.AccessTime
             )
         )
-        
-        // Add Presets
-        presetAutoLockDurations.forEach { duration ->
+        presetAutoLockDurations.forEachIndexed { index, duration ->
+            val (title, subtitle) = presetLabels[index]
             items.add(
                 SelectionItem(
                     id = duration,
-                    title = "$duration minutes",
-                    subtitle = "Lock after $duration minutes away",
+                    title = title,
+                    subtitle = subtitle,
                     leadingIcon = Icons.Filled.AccessTime
                 )
             )
@@ -238,14 +245,9 @@ private fun AutoLockDurationPickerSheet(
     }
 
     AppSelectionSheet(
-        title = "Auto Lock Duration",
-        description = "Choose when the app should automatically lock itself.",
-        items = durationItems.map { item ->
-            // Use GatedAction logic to determine if item is locked?
-            // Actually, AppSelectionSheet doesn't support gating individual items yet.
-            // But we can pass custom logic here.
-            item
-        },
+        title = autoLockTitle,
+        description = autoLockDesc,
+        items = durationItems,
         selectedId = selectedDurationMinutes,
         onItemSelected = { duration ->
             onDurationSelected(duration)

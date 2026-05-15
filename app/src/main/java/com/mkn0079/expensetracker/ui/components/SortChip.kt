@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @Composable
@@ -79,7 +81,7 @@ fun SortChip(
         if (selected) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Active",
+                text = stringResource(R.string.label_active),
                 color = colorScheme.primary,
                 style = MaterialTheme.typography.labelSmall
             )

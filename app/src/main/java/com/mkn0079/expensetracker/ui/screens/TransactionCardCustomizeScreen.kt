@@ -46,6 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import kotlinx.coroutines.delay
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -101,59 +103,74 @@ fun TransactionCardCustomizeScreen(
         onSettingsChange(localSettings)
     }
 
-    val toggleItems = remember(localSettings) {
+    val incomeExpenseTitle = stringResource(id = R.string.title_incomeexpense_labels)
+    val incomeExpenseSubtitle = stringResource(id = R.string.title_toggle_visibility_of_transacti)
+    val showDateTitle = stringResource(id = R.string.title_show_transaction_date)
+    val showDateSubtitle = stringResource(id = R.string.title_display_the_transaction_date)
+    val showCategoryIconTitle = stringResource(id = R.string.title_show_category_icon)
+    val showCategoryIconSubtitle = stringResource(id = R.string.title_visual_category_indicators)
+    val showTimeTitle = stringResource(id = R.string.title_show_transaction_time)
+    val showTimeSubtitle = stringResource(id = R.string.title_exact_timestamp_visibility)
+    val showCategoryTitle = stringResource(id = R.string.title_show_category)
+    val showCategorySubtitle = stringResource(id = R.string.desc_display_category_label)
+    val showPaymentMethodTitle = stringResource(id = R.string.title_show_payment_method)
+    val showPaymentMethodSubtitle = stringResource(id = R.string.desc_display_wallet_or_card)
+    val showDateSeparatorsTitle = stringResource(id = R.string.title_show_date_separators)
+    val showDateSeparatorsSubtitle = stringResource(id = R.string.desc_group_transactions_by_day)
+
+    val toggleItems = remember(localSettings, incomeExpenseTitle, incomeExpenseSubtitle, showDateTitle, showDateSubtitle, showCategoryIconTitle, showCategoryIconSubtitle, showTimeTitle, showTimeSubtitle, showCategoryTitle, showCategorySubtitle, showPaymentMethodTitle, showPaymentMethodSubtitle, showDateSeparatorsTitle, showDateSeparatorsSubtitle) {
         listOf(
             TransactionCardToggleItem(
-                title = "Income/Expense labels",
-                subtitle = "Toggle visibility of transaction tags",
+                title = incomeExpenseTitle,
+                subtitle = incomeExpenseSubtitle,
                 icon = Icons.Outlined.Style,
                 optionId = "showIncomeExpenseLabels",
                 checked = localSettings.showIncomeExpenseLabels,
                 onCheckedChange = { localSettings = localSettings.copy(showIncomeExpenseLabels = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Transaction Date",
-                subtitle = "Display the transaction date",
+                title = showDateTitle,
+                subtitle = showDateSubtitle,
                 icon = Icons.Outlined.DateRange,
                 optionId = "showTransactionDate",
                 checked = localSettings.showTransactionDate,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Category Icon",
-                subtitle = "Visual category indicators",
+                title = showCategoryIconTitle,
+                subtitle = showCategoryIconSubtitle,
                 icon = Icons.Outlined.Paid,
                 optionId = "showCategoryIcon",
                 checked = localSettings.showCategoryIcon,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Transaction Time",
-                subtitle = "Exact timestamp visibility",
+                title = showTimeTitle,
+                subtitle = showTimeSubtitle,
                 icon = Icons.Outlined.Schedule,
                 optionId = "showTransactionTime",
                 checked = localSettings.showTransactionTime,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Category",
-                subtitle = "Display category label on card",
+                title = showCategoryTitle,
+                subtitle = showCategorySubtitle,
                 icon = Icons.Outlined.Paid,
                 optionId = "showCategoryLabel",
                 checked = localSettings.showCategoryLabel,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryLabel = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Payment Method",
-                subtitle = "Display wallet or card used",
+                title = showPaymentMethodTitle,
+                subtitle = showPaymentMethodSubtitle,
                 icon = Icons.Outlined.Wallet,
                 optionId = "showPaymentMethod",
                 checked = localSettings.showPaymentMethod,
                 onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
             ),
             TransactionCardToggleItem(
-                title = "Show Date Separators",
-                subtitle = "Group transactions by day",
+                title = showDateSeparatorsTitle,
+                subtitle = showDateSeparatorsSubtitle,
                 icon = Icons.Outlined.DateRange,
                 optionId = "showDateSeparators",
                 checked = localSettings.showDateSeparators,
@@ -181,13 +198,13 @@ fun TransactionCardCustomizeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AppHeader(
-                title = "Transaction Card Settings",
+                title = stringResource(id = R.string.title_transaction_card_settings),
                 onBackClick = onBackClick,
                 modifier = Modifier.padding(top = 10.dp)
             )
 
             Text(
-                text = "Preview",
+                text = stringResource(id = R.string.label_preview),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
@@ -221,7 +238,7 @@ fun TransactionCardCustomizeScreen(
                                 transactionTypeId = transaction.transactionTypeId,
                                 icon = transaction.categoryIcon,
                                 paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                                categoryLabel = "Category",
+                                categoryLabel = stringResource(id = R.string.label_category_1),
                                 showTypeLabel = localSettings.showIncomeExpenseLabels,
                                 showTransactionDate = localSettings.showTransactionDate,
                                 showPaymentMethod = localSettings.showPaymentMethod,
@@ -248,7 +265,7 @@ fun TransactionCardCustomizeScreen(
                             transactionTypeId = transaction.transactionTypeId,
                             icon = transaction.categoryIcon,
                             paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                            categoryLabel = "Category",
+                            categoryLabel = stringResource(id = R.string.label_category_1),
                             showTypeLabel = localSettings.showIncomeExpenseLabels,
                             showTransactionDate = localSettings.showTransactionDate,
                             showPaymentMethod = localSettings.showPaymentMethod,
@@ -262,7 +279,7 @@ fun TransactionCardCustomizeScreen(
         }
 
             Text(
-                text = "Customize Transaction Card",
+                text = stringResource(id = R.string.title_customize_transaction_card),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium

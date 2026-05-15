@@ -19,7 +19,7 @@ import com.mkn0079.expensetracker.data.constants.paymentFallbackDescriptions
 data class CategoryManagementUiState(
     val selectedTab: CategoryManagementTab = CategoryManagementTab.Expense,
     val items: List<CategoryManagementItemUi> = emptyList(),
-    val categoryCountLabel: String = "0 expense categories"
+    val itemCount: Int = 0
 )
 
 class CategoryManagementViewModel : ViewModel() {
@@ -71,7 +71,7 @@ class CategoryManagementViewModel : ViewModel() {
             it.copy(
                 selectedTab = selectedTab,
                 items = items,
-                categoryCountLabel = buildCategoryCountLabel(selectedTab, items.size)
+                itemCount = items.size
             )
         }
     }
@@ -94,7 +94,8 @@ private fun buildCategoryManagementItems(
         CategoryManagementItemUi(
             id = category.id,
             title = category.name,
-            subtitle = categoryFallbackDescriptions[category.id] ?: fallbackSubtitle,
+            subtitleRes = categoryFallbackDescriptions[category.id],
+            subtitle = if (categoryFallbackDescriptions[category.id] == null) fallbackSubtitle else null,
             icon = category.icon,
             isUserCreated = category.id !in categoryMap
         )
@@ -111,20 +112,12 @@ private fun buildPaymentManagementItems(
         CategoryManagementItemUi(
             id = paymentType.id,
             title = paymentType.name,
-            subtitle = paymentFallbackDescriptions[paymentType.id] ?: "Custom payment method",
+            subtitleRes = paymentFallbackDescriptions[paymentType.id],
+            subtitle = if (paymentFallbackDescriptions[paymentType.id] == null) "Custom payment method" else null,
             icon = paymentType.icon,
             isUserCreated = paymentType.id !in paymentTypeMap
         )
     }
 }
 
-private fun buildCategoryCountLabel(
-    tab: CategoryManagementTab,
-    count: Int
-): String {
-    return when (tab) {
-        CategoryManagementTab.Income -> "$count income categories"
-        CategoryManagementTab.Expense -> "$count expense categories"
-        CategoryManagementTab.Payment -> "$count payment methods"
-    }
-}
+

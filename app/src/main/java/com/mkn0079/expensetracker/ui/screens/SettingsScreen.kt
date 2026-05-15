@@ -91,12 +91,14 @@ import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsActionId
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsItemUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsToggleId
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -182,7 +184,7 @@ private fun SettingsScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
-            AppHeader(title = "Settings", onBackClick = onBackClick)
+            AppHeader(title = stringResource(R.string.desc_settings), onBackClick = onBackClick)
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -203,7 +205,7 @@ private fun SettingsScreenContent(
                 }
 
                 settingsSections.forEach { section ->
-                    item(key = section.title) {
+                    item(key = section.titleRes) {
                         SettingsSection(
                             section = section,
                             isDailyReminderEnabled = isDailyReminderEnabled,
@@ -268,8 +270,8 @@ private fun SettingsSection(
 
             SettingsItemCard(
                 icon = item.icon,
-                title = item.title,
-                subtitle = item.subtitle,
+                title = stringResource(item.titleRes),
+                subtitle = item.subtitleRes?.let { stringResource(it) },
                 type = itemType,
                 valueText = item.trailing,
                 isEnabled = true,
@@ -306,92 +308,92 @@ private fun SettingsScreenPreview() {
             userProfile = defaultUserProfile,
             settingsSections = listOf(
                 SettingsSectionUi(
-                    title = "ACCOUNT",
+                    titleRes = R.string.title_account,
                     items = listOf(
                         SettingsItemUi(
-                            title = "Edit Profile",
-                            subtitle = "Update your name, email and avatar",
+                            titleRes = R.string.label_edit_profile,
+                            subtitleRes = R.string.label_edit_profile_subtitle,
                             icon = Icons.Filled.Person,
                             actionId = SettingsActionId.EditProfile
                         )
                     )
                 ),
                 SettingsSectionUi(
-                    title = "PREFERENCE",
+                    titleRes = R.string.title_preference,
                     items = listOf(
                         SettingsItemUi(
-                            title = "App Preferences",
-                            subtitle = "Customize app settings",
+                            titleRes = R.string.title_app_preferences,
+                            subtitleRes = R.string.label_app_preferences_subtitle,
                             icon = Icons.Filled.Tune,
                             actionId = SettingsActionId.AppPreferences
                         )
                     )
                 ),
                 SettingsSectionUi(
-                    title = "CUSTOMIZE",
+                    titleRes = R.string.title_customize_caps,
                     items = listOf(
                         SettingsItemUi(
-                            title = "Transaction Card",
-                            subtitle = "Adjust transaction display",
+                            titleRes = R.string.title_transaction_card,
+                            subtitleRes = R.string.label_transaction_card_subtitle,
                             icon = Icons.Filled.SettingsApplications,
                             actionId = SettingsActionId.TransactionCardCustomize
                         ),
                         SettingsItemUi(
-                            title = "Manage Category",
-                            subtitle = "Add or edit categories",
+                            titleRes = R.string.title_manage_category,
+                            subtitleRes = R.string.label_manage_category_subtitle,
                             icon = Icons.Filled.Category,
                             actionId = SettingsActionId.ManageCategories
                         )
                     )
                 ),
                 SettingsSectionUi(
-                    title = "SECURITY & PRIVACY",
+                    titleRes = R.string.title_security_privacy_1,
                     items = listOf(
                         SettingsItemUi(
-                            title = "Security & Privacy",
-                            subtitle = "Protect your data and access",
+                            titleRes = R.string.title_security_privacy,
+                            subtitleRes = R.string.label_security_privacy_subtitle,
                             icon = Icons.Filled.Security,
                             actionId = SettingsActionId.SecurityPrivacy
                         )
                     )
                 ),
                 SettingsSectionUi(
-                    title = "DATA MANAGEMENT",
+                    titleRes = R.string.title_data_management_1,
                     items = listOf(
                         SettingsItemUi(
-                            title = "Data Management",
-                            subtitle = "Backup and manage data",
+                            titleRes = R.string.title_data_management,
+                            subtitleRes = R.string.label_data_management_subtitle,
                             icon = Icons.Filled.Sync,
                             actionId = SettingsActionId.DataManagement
                         )
                     )
                 ),
                 SettingsSectionUi(
-                    title = "NOTIFICATIONS",
+                    titleRes = R.string.title_notifications,
                     items = listOf(
                         SettingsItemUi(
-                            title = "Notifications",
-                            subtitle = "Control alerts and reminders",
+                            titleRes = R.string.title_notifications_1,
+                            subtitleRes = R.string.label_notifications_subtitle,
                             icon = Icons.Filled.NotificationAdd,
                             actionId = SettingsActionId.Notifications
                         ),
                         SettingsItemUi(
-                            title = "Daily Reminder",
-                            subtitle = "Remind me to log expenses",
+                            titleRes = R.string.title_daily_reminder,
+                            subtitleRes = R.string.desc_daily_reminder,
                             icon = Icons.Filled.CalendarMonth,
                             toggleId = SettingsToggleId.DailyReminder,
                             showChevron = false
                         ),
                         SettingsItemUi(
-                            title = "Budget Limit Alerts",
-                            subtitle = "Alert when spending nears budget",
+                            titleRes = R.string.dialog_budget_limit_alerts,
+                            subtitleRes = R.string.desc_budget_limit_alerts,
                             icon = Icons.Filled.CurrencyRupee,
                             toggleId = SettingsToggleId.BudgetLimitAlerts,
                             showChevron = false
                         ),
                         SettingsItemUi(
-                            title = "Missed Entry Reminder",
-                            subtitle = "Detect and remind for skipped logs",
+                            titleRes = R.string.title_missed_entry_reminder,
+                            subtitleRes = R.string.desc_missed_entry_reminder,
                             icon = Icons.Filled.Refresh,
                             toggleId = SettingsToggleId.MissedEntryReminder,
                             showChevron = false
@@ -399,11 +401,11 @@ private fun SettingsScreenPreview() {
                     )
                 ),
                 SettingsSectionUi(
-                    title = "ABOUT",
+                    titleRes = R.string.title_about_caps,
                     items = listOf(
                         SettingsItemUi(
-                            title = "About",
-                            subtitle = "App info and details",
+                            titleRes = R.string.label_about,
+                            subtitleRes = R.string.label_about_subtitle,
                             icon = Icons.Filled.Info,
                             actionId = SettingsActionId.About
                         )

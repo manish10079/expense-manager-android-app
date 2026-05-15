@@ -1,37 +1,36 @@
 package com.mkn0079.expensetracker.data.constants
+ 
+import com.mkn0079.expensetracker.R
 
 data class AppLockSecurityQuestion(
     val id: String,
-    val prompt: String
+    val promptResId: Int
 )
 
 val appLockSecurityQuestions = listOf(
     AppLockSecurityQuestion(
         id = "first_childhood_crush",
-        prompt = "What was your first childhood crush name?"
+        promptResId = R.string.question_childhood_crush
     ),
     AppLockSecurityQuestion(
         id = "first_school",
-        prompt = "What was the name of your first school?"
+        promptResId = R.string.question_first_school
     ),
     AppLockSecurityQuestion(
         id = "childhood_friend",
-        prompt = "What is the first name of your childhood best friend?"
+        promptResId = R.string.question_childhood_friend
     ),
     AppLockSecurityQuestion(
         id = "birth_city",
-        prompt = "In which city were you born?"
+        promptResId = R.string.question_birth_city
     ),
     AppLockSecurityQuestion(
         id = "favorite_teacher",
-        prompt = "What was the last name of your favorite teacher?"
+        promptResId = R.string.question_favorite_teacher
     ),
     AppLockSecurityQuestion(
         id = "pet_name",
-        prompt = "What was the name of your first pet?"
+        promptResId = R.string.question_pet_name
     )
 )
 
-fun getAppLockSecurityQuestionPrompt(questionId: String?): String? {
-    return appLockSecurityQuestions.firstOrNull { it.id == questionId }?.prompt
-}

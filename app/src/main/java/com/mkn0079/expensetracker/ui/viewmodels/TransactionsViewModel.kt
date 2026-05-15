@@ -1,7 +1,9 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
 import androidx.compose.runtime.Immutable
+import android.app.Application
 import androidx.lifecycle.ViewModel
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -79,6 +81,7 @@ data class TransactionsScreenUiState(
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
+    private val application: Application,
     private val transactionRepository: TransactionRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
@@ -436,11 +439,15 @@ class TransactionsViewModel @Inject constructor(
                     dateFormatPattern = currentDateFormatPattern,
                     timeFormat = currentTimeFormat,
                     paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
-                    categories = currentCategories
+                    categories = currentCategories,
+                    fallbackCategoryName = application.getString(R.string.label_other)
                 )
             },
             groupByDate = shouldGroupTransactions,
-            sortType = appliedSortType
+            sortType = appliedSortType,
+            todayLabel = application.getString(R.string.label_today),
+            yesterdayLabel = application.getString(R.string.label_yesterday),
+            tomorrowLabel = application.getString(R.string.label_tomorrow)
         )
 
         return _baseUiState.value.copy(

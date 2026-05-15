@@ -1,8 +1,10 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mkn0079.expensetracker.domain.mapper.toTransactionCardItemUi
@@ -55,6 +57,7 @@ private const val HOME_RECENT_TRANSACTION_LIMIT = 10
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val application: Application,
     private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
@@ -110,7 +113,8 @@ class HomeViewModel @Inject constructor(
                             dateFormatPattern = inputs.dateFormatPattern,
                             timeFormat = inputs.timeFormat,
                             paymentTypeName = recentTransaction.paymentTypeName,
-                            categories = inputs.categories
+                            categories = inputs.categories,
+                            fallbackCategoryName = application.getString(R.string.label_other)
                         )
                     },
                     customizationSettings = inputs.customizationSettings,

@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.FeatureRegistry
@@ -104,7 +106,7 @@ fun DataManagementScreen(
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
-                title = "Data Management",
+                title = stringResource(id = R.string.title_data_management),
                 onBackClick = onBackClick
             )
 
@@ -118,7 +120,7 @@ fun DataManagementScreen(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 // SECTION 1: AUTOMATED SYNC
-                item { SectionHeader(text = "AUTOMATED SYNC") }
+                item { SectionHeader(text = stringResource(id = R.string.label_automated_sync)) }
                 item {
                     GatedAction(
                         feature = Feature.AUTO_BACKUP,
@@ -126,8 +128,8 @@ fun DataManagementScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
                         SettingsItemCard(
-                            title = "Auto Backup",
-                            subtitle = "Automatic cloud/local sync",
+                            title = stringResource(id = R.string.title_auto_backup),
+                            subtitle = stringResource(id = R.string.desc_auto_backup_subtitle),
                             icon = Icons.Rounded.CloudUpload,
                             type = SettingsItemType.Toggle,
                             accessLevel = accessLevel,
@@ -145,11 +147,11 @@ fun DataManagementScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
                         SettingsItemCard(
-                            title = "Backup Frequency",
-                            subtitle = "How often to sync data",
+                            title = stringResource(id = R.string.title_backup_frequency),
+                            subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
                             icon = Icons.Rounded.Timelapse,
                             type = SettingsItemType.Value,
-                            valueText = "$autoBackupFrequencyDays days",
+                            valueText = stringResource(id = R.string.label_days_count_formatted, autoBackupFrequencyDays),
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isEnabled = isAutoBackupEnabled,
@@ -161,7 +163,7 @@ fun DataManagementScreen(
                 // SECTION 2: DATA TRANSFER
                 item { 
                     SectionHeader(
-                        text = "DATA TRANSFER",
+                        text = stringResource(id = R.string.label_data_transfer),
                         modifier = Modifier.clickable(
                             interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                             indication = null // Silent clicks
@@ -180,11 +182,11 @@ fun DataManagementScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.DATA_EXPORT)
                         SettingsItemCard(
-                            title = "Export Data (JSON)",
-                            subtitle = "Download merge-safe JSON file",
+                            title = stringResource(id = R.string.label_export_data_json),
+                            subtitle = stringResource(id = R.string.desc_export_data_subtitle),
                             icon = Icons.Rounded.FileDownload,
                             type = SettingsItemType.Button,
-                            valueText = "Export",
+                            valueText = stringResource(id = R.string.label_export),
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             onClick = onClick
@@ -193,11 +195,11 @@ fun DataManagementScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Import Data (JSON)",
-                        subtitle = "Restore or merge from JSON",
+                        title = stringResource(id = R.string.label_import_data_json),
+                        subtitle = stringResource(id = R.string.desc_import_data_subtitle),
                         icon = Icons.Rounded.FileUpload,
                         type = SettingsItemType.Button,
-                        valueText = "Import",
+                        valueText = stringResource(id = R.string.label_import),
                         onClick = {
                             onPrepareForExternalActivity()
                             jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
@@ -214,11 +216,11 @@ fun DataManagementScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
                         SettingsItemCard(
-                            title = "Backup Database (.db)",
-                            subtitle = "Direct SQLite file backup",
+                            title = stringResource(id = R.string.label_backup_database_db),
+                            subtitle = stringResource(id = R.string.desc_backup_db_subtitle),
                             icon = Icons.Rounded.Storage,
                             type = SettingsItemType.Button,
-                            valueText = "Backup",
+                            valueText = stringResource(id = R.string.title_backup),
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             onClick = onClick
@@ -227,22 +229,22 @@ fun DataManagementScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Restore Database (.db)",
-                        subtitle = "Full database overwrite",
+                        title = stringResource(id = R.string.label_restore_database_db),
+                        subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
                         icon = Icons.Rounded.SettingsBackupRestore,
                         type = SettingsItemType.Button,
-                        valueText = "Restore",
+                        valueText = stringResource(id = R.string.title_restore),
                         onClick = { isRestorePickerVisible = true }
                     )
                 }
                 if (isLegacyImportVisible) {
                     item {
                         SettingsItemCard(
-                            title = "Legacy Import",
-                            subtitle = "Import from older app versions",
+                            title = stringResource(id = R.string.label_legacy_import),
+                            subtitle = stringResource(id = R.string.desc_legacy_import_subtitle),
                             icon = Icons.Rounded.History,
                             type = SettingsItemType.Button,
-                            valueText = "Migrate",
+                            valueText = stringResource(id = R.string.label_migrate),
                             onClick = {
                                 onPrepareForExternalActivity()
                                 legacyImportFilePicker.launch(arrayOf("application/json", "*/*"))
@@ -252,7 +254,7 @@ fun DataManagementScreen(
                 }
 
                 // SECTION 3: UTILITIES & STATS
-                item { SectionHeader(text = "UTILITIES & STATS") }
+                item { SectionHeader(text = stringResource(id = R.string.label_utilities_and_stats)) }
                 item {
                     GatedAction(
                         feature = Feature.TRANSACTION_COUNT,
@@ -260,8 +262,8 @@ fun DataManagementScreen(
                     ) { status, onClick ->
                         val accessLevel = FeatureRegistry.getAccessLevel(Feature.TRANSACTION_COUNT)
                         SettingsItemCard(
-                            title = "Transaction Count",
-                            subtitle = "Total records in database",
+                            title = stringResource(id = R.string.title_transaction_count),
+                            subtitle = stringResource(id = R.string.desc_transaction_count_subtitle),
                             icon = Icons.AutoMirrored.Rounded.Notes,
                             type = SettingsItemType.Value,
                             valueText = transactionCount.toString(),
@@ -273,11 +275,11 @@ fun DataManagementScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = "Delete All Data",
-                        subtitle = "Irreversible destructive action",
+                        title = stringResource(id = R.string.label_delete_all_data),
+                        subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
                         icon = Icons.Rounded.DeleteForever,
                         type = SettingsItemType.Button,
-                        valueText = "Delete All",
+                        valueText = stringResource(id = R.string.label_delete_all),
                         isDanger = true,
                         onClick = { isDeleteTransactionsDialogVisible = true }
                     )
@@ -292,14 +294,14 @@ fun DataManagementScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Delete all transactions?",
+                    text = stringResource(id = R.string.label_delete_all_transactions),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = "This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.",
+                    text = stringResource(id = R.string.label_this_removes_only_transactions),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -312,7 +314,7 @@ fun DataManagementScreen(
                     }
                 ) {
                     Text(
-                        text = "Delete All",
+                        text = stringResource(id = R.string.label_delete_all),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
@@ -321,7 +323,7 @@ fun DataManagementScreen(
             dismissButton = {
                 TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(id = R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -336,14 +338,14 @@ fun DataManagementScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Restore database?",
+                    text = stringResource(id = R.string.label_restore_database),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = "This will overwrite your current database with the selected .db backup. It will not merge missing records. Existing database data will be replaced.",
+                    text = stringResource(id = R.string.label_this_will_overwrite_your_curre),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -356,7 +358,7 @@ fun DataManagementScreen(
                     }
                 ) {
                     Text(
-                        text = "Restore",
+                        text = stringResource(id = R.string.title_restore),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
@@ -365,7 +367,7 @@ fun DataManagementScreen(
             dismissButton = {
                 TextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(id = R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -375,19 +377,17 @@ fun DataManagementScreen(
     }
     
     if (isFrequencyPickerVisible) {
-        val frequencyItems = remember {
-            presetAutoBackupFrequencies.map { days ->
-                SelectionItem(
-                    id = days,
-                    title = "$days days",
-                    subtitle = "Automatically backup every $days days",
-                    leadingIcon = Icons.Rounded.Update
-                )
-            }
+        val frequencyItems = presetAutoBackupFrequencies.map { days ->
+            SelectionItem(
+                id = days,
+                title = stringResource(id = R.string.label_days_count_formatted, days),
+                subtitle = stringResource(id = R.string.desc_auto_backup_every_days, days),
+                leadingIcon = Icons.Rounded.Update
+            )
         }
         AppSelectionSheet(
-            title = "Backup Frequency",
-            description = "Choose how often the app should perform automated backups.",
+            title = stringResource(id = R.string.title_backup_frequency),
+            description = stringResource(id = R.string.desc_choose_backup_frequency),
             items = frequencyItems,
             selectedId = autoBackupFrequencyDays,
             onItemSelected = { days ->

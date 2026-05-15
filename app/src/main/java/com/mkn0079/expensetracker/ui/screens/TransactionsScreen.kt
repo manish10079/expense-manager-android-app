@@ -75,6 +75,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.ui.components.GatedAction
 import com.mkn0079.expensetracker.ui.theme.Dimens
@@ -109,47 +112,6 @@ import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
-private val emptyTransactionMessages = listOf(
-    "Your wallet's too quiet today.",
-    "404: Transactions Not Found.",
-    "Nothing here! maybe grab a coffee?",
-    "Haven't found any.",
-    "Looks empty...",
-    "No transactions to display.",
-    "No records yet",
-    "Did you forget to add something?",
-    "Empty page. Peaceful life.",
-    "Your transactions ghosted you.",
-    "Financial activity: 0%",
-    "No data found in this range.",
-    "Database says: null.",
-    "Your wallet is in airplane mode.",
-    "Silence... even your money is meditating.",
-    "No spending, no stress. Interesting strategy.",
-    "Your ledger is taking a nap.",
-    "Nothing moved. Not even a rupee.",
-    "Your expenses are on vacation.",
-    "Zero activity. Zen achieved.",
-    "This page is cleaner than your room.",
-    "No transactions. Suspiciously responsible.",
-    "Your bank account is playing hide and seek.",
-    "No entries. Did time stop?",
-    "All quiet on the financial front.",
-    "No spending detected. Impressive.",
-    "Your wallet is on strike.",
-    "Nothing to report, captain.",
-    "Your money stayed loyal today.",
-    "No chaos, no expenses. Rare moment.",
-    "Even your wallet is confused.",
-    "This space is intentionally blank.",
-    "No financial drama today.",
-    "Your balance is chilling.",
-    "No activity. Are you even alive financially?",
-    "Your wallet is in stealth mode.",
-    "No transactions. Too good to be true.",
-    "Nothing happened here. Move along."
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
@@ -172,6 +134,9 @@ fun TransactionScreen(
     val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
+    
+    val emptyTransactionMessages = stringArrayResource(R.array.empty_transaction_messages).toList()
+
     LaunchedEffect(
         transactions,
         categories,
@@ -262,7 +227,7 @@ fun TransactionScreen(
                     )
                 } else {
                     AppHeader(
-                        title = "Transactions",
+                        title = stringResource(R.string.title_transactions),
                         onBackClick = onBackClick,
                         actions = {
                             GatedAction(
@@ -277,7 +242,7 @@ fun TransactionScreen(
                                 ) {
                                       Icon(
                                           imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
-                                          contentDescription = "Search transactions",
+                                          contentDescription = stringResource(R.string.desc_search_transactions),
                                           tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.featureGateLock,
                                           modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
                                       )
@@ -301,7 +266,7 @@ fun TransactionScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.FilterAlt,
-                                    contentDescription = "Sort & Filter",
+                                    contentDescription = stringResource(R.string.label_sort_filter),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -319,7 +284,7 @@ fun TransactionScreen(
                     onValueChange = transactionsViewModel::updateSearchQuery,
                     placeholder = {
                         Text(
-                            "Notes or Amount...",
+                            stringResource(R.string.label_search_placeholder),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -337,7 +302,7 @@ fun TransactionScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
+                            contentDescription = stringResource(R.string.desc_search),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
@@ -345,14 +310,14 @@ fun TransactionScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             GatedAction(
                                 feature = Feature.ADVANCED_SEARCH_SCOPE,
-                                displayName = "Search by Category & Wallet",
+                                displayName = stringResource(R.string.label_search_by_category_wallet),
                                 onAction = { /* Handled by GatedAction dialogs */ }
                             ) { status, onClick ->
                                 if (status !is AccessStatus.Granted) {
                                     IconButton(onClick = onClick) {
                                          Icon(
                                              imageVector = Icons.Default.Lock,
-                                             contentDescription = "Unlock Advanced Search",
+                                             contentDescription = stringResource(R.string.desc_unlock_advanced_search),
                                              tint = MaterialTheme.colorScheme.featureGateLock,
                                              modifier = Modifier.size(16.dp)
                                          )
@@ -371,7 +336,7 @@ fun TransactionScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Close search",
+                                    contentDescription = stringResource(R.string.desc_close_search),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -637,8 +602,8 @@ fun TransactionScreen(
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text("Delete Transactions") },
-            text = { Text("Are you sure you want to delete ${uiState.selectedTransactionIds.size} transactions? This action cannot be undone.") },
+            title = { Text(stringResource(R.string.label_delete_transactions)) },
+            text = { Text(stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -646,12 +611,12 @@ fun TransactionScreen(
                         showDeleteConfirmation = false
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.label_delete_confirm), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.label_cancel_confirm))
                 }
             },
             containerColor = MaterialTheme.colorScheme.surface,

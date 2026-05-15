@@ -40,6 +40,9 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import com.mkn0079.expensetracker.ui.viewmodels.AddCategoryViewModel
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import com.mkn0079.expensetracker.R
 
 @Composable
 fun AddCategoryScreen(
@@ -70,12 +73,13 @@ fun AddCategoryScreen(
     val isDuplicateName = existingNamesForTarget.any { it.equals(trimmedName, ignoreCase = true) }
     val canCreate = trimmedName.isNotBlank() && !isDuplicateName && !uiState.isSaving
 
+    val context = LocalContext.current
     val filteredIcons = remember(uiState.iconSearchQuery) {
         if (uiState.iconSearchQuery.isBlank()) {
             categoryIconOptions
         } else {
             categoryIconOptions.filter {
-                it.label.contains(uiState.iconSearchQuery, ignoreCase = true)
+                context.getString(it.labelRes).contains(uiState.iconSearchQuery, ignoreCase = true)
             }
         }
     }
@@ -99,7 +103,7 @@ fun AddCategoryScreen(
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             AppHeader(
-                title = "Add Category",
+                title = stringResource(R.string.title_add_category),
                 onBackClick = onBackClick
             )
 
@@ -110,13 +114,13 @@ fun AddCategoryScreen(
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                CategorySectionLabel(text = "CATEGORY TYPE")
+                CategorySectionLabel(text = stringResource(R.string.label_category_type_section))
                 Spacer(modifier = Modifier.height(12.dp))
                 TypePreviewChip(targetTab = targetTab)
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                CategorySectionLabel(text = "CATEGORY NAME")
+                CategorySectionLabel(text = stringResource(R.string.label_category_name_section))
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 OutlinedTextField(
@@ -127,9 +131,9 @@ fun AddCategoryScreen(
                     placeholder = {
                         Text(
                             text = when (targetTab) {
-                                CategoryManagementTab.Income -> "e.g. Performance Bonus"
-                                CategoryManagementTab.Expense -> "e.g. Weekend Escapes"
-                                CategoryManagementTab.Payment -> "e.g. Digital Wallet"
+                                CategoryManagementTab.Income -> stringResource(R.string.placeholder_income_example)
+                                CategoryManagementTab.Expense -> stringResource(R.string.placeholder_expense_example)
+                                CategoryManagementTab.Payment -> stringResource(R.string.placeholder_payment_example)
                             },
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -144,7 +148,7 @@ fun AddCategoryScreen(
                         ) {
                             Icon(
                                 imageVector = selectedIcon.icon,
-                                contentDescription = selectedIcon.label,
+                                contentDescription = stringResource(selectedIcon.labelRes),
                                 tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -164,7 +168,7 @@ fun AddCategoryScreen(
                 if (isDuplicateName) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "This name already exists in ${targetTab.title.lowercase()}.",
+                        text = stringResource(R.string.msg_name_already_exists, stringResource(targetTab.titleRes).lowercase()),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
                     )
@@ -172,10 +176,10 @@ fun AddCategoryScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                CategorySectionLabel(text = "SELECT VISUAL IDENTITY")
+                CategorySectionLabel(text = stringResource(R.string.label_select_visual_identity_section))
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Choose from 50 icons. Color styling stays automatic.",
+                    text = stringResource(R.string.msg_choose_icons_info),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
                 )
@@ -188,7 +192,7 @@ fun AddCategoryScreen(
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
                         Text(
-                            text = "Search icons (e.g. 'Food')...",
+                            text = stringResource(R.string.placeholder_search_icons),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
@@ -204,7 +208,7 @@ fun AddCategoryScreen(
                             IconButton(onClick = { viewModel.onIconSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear search",
+                                    contentDescription = stringResource(R.string.label_delete),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -244,7 +248,7 @@ fun AddCategoryScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No icons found for \"${uiState.iconSearchQuery}\"",
+                                text = stringResource(R.string.msg_no_icons_found, uiState.iconSearchQuery),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.bodyLarge
                             )
@@ -277,7 +281,7 @@ fun AddCategoryScreen(
                 )
             ) {
                 Text(
-                    text = "CANCEL",
+                    text = stringResource(R.string.label_cancel).uppercase(),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
@@ -332,7 +336,7 @@ fun AddCategoryScreen(
                         )
                     } else {
                         Text(
-                            text = if (targetTab == CategoryManagementTab.Payment) "Create Type" else "Create Category",
+                            text = if (targetTab == CategoryManagementTab.Payment) stringResource(R.string.label_create_type) else stringResource(R.string.label_create_category),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
                         )
                     }
@@ -382,7 +386,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                     CategoryManagementTab.Expense -> Icons.Filled.Category
                     CategoryManagementTab.Payment -> Icons.Filled.Payments
                 },
-                contentDescription = targetTab.title,
+                contentDescription = stringResource(targetTab.titleRes),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(22.dp)
             )
@@ -390,13 +394,17 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
 
         Column {
             Text(
-                text = if (targetTab == CategoryManagementTab.Payment) "Payment Type" else "${targetTab.title} Category",
+                text = when (targetTab) {
+                    CategoryManagementTab.Payment -> stringResource(R.string.label_payment_type_item)
+                    CategoryManagementTab.Income -> stringResource(R.string.label_income_category_item)
+                    CategoryManagementTab.Expense -> stringResource(R.string.label_expense_category_item)
+                },
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 17.sp)
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "This new item will be added under ${targetTab.title}.",
+                text = stringResource(R.string.msg_item_added_under, stringResource(targetTab.titleRes)),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
             )
@@ -428,7 +436,7 @@ private fun IconSelectionItem(
     ) {
         Icon(
             imageVector = option.icon,
-            contentDescription = option.label,
+            contentDescription = stringResource(option.labelRes),
             tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(30.dp)
         )

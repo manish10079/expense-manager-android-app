@@ -16,10 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.utils.validateAndCalculateTimestamp
 import com.mkn0079.expensetracker.utils.PickerResult
 import java.util.*
@@ -44,6 +47,7 @@ fun WheelDateTimePickerModal(
     onDismissRequest: () -> Unit,
     onConfirm: (Long, Long?) -> Unit
 ) {
+    val context = LocalContext.current
     val now = System.currentTimeMillis()
 
     val fromCal = remember(initialStartMillis) {
@@ -101,12 +105,12 @@ fun WheelDateTimePickerModal(
         ) {
             Text(
                 text = when (mode) {
-                    WheelPickerMode.SINGLE_DATE -> "Select Date"
-                    WheelPickerMode.SINGLE_TIME -> "Select Time"
-                    WheelPickerMode.DATE_TIME   -> "Select Date & Time"
-                    WheelPickerMode.MONTH_YEAR  -> "Select Month"
-                    WheelPickerMode.YEAR_ONLY   -> "Select Year"
-                    WheelPickerMode.DATE_RANGE  -> "Select Date Range"
+                    WheelPickerMode.SINGLE_DATE -> stringResource(id = R.string.title_select_date)
+                    WheelPickerMode.SINGLE_TIME -> stringResource(id = R.string.title_select_time)
+                    WheelPickerMode.DATE_TIME   -> stringResource(id = R.string.title_select_date_time)
+                    WheelPickerMode.MONTH_YEAR  -> stringResource(id = R.string.title_select_month)
+                    WheelPickerMode.YEAR_ONLY   -> stringResource(id = R.string.title_select_year)
+                    WheelPickerMode.DATE_RANGE  -> stringResource(id = R.string.title_select_date_range)
                 },
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -188,7 +192,7 @@ fun WheelDateTimePickerModal(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
-                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.btn_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -211,7 +215,7 @@ fun WheelDateTimePickerModal(
                         )
 
                         if (fromRes.error != null) {
-                            errorMessage = fromRes.error
+                            errorMessage = context.getString(R.string.error_invalid_date_month)
                             if (mode == WheelPickerMode.DATE_RANGE) activeTab = RangeTab.FROM
                         } else {
                             if (mode == WheelPickerMode.DATE_RANGE) {
@@ -221,7 +225,7 @@ fun WheelDateTimePickerModal(
                                     showDate = true, showTime = false
                                 )
                                 if (toRes.error != null) {
-                                    errorMessage = toRes.error
+                                    errorMessage = context.getString(R.string.error_invalid_date_month)
                                     activeTab = RangeTab.TO
                                 } else {
                                     val start = minOf(fromRes.timestamp!!, toRes.timestamp!!)
@@ -254,7 +258,7 @@ fun WheelDateTimePickerModal(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (mode == WheelPickerMode.DATE_RANGE) "Apply Range" else "Confirm",
+                            text = if (mode == WheelPickerMode.DATE_RANGE) stringResource(id = R.string.btn_apply_range) else stringResource(id = R.string.btn_confirm),
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
                         )
@@ -315,7 +319,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (tab == RangeTab.FROM) "FROM" else "TO",
+                        text = if (tab == RangeTab.FROM) stringResource(id = R.string.label_from) else stringResource(id = R.string.label_to),
                         color = contentColor,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,

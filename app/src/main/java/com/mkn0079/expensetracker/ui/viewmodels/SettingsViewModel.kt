@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.update
 
 @Immutable
 data class SettingsItemUi(
-    val title: String,
-    val subtitle: String? = null,
+    val titleRes: Int,
+    val subtitleRes: Int? = null,
     val icon: ImageVector,
     val trailing: String? = null,
     val actionId: SettingsActionId? = null,
@@ -30,7 +30,7 @@ data class SettingsItemUi(
 
 @Immutable
 data class SettingsSectionUi(
-    val title: String,
+    val titleRes: Int,
     val items: List<SettingsItemUi>
 )
 
@@ -85,83 +85,83 @@ private fun buildSettingsSections(
 ): List<SettingsSectionUi> {
     return listOf(
         SettingsSectionUi(
-            title = "ACCOUNT",
+            titleRes = com.mkn0079.expensetracker.R.string.title_account,
             items = listOf(
                 SettingsItemUi(
-                    title = "Edit Profile",
-                    subtitle = "Update your name, email and avatar",
+                    titleRes = com.mkn0079.expensetracker.R.string.label_edit_profile,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_edit_profile_subtitle,
                     icon = Icons.Rounded.Person,
                     actionId = SettingsActionId.EditProfile
                 )
             )
         ),
         SettingsSectionUi(
-            title = "PREFERENCE",
+            titleRes = com.mkn0079.expensetracker.R.string.title_preference,
             items = listOf(
                 SettingsItemUi(
-                    title = "App Preferences",
-                    subtitle = "Customize app settings",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
                     icon = Icons.Rounded.Tune,
                     actionId = SettingsActionId.AppPreferences
                 )
             )
         ),
         SettingsSectionUi(
-            title = "CUSTOMIZE",
+            titleRes = com.mkn0079.expensetracker.R.string.title_customize_caps,
             items = listOf(
                 SettingsItemUi(
-                    title = "Transaction Card",
-                    subtitle = "Adjust transaction display",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
                     icon = Icons.Rounded.CreditCard,
                     actionId = SettingsActionId.TransactionCardCustomize
                 ),
                 SettingsItemUi(
-                    title = "Manage Category",
-                    subtitle = "Add or edit categories",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_manage_category,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_manage_category_subtitle,
                     icon = Icons.Rounded.Category,
                     actionId = SettingsActionId.ManageCategories
                 )
             )
         ),
         SettingsSectionUi(
-            title = "SECURITY & PRIVACY",
+            titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy_1,
             items = listOf(
                 SettingsItemUi(
-                    title = "Security & Privacy",
-                    subtitle = "Protect your data and access",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_security_privacy_subtitle,
                     icon = Icons.Rounded.Security,
                     actionId = SettingsActionId.SecurityPrivacy
                 )
             )
         ),
         SettingsSectionUi(
-            title = "DATA MANAGEMENT",
+            titleRes = com.mkn0079.expensetracker.R.string.title_data_management_1,
             items = listOf(
                 SettingsItemUi(
-                    title = "Data Management",
-                    subtitle = "Backup and manage data",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
                     icon = Icons.Rounded.Dns,
                     actionId = SettingsActionId.DataManagement
                 )
             )
         ),
         SettingsSectionUi(
-            title = "NOTIFICATIONS",
+            titleRes = com.mkn0079.expensetracker.R.string.title_notifications,
             items = listOf(
                 SettingsItemUi(
-                    title = "Notifications",
-                    subtitle = "Control alerts and reminders",
+                    titleRes = com.mkn0079.expensetracker.R.string.title_notifications_1,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_notifications_subtitle,
                     icon = Icons.Rounded.NotificationAdd,
                     actionId = SettingsActionId.Notifications
                 )
             )
         ),
         SettingsSectionUi(
-            title = "ABOUT",
+            titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
             items = listOf(
                 SettingsItemUi(
-                    title = "About",
-                    subtitle = "App info and details",
+                    titleRes = com.mkn0079.expensetracker.R.string.label_about,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
                     icon = Icons.Rounded.Info,
                     actionId = SettingsActionId.About
                 )

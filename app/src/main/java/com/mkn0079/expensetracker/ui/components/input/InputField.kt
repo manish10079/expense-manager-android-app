@@ -27,6 +27,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @Composable
@@ -172,7 +174,7 @@ fun InputFieldCard(
 
                                     if (value.isNotEmpty() && !isValid) {
                                         Text(
-                                            text = "Invalid email",
+                                            text = stringResource(R.string.error_invalid_email),
                                             color = errorColor,
                                             style = MaterialTheme.typography.labelSmall
                                         )
@@ -208,7 +210,7 @@ fun InputFieldCard(
                             InputType.Date -> {
                                 // Date is often read-only or triggers a picker
                                 Text(
-                                    text = if (value.isEmpty()) placeholder ?: "Select Date" else value,
+                                    text = if (value.isEmpty()) placeholder ?: stringResource(R.string.title_select_date) else value,
                                     color = if (value.isEmpty()) onSurfaceVariant.copy(alpha = 0.6f) else onSurface,
                                     fontSize = 16.sp
                                 )

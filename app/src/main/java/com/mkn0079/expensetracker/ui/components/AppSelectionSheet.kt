@@ -15,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +35,7 @@ fun <T> AppSelectionSheet(
     showSearch: Boolean = false,
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
-    searchPlaceholder: String = "Search...",
+    searchPlaceholder: String? = null,
     maxListHeight: Dp = 440.dp,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     footerContent: (LazyListScope.() -> Unit)? = null
@@ -81,13 +83,13 @@ fun <T> AppSelectionSheet(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Search,
-                            contentDescription = "Search",
+                            contentDescription = stringResource(R.string.desc_search),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     placeholder = {
                         Text(
-                            text = searchPlaceholder,
+                            text = searchPlaceholder ?: stringResource(R.string.label_search_dots),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
@@ -125,7 +127,7 @@ fun <T> AppSelectionSheet(
 
                 if (items.isEmpty() && showSearch) {
                     item {
-                        EmptySelectionState(text = "No results found.")
+                        EmptySelectionState(text = stringResource(R.string.label_no_results_found))
                     }
                 }
 
@@ -222,7 +224,7 @@ private fun <T> SelectionRow(
         if (isSelected) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Selected",
+                text = stringResource(R.string.label_selected),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold

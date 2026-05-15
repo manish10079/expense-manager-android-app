@@ -21,11 +21,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mkn0079.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mkn0079.expensetracker.data.constants.categoryMap
@@ -143,21 +145,21 @@ fun FilterBottomSheet(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close filters",
+                        contentDescription = stringResource(R.string.desc_close_filters),
                         tint = colorScheme.onSurface
                     )
                 }
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Sort & Filter",
+                        text = stringResource(R.string.label_sort_filter),
                         style = MaterialTheme.typography.headlineSmall,
                         color = colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Shape how your transactions are organized and displayed.",
+                        text = stringResource(R.string.label_sort_filter_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )
@@ -169,7 +171,7 @@ fun FilterBottomSheet(
                     onReset()
                 }) {
                     Text(
-                        text = "Reset",
+                        text = stringResource(R.string.label_reset),
                         color = colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -179,8 +181,8 @@ fun FilterBottomSheet(
 
         item(key = "sort_section") {
             FilterSection(
-                title = "Sort by",
-                subtitle = "Choose the main attribute used to arrange the list.",
+                title = stringResource(R.string.label_sort_by),
+                subtitle = stringResource(R.string.desc_sort_subtitle),
                 icon = Icons.Default.Tune,
                 backgroundBrush = cardBrush
             ) {
@@ -189,17 +191,22 @@ fun FilterBottomSheet(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    val sortOptions = listOf("Date" to Icons.Default.DateRange, "Amount" to Icons.Default.AttachMoney, "Category" to Icons.Default.GridView)
-                    sortOptions.forEach { (title, icon) ->
+                    val sortOptions = listOf(
+                        "Date" to (stringResource(R.string.title_date) to Icons.Default.DateRange),
+                        "Amount" to (stringResource(R.string.title_amount) to Icons.Default.AttachMoney),
+                        "Category" to (stringResource(R.string.title_category) to Icons.Default.GridView)
+                    )
+                    sortOptions.forEach { (key, pair) ->
+                        val (label, icon) = pair
                         FilterChip(
-                            title = title,
+                            title = label,
                             icon = icon,
-                            selected = selectedSort == title,
+                            selected = selectedSort == key,
                             selectedBrush = chipSelectedBrush,
                             unselectedBrush = chipUnselectedBrush,
                             onClick = {
-                                onSortChange(title)
-                                onOrderChange(getDefaultOrder(title))
+                                onSortChange(key)
+                                onOrderChange(getDefaultOrder(key))
                             }
                         )
                     }
@@ -209,14 +216,14 @@ fun FilterBottomSheet(
 
         item(key = "order_section") {
             FilterSection(
-                title = "Order",
-                subtitle = "Fine-tune how results are ranked inside the selected sort.",
+                title = stringResource(R.string.label_order),
+                subtitle = stringResource(R.string.desc_order_subtitle),
                 icon = Icons.AutoMirrored.Filled.Sort,
                 backgroundBrush = cardBrush
             ) {
                 orderOptions.forEachIndexed { index, option ->
                     OrderOption(
-                        title = option.title,
+                        titleResId = option.titleResId,
                         subtitle = orderDescription(option.value),
                         value = option.value,
                         selectedOrder = selectedOrder
@@ -233,19 +240,26 @@ fun FilterBottomSheet(
 
         item(key = "filters_section") {
             FilterSection(
-                title = "Filters",
-                subtitle = "Stack multiple filters to narrow the transaction list.",
+                title = stringResource(R.string.label_filters),
+                subtitle = stringResource(R.string.desc_filters_subtitle),
                 icon = Icons.Default.Tune,
                 backgroundBrush = cardBrush
             ) {
-                FilterGroup(title = "Date") {
+                FilterGroup(title = stringResource(R.string.title_date)) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         quickDateFilters.forEach { dateFilter ->
+                            val label = when (dateFilter) {
+                                FILTER_DATE_LAST_7_DAYS -> stringResource(R.string.label_last_7_days)
+                                FILTER_DATE_LAST_15_DAYS -> stringResource(R.string.label_last_15_days)
+                                FILTER_DATE_LAST_30_DAYS -> stringResource(R.string.label_last_30_days)
+                                FILTER_DATE_LAST_60_DAYS -> stringResource(R.string.label_last_60_days)
+                                else -> dateFilter
+                            }
                             FilterChip(
-                                title = dateFilter,
+                                title = label,
                                 icon = Icons.Default.DateRange,
                                 selected = selectedDateRange == dateFilter,
                                 selectedBrush = chipSelectedBrush,
@@ -258,7 +272,7 @@ fun FilterBottomSheet(
                         
                         GatedAction(
                             feature = Feature.ANALYTICS_CUSTOM_RANGE,
-                            displayName = "Custom Range Filter",
+                            displayName = stringResource(R.string.label_custom_range_filter),
                             onAction = { showDatePicker = true }
                         ) { status, gatedOnClick ->
                             val isLocked = status !is AccessStatus.Granted
@@ -268,7 +282,7 @@ fun FilterBottomSheet(
                                         selectedCustomStartDate..selectedCustomEndDate
                                     )
                                 } else {
-                                    "Custom Range"
+                                    stringResource(R.string.label_custom_range)
                                 }
                                 FilterChip(
                                     title = customRangeText,
@@ -281,7 +295,7 @@ fun FilterBottomSheet(
                                 if (isLocked) {
                                     Icon(
                                         imageVector = Icons.Filled.Lock,
-                                        contentDescription = "Locked",
+                                        contentDescription = stringResource(R.string.desc_locked),
                                         tint = colorScheme.featureGateLock,
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
@@ -311,7 +325,7 @@ fun FilterBottomSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroup(title = "Transaction Type") {
+                FilterGroup(title = stringResource(R.string.title_transaction_type_caps)) {
                     val isAllTypesActive = selectedTransactionTypeIds.size == 2 || selectedTransactionTypeIds.isEmpty()
                     
                     FlowRow(
@@ -319,7 +333,7 @@ fun FilterBottomSheet(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         FilterChip(
-                            title = "Expense",
+                            title = stringResource(R.string.title_expense),
                             selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
                             selectedBrush = chipSelectedBrush,
                             unselectedBrush = chipUnselectedBrush,
@@ -335,7 +349,7 @@ fun FilterBottomSheet(
                             }
                         )
                         FilterChip(
-                            title = "Income",
+                            title = stringResource(R.string.title_income),
                             selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
                             selectedBrush = chipSelectedBrush,
                             unselectedBrush = chipUnselectedBrush,
@@ -357,7 +371,7 @@ fun FilterBottomSheet(
 
                 GatedFilterGroup(
                     feature = Feature.ADVANCED_SEARCH_SCOPE,
-                    displayName = "Filter by Category"
+                    displayName = stringResource(R.string.label_categories)
                 ) { isLocked, onClick ->
                     val expenseCategories = remember(availableCategories) {
                         availableCategories.filter { it.transactionTypeId == FILTER_TYPE_EXPENSE }
@@ -373,7 +387,7 @@ fun FilterBottomSheet(
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
-                                FilterGroup(title = "Expense Categories") {
+                                FilterGroup(title = stringResource(R.string.label_expense_categories)) {
                                     FlowRow(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -400,7 +414,7 @@ fun FilterBottomSheet(
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
-                                FilterGroup(title = "Income Categories") {
+                                FilterGroup(title = stringResource(R.string.label_income_categories)) {
                                     FlowRow(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -423,9 +437,9 @@ fun FilterBottomSheet(
 
                         if ((isExpenseExpanded && expenseCategories.isEmpty()) || (isIncomeExpanded && incomeCategories.isEmpty())) {
                             if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
-                                FilterGroup(title = "Categories") {
+                                FilterGroup(title = stringResource(R.string.label_categories)) {
                                     Text(
-                                        text = "No categories available for selected type.",
+                                        text = stringResource(R.string.desc_no_categories),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -439,9 +453,9 @@ fun FilterBottomSheet(
 
                 GatedFilterGroup(
                     feature = Feature.ADVANCED_SEARCH_SCOPE,
-                    displayName = "Filter by Wallet/Payment Mode"
+                    displayName = stringResource(R.string.label_payment_mode)
                 ) { isLocked, onClick ->
-                    FilterGroup(title = "Payment Mode") {
+                    FilterGroup(title = stringResource(R.string.label_payment_mode)) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -462,18 +476,18 @@ fun FilterBottomSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                FilterGroup(title = "Amount Range") {
+                FilterGroup(title = stringResource(R.string.label_amount_range)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AmountFilterField(
                             modifier = Modifier.weight(1f),
                             value = minAmount,
-                            placeholder = "Min",
+                            placeholder = stringResource(R.string.label_min),
                             onValueChange = onMinAmountChange
                         )
                         AmountFilterField(
                             modifier = Modifier.weight(1f),
                             value = maxAmount,
-                            placeholder = "Max",
+                            placeholder = stringResource(R.string.label_max),
                             onValueChange = onMaxAmountChange
                         )
                     }
@@ -513,7 +527,7 @@ fun FilterBottomSheet(
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         Text(
-                            text = "Apply Filters",
+                            text = stringResource(R.string.label_apply_filters),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -559,7 +573,7 @@ private fun GatedFilterGroup(
             if (isLocked) {
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = "Locked",
+                    contentDescription = stringResource(R.string.desc_locked),
                     tint = MaterialTheme.colorScheme.featureGateLock,
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -601,7 +615,7 @@ private fun GatedFilterGroup(
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         imageVector = Icons.Filled.Lock,
-                        contentDescription = "Locked",
+                        contentDescription = stringResource(R.string.desc_locked),
                         tint = MaterialTheme.colorScheme.featureGateLock,
                         modifier = Modifier.size(14.dp).padding(bottom = 2.dp)
                     )
@@ -770,14 +784,88 @@ private fun sanitizeAmountRangeInput(input: String): String {
     }
 }
 
+@Composable
+private fun OrderOption(
+    titleResId: Int,
+    subtitle: String,
+    value: SortType,
+    selectedOrder: SortType,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val selected = value == selectedOrder
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(if (selected) brandGradient(alpha = 0.12f) else androidx.compose.ui.graphics.SolidColor(Color.Transparent))
+            .border(
+                width = 1.dp,
+                color = if (selected) colorScheme.primary.copy(alpha = 0.25f) else Color.Transparent,
+                shape = RoundedCornerShape(18.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(if (selected) brandGradient() else androidx.compose.ui.graphics.SolidColor(colorScheme.surfaceVariant.copy(alpha = 0.4f))),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = when (value) {
+                    SortType.NEWEST -> Icons.Default.VerticalAlignTop
+                    SortType.OLDEST -> Icons.Default.VerticalAlignBottom
+                    SortType.HIGHEST -> Icons.Default.TrendingUp
+                    SortType.LOWEST -> Icons.Default.TrendingDown
+                    SortType.INCOME_FIRST -> Icons.Default.ArrowUpward
+                    SortType.EXPENSE_FIRST -> Icons.Default.ArrowDownward
+                },
+                contentDescription = null,
+                tint = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(titleResId),
+                style = MaterialTheme.typography.titleSmall,
+                color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+            )
+        }
+
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = colorScheme.primary,
+                unselectedColor = colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+            )
+        )
+    }
+}
+
+@Composable
 private fun orderDescription(sortType: SortType): String {
     return when (sortType) {
-        SortType.NEWEST -> "Most recent transactions appear at the top."
-        SortType.OLDEST -> "Earlier transactions show up first."
-        SortType.HIGHEST -> "Larger amounts take priority in the list."
-        SortType.LOWEST -> "Smaller amounts appear before bigger ones."
-        SortType.INCOME_FIRST -> "Income transactions are grouped before expenses."
-        SortType.EXPENSE_FIRST -> "Expense transactions are shown before income."
+        SortType.NEWEST -> stringResource(R.string.desc_newest_order)
+        SortType.OLDEST -> stringResource(R.string.desc_oldest_order)
+        SortType.HIGHEST -> stringResource(R.string.desc_highest_order)
+        SortType.LOWEST -> stringResource(R.string.desc_lowest_order)
+        SortType.INCOME_FIRST -> stringResource(R.string.desc_income_first_order)
+        SortType.EXPENSE_FIRST -> stringResource(R.string.desc_expense_first_order)
     }
 }
 
