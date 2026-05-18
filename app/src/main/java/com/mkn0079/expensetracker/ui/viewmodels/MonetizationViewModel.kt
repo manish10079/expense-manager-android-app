@@ -1,11 +1,13 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.domain.usecase.BecomePremiumUseCase
 import com.mkn0079.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.monetization.AdMobManager
 import com.mkn0079.expensetracker.monetization.Feature
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +20,8 @@ import javax.inject.Inject
 class MonetizationViewModel @Inject constructor(
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
-    private val becomePremiumUseCase: BecomePremiumUseCase
+    private val becomePremiumUseCase: BecomePremiumUseCase,
+    private val adMobManager: AdMobManager
 ) : ViewModel() {
 
     // Cache flows to prevent recreation and flickering on recomposition
@@ -51,15 +54,29 @@ class MonetizationViewModel @Inject constructor(
     }
 
     /**
-     * Simulates watching an ad and grants temporary access.
+     * Shows a rewarded ad and grants temporary access upon completion.
      */
-    fun onAdWatched(feature: Feature, optionId: String? = null) {
-        viewModelScope.launch {
-            grantTemporaryAccessUseCase.execute(
-                feature = feature,
-                optionId = optionId,
-                durationMillis = 2 * 60 * 60 * 1000
-            )
+    fun onAdWatched(activity: Activity, feature: Feature, optionId: String? = null) {
+        if (adMobManager.isAdReady()) {
+            adMobManager.showRewardedAd(activity) {
+                viewModelScope.launch {
+                    grantTemporaryAccessUseCase.execute(
+                        feature = feature,
+                        optionId = optionId,
+                        durationMillis = 1 * 60 * 60 * 1000
+                    )
+                }
+            }
+        } else {
+            // If ad is not ready, load it and grant access for now so user isn't blocked during testing
+            adMobManager.loadRewardedAd()
+            viewModelScope.launch {
+                grantTemporaryAccessUseCase.execute(
+                    feature = feature,
+                    optionId = optionId,
+                    durationMillis = 1 * 60 * 60 * 1000
+                )
+            }
         }
     }
 }

@@ -38,6 +38,11 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <!-- AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3052232912913226~7883958511"/>
     </application>
 
 </manifest>

@@ -1,3 +1,4 @@
+
 # Expense Tracker - Monetization Features Guide
 
 This document lists all the features implemented in the Expense Tracker application, categorized by their monetization status (Free, Ad-Supported, or Premium).

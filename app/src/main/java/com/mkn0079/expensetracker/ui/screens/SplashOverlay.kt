@@ -116,17 +116,6 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = stringResource(id = R.string.label_app_is_starting_please_wait),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                textAlign = TextAlign.Center
-            )
-
             Spacer(modifier = Modifier.height(28.dp))
 
             // Progress Section

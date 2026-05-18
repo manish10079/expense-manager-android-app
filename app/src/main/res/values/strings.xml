@@ -25,7 +25,7 @@
     <string name="desc_unlock_advanced_search">Unlock Advanced Search</string>
     <string name="desc_use_biometric">Use biometric</string>
     <string name="label_unlock_pro_features">Unlock Pro Features</string>
-    <string name="label_watch_a_short_video_to_unlock">Watch a short video to unlock %1$s.</string>
+    <string name="label_watch_a_short_video_to_unlock">Watch a short video to unlock all ad-supported features for 1 hour.</string>
     <string name="label_watch_ad_unlock">Watch Ad &amp; Unlock</string>
     <string name="msg_biometric_authentication_is_no">Biometric authentication is not available right now.</string>
     <string name="msg_biometric_hardware_is_currentl">Biometric hardware is currently unavailable.</string>
@@ -262,7 +262,7 @@
     <string name="label_12hour">12-hour</string>
     <string name="label_248">+24.8%</string>
     <string name="label_24hour">24-hour</string>
-    <string name="label_2_hour_access">2 Hour Access</string>
+    <string name="label_1_hour_access">1-Hour Full Access</string>
     <string name="label_about">About</string>
     <string name="label_ac">AC</string>
     <string name="label_accuracy">ACCURACY</string>
@@ -312,7 +312,7 @@
     <string name="label_growth_index">GROWTH INDEX</string>
     <string name="label_handcrafted_with_precision_and">HANDCRAFTED WITH PRECISION AND LOVE</string>
     <string name="label_headertransition">HeaderTransition</string>
-    <string name="label_hi_val">Hi, %1$s Ã°Å¸â€˜â€¹</string>
+    <string name="label_hi_val">Hi, %1$s 👋</string>
     <string name="label_high_fidelity">High Fidelity</string>
     <string name="label_iconkey">iconKey</string>
     <string name="label_id">id</string>

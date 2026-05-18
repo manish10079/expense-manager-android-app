@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mkn0079.expensetracker.monetization.AccessStatus
@@ -27,6 +29,7 @@ fun GatedAction(
     onAction: () -> Unit,
     content: @Composable (status: AccessStatus, onClick: () -> Unit) -> Unit
 ) {
+    val context = LocalContext.current
     val monetizationViewModel: MonetizationViewModel = viewModel()
     val accessStatus by monetizationViewModel.getAccessStatus(feature, optionId).collectAsStateWithLifecycle()
 
@@ -60,7 +63,10 @@ fun GatedAction(
             featureName = actualDisplayName,
             onDismiss = { showAdDialog = false },
             onWatchAdClick = {
-                monetizationViewModel.onAdWatched(feature, optionId)
+                val activity = context as? Activity
+                if (activity != null) {
+                    monetizationViewModel.onAdWatched(activity, feature, optionId)
+                }
                 showAdDialog = false
             }
         )

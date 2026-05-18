@@ -47,7 +47,7 @@ fun AdRewardDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(R.string.label_2_hour_access),
+                    text = stringResource(R.string.label_1_hour_access),
                     color = MaterialTheme.colorScheme.secondary, // Gold/Accent color for emphasis
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
