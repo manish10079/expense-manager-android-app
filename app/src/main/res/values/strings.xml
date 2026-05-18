@@ -627,6 +627,9 @@
     <string name="desc_budget_limit_alerts">Get notified when you exceed your monthly budget.</string>
     <string name="desc_missed_entry_reminder">Get notified if you forget to add a transaction for 2 days.</string>
     <!-- Splash Screen Tasks -->
+    <string name="msg_preparing_dashboard">Preparing your dashboard</string>
+    <string name="msg_syncing_transactions">Syncing your transactions</string>
+    <string name="msg_securing_data">Securing your data</string>
     <string name="msg_initializing">Initializing</string>
     <string name="msg_starting_security_services">Starting security services</string>
     <string name="msg_loading_preferences">Loading your preferences</string>

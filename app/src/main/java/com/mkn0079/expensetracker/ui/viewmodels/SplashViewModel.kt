@@ -21,13 +21,9 @@ import javax.inject.Inject
 import com.mkn0079.expensetracker.R
 
 sealed class InitTask(val labelResId: Int, val progress: Int) {
-    object Start : InitTask(R.string.msg_initializing, 0)
-    object AppLock : InitTask(R.string.msg_starting_security_services, 15)
-    object LoadPrefs : InitTask(R.string.msg_loading_preferences, 30)
-    object LoadProfile : InitTask(R.string.msg_preparing_database, 45)
-    object InitDB : InitTask(R.string.msg_initializing_database, 70)
-    object WarmUp : InitTask(R.string.msg_warming_up_engine, 85)
-    object Finalize : InitTask(R.string.msg_getting_things_ready, 95)
+    object Start : InitTask(R.string.msg_preparing_dashboard, 0)
+    object Syncing : InitTask(R.string.msg_syncing_transactions, 40)
+    object Securing : InitTask(R.string.msg_securing_data, 80)
     object Complete : InitTask(R.string.label_done, 100)
 }
 
@@ -43,7 +39,7 @@ class SplashViewModel @Inject constructor(
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
 
-    private val minDuration = 1800L // Increased slightly for data warm-up
+    private val minDuration = 2400L // Adjusted for 3 major steps
 
     init {
         startInitialization()
@@ -55,30 +51,24 @@ class SplashViewModel @Inject constructor(
             val context = appContext
 
             try {
-                // Core Preferences
-                _currentTask.value = InitTask.AppLock
+                // Step 1: Preparing Dashboard (Includes Prefs and DB Init)
+                _currentTask.value = InitTask.Start
                 AppLockPreferences.initialize(context)
-                delay(400)
-
-                _currentTask.value = InitTask.LoadPrefs
                 AppSettingsDataStore.initialize(context)
-                delay(400)
-
-                _currentTask.value = InitTask.LoadProfile
-                UserProfileDataStore.initialize(context)
-                delay(400)
-
-                // Database and Data Warming
-                _currentTask.value = InitTask.InitDB
                 ExpenseTrackerDatabaseInitializer.initialize(context)
-                delay(300)
+                delay(800)
 
-                _currentTask.value = InitTask.WarmUp
+                // Step 2: Syncing Transactions (Includes Profile and Data Warm-up)
+                _currentTask.value = InitTask.Syncing
+                UserProfileDataStore.initialize(context)
                 // Perform a warm-up fetch to ensure Room caches are ready
                 transactionRepository.observeActiveTransactionCount().first()
-                delay(300)
+                delay(800)
 
-                _currentTask.value = InitTask.Finalize
+                // Step 3: Securing Data (Final Checks)
+                _currentTask.value = InitTask.Securing
+                delay(800)
+
             } catch (e: Exception) {
                 // Fail-safe: don't block app startup on initialization errors
                 e.printStackTrace()
