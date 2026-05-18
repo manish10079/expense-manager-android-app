@@ -57,16 +57,24 @@ com.mkn0079.expensetracker/
 
 ### 4. Code Quality
 - **Error Handling:** Use `Result<T>` or sealed classes for operations. Never skip error handling in repositories.
-- **Testing:**
-  - ViewModels: Unit tests with mocked repositories.
-  - Repositories: Integration tests with in-memory Room database.
-  - UI: Compose tests for critical flows.
+- **Kotlin Conventions:** Use `val` for immutable variables, data classes for state models, and sealed types for results.
+- **Coroutines:** Use `viewModelScope` in ViewModels and `Dispatchers.IO` for database operations.
 
 ### 5. Internationalization (i18n)
 - **Strings:** Never use hardcoded strings for user-facing UI text. All strings must be extracted to `app/src/main/res/values/strings.xml`.
 - **Compose:** Use `stringResource(R.string.id)` for UI text in Composables.
 - **ViewModels:** ViewModels should avoid resolving strings directly. Instead, expose the `@StringRes Int` resource ID or use a UI model that holds both a raw string (for user data) and a resource ID (for system labels/fallbacks).
 - **Accessibility:** Always provide localized `contentDescription` for all icons and interactive elements.
+
+### 6. Testing Requirements
+- **ViewModels:** Unit tests with mocked repositories are mandatory.
+- **Repositories:** Integration tests with in-memory Room database.
+- **UI:** Compose tests for critical flows using `@ComposeTestRule`.
+
+### 7. Performance & Security
+- **Database:** Implement proper indexing and use pagination for large datasets.
+- **UI:** Use `LazyColumn` for lists and `remember` for expensive calculations.
+- **Security:** Use encrypted DataStore for sensitive data and never store credentials in plain text.
 
 ## 🚀 Workflow for New Features
 
@@ -83,6 +91,14 @@ com.mkn0079.expensetracker/
 - No usage of `ExpenseTrackerRepositoryProvider` (deprecated/forbidden).
 - No skipping of `Result` wrapping for critical data operations.
 - No hardcoded strings in UI or ViewModels (Mandatory use of `strings.xml`).
+- No untested code or business logic in the UI layer.
 
 ---
-*Refer to `CODING_GUIDELINES.md` and `AI_CODING_PROMPT.md` for more detailed technical specifications.*
+**COPY THE ENTIRE CONTENT BELOW WHEN REQUESTING AI ASSISTANCE FOR EXPENSETRACKER**
+
+# AI ASSISTANCE CONTEXT - ExpenseTracker
+- **Architecture**: Hilt DI with Clean Architecture (Data, Domain, UI)
+- **Primary Rules**: Mandatory i18n, `@HiltViewModel` injection, Repository pattern.
+- **UI**: Jetpack Compose + Material 3.
+- **Persistence**: Room (KSP) + DataStore.
+- **Guidelines**: Follow `GEMINI.md` for full technical specifications.
