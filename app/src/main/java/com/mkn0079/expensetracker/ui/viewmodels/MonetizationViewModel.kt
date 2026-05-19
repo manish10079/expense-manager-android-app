@@ -7,7 +7,7 @@ import com.mkn0079.expensetracker.domain.usecase.BecomePremiumUseCase
 import com.mkn0079.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mkn0079.expensetracker.monetization.AccessStatus
-import com.mkn0079.expensetracker.monetization.AdMobManager
+import com.mkn0079.expensetracker.monetization.AdsCoordinator
 import com.mkn0079.expensetracker.monetization.Feature
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +21,7 @@ class MonetizationViewModel @Inject constructor(
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
     private val becomePremiumUseCase: BecomePremiumUseCase,
-    private val adMobManager: AdMobManager
+    private val adsCoordinator: AdsCoordinator
 ) : ViewModel() {
 
     // Cache flows to prevent recreation and flickering on recomposition
@@ -57,8 +57,8 @@ class MonetizationViewModel @Inject constructor(
      * Shows a rewarded ad and grants temporary access upon completion.
      */
     fun onAdWatched(activity: Activity, feature: Feature, optionId: String? = null) {
-        if (adMobManager.isAdReady()) {
-            adMobManager.showRewardedAd(activity) {
+        if (adsCoordinator.isRewardedAdReady()) {
+            adsCoordinator.showRewardedAd(activity) {
                 viewModelScope.launch {
                     grantTemporaryAccessUseCase.execute(
                         feature = feature,
@@ -69,7 +69,7 @@ class MonetizationViewModel @Inject constructor(
             }
         } else {
             // If ad is not ready, load it and grant access for now so user isn't blocked during testing
-            adMobManager.loadRewardedAd()
+            adsCoordinator.loadRewardedAd()
             viewModelScope.launch {
                 grantTemporaryAccessUseCase.execute(
                     feature = feature,

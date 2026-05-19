@@ -11,6 +11,7 @@ import com.mkn0079.expensetracker.monetization.FeatureRegistry
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,6 +22,9 @@ class MonetizationRepositoryImpl @Inject constructor(
     private companion object {
         const val TEST_PREMIUM_DURATION_MILLIS = 1 * 60 * 60 * 1000L
     }
+
+    override val isAdsEnabled: Flow<Boolean> = AppSettingsDataStore.getAppSettingsFlow(context)
+        .map { it.userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM }
 
     override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> {
         return combine(

@@ -55,8 +55,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.SystemBarStyle
 import androidx.compose.runtime.DisposableEffect
 
+import com.mkn0079.expensetracker.monetization.AdsCoordinator
+import javax.inject.Inject
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var adsCoordinator: AdsCoordinator
 
     private val splashViewModel: SplashViewModel by viewModels()
     private val appLockViewModel: AppLockViewModel by viewModels()
@@ -91,6 +97,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         super.onCreate(savedInstanceState)
+
+        // Initialize AdMob with Privacy Flow (UMP)
+        adsCoordinator.initPrivacyFlow(this) {
+            // Ads are ready to be loaded or SDK is initialized
+        }
 
         enableEdgeToEdge()
 

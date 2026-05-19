@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
 }
 
 apply(plugin = "com.google.dagger.hilt.android")

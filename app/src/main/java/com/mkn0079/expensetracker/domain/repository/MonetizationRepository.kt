@@ -6,6 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface MonetizationRepository {
     /**
+     * Emits true if ads should be shown, false if the user is premium or has an active pass.
+     */
+    val isAdsEnabled: Flow<Boolean>
+
+    /**
      * Observes the access status for a specific feature or option.
      */
     fun observeAccessStatus(feature: Feature, optionId: String? = null): Flow<AccessStatus>

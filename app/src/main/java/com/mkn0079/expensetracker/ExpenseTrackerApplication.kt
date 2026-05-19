@@ -7,10 +7,6 @@ import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.workers.RecurringTransactionWorker
 import com.mkn0079.expensetracker.notifications.AppLifecycleObserver
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.google.android.gms.ads.MobileAds
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -31,12 +27,6 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
     override fun onCreate() {
 
         super.onCreate()
-
-        // Initialize Mobile Ads SDK
-        val backgroundScope = CoroutineScope(Dispatchers.IO)
-        backgroundScope.launch {
-            MobileAds.initialize(this@ExpenseTrackerApplication) {}
-        }
 
         // Initialize security preferences early
         com.mkn0079.expensetracker.data.local.AppLockPreferences.initialize(this)
