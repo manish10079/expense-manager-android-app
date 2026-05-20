@@ -100,6 +100,11 @@ import com.mkn0079.expensetracker.ui.viewmodels.SettingsSectionUi
 import com.mkn0079.expensetracker.ui.viewmodels.SettingsToggleId
 import androidx.compose.ui.res.stringResource
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -122,6 +127,9 @@ fun SettingsScreen(
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     LaunchedEffect(
         transactionCount
     ) {
@@ -132,6 +140,7 @@ fun SettingsScreen(
     SettingsScreenContent(
         userProfile = userProfile,
         settingsSections = uiState.settingsSections,
+        isAdsEnabled = isAdsEnabled,
         isDailyReminderEnabled = isDailyReminderEnabled,
         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
@@ -154,6 +163,7 @@ fun SettingsScreen(
 private fun SettingsScreenContent(
     userProfile: UserProfile,
     settingsSections: List<SettingsSectionUi>,
+    isAdsEnabled: Boolean,
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
@@ -228,6 +238,14 @@ private fun SettingsScreenContent(
                             onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                             onMissedEntryReminderChange = onMissedEntryReminderChange
                         )
+
+                        // Inline Banner Ad after the "Customize" section (which contains Manage Categories)
+                        if (section.titleRes == R.string.title_customize_caps) {
+                            Spacer(modifier = Modifier.height(18.dp))
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                BannerAdView()
+                            }
+                        }
                     }
                 }
 
@@ -412,6 +430,7 @@ private fun SettingsScreenPreview() {
                     )
                 )
             ),
+            isAdsEnabled = true,
             isDailyReminderEnabled = true,
             isBudgetLimitAlertsEnabled = true,
             isMissedEntryReminderEnabled = false,

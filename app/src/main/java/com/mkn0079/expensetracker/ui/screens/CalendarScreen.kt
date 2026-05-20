@@ -111,6 +111,10 @@ import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePicker
 import com.mkn0079.expensetracker.ui.models.TabItem
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
 import java.util.Calendar
 
 // Theme colors are now derived from MaterialTheme.colorScheme
@@ -131,8 +135,12 @@ fun CalendarScreen(
     onTransactionClick: (Transaction) -> Unit = {}
 ) {
     val calendarViewModel: CalendarViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isMonthYearPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isYearPickerVisible by rememberSaveable { mutableStateOf(false) }
+    
     androidx.compose.runtime.LaunchedEffect(
         transactions,
         currencyId,
@@ -155,185 +163,192 @@ fun CalendarScreen(
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .statusBarsPadding()
-        ) {
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
             ) {
-                AppHeader(title = stringResource(id = R.string.title_calendar), onBackClick = onBackClick)
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .navigationBarsPadding()
-                    .background(MaterialTheme.colorScheme.background),
-                contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 20.dp, bottom = 130.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                item {
-                    GatedAction(
-                        feature = Feature.CALENDAR_YEAR_VIEW,
-                        displayName = stringResource(id = R.string.label_calendar_year_view),
-                        onAction = { calendarViewModel.setYearView(true) }
-                    ) { status, onClick ->
-                        val isYearLocked = status !is AccessStatus.Granted
-                        LaunchedEffect(isYearLocked, uiState.isYearView) {
-                            if (isYearLocked && uiState.isYearView) {
-                                calendarViewModel.setYearView(false)
-                            }
-                        }
-                        AnimatedTabSwitcher(
-                            items = listOf(
-                                TabItem(false, stringResource(id = R.string.label_month_1)),
-                                TabItem(
-                                    id = true,
-                                    label = stringResource(id = R.string.label_year),
-                                    isLocked = isYearLocked,
-                                    onLockedClick = { onClick() }
-                                )
-                            ),
-                            selectedItemId = uiState.isYearView,
-                            onItemSelected = { isYearView -> calendarViewModel.setYearView(isYearView) }
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                ) {
+                    AppHeader(title = stringResource(id = R.string.title_calendar), onBackClick = onBackClick)
                 }
 
-                item {
-                    AnimatedContent(
-                        targetState = uiState.isYearView,
-                        transitionSpec = {
-                            fadeIn(animationSpec = tween(300)) togetherWith
-                                fadeOut(animationSpec = tween(300))
-                        },
-                        label = "calendar_view_mode_transition"
-                    ) { isYearView ->
-                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                            if (isYearView) {
-                                AnimatedContent(
-                                    targetState = uiState.displayedYear,
-                                    transitionSpec = {
-                                        fadeIn(animationSpec = tween(300)) togetherWith
-                                            fadeOut(animationSpec = tween(300))
-                                    },
-                                    label = "year_navigation_transition"
-                                ) { targetYear ->
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .horizontalSwipe(
-                                                key = targetYear,
-                                                onSwipeLeft = calendarViewModel::goToNextYear,
-                                                onSwipeRight = calendarViewModel::goToPreviousYear
-                                            ),
-                                        verticalArrangement = Arrangement.spacedBy(18.dp)
-                                    ) {
-                                        GatedAction(
-                                            feature = Feature.CALENDAR_DIRECT_YEAR_PICKER,
-                                            displayName = stringResource(id = R.string.label_calendar_year_picker),
-                                            onAction = { isYearPickerVisible = true }
-                                        ) { status, onClick ->
-                                            YearHeading(
-                                                year = targetYear,
-                                                isPickerLocked = status !is AccessStatus.Granted,
-                                                onPreviousYear = calendarViewModel::goToPreviousYear,
-                                                onNextYear = calendarViewModel::goToNextYear,
-                                                onTodayClick = calendarViewModel::jumpToToday,
-                                                onOpenYearPicker = {
-                                                    if (status is AccessStatus.Granted) {
-                                                        isYearPickerVisible = true
-                                                    } else {
-                                                        onClick()
-                                                    }
-                                                }
-                                            )
-                                        }
-
-                                        AnnualSummaryCard(
-                                            totalIncome = uiState.yearlyIncomeLabel,
-                                            totalExpense = uiState.yearlyExpenseLabel
-                                        )
-
-                                        YearSummaryGrid(
-                                            summaries = uiState.yearSummaries,
-                                            onMonthClick = { summary ->
-                                                calendarViewModel.selectMonth(createDate(uiState.displayedYear, summary.monthIndex, 1))
-                                                calendarViewModel.setYearView(false)
-                                            }
-                                        )
-                                    }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(MaterialTheme.colorScheme.background),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 20.dp, bottom = 130.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    item {
+                        GatedAction(
+                            feature = Feature.CALENDAR_YEAR_VIEW,
+                            displayName = stringResource(id = R.string.label_calendar_year_view),
+                            onAction = { calendarViewModel.setYearView(true) }
+                        ) { status, onClick ->
+                            val isYearLocked = status !is AccessStatus.Granted
+                            LaunchedEffect(isYearLocked, uiState.isYearView) {
+                                if (isYearLocked && uiState.isYearView) {
+                                    calendarViewModel.setYearView(false)
                                 }
-                            } else {
-                                AnimatedContent(
-                                    targetState = uiState.displayedMonthStart,
-                                    transitionSpec = {
-                                        fadeIn(animationSpec = tween(300)) togetherWith
-                                            fadeOut(animationSpec = tween(300))
-                                    },
-                                    label = "month_navigation_transition"
-                                ) { targetMonthStart ->
-                                    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                                        GatedAction(
-                                            feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
-                                            displayName = stringResource(id = R.string.label_calendar_month_picker),
-                                            onAction = { isMonthYearPickerVisible = true }
-                                        ) { status, onClick ->
-                                            MonthHeading(
-                                                monthStart = targetMonthStart,
-                                                isPickerLocked = status !is AccessStatus.Granted,
-                                                onPreviousMonth = calendarViewModel::goToPreviousMonth,
-                                                onNextMonth = calendarViewModel::goToNextMonth,
-                                                onTodayClick = calendarViewModel::jumpToToday,
-                                                onOpenPicker = {
-                                                    if (status is AccessStatus.Granted) {
-                                                        isMonthYearPickerVisible = true
-                                                    } else {
-                                                        onClick()
-                                                    }
-                                                }
-                                            )
-                                        }
-
-                                        MonthCalendarCard(
-                                            days = uiState.monthDays,
-                                            selectedDate = uiState.selectedDate,
-                                            onDaySelected = { day ->
-                                                calendarViewModel.selectDay(day)
-                                            },
-                                            onSwipePrevious = calendarViewModel::goToPreviousMonth,
-                                            onSwipeNext = calendarViewModel::goToNextMonth
-                                        )
-                                    }
-                                }
-
-                                DailyTotalsRow(
-                                    expenseLabel = uiState.selectedDayExpenseLabel,
-                                    incomeLabel = uiState.selectedDayIncomeLabel
-                                )
-
-                                TransactionSectionHeader(
-                                    selectedDayTitle = uiState.selectedDayTitle
-                                )
-
-                                if (uiState.selectedDayTransactions.isEmpty()) {
-                                    EmptyTransactionsCard(
-                                        message = uiState.emptyTransactionsMessage
+                            }
+                            AnimatedTabSwitcher(
+                                items = listOf(
+                                    TabItem(false, stringResource(id = R.string.label_month_1)),
+                                    TabItem(
+                                        id = true,
+                                        label = stringResource(id = R.string.label_year),
+                                        isLocked = isYearLocked,
+                                        onLockedClick = { onClick() }
                                     )
-                                } else {
-                                    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                                        uiState.selectedDayTransactions.forEach { transaction ->
-                                            CalendarTransactionCard(
-                                                transaction = transaction,
-                                                transactionCardCustomizationSettings = uiState.customizationSettings,
-                                                onClick = { onTransactionClick(transaction.transaction) }
+                                ),
+                                selectedItemId = uiState.isYearView,
+                                onItemSelected = { isYearView -> calendarViewModel.setYearView(isYearView) }
+                            )
+                        }
+                    }
+
+                    item {
+                        AnimatedContent(
+                            targetState = uiState.isYearView,
+                            transitionSpec = {
+                                fadeIn(animationSpec = tween(300)) togetherWith
+                                    fadeOut(animationSpec = tween(300))
+                            },
+                            label = "calendar_view_mode_transition"
+                        ) { isYearView ->
+                            Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                if (isYearView) {
+                                    AnimatedContent(
+                                        targetState = uiState.displayedYear,
+                                        transitionSpec = {
+                                            fadeIn(animationSpec = tween(300)) togetherWith
+                                                fadeOut(animationSpec = tween(300))
+                                        },
+                                        label = "year_navigation_transition"
+                                    ) { targetYear ->
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .horizontalSwipe(
+                                                    key = targetYear,
+                                                    onSwipeLeft = calendarViewModel::goToNextYear,
+                                                    onSwipeRight = calendarViewModel::goToPreviousYear
+                                                ),
+                                            verticalArrangement = Arrangement.spacedBy(18.dp)
+                                        ) {
+                                            GatedAction(
+                                                feature = Feature.CALENDAR_DIRECT_YEAR_PICKER,
+                                                displayName = stringResource(id = R.string.label_calendar_year_picker),
+                                                onAction = { isYearPickerVisible = true }
+                                            ) { status, onClick ->
+                                                YearHeading(
+                                                    year = targetYear,
+                                                    isPickerLocked = status !is AccessStatus.Granted,
+                                                    onPreviousYear = calendarViewModel::goToPreviousYear,
+                                                    onNextYear = calendarViewModel::goToNextYear,
+                                                    onTodayClick = calendarViewModel::jumpToToday,
+                                                    onOpenYearPicker = {
+                                                        if (status is AccessStatus.Granted) {
+                                                            isYearPickerVisible = true
+                                                        } else {
+                                                            onClick()
+                                                        }
+                                                    }
+                                                )
+                                            }
+
+                                            AnnualSummaryCard(
+                                                totalIncome = uiState.yearlyIncomeLabel,
+                                                totalExpense = uiState.yearlyExpenseLabel
                                             )
+
+                                            YearSummaryGrid(
+                                                summaries = uiState.yearSummaries,
+                                                onMonthClick = { summary ->
+                                                    calendarViewModel.selectMonth(createDate(uiState.displayedYear, summary.monthIndex, 1))
+                                                    calendarViewModel.setYearView(false)
+                                                }
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    AnimatedContent(
+                                        targetState = uiState.displayedMonthStart,
+                                        transitionSpec = {
+                                            fadeIn(animationSpec = tween(300)) togetherWith
+                                                fadeOut(animationSpec = tween(300))
+                                        },
+                                        label = "month_navigation_transition"
+                                    ) { targetMonthStart ->
+                                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                            GatedAction(
+                                                feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
+                                                displayName = stringResource(id = R.string.label_calendar_month_picker),
+                                                onAction = { isMonthYearPickerVisible = true }
+                                            ) { status, onClick ->
+                                                MonthHeading(
+                                                    monthStart = targetMonthStart,
+                                                    isPickerLocked = status !is AccessStatus.Granted,
+                                                    onPreviousMonth = calendarViewModel::goToPreviousMonth,
+                                                    onNextMonth = calendarViewModel::goToNextMonth,
+                                                    onTodayClick = calendarViewModel::jumpToToday,
+                                                    onOpenPicker = {
+                                                        if (status is AccessStatus.Granted) {
+                                                            isMonthYearPickerVisible = true
+                                                        } else {
+                                                            onClick()
+                                                        }
+                                                    }
+                                                )
+                                            }
+
+                                            MonthCalendarCard(
+                                                days = uiState.monthDays,
+                                                selectedDate = uiState.selectedDate,
+                                                onDaySelected = { day ->
+                                                    calendarViewModel.selectDay(day)
+                                                },
+                                                onSwipePrevious = calendarViewModel::goToPreviousMonth,
+                                                onSwipeNext = calendarViewModel::goToNextMonth
+                                            )
+                                        }
+                                    }
+
+                                    DailyTotalsRow(
+                                        expenseLabel = uiState.selectedDayExpenseLabel,
+                                        incomeLabel = uiState.selectedDayIncomeLabel
+                                    )
+
+                                    AdContainer(
+                                        isAdsEnabled = isAdsEnabled,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    ) {
+                                        BannerAdView()
+                                    }
+
+                                    TransactionSectionHeader(
+                                        selectedDayTitle = uiState.selectedDayTitle
+                                    )
+                                    if (uiState.selectedDayTransactions.isEmpty()) {
+                                        EmptyTransactionsCard(
+                                            message = uiState.emptyTransactionsMessage
+                                        )
+                                    } else {
+                                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                            uiState.selectedDayTransactions.forEach { transaction ->
+                                                CalendarTransactionCard(
+                                                    transaction = transaction,
+                                                    transactionCardCustomizationSettings = uiState.customizationSettings,
+                                                    onClick = { onTransactionClick(transaction.transaction) }
+                                                )
+                                            }
                                         }
                                     }
                                 }

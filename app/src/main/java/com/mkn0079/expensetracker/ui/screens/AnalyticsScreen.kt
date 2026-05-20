@@ -80,6 +80,10 @@ import com.mkn0079.expensetracker.ui.viewmodels.ChartLabelUi
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.utils.formatDate
 import com.mkn0079.expensetracker.ui.components.TransactionCard
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -103,6 +107,9 @@ fun AnalyticsScreen(
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = viewModel()
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isCustomRangePickerVisible by rememberSaveable { mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
     var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -256,6 +263,12 @@ fun AnalyticsScreen(
                             )
                         }
                     }
+                }
+            }
+            item {
+                // Inline Banner Ad after Payment Mode Breakdown
+                AdContainer(isAdsEnabled = isAdsEnabled) {
+                    BannerAdView()
                 }
             }
             item {

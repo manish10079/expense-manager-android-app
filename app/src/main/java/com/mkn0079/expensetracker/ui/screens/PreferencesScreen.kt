@@ -35,6 +35,11 @@ import com.mkn0079.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mkn0079.expensetracker.utils.supportedDateFormats
 import com.mkn0079.expensetracker.utils.supportedTimeFormats
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreferencesScreen(
@@ -43,6 +48,8 @@ fun PreferencesScreen(
     preferencesViewModel: PreferencesViewModel = viewModel()
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -128,6 +135,13 @@ fun PreferencesScreen(
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
                     )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        BannerAdView()
+                    }
                 }
             }
         }

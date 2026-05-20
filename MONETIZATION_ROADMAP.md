@@ -17,12 +17,12 @@ This document serves as the master checklist for implementing the monetization s
 - [x] **Native Ad Shimmer:** Build a shimmer placeholder that matches the `TransactionCard` layout.
 - [x] **Lifecycle Safety:** Implement `DisposableEffect` patterns to prevent memory leaks in Compose.
 
-## 📌 Phase 3: Static Ad Placements (Banners)
+## 📌 Phase 3: Static Ad Placements (Banners) ✅
 *Goal: Implement non-intrusive, constant visibility ads.*
 
-- [ ] **Home Screen Banner:** Integrate an Adaptive Banner above the Bottom Navigation Bar in `MainScaffold`.
-- [ ] **Calendar Screen Banner:** Place an Adaptive Banner below the calendar grid.
-- [ ] **Layout Anchoring:** Ensure banners do not overlap with Floating Action Buttons (FABs) or Snackbars.
+- [x] **`BannerAdView` Component:** Create a reusable wrapper for the AdMob `AdView` with adaptive sizing.
+- [x] **Calendar Screen Banner:** Place an Adaptive Banner at the bottom of the Calendar screen.
+- [x] **Layout Anchoring:** Ensure banners do not overlap with UI elements via anchored `AdContainer`.
 
 ## 📑 Phase 4: Dynamic Ad Placements (Native Ads)
 *Goal: Seamlessly blend ads into scrollable content.*

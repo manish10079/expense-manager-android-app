@@ -30,6 +30,13 @@ import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.theme.Dimens
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 @Composable
 fun NotificationSettingsScreen(
     isDailyReminderEnabled: Boolean,
@@ -41,6 +48,8 @@ fun NotificationSettingsScreen(
     onBackClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -100,6 +109,11 @@ fun NotificationSettingsScreen(
                 isChecked = isMissedEntryReminderEnabled,
                 onCheckedChange = onMissedEntryReminderChange
             )
+
+            // Inline Banner Ad after Missed Entry Reminder
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                BannerAdView()
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }

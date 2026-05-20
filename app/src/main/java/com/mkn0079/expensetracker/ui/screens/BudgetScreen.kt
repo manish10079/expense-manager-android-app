@@ -116,6 +116,11 @@ import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+
 @Composable
 fun BudgetScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
@@ -129,6 +134,9 @@ fun BudgetScreen(
     onBackClick: () -> Unit = {}
 ) {
     val budgetViewModel: BudgetViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
     var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -245,6 +253,13 @@ fun BudgetScreen(
                             isBudgetEditorVisible = true
                         }
                     )
+                }
+
+                item {
+                    // Inline Banner Ad after Add New Budget button
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        BannerAdView()
+                    }
                 }
 
                 item {

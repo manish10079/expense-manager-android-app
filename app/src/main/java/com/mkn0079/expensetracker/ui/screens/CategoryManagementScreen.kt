@@ -110,6 +110,11 @@ import com.mkn0079.expensetracker.data.constants.categoryIconOptions
 import com.mkn0079.expensetracker.data.constants.categoryFallbackDescriptions
 import com.mkn0079.expensetracker.data.constants.paymentFallbackDescriptions
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryManagementScreen(
@@ -125,6 +130,9 @@ fun CategoryManagementScreen(
     onAddCategoryClick: (CategoryManagementTab) -> Unit = {}
 ) {
     val categoryManagementViewModel: CategoryManagementViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     androidx.compose.runtime.LaunchedEffect(customCategories, customPaymentTypes) {
         categoryManagementViewModel.updateInputs(
             customCategories = customCategories,
@@ -164,6 +172,11 @@ fun CategoryManagementScreen(
             )
 
             Spacer(modifier = Modifier.height(14.dp))
+
+            // Inline Banner Ad before category count text
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                BannerAdView(modifier = Modifier.padding(bottom = 14.dp))
+            }
 
             Text(
                 text = when (activeTab) {

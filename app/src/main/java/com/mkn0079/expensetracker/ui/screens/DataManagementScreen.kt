@@ -29,6 +29,11 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.components.*
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import java.time.LocalDate
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private val presetAutoBackupFrequencies = listOf(7, 15, 30)
 
@@ -49,6 +54,9 @@ fun DataManagementScreen(
     onPrepareForExternalActivity: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
     val todayLabel = remember { LocalDate.now().toString() }
@@ -157,6 +165,13 @@ fun DataManagementScreen(
                             isEnabled = isAutoBackupEnabled,
                             onClick = onClick
                         )
+                    }
+                }
+
+                // Inline Banner Ad before Data Transfer
+                item {
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        BannerAdView()
                     }
                 }
 

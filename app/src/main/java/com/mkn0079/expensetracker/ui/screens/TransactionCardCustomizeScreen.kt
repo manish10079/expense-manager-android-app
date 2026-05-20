@@ -57,6 +57,7 @@ import com.mkn0079.expensetracker.models.AmountFormatPreferences
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.ui.components.TransactionCard
+import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
@@ -72,6 +73,11 @@ import com.mkn0079.expensetracker.ui.components.SettingsItemCard
 import com.mkn0079.expensetracker.ui.components.AppHeader
 import com.mkn0079.expensetracker.models.SettingsItemType
 import com.mkn0079.expensetracker.monetization.FeatureRegistry
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private data class TransactionCardToggleItem(
     val title: String,
@@ -93,6 +99,9 @@ fun TransactionCardCustomizeScreen(
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     // Local state — initialized once from settings, then owned locally.
     val isInPreview = LocalInspectionMode.current
     var localSettings by remember { mutableStateOf(settings) }
@@ -278,16 +287,6 @@ fun TransactionCardCustomizeScreen(
             }
         }
 
-            Text(
-                text = stringResource(id = R.string.title_customize_transaction_card),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                modifier = Modifier.padding(start = 20.dp,top = 20.dp, bottom = 10.dp)
-            )
-
-
         // Scrollable Bottom Section: Customization Toggles
         LazyColumn(
             modifier = Modifier
@@ -296,7 +295,16 @@ fun TransactionCardCustomizeScreen(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-
+            item {
+                Text(
+                    text = stringResource(id = R.string.title_customize_transaction_card),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
 
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -340,6 +348,16 @@ fun TransactionCardCustomizeScreen(
                     }
                 }
             }
+        }
+
+        // Fixed Banner Ad at the bottom
+        AdContainer(
+            isAdsEnabled = isAdsEnabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
+        ) {
+            BannerAdView()
         }
     }
 }

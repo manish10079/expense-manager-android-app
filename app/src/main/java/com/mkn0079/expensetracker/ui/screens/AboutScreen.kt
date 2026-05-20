@@ -61,6 +61,13 @@ import com.mkn0079.expensetracker.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
@@ -68,6 +75,8 @@ fun AboutScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     val openUrl: (String) -> Unit = { url ->
         try {
@@ -171,6 +180,13 @@ fun AboutScreen(
                 email = "try.manish0079@gmail.com",
                 onEmailClick = { sendEmail("try.manish0079@gmail.com") }
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Inline Banner Ad before Support Section
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                BannerAdView()
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 

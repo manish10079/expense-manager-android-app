@@ -14,11 +14,11 @@ This document outlines a non-intrusive, premium-first monetization strategy for 
 
 | Screen Name | Ad Format | Placement Location | Justification | Priority | Premium Disabled |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Home Screen** | Adaptive Banner | Bottom Sticky (Above Bottom Bar) | Constant visibility in the primary hub without blocking content. | High | Yes |
+| **Home Screen** | Native Advanced | Inline (After Today Spending) | Blends perfectly with the "Fintech Premium" UI; high engagement zone that feels like a feature card. | High | Yes |
 | **Transactions** | Native Advanced | After every 6-8 items in list | Feels like a "Transaction Card" variant. Non-intrusive during scrolling. | High | Yes |
 | **Analytics** | Native Advanced | Below the Hero Chart | High user attention area; provides a natural break before category breakdowns. | Medium | Yes |
 | **Budget** | Interstitial | On saving a new Budget | Natural completion point. Low frustration risk after a successful task. | Medium | Yes |
-| **Calendar** | Adaptive Banner | Below the Calendar Grid | Utilizes white space in the lower half of the screen. | Low | Yes |
+| **Calendar** | Adaptive Banner | Bottom Sticky (Above Nav Bar) | Utilizes whitespace in the lower half; consistent placement for utility views. | Low | Yes |
 | **Add Transaction**| **PROHIBITED** | N/A | High-sensitivity utility screen. Speed and focus are critical. | N/A | N/A |
 | **Calculator** | **PROHIBITED** | N/A | Critical utility; ads would be highly distracting and prone to accidental clicks. | N/A | N/A |
 | **Onboarding** | App Open Ad | Cold start only | Monetizes the very first entry without cluttering the onboarding cards. | Medium | N/A |

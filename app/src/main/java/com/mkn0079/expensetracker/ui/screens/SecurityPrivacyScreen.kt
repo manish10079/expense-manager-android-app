@@ -37,6 +37,11 @@ import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.FeatureRegistry
 import com.mkn0079.expensetracker.ui.models.SelectionItem
 import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.BannerAdView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 
@@ -58,6 +63,9 @@ fun SecurityPrivacyScreen(
     onAutoLockDurationChange: (Int) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
 
@@ -180,6 +188,13 @@ fun SecurityPrivacyScreen(
                         isEnabled = isAppLockEnabled,
                         onClick = { isAutoLockDurationPickerVisible = true }
                     )
+                }
+
+                item {
+                    // Inline Banner Ad after Auto Lock Duration
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        BannerAdView()
+                    }
                 }
             }
         }

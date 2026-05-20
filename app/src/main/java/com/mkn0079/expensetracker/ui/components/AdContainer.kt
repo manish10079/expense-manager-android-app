@@ -40,10 +40,11 @@ fun AdContainer(
     AnimatedVisibility(
         visible = isAdsEnabled,
         enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
+        exit = fadeOut() + shrinkVertically(),
+        modifier = modifier
     ) {
         Box(
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             content()
         }
