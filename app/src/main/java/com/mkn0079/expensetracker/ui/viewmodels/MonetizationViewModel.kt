@@ -9,6 +9,7 @@ import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.AdsCoordinator
 import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,13 +19,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MonetizationViewModel @Inject constructor(
+    private val monetizationRepository: MonetizationRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
     private val becomePremiumUseCase: BecomePremiumUseCase,
     private val adsCoordinator: AdsCoordinator
 ) : ViewModel() {
 
+    /**
+     * Reactive stream indicating if ads should be shown.
+     * False for Premium users.
+     */
+    val isAdsEnabled: StateFlow<Boolean> = monetizationRepository.isAdsEnabled
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
     // Cache flows to prevent recreation and flickering on recomposition
+
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
 
     /**

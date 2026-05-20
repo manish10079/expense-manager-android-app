@@ -112,6 +112,11 @@ import com.mkn0079.expensetracker.ui.theme.featureGateLock
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.NativeAdShimmer
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
@@ -127,6 +132,9 @@ fun TransactionScreen(
     onTransactionClick: (Transaction) -> Unit = {}
 ) {
     val transactionsViewModel: TransactionsViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -463,6 +471,12 @@ fun TransactionScreen(
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 180.dp)
                 ) {
+                    item(key = "smoke_test_ad") {
+                        AdContainer(isAdsEnabled = isAdsEnabled) {
+                            NativeAdShimmer()
+                        }
+                    }
+
                     items(
                         items = uiState.transactionItems,
                         key = { item ->

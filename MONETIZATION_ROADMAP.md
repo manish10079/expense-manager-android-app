@@ -5,17 +5,17 @@ This document serves as the master checklist for implementing the monetization s
 ## 🛠️ Phase 1: Foundation & SDK Integration
 *Goal: Initialize infrastructure and global ad-state management.*
 
-- [ ] **SDK Initialization:** Add Google Mobile Ads SDK dependencies and initialize in `ExpenseTrackerApplication`.
-- [ ] **Global Ad Toggle:** Update `MonetizationRepository` to expose `isAdsEnabled: Flow<Boolean>` (returning false for `UserTier.PREMIUM`).
-- [ ] **Ads Coordinator:** Create a Hilt-injected `AdsCoordinator` to handle low-level loading, caching, and display logic.
-- [ ] **Privacy & Consent:** Implement UMP (User Messaging Platform) for GDPR/CCPA compliance if targeting global markets.
+- [x] **SDK Initialization:** Add Google Mobile Ads SDK dependencies and initialize in `ExpenseTrackerApplication`.
+- [x] **Global Ad Toggle:** Update `MonetizationRepository` to expose `isAdsEnabled: Flow<Boolean>` (returning false for `UserTier.PREMIUM`).
+- [x] **Ads Coordinator:** Create a Hilt-injected `AdsCoordinator` to handle low-level loading, caching, and display logic.
+- [x] **Privacy & Consent:** Implement UMP (User Messaging Platform) for GDPR/CCPA compliance if targeting global markets.
 
-## 🎨 Phase 2: Common UI Layer (Compose)
+## 🎨 Phase 2: Common UI Layer (Compose) ✅
 *Goal: Create reusable wrappers and placeholders to maintain "Fintech Premium" UI.*
 
-- [ ] **`AdContainer` Composable:** Create a wrapper that handles visibility logic based on `isAdsEnabled`.
-- [ ] **Native Ad Shimmer:** Build a shimmer placeholder that matches the `TransactionCard` layout.
-- [ ] **Lifecycle Safety:** Implement `DisposableEffect` patterns to prevent memory leaks in Compose.
+- [x] **`AdContainer` Composable:** Create a wrapper that handles visibility logic based on `isAdsEnabled`.
+- [x] **Native Ad Shimmer:** Build a shimmer placeholder that matches the `TransactionCard` layout.
+- [x] **Lifecycle Safety:** Implement `DisposableEffect` patterns to prevent memory leaks in Compose.
 
 ## 📌 Phase 3: Static Ad Placements (Banners)
 *Goal: Implement non-intrusive, constant visibility ads.*
