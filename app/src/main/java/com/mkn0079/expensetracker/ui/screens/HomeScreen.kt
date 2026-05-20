@@ -79,6 +79,12 @@ import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel as MonetizationViewModelAlias
+
 @Composable
 fun HomeScreen(
     userProfile: UserProfile = defaultUserProfile,
@@ -108,6 +114,9 @@ fun HomeScreen(
     }
 
     val homeViewModel: HomeViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     androidx.compose.runtime.LaunchedEffect(
         userProfile,
         currencyId,
@@ -132,6 +141,7 @@ fun HomeScreen(
     HomeScreenContent(
         userProfile = userProfile,
         uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
         onViewAllClick = onViewAllClick,
         onTransactionClick = onTransactionClick,
         onProfileClick = onProfileClick,
@@ -145,6 +155,7 @@ fun HomeScreen(
 private fun HomeScreenContent(
     userProfile: UserProfile,
     uiState: HomeScreenUiState,
+    isAdsEnabled: Boolean = false,
     onViewAllClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
     onProfileClick: () -> Unit,
@@ -231,6 +242,13 @@ private fun HomeScreenContent(
                 amount = uiState.todaySpending,
                 onClick = onTodaySpendingClick
             )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Native Ad Placement
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                NativeAdCard()
+            }
 
             Spacer(modifier = Modifier.height(15.dp))
 

@@ -12,17 +12,22 @@ This document outlines a non-intrusive, premium-first monetization strategy for 
 
 ## 3. Screen-by-Screen Ad Placement Strategy
 
-| Screen Name | Ad Format | Placement Location | Justification | Priority | Premium Disabled |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Home Screen** | Native Advanced | Inline (After Today Spending) | Blends perfectly with the "Fintech Premium" UI; high engagement zone that feels like a feature card. | High | Yes |
-| **Transactions** | Native Advanced | After every 6-8 items in list | Feels like a "Transaction Card" variant. Non-intrusive during scrolling. | High | Yes |
-| **Analytics** | Native Advanced | Below the Hero Chart | High user attention area; provides a natural break before category breakdowns. | Medium | Yes |
-| **Budget** | Interstitial | On saving a new Budget | Natural completion point. Low frustration risk after a successful task. | Medium | Yes |
-| **Calendar** | Adaptive Banner | Bottom Sticky (Above Nav Bar) | Utilizes whitespace in the lower half; consistent placement for utility views. | Low | Yes |
-| **Add Transaction**| **PROHIBITED** | N/A | High-sensitivity utility screen. Speed and focus are critical. | N/A | N/A |
-| **Calculator** | **PROHIBITED** | N/A | Critical utility; ads would be highly distracting and prone to accidental clicks. | N/A | N/A |
-| **Onboarding** | App Open Ad | Cold start only | Monetizes the very first entry without cluttering the onboarding cards. | Medium | N/A |
-| **Settings** | Native Advanced | Bottom of settings list | Low interaction density area; good for "End of page" discovery. | Low | Yes |
+| Screen Name | Ad Format | Placement Location | Status | Justification |
+| :--- | :--- | :--- | :--- | :--- |
+| **Transactions** | Native Advanced | Inline (After every 6-8 items) | **Shimmer Active** | Feels like a "Transaction Card" variant. Non-intrusive during scrolling. |
+| **Calendar** | Adaptive Banner | Bottom Sticky (Fixed) | **Implemented** | Utilizes whitespace in the lower half; consistent placement for utility views. |
+| **Analytics** | Adaptive Banner | Inline (In scrollable content) | **Implemented** | High user attention area; provides a natural break before breakdowns. |
+| **Settings** | Adaptive Banner | Inline (After "Customize" section) | **Implemented** | Low interaction density area; good for "End of page" discovery. |
+| **Card Customize**| Adaptive Banner | Bottom Sticky (Fixed) | **Implemented** | Anchored at the bottom to stay visible while toggling settings. |
+| **About** | Adaptive Banner | Inline (Above Support section) | **Implemented** | Non-intrusive placement in a purely informational view. |
+| **Preferences** | Adaptive Banner | Inline (At the bottom) | **Implemented** | Standard placement for lower-priority settings views. |
+| **Data Management**| Adaptive Banner | Inline (Before Data Transfer) | **Implemented** | Breaks up long lists of technical settings. |
+| **Security/Privacy**| Adaptive Banner | Inline (After Auto-Lock) | **Implemented** | Consistent with other settings-tier screens. |
+| **Notifications** | Adaptive Banner | Inline (At the bottom) | **Implemented** | Standard placement for utility configuration views. |
+| **Cat. Management**| Adaptive Banner | Inline (Top of list) | **Implemented** | Immediate visibility when managing spending categories. |
+| **Home Screen** | Native Advanced | Inline (After Today Spending) | **Planned** | Blends with feature cards; high engagement zone. |
+| **Add Transaction**| **PROHIBITED** | N/A | **N/A** | High-sensitivity utility screen. Speed and focus are critical. |
+| **Calculator** | **PROHIBITED** | N/A | **N/A** | Critical utility; ads would be highly distracting. |
 
 ## 4. Detailed Ad Format Implementation
 

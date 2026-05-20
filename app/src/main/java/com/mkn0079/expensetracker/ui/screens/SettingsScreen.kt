@@ -103,6 +103,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import com.mkn0079.expensetracker.ui.components.BannerAdView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -239,13 +240,20 @@ private fun SettingsScreenContent(
                             onMissedEntryReminderChange = onMissedEntryReminderChange
                         )
 
-                        // Inline Banner Ad after the "Customize" section (which contains Manage Categories)
+                        // Inline Native Ad after the "Customize" section
                         if (section.titleRes == R.string.title_customize_caps) {
                             Spacer(modifier = Modifier.height(18.dp))
                             AdContainer(isAdsEnabled = isAdsEnabled) {
-                                BannerAdView()
+                                NativeAdCard()
                             }
                         }
+                    }
+                }
+
+                item {
+                    // Bottom Native Ad Placement
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard()
                     }
                 }
 

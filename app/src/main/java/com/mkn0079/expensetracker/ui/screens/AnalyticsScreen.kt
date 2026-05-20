@@ -83,6 +83,8 @@ import com.mkn0079.expensetracker.ui.components.TransactionCard
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.ui.components.BannerAdView
 import com.mkn0079.expensetracker.ui.components.BannerAdView
 import kotlin.math.PI
 import kotlin.math.cos
@@ -207,6 +209,12 @@ fun AnalyticsScreen(
                     onDisplayModeChange = { heroDisplayMode = it }
                 ) 
             }
+            item {
+                // Native Ad Placement below Hero Section
+                AdContainer(isAdsEnabled = isAdsEnabled) {
+                    NativeAdCard()
+                }
+            }
             item { StatsRow(snapshot) }
             item { CashFlowCard(snapshot) }
             item {
@@ -266,9 +274,9 @@ fun AnalyticsScreen(
                 }
             }
             item {
-                // Inline Banner Ad after Payment Mode Breakdown
+                // Inline Native Ad after Payment Mode Breakdown
                 AdContainer(isAdsEnabled = isAdsEnabled) {
-                    BannerAdView()
+                    NativeAdCard()
                 }
             }
             item {

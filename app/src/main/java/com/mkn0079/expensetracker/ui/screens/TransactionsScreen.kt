@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
@@ -116,6 +117,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdShimmer
+
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -471,70 +474,73 @@ fun TransactionScreen(
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 180.dp)
                 ) {
-                    item(key = "smoke_test_ad") {
-                        AdContainer(isAdsEnabled = isAdsEnabled) {
-                            NativeAdShimmer()
-                        }
-                    }
-
-                    items(
-                        items = uiState.transactionItems,
-                        key = { item ->
+                        itemsIndexed(
+                            items = uiState.transactionItems,
+                            key = { _, item ->
+                                when (item) {
+                                    is TransactionListItemUi.Header -> item.id
+                                    is TransactionListItemUi.TransactionRow -> item.card.id
+                                }
+                            },
+                            contentType = { _, item ->
+                                when (item) {
+                                    is TransactionListItemUi.Header -> "header"
+                                    is TransactionListItemUi.TransactionRow -> "transaction"
+                                }
+                            }
+                        ) { index, item ->
                             when (item) {
-                                is TransactionListItemUi.Header -> item.id
-                                is TransactionListItemUi.TransactionRow -> item.card.id
-                            }
-                        },
-                        contentType = { item ->
-                            when (item) {
-                                is TransactionListItemUi.Header -> "header"
-                                is TransactionListItemUi.TransactionRow -> "transaction"
-                            }
-                        }
-                    ) { item ->
-                        when (item) {
-                            is TransactionListItemUi.Header -> {
-                                TransactionDateHeader(
-                                    dayLabel = item.dayLabel,
-                                    dateLabel = item.dateLabel
-                                )
+                                is TransactionListItemUi.Header -> {
+                                    TransactionDateHeader(
+                                        dayLabel = item.dayLabel,
+                                        dateLabel = item.dateLabel
+                                    )
+                                }
+
+                                is TransactionListItemUi.TransactionRow -> {
+                                    val card = item.card
+                                    TransactionCard(
+                                        note = card.note,
+                                        transactionDate = card.transactionDate,
+                                        transactionTime = card.transactionTime,
+                                        amount = card.amount,
+                                        icon = card.icon,
+                                        transactionTypeId = card.transactionTypeId,
+                                        paymentType = card.paymentType,
+                                        categoryLabel = card.categoryLabel,
+                                        showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
+                                        showTransactionDate = uiState.customizationSettings.showTransactionDate,
+                                        showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
+                                        showTransactionTime = uiState.customizationSettings.showTransactionTime,
+                                        showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                                        showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                                        isSelected = uiState.selectedTransactionIds.contains(card.id),
+                                        selectionMode = uiState.isSelectionMode,
+                                        onClick = {
+                                            if (uiState.isSelectionMode) {
+                                                transactionsViewModel.toggleSelection(card.id)
+                                            } else {
+                                                onTransactionClick(card.transaction)
+                                            }
+                                        },
+                                        onLongClick = {
+                                            if (!uiState.isSelectionMode) {
+                                                transactionsViewModel.enterSelectionMode(card.id)
+                                            }
+                                        }
+                                    )
+                                }
                             }
 
-                            is TransactionListItemUi.TransactionRow -> {
-                                val card = item.card
-                                TransactionCard(
-                                    note = card.note,
-                                    transactionDate = card.transactionDate,
-                                    transactionTime = card.transactionTime,
-                                    amount = card.amount,
-                                    icon = card.icon,
-                                    transactionTypeId = card.transactionTypeId,
-                                    paymentType = card.paymentType,
-                                    categoryLabel = card.categoryLabel,
-                                    showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
-                                    showTransactionDate = uiState.customizationSettings.showTransactionDate,
-                                    showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
-                                    showTransactionTime = uiState.customizationSettings.showTransactionTime,
-                                    showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
-                                    showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
-                                    isSelected = uiState.selectedTransactionIds.contains(card.id),
-                                    selectionMode = uiState.isSelectionMode,
-                                    onClick = {
-                                        if (uiState.isSelectionMode) {
-                                            transactionsViewModel.toggleSelection(card.id)
-                                        } else {
-                                            onTransactionClick(card.transaction)
-                                        }
-                                    },
-                                    onLongClick = {
-                                        if (!uiState.isSelectionMode) {
-                                            transactionsViewModel.enterSelectionMode(card.id)
-                                        }
-                                    }
-                                )
+                            // Inject Native Ad every 7th item
+                            if (index > 0 && index % 7 == 0) {
+                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                AdContainer(isAdsEnabled = isAdsEnabled) {
+                                    NativeAdCard()
+                                }
+                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                             }
                         }
-                    }
                 }
             }
         }
