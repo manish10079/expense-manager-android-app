@@ -33,6 +33,8 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
 
+import com.mkn0079.expensetracker.utils.UiText
+
 @Immutable
 data class CalendarScreenUiState(
     val isYearView: Boolean = false,
@@ -41,10 +43,10 @@ data class CalendarScreenUiState(
     val displayedYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     val monthDays: List<CalendarDayUi> = emptyList(),
     val selectedDayTransactions: List<TransactionCardItemUi> = emptyList(),
-    val selectedDayExpenseLabel: String = "",
-    val selectedDayIncomeLabel: String = "",
+    val selectedDayExpenseLabel: UiText = UiText.dynamic(""),
+    val selectedDayIncomeLabel: UiText = UiText.dynamic(""),
     val selectedDayTitle: String = "",
-    val emptyTransactionsMessage: String = "",
+    val emptyTransactionsMessage: UiText = UiText.dynamic(""),
     val yearSummaries: List<CalendarMonthFinancialSummaryUi> = emptyList(),
     val yearlyIncomeLabel: String = "",
     val yearlyExpenseLabel: String = "",
@@ -216,10 +218,10 @@ class CalendarViewModel @Inject constructor(
                         fallbackCategoryName = application.getString(R.string.label_other)
                     )
                 },
-                selectedDayExpenseLabel = "Expense ${formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
-                selectedDayIncomeLabel = "Income ${formatConfiguredCurrency(selectedDayIncomeTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)}",
+                selectedDayExpenseLabel = UiText.res(R.string.label_expense_with_val, formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)),
+                selectedDayIncomeLabel = UiText.res(R.string.label_income_with_val, formatConfiguredCurrency(selectedDayIncomeTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)),
                 selectedDayTitle = formatDate(safeSelectedDate, currentDateFormatPattern),
-                emptyTransactionsMessage = "There are no entries recorded for ${formatDate(safeSelectedDate, currentDateFormatPattern)}.",
+                emptyTransactionsMessage = UiText.res(R.string.msg_no_calendar_entries, formatDate(safeSelectedDate, currentDateFormatPattern)),
                 yearSummaries = yearSummaries,
                 yearlyIncomeLabel = formatConfiguredCurrency(yearlyIncome, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
                 yearlyExpenseLabel = formatConfiguredCurrency(yearlyExpense, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
@@ -317,7 +319,12 @@ private fun buildYearSummaries(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences
 ): List<CalendarMonthFinancialSummaryUi> {
-    val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+    val monthLabels = listOf(
+        R.string.month_jan_short, R.string.month_feb_short, R.string.month_mar_short,
+        R.string.month_apr_short, R.string.month_may_short, R.string.month_jun_short,
+        R.string.month_jul_short, R.string.month_aug_short, R.string.month_sep_short,
+        R.string.month_oct_short, R.string.month_nov_short, R.string.month_dec_short
+    )
     val latestYear = getField(latestTransactionDay, Calendar.YEAR)
     val latestMonth = getField(latestTransactionDay, Calendar.MONTH)
     val completedMonths = max(1, if (year == latestYear) latestMonth + 1 else 12)
@@ -328,7 +335,7 @@ private fun buildYearSummaries(
         actualMonths[month].orEmpty().sumOf(::signedAmount)
     } / completedMonths.toDouble()
 
-    return monthNames.mapIndexed { monthIndex, monthLabel ->
+    return monthLabels.mapIndexed { monthIndex, monthResId ->
         val monthTransactions = actualMonths[monthIndex].orEmpty()
         val income = monthTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
         val expense = monthTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
@@ -340,7 +347,7 @@ private fun buildYearSummaries(
 
         CalendarMonthFinancialSummaryUi(
             monthIndex = monthIndex,
-            label = monthLabel,
+            label = UiText.res(monthResId),
             income = renderedIncome,
             expense = renderedExpense,
             net = renderedNet,

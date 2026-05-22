@@ -120,7 +120,6 @@ import java.util.Calendar
 // Theme colors are now derived from MaterialTheme.colorScheme
 
 private val dayNames = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
-private val monthNames = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
 
 @Composable
 fun CalendarScreen(
@@ -322,8 +321,8 @@ fun CalendarScreen(
                                     }
 
                                     DailyTotalsRow(
-                                        expenseLabel = uiState.selectedDayExpenseLabel,
-                                        incomeLabel = uiState.selectedDayIncomeLabel
+                                        expenseLabel = uiState.selectedDayExpenseLabel.asString(),
+                                        incomeLabel = uiState.selectedDayIncomeLabel.asString()
                                     )
 
                                     AdContainer(
@@ -338,7 +337,7 @@ fun CalendarScreen(
                                     )
                                     if (uiState.selectedDayTransactions.isEmpty()) {
                                         EmptyTransactionsCard(
-                                            message = uiState.emptyTransactionsMessage
+                                            message = uiState.emptyTransactionsMessage.asString()
                                         )
                                     } else {
                                         Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -831,7 +830,7 @@ private fun MonthSummaryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = summary.label,
+                    text = summary.label.asString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold

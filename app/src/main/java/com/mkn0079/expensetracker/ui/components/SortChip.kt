@@ -97,9 +97,8 @@ fun SortChipPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         SortChip(
             modifier = Modifier.fillMaxWidth(),
-            title = "Date",
-            icon = Icons.Default.DateRange,
-            selected = true,
+            title = stringResource(R.string.title_date),
+            icon = Icons.Default.DateRange,            selected = true,
             onClick = {}
         )
     }

@@ -38,18 +38,19 @@ fun BackupRestoreSheet(
 ) {
     val context = LocalContext.current
     val backups = remember { BackupFileManager.getAvailableBackups(context) }
-    
-    val selectionItems = remember(backups) {
+    val datePattern = stringResource(id = R.string.date_pattern_full_short)
+    val timeSeparator = stringResource(id = R.string.separator_bullet)
+
+    val selectionItems = remember(backups, datePattern, timeSeparator) {
         backups.map { backup ->
             SelectionItem(
                 id = backup,
                 title = backup.fileName,
-                subtitle = "${formatDate(backup.lastModifiedMillis, "dd MMM yyyy, hh:mm a")} • ${BackupFileManager.formatFileSize(backup.sizeBytes)}",
+                subtitle = "${formatDate(backup.lastModifiedMillis, datePattern)} $timeSeparator ${BackupFileManager.formatFileSize(context, backup.sizeBytes)}",
                 leadingIcon = if (backup.isAutoBackup) Icons.Rounded.History else Icons.Rounded.Storage
             )
         }
     }
-
     AppSelectionSheet(
         title = stringResource(R.string.title_restore_database),
         description = stringResource(R.string.label_select_a_backup_file),

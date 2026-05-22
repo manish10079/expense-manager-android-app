@@ -52,6 +52,8 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 
+import com.mkn0079.expensetracker.utils.UiText
+
 @Immutable
 data class TransactionsScreenUiState(
     val searchQuery: String = "",
@@ -69,7 +71,7 @@ data class TransactionsScreenUiState(
     val focusedPeriodTimestamp: Long = 0L,
     val canNavigateBackward: Boolean = false,
     val canNavigateForward: Boolean = false,
-    val selectedPeriodLabel: String = "",
+    val selectedPeriodLabel: UiText = UiText.dynamic(""),
     val availableCategories: List<CategoryType> = emptyList(),
     val paymentModes: List<PaymentType> = emptyList(),
     val transactionItems: List<TransactionListItemUi> = emptyList(),
@@ -78,6 +80,8 @@ data class TransactionsScreenUiState(
     val selectedTransactionIds: Set<String> = emptySet(),
     val isDragging: Boolean = false
 )
+
+private const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
@@ -214,7 +218,7 @@ class TransactionsViewModel @Inject constructor(
     fun updateCustomDateRange(start: Long?, end: Long?) {
         customStartDate = start
         customEndDate = end ?: start
-        selectedDateRange = "Custom Range"
+        selectedDateRange = KEY_CUSTOM_RANGE
         rebuildUiState()
     }
 
@@ -487,6 +491,21 @@ class TransactionsViewModel @Inject constructor(
             customizationSettings = currentCustomizationSettings
         )
     }
+
+    private fun buildPeriodLabel(
+        timestamp: Long,
+        filter: TransactionPeriodFilter,
+        dateFormatPattern: String
+    ): UiText {
+        val date = Date(timestamp)
+
+        return when (filter) {
+            TransactionPeriodFilter.ALL -> UiText.res(R.string.label_all_records)
+            TransactionPeriodFilter.DAILY -> UiText.dynamic(formatDate(timestamp, dateFormatPattern))
+            TransactionPeriodFilter.MONTHLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_month_year_comma), Locale.getDefault()).format(date))
+            TransactionPeriodFilter.YEARLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_year), Locale.getDefault()).format(date))
+        }
+    }
 }
 
 private fun matchesQuickDateFilter(
@@ -496,7 +515,7 @@ private fun matchesQuickDateFilter(
     customStart: Long? = null,
     customEnd: Long? = null
 ): Boolean {
-    if (selectedDateRange == "Custom Range" && customStart != null && customEnd != null) {
+    if (selectedDateRange == KEY_CUSTOM_RANGE && customStart != null && customEnd != null) {
         val startCal = Calendar.getInstance().apply {
             timeInMillis = customStart
             set(Calendar.HOUR_OF_DAY, 0)
@@ -645,21 +664,6 @@ private fun shiftPeriod(
             TransactionPeriodFilter.YEARLY -> add(Calendar.YEAR, step)
         }
     }.timeInMillis
-}
-
-private fun buildPeriodLabel(
-    timestamp: Long,
-    filter: TransactionPeriodFilter,
-    dateFormatPattern: String
-): String {
-    val date = Date(timestamp)
-
-    return when (filter) {
-        TransactionPeriodFilter.ALL -> "All Records"
-        TransactionPeriodFilter.DAILY -> formatDate(timestamp, dateFormatPattern)
-        TransactionPeriodFilter.MONTHLY -> SimpleDateFormat("MMMM, yyyy", Locale.getDefault()).format(date)
-        TransactionPeriodFilter.YEARLY -> SimpleDateFormat("yyyy", Locale.getDefault()).format(date)
-    }
 }
 
 private fun Set<Int>.toggle(id: Int): Set<Int> {

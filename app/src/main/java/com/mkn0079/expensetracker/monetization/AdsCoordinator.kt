@@ -8,6 +8,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -26,11 +28,18 @@ class AdsCoordinator @Inject constructor(
 ) {
     private var rewardedAd: RewardedAd? = null
     private var isRewardedAdLoading = false
+
+    private var interstitialAd: InterstitialAd? = null
+    private var isInterstitialAdLoading = false
+    private var lastInterstitialTime: Long = 0
+    private val INTERSTITIAL_COOLDOWN_MILLIS = 15 * 60 * 1000L // 15 minutes
+
     private val isMobileAdsSdkInitialized = AtomicBoolean(false)
     private lateinit var consentInformation: ConsentInformation
 
-    // Using Google's test Rewarded Ad ID
+    // Google Test Ad IDs
     private val REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
+    private val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
 
     /**
      * Initializes the privacy consent flow (UMP).
@@ -82,7 +91,75 @@ class AdsCoordinator @Inject constructor(
 
         MobileAds.initialize(context) {
             loadRewardedAd()
+            loadInterstitialAd()
             onComplete()
+        }
+    }
+
+    /**
+     * Loads an Interstitial Ad.
+     */
+    fun loadInterstitialAd(onAdLoaded: (() -> Unit)? = null) {
+        if (interstitialAd != null || isInterstitialAdLoading) return
+        if (!isMobileAdsSdkInitialized.get()) return
+
+        isInterstitialAdLoading = true
+        val adRequest = AdRequest.Builder().build()
+
+        InterstitialAd.load(context, INTERSTITIAL_AD_UNIT_ID, adRequest, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d("AdsCoordinator", "Interstitial ad failed to load: ${adError.message}")
+                interstitialAd = null
+                isInterstitialAdLoading = false
+            }
+
+            override fun onAdLoaded(ad: InterstitialAd) {
+                Log.d("AdsCoordinator", "Interstitial ad was loaded.")
+                interstitialAd = ad
+                isInterstitialAdLoading = false
+                onAdLoaded?.invoke()
+            }
+        })
+    }
+
+    /**
+     * Checks if an interstitial ad can be shown based on frequency capping (15 min cooldown).
+     */
+    fun canShowInterstitial(): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val timeSinceLastAd = currentTime - lastInterstitialTime
+        val isCooldownOver = timeSinceLastAd >= INTERSTITIAL_COOLDOWN_MILLIS
+        
+        return interstitialAd != null && isCooldownOver
+    }
+
+    /**
+     * Shows the Interstitial Ad if ready and cooldown is over.
+     */
+    fun showInterstitial(activity: Activity, onAdDismissed: () -> Unit = {}) {
+        if (canShowInterstitial()) {
+            interstitialAd?.let { ad ->
+                ad.fullScreenContentCallback = object : com.google.android.gms.ads.FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d("AdsCoordinator", "Interstitial ad was dismissed.")
+                        interstitialAd = null
+                        lastInterstitialTime = System.currentTimeMillis()
+                        loadInterstitialAd() // Preload next
+                        onAdDismissed()
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: com.google.android.gms.ads.AdError) {
+                        Log.d("AdsCoordinator", "Interstitial ad failed to show: ${adError.message}")
+                        interstitialAd = null
+                        onAdDismissed()
+                    }
+                }
+                ad.show(activity)
+            }
+        } else {
+            Log.d("AdsCoordinator", "Interstitial ad not ready or cooldown in progress.")
+            if (interstitialAd == null) loadInterstitialAd()
+            onAdDismissed()
         }
     }
 

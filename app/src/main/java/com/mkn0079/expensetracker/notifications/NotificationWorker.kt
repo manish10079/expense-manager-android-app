@@ -28,7 +28,7 @@ class NotificationWorker(
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        var finalMessage = DynamicNotificationEngine.generateReminderMessage(isZomatoStyle)
+        var finalMessage = DynamicNotificationEngine.generateReminderMessage(applicationContext, isZomatoStyle)
 
         // Missed Entry Logic for evening runs (5pm - 10pm)
         if (appSettings.missedEntryReminderEnabled && hour >= 17 && hour <= 22) {
@@ -38,7 +38,7 @@ class NotificationWorker(
             val count = database.transactionDao().getTodayTransactionCount(todayStr)
 
             if (count == 0) {
-                finalMessage = DynamicNotificationEngine.generateMissedEntryMessage()
+                finalMessage = DynamicNotificationEngine.generateMissedEntryMessage(applicationContext)
                 NotificationHelper.showMissedEntryNotification(applicationContext, finalMessage)
             } else {
                 NotificationHelper.showReminderNotification(applicationContext, finalMessage)

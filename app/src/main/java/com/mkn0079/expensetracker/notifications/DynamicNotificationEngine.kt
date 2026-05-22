@@ -1,124 +1,138 @@
 package com.mkn0079.expensetracker.notifications
 
+import android.content.Context
+import com.mkn0079.expensetracker.R
 import java.util.Calendar
 
 object DynamicNotificationEngine {
 
     private val sarcasticOpeners = listOf(
-        "Well well well", "Interesting", "Ahh", "Look at you",
-        "Breaking news", "Alert", "Update", "Oh, look who it is"
+        R.string.notification_opener_1, R.string.notification_opener_2,
+        R.string.notification_opener_3, R.string.notification_opener_4,
+        R.string.notification_opener_5, R.string.notification_opener_6,
+        R.string.notification_opener_7, R.string.notification_opener_8
     )
 
     private val moneyReactions = listOf(
-        "money just flew away 💸", "wallet took a hit 😬", "budget is shaking 😳",
-        "that escalated quickly 🚀", "your bank account noticed 👀", "is that a hole in your pocket?"
+        R.string.notification_reaction_1, R.string.notification_reaction_2,
+        R.string.notification_reaction_3, R.string.notification_reaction_4,
+        R.string.notification_reaction_5, R.string.notification_reaction_6
     )
 
     private val guiltLines = listOf(
-        "Hope it was worth it 😏", "No regrets… right? 😬", "Future you is watching 👀",
-        "We won’t judge… much 😌", "This better be important 😄", "Your savings account is crying."
+        R.string.notification_guilt_1, R.string.notification_guilt_2,
+        R.string.notification_guilt_3, R.string.notification_guilt_4,
+        R.string.notification_guilt_5, R.string.notification_guilt_6
     )
 
     private val foodLines = listOf(
-        "Food again? Respect 🍕", "Eating like a king 👑", "Diet plan left the chat 🍔",
-        "Taste > Budget, huh? 😏", "Calories don't count, but cents do."
+        R.string.notification_food_1, R.string.notification_food_2,
+        R.string.notification_food_3, R.string.notification_food_4,
+        R.string.notification_food_5
     )
 
     private val shoppingLines = listOf(
-        "Retail therapy activated 🛍️", "Impulse or planned? 😏", "That looked necessary 😬",
-        "Shopping mood ON 💳", "Adding to the collection? 🛍️"
+        R.string.notification_shopping_1, R.string.notification_shopping_2,
+        R.string.notification_shopping_3, R.string.notification_shopping_4,
+        R.string.notification_shopping_5
     )
 
     private val genericLines = listOf(
-        "Another expense logged 📊", "Tracking like a pro 😎", "Money well… spent? 😏",
-        "Noted 👀", "Keeping it real 📈"
+        R.string.notification_generic_1, R.string.notification_generic_2,
+        R.string.notification_generic_3, R.string.notification_generic_4,
+        R.string.notification_generic_5
     )
 
     private val budgetExceededLines = listOf(
-        "Your budget just called. It’s quitting. 💸",
-        "Expense limit? Never heard of her. 💅",
-        "You’re spending like you found a cheat code. 🎮",
-        "Budget: Exceeded. Sadness: Imminent. 📉",
-        "Your savings are screaming. 😱"
+        R.string.notification_budget_exceeded_1, R.string.notification_budget_exceeded_2,
+        R.string.notification_budget_exceeded_3, R.string.notification_budget_exceeded_4,
+        R.string.notification_budget_exceeded_5
     )
 
     private val missedEntryLines = listOf(
-        "It’s too quiet here... did you stop eating? 🍔",
-        "Your wallet is feeling suspiciously heavy. Log something! 💸",
-        "The silence is deafening. Where are the transactions? 🕵️",
-        "Did you win the lottery? Why no logs today? 🎰",
-        "Your tracker is lonely. Give it some data to chew on. 🦴"
+        R.string.notification_missed_entry_1, R.string.notification_missed_entry_2,
+        R.string.notification_missed_entry_3, R.string.notification_missed_entry_4,
+        R.string.notification_missed_entry_5
     )
 
-    // --- REMINDER SECTION ---
-
-    // --- REMINDER SECTION ---
-
     private val reminderMorningOpeners = listOf(
-        "Good morning! ☀️", "Rise and shine! ☕", "Morning update! 🌅", "Wakey wakey! 🥐"
+        R.string.notification_morning_opener_1, R.string.notification_morning_opener_2,
+        R.string.notification_morning_opener_3, R.string.notification_morning_opener_4
     )
 
     private val reminderEveningOpeners = listOf(
-        "Day's almost done! 🌙", "Evening check! 🌆", "Dinner time? 🥘", "Tapping out? 🛌"
+        R.string.notification_evening_opener_1, R.string.notification_evening_opener_2,
+        R.string.notification_evening_opener_3, R.string.notification_evening_opener_4
     )
 
     private val reminderSarcasticMorning = listOf(
-        "Did you buy coffee yet or are you waiting for a sign? ☕",
-        "Tracking your breakfast is the best exercise you'll do today. 🥐",
-        "The early bird catches the worm, but the smart bird logs the cost. 🐛",
-        "Your wallet is awake and it has questions. 💸"
+        R.string.notification_sarcastic_morning_1, R.string.notification_sarcastic_morning_2,
+        R.string.notification_sarcastic_morning_3, R.string.notification_sarcastic_morning_4
     )
 
     private val reminderSarcasticEvening = listOf(
-        "Your budget survived the day... or did it? 👀",
-        "Don't go to sleep with unlogged secrets. Data is watching. 🕵️",
-        "That dinner was great, but the tracking will be legendary. 🥘",
-        "One small log for you, one giant leap for your savings. 🚀"
+        R.string.notification_sarcastic_evening_1, R.string.notification_sarcastic_evening_2,
+        R.string.notification_sarcastic_evening_3, R.string.notification_sarcastic_evening_4
     )
 
     fun generateExpenseMessage(
+        context: Context,
         userName: String? = null,
-        amount: Double,
+        formattedAmount: String,
         category: String
     ): String {
-        val opener = sarcasticOpeners.random()
-        val reaction = moneyReactions.random()
-        val guilt = guiltLines.random()
+        val opener = context.getString(sarcasticOpeners.random())
+        val reaction = context.getString(moneyReactions.random())
+        val guilt = context.getString(guiltLines.random())
 
         val categoryLine = when (category.lowercase()) {
-            "food" -> foodLines.random()
-            "shopping" -> shoppingLines.random()
-            else -> genericLines.random()
+            "food" -> context.getString(foodLines.random())
+            "shopping" -> context.getString(shoppingLines.random())
+            else -> context.getString(genericLines.random())
         }
 
         val namePart = userName?.let { "$it, " } ?: ""
 
-        return "$opener 👀 ${namePart}₹$amount spent on $category… $reaction. $categoryLine. $guilt"
+        return context.getString(
+            R.string.notification_format_expense,
+            opener,
+            namePart,
+            formattedAmount,
+            reaction,
+            categoryLine,
+            guilt
+        )
     }
 
-    fun generateReminderMessage(isZomatoStyle: Boolean): String {
+    fun generateReminderMessage(context: Context, isZomatoStyle: Boolean): String {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val isMorning = hour < 14
 
         return if (isZomatoStyle) {
-            if (isMorning) reminderSarcasticMorning.random()
-            else reminderSarcasticEvening.random()
+            if (isMorning) context.getString(reminderSarcasticMorning.random())
+            else context.getString(reminderSarcasticEvening.random())
         } else {
             if (isMorning) {
-                "${reminderMorningOpeners.random()} Don't forget to log your morning expenses!"
+                context.getString(
+                    R.string.notification_morning_reminder_generic,
+                    context.getString(reminderMorningOpeners.random())
+                )
             } else {
-                "${reminderEveningOpeners.random()} Sparred a minute to log your dinner or travel?"
+                context.getString(
+                    R.string.notification_evening_reminder_generic,
+                    context.getString(reminderEveningOpeners.random())
+                )
             }
         }
     }
 
-    fun generateBudgetExceededMessage(category: String): String {
-        val opener = sarcasticOpeners.random()
-        val core = budgetExceededLines.random()
-        return "$opener! You just blew past your $category budget. $core"
+    fun generateBudgetExceededMessage(context: Context, category: String): String {
+        val opener = context.getString(sarcasticOpeners.random())
+        val core = context.getString(budgetExceededLines.random())
+        return context.getString(R.string.notification_format_budget_exceeded, opener, category, core)
     }
 
-    fun generateMissedEntryMessage(): String {
-        return missedEntryLines.random()
+    fun generateMissedEntryMessage(context: Context): String {
+        return context.getString(missedEntryLines.random())
     }
 }

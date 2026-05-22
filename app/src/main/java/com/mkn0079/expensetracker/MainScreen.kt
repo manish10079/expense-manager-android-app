@@ -164,15 +164,15 @@ fun MainScreen(
         if (enabled) {
             // Turning ON: Require verification
             if (biometricAuthenticator == null) {
-                showToast("Biometric initialization failed.")
+                showToast(rawContext.getString(R.string.toast_biometric_initialization_faile))
             } else if (!biometricAvailability.isAvailable) {
-                showToast(biometricAvailability.message ?: "Biometrics unavailable.")
+                showToast(biometricAvailability.messageRes?.let { rawContext.getString(it) } ?: rawContext.getString(R.string.msg_biometric_authentication_is_no))
             } else {
                 biometricAuthenticator.authenticate(
-                    title = "Confirm Identity",
-                    subtitle = "Verify biometric to enable biometric lock.",
+                    title = rawContext.getString(R.string.title_confirm_identity),
+                    subtitle = rawContext.getString(R.string.title_verify_biometric_to_enable_bio),
                     onSuccess = { performBiometricUpdate(true) },
-                    onFailure = { showToast("Authentication failed.") }
+                    onFailure = { showToast(rawContext.getString(R.string.toast_authentication_failed)) }
                     // onCancel: do nothing (switch stays off)
                 )
             }
@@ -204,20 +204,20 @@ fun MainScreen(
 
     val unlockWithBiometric: () -> Unit = {
         if (biometricAuthenticator == null) {
-            showToast("Biometric authentication is unavailable on this screen.")
+            showToast(rawContext.getString(R.string.toast_biometric_authentication_is_un))
         } else if (!biometricAvailability.isAvailable) {
             showToast(
-                biometricAvailability.message
-                    ?: "Biometric authentication is not available right now."
+                biometricAvailability.messageRes?.let { rawContext.getString(it) }
+                    ?: rawContext.getString(R.string.msg_biometric_authentication_is_no)
             )
         } else {
             biometricAuthenticator.authenticate(
-                title = "Unlock Expense Tracker",
-                subtitle = "Verify your biometric to continue.",
-                negativeButtonText = "Use PIN",
+                title = rawContext.getString(R.string.title_unlock_expense_tracker),
+                subtitle = rawContext.getString(R.string.title_verify_your_biometric_to_conti),
+                negativeButtonText = rawContext.getString(R.string.btn_use_pin),
                 onSuccess = completeUnlock,
                 onFailure = { errorMessage ->
-                    showToast(errorMessage.ifBlank { "Biometric verification failed." })
+                    showToast(errorMessage.ifBlank { rawContext.getString(R.string.toast_authentication_failed) })
                 }
             )
         }

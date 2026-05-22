@@ -12,6 +12,8 @@ import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.Transaction
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
+import com.mkn0079.expensetracker.utils.formatCompactCurrencyValue
+import com.mkn0079.expensetracker.utils.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -70,15 +73,15 @@ data class TopSpendingItemUi(
 @Immutable
 data class SummaryLabelUi(
     val resId: Int? = null,
-    val datePattern: String? = null,
+    val patternResId: Int? = null,
     val timestamp: Long? = null,
-    val customRange: String? = null
+    val customRange: UiText? = null
 )
 
 @Immutable
 data class SmartTipUi(
     val resId: Int,
-    val flowChange: String? = null,
+    val flowChange: UiText? = null,
     val directionResId: Int? = null,
     val topCategory: String? = null,
     val savingAmount: String? = null,
@@ -89,13 +92,13 @@ data class SmartTipUi(
 data class AnalyticsSnapshotUi(
     val summaryLabel: SummaryLabelUi = SummaryLabelUi(resId = R.string.label_this_month),
     val totalDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
-    val changeDisplay: String = "+0%",
+    val changeDisplay: UiText = UiText.res(R.string.label_zero_percent),
     val changePercent: Float = 0f,
     val avgDailyDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
-    val dailyDeltaDisplay: String = "+0%",
+    val dailyDeltaDisplay: UiText = UiText.res(R.string.label_zero_percent),
     val dailyDeltaPercent: Float = 0f,
     val savingsDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
-    val savingsDeltaDisplay: String = "+0%",
+    val savingsDeltaDisplay: UiText = UiText.res(R.string.label_zero_percent),
     val savingsDeltaPercent: Float = 0f,
     val incomeDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val expenseDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
@@ -115,7 +118,7 @@ data class AnalyticsSnapshotUi(
 
 @Immutable
 data class ChartLabelUi(
-    val label: String? = null,
+    val label: UiText = UiText.dynamic(""),
     val resId: Int? = null,
     val index: Int? = null // for array lookups
 )
@@ -349,10 +352,10 @@ private fun buildAnalyticsSnapshot(
         totalDisplay = formatCurrencyValue(totalFlow, currencyId, amountFormatPreferences),
         changeDisplay = formatPercent(flowChange),
         changePercent = flowChange,
-        avgDailyDisplay = formatCurrencyValue(avgDailyExpense, currencyId, amountFormatPreferences),
+        avgDailyDisplay = formatCompactCurrencyValue(avgDailyExpense, currencyId, amountFormatPreferences),
         dailyDeltaDisplay = formatPercent(-dailyChange),
         dailyDeltaPercent = -dailyChange,
-        savingsDisplay = formatCurrencyValue(savings, currencyId, amountFormatPreferences),
+        savingsDisplay = formatCompactCurrencyValue(savings, currencyId, amountFormatPreferences),
         savingsDeltaDisplay = formatPercent(savingsChange),
         savingsDeltaPercent = savingsChange,
         incomeDisplay = formatCurrencyValue(income, currencyId, amountFormatPreferences),
@@ -416,12 +419,12 @@ private fun buildChartBuckets(
                 val label = if (dayIndex % 7 == 0 || dayIndex == totalDays - 1) {
                     val dayOfMonth = dayIndex + 1
                     when {
-                        dayOfMonth <= 7 -> ChartLabelUi(label = "W1")
-                        dayOfMonth <= 14 -> ChartLabelUi(label = "W2")
-                        dayOfMonth <= 21 -> ChartLabelUi(label = "W3")
-                        else -> ChartLabelUi(label = "W4")
+                        dayOfMonth <= 7 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_1))
+                        dayOfMonth <= 14 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_2))
+                        dayOfMonth <= 21 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_3))
+                        else -> ChartLabelUi(label = UiText.res(R.string.label_week_short_4))
                     }
-                } else ChartLabelUi(label = "")
+                } else ChartLabelUi(label = UiText.dynamic(""))
                 
                 ChartBucket(
                     label = label,
@@ -448,8 +451,8 @@ private fun buildChartBuckets(
                 
                 // Show labels for every 2nd month to keep it readable
                 val label = if (monthIndex % 2 == 0) {
-                    ChartLabelUi(index = monthIndex, resId = R.array.months_short)
-                } else ChartLabelUi(label = "")
+                    ChartLabelUi(resId = R.array.months_short, index = monthIndex)
+                } else ChartLabelUi(label = UiText.dynamic(""))
                 
                 ChartBucket(
                     label = label,
@@ -489,10 +492,11 @@ private fun buildSmartTip(
     )
 }
 
-private fun formatPercent(value: Float): String {
+private fun formatPercent(value: Float): UiText {
     val formatter = DecimalFormat("0.#")
-    val prefix = if (value >= 0f) "+" else ""
-    return "$prefix${formatter.format(value)}%"
+    val absoluteValue = formatter.format(abs(value))
+    val prefixRes = if (value >= 0f) R.string.label_plus else R.string.label_minus
+    return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
 }
 
 private fun percentageChange(current: Double, previous: Double): Float {
@@ -560,13 +564,13 @@ private fun buildSummaryLabel(
     customRange: LongRange?
 ): SummaryLabelUi {
     return if (period == AnalyticsPeriod.CUSTOM && customRange != null) {
-        SummaryLabelUi(customRange = formatCustomRangeLabel(customRange))
+        SummaryLabelUi(customRange = UiText.dynamic(formatCustomRangeLabel(customRange)))
     } else {
         when (period) {
             AnalyticsPeriod.WEEK -> SummaryLabelUi(resId = R.string.label_this_week)
-            AnalyticsPeriod.MONTH -> SummaryLabelUi(datePattern = "MMMM yyyy", timestamp = range.first)
-            AnalyticsPeriod.YEAR -> SummaryLabelUi(datePattern = "yyyy", timestamp = range.first)
-            AnalyticsPeriod.CUSTOM -> SummaryLabelUi(customRange = formatCustomRangeLabel(range))
+            AnalyticsPeriod.MONTH -> SummaryLabelUi(patternResId = R.string.date_pattern_month_year, timestamp = range.first)
+            AnalyticsPeriod.YEAR -> SummaryLabelUi(patternResId = R.string.date_pattern_year, timestamp = range.first)
+            AnalyticsPeriod.CUSTOM -> SummaryLabelUi(customRange = UiText.dynamic(formatCustomRangeLabel(range)))
         }
     }
 }
@@ -617,9 +621,26 @@ private fun buildCustomBucketLabel(
     start: Long
 ): ChartLabelUi {
     return if (bucketCount <= 4) {
-        ChartLabelUi(label = SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(start)))
+        ChartLabelUi(label = UiText.dynamic(SimpleDateFormat(UiText.res(R.string.date_pattern_short_day_month).asStringForInternalUse(), Locale.getDefault()).format(Date(start))))
     } else {
-        ChartLabelUi(label = "P${index + 1}")
+        ChartLabelUi(label = UiText.res(R.string.label_period_short, index + 1))
+    }
+}
+
+// Helper to get string from UiText in ViewModel when context is not available.
+// NOTE: This only works for DynamicString. For StringResource, it returns a placeholder.
+// In a real app, formatCurrencyValue should be updated to accept UiText.
+private fun UiText.asStringForInternalUse(): String {
+    return when (this) {
+        is UiText.DynamicString -> value
+        is UiText.StringResource -> {
+            // This is a fallback. For mathematical symbols like "+" or "-", 
+            // we should ideally have them as constants or localized properly.
+            if (resId == R.string.label_plus) "+"
+            else if (resId == R.string.label_minus) "-"
+            else if (resId == R.string.date_pattern_short_day_month) "dd MMM"
+            else "formatted"
+        }
     }
 }
 

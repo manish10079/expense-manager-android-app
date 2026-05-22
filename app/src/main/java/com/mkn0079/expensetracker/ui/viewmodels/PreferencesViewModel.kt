@@ -1,8 +1,10 @@
 package com.mkn0079.expensetracker.ui.viewmodels
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -22,7 +24,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mkn0079.expensetracker.utils.formatNumberValue
 import com.mkn0079.expensetracker.utils.getDateFormatPreviewLabel
 import com.mkn0079.expensetracker.utils.getTimeFormatPreviewLabel
-import com.mkn0079.expensetracker.utils.toDisplayLabel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,7 @@ enum class PreferencesSheetType {
 @Immutable
 data class NumberFormatOptionUi(
     val groupingStyle: CurrencyGroupingStyle,
-    val label: String,
+    val labelRes: Int,
     val preview: String
 )
 
@@ -55,8 +56,8 @@ data class DecimalPlacesOptionUi(
 @Immutable
 data class ThemeModeOptionUi(
     val themeMode: AppThemeMode,
-    val label: String,
-    val description: String
+    @StringRes val labelRes: Int,
+    @StringRes val descriptionRes: Int
 )
 
 @Immutable
@@ -67,11 +68,12 @@ data class PreferencesScreenUiState(
     val selectedTimeFormat: String = DEFAULT_TIME_FORMAT,
     val selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN,
     val selectedDecimalPlaces: Int = 2,
-    val currentCurrencyLabel: String = "Select",
-    val currentThemeModeLabel: String = AppThemeMode.SYSTEM.toDisplayLabel(),
+    val currentCurrencyLabel: String = "",
+    val currentCurrencyLabelRes: Int = R.string.label_select,
+    val currentThemeModeLabelRes: Int = R.string.label_theme_system,
     val currentDateFormatLabel: String = getDateFormatPreviewLabel(DEFAULT_DATE_FORMAT_PATTERN),
-    val currentTimeFormatLabel: String = getTimeFormatPreviewLabel(DEFAULT_TIME_FORMAT),
-    val currentGroupingLabel: String = CurrencyGroupingStyle.INDIAN.toDisplayLabel(),
+    val currentTimeFormatLabelRes: Int = getTimeFormatPreviewLabel(DEFAULT_TIME_FORMAT),
+    val currentGroupingLabelRes: Int = R.string.label_system_active,
     val currentDecimalPlacesLabel: String = "2",
     val currencySearchQuery: String = "",
     val filteredCurrencies: List<Currency> = emptyList(),
@@ -203,7 +205,7 @@ class PreferencesViewModel @Inject constructor(
         }
         val selectedCurrencyLabel = currencyMap[selectedCurrencyId]
             ?.let { "${it.currencySymbol} ${it.countryName}" }
-            ?: "Select"
+            ?: ""
 
         _uiState.update {
             it.copy(
@@ -214,10 +216,11 @@ class PreferencesViewModel @Inject constructor(
                 selectedGroupingStyle = selectedGroupingStyle,
                 selectedDecimalPlaces = selectedDecimalPlaces,
                 currentCurrencyLabel = selectedCurrencyLabel,
-                currentThemeModeLabel = selectedThemeMode.toDisplayLabel(),
+                currentCurrencyLabelRes = if (selectedCurrencyLabel.isEmpty()) R.string.label_select else 0,
+                currentThemeModeLabelRes = selectedThemeMode.toDisplayLabelRes(),
                 currentDateFormatLabel = getDateFormatPreviewLabel(selectedDateFormatPattern),
-                currentTimeFormatLabel = getTimeFormatPreviewLabel(selectedTimeFormat),
-                currentGroupingLabel = selectedGroupingStyle.toDisplayLabel(),
+                currentTimeFormatLabelRes = getTimeFormatPreviewLabel(selectedTimeFormat),
+                currentGroupingLabelRes = selectedGroupingStyle.toDisplayLabelRes(),
                 currentDecimalPlacesLabel = selectedDecimalPlaces.toString(),
                 filteredCurrencies = filteredCurrencies,
                 themeModeOptions = buildThemeModeOptions(),
@@ -232,21 +235,28 @@ private fun buildThemeModeOptions(): List<ThemeModeOptionUi> {
     return AppThemeMode.entries.map { themeMode ->
         ThemeModeOptionUi(
             themeMode = themeMode,
-            label = themeMode.toDisplayLabel(),
-            description = when (themeMode) {
-                AppThemeMode.SYSTEM -> "Follow your device appearance"
-                AppThemeMode.LIGHT -> "Always use the light theme"
-                AppThemeMode.DARK -> "Always use the dark theme"
+            labelRes = themeMode.toDisplayLabelRes(),
+            descriptionRes = when (themeMode) {
+                AppThemeMode.SYSTEM -> R.string.desc_theme_system
+                AppThemeMode.LIGHT -> R.string.desc_theme_light
+                AppThemeMode.DARK -> R.string.desc_theme_dark
             }
         )
     }
 }
 
-private fun AppThemeMode.toDisplayLabel(): String {
+private fun AppThemeMode.toDisplayLabelRes(): Int {
     return when (this) {
-        AppThemeMode.SYSTEM -> "System"
-        AppThemeMode.LIGHT -> "Light"
-        AppThemeMode.DARK -> "Dark"
+        AppThemeMode.SYSTEM -> R.string.label_theme_system
+        AppThemeMode.LIGHT -> R.string.label_theme_light
+        AppThemeMode.DARK -> R.string.label_theme_dark
+    }
+}
+
+private fun CurrencyGroupingStyle.toDisplayLabelRes(): Int {
+    return when (this) {
+        CurrencyGroupingStyle.INDIAN -> R.string.label_grouping_indian
+        CurrencyGroupingStyle.INTERNATIONAL -> R.string.label_grouping_international
     }
 }
 
@@ -254,7 +264,7 @@ private fun buildNumberFormatOptions(decimalPlaces: Int): List<NumberFormatOptio
     return CurrencyGroupingStyle.entries.map { style ->
         NumberFormatOptionUi(
             groupingStyle = style,
-            label = style.toDisplayLabel(),
+            labelRes = style.toDisplayLabelRes(),
             preview = formatNumberValue(
                 amount = 1234567.89,
                 amountFormatPreferences = com.mkn0079.expensetracker.models.AmountFormatPreferences(
@@ -265,6 +275,7 @@ private fun buildNumberFormatOptions(decimalPlaces: Int): List<NumberFormatOptio
         )
     }
 }
+
 
 private fun buildDecimalPlaceOptions(
     groupingStyle: CurrencyGroupingStyle

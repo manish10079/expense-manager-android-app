@@ -26,6 +26,9 @@ import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.standardCardGradient
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 
+import androidx.compose.ui.res.stringResource
+import com.mkn0079.expensetracker.R
+
 /**
  * A custom Native Ad component that mimics the layout of a TransactionCard.
  * Blends seamlessly into the transactions list with the "Fintech Premium" aesthetic.
@@ -71,7 +74,7 @@ fun NativeAdCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Ad",
+                    text = stringResource(R.string.label_ad),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
                 )
@@ -83,7 +86,7 @@ fun NativeAdCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Sponsored Content",
+                    text = stringResource(R.string.label_sponsored_content),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -96,7 +99,7 @@ fun NativeAdCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Check out this recommended service.",
+                    text = stringResource(R.string.desc_sponsored_content),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -118,7 +121,7 @@ fun NativeAdCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "LEARN MORE",
+                        text = stringResource(R.string.btn_learn_more),
                         color = Color.White,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.ExtraBold,

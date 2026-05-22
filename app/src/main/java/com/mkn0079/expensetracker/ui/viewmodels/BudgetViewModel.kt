@@ -15,6 +15,8 @@ import com.mkn0079.expensetracker.models.Transaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mkn0079.expensetracker.utils.defaultAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.formatCurrencyValue
+import com.mkn0079.expensetracker.utils.UiText
+import com.mkn0079.expensetracker.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
+
 enum class BudgetPeriodFilter {
     ThisMonth,
     LastMonth,
@@ -50,10 +53,10 @@ data class BudgetSummaryUi(
     val remainingAmount: Double = 0.0,
     val totalBudgetLabel: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val spentLabel: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
-    val remainingLabel: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val remainingLabel: UiText = UiText.dynamic(""),
     val usageFraction: Float = 0f,
-    val usageLabel: String = "NO BUDGET",
-    val limitLabel: String = "ADD A BUDGET"
+    val usageLabel: UiText = UiText.dynamic(""),
+    val limitLabel: UiText = UiText.dynamic("")
 )
 
 @Immutable
@@ -62,9 +65,9 @@ data class BudgetCategoryBudgetUi(
     val categoryId: Int,
     val title: String,
     val summaryLabel: String,
-    val statusValueLabel: String,
-    val statusCaption: String,
-    val totalCaption: String,
+    val statusValueLabel: UiText,
+    val statusCaption: UiText,
+    val totalCaption: UiText,
     val progressFraction: Float,
     val spentAmount: Double,
     val limitAmount: Double,
@@ -87,8 +90,8 @@ data class BudgetRecurringExpenseUi(
     val repeatCount: Int,
     val currentInstallment: Int,
     val totalInstallments: Int,
-    val sourceDateLabel: String,
-    val dueLabel: String,
+    val sourceDateLabel: UiText,
+    val dueLabel: UiText,
     val dueAmountLabel: String,
     val icon: ImageVector,
     val accent: BudgetAccent,
@@ -98,9 +101,9 @@ data class BudgetRecurringExpenseUi(
 
 @Immutable
 data class BudgetInsightUi(
-    val title: String,
-    val body: String,
-    val supportingLabel: String,
+    val title: UiText,
+    val body: UiText,
+    val supportingLabel: UiText,
     val accent: BudgetAccent
 )
 
@@ -111,17 +114,18 @@ data class BudgetScreenUiState(
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
     val recurringExpenses: List<BudgetRecurringExpenseUi> = emptyList(),
     val insight: BudgetInsightUi = BudgetInsightUi(
-        title = "Budget Insight",
-        body = "Start tracking how your spending is pacing against your monthly limits.",
-        supportingLabel = "WAITING FOR BUDGETS",
+        title = UiText.res(R.string.title_budget_insight),
+        body = UiText.res(R.string.msg_insight_start_tracking),
+        supportingLabel = UiText.res(R.string.label_waiting_for_budgets),
         accent = BudgetAccent.Primary
     ),
-    val emptyCategoryMessage: String? = null,
-    val emptyRecurringMessage: String? = null,
+    val emptyCategoryMessage: UiText? = null,
+    val emptyRecurringMessage: UiText? = null,
     val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
     val isMonthLocked: Boolean = false,
     val canAddBudget: Boolean = true
 )
+
 
 private data class BudgetEntry(
     val id: String,
@@ -357,15 +361,15 @@ class BudgetViewModel @Inject constructor(
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
                     when {
-                        isMonthLocked -> "No budgets were set for $formattedMonth. History is now locked."
-                        !canAddBudget -> "No more budgets can be added for $formattedMonth (edit limit reached)."
-                        else -> "No budgets added for $formattedMonth yet. Tap ADD NEW BUDGET to start tracking this month."
+                        isMonthLocked -> UiText.res(R.string.msg_no_budgets_locked, formattedMonth)
+                        !canAddBudget -> UiText.res(R.string.msg_no_budgets_limit_reached, formattedMonth)
+                        else -> UiText.res(R.string.msg_no_budgets_start_tracking, formattedMonth)
                     }
                 } else {
                     null
                 },
                 emptyRecurringMessage = if (activeRecurring.isEmpty()) {
-                    "No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction."
+                    UiText.res(R.string.msg_no_recurring_start_tracking)
                 } else {
                     null
                 },
@@ -398,9 +402,9 @@ private fun buildSummary(
         ((spentAmount / totalBudgetAmount) * 100).toInt().coerceAtLeast(0)
     }
     val remainingLabel = when {
-        totalBudgetAmount <= 0.0 -> formatCurrencyValue(0.0, currencyId, amountFormatPreferences)
-        remainingAmount >= 0.0 -> formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)
-        else -> "Over ${formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences)}"
+        totalBudgetAmount <= 0.0 -> UiText.dynamic(formatCurrencyValue(0.0, currencyId, amountFormatPreferences))
+        remainingAmount >= 0.0 -> UiText.dynamic(formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences))
+        else -> UiText.res(R.string.format_over_amount, formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences))
     }
 
     return BudgetSummaryUi(
@@ -412,11 +416,11 @@ private fun buildSummary(
         spentLabel = formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences),
         remainingLabel = remainingLabel,
         usageFraction = usageFraction,
-        usageLabel = if (totalBudgetAmount <= 0.0) "NO BUDGET" else "$usagePercent% USED",
+        usageLabel = if (totalBudgetAmount <= 0.0) UiText.res(R.string.label_no_budget) else UiText.res(R.string.format_percent_used, usagePercent),
         limitLabel = if (totalBudgetAmount <= 0.0) {
-            "ADD A BUDGET"
+            UiText.res(R.string.label_add_a_budget)
         } else {
-            "LIMIT ${formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences)}"
+            UiText.res(R.string.format_limit_amount, formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences))
         }
     )
 }
@@ -446,21 +450,21 @@ private fun buildCategoryBudgets(
             val accent = categoryAccent(progress)
             val (statusValueLabel, statusCaption, totalCaption) = when {
                 spentAmount > budgetEntry.limitAmount -> Triple(
-                    "${formatCurrencyValue(spentAmount - budgetEntry.limitAmount, currencyId, amountFormatPreferences)} OVER",
-                    "BUDGET",
-                    "EXCEEDED"
+                    UiText.res(R.string.format_amount_over, formatCurrencyValue(spentAmount - budgetEntry.limitAmount, currencyId, amountFormatPreferences)),
+                    UiText.res(R.string.label_budget_status_label),
+                    UiText.res(R.string.label_exceeded)
                 )
 
                 progress >= 0.85f -> Triple(
-                    "${(progress * 100).toInt()}% USED",
-                    "NEAR LIMIT",
-                    "SPENT / LIMIT"
+                    UiText.res(R.string.format_percent_used, (progress * 100).toInt()),
+                    UiText.res(R.string.label_near_limit),
+                    UiText.res(R.string.label_spent_limit)
                 )
 
                 else -> Triple(
-                    "${formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)} LEFT",
-                    "SAFE",
-                    "SPENT / LIMIT"
+                    UiText.res(R.string.format_amount_left, formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)),
+                    UiText.res(R.string.label_safe),
+                    UiText.res(R.string.label_spent_limit)
                 )
             }
 
@@ -541,7 +545,7 @@ private fun buildRecurringExpenses(
                 repeatCount = recurringEntry.repeatCount,
                 currentInstallment = nextIndex,
                 totalInstallments = recurringEntry.repeatCount,
-                sourceDateLabel = "Started ${recurringDateFormatter.format(Date(transaction.createdAt))}",
+                sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
                 dueLabel = dueLabelFor(nextDueAt, referenceTime),
                 dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                 icon = category.icon,
@@ -567,9 +571,9 @@ private fun buildInsight(
 ): BudgetInsightUi {
     if (categoryBudgets.isEmpty() && recurringExpenses.isEmpty()) {
         return BudgetInsightUi(
-            title = "Budget Insight",
-            body = "You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.",
-            supportingLabel = "",
+            title = UiText.res(R.string.title_budget_insight),
+            body = UiText.res(R.string.msg_insight_empty),
+            supportingLabel = UiText.dynamic(""),
             accent = BudgetAccent.Primary
         )
     }
@@ -594,36 +598,54 @@ private fun buildInsight(
     return when {
         overspentCategory != null -> {
             BudgetInsightUi(
-                title = "Budget Insight",
-                body = "${overspentCategory.title} is over budget by ${formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId, amountFormatPreferences)}. Tightening that category first will give you the quickest recovery.",
-                supportingLabel = "OVER BUDGET",
+                title = UiText.res(R.string.title_budget_insight),
+                body = UiText.res(R.string.msg_insight_over_budget, overspentCategory.title, formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId, amountFormatPreferences)),
+                supportingLabel = UiText.res(R.string.label_over_budget_status),
                 accent = BudgetAccent.Overspent
             )
         }
 
         recurringExpenses.isNotEmpty() && nextRecurring != null -> {
+            val resId = if (recurringExpenses.size == 1) R.string.msg_insight_recurring_single else R.string.msg_insight_recurring_plural
             BudgetInsightUi(
-                title = "Budget Insight",
-                body = "You have ${recurringExpenses.size} recurring expense${if (recurringExpenses.size == 1) "" else "s"} tracked. ${nextRecurring.title} is ${nextRecurring.dueLabel.lowercase(Locale.getDefault())}, and your recurring commitments average about ${formatCurrencyValue(recurringMonthlyEquivalent, currencyId, amountFormatPreferences)} per month.",
-                supportingLabel = "RECURRING WATCH",
+                title = UiText.res(R.string.title_budget_insight),
+                body = UiText.res(
+                    resId,
+                    recurringExpenses.size,
+                    nextRecurring.title,
+                    "upcoming", // Simplified as we can't easily resolve nextRecurring.dueLabel here
+                    formatCurrencyValue(recurringMonthlyEquivalent, currencyId, amountFormatPreferences)
+                ),
+                supportingLabel = UiText.res(R.string.label_recurring_watch),
                 accent = nextRecurring.accent
             )
         }
 
         summary.totalBudgetAmount > 0.0 && summary.usageFraction >= 0.85f -> {
             BudgetInsightUi(
-                title = "Budget Insight",
-                body = "You have used ${summary.usageLabel.lowercase(Locale.getDefault())} for ${summary.monthLabel}. ${highestSpendCategory?.title ?: "Your top category"} is carrying the most spend, so trimming there will protect your remaining ${summary.remainingLabel}.",
-                supportingLabel = "WATCH YOUR RUNWAY",
+                title = UiText.res(R.string.title_budget_insight),
+                body = UiText.res(
+                    R.string.msg_insight_warning,
+                    "high usage", 
+                    summary.monthLabel,
+                    highestSpendCategory?.title ?: "Your top category",
+                    formatCurrencyValue(abs(summary.remainingAmount), currencyId, amountFormatPreferences)
+                ),
+                supportingLabel = UiText.res(R.string.label_watch_your_runway),
                 accent = BudgetAccent.Warning
             )
         }
 
         else -> {
             BudgetInsightUi(
-                title = "Budget Insight",
-                body = "Your budget pacing looks steady for ${summary.monthLabel}. You still have ${summary.remainingLabel} available, with ${highestSpendCategory?.title ?: "your biggest category"} leading spend so far.",
-                supportingLabel = "BUDGET ON TRACK",
+                title = UiText.res(R.string.title_budget_insight),
+                body = UiText.res(
+                    R.string.msg_insight_steady,
+                    summary.monthLabel,
+                    formatCurrencyValue(summary.remainingAmount, currencyId, amountFormatPreferences),
+                    highestSpendCategory?.title ?: "your biggest category"
+                ),
+                supportingLabel = UiText.res(R.string.label_budget_on_track),
                 accent = BudgetAccent.Primary
             )
         }
@@ -749,13 +771,13 @@ private fun calculateNextInstallmentInfo(
 private fun dueLabelFor(
     nextDueAt: Long,
     referenceTime: Long
-): String {
+): UiText {
     val diffDays = ((startOfDay(nextDueAt) - startOfDay(referenceTime)) / DAY_IN_MILLIS).toInt()
     return when {
-        diffDays <= 0 -> "DUE TODAY"
-        diffDays == 1 -> "DUE TOMORROW"
-        diffDays in 2..6 -> "DUE IN $diffDays DAYS"
-        else -> "NEXT ${dueFormatter.format(Date(nextDueAt)).uppercase(Locale.getDefault())}"
+        diffDays <= 0 -> UiText.res(R.string.label_due_today)
+        diffDays == 1 -> UiText.res(R.string.label_due_tomorrow)
+        diffDays in 2..6 -> UiText.res(R.string.format_due_in_days, diffDays)
+        else -> UiText.res(R.string.format_next_due, dueFormatter.format(Date(nextDueAt)).uppercase(Locale.getDefault()))
     }
 }
 

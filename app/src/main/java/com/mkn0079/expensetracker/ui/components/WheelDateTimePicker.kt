@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mkn0079.expensetracker.R
 import java.util.*
 
 @Composable
@@ -22,10 +24,13 @@ fun WheelDateTimePicker(
         Calendar.getInstance().apply { timeInMillis = initialDateMillis }
     }
 
+    val labelAm = stringResource(R.string.label_am)
+    val labelPm = stringResource(R.string.label_pm)
+
     // ✅ FIX: proper 24 → 12 conversion
     val hour24 = calendar.get(Calendar.HOUR_OF_DAY)
     val initialHour12 = if (hour24 % 12 == 0) 12 else hour24 % 12
-    val initialAmPm = if (hour24 < 12) "AM" else "PM"
+    val initialAmPm = if (hour24 < 12) labelAm else labelPm
 
     var selectedYear by remember(initialDateMillis) { mutableIntStateOf(calendar.get(Calendar.YEAR)) }
     var selectedMonth by remember(initialDateMillis) { mutableIntStateOf(calendar.get(Calendar.MONTH)) }
@@ -40,7 +45,7 @@ fun WheelDateTimePicker(
     val days = remember { (1..31).toList() }
     val hours = remember { (1..12).toList() }
     val minutes = remember { (0..59).toList() }
-    val amPmOptions = remember { listOf("AM", "PM") }
+    val amPmOptions = remember(labelAm, labelPm) { listOf(labelAm, labelPm) }
 
     // ✅ FIX: precomputed month names
     val monthNames = remember {

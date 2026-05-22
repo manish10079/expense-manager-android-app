@@ -119,7 +119,7 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
             if (currentSpending > budgetEntity.limitMinor) {
                 // Get category name for message
                 val categoryName = database.categoryDao().getById(transaction.categoryId)?.name ?: "Unknown"
-                val message = com.mkn0079.expensetracker.notifications.DynamicNotificationEngine.generateBudgetExceededMessage(categoryName)
+                val message = com.mkn0079.expensetracker.notifications.DynamicNotificationEngine.generateBudgetExceededMessage(context, categoryName)
                 com.mkn0079.expensetracker.notifications.NotificationHelper.showBudgetExceededNotification(context, message)
             }
         }

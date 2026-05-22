@@ -2,6 +2,8 @@ package com.mkn0079.expensetracker.ui.models
 
 import androidx.compose.runtime.Immutable
 
+import com.mkn0079.expensetracker.utils.UiText
+
 @Immutable
 data class CalendarDayUi(
     val timestamp: Long,
@@ -14,7 +16,7 @@ data class CalendarDayUi(
 @Immutable
 data class CalendarMonthFinancialSummaryUi(
     val monthIndex: Int,
-    val label: String,
+    val label: UiText,
     val income: Double,
     val expense: Double,
     val net: Double,

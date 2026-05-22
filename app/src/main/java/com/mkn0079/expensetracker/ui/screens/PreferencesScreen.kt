@@ -81,7 +81,11 @@ fun PreferencesScreen(
                         title = stringResource(R.string.title_currency),
                         subtitle = stringResource(R.string.label_primary_currency),
                         icon = Icons.Rounded.CurrencyRupee,
-                        valueText = uiState.currentCurrencyLabel,
+                        valueText = if (uiState.currentCurrencyLabelRes != 0) {
+                            stringResource(uiState.currentCurrencyLabelRes)
+                        } else {
+                            uiState.currentCurrencyLabel
+                        },
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
                     )
@@ -91,7 +95,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.title_theme),
                         subtitle = stringResource(R.string.label_theme_subtitle),
                         icon = Icons.Filled.Palette,
-                        valueText = uiState.currentThemeModeLabel,
+                        valueText = stringResource(uiState.currentThemeModeLabelRes),
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.ThemeMode) }
                     )
@@ -111,7 +115,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.title_time_format),
                         subtitle = stringResource(R.string.label_time_format_subtitle),
                         icon = Icons.Rounded.MoreTime,
-                        valueText = uiState.currentTimeFormatLabel,
+                        valueText = stringResource(uiState.currentTimeFormatLabelRes),
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
                     )
@@ -121,7 +125,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.title_number_format),
                         subtitle = stringResource(R.string.label_number_format_subtitle),
                         icon = Icons.Rounded.Pin,
-                        valueText = uiState.currentGroupingLabel,
+                        valueText = stringResource(uiState.currentGroupingLabelRes),
                         type = SettingsItemType.Value,
                         onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
                     )
@@ -184,8 +188,10 @@ fun PreferencesScreen(
                     uiState.themeModeOptions.map { option ->
                         SelectionItem(
                             id = option.themeMode,
-                            title = option.label,
-                            subtitle = option.description,
+                            title = "",
+                            titleRes = option.labelRes,
+                            subtitle = "",
+                            subtitleRes = option.descriptionRes,
                             leadingIcon = Icons.Filled.Palette
                         )
                     }
@@ -226,7 +232,8 @@ fun PreferencesScreen(
                     supportedTimeFormats.map { option ->
                         SelectionItem(
                             id = option.id,
-                            title = option.label,
+                            title = "",
+                            titleRes = option.labelRes,
                             subtitle = option.previewLabel,
                             leadingIcon = Icons.Filled.Tune
                         )
@@ -247,7 +254,8 @@ fun PreferencesScreen(
                     uiState.numberFormatOptions.map { option ->
                         SelectionItem(
                             id = option.groupingStyle,
-                            title = option.label,
+                            title = "",
+                            titleRes = option.labelRes,
                             subtitle = option.preview,
                             leadingIcon = Icons.Filled.Tune
                         )

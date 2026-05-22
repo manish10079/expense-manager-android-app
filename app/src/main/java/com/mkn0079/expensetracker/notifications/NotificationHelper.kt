@@ -26,26 +26,26 @@ object NotificationHelper {
 
             val reminderChannel = NotificationChannel(
                 CHANNEL_DAILY_REMINDERS,
-                "Daily Reminders",
+                context.getString(R.string.notification_channel_reminders),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Periodic reminders to log your expenses."
+                description = context.getString(R.string.notification_channel_reminders_desc)
             }
 
             val budgetChannel = NotificationChannel(
                 CHANNEL_BUDGET_ALERTS,
-                "Budget Alerts",
+                context.getString(R.string.notification_channel_budget),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Alerts when you exceed your monthly budget."
+                description = context.getString(R.string.notification_channel_budget_desc)
             }
 
             val recurringChannel = NotificationChannel(
                 CHANNEL_RECURRING,
-                "Recurring Transactions",
+                context.getString(R.string.notification_channel_recurring),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Notifications when recurring transactions are automatically added."
+                description = context.getString(R.string.notification_channel_recurring_desc)
             }
 
             notificationManager.createNotificationChannel(reminderChannel)
@@ -98,7 +98,7 @@ object NotificationHelper {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_BUDGET_ALERTS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
-            .setContentTitle("Budget Alert!")
+            .setContentTitle(context.getString(R.string.notification_title_budget_alert))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -125,7 +125,7 @@ object NotificationHelper {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
-            .setContentTitle("Missed Today?")
+            .setContentTitle(context.getString(R.string.notification_title_missed_today))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

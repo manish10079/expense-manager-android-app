@@ -201,18 +201,24 @@ private fun <T> SelectionRow(
 
         // Title and Subtitle
         Column(modifier = Modifier.weight(1f)) {
+            val titleText = if (item.titleRes != 0) stringResource(item.titleRes) else item.title
             Text(
-                text = item.title,
+                text = titleText,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
                 lineHeight = 22.sp
             )
-            if (!item.subtitle.isNullOrEmpty()) {
+            val subtitleText = when {
+                item.subtitleRes != 0 -> stringResource(item.subtitleRes)
+                !item.subtitle.isNullOrEmpty() -> item.subtitle
+                else -> null
+            }
+            if (!subtitleText.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = item.subtitle,
+                    text = subtitleText,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium,
                     lineHeight = 18.sp

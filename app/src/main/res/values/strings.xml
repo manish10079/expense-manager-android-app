@@ -3,6 +3,16 @@
 
     <string name="app_name">Expense Tracker: Budget &amp; Spend</string>
 
+    <!-- Navigation & Monetization -->
+    <string name="title_nav_home">Home</string>
+    <string name="title_nav_analytics">Analytics</string>
+    <string name="title_nav_budget">Budget</string>
+    <string name="title_nav_calendar">Calendar</string>
+    <string name="label_ad">Ad</string>
+    <string name="label_sponsored_content">Sponsored Content</string>
+    <string name="desc_sponsored_content">Check out this recommended service.</string>
+    <string name="btn_learn_more">LEARN MORE</string>
+
     <!-- General -->
     <string name="msg_a_security_update_is_required">A security update is required before biometric unlock can be used.</string>
     <string name="msg_choose_one_security_question_f">Choose one security question for PIN recovery.</string>
@@ -69,7 +79,7 @@
     <string name="placeholder_payment_example">e.g. Digital Wallet</string>
     <string name="msg_name_already_exists">This name already exists in %1$s.</string>
     <string name="msg_choose_icons_info">Choose from 50 icons. Color styling stays automatic.</string>
-    <string name="placeholder_search_icons">Search icons (e.g. \'Food\')Ã¢â‚¬Â¦</string>
+    <string name="placeholder_search_icons">Search icons (e.g. \'Food\')…</string>
     <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
     <string name="label_create_type">Create Type</string>
     <string name="label_create_category">Create Category</string>
@@ -447,6 +457,13 @@
     <string name="title_time_format">Time Format</string>
     <string name="title_toggle_visibility_of_transacti">Toggle visibility of transaction tags</string>
     <string name="title_visual_analytics">Visual Analytics</string>
+    <string name="label_other_installment">Other</string>
+    <string name="msg_installment_info">Current transaction is installment #1. Future entries will be generated automatically.</string>
+    <string name="label_update_action">Update</string>
+    <string name="label_add_action">Add</string>
+    <string name="label_am">AM</string>
+    <string name="label_pm">PM</string>
+
     <string name="label_secure_app_pin">Secure app with a PIN code</string>
     <string name="label_use_biometric_subtitle">Use fingerprint or face ID</string>
     <string name="label_scrambled_keypad">Scrambled Keypad</string>
@@ -468,6 +485,15 @@
     <string name="label_number_format_desc">Choose how large amounts are grouped across the app.</string>
     <string name="label_select_theme">Select Theme</string>
     <string name="title_theme">Theme</string>
+    <string name="label_theme_system">System</string>
+    <string name="label_theme_light">Light</string>
+    <string name="label_theme_dark">Dark</string>
+    <string name="desc_theme_system">Follow your device appearance</string>
+    <string name="desc_theme_light">Always use the light theme</string>
+    <string name="desc_theme_dark">Always use the dark theme</string>
+    <string name="label_select">Select</string>
+    <string name="label_grouping_indian">Indian (1,23,456.78)</string>
+    <string name="label_grouping_international">International (1,234,567.89)</string>
     <!-- About -->
     <string name="label_app_name_display">Expense Tracker</string>
     <string name="label_follow_us">FOLLOW US</string>
@@ -496,8 +522,8 @@
     <string name="format_percentage">%1$s%%</string>
     <string name="format_thousands">%1$.1fk</string>
     <string name="format_millions">%1$.1fM</string>
-    <string name="separator_bullet">Ã¢â‚¬Â¢</string>
-    <string name="format_ellipsis">%1$sÃ¢â‚¬Â¦</string>
+    <string name="separator_bullet">•</string>
+    <string name="format_ellipsis">%1$s…</string>
     <!-- Onboarding -->
     <string name="desc_log_daily_spending">Log your daily spending in seconds with an optimized keypad and smart category ranking.</string>
     <string name="label_next">Next</string>
@@ -665,7 +691,7 @@
     <string name="desc_lowest_order">Smaller amounts appear before bigger ones.</string>
     <string name="desc_income_first_order">Income transactions are grouped before expenses.</string>
     <string name="desc_expense_first_order">Expense transactions are shown before income.</string>
-    <string name="label_search_dots">SearchÃ¢â‚¬Â¦</string>
+    <string name="label_search_dots">Search…</string>
     <string name="label_action">Action</string>
     <string name="label_watch_ad">Watch Ad</string>
     <string name="label_premium">Premium</string>
@@ -675,7 +701,6 @@
     <string name="label_premium_features">Premium Features</string>
     <string name="label_sort_by">SORT BY</string>
     <string name="title_date_range">DATE RANGE</string>
-    <string name="label_custom_range_filter">Custom Range Filter</string>
     <string name="label_custom_range">Custom Range</string>
     <string name="label_order">Order</string>
     <string name="label_filters">Filters</string>
@@ -694,7 +719,7 @@
     <string name="label_categories">Categories</string>
     <string name="desc_no_categories">No categories available for selected type.</string>
     <string name="label_sort_filter_subtitle">Shape how your transactions are organized and displayed.</string>
-    <string name="label_search_placeholder">Notes or AmountÃ¢â‚¬Â¦</string>
+    <string name="label_search_placeholder">Notes or Amount…</string>
     <string name="label_search_by_category_wallet">Search by Category &amp; Wallet</string>
     <string name="msg_delete_transactions_confirm">Are you sure you want to delete %1$d transactions? This action cannot be undone.</string>
     <string name="label_delete_confirm">Delete</string>
@@ -764,7 +789,7 @@
         <item>404: Transactions Not Found.</item>
         <item>Nothing here! maybe grab a coffee?</item>
         <item>Haven\'t found any.</item>
-        <item>Looks emptyÃ¢â‚¬Â¦</item>
+        <item>Looks empty…</item>
         <item>No transactions to display.</item>
         <item>No records yet</item>
         <item>Did you forget to add something?</item>
@@ -774,7 +799,7 @@
         <item>No data found in this range.</item>
         <item>Database says: null.</item>
         <item>Your wallet is in airplane mode.</item>
-        <item>SilenceÃ¢â‚¬Â¦ even your money is meditating.</item>
+        <item>Silence… even your money is meditating.</item>
         <item>No spending, no stress. Interesting strategy.</item>
         <item>Your ledger is taking a nap.</item>
         <item>Nothing moved. Not even a rupee.</item>
@@ -943,5 +968,187 @@
     <string name="label_income_categories_count">%1$d income categories</string>
     <string name="label_expense_categories_count">%1$d expense categories</string>
     <string name="label_payment_methods_count">%1$d payment methods</string>
+
+    <!-- Budget Status & Labels -->
+    <string name="label_no_budget">NO BUDGET</string>
+    <string name="label_add_a_budget">ADD A BUDGET</string>
+    <string name="label_over_budget_status">OVER BUDGET</string>
+    <string name="label_recurring_watch">RECURRING WATCH</string>
+    <string name="label_watch_your_runway">WATCH YOUR RUNWAY</string>
+    <string name="label_budget_on_track">BUDGET ON TRACK</string>
+    <string name="label_waiting_for_budgets">WAITING FOR BUDGETS</string>
+    <string name="label_near_limit">NEAR LIMIT</string>
+    <string name="label_safe">SAFE</string>
+    <string name="label_spent_limit">SPENT / LIMIT</string>
+    <string name="label_exceeded">EXCEEDED</string>
+    <string name="label_budget_status_label">BUDGET</string>
+
+    <!-- Budget Insights & Messages -->
+    <string name="msg_insight_start_tracking">Start tracking how your spending is pacing against your monthly limits.</string>
+    <string name="msg_no_budgets_locked">No budgets were set for %1$s. History is now locked.</string>
+    <string name="msg_no_budgets_limit_reached">No more budgets can be added for %1$s (edit limit reached).</string>
+    <string name="msg_no_budgets_start_tracking">No budgets added for %1$s yet. Tap ADD NEW BUDGET to start tracking this month.</string>
+    <string name="msg_no_recurring_start_tracking">No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction.</string>
+    <string name="msg_insight_empty">You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.</string>
+    <string name="msg_insight_over_budget">%1$s is over budget by %2$s. Tightening that category first will give you the quickest recovery.</string>
+    <string name="msg_insight_recurring_single">You have %1$d recurring expense tracked. %2$s is %3$s, and your recurring commitments average about %4$s per month.</string>
+    <string name="msg_insight_recurring_plural">You have %1$d recurring expenses tracked. %2$s is %3$s, and your recurring commitments average about %4$s per month.</string>
+    <string name="msg_insight_warning">You have used %1$s for %2$s. %3$s is carrying the most spend, so trimming there will protect your remaining %4$s.</string>
+    <string name="msg_insight_steady">Your budget pacing looks steady for %1$s. You still have %2$s available, with %3$s leading spend so far.</string>
+
+    <!-- Budget Formatting -->
+    <string name="format_over_amount">Over %1$s</string>
+    <string name="format_limit_amount">LIMIT %1$s</string>
+    <string name="format_started_date">Started %1$s</string>
+    <string name="label_due_today">DUE TODAY</string>
+    <string name="label_due_tomorrow">DUE TOMORROW</string>
+    <string name="format_due_in_days">DUE IN %1$d DAYS</string>
+    <string name="format_percent_used">%1$d%% USED</string>
+    <string name="format_amount_left">%1$s LEFT</string>
+    <string name="format_amount_over">%1$s OVER</string>
+    <string name="format_next_due">NEXT %1$s</string>
+
+    <!-- Calendar Status & Labels -->
+    <string name="label_expense_with_val">Expense %1$s</string>
+    <string name="label_income_with_val">Income %1$s</string>
+    <string name="msg_no_calendar_entries">There are no entries recorded for %1$s.</string>
+
+    <string name="month_jan_short">JAN</string>
+    <string name="month_feb_short">FEB</string>
+    <string name="month_mar_short">MAR</string>
+    <string name="month_apr_short">APR</string>
+    <string name="month_may_short">MAY</string>
+    <string name="month_jun_short">JUN</string>
+    <string name="month_jul_short">JUL</string>
+    <string name="month_aug_short">AUG</string>
+    <string name="month_sep_short">SEP</string>
+    <string name="month_oct_short">OCT</string>
+    <string name="month_nov_short">NOV</string>
+    <string name="month_dec_short">DEC</string>
+
+    <!-- Analytics Labels -->
+    <string name="label_week_short_1">W1</string>
+    <string name="label_week_short_2">W2</string>
+    <string name="label_week_short_3">W3</string>
+    <string name="label_week_short_4">W4</string>
+    <string name="label_period_short">P%1$d</string>
+    <string name="format_percent">%1$s%%</string>
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+    <string name="label_zero_percent">+0%</string>
+    <string name="label_plus">+</string>
+    <string name="label_minus">-</string>
+    <string name="date_pattern_month_year">MMMM yyyy</string>
+    <string name="date_pattern_year">yyyy</string>
+    <string name="date_pattern_short_day_month">dd MMM</string>
+    <string name="date_pattern_full_short">dd MMM yyyy</string>
+    <string name="label_12_hour">12-hour</string>
+    <string name="label_24_hour">24-hour</string>
+    <string name="label_all_records">All Records</string>
+    <string name="label_custom_payment_method">Custom payment method</string>
+    <!-- Notifications -->
+    <string name="notification_channel_reminders">Daily Reminders</string>
+    <string name="notification_channel_reminders_desc">Periodic reminders to log your expenses.</string>
+    <string name="notification_channel_budget">Budget Alerts</string>
+    <string name="notification_channel_budget_desc">Alerts when you exceed your monthly budget.</string>
+    <string name="notification_channel_recurring">Recurring Transactions</string>
+    <string name="notification_channel_recurring_desc">Notifications when recurring transactions are automatically added.</string>
+    <string name="notification_title_budget_alert">Budget Alert!</string>
+    <string name="notification_title_missed_today">Missed Today?</string>
+
+    <!-- Dynamic Notification Engine - Sarcastic Openers -->
+    <string name="notification_opener_1">Well well well</string>
+    <string name="notification_opener_2">Interesting</string>
+    <string name="notification_opener_3">Ahh</string>
+    <string name="notification_opener_4">Look at you</string>
+    <string name="notification_opener_5">Breaking news</string>
+    <string name="notification_opener_6">Alert</string>
+    <string name="notification_opener_7">Update</string>
+    <string name="notification_opener_8">Oh, look who it is</string>
+
+    <!-- Dynamic Notification Engine - Money Reactions -->
+    <string name="notification_reaction_1">money just flew away 💸</string>
+    <string name="notification_reaction_2">wallet took a hit 😬</string>
+    <string name="notification_reaction_3">budget is shaking 😳</string>
+    <string name="notification_reaction_4">that escalated quickly 🚀</string>
+    <string name="notification_reaction_5">your bank account noticed 👀</string>
+    <string name="notification_reaction_6">is that a hole in your pocket?</string>
+
+    <!-- Dynamic Notification Engine - Guilt Lines -->
+    <string name="notification_guilt_1">Hope it was worth it 😏</string>
+    <string name="notification_guilt_2">No regrets… right? 😬</string>
+    <string name="notification_guilt_3">Future you is watching 👀</string>
+    <string name="notification_guilt_4">We won’t judge… much 😌</string>
+    <string name="notification_guilt_5">This better be important 😄</string>
+    <string name="notification_guilt_6">Your savings account is crying.</string>
+
+    <!-- Dynamic Notification Engine - Category Lines -->
+    <string name="notification_food_1">Food again? Respect 🍕</string>
+    <string name="notification_food_2">Eating like a king 👑</string>
+    <string name="notification_food_3">Diet plan left the chat 🍔</string>
+    <string name="notification_food_4">Taste > Budget, huh? 😏</string>
+    <string name="notification_food_5">Calories don\'t count, but cents do.</string>
+
+    <string name="notification_shopping_1">Retail therapy activated 🛍️</string>
+    <string name="notification_shopping_2">Impulse or planned? 😏</string>
+    <string name="notification_shopping_3">That looked necessary 😬</string>
+    <string name="notification_shopping_4">Shopping mood ON 💳</string>
+    <string name="notification_shopping_5">Adding to the collection? 🛍️</string>
+
+    <string name="notification_generic_1">Another expense logged 📊</string>
+    <string name="notification_generic_2">Tracking like a pro 😎</string>
+    <string name="notification_generic_3">Money well… spent? 😏</string>
+    <string name="notification_generic_4">Noted 👀</string>
+    <string name="notification_generic_5">Keeping it real 📈</string>
+
+    <!-- Dynamic Notification Engine - Budget Exceeded -->
+    <string name="notification_budget_exceeded_1">Your budget just called. It’s quitting. 💸</string>
+    <string name="notification_budget_exceeded_2">Expense limit? Never heard of her. 💅</string>
+    <string name="notification_budget_exceeded_3">You’re spending like you found a cheat code. 🎮</string>
+    <string name="notification_budget_exceeded_4">Budget: Exceeded. Sadness: Imminent. 📉</string>
+    <string name="notification_budget_exceeded_5">Your savings are screaming. 😱</string>
+
+    <!-- Dynamic Notification Engine - Missed Entry -->
+    <string name="notification_missed_entry_1">It’s too quiet here... did you stop eating? 🍔</string>
+    <string name="notification_missed_entry_2">Your wallet is feeling suspiciously heavy. Log something! 💸</string>
+    <string name="notification_missed_entry_3">The silence is deafening. Where are the transactions? 🕵️</string>
+    <string name="notification_missed_entry_4">Did you win the lottery? Why no logs today? 🎰</string>
+    <string name="notification_missed_entry_5">Your tracker is lonely. Give it some data to chew on. 🦴</string>
+
+    <!-- Dynamic Notification Engine - Reminders -->
+    <string name="notification_morning_opener_1">Good morning! ☀️</string>
+    <string name="notification_morning_opener_2">Rise and shine! ☕</string>
+    <string name="notification_morning_opener_3">Morning update! 🌅</string>
+    <string name="notification_morning_opener_4">Wakey wakey! 🥐</string>
+
+    <string name="notification_evening_opener_1">Day\'s almost done! 🌙</string>
+    <string name="notification_evening_opener_2">Evening check! 🌆</string>
+    <string name="notification_evening_opener_3">Dinner time? 🥘</string>
+    <string name="notification_evening_opener_4">Tapping out? 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">Did you buy coffee yet or are you waiting for a sign? ☕</string>
+    <string name="notification_sarcastic_morning_2">Tracking your breakfast is the best exercise you\'ll do today. 🥐</string>
+    <string name="notification_sarcastic_morning_3">The early bird catches the worm, but the smart bird logs the cost. 🐛</string>
+    <string name="notification_sarcastic_morning_4">Your wallet is awake and it has questions. 💸</string>
+
+    <string name="notification_sarcastic_evening_1">Your budget survived the day... or did it? 👀</string>
+    <string name="notification_sarcastic_evening_2">Don\'t go to sleep with unlogged secrets. Data is watching. 🕵️</string>
+    <string name="notification_sarcastic_evening_3">That dinner was great, but the tracking will be legendary. 🥘</string>
+    <string name="notification_sarcastic_evening_4">One small log for you, one giant leap for your savings. 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s Don\'t forget to log your morning expenses!</string>
+    <string name="notification_evening_reminder_generic">%1$s Sparred a minute to log your dinner or travel?</string>
+
+    <!-- Dynamic Notification Engine - Main Formats -->
+    <string name="notification_format_expense">%1$s 👀 %2$s spent on %3$s… %4$s. %5$s. %6$s</string>
+    <string name="notification_format_budget_exceeded">%1$s! You just blew past your %2$s budget. %3$s</string>
+
+    <string name="date_pattern_month_year_comma">MMMM, yyyy</string>
+    <string name="label_size_unit_b">B</string>
+    <string name="label_size_unit_kb">KB</string>
+    <string name="label_size_unit_mb">MB</string>
+    <string name="label_size_unit_gb">GB</string>
+    <string name="label_size_unit_tb">TB</string>
+    <string name="label_zero_size">0 B</string>
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
 </resources>
 

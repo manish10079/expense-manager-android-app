@@ -221,7 +221,7 @@ fun BudgetScreen(
                 if (uiState.categoryBudgets.isEmpty()) {
                     item {
                         EmptySectionCard(
-                            message = uiState.emptyCategoryMessage
+                            message = uiState.emptyCategoryMessage?.asString()
                                 ?: stringResource(id = R.string.msg_no_category_budget_data)
                         )
                     }
@@ -274,7 +274,7 @@ fun BudgetScreen(
                 if (uiState.recurringExpenses.isEmpty()) {
                     item {
                         EmptySectionCard(
-                            message = uiState.emptyRecurringMessage
+                            message = uiState.emptyRecurringMessage?.asString()
                                 ?: stringResource(id = R.string.msg_no_recurring_items)
                         )
                     }
@@ -628,7 +628,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             BudgetMetricCard(
                 modifier = Modifier.weight(1f),
                 title = if (summary.remainingAmount >= 0.0) stringResource(id = R.string.label_remaining) else stringResource(id = R.string.label_over),
-                value = summary.remainingLabel,
+                value = summary.remainingLabel.asString(),
                 valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
         }
@@ -640,7 +640,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = summary.usageLabel,
+                    text = summary.usageLabel.asString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -649,7 +649,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 )
 
                 Text(
-                    text = summary.limitLabel,
+                    text = summary.limitLabel.asString(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -1199,7 +1199,7 @@ private fun CategoryBudgetCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = budget.statusValueLabel,
+                    text = budget.statusValueLabel.asString(),
                     color = budgetAccentColor(budget.accent),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
@@ -1220,7 +1220,7 @@ private fun CategoryBudgetCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = budget.totalCaption,
+                    text = budget.totalCaption.asString(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -1236,7 +1236,7 @@ private fun CategoryBudgetCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = budget.statusCaption,
+                text = budget.statusCaption.asString(),
                 color = budgetAccentColor(budget.accent),
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
@@ -1321,7 +1321,7 @@ private fun BudgetCardAction(
             if (isLocked) {
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = "$label locked",
+                    contentDescription = stringResource(R.string.content_desc_locked_formatted, label),
                     tint = finalAccent,
                     modifier = Modifier.size(12.dp)
                 )
@@ -1505,7 +1505,7 @@ private fun RecurringExpenseCard(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = expense.dueLabel,
+                        text = expense.dueLabel.asString(),
                         color = budgetAccentColor(expense.accent),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
@@ -1513,7 +1513,7 @@ private fun RecurringExpenseCard(
                         )
                     )
                     
-                    if (expense.dueLabel.contains("TODAY")) {
+                    if (expense.dueLabel.asString().contains("TODAY")) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -1527,7 +1527,7 @@ private fun RecurringExpenseCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = expense.sourceDateLabel,
+                    text = expense.sourceDateLabel.asString(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -1625,7 +1625,7 @@ private fun InsightCard(
             ) {
                 Icon(
                     imageVector = Icons.Filled.AutoAwesome,
-                    contentDescription = insight.title,
+                    contentDescription = insight.title.asString(),
                     tint = budgetAccentColor(insight.accent),
                     modifier = Modifier.size(20.dp)
                 )
@@ -1635,7 +1635,7 @@ private fun InsightCard(
 
             Column {
                 Text(
-                    text = insight.title,
+                    text = insight.title.asString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
@@ -1645,7 +1645,7 @@ private fun InsightCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = insight.supportingLabel,
+                    text = insight.supportingLabel.asString(),
                     color = budgetAccentColor(insight.accent),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
@@ -1656,7 +1656,7 @@ private fun InsightCard(
         }
 
         Text(
-            text = insight.body,
+            text = insight.body.asString(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium.copy(
                 lineHeight = 20.sp

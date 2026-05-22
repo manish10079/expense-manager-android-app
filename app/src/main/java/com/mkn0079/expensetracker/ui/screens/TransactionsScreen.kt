@@ -372,7 +372,7 @@ fun TransactionScreen(
 
             TransactionPeriodNavigator(
                 selectedFilter = uiState.selectedPeriodFilter,
-                periodLabel = uiState.selectedPeriodLabel,
+                periodLabel = uiState.selectedPeriodLabel.asString(),
                 isMenuExpanded = isPeriodMenuExpanded,
                 canNavigateBackward = uiState.canNavigateBackward,
                 canNavigateForward = uiState.canNavigateForward,

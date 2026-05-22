@@ -37,7 +37,7 @@ This document serves as the master checklist for implementing the monetization s
 
 - [ ] **App Open Ad:** Implement a cold-start ad trigger in `MainActivity`.
 - [ ] **Budget Completion Interstitial:** Trigger an interstitial ad after a user successfully saves a new Budget.
-- [ ] **Frequency Capping:** Implement a 15-minute cooldown timer between interstitials to prevent user fatigue.
+- [x] **Frequency Capping:** Implement a 15-minute cooldown timer between interstitials to prevent user fatigue.
 
 ## 🎁 Phase 6: Rewarded Ad Flow (Feature Gating)
 *Goal: Exchange ad engagement for premium feature access.*

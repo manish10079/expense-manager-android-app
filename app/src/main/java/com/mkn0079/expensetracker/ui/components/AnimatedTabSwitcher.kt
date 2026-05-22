@@ -35,9 +35,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.ui.models.TabItem
 import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.featureGateLock
@@ -137,8 +139,8 @@ fun <T> AnimatedTabSwitcher(
                         if (item.isLocked) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Icon(
-                                imageVector = Icons.Filled.Lock,
-                                contentDescription = "${item.label} locked",
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = stringResource(R.string.content_desc_locked_formatted, item.label),
                                 tint = MaterialTheme.colorScheme.featureGateLock,
                                 modifier = Modifier.size(if (compact) 10.dp else 12.dp)
                             )

@@ -35,10 +35,20 @@ object BackupFileManager {
     /**
      * Formats file size to human readable string.
      */
-    fun formatFileSize(sizeBytes: Long): String {
-        if (sizeBytes <= 0) return "0 B"
-        val units = arrayOf("B", "KB", "MB", "GB", "TB")
+    fun formatFileSize(context: Context, sizeBytes: Long): String {
+        if (sizeBytes <= 0) return context.getString(com.mkn0079.expensetracker.R.string.label_zero_size)
+        val units = arrayOf(
+            context.getString(com.mkn0079.expensetracker.R.string.label_size_unit_b),
+            context.getString(com.mkn0079.expensetracker.R.string.label_size_unit_kb),
+            context.getString(com.mkn0079.expensetracker.R.string.label_size_unit_mb),
+            context.getString(com.mkn0079.expensetracker.R.string.label_size_unit_gb),
+            context.getString(com.mkn0079.expensetracker.R.string.label_size_unit_tb)
+        )
         val digitGroups = (Math.log10(sizeBytes.toDouble()) / Math.log10(1024.0)).toInt()
-        return String.format("%.1f %s", sizeBytes / Math.pow(1024.0, digitGroups.toDouble()), units[digitGroups])
+        return context.getString(
+            com.mkn0079.expensetracker.R.string.format_size_with_unit,
+            sizeBytes / Math.pow(1024.0, digitGroups.toDouble()),
+            units[digitGroups]
+        )
     }
 }

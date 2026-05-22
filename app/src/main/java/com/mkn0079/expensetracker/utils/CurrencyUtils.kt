@@ -46,6 +46,43 @@ fun formatCurrencyValue(
     }
 }
 
+/**
+ * Formats a currency value in a compact way (e.g., $1.2k, €5M) for limited UI space.
+ */
+fun formatCompactCurrencyValue(
+    amount: Double,
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    prefix: String = ""
+): String {
+    val currency = getCurrency(currencyId)
+    val absAmount = kotlin.math.abs(amount)
+
+    val (abbreviatedAmount, suffix) = when {
+        absAmount >= 1_000_000_000 -> (absAmount / 1_000_000_000.0) to "B"
+        absAmount >= 1_000_000 -> (absAmount / 1_000_000.0) to "M"
+        absAmount >= 100_000 -> (absAmount / 1_000.0) to "k" // Use 'k' for 100k+ to save space
+        else -> null to ""
+    }
+
+    val formattedAmount = if (abbreviatedAmount == null) {
+        formatNumberValue(absAmount, amountFormatPreferences)
+    } else {
+        val df = java.text.DecimalFormat("#.#")
+        df.roundingMode = java.math.RoundingMode.HALF_UP
+        df.format(abbreviatedAmount) + suffix
+    }
+
+    val safePrefix = prefix.trim().ifEmpty {
+        if (amount < 0) "-" else ""
+    }
+
+    return when (currency.position) {
+        CurrencyPosition.POSTFIX -> "$safePrefix$formattedAmount${currency.currencySymbol}"
+        CurrencyPosition.PREFIX -> "$safePrefix${currency.currencySymbol}$formattedAmount"
+    }
+}
+
 fun getCurrency(currencyId: Int = DEFAULT_CURRENCY_ID): Currency {
     return currencyMap[currencyId] ?: currencyMap.getValue(DEFAULT_CURRENCY_ID)
 }

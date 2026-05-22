@@ -7,6 +7,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import androidx.annotation.StringRes
 
 data class DateFormatOption(
     val pattern: String,
@@ -15,7 +16,7 @@ data class DateFormatOption(
 
 data class TimeFormatOption(
     val id: String,
-    val label: String,
+    @StringRes val labelRes: Int,
     val previewLabel: String,
     val uses24HourClock: Boolean
 )
@@ -40,13 +41,13 @@ val supportedDateFormats = listOf(
 val supportedTimeFormats = listOf(
     TimeFormatOption(
         id = "12-hour",
-        label = "12-hour",
+        labelRes = com.mkn0079.expensetracker.R.string.label_12_hour,
         previewLabel = "02:30 PM",
         uses24HourClock = false
     ),
     TimeFormatOption(
         id = "24-hour",
-        label = "24-hour",
+        labelRes = com.mkn0079.expensetracker.R.string.label_24_hour,
         previewLabel = "14:30",
         uses24HourClock = true
     )
@@ -145,8 +146,8 @@ fun getDateFormatPreviewLabel(pattern: String): String {
     return supportedDateFormats.firstOrNull { it.pattern == pattern }?.previewLabel ?: pattern
 }
 
-fun getTimeFormatPreviewLabel(timeFormat: String): String {
-    return supportedTimeFormats.firstOrNull { it.id == timeFormat }?.label ?: timeFormat
+fun getTimeFormatPreviewLabel(timeFormat: String): Int {
+    return supportedTimeFormats.firstOrNull { it.id == timeFormat }?.labelRes ?: 0
 }
 
 fun formatTime(

@@ -197,7 +197,7 @@ private fun VaultNavItem(
         ) {
             Icon(
                 imageVector = item.icon,
-                contentDescription = item.title,
+                contentDescription = stringResource(item.titleRes),
                 tint = iconTint,
                 modifier = Modifier
                     .size(38.dp)
@@ -214,7 +214,7 @@ private fun VaultNavItem(
         }
 
         Text(
-            text = if (selected) item.title.uppercase() else " ",
+            text = if (selected) stringResource(item.titleRes).uppercase() else " ",
             color = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0f) else labelColor,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.ExtraBold,

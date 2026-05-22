@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.utils
 
 import android.content.Context
 import android.content.ContextWrapper
+import com.mkn0079.expensetracker.R
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -11,7 +12,7 @@ private const val BIOMETRIC_AUTHENTICATORS = BiometricManager.Authenticators.BIO
 
 data class BiometricAvailability(
     val isAvailable: Boolean,
-    val message: String? = null
+    @androidx.annotation.StringRes val messageRes: Int? = null
 )
 
 object BiometricAuthManager {
@@ -21,33 +22,33 @@ object BiometricAuthManager {
             BiometricManager.BIOMETRIC_SUCCESS -> BiometricAvailability(isAvailable = true)
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> BiometricAvailability(
                 isAvailable = false,
-                message = "Set up fingerprint or face unlock in phone settings first."
+                messageRes = R.string.msg_set_up_fingerprint_or_face_unl
             )
 
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> BiometricAvailability(
                 isAvailable = false,
-                message = "This device does not support biometric authentication."
+                messageRes = R.string.msg_this_device_does_not_support_b
             )
 
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> BiometricAvailability(
                 isAvailable = false,
-                message = "Biometric hardware is currently unavailable."
+                messageRes = R.string.msg_biometric_hardware_is_currentl
             )
 
             BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> BiometricAvailability(
                 isAvailable = false,
-                message = "A security update is required before biometric unlock can be used."
+                messageRes = R.string.msg_a_security_update_is_required
             )
 
             BiometricManager.BIOMETRIC_STATUS_UNKNOWN,
             BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> BiometricAvailability(
                 isAvailable = false,
-                message = "Biometric authentication is not available right now."
+                messageRes = R.string.msg_biometric_authentication_is_no
             )
 
             else -> BiometricAvailability(
                 isAvailable = false,
-                message = "Unable to start biometric authentication on this device."
+                messageRes = R.string.msg_error_unable_to_start_biometric_auth
             )
         }
     }

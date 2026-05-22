@@ -562,7 +562,7 @@ private fun HeroAnalyticsSection(
                 )
             )
             Text(
-                text = snapshot.changeDisplay,
+                text = snapshot.changeDisplay.asString(),
                 color = if (snapshot.changePercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 6.dp)
@@ -804,7 +804,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             modifier = Modifier.weight(1f),
             title = stringResource(id = R.string.title_avg_daily),
             value = snapshot.avgDailyDisplay,
-            delta = snapshot.dailyDeltaDisplay,
+            delta = snapshot.dailyDeltaDisplay.asString(),
             deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
             icon = Icons.Filled.Wallet,
@@ -814,7 +814,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             modifier = Modifier.weight(1f),
             title = stringResource(id = R.string.title_savings),
             value = snapshot.savingsDisplay,
-            delta = snapshot.savingsDeltaDisplay,
+            delta = snapshot.savingsDeltaDisplay.asString(),
             deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
             icon = Icons.Filled.ArrowOutward,
@@ -878,10 +878,18 @@ private fun InsightStatCard(
                 style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp)
             )
             Spacer(modifier = Modifier.height(8.dp))
+            val valueStyle = when {
+                value.length > 10 -> MaterialTheme.typography.titleLarge
+                value.length > 7 -> MaterialTheme.typography.headlineSmall
+                else -> MaterialTheme.typography.headlineMedium
+            }.copy(fontWeight = FontWeight.ExtraBold)
+
             Text(
                 text = value,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold)
+                style = valueStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -1881,7 +1889,7 @@ private fun FilteredTransactionsBottomSheet(
                         TransactionCard(
                             note = transaction.note,
                             transactionDate = formatDate(transaction.createdAt, dateShortFormat),
-                            transactionTime = com.mkn0079.expensetracker.utils.formatTime(transaction.createdAt, "24-hour"),
+                            transactionTime = com.mkn0079.expensetracker.utils.formatTime(transaction.createdAt, stringResource(id = R.string.label_24_hour)),
                             amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                             transactionTypeId = transaction.transactionTypeId,
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
@@ -1999,13 +2007,13 @@ private fun TopSpendingBottomSheet(
 }
 
 @Composable
-private fun resolveSummaryLabel(summary: SummaryLabelUi): String {
+private fun resolveSummaryLabel(label: SummaryLabelUi): String {
     return when {
-        summary.resId != null -> stringResource(id = summary.resId)
-        summary.datePattern != null && summary.timestamp != null -> {
-            SimpleDateFormat(summary.datePattern, Locale.getDefault()).format(Date(summary.timestamp))
+        label.resId != null -> stringResource(id = label.resId)
+        label.patternResId != null && label.timestamp != null -> {
+            formatDate(label.timestamp, stringResource(id = label.patternResId))
         }
-        summary.customRange != null -> summary.customRange
+        label.customRange != null -> label.customRange.asString()
         else -> ""
     }
 }
@@ -2015,7 +2023,7 @@ private fun resolveSmartTip(tip: SmartTipUi): String {
     return if (tip.resId == R.string.msg_spending_trend) {
         stringResource(
             id = tip.resId,
-            tip.flowChange ?: "",
+            tip.flowChange?.asString() ?: "",
             tip.directionResId?.let { stringResource(id = it) } ?: "",
             tip.topCategory ?: stringResource(id = R.string.label_spending),
             tip.savingAmount ?: ""
@@ -2032,8 +2040,7 @@ private fun resolveChartLabel(label: ChartLabelUi): String {
             val array = stringArrayResource(id = label.resId)
             if (label.index in array.indices) array[label.index] else ""
         }
-        label.label != null -> label.label
-        else -> ""
+        else -> label.label.asString()
     }
 }
 
@@ -2041,6 +2048,6 @@ private fun resolveChartLabel(label: ChartLabelUi): String {
 @Composable
 private fun AnalyticsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        AnalyticsScreen(dateFormatPattern = "dd MMM yyyy")
+        AnalyticsScreen(dateFormatPattern = stringResource(id = R.string.date_pattern_full_short))
     }
 }

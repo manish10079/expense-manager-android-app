@@ -427,7 +427,7 @@ fun AddTransactionScreen(
                     AddTransactionButton(
                         modifier = Modifier.weight(1f),
                         enabled = canSubmit,
-                        label = if (isEditMode) "Update" else "Add",
+                        label = if (isEditMode) stringResource(R.string.label_update_action) else stringResource(R.string.label_add_action),
                         selectedCategory = selectedCategory?.name.orEmpty(),
                         onClick = {
                             val category = selectedCategory ?: return@AddTransactionButton
@@ -726,7 +726,7 @@ private fun RecurringTransactionSection(
                             onValueChange = { if (it.length <= 3) onRepeatCountChange(it) },
                             modifier = Modifier.weight(1.2f).height(44.dp),
                             singleLine = true,
-                            placeholder = { Text("Other", fontSize = 14.sp) },
+                            placeholder = { Text(stringResource(R.string.label_other_installment), fontSize = 14.sp) },
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
@@ -756,7 +756,7 @@ private fun RecurringTransactionSection(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Current transaction is installment #1. Future entries will be generated automatically.",
+                            text = stringResource(R.string.msg_installment_info),
                             color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 lineHeight = 14.sp,

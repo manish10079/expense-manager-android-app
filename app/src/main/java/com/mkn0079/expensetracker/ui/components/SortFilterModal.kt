@@ -51,6 +51,7 @@ const val FILTER_DATE_LAST_7_DAYS = "Last 7 Days"
 const val FILTER_DATE_LAST_15_DAYS = "Last 15 Days"
 const val FILTER_DATE_LAST_30_DAYS = "Last 30 Days"
 const val FILTER_DATE_LAST_60_DAYS = "Last 60 Days"
+const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
 
 private const val FILTER_TYPE_INCOME = 1
 private const val FILTER_TYPE_EXPENSE = 2
@@ -272,12 +273,12 @@ fun FilterBottomSheet(
                         
                         GatedAction(
                             feature = Feature.ANALYTICS_CUSTOM_RANGE,
-                            displayName = stringResource(R.string.label_custom_range_filter),
+                            displayName = stringResource(R.string.label_custom_range),
                             onAction = { showDatePicker = true }
                         ) { status, gatedOnClick ->
                             val isLocked = status !is AccessStatus.Granted
                             Box {
-                                val customRangeText = if (selectedDateRange == "Custom Range" && selectedCustomStartDate != null && selectedCustomEndDate != null) {
+                                val customRangeText = if (selectedDateRange == KEY_CUSTOM_RANGE && selectedCustomStartDate != null && selectedCustomEndDate != null) {
                                     com.mkn0079.expensetracker.ui.viewmodels.formatCustomRangeLabel(
                                         selectedCustomStartDate..selectedCustomEndDate
                                     )
@@ -287,7 +288,7 @@ fun FilterBottomSheet(
                                 FilterChip(
                                     title = customRangeText,
                                     icon = Icons.Default.DateRange,
-                                    selected = selectedDateRange == "Custom Range",
+                                    selected = selectedDateRange == KEY_CUSTOM_RANGE,
                                     selectedBrush = chipSelectedBrush,
                                     unselectedBrush = chipUnselectedBrush,
                                     onClick = { if (isLocked) gatedOnClick() else showDatePicker = true }
