@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -97,6 +98,22 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                     .scale(pulseScale),
                 contentAlignment = Alignment.Center
             ) {
+                // Soft Gradient Glow
+                Box(
+                    modifier = Modifier
+                        .size(SplashLogoSize * 1.5f)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                                    Color.Transparent
+                                )
+                            ),
+                            shape = CircleShape
+                        )
+                )
+
                 Image(
                     painter = painterResource(id = R.drawable.splash_logo),
                     contentDescription = stringResource(id = R.string.desc_expense_tracker_logo),

@@ -17,20 +17,20 @@ This document serves as the master checklist for implementing the monetization s
 - [x] **Native Ad Shimmer:** Build a shimmer placeholder that matches the `TransactionCard` layout.
 - [x] **Lifecycle Safety:** Implement `DisposableEffect` patterns to prevent memory leaks in Compose.
 
-## 📌 Phase 3: Static Ad Placements (Banners) ✅
-*Goal: Implement non-intrusive, constant visibility ads.*
+## 📌 Phase 3: Primary Ad Placements (Native) ✅
+*Goal: Implement non-intrusive, constant visibility ads using Native Advanced format.*
 
-- [x] **`BannerAdView` Component:** Create a reusable wrapper for the AdMob `AdView` with adaptive sizing.
-- [x] **Calendar Screen Banner:** Place an Adaptive Banner at the bottom of the Calendar screen.
-- [x] **Layout Anchoring:** Ensure banners do not overlap with UI elements via anchored `AdContainer`.
+- [x] **`NativeAdCard` Component:** Create a reusable wrapper for the AdMob `NativeAdView` with brand-aligned styling.
+- [x] **Screen Placements:** Integrate ads into Calendar, Settings, About, and other utility screens.
+- [x] **Layout Anchoring:** Ensure ads do not overlap with UI elements via anchored `AdContainer`.
 
-## 📑 Phase 4: Dynamic Ad Placements (Native Ads)
+## 📑 Phase 4: Dynamic & Feed Placements (Native) ✅
 *Goal: Seamlessly blend ads into scrollable content.*
 
-- [ ] **Native Layout Design:** Implement a custom Native Ad layout using `surfaceGradient()` and `brandGradient()`.
-- [ ] **Transactions List:** Inject a Native Ad card every 6-8 items in the `TransactionsScreen`.
-- [ ] **Analytics Screen:** Place a Native Ad card below the Hero Chart.
-- [ ] **Settings Screen:** Add a Native Ad at the bottom of the Settings list.
+- [x] **Native Layout Design:** Implement a custom Native Ad layout using `surfaceGradient()` and `brandGradient()`.
+- [x] **Transactions List:** Inject a Native Ad card every 6-8 items in the `TransactionsScreen`.
+- [x] **Analytics Screen:** Place Native Ad cards below key data sections for natural discovery.
+- [x] **Settings Feed:** Add context-aware Native Ads at the end of configuration lists.
 
 ## ⚡ Phase 5: Interstitial & Event-Based Ads
 *Goal: Monetize natural completion points.*

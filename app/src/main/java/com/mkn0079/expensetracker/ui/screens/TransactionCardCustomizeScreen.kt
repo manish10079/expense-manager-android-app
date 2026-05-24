@@ -76,7 +76,7 @@ import com.mkn0079.expensetracker.monetization.FeatureRegistry
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private data class TransactionCardToggleItem(
@@ -302,7 +302,7 @@ fun TransactionCardCustomizeScreen(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Medium
                     ),
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = 10.dp)
                 )
             }
 
@@ -350,14 +350,15 @@ fun TransactionCardCustomizeScreen(
             }
         }
 
-        // Fixed Banner Ad at the bottom
+        // Fixed Native Ad at the bottom
         AdContainer(
             isAdsEnabled = isAdsEnabled,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 20.dp)
                 .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
         ) {
-            BannerAdView()
+            NativeAdCard()
         }
     }
 }

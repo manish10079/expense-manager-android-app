@@ -564,7 +564,10 @@
     <string name="label_automated_sync">AUTOMATED SYNC</string>
     <string name="desc_auto_backup_subtitle">Automatic cloud/local sync</string>
     <string name="desc_backup_frequency_subtitle">How often to sync data</string>
-    <string name="label_days_count_formatted">%1$d days</string>
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
     <string name="label_data_transfer">DATA TRANSFER</string>
     <string name="label_export_data_json">Export Data (JSON)</string>
     <string name="desc_export_data_subtitle">Download merge-safe JSON file</string>
@@ -583,7 +586,10 @@
     <string name="desc_transaction_count_subtitle">Total records in database</string>
     <string name="label_delete_all_data">Delete All Data</string>
     <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
-    <string name="desc_auto_backup_every_days">Automatically backup every %1$d days</string>
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">Automatically backup every day</item>
+        <item quantity="other">Automatically backup every %1$d days</item>
+    </plurals>
     <string name="desc_choose_backup_frequency">Choose how often the app should perform automated backups.</string>
     <!-- Budget Screen -->
     <string name="msg_no_category_budget_data">No category budget data is available for this month yet.</string>

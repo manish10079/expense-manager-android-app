@@ -64,7 +64,7 @@ import androidx.compose.foundation.border
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -183,9 +183,9 @@ fun AboutScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Inline Banner Ad before Support Section
+            // Inline Native Ad before Support Section
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                BannerAdView()
+                NativeAdCard()
             }
 
             Spacer(modifier = Modifier.height(24.dp))

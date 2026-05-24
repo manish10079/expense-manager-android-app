@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
@@ -32,10 +33,10 @@ import java.time.LocalDate
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-private val presetAutoBackupFrequencies = listOf(7, 15, 30)
+private val presetAutoBackupFrequencies = listOf(1, 7, 15, 30)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,7 +160,7 @@ fun DataManagementScreen(
                             subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
                             icon = Icons.Rounded.Timelapse,
                             type = SettingsItemType.Value,
-                            valueText = stringResource(id = R.string.label_days_count_formatted, autoBackupFrequencyDays),
+                            valueText = pluralStringResource(id = R.plurals.label_days_count_formatted, count = autoBackupFrequencyDays, autoBackupFrequencyDays),
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isEnabled = isAutoBackupEnabled,
@@ -168,10 +169,10 @@ fun DataManagementScreen(
                     }
                 }
 
-                // Inline Banner Ad before Data Transfer
+                // Inline Native Ad before Data Transfer
                 item {
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        BannerAdView()
+                        NativeAdCard()
                     }
                 }
 
@@ -395,8 +396,8 @@ fun DataManagementScreen(
         val frequencyItems = presetAutoBackupFrequencies.map { days ->
             SelectionItem(
                 id = days,
-                title = stringResource(id = R.string.label_days_count_formatted, days),
-                subtitle = stringResource(id = R.string.desc_auto_backup_every_days, days),
+                title = pluralStringResource(id = R.plurals.label_days_count_formatted, count = days, days),
+                subtitle = pluralStringResource(id = R.plurals.desc_auto_backup_every_days, count = days, days),
                 leadingIcon = Icons.Rounded.Update
             )
         }

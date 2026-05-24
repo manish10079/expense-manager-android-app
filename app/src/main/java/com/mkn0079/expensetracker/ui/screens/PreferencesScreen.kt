@@ -38,7 +38,7 @@ import com.mkn0079.expensetracker.utils.supportedTimeFormats
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +144,7 @@ fun PreferencesScreen(
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        BannerAdView()
+                        NativeAdCard()
                     }
                 }
             }

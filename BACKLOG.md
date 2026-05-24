@@ -3,8 +3,8 @@
 ## 🚀 Production Readiness (May 2026)
 *Goal: Finalize core assets and monetization for Play Store submission.*
 
-- [ ] **Production Ad IDs:** Replace Google Test Ad IDs in `AdsCoordinator.kt` and `BannerAdView.kt` with actual AdMob IDs.
-- [ ] **Real Native Ad Implementation:** Replace Mock UI in `NativeAdCard.kt` with actual `NativeAdView` integration from AdMob SDK.
+- [ ] **Production Ad IDs:** Replace Google Test Ad IDs in `AdsCoordinator.kt` with actual AdMob IDs.
+- [x] **Real Native Ad Implementation:** Integrated `NativeAdView` from AdMob SDK into `NativeAdCard.kt` with custom branding.
 - [ ] **Play Billing Integration:** Replace simulated purchases with Google Play Billing Library for real "Premium" transactions.
 - [ ] **Adaptive Icons:** Create `ic_launcher.xml` and generate proper assets for `mipmap-anydpi-v26` (Required for Play Store).
 - [x] **i18n Cleanup:** Localize remaining hardcoded strings in `BottomNavConfig.kt` (Bottom Bar titles) and `NativeAdCard.kt`.
@@ -21,7 +21,8 @@
 ### ViewModels (Core Business Logic Labels)
 - [x] **PreferencesViewModel.kt**
     - [x] Theme Labels: `"System"`, `"Light"`, `"Dark"`.
-    - [x] Theme Descriptions: `"Follow your device appearance"`, `"Always use the light theme"`, `"Always use the dark theme"`.
+    - [x] Theme Descriptions: `"Follow your device app
+    earance"`, `"Always use the light theme"`, `"Always use the dark theme"`.
 - [x] **AnalyticsViewModel.kt**
     - [x] Chart Labels: `"W1"`, `"W2"`, `"W3"`, `"W4"`.
     - [x] Formatting: `"%"` symbol in `formatPercent`.

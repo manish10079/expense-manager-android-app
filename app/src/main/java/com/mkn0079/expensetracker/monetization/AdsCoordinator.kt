@@ -10,6 +10,9 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.AdLoader
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -34,12 +37,16 @@ class AdsCoordinator @Inject constructor(
     private var lastInterstitialTime: Long = 0
     private val INTERSTITIAL_COOLDOWN_MILLIS = 15 * 60 * 1000L // 15 minutes
 
+    private var nativeAd: NativeAd? = null
+    private var isNativeAdLoading = false
+
     private val isMobileAdsSdkInitialized = AtomicBoolean(false)
     private lateinit var consentInformation: ConsentInformation
 
     // Google Test Ad IDs
     private val REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
     private val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+    private val NATIVE_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
 
     /**
      * Initializes the privacy consent flow (UMP).
@@ -92,6 +99,7 @@ class AdsCoordinator @Inject constructor(
         MobileAds.initialize(context) {
             loadRewardedAd()
             loadInterstitialAd()
+            loadNativeAd()
             onComplete()
         }
     }
@@ -201,4 +209,34 @@ class AdsCoordinator @Inject constructor(
     }
     
     fun isRewardedAdReady(): Boolean = rewardedAd != null
+
+    /**
+     * Loads a Native Ad.
+     */
+    fun loadNativeAd(onAdLoaded: ((NativeAd) -> Unit)? = null) {
+        if (isNativeAdLoading) return
+        if (!isMobileAdsSdkInitialized.get()) return
+
+        isNativeAdLoading = true
+        
+        val adLoader = AdLoader.Builder(context, NATIVE_AD_UNIT_ID)
+            .forNativeAd { ad : NativeAd ->
+                nativeAd?.destroy()
+                nativeAd = ad
+                isNativeAdLoading = false
+                onAdLoaded?.invoke(ad)
+            }
+            .withAdListener(object : com.google.android.gms.ads.AdListener() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d("AdsCoordinator", "Native ad failed to load: ${adError.message}")
+                    isNativeAdLoading = false
+                }
+            })
+            .withNativeAdOptions(NativeAdOptions.Builder().build())
+            .build()
+
+        adLoader.loadAd(AdRequest.Builder().build())
+    }
+
+    fun getNativeAd(): NativeAd? = nativeAd
 }

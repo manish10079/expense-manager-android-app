@@ -11,21 +11,21 @@ This document outlines a non-intrusive, premium-first monetization strategy for 
 - **Privacy Respect:** Ensure ad integration doesn't interfere with the app's "Private by Nature" brand.
 
 ## 3. Screen-by-Screen Ad Placement Strategy
-
 | Screen Name | Ad Format | Placement Location | Status | Justification |
 | :--- | :--- | :--- | :--- | :--- |
-| **Transactions** | Native Advanced | Inline (After every 6-8 items) | **Shimmer Active** | Feels like a "Transaction Card" variant. Non-intrusive during scrolling. |
-| **Calendar** | Adaptive Banner | Bottom Sticky (Fixed) | **Implemented** | Utilizes whitespace in the lower half; consistent placement for utility views. |
-| **Analytics** | Adaptive Banner | Inline (In scrollable content) | **Implemented** | High user attention area; provides a natural break before breakdowns. |
-| **Settings** | Adaptive Banner | Inline (After "Customize" section) | **Implemented** | Low interaction density area; good for "End of page" discovery. |
-| **Card Customize**| Adaptive Banner | Bottom Sticky (Fixed) | **Implemented** | Anchored at the bottom to stay visible while toggling settings. |
-| **About** | Adaptive Banner | Inline (Above Support section) | **Implemented** | Non-intrusive placement in a purely informational view. |
-| **Preferences** | Adaptive Banner | Inline (At the bottom) | **Implemented** | Standard placement for lower-priority settings views. |
-| **Data Management**| Adaptive Banner | Inline (Before Data Transfer) | **Implemented** | Breaks up long lists of technical settings. |
-| **Security/Privacy**| Adaptive Banner | Inline (After Auto-Lock) | **Implemented** | Consistent with other settings-tier screens. |
-| **Notifications** | Adaptive Banner | Inline (At the bottom) | **Implemented** | Standard placement for utility configuration views. |
-| **Cat. Management**| Adaptive Banner | Inline (Top of list) | **Implemented** | Immediate visibility when managing spending categories. |
-| **Home Screen** | Native Advanced | Inline (After Today Spending) | **Planned** | Blends with feature cards; high engagement zone. |
+| **Transactions** | Native Advanced | Inline (After every 6-8 items) | **Implemented** | Feels like a "Transaction Card" variant. Non-intrusive during scrolling. |
+| **Home Screen** | Native Advanced | Inline (After Today Spending) | **Implemented** | Blends with feature cards; high engagement zone. |
+| **Calendar** | Native Advanced | Inline (After Summary) | **Implemented** | Utilizes whitespace in the lower half; consistent placement for utility views. |
+| **Analytics** | Native Advanced | Inline (In scrollable content) | **Implemented** | High user attention area; provides a natural break before breakdowns. |
+| **Settings** | Native Advanced | Inline (After "Customize" section) | **Implemented** | Low interaction density area; good for "End of page" discovery. |
+| **Card Customize**| Native Advanced | Bottom Sticky (Fixed) | **Implemented** | Anchored at the bottom to stay visible while toggling settings. |
+| **About** | Native Advanced | Inline (Above Support section) | **Implemented** | Non-intrusive placement in a purely informational view. |
+| **Preferences** | Native Advanced | Inline (At the bottom) | **Implemented** | Standard placement for lower-priority settings views. |
+| **Data Management**| Native Advanced | Inline (Before Data Transfer) | **Implemented** | Breaks up long lists of technical settings. |
+| **Security/Privacy**| Native Advanced | Inline (After Auto-Lock) | **Implemented** | Consistent with other settings-tier screens. |
+| **Notifications** | Native Advanced | Inline (At the bottom) | **Implemented** | Standard placement for utility configuration views. |
+| **Cat. Management**| Native Advanced | Inline (Top of list) | **Implemented** | Immediate visibility when managing spending categories. |
+
 | **Add Transaction**| **PROHIBITED** | N/A | **N/A** | High-sensitivity utility screen. Speed and focus are critical. |
 | **Calculator** | **PROHIBITED** | N/A | **N/A** | Critical utility; ads would be highly distracting. |
 

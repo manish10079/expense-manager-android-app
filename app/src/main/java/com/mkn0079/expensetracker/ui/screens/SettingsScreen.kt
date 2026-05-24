@@ -104,7 +104,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
-import com.mkn0079.expensetracker.ui.components.BannerAdView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

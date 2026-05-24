@@ -113,7 +113,7 @@ import com.mkn0079.expensetracker.data.constants.paymentFallbackDescriptions
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,9 +173,9 @@ fun CategoryManagementScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Inline Banner Ad before category count text
+            // Inline Native Ad before category count text
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                BannerAdView(modifier = Modifier.padding(bottom = 14.dp))
+                NativeAdCard()
             }
 
             Text(

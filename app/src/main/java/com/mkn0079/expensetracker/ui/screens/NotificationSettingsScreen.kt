@@ -33,7 +33,7 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -110,9 +110,9 @@ fun NotificationSettingsScreen(
                 onCheckedChange = onMissedEntryReminderChange
             )
 
-            // Inline Banner Ad after Missed Entry Reminder
+            // Inline Native Ad after Missed Entry Reminder
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                BannerAdView()
+                NativeAdCard()
             }
 
             Spacer(modifier = Modifier.height(32.dp))

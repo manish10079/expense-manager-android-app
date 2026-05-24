@@ -84,8 +84,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
-import com.mkn0079.expensetracker.ui.components.BannerAdView
-import com.mkn0079.expensetracker.ui.components.BannerAdView
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max

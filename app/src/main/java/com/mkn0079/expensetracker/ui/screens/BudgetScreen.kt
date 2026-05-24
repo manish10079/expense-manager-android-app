@@ -119,7 +119,7 @@ import com.mkn0079.expensetracker.utils.formatCurrencyValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
-import com.mkn0079.expensetracker.ui.components.BannerAdView
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
 
 @Composable
 fun BudgetScreen(
@@ -256,9 +256,9 @@ fun BudgetScreen(
                 }
 
                 item {
-                    // Inline Banner Ad after Add New Budget button
+                    // Inline Native Ad after Add New Budget button
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        BannerAdView()
+                        NativeAdCard()
                     }
                 }
 
