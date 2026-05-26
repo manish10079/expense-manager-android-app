@@ -6,7 +6,8 @@
 - [ ] **Production Ad IDs:** Replace Google Test Ad IDs in `AdsCoordinator.kt` with actual AdMob IDs.
 - [x] **Real Native Ad Implementation:** Integrated `NativeAdView` from AdMob SDK into `NativeAdCard.kt` with custom branding.
 - [ ] **Play Billing Integration:** Replace simulated purchases with Google Play Billing Library for real "Premium" transactions.
-- [ ] **Adaptive Icons:** Create `ic_launcher.xml` and generate proper assets for `mipmap-anydpi-v26` (Required for Play Store).
+- [x] **Adaptive Icons**: Create `ic_launcher.xml` and generate proper assets for `mipmap-anydpi-v26` (Required for Play Store).
+
 - [x] **i18n Cleanup:** Localize remaining hardcoded strings in `BottomNavConfig.kt` (Bottom Bar titles) and `NativeAdCard.kt`.
 
 

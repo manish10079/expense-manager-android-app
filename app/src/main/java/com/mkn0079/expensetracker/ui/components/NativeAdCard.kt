@@ -27,6 +27,8 @@ import dagger.hilt.EntryPoints
 
 import com.mkn0079.expensetracker.di.MonetizationEntryPoint
 
+import androidx.compose.ui.graphics.toArgb
+
 /**
  * A real implementation of the Native Ad component that integrates with AdMob.
  * Blends seamlessly into the UI with the "Fintech Premium" aesthetic.
@@ -42,6 +44,11 @@ fun NativeAdCard(
     
     var nativeAd by remember { mutableStateOf<NativeAd?>(adsCoordinator.getNativeAd()) }
     var isLoading by remember { mutableStateOf(nativeAd == null) }
+
+    // Theme-aware colors from Compose
+    val headlineColor = MaterialTheme.colorScheme.onSurface
+    val bodyColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(Unit) {
         if (nativeAd == null) {
@@ -74,10 +81,21 @@ fun NativeAdCard(
                     factory = { ctx ->
                         val adView = LayoutInflater.from(ctx)
                             .inflate(R.layout.native_ad_layout, null) as NativeAdView
+                        
+                        // Apply theme colors to the views
+                        adView.findViewById<TextView>(R.id.ad_headline)?.setTextColor(headlineColor.toArgb())
+                        adView.findViewById<TextView>(R.id.ad_body)?.setTextColor(bodyColor.toArgb())
+                        adView.findViewById<Button>(R.id.ad_call_to_action)?.setTextColor(primaryColor.toArgb())
+                        
                         populateNativeAdView(ad, adView)
                         adView
                     },
                     update = { adView ->
+                        // Ensure colors stay updated during theme changes
+                        adView.findViewById<TextView>(R.id.ad_headline)?.setTextColor(headlineColor.toArgb())
+                        adView.findViewById<TextView>(R.id.ad_body)?.setTextColor(bodyColor.toArgb())
+                        adView.findViewById<Button>(R.id.ad_call_to_action)?.setTextColor(primaryColor.toArgb())
+                        
                         populateNativeAdView(ad, adView)
                     }
                 )
