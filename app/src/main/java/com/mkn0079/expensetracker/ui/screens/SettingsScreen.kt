@@ -250,13 +250,6 @@ private fun SettingsScreenContent(
                 }
 
                 item {
-                    // Bottom Native Ad Placement
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard()
-                    }
-                }
-
-                item {
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
