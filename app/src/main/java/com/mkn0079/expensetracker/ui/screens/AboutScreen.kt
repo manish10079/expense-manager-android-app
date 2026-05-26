@@ -127,18 +127,15 @@ fun AboutScreen(
                 modifier = Modifier
                     .size(110.dp)
                     .clip(CircleShape)
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
-                            )
-                        )
+                    .border(
+                        width = 2.dp,
+                        brush = brandGradient(),
+                        shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.splash_logo),
                     contentDescription = stringResource(R.string.desc_app_icon),
                     modifier = Modifier
                         .size(110.dp)
