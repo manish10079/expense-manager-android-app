@@ -5,6 +5,16 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
+# Remove all android.util.Log calls in production builds for security.
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+    public static *** wtf(...);
+}
+
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
