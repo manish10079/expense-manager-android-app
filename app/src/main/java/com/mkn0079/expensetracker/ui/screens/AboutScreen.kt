@@ -174,8 +174,8 @@ fun AboutScreen(
             // Developed By Card
             DeveloperCard(
                 name = "Manish Kumar Nayak",
-                email = "try.manish0079@gmail.com",
-                onEmailClick = { sendEmail("try.manish0079@gmail.com") }
+                email = "mknlabs.dev@gmail.com",
+                onEmailClick = { sendEmail("mknlabs.dev@gmail.com") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -198,7 +198,7 @@ fun AboutScreen(
                 AboutActionItem(
                     icon = Icons.Filled.Email,
                     title = stringResource(R.string.title_send_feedback),
-                    onClick = { sendEmail("try.manish0079@gmail.com") }
+                    onClick = { sendEmail("mknlabs.dev@gmail.com") }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.BugReport,
