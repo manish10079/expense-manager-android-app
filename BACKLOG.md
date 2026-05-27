@@ -11,7 +11,8 @@
 - [x] **i18n Cleanup:** Localize remaining hardcoded strings in `BottomNavConfig.kt` (Bottom Bar titles) and `NativeAdCard.kt`.
 
 
-- [ ] **Privacy Policy:** Link a hosted Privacy Policy URL in the app and `AndroidManifest.xml`.
+- [ ] 
+
 
 ## 🌐 Internationalization (i18n) Progress Tracker
 **Last Audit:** 2026-05-15 (Verified current status of all items)

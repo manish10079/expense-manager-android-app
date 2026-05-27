@@ -211,11 +211,12 @@ fun AboutScreen(
 
             // Legal Section
             AboutSectionHeader(title = stringResource(R.string.title_legal))
+            val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
             SupportLegalSection {
                 AboutActionItem(
                     icon = Icons.Filled.Lock,
                     title = stringResource(R.string.title_privacy_policy),
-                    onClick = { openUrl("https://example.com/privacy") }
+                    onClick = { openUrl(privacyPolicyUrl) }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Description,

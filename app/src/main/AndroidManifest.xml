@@ -43,6 +43,11 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3052232912913226~7883958511"/>
+
+        <!-- Privacy Policy URL -->
+        <meta-data
+            android:name="privacy_policy_url"
+            android:value="@string/url_privacy_policy" />
     </application>
 
 </manifest>
