@@ -126,12 +126,7 @@ fun AboutScreen(
             Box(
                 modifier = Modifier
                     .size(110.dp)
-                    .clip(CircleShape)
-                    .border(
-                        width = 2.dp,
-                        brush = brandGradient(),
-                        shape = CircleShape
-                    ),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
