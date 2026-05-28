@@ -104,6 +104,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
+import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.AccessStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,11 +132,12 @@ fun SettingsScreen(
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(
-        transactionCount
+        transactionCount, isAdsEnabled
     ) {
-        settingsViewModel.updateInputs(transactionCount = transactionCount)
+        settingsViewModel.updateInputs(transactionCount = transactionCount, isAdsEnabled = isAdsEnabled)
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -155,6 +159,12 @@ fun SettingsScreen(
         onAboutClick = onAboutClick,
         onNotificationsClick = onNotificationsClick,
         onManageCategoryClick = onManageCategoryClick,
+        onAdFreeAccessClick = {
+            val activity = context as? android.app.Activity
+            if (activity != null) {
+                monetizationViewModel.onWatchAdFreeClicked(activity)
+            }
+        },
         onBackClick = onBackClick
     )
 }
@@ -178,6 +188,7 @@ private fun SettingsScreenContent(
     onAboutClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onManageCategoryClick: () -> Unit,
+    onAdFreeAccessClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -231,6 +242,7 @@ private fun SettingsScreenContent(
                                     SettingsActionId.About -> onAboutClick()
                                     SettingsActionId.Notifications -> onNotificationsClick()
                                     SettingsActionId.ManageCategories -> onManageCategoryClick()
+                                    SettingsActionId.AdFreeAccess -> onAdFreeAccessClick()
                                     else -> Unit
                                 }
                             },
@@ -243,7 +255,7 @@ private fun SettingsScreenContent(
                         if (section.titleRes == R.string.title_customize_caps) {
                             Spacer(modifier = Modifier.height(18.dp))
                             AdContainer(isAdsEnabled = isAdsEnabled) {
-                                NativeAdCard()
+                                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                             }
                         }
                     }
@@ -445,6 +457,7 @@ private fun SettingsScreenPreview() {
             onAboutClick = {},
             onNotificationsClick = {},
             onManageCategoryClick = {},
+            onAdFreeAccessClick = {},
             onBackClick = {}
         )
     }

@@ -9,6 +9,8 @@ import com.mkn0079.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.AdsCoordinator
 import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.RewardedPlacement
+import com.mkn0079.expensetracker.monetization.InterstitialPlacement
 import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -68,11 +70,24 @@ class MonetizationViewModel @Inject constructor(
     }
 
     /**
+     * Shows an interstitial ad if ready and cooldown is over.
+     */
+    fun showInterstitial(activity: Activity, placement: InterstitialPlacement, onAdDismissed: () -> Unit = {}) {
+        adsCoordinator.showInterstitial(activity, placement, onAdDismissed)
+    }
+
+    /**
      * Shows a rewarded ad and grants temporary access upon completion.
      */
     fun onAdWatched(activity: Activity, feature: Feature, optionId: String? = null) {
-        if (adsCoordinator.isRewardedAdReady()) {
-            adsCoordinator.showRewardedAd(activity) {
+        val placement = if (feature == Feature.AD_FREE_GLOBAL) {
+            RewardedPlacement.AD_FREE_ACCESS
+        } else {
+            RewardedPlacement.FEATURE_UNLOCK
+        }
+
+        if (adsCoordinator.isRewardedAdReady(placement)) {
+            adsCoordinator.showRewardedAd(activity, placement) {
                 viewModelScope.launch {
                     grantTemporaryAccessUseCase.execute(
                         feature = feature,
@@ -83,7 +98,7 @@ class MonetizationViewModel @Inject constructor(
             }
         } else {
             // If ad is not ready, load it and grant access for now so user isn't blocked during testing
-            adsCoordinator.loadRewardedAd()
+            adsCoordinator.loadRewardedAd(placement)
             viewModelScope.launch {
                 grantTemporaryAccessUseCase.execute(
                     feature = feature,
@@ -92,5 +107,12 @@ class MonetizationViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    /**
+     * Specifically handles the "Watch Ad to Remove Ads" flow from Settings.
+     */
+    fun onWatchAdFreeClicked(activity: Activity) {
+        onAdWatched(activity, Feature.AD_FREE_GLOBAL)
     }
 }

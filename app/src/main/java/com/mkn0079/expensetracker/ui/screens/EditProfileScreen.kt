@@ -50,6 +50,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.components.AdContainer
+import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +68,9 @@ fun ProfileScreen(
     onSaveClick: (UserProfile) -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {}
 ) {
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val initialPhotoUri = userProfile.photoUri
@@ -229,6 +239,12 @@ fun ProfileScreen(
                     )
                 }
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }

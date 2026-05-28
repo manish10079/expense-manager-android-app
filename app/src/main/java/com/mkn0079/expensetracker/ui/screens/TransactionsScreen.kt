@@ -120,6 +120,8 @@ import com.mkn0079.expensetracker.ui.components.NativeAdShimmer
 
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
 
+import com.mkn0079.expensetracker.monetization.AdPlacement
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
@@ -536,7 +538,7 @@ fun TransactionScreen(
                             if (index > 0 && index % 7 == 0) {
                                 Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                 AdContainer(isAdsEnabled = isAdsEnabled) {
-                                    NativeAdCard()
+                                    NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
                                 }
                                 Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                             }

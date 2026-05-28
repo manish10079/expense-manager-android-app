@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
@@ -193,7 +194,7 @@ fun SecurityPrivacyScreen(
                 item {
                     // Inline Native Ad after Auto Lock Duration
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard()
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }
                 }
             }

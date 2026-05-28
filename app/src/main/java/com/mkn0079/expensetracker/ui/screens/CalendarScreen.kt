@@ -115,6 +115,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import java.util.Calendar
 
 // Theme colors are now derived from MaterialTheme.colorScheme
@@ -329,7 +330,7 @@ fun CalendarScreen(
                                         isAdsEnabled = isAdsEnabled,
                                         modifier = Modifier.padding(vertical = 4.dp)
                                     ) {
-                                        NativeAdCard()
+                                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
                                     }
 
                                     TransactionSectionHeader(

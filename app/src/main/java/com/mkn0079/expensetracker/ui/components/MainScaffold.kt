@@ -64,6 +64,7 @@ fun MainScaffold(
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
+    isAdsEnabled: Boolean,
     autoLockDurationMinutes: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
@@ -159,6 +160,7 @@ fun MainScaffold(
             selectedDateFormatPattern = selectedDateFormatPattern,
             selectedTimeFormat = selectedTimeFormat,
             transactionCount = transactionCount,
+            isAdsEnabled = isAdsEnabled,
             autoLockDurationMinutes = autoLockDurationMinutes,
             userProfile = userProfile,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
@@ -262,6 +264,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     selectedDateFormatPattern: String,
     selectedTimeFormat: String,
     transactionCount: Int,
+    isAdsEnabled: Boolean,
     autoLockDurationMinutes: Int,
     userProfile: UserProfile,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -283,6 +286,7 @@ androidx.compose.runtime.LaunchedEffect(
     selectedDateFormatPattern,
     selectedTimeFormat,
     transactionCount,
+    isAdsEnabled,
     autoLockDurationMinutes,
     transactionCardCustomizationSettings,
     paymentMethods
@@ -328,6 +332,6 @@ androidx.compose.runtime.LaunchedEffect(
             selectedTimeFormat,
             transactionCardCustomizationSettings
         )
-        settingsViewModel.updateInputs(transactionCount)
+        settingsViewModel.updateInputs(transactionCount, isAdsEnabled)
     }
 }

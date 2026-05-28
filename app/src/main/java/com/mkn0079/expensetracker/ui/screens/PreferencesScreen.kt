@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +145,7 @@ fun PreferencesScreen(
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard()
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }
                 }
             }

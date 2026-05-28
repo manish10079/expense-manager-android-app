@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -112,7 +113,7 @@ fun NotificationSettingsScreen(
 
             // Inline Native Ad after Missed Entry Reminder
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                NativeAdCard()
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

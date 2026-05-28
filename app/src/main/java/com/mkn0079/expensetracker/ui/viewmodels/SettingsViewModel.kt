@@ -49,7 +49,8 @@ enum class SettingsActionId {
     DataManagement,
     About,
     Notifications,
-    ManageCategories
+    ManageCategories,
+    AdFreeAccess
 }
 
 @Immutable
@@ -60,12 +61,14 @@ data class SettingsScreenUiState(
 class SettingsViewModel : ViewModel() {
 
     private var transactionCount: Int = 0
+    private var isAdsEnabled: Boolean = true
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
 
-    fun updateInputs(transactionCount: Int) {
+    fun updateInputs(transactionCount: Int, isAdsEnabled: Boolean) {
         this.transactionCount = transactionCount
+        this.isAdsEnabled = isAdsEnabled
         rebuildUiState()
     }
 
@@ -73,7 +76,8 @@ class SettingsViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 settingsSections = buildSettingsSections(
-                    transactionCountLabel = transactionCount.toString()
+                    transactionCountLabel = transactionCount.toString(),
+                    isAdsEnabled = isAdsEnabled
                 )
             )
         }
@@ -81,7 +85,8 @@ class SettingsViewModel : ViewModel() {
 }
 
 private fun buildSettingsSections(
-    transactionCountLabel: String
+    transactionCountLabel: String,
+    isAdsEnabled: Boolean
 ): List<SettingsSectionUi> {
     return listOf(
         SettingsSectionUi(
@@ -92,6 +97,25 @@ private fun buildSettingsSections(
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_edit_profile_subtitle,
                     icon = Icons.Rounded.Person,
                     actionId = SettingsActionId.EditProfile
+                )
+            )
+        ),
+        SettingsSectionUi(
+            titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = if (isAdsEnabled) {
+                        com.mkn0079.expensetracker.R.string.label_remove_all_ads
+                    } else {
+                        com.mkn0079.expensetracker.R.string.label_ad_free_active
+                    },
+                    subtitleRes = if (isAdsEnabled) {
+                        com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free
+                    } else {
+                        com.mkn0079.expensetracker.R.string.msg_ad_free_duration_remaining
+                    },
+                    icon = Icons.Rounded.Person,
+                    actionId = if (isAdsEnabled) SettingsActionId.AdFreeAccess else null
                 )
             )
         ),
@@ -141,7 +165,8 @@ private fun buildSettingsSections(
                     titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
                     icon = Icons.Rounded.Dns,
-                    actionId = SettingsActionId.DataManagement
+                    actionId = SettingsActionId.DataManagement,
+                    trailing = transactionCountLabel
                 )
             )
         ),

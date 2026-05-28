@@ -22,6 +22,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.monetization.AdsCoordinator
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
 import dagger.hilt.EntryPoints
 
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.toArgb
  */
 @Composable
 fun NativeAdCard(
+    placement: AdPlacement,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -42,17 +44,17 @@ fun NativeAdCard(
         EntryPoints.get(context.applicationContext, MonetizationEntryPoint::class.java).adsCoordinator()
     }
     
-    var nativeAd by remember { mutableStateOf<NativeAd?>(adsCoordinator.getNativeAd()) }
-    var isLoading by remember { mutableStateOf(nativeAd == null) }
+    var nativeAd by remember(placement) { mutableStateOf<NativeAd?>(adsCoordinator.getNativeAd(placement)) }
+    var isLoading by remember(placement) { mutableStateOf(nativeAd == null) }
 
     // Theme-aware colors from Compose
     val headlineColor = MaterialTheme.colorScheme.onSurface
     val bodyColor = MaterialTheme.colorScheme.onSurfaceVariant
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(placement) {
         if (nativeAd == null) {
-            adsCoordinator.loadNativeAd { ad ->
+            adsCoordinator.loadNativeAd(placement) { ad ->
                 nativeAd = ad
                 isLoading = false
             }

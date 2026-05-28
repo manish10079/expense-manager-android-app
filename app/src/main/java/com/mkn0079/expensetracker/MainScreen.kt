@@ -39,6 +39,7 @@ import com.mkn0079.expensetracker.models.TransactionCardCustomizationSettings
 import com.mkn0079.expensetracker.models.UserProfile
 import com.mkn0079.expensetracker.monetization.AccessStatus
 import com.mkn0079.expensetracker.monetization.Feature
+import com.mkn0079.expensetracker.monetization.InterstitialPlacement
 import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import com.mkn0079.expensetracker.ui.components.MainScaffold
 import com.mkn0079.expensetracker.ui.navigation.AppRoute
@@ -103,6 +104,7 @@ fun MainScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
     val monetizationViewModel: MonetizationViewModel = viewModel()
+    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
@@ -353,6 +355,7 @@ fun MainScreen(
                         isDailyReminderEnabled = isDailyReminderEnabled,
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        isAdsEnabled = isAdsEnabled,
                         autoLockDurationMinutes = autoLockDurationMinutes,
                         isAutoBackupEnabled = isAutoBackupEnabled,
                         autoBackupFrequencyDays = autoBackupFrequencyDays,
@@ -463,6 +466,9 @@ fun MainScreen(
                                         "Imported ${result.importedTransactions} legacy transactions. " +
                                             "Skipped ${result.skippedTransactions} existing."
                                     )
+                                    if (isAdsEnabled && activity != null) {
+                                        monetizationViewModel.showInterstitial(activity, InterstitialPlacement.DATA_ACTION)
+                                    }
                                 },
                                 onError = {
                                     showToast("Legacy import failed. Check the backup file and try again.")

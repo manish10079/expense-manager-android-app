@@ -114,6 +114,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -175,7 +176,7 @@ fun CategoryManagementScreen(
 
             // Inline Native Ad before category count text
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                NativeAdCard()
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
             Text(

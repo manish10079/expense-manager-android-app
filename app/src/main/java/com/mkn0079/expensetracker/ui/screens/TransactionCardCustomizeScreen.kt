@@ -77,6 +77,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private data class TransactionCardToggleItem(
@@ -358,7 +359,7 @@ fun TransactionCardCustomizeScreen(
                 .padding(horizontal = 20.dp)
                 .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
         ) {
-            NativeAdCard()
+            NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
         }
     }
 }

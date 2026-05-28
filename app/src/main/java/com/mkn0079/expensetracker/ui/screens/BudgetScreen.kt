@@ -120,6 +120,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 
 @Composable
 fun BudgetScreen(
@@ -258,8 +259,9 @@ fun BudgetScreen(
                 item {
                     // Inline Native Ad after Add New Budget button
                     AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard()
+                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
                     }
+
                 }
 
                 item {

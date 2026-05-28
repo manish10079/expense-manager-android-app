@@ -29,7 +29,8 @@ enum class Feature(val id: String, val displayName: String) {
     ANALYTICS_PAYMENT_BREAKDOWN("analytics_payment_breakdown", "Payment Mode Breakdown"),
     ANALYTICS_TOP_SPENDING("analytics_top_spending", "Top Spending Insights"),
     ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips"),
-    TRANSACTION_COUNT("transaction_count", "Transaction Statistics")
+    TRANSACTION_COUNT("transaction_count", "Transaction Statistics"),
+    AD_FREE_GLOBAL("ad_free_global", "Ad-Free Experience")
 }
 
 /**

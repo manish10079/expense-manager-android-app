@@ -83,6 +83,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel as MonetizationViewModelAlias
 
 @Composable
@@ -247,7 +248,7 @@ private fun HomeScreenContent(
 
             // Native Ad Placement
             AdContainer(isAdsEnabled = isAdsEnabled) {
-                NativeAdCard()
+                NativeAdCard(placement = AdPlacement.HOME_DASHBOARD)
             }
 
             Spacer(modifier = Modifier.height(15.dp))

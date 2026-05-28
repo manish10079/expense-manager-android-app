@@ -84,6 +84,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.components.AdContainer
 import com.mkn0079.expensetracker.ui.components.NativeAdCard
+import com.mkn0079.expensetracker.monetization.AdPlacement
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -210,7 +211,7 @@ fun AnalyticsScreen(
             item {
                 // Native Ad Placement below Hero Section
                 AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard()
+                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                 }
             }
             item { StatsRow(snapshot) }
@@ -274,7 +275,7 @@ fun AnalyticsScreen(
             item {
                 // Inline Native Ad after Payment Mode Breakdown
                 AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard()
+                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                 }
             }
             item {
