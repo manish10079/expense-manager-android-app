@@ -1190,6 +1190,7 @@
     <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
     <string name="label_delete_recurring">Delete Recurring</string>
     <string name="label_logout">Sign Out</string>
+    <string name="desc_logout_subtitle">Sign out of your account and stop cloud sync.</string>
     <string name="msg_logout_confirm">Are you sure you want to sign out? Your cloud data will stop syncing until you sign back in.</string>
     <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
     <string name="error_no_google_accounts">No Google accounts found on this device. Please use your email to sign up.</string>

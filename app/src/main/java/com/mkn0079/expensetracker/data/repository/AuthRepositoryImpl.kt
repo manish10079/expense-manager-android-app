@@ -32,6 +32,7 @@ class AuthRepositoryImpl @Inject constructor(
             firebaseAuth.signInWithCredential(credential).await()
             Result.success(Unit)
         } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Firebase Sign-In failed: ${e.message}", e)
             Result.failure(e)
         }
     }

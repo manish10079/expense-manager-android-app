@@ -20,7 +20,7 @@ class GoogleAuthHelper @Inject constructor(
 ) {
     private val credentialManager = CredentialManager.create(context)
 
-    suspend fun getGoogleIdToken(): String? {
+    suspend fun getGoogleIdToken(): Result<String?> {
         // Clear any stale state first to ensure fresh picker
         try {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
@@ -31,7 +31,7 @@ class GoogleAuthHelper @Inject constructor(
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(context.getString(R.string.default_web_client_id))
-            .setAutoSelectEnabled(false) // Force user interaction
+            .setAutoSelectEnabled(false)
             .build()
 
         val request = GetCredentialRequest.Builder()
@@ -43,22 +43,23 @@ class GoogleAuthHelper @Inject constructor(
                 context = context,
                 request = request
             )
+            
             val credential = result.credential
-            if (credential is GoogleIdTokenCredential) {
-                credential.idToken
-            } else {
-                Log.e("GoogleAuth", "Received unexpected credential type: ${credential.type}")
-                null
-            }
+            
+            // Fix: Use the static factory method to create the object from data
+            // This is more robust than simple type checking 'is'
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            Result.success(googleIdTokenCredential.idToken)
+            
         } catch (e: GetCredentialCancellationException) {
             Log.d("GoogleAuth", "User cancelled the Google Sign-In request")
-            null
+            Result.success(null)
         } catch (e: NoCredentialException) {
             Log.e("GoogleAuth", "No Google accounts found on device")
-            null
+            Result.failure(e)
         } catch (e: Exception) {
             Log.e("GoogleAuth", "Google Sign-In failed with exception", e)
-            null
+            Result.failure(e)
         }
     }
 

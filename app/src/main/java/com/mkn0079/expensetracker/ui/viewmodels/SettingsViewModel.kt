@@ -143,6 +143,7 @@ private fun buildSettingsSections(
         accountItems.add(
             SettingsItemUi(
                 titleRes = com.mkn0079.expensetracker.R.string.label_logout,
+                subtitleRes = com.mkn0079.expensetracker.R.string.desc_logout_subtitle,
                 icon = Icons.AutoMirrored.Rounded.Logout,
                 actionId = SettingsActionId.Logout,
                 showChevron = false

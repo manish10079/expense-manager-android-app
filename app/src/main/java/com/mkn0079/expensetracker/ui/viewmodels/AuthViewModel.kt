@@ -39,14 +39,19 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            val idToken = googleAuthHelper.getGoogleIdToken()
-            if (idToken != null) {
-                authRepository.signInWithGoogle(idToken)
-                    .onSuccess { _authState.value = AuthState.Success }
-                    .onFailure { _authState.value = AuthState.Error(it.message ?: "Authentication failed") }
-            } else {
-                _authState.value = AuthState.Idle
-            }
+            googleAuthHelper.getGoogleIdToken()
+                .onSuccess { idToken ->
+                    if (idToken != null) {
+                        authRepository.signInWithGoogle(idToken)
+                            .onSuccess { _authState.value = AuthState.Success }
+                            .onFailure { _authState.value = AuthState.Error(it.message ?: "Firebase Auth failed") }
+                    } else {
+                        _authState.value = AuthState.Idle
+                    }
+                }
+                .onFailure { error ->
+                    _authState.value = AuthState.Error("Google Error: ${error.javaClass.simpleName} - ${error.message}")
+                }
         }
     }
 

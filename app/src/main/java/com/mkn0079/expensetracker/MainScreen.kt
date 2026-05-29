@@ -348,6 +348,33 @@ fun MainScreen(
                 )
             }
 
+            // Sync Firebase User with local UserProfileDataStore
+            val firebaseUser by authViewModel.currentUser.collectAsState()
+            LaunchedEffect(firebaseUser) {
+                if (firebaseUser != null && !firebaseUser!!.isAnonymous) {
+                    firebaseUser?.let { user ->
+                        UserProfileDataStore.updateUserProfile(context) { profile ->
+                            profile.copy(
+                                fullName = user.displayName ?: profile.fullName,
+                                emailAddress = user.email ?: profile.emailAddress,
+                                photoUri = user.photoUrl?.toString() ?: profile.photoUri
+                            )
+                        }
+                    }
+                } else if (firebaseUser == null) {
+                    // Fix: Clear local profile info when signed out
+                    UserProfileDataStore.updateUserProfile(context) { profile ->
+                        profile.copy(
+                            fullName = "Guest User",
+                            emailAddress = "",
+                            photoUri = null
+                        )
+                    }
+                    // Reset Last Sync Time on sign out to prevent data pollution if another user signs in
+                    AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
+                }
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
@@ -573,7 +600,10 @@ fun MainScreen(
                                 disableAppLock(false)
                             }
                         },
-                        onLinkAccountClick = { showAuthSheet = true },
+                        onLinkAccountClick = { 
+                            authViewModel.resetState()
+                            showAuthSheet = true 
+                        },
                         onLogoutClick = { showLogoutDialog = true },
                         onPrepareForExternalActivity = { isAppLockSuppressed = true }
                     )
