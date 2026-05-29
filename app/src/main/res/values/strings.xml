@@ -138,7 +138,6 @@
     <string name="label_choose_how_many_decimal_places">Choose how many decimal places are shown in currency values.</string>
     <string name="label_delete_all_transactions">Delete all transactions?</string>
     <string name="label_delete_budget">Delete Budget</string>
-    <string name="label_delete_recurring">Delete Recurring</string>
     <string name="label_delete_transactions">Delete Transactions</string>
     <string name="label_enter_amount">ENTER AMOUNT</string>
     <string name="label_expense">EXPENSE</string>
@@ -159,7 +158,10 @@
     <string name="label_select_category">Select Category</string>
     <string name="label_shape_how_your_transactions_ar">Shape how your transactions are organized and displayed.</string>
     <string name="label_spending_by_payment_mode">Spending by Payment Mode</string>
-    <string name="label_this_removes_only_transactions">This removes only transactions and their recurring rules. Categories, payment methods, settings, and profile data will stay.</string>
+    <string name="label_delete_all_data">Delete All Data &amp; Reset App</string>
+    <string name="label_delete_account_and_data">Delete Account &amp; All Data</string>
+    <string name="desc_delete_data_warning">This will permanently remove all your expenses and budgets. If you are signed in, your account and cloud backups will also be destroyed. This cannot be undone.</string>
+    <string name="label_this_removes_only_transactions">This will remove all your data permanently. This action is irreversible.</string>
     <string name="label_todays_spending">Today\'s Spending</string>
     <string name="label_top_spending">Top Spending</string>
     <string name="label_top_spending_by_category">Top Spending by\nCategory</string>
@@ -447,7 +449,8 @@
     <string name="title_payment_mode">Payment Mode</string>
     <string name="title_premium_by_designnprivate_by_n">Premium by Design,\nPrivate by Nature</string>
     <string name="title_privacy_policy">Privacy Policy</string>
-    <string name="url_privacy_policy">https://sites.google.com/view/mkn-expense-tracker/home</string>
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/</string>
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
     <string name="title_rate_app">Rate App</string>
     <string name="title_report_bug">Report Bug</string>
     <string name="title_restore">Restore</string>
@@ -541,7 +544,17 @@
     <string name="desc_modern_finance">Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.</string>
     <string name="label_continue">Continue</string>
     <string name="label_private_by_nature">Private by Nature</string>
-    <string name="title_lets_get_started">Let\'s Get Started</string>
+    <string name="title_secure_your_account">Secure Your Account</string>
+    <string name="desc_sync_and_premium_features">Sign in to enable cross-device sync and access premium features safely.</string>
+    <string name="label_continue_with_google">Continue with Google</string>
+    <string name="label_or">OR</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_password">Password</string>
+    <string name="label_create_account">Create Account</string>
+    <string name="label_login">Login</string>
+    <string name="label_already_have_account">Already have an account? Login</string>
+    <string name="label_no_account_signup">Don\'t have an account? Sign up</string>
+    <string name="label_continue_as_guest">Continue as Guest</string>
     <string name="desc_tell_us_about_yourself">Tell us a bit about yourself to personalize your experience.</string>
     <string name="label_get_started">Get Started</string>
     <string name="placeholder_enter_name">Enter your name</string>
@@ -593,8 +606,6 @@
     <string name="label_migrate">Migrate</string>
     <string name="label_utilities_and_stats">UTILITIES &amp; STATS</string>
     <string name="desc_transaction_count_subtitle">Total records in database</string>
-    <string name="label_delete_all_data">Delete All Data</string>
-    <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
     <plurals name="desc_auto_backup_every_days">
         <item quantity="one">Automatically backup every day</item>
         <item quantity="other">Automatically backup every %1$d days</item>
@@ -1165,4 +1176,20 @@
     <string name="label_size_unit_tb">TB</string>
     <string name="label_zero_size">0 B</string>
     <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <!-- Force Update & Maintenance -->
+    <string name="title_update_required">Update Required</string>
+    <string name="msg_update_required_desc">A new version of Expense Tracker is available. Please update to the latest version to continue using the app.</string>
+    <string name="btn_update_now">Update Now</string>
+    <string name="title_system_maintenance">System Maintenance</string>
+    <string name="msg_maintenance_desc">We are currently performing scheduled maintenance to improve our services. We\'ll be back shortly. Thank you for your patience!</string>
+    <string name="title_protect_your_data">Protect Your Data</string>
+    <string name="msg_link_account_desc">Your data is currently only on this device. Sign in to enable cloud sync and backup.</string>
+    <string name="title_lets_get_started">Let\'s get started!</string>
+    <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
+    <string name="label_delete_recurring">Delete Recurring</string>
+    <string name="label_logout">Sign Out</string>
+    <string name="msg_logout_confirm">Are you sure you want to sign out? Your cloud data will stop syncing until you sign back in.</string>
+    <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
+    <string name="error_no_google_accounts">No Google accounts found on this device. Please use your email to sign up.</string>
 </resources>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Expense Tracker</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        h1 { color: #1a1a1a; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { color: #2c3e50; margin-top: 30px; border-left: 4px solid #3498db; padding-left: 15px; }
+        p { margin-bottom: 15px; }
+        ul { margin-bottom: 15px; }
+        li { margin-bottom: 8px; }
+        .highlight { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin: 20px 0; }
+        .footer { margin-top: 50px; font-size: 0.9em; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Privacy Policy</h1>
+    <p>Last updated: May 29, 2026</p>
+
+    <p>This Privacy Policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the <strong>Expense Tracker: Budget & Spend</strong> mobile application.</p>
+
+    <div class="highlight">
+        <strong>Transparency Note:</strong> We value your privacy. This app follows a "Privacy First" model, allowing full anonymous usage while providing secure cloud backup for users who choose to create an account.
+    </div>
+
+    <h2>1. Information We Access and Collect</h2>
+    <p>Depending on how you use the app, we may access the following information:</p>
+    <ul>
+        <li><strong>Financial Data:</strong> Your transactions, categories, budgets, and recurring rules. This data is stored in an encrypted local database (Room).</li>
+        <li><strong>Account Information:</strong> If you sign in via Google or Email, we collect your unique User ID (UID), email address, and name/profile picture (for social login) to manage your account.</li>
+        <li><strong>Device Identifiers:</strong> We collect a unique device ID (Android ID) strictly to enforce our security limit of 4 synchronized devices per premium account.</li>
+        <li><strong>Device Hardware:</strong> We access the device model name (e.g., "Pixel 7") to help you manage your connected devices in settings.</li>
+    </ul>
+
+    <h2>2. Data Usage and Synchronization</h2>
+    <p><strong>Guest Mode (Offline):</strong> In Guest Mode, all financial data remains strictly on your device and is never transmitted to our servers.</p>
+    <p><strong>Cloud Synchronization:</strong> For authenticated users, data is securely synchronized with <strong>Google Firebase (Firestore)</strong>. This allows you to restore your data if you lose your phone or switch to a new device. All data is encrypted in transit and at rest.</p>
+
+    <h2>3. Security and Permissions</h2>
+    <ul>
+        <li><strong>Biometric Data:</strong> The App offers biometric lock features. Authentication is handled entirely by the Android system. The App never sees, collects, or stores your actual fingerprint or face templates.</li>
+        <li><strong>App Permissions:</strong> We request notification permissions to provide you with daily reminders and budget alerts. These are processed locally on your device.</li>
+    </ul>
+
+    <h2>4. Third-Party Services</h2>
+    <p>We use industry-standard providers to ensure app stability and monetization:</p>
+    <ul>
+        <li><strong>Google AdMob:</strong> To display advertisements. AdMob may collect your Advertising ID to show personalized or non-personalized ads.</li>
+        <li><strong>Firebase (Google):</strong> For authentication, cloud storage, crash reporting (Crashlytics), and remote configuration.</li>
+    </ul>
+
+    <h2>5. Data Retention and Deletion</h2>
+    <p>We believe you should have full control over your data:</p>
+    <ul>
+        <li><strong>Local Deletion:</strong> You can clear all local data at any time via the "Data Management" section in settings.</li>
+        <li><strong>Full Account Deletion:</strong> Authenticated users can use the <strong>"Delete Account & All Data"</strong> feature in settings. This will permanently wipe your transactions from our cloud servers and delete your identity from our authentication records.</li>
+        <li><strong>Web Requests:</strong> If you no longer have access to the app, you may request data deletion by emailing us at the address below.</li>
+    </ul>
+
+    <h2>6. Contact Us</h2>
+    <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
+    <ul>
+        <li><strong>Email:</strong> mknlabs.dev@gmail.com</li>
+        <li><strong>Developer:</strong> Manish Kumar Nayak</li>
+    </ul>
+
+    <div class="footer">
+        <p>&copy; <span id="current-year"></span> Manish Kumar Nayak. All rights reserved. Expense Tracker is a product of MKN Labs.</p>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

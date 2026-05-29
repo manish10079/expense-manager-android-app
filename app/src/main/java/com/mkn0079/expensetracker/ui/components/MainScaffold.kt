@@ -102,6 +102,8 @@ fun MainScaffold(
     onAppLockToggleChange: (Boolean) -> Unit,
     onAutoBackupEnabledChange: (Boolean) -> Unit,
     onAutoBackupFrequencyChange: (Int) -> Unit,
+    onLinkAccountClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
     val transactionsViewModel: TransactionsViewModel = viewModel()
@@ -232,6 +234,8 @@ fun MainScaffold(
             onAppLockToggleChange = onAppLockToggleChange,
             onAutoBackupEnabledChange = onAutoBackupEnabledChange,
             onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
+            onLinkAccountClick = onLinkAccountClick,
+            onLogoutClick = onLogoutClick,
             onPrepareForExternalActivity = onPrepareForExternalActivity
         )
 
@@ -275,7 +279,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     val analyticsViewModel: AnalyticsViewModel = viewModel()
     val budgetViewModel: BudgetViewModel = viewModel()
     val calendarViewModel: CalendarViewModel = viewModel()
-    val settingsViewModel: SettingsViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 androidx.compose.runtime.LaunchedEffect(
     userProfile,
     transactions,

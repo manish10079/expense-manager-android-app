@@ -37,4 +37,10 @@ interface BudgetDao {
 
     @Query("UPDATE budgets SET is_deleted = 1, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun softDelete(id: String, syncState: String, updatedAt: Long)
+
+    @Query("SELECT * FROM budgets WHERE sync_state != 'SYNCED' AND sync_state != 'LOCAL_ONLY'")
+    suspend fun getUnsynced(): List<BudgetEntity>
+
+    @Query("UPDATE budgets SET sync_state = :syncState WHERE id = :id")
+    suspend fun updateSyncState(id: String, syncState: String)
 }

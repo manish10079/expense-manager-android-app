@@ -566,6 +566,7 @@ private fun JSONObject.toCategoryEntity(): CategoryEntity {
         isSystem = optBoolean("isSystem", true),
         sortOrder = optInt("sortOrder", getInt("id")),
         isDeleted = optBoolean("isDeleted", false),
+        syncState = optString("syncState").toSyncState(),
         createdAt = optLong("createdAt", 0L),
         updatedAt = optLong("updatedAt", optLong("createdAt", 0L))
     )
@@ -579,6 +580,7 @@ private fun JSONObject.toPaymentMethodEntity(): PaymentMethodEntity {
         isSystem = optBoolean("isSystem", true),
         sortOrder = optInt("sortOrder", getInt("id")),
         isDeleted = optBoolean("isDeleted", false),
+        syncState = optString("syncState").toSyncState(),
         createdAt = optLong("createdAt", 0L),
         updatedAt = optLong("updatedAt", optLong("createdAt", 0L))
     )

@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker.models
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mkn0079.expensetracker.models.SyncState
 import com.mkn0079.expensetracker.utils.ExpenseTrackerIconRegistry
 
 @Immutable
@@ -12,6 +13,7 @@ data class PaymentType(
     val isSystem: Boolean = true,
     val sortOrder: Int = id,
     val isDeleted: Boolean = false,
+    val syncState: SyncState = SyncState.LOCAL_ONLY,
     val createdAt: Long = 0L,
     val updatedAt: Long = createdAt
 ) {

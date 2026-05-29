@@ -66,7 +66,7 @@ class SecurityRepositoryImpl @Inject constructor(
 
     override suspend fun disableLock() {
         // 1. Clear PIN and security questions from encrypted preferences
-        AppLockPreferences.clear(context)
+        AppLockPreferences.clearAll(context)
         
         // 2. Update DataStore settings to reflect that lock is disabled
         AppSettingsDataStore.updateAppSettings(context) { settings ->

@@ -19,6 +19,12 @@ import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
 import com.mkn0079.expensetracker.domain.repository.SecurityRepository
 import com.mkn0079.expensetracker.data.repository.SecurityRepositoryImpl
+import com.mkn0079.expensetracker.domain.repository.ConfigurationRepository
+import com.mkn0079.expensetracker.data.repository.ConfigurationRepositoryImpl
+import com.mkn0079.expensetracker.domain.repository.SyncRepository
+import com.mkn0079.expensetracker.data.repository.SyncRepositoryImpl
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -100,5 +106,22 @@ object RepositoryModule {
         @ApplicationContext context: Context
     ): SecurityRepository {
         return SecurityRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideConfigurationRepository(): ConfigurationRepository {
+        return ConfigurationRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSyncRepository(
+        @ApplicationContext context: Context,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        configRepository: ConfigurationRepository
+    ): SyncRepository {
+        return SyncRepositoryImpl(context, firestore, firebaseAuth, configRepository)
     }
 }

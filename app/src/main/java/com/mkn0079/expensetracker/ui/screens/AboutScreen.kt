@@ -217,7 +217,7 @@ fun AboutScreen(
                 AboutActionItem(
                     icon = Icons.Filled.Description,
                     title = stringResource(R.string.title_terms_conditions),
-                    onClick = { openUrl("https://example.com/terms") }
+                    onClick = { openUrl("https://expense-tracker-2ea00.web.app/") }
                 )
                 AboutActionItem(
                     icon = Icons.AutoMirrored.Filled.ListAlt,
@@ -238,7 +238,7 @@ fun AboutScreen(
                 SocialButton(
                     icon = Icons.Filled.Public,
                     label = stringResource(R.string.label_website),
-                    onClick = { openUrl("https://example.com") }
+                    onClick = { openUrl("https://expense-tracker-2ea00.web.app/") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(

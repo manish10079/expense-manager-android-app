@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.mkn0079.expensetracker.models.SyncState
 
 @Entity(
     tableName = "payment_methods",
@@ -24,6 +25,8 @@ data class PaymentMethodEntity(
     val sortOrder: Int,
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean,
+    @ColumnInfo(name = "sync_state")
+    val syncState: SyncState,
     @ColumnInfo(name = "created_at")
     val createdAt: Long,
     @ColumnInfo(name = "updated_at")

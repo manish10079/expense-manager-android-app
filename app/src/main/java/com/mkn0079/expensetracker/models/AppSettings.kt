@@ -38,5 +38,6 @@ data class AppSettings(
     val isAutoBackupEnabled: Boolean,
     val autoBackupFrequencyDays: Int,
     val lastAutoBackupTimeMillis: Long,
+    val lastSyncTimeMillis: Long,
     val userTier: UserTier
 )

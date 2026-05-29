@@ -72,6 +72,7 @@ object AppSettingsDataStore {
         val isAutoBackupEnabled = booleanPreferencesKey("is_auto_backup_enabled")
         val autoBackupFrequencyDays = intPreferencesKey("auto_backup_frequency_days")
         val lastAutoBackupTimeMillis = longPreferencesKey("last_auto_backup_time_millis")
+        val lastSyncTimeMillis = longPreferencesKey("last_sync_time_millis")
         val userTier = stringPreferencesKey("user_tier")
     }
 
@@ -180,6 +181,7 @@ object AppSettingsDataStore {
             isAutoBackupEnabled = this[Keys.isAutoBackupEnabled] ?: defaultAppSettings.isAutoBackupEnabled,
             autoBackupFrequencyDays = this[Keys.autoBackupFrequencyDays] ?: defaultAppSettings.autoBackupFrequencyDays,
             lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis,
+            lastSyncTimeMillis = this[Keys.lastSyncTimeMillis] ?: 0L,
             userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier
         )
     }
@@ -226,6 +228,7 @@ object AppSettingsDataStore {
         this[Keys.isAutoBackupEnabled] = settings.isAutoBackupEnabled
         this[Keys.autoBackupFrequencyDays] = settings.autoBackupFrequencyDays
         this[Keys.lastAutoBackupTimeMillis] = settings.lastAutoBackupTimeMillis
+        this[Keys.lastSyncTimeMillis] = settings.lastSyncTimeMillis
         this[Keys.userTier] = settings.userTier.name
     }
 
@@ -246,5 +249,9 @@ object AppSettingsDataStore {
     private fun userTierOrDefault(value: String): com.mkn0079.expensetracker.models.UserTier {
         return com.mkn0079.expensetracker.models.UserTier.entries.firstOrNull { it.name == value }
             ?: defaultAppSettings.userTier
+    }
+
+    suspend fun clearAll(context: Context) {
+        context.applicationContext.appSettingsDataStore.edit { it.clear() }
     }
 }

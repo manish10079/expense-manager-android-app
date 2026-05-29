@@ -410,7 +410,7 @@ object AppLockPreferences {
         return elapsedMillis >= autoLockDurationMinutes * 60_000L
     }
 
-    fun clear(context: Context) {
+    fun clearAll(context: Context) {
         prefs(context)
             .edit()
             .remove(KEY_APP_LOCK_PIN_HASH)

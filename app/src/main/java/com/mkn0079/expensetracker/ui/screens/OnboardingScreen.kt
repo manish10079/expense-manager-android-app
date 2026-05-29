@@ -50,12 +50,14 @@ import androidx.compose.material.icons.rounded.Transgender
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -85,6 +87,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
@@ -98,6 +101,7 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.ui.theme.brandGradient
 import com.mkn0079.expensetracker.ui.theme.surfaceGradient
+import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
 
@@ -115,7 +119,8 @@ private data class OnboardingPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> }
+    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val onboardingPages = remember {
@@ -149,6 +154,12 @@ fun OnboardingScreen(
                 illustration = { PremiumPrivacyIllustration() }
             ),
             OnboardingPage(
+                title = context.getString(R.string.title_secure_your_account),
+                description = context.getString(R.string.desc_sync_and_premium_features),
+                actionLabel = context.getString(R.string.label_next),
+                illustration = { SecureTrackerIllustration() } // Reuse or new
+            ),
+            OnboardingPage(
                 title = context.getString(R.string.title_lets_get_started),
                 description = context.getString(R.string.desc_tell_us_about_yourself),
                 actionLabel = context.getString(R.string.label_get_started),
@@ -158,7 +169,8 @@ fun OnboardingScreen(
     }
     var currentPage by remember { mutableIntStateOf(0) }
     val page = onboardingPages[currentPage]
-    val isSetupPage = currentPage == 4
+    val isAuthPage = currentPage == 4
+    val isSetupPage = currentPage == 5
 
     // Finishing Animation State
     var isFinishing by remember { mutableStateOf(false) }
@@ -175,6 +187,17 @@ fun OnboardingScreen(
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val currentUser by authViewModel.currentUser.collectAsState()
+
+    // Auto-fill name if user logged in via social provider
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            if (!user.isAnonymous && userName.isEmpty()) {
+                userName = user.displayName ?: ""
+            }
+        }
+    }
 
     var toastMessage by remember { mutableStateOf<String?>(null) }
 
@@ -285,7 +308,14 @@ fun OnboardingScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    if (isSetup) {
+                    if (isAuthPage) {
+                        AuthContent(
+                            viewModel = authViewModel,
+                            onAuthSuccess = {
+                                currentPage += 1
+                            }
+                        )
+                    } else if (isSetupPage) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -361,39 +391,44 @@ fun OnboardingScreen(
             val dobStr = stringResource(id = R.string.label_dob_capitalized)
             val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
             
-            PrimaryOnboardingButton(
-                label = page.actionLabel,
-                onClick = {
-                    if (isFinishing) return@PrimaryOnboardingButton
-                    
-                    val lastIndex = onboardingPages.lastIndex
-                    Log.d("Onboarding", "Button clicked at page $currentPage. Target page: $lastIndex")
-                    
-                    if (currentPage == lastIndex) {
-                        val missingFields = mutableListOf<String>()
-                        if (userName.trim().isEmpty()) missingFields.add(nameStr)
-                        if (userGender.trim().isEmpty()) missingFields.add(genderStr)
-                        if (userDobMillis == 0L) missingFields.add(dobStr)
+            if (!isAuthPage) {
+                PrimaryOnboardingButton(
+                    label = page.actionLabel,
+                    onClick = {
+                        if (isFinishing) return@PrimaryOnboardingButton
+                        
+                        val lastIndex = onboardingPages.lastIndex
+                        Log.d("Onboarding", "Button clicked at page $currentPage. Target page: $lastIndex")
+                        
+                        if (currentPage == lastIndex) {
+                            val missingFields = mutableListOf<String>()
+                            if (userName.trim().isEmpty()) missingFields.add(nameStr)
+                            if (userGender.trim().isEmpty()) missingFields.add(genderStr)
+                            if (userDobMillis == 0L) missingFields.add(dobStr)
 
-                        Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
+                            Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
 
-                        if (missingFields.isEmpty()) {
-                            isFinishing = true
+                            if (missingFields.isEmpty()) {
+                                isFinishing = true
+                            } else {
+                                toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                            }
                         } else {
-                            toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                            currentPage += 1
                         }
-                    } else {
-                        currentPage += 1
                     }
-                }
-            )
+                )
+            } else {
+                // Spacer to maintain layout height when button is hidden
+                Spacer(modifier = Modifier.height(78.dp))
+            }
 
             Spacer(modifier = Modifier.height(26.dp))
 
             BottomControls(
                 pageCount = onboardingPages.size,
                 currentPage = currentPage,
-                showSkip = currentPage < 4,
+                showSkip = currentPage < 4, // Don't show skip on Auth or Setup pages
                 onPreviousClick = {
                     if (currentPage > 0) {
                         currentPage -= 1

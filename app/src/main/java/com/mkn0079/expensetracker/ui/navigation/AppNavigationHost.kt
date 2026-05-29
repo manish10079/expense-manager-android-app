@@ -107,6 +107,8 @@ fun AppNavigationHost(
     onAppLockToggleChange: (Boolean) -> Unit,
     onAutoBackupEnabledChange: (Boolean) -> Unit,
     onAutoBackupFrequencyChange: (Int) -> Unit,
+    onLinkAccountClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
@@ -288,6 +290,8 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.CategoryManagement)
                         },
+                        onLinkAccountClick = onLinkAccountClick,
+                        onLogoutClick = onLogoutClick,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)

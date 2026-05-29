@@ -127,8 +127,10 @@ fun SettingsScreen(
     onAboutClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
+    onLinkAccountClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    settingsViewModel: SettingsViewModel = viewModel()
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
@@ -159,6 +161,8 @@ fun SettingsScreen(
         onAboutClick = onAboutClick,
         onNotificationsClick = onNotificationsClick,
         onManageCategoryClick = onManageCategoryClick,
+        onLinkAccountClick = onLinkAccountClick,
+        onLogoutClick = onLogoutClick,
         onAdFreeAccessClick = {
             val activity = context as? android.app.Activity
             if (activity != null) {
@@ -188,6 +192,8 @@ private fun SettingsScreenContent(
     onAboutClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onManageCategoryClick: () -> Unit,
+    onLinkAccountClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -243,6 +249,8 @@ private fun SettingsScreenContent(
                                     SettingsActionId.Notifications -> onNotificationsClick()
                                     SettingsActionId.ManageCategories -> onManageCategoryClick()
                                     SettingsActionId.AdFreeAccess -> onAdFreeAccessClick()
+                                    SettingsActionId.LinkAccount -> onLinkAccountClick()
+                                    SettingsActionId.Logout -> onLogoutClick()
                                     else -> Unit
                                 }
                             },
@@ -306,6 +314,7 @@ private fun SettingsSection(
                 valueText = item.trailing,
                 isEnabled = true,
                 isChecked = toggleState ?: false,
+                isHighlight = item.isHighlight,
                 onCheckedChange = { isChecked ->
                     when (item.toggleId) {
                         SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
@@ -457,6 +466,8 @@ private fun SettingsScreenPreview() {
             onAboutClick = {},
             onNotificationsClick = {},
             onManageCategoryClick = {},
+            onLinkAccountClick = {},
+            onLogoutClick = {},
             onAdFreeAccessClick = {},
             onBackClick = {}
         )

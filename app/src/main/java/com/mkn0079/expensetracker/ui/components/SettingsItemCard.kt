@@ -68,6 +68,7 @@ fun SettingsItemCard(
     isEnabled: Boolean = true,
     isDanger: Boolean = false,
     isLocked: Boolean = false,
+    isHighlight: Boolean = false,
     accessLevel: AccessLevel = AccessLevel.FREE,
     isChecked: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)? = null,
@@ -87,10 +88,17 @@ fun SettingsItemCard(
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     val danger = colorScheme.error
+    
+    // Fix: Use opaque color to prevent gradient bleed through the card
     val containerColor = colorScheme.surface
-    val borderColor = colorScheme.outlineVariant.copy(
-        alpha = if (finalEnabled) 0.4f else 0.2f
-    )
+    
+    val borderColor = if (isHighlight) {
+        Color.Transparent // We use a gradient border instead
+    } else {
+        colorScheme.outlineVariant.copy(
+            alpha = if (finalEnabled) 0.4f else 0.2f
+        )
+    }
 
     val lockColor = colorScheme.featureGateLock
 
@@ -120,11 +128,19 @@ fun SettingsItemCard(
 
     Surface(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .then(
+                if (isHighlight) {
+                    Modifier.background(
+                        brush = com.mkn0079.expensetracker.ui.theme.brandGradient(),
+                        shape = containerShape
+                    ).padding(2.dp) // Simulated border - slightly thicker for better visibility
+                } else Modifier
+            ),
         shape = containerShape,
         color = containerColor,
-        border = BorderStroke(width = 1.dp, color = borderColor),
-        shadowElevation = 8.dp
+        border = if (isHighlight) null else BorderStroke(width = 1.dp, color = borderColor),
+        shadowElevation = if (isHighlight) 16.dp else 8.dp // More elevation for highlighted items
     ) {
         Row(
             modifier = Modifier
@@ -136,8 +152,8 @@ fun SettingsItemCard(
                 ) {
                     updatedOnClick?.invoke()
                 }
-                .padding(horizontal = 16.dp, vertical = 1.dp)
-                .heightIn(min = 76.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp) // Fix: Increased vertical padding to prevent internal overlap
+                .heightIn(min = 72.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(

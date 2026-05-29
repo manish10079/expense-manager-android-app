@@ -5,5 +5,6 @@ sealed class InputType {
     object Email : InputType()
     object Phone : InputType()
     object Date : InputType()
+    object Password : InputType()
 }
 

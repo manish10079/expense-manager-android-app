@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,8 +46,7 @@ fun InputFieldCard(
     isError: Boolean = false,
     errorText: String? = null,
     leadingIcon: ImageVector? = null,
-    onClick: (() -> Unit)? = null, // 👈 Added onClick for picker triggers
-    // 🔥 Future extensibility
+    onClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -61,7 +62,6 @@ fun InputFieldCard(
         alpha = if (isEnabled) 0.4f else 0.2f
     )
 
-    // 💡 If it's a date, the whole card should be clickable
     val isClickable = inputType == InputType.Date && isEnabled
 
     Surface(
@@ -83,7 +83,6 @@ fun InputFieldCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 🔵 Column 1: Leading Icon
             if (leadingIcon != null) {
                 Column(
                     modifier = Modifier.padding(end = 12.dp),
@@ -106,11 +105,9 @@ fun InputFieldCard(
                 }
             }
 
-            // 🧾 Column 2: Content (Title Row + Input Row)
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                // 🔹 Row 1: Title / Label
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = title,
@@ -121,7 +118,6 @@ fun InputFieldCard(
 
                 Spacer(Modifier.height(4.dp))
 
-                // 🔹 Row 2: Input Field
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         when (inputType) {
@@ -183,43 +179,66 @@ fun InputFieldCard(
                             }
 
                             InputType.Phone -> {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    BasicTextField(
-                                        value = value,
-                                        onValueChange = onValueChange,
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Phone
-                                        ),
-                                        textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
-                                        cursorBrush = SolidColor(primary),
-                                        modifier = Modifier.weight(1f),
-                                        decorationBox = { innerTextField ->
-                                            if (value.isEmpty() && placeholder != null) {
-                                                Text(
-                                                    text = placeholder,
-                                                    color = onSurfaceVariant.copy(alpha = 0.5f),
-                                                    fontSize = 16.sp
-                                                )
-                                            }
-                                            innerTextField()
+                                BasicTextField(
+                                    value = value,
+                                    onValueChange = onValueChange,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Phone
+                                    ),
+                                    textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
+                                    cursorBrush = SolidColor(primary),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    decorationBox = { innerTextField ->
+                                        if (value.isEmpty() && placeholder != null) {
+                                            Text(
+                                                text = placeholder,
+                                                color = onSurfaceVariant.copy(alpha = 0.5f),
+                                                fontSize = 16.sp
+                                            )
                                         }
-                                    )
-                                }
+                                        innerTextField()
+                                    }
+                                )
                             }
 
                             InputType.Date -> {
-                                // Date is often read-only or triggers a picker
                                 Text(
                                     text = if (value.isEmpty()) placeholder ?: stringResource(R.string.title_select_date) else value,
                                     color = if (value.isEmpty()) onSurfaceVariant.copy(alpha = 0.6f) else onSurface,
                                     fontSize = 16.sp
                                 )
                             }
+
+                            InputType.Password -> {
+                                BasicTextField(
+                                    value = value,
+                                    onValueChange = onValueChange,
+                                    enabled = isEnabled,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Password
+                                    ),
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    textStyle = LocalTextStyle.current.copy(
+                                        color = onSurface,
+                                        fontSize = 16.sp
+                                    ),
+                                    cursorBrush = SolidColor(primary),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    decorationBox = { innerTextField ->
+                                        if (value.isEmpty() && placeholder != null) {
+                                            Text(
+                                                text = placeholder,
+                                                color = onSurfaceVariant.copy(alpha = 0.6f)
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
 
-                // 🔻 Subtitle / Error
                 if (!subtitle.isNullOrEmpty()) {
                     Spacer(Modifier.height(4.dp))
                     Text(
@@ -239,7 +258,6 @@ fun InputFieldCard(
                 }
             }
 
-            // 👉 Trailing Slot
             if (trailingContent != null) {
                 Spacer(Modifier.width(8.dp))
                 trailingContent()

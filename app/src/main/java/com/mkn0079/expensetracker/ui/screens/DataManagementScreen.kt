@@ -57,7 +57,10 @@ fun DataManagementScreen(
     onBackClick: () -> Unit
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val mainViewModel: com.mkn0079.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
+    val isAnonymous = currentUser?.isAnonymous ?: true
 
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
@@ -292,7 +295,7 @@ fun DataManagementScreen(
                 }
                 item {
                     SettingsItemCard(
-                        title = stringResource(id = R.string.label_delete_all_data),
+                        title = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
                         subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
                         icon = Icons.Rounded.DeleteForever,
                         type = SettingsItemType.Button,
@@ -311,14 +314,14 @@ fun DataManagementScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = stringResource(id = R.string.label_delete_all_transactions),
+                    text = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = stringResource(id = R.string.label_this_removes_only_transactions),
+                    text = stringResource(id = R.string.desc_delete_data_warning),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )

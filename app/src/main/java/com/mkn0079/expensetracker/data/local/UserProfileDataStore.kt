@@ -86,4 +86,8 @@ object UserProfileDataStore {
         this[Keys.accountTier] = profile.accountTier
         profile.photoUri?.let { this[Keys.photoUri] = it } ?: remove(Keys.photoUri)
     }
+
+    suspend fun clearAll(context: Context) {
+        context.applicationContext.userProfileDataStore.edit { it.clear() }
+    }
 }

@@ -35,4 +35,10 @@ interface CategoryDao {
 
     @Query("UPDATE categories SET is_deleted = 1, updated_at = :updatedAt WHERE id = :id AND is_system = 0")
     suspend fun softDelete(id: Int, updatedAt: Long)
+
+    @Query("SELECT * FROM categories WHERE sync_state != 'SYNCED' AND sync_state != 'LOCAL_ONLY'")
+    suspend fun getUnsynced(): List<CategoryEntity>
+
+    @Query("UPDATE categories SET sync_state = :syncState WHERE id = :id")
+    suspend fun updateSyncState(id: Int, syncState: String)
 }

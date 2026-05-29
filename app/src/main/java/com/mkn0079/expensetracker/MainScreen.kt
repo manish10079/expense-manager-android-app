@@ -11,11 +11,25 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -46,10 +63,13 @@ import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
 import com.mkn0079.expensetracker.ui.navigation.rememberMainNavigationState
 import com.mkn0079.expensetracker.ui.navigation.routesKeepingTransactionsWarm
+import com.mkn0079.expensetracker.notifications.NotificationHelper
 import com.mkn0079.expensetracker.notifications.NotificationScheduler
 import com.mkn0079.expensetracker.ui.screens.OnboardingScreen
 import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
+import com.mkn0079.expensetracker.ui.screens.AuthContent
 import com.mkn0079.expensetracker.utils.toAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
@@ -84,6 +104,7 @@ private fun AppSettings.withTransactionCardCustomizationSettings(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     isReady: Boolean,
@@ -96,6 +117,7 @@ fun MainScreen(
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
     val mainViewModel: MainViewModel = viewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val activity = rawContext.findFragmentActivity()
     val biometricAuthenticator = remember(activity) {
@@ -108,6 +130,11 @@ fun MainScreen(
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
+    
+    var showAuthSheet by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     val selectedCurrencyId = appSettings.currencyId
     val amountFormatPreferences = remember(appSettings) {
         appSettings.toAmountFormatPreferences()
@@ -546,8 +573,78 @@ fun MainScreen(
                                 disableAppLock(false)
                             }
                         },
+                        onLinkAccountClick = { showAuthSheet = true },
+                        onLogoutClick = { showLogoutDialog = true },
                         onPrepareForExternalActivity = { isAppLockSuppressed = true }
                     )
+                }
+
+                if (showLogoutDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showLogoutDialog = false },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.label_logout),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.msg_logout_confirm),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showLogoutDialog = false
+                                    authViewModel.signOut()
+                                },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Text(text = stringResource(id = R.string.label_logout), fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showLogoutDialog = false }) {
+                                Text(text = stringResource(id = R.string.label_cancel))
+                            }
+                        }
+                    )
+                }
+
+                if (showAuthSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { 
+                            showAuthSheet = false
+                            authViewModel.resetState()
+                        },
+                        sheetState = authSheetState,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        dragHandle = {
+                            Box(
+                                modifier = Modifier
+                                    .padding(vertical = 12.dp)
+                                    .size(32.dp, 4.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                        RoundedCornerShape(2.dp)
+                                    )
+                            )
+                        }
+                    ) {
+                        Box(modifier = Modifier.padding(bottom = 32.dp)) {
+                            AuthContent(
+                                viewModel = authViewModel,
+                                onAuthSuccess = {
+                                    showAuthSheet = false
+                                }
+                            )
+                        }
+                    }
                 }
 
                 if (appLockFlow != null) {

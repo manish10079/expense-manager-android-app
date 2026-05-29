@@ -9,6 +9,8 @@ import com.mkn0079.expensetracker.models.CategoryType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+import com.mkn0079.expensetracker.models.SyncState
+
 class CategoryRepository(context: Context) : DomainCategoryRepository {
 
     private val dao = ExpenseTrackerDatabase.getInstance(context).categoryDao()
@@ -42,12 +44,14 @@ class CategoryRepository(context: Context) : DomainCategoryRepository {
                 sortOrder = nextId,
                 isDeleted = false,
                 createdAt = now,
-                updatedAt = now
+                updatedAt = now,
+                syncState = SyncState.PENDING_UPLOAD
             ).toEntity()
         )
     }
 
     override suspend fun deleteCustomCategory(id: Int) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
+        dao.updateSyncState(id = id, syncState = SyncState.PENDING_DELETE.name)
     }
 }

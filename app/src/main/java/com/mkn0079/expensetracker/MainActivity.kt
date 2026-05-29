@@ -38,6 +38,8 @@ import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.models.AppThemeMode
 import com.mkn0079.expensetracker.models.defaultUserProfile
 import com.mkn0079.expensetracker.notifications.NotificationHelper
+import com.mkn0079.expensetracker.ui.screens.MaintenanceScreen
+import com.mkn0079.expensetracker.ui.screens.UpdateRequiredScreen
 import com.mkn0079.expensetracker.ui.screens.SplashOverlay
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
@@ -117,6 +119,8 @@ class MainActivity : AppCompatActivity() {
         intent: Intent
     ) {
         val isReady by splashViewModel.isReady.collectAsState()
+        val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsState()
+        val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsState()
         val appLockState by appLockViewModel.state.collectAsState()
         val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsState()
         val context = LocalContext.current

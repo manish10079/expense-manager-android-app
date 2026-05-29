@@ -9,6 +9,8 @@ import com.mkn0079.expensetracker.models.PaymentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+import com.mkn0079.expensetracker.models.SyncState
+
 class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository {
 
     private val dao = ExpenseTrackerDatabase.getInstance(context).paymentMethodDao()
@@ -40,12 +42,14 @@ class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository 
                 sortOrder = nextId,
                 isDeleted = false,
                 createdAt = now,
-                updatedAt = now
+                updatedAt = now,
+                syncState = SyncState.PENDING_UPLOAD
             ).toEntity()
         )
     }
 
     override suspend fun deleteCustomPaymentMethod(id: Int) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
+        dao.updateSyncState(id = id, syncState = SyncState.PENDING_DELETE.name)
     }
 }

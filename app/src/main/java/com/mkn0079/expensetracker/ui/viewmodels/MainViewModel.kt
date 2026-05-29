@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.domain.repository.AuthRepository
 import com.mkn0079.expensetracker.domain.repository.CategoryRepository
 import com.mkn0079.expensetracker.domain.repository.DataManagementRepository
 import com.mkn0079.expensetracker.domain.repository.JsonExportResult
@@ -64,7 +65,8 @@ class MainViewModel @Inject constructor(
     private val recurringRuleRepository: RecurringRuleRepository,
     private val dataManagementRepository: DataManagementRepository,
     private val legacyImportRepository: LegacyImportRepository,
-    private val securityRepository: SecurityRepository
+    private val securityRepository: SecurityRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -72,6 +74,8 @@ class MainViewModel @Inject constructor(
     
     private val _uiEvent = MutableSharedFlow<MainUiEvent>()
     val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()
+
+    val currentUser = authRepository.currentUser
     
     private val observeTransactions = MutableStateFlow(false)
 
@@ -172,9 +176,22 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                // 1. Delete Firebase Account if logged in
+                val user = authRepository.currentUser.value
+                if (user != null) {
+                    authRepository.deleteAccount()
+                }
+
+                // 2. Wipe Local Database
                 withContext(Dispatchers.IO) {
                     transactionRepository.deleteAllTransactions()
                 }
+
+                // 3. Clear Local Preferences (DataStore)
+                com.mkn0079.expensetracker.data.local.AppSettingsDataStore.clearAll(appContext)
+                com.mkn0079.expensetracker.data.local.UserProfileDataStore.clearAll(appContext)
+                com.mkn0079.expensetracker.data.local.AppLockPreferences.clearAll(appContext)
+
                 _uiState.update {
                     it.copy(
                         transactions = emptyList(),

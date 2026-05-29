@@ -3,6 +3,7 @@ package com.mkn0079.expensetracker.ui.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.Dns
@@ -17,6 +18,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+import androidx.lifecycle.viewModelScope
+import com.mkn0079.expensetracker.domain.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
+
 @Immutable
 data class SettingsItemUi(
     val titleRes: Int,
@@ -25,7 +33,8 @@ data class SettingsItemUi(
     val trailing: String? = null,
     val actionId: SettingsActionId? = null,
     val toggleId: SettingsToggleId? = null,
-    val showChevron: Boolean = true
+    val showChevron: Boolean = true,
+    val isHighlight: Boolean = false
 )
 
 @Immutable
@@ -50,7 +59,9 @@ enum class SettingsActionId {
     About,
     Notifications,
     ManageCategories,
-    AdFreeAccess
+    AdFreeAccess,
+    LinkAccount,
+    Logout
 }
 
 @Immutable
@@ -58,13 +69,26 @@ data class SettingsScreenUiState(
     val settingsSections: List<SettingsSectionUi> = emptyList()
 )
 
-class SettingsViewModel : ViewModel() {
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private var transactionCount: Int = 0
     private var isAdsEnabled: Boolean = true
+    private var isAnonymous: Boolean = true
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
+
+    init {
+        authRepository.currentUser
+            .onEach { user ->
+                isAnonymous = user?.isAnonymous ?: true
+                rebuildUiState()
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun updateInputs(transactionCount: Int, isAdsEnabled: Boolean) {
         this.transactionCount = transactionCount
@@ -77,7 +101,8 @@ class SettingsViewModel : ViewModel() {
             it.copy(
                 settingsSections = buildSettingsSections(
                     transactionCountLabel = transactionCount.toString(),
-                    isAdsEnabled = isAdsEnabled
+                    isAdsEnabled = isAdsEnabled,
+                    isAnonymous = isAnonymous
                 )
             )
         }
@@ -86,19 +111,49 @@ class SettingsViewModel : ViewModel() {
 
 private fun buildSettingsSections(
     transactionCountLabel: String,
-    isAdsEnabled: Boolean
+    isAdsEnabled: Boolean,
+    isAnonymous: Boolean
 ): List<SettingsSectionUi> {
+    val accountItems = mutableListOf<SettingsItemUi>()
+    
+    // Add Link Account Highlight if Guest
+    if (isAnonymous) {
+        accountItems.add(
+            SettingsItemUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_protect_your_data,
+                subtitleRes = com.mkn0079.expensetracker.R.string.msg_link_account_desc,
+                icon = Icons.Rounded.Security,
+                actionId = SettingsActionId.LinkAccount,
+                isHighlight = true
+            )
+        )
+    }
+
+    accountItems.add(
+        SettingsItemUi(
+            titleRes = com.mkn0079.expensetracker.R.string.label_edit_profile,
+            subtitleRes = com.mkn0079.expensetracker.R.string.label_edit_profile_subtitle,
+            icon = Icons.Rounded.Person,
+            actionId = SettingsActionId.EditProfile
+        )
+    )
+
+    // Add Logout if NOT Anonymous
+    if (!isAnonymous) {
+        accountItems.add(
+            SettingsItemUi(
+                titleRes = com.mkn0079.expensetracker.R.string.label_logout,
+                icon = Icons.AutoMirrored.Rounded.Logout,
+                actionId = SettingsActionId.Logout,
+                showChevron = false
+            )
+        )
+    }
+
     return listOf(
         SettingsSectionUi(
             titleRes = com.mkn0079.expensetracker.R.string.title_account,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.label_edit_profile,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_edit_profile_subtitle,
-                    icon = Icons.Rounded.Person,
-                    actionId = SettingsActionId.EditProfile
-                )
-            )
+            items = accountItems
         ),
         SettingsSectionUi(
             titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,

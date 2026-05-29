@@ -175,6 +175,12 @@ interface TransactionDao {
         updatedAt: Long
     )
 
+    @Query("SELECT * FROM transactions WHERE sync_state != 'SYNCED' AND sync_state != 'LOCAL_ONLY'")
+    suspend fun getUnsynced(): List<TransactionEntity>
+
+    @Query("UPDATE transactions SET sync_state = :syncState WHERE id = :id")
+    suspend fun updateSyncState(id: String, syncState: String)
+
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
 }

@@ -20,6 +20,7 @@ fun CategoryEntity.toDomain(): CategoryType {
         isSystem = isSystem,
         sortOrder = sortOrder,
         isDeleted = isDeleted,
+        syncState = syncState,
         createdAt = createdAt,
         updatedAt = updatedAt
     )
@@ -34,6 +35,7 @@ fun CategoryType.toEntity(): CategoryEntity {
         isSystem = isSystem,
         sortOrder = sortOrder,
         isDeleted = isDeleted,
+        syncState = syncState,
         createdAt = createdAt,
         updatedAt = updatedAt
     )
@@ -47,6 +49,7 @@ fun PaymentMethodEntity.toDomain(): PaymentType {
         isSystem = isSystem,
         sortOrder = sortOrder,
         isDeleted = isDeleted,
+        syncState = syncState,
         createdAt = createdAt,
         updatedAt = updatedAt
     )
@@ -60,6 +63,7 @@ fun PaymentType.toEntity(): PaymentMethodEntity {
         isSystem = isSystem,
         sortOrder = sortOrder,
         isDeleted = isDeleted,
+        syncState = syncState,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

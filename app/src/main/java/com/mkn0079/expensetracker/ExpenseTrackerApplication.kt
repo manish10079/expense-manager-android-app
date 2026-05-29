@@ -37,6 +37,9 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Schedule Recurring Transactions processing
         RecurringTransactionWorker.scheduleNext(this)
 
+        // Schedule Periodic Cloud Sync
+        com.mkn0079.expensetracker.workers.SyncWorker.schedule(this)
+
         // Register App Lifecycle Observer for security lock
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
     }

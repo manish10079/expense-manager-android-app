@@ -27,7 +27,7 @@ import java.io.File
         BudgetEntity::class,
         RecurringRuleEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -52,8 +52,17 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add sync_state to categories
+                db.execSQL("ALTER TABLE categories ADD COLUMN sync_state TEXT NOT NULL DEFAULT 'LOCAL_ONLY'")
+                // Add sync_state to payment_methods
+                db.execSQL("ALTER TABLE payment_methods ADD COLUMN sync_state TEXT NOT NULL DEFAULT 'LOCAL_ONLY'")
             }
         }
 
