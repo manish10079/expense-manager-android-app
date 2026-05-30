@@ -28,6 +28,8 @@ import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.viewmodels.AuthState
 import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
 
+import androidx.compose.ui.graphics.ColorFilter
+
 @Composable
 fun AuthContent(
     viewModel: AuthViewModel,
@@ -96,7 +98,8 @@ fun AuthContent(
                     Image(
                         painter = painterResource(id = R.drawable.ic_google_logo),
                         contentDescription = "Google",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                     )
                 }
             }
