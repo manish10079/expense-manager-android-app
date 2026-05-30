@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -135,6 +136,7 @@ fun SettingsScreen(
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(

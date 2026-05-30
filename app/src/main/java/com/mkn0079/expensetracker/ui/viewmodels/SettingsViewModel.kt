@@ -210,98 +210,108 @@ private fun buildSettingsSections(
         )
     }
 
-    return listOf(
+    val settingsSections = mutableListOf<SettingsSectionUi>()
+    
+    settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mkn0079.expensetracker.R.string.title_account,
             items = accountItems
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.label_remove_all_ads,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
-                    icon = Icons.Rounded.CreditCard,
-                    actionId = SettingsActionId.AdFreeAccess,
-                    trailing = when {
-                        userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM -> "PREMIUM"
-                        !isAdsEnabled && adFreeRemainingTime != null -> adFreeRemainingTime
-                        !isAdsEnabled -> "ACTIVE"
-                        else -> "WATCH NOW"
-                    },
-                    showChevron = false
+        )
+    )
+
+    // Only show Monetization section for Free users
+    if (userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM) {
+        settingsSections.add(
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.label_remove_all_ads,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                        icon = Icons.Rounded.CreditCard,
+                        actionId = SettingsActionId.AdFreeAccess,
+                        trailing = if (!isAdsEnabled && adFreeRemainingTime != null) adFreeRemainingTime else null,
+                        showChevron = false
+                    )
                 )
             )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_preference,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
-                    icon = Icons.Rounded.SettingsSuggest,
-                    actionId = SettingsActionId.AppPreferences
-                ),
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
-                    icon = Icons.Rounded.Tune,
-                    actionId = SettingsActionId.TransactionCardCustomize
-                ),
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_manage_category,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_manage_category_subtitle,
-                    icon = Icons.Rounded.Category,
-                    actionId = SettingsActionId.ManageCategories
+        )
+    }
+
+    settingsSections.addAll(
+        listOf(
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_preference,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
+                        icon = Icons.Rounded.SettingsSuggest,
+                        actionId = SettingsActionId.AppPreferences
+                    ),
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
+                        icon = Icons.Rounded.Tune,
+                        actionId = SettingsActionId.TransactionCardCustomize
+                    ),
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_manage_category,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_manage_category_subtitle,
+                        icon = Icons.Rounded.Category,
+                        actionId = SettingsActionId.ManageCategories
+                    )
                 )
-            )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy_1,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_security_privacy_subtitle,
-                    icon = Icons.Rounded.Security,
-                    actionId = SettingsActionId.SecurityPrivacy
+            ),
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy_1,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_security_privacy_subtitle,
+                        icon = Icons.Rounded.Security,
+                        actionId = SettingsActionId.SecurityPrivacy
+                    )
                 )
-            )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_database,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
-                    icon = Icons.Rounded.Dns,
-                    actionId = SettingsActionId.DataManagement,
-                    showChevron = true
+            ),
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_database,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
+                        icon = Icons.Rounded.Dns,
+                        actionId = SettingsActionId.DataManagement,
+                        showChevron = true
+                    )
                 )
-            )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_notifications,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_notifications_1,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_notifications_subtitle,
-                    icon = Icons.Rounded.NotificationAdd,
-                    actionId = SettingsActionId.Notifications
+            ),
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_notifications,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_notifications_1,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_notifications_subtitle,
+                        icon = Icons.Rounded.NotificationAdd,
+                        actionId = SettingsActionId.Notifications
+                    )
                 )
-            )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.title_about,
-                    subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
-                    icon = Icons.Rounded.Info,
-                    actionId = SettingsActionId.About
+            ),
+            SettingsSectionUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = com.mkn0079.expensetracker.R.string.title_about,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
+                        icon = Icons.Rounded.Info,
+                        actionId = SettingsActionId.About
+                    )
                 )
             )
         )
     )
+    
+    return settingsSections
 }
 
 fun formatAutoLockDurationLabel(minutes: Int): String {

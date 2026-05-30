@@ -222,7 +222,7 @@
     <string name="title_customize_caps">CUSTOMIZE</string>
     <string name="title_monetization_caps">MONETIZATION</string>
     <string name="label_remove_all_ads">Remove All Ads</string>
-    <string name="msg_watch_ad_for_ad_free">Watch a short video to hide all ads for 1 hour.</string>
+    <string name="msg_watch_ad_for_ad_free">Unlock pro-level features for 1 hour by watching a short ad.</string>
     <string name="label_ad_free_active">Ad-Free Access Active</string>
     <string name="msg_ad_free_duration_remaining">Enjoy an uninterrupted experience.</string>
     <string name="label_active_caps">ACTIVE</string>
@@ -1223,4 +1223,6 @@
     <string name="msg_ad_expiry_warning">Your ad-free convenience pass will expire in %1$d minutes. Watch another ad now to keep your settings for another hour?</string>
     <string name="btn_extend_now">Extend Now</string>
     <string name="btn_remind_later">Remind Later</string>
+    <string name="msg_preparing_pro_experience">Preparing your pro-level experience…</string>
+    <string name="msg_wont_take_long">This won’t take long</string>
 </resources>

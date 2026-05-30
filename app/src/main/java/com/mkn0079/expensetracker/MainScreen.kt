@@ -12,15 +12,19 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -36,8 +40,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -128,6 +134,7 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     val monetizationViewModel: MonetizationViewModel = viewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
@@ -397,7 +404,7 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .blur(if (shouldBlurForAppLock) 24.dp else 0.dp)
+                        .blur(if (shouldBlurForAppLock || isAdLoading) 24.dp else 0.dp)
                 ) {
                     MainScaffold(
                         currentRoute = navigationState.currentRoute,
@@ -634,14 +641,14 @@ fun MainScreen(
                         containerColor = MaterialTheme.colorScheme.surface,
                         title = {
                             Text(
-                                text = "15 Minutes Remaining",
+                                text = stringResource(id = R.string.title_ad_expiry_warning),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                             )
                         },
                         text = {
                             Text(
-                                text = "Your ad-free convenience pass will expire in $adExpiryMinutesRemaining minutes. Would you like to watch another ad now to extend it for another hour?",
+                                text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.bodyMedium
                             )
@@ -656,12 +663,12 @@ fun MainScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text("Extend Now")
+                                Text(stringResource(id = R.string.btn_extend_now))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showAdExpiryWarningDialog = false }) {
-                                Text("Remind me later")
+                                Text(stringResource(id = R.string.btn_remind_later))
                             }
                         }
                     )
@@ -699,45 +706,6 @@ fun MainScreen(
                         dismissButton = {
                             TextButton(onClick = { showLogoutDialog = false }) {
                                 Text(text = stringResource(id = R.string.label_cancel))
-                            }
-                        }
-                    )
-                }
-
-                if (showAdExpiryWarningDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showAdExpiryWarningDialog = false },
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.title_ad_expiry_warning),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    showAdExpiryWarningDialog = false
-                                    if (activity != null) {
-                                        monetizationViewModel.onWatchAdFreeClicked(activity)
-                                    }
-                                },
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(stringResource(id = R.string.btn_extend_now))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showAdExpiryWarningDialog = false }) {
-                                Text(stringResource(id = R.string.btn_remind_later))
                             }
                         }
                     )
@@ -815,6 +783,38 @@ fun MainScreen(
                             AppLockPreferences.validateSecurityAnswer(context, answer)
                         }
                     )
+                }
+
+                if (isAdLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.6f))
+                            .clickable(enabled = false) {},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(56.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 4.dp
+                            )
+                            Spacer(Modifier.height(20.dp))
+                            Text(
+                                text = stringResource(id = R.string.msg_preparing_pro_experience),
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 32.dp)
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.msg_wont_take_long),
+                                color = Color.White.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -250,10 +250,12 @@ fun SettingsItemCard(
 
                     SettingsItemType.Value -> {
                         if (!valueText.isNullOrEmpty()) {
+                            val isTimer = valueText.contains(":")
                             Text(
                                 text = valueText,
-                                color = onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyMedium
+                                color = if (isTimer) primary else onSurfaceVariant,
+                                style = if (isTimer) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                       else MaterialTheme.typography.bodyMedium
                             )
                         }
                     }

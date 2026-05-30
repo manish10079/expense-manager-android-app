@@ -13,8 +13,10 @@ import com.mkn0079.expensetracker.monetization.RewardedPlacement
 import com.mkn0079.expensetracker.monetization.InterstitialPlacement
 import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,8 +41,10 @@ class MonetizationViewModel @Inject constructor(
             initialValue = false
         )
 
-    // Cache flows to prevent recreation and flickering on recomposition
+    private val _isAdLoading = MutableStateFlow(false)
+    val isAdLoading: StateFlow<Boolean> = _isAdLoading.asStateFlow()
 
+    // Cache flows to prevent recreation and flickering on recomposition
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
 
     /**
@@ -78,6 +82,7 @@ class MonetizationViewModel @Inject constructor(
 
     /**
      * Shows a rewarded ad and grants temporary access upon completion.
+     * Includes a 5-second grace period: if ad isn't ready in 5s, access is granted for free.
      */
     fun onAdWatched(activity: Activity, feature: Feature, optionId: String? = null) {
         val placement = if (feature == Feature.AD_FREE_GLOBAL) {
@@ -86,26 +91,52 @@ class MonetizationViewModel @Inject constructor(
             RewardedPlacement.FEATURE_UNLOCK
         }
 
-        if (adsCoordinator.isRewardedAdReady(placement)) {
-            adsCoordinator.showRewardedAd(activity, placement) {
-                viewModelScope.launch {
-                    grantTemporaryAccessUseCase.execute(
-                        feature = feature,
-                        optionId = optionId,
-                        durationMillis = 1 * 60 * 60 * 1000
-                    )
+        viewModelScope.launch {
+            if (adsCoordinator.isRewardedAdReady(placement)) {
+                showAdAndGrantAccess(activity, placement, feature, optionId)
+            } else {
+                _isAdLoading.value = true
+                
+                // Try to load and wait for up to 5 seconds
+                var adLoaded = false
+                val loadJob = launch {
+                    adsCoordinator.loadRewardedAd(placement) {
+                        adLoaded = true
+                    }
+                    
+                    // Poll for readiness every 100ms
+                    for (i in 1..50) { 
+                        if (adLoaded || adsCoordinator.isRewardedAdReady(placement)) break
+                        kotlinx.coroutines.delay(100)
+                    }
+                }
+                
+                loadJob.join()
+                _isAdLoading.value = false
+
+                if (adLoaded || adsCoordinator.isRewardedAdReady(placement)) {
+                    showAdAndGrantAccess(activity, placement, feature, optionId)
+                } else {
+                    // Grace period over: Grant for free
+                    grantAccess(feature, optionId)
                 }
             }
-        } else {
-            // If ad is not ready, load it and grant access for now so user isn't blocked during testing
-            adsCoordinator.loadRewardedAd(placement)
-            viewModelScope.launch {
-                grantTemporaryAccessUseCase.execute(
-                    feature = feature,
-                    optionId = optionId,
-                    durationMillis = 1 * 60 * 60 * 1000
-                )
-            }
+        }
+    }
+
+    private fun showAdAndGrantAccess(activity: Activity, placement: RewardedPlacement, feature: Feature, optionId: String?) {
+        adsCoordinator.showRewardedAd(activity, placement) {
+            grantAccess(feature, optionId)
+        }
+    }
+
+    private fun grantAccess(feature: Feature, optionId: String?) {
+        viewModelScope.launch {
+            grantTemporaryAccessUseCase.execute(
+                feature = feature,
+                optionId = optionId,
+                durationMillis = 1 * 60 * 60 * 1000
+            )
         }
     }
 
