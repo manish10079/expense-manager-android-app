@@ -3,10 +3,12 @@ package com.mkn0079.expensetracker.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
@@ -32,9 +34,26 @@ fun AuthContent(
     onAuthSuccess: () -> Unit
 ) {
     val authState by viewModel.authState.collectAsState()
+    val cooldownSeconds by viewModel.cooldownSeconds.collectAsState()
     var isSignUp by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val isEmailValid = remember(email) {
+        android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    val passwordErrors = remember(password, isSignUp) {
+        if (!isSignUp || password.isEmpty()) return@remember emptyList<String>()
+        val errors = mutableListOf<String>()
+        if (password.length < 8) errors.add("At least 8 characters")
+        if (!password.any { it.isDigit() }) errors.add("At least 1 number")
+        if (!password.any { !it.isLetterOrDigit() }) errors.add("At least 1 special character")
+        errors
+    }
+
+    val isPasswordStrong = passwordErrors.isEmpty()
+    val canSubmit = email.isNotEmpty() && isEmailValid && password.isNotEmpty() && (isPasswordStrong || !isSignUp)
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -65,7 +84,7 @@ fun AuthContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                if (authState is AuthState.Loading && !isSignUp) {
+                if (authState is AuthState.Loading && !isSignUp && email.isEmpty()) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else {
                     Text(
@@ -79,6 +98,48 @@ fun AuthContent(
                         contentDescription = "Google",
                         modifier = Modifier.size(24.dp)
                     )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Magic Link Button (Passwordless)
+        if (!isSignUp) {
+            Button(
+                onClick = { 
+                    if (cooldownSeconds == 0) {
+                        viewModel.sendMagicLink(email)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = email.isNotEmpty() && isEmailValid && authState !is AuthState.Loading && cooldownSeconds == 0,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (authState is AuthState.Loading && !isSignUp && email.isNotEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onSecondary)
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = if (cooldownSeconds > 0) "Resend in ${cooldownSeconds}s" else stringResource(id = R.string.label_send_magic_link),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                 }
             }
         }
@@ -107,7 +168,9 @@ fun AuthContent(
             onValueChange = { email = it },
             inputType = InputType.Text,
             leadingIcon = Icons.Filled.Email,
-            placeholder = "name@example.com"
+            placeholder = "name@example.com",
+            isError = email.isNotEmpty() && !isEmailValid,
+            errorText = if (email.isNotEmpty() && !isEmailValid) "Please enter a valid email address" else null
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -118,18 +181,65 @@ fun AuthContent(
             onValueChange = { password = it },
             inputType = InputType.Password,
             leadingIcon = Icons.Filled.Lock,
-            placeholder = "••••••••"
+            placeholder = "••••••••",
+            isError = isSignUp && password.isNotEmpty() && !isPasswordStrong,
+            errorText = if (isSignUp && passwordErrors.isNotEmpty()) "Required: ${passwordErrors.joinToString(", ")}" else null
         )
+
+        if (!isSignUp) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = "Forgot Password?",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(enabled = email.isNotEmpty() && isEmailValid) {
+                        viewModel.sendPasswordResetEmail(email)
+                    }
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (authState is AuthState.ResetEmailSent) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.msg_auth_reset_email_sent),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
+        if (authState is AuthState.MagicLinkSent) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.msg_auth_magic_link_sent),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
         if (authState is AuthState.Error) {
             val error = authState as AuthState.Error
-            val errorMessage = when {
-                error.isNetworkError -> stringResource(R.string.error_no_internet)
-                error.message.contains("No Google accounts", ignoreCase = true) -> stringResource(R.string.error_no_google_accounts)
-                else -> error.message
-            }
             
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
@@ -137,7 +247,7 @@ fun AuthContent(
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Text(
-                    text = errorMessage,
+                    text = stringResource(id = error.messageRes),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
@@ -158,7 +268,7 @@ fun AuthContent(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            enabled = email.isNotEmpty() && password.isNotEmpty() && authState !is AuthState.Loading
+            enabled = canSubmit && authState !is AuthState.Loading
         ) {
             if (authState is AuthState.Loading && isSignUp) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
@@ -172,7 +282,10 @@ fun AuthContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = { isSignUp = !isSignUp }) {
+        TextButton(onClick = { 
+            isSignUp = !isSignUp 
+            viewModel.resetState()
+        }) {
             Text(
                 text = if (isSignUp) stringResource(id = R.string.label_already_have_account) else stringResource(id = R.string.label_no_account_signup),
                 style = MaterialTheme.typography.bodyMedium,

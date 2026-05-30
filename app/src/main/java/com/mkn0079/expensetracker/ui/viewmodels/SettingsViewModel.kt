@@ -5,12 +5,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationAdd
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material.icons.rounded.Tune
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +36,8 @@ data class SettingsItemUi(
     val actionId: SettingsActionId? = null,
     val toggleId: SettingsToggleId? = null,
     val showChevron: Boolean = true,
-    val isHighlight: Boolean = false
+    val isHighlight: Boolean = false,
+    val isLocked: Boolean = false
 )
 
 @Immutable
@@ -61,6 +64,7 @@ enum class SettingsActionId {
     ManageCategories,
     AdFreeAccess,
     LinkAccount,
+    ConnectedDevices,
     Logout
 }
 
@@ -77,6 +81,7 @@ class SettingsViewModel @Inject constructor(
     private var transactionCount: Int = 0
     private var isAdsEnabled: Boolean = true
     private var isAnonymous: Boolean = true
+    private var userTier: com.mkn0079.expensetracker.models.UserTier = com.mkn0079.expensetracker.models.UserTier.FREE
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
@@ -90,9 +95,14 @@ class SettingsViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun updateInputs(transactionCount: Int, isAdsEnabled: Boolean) {
+    fun updateInputs(
+        transactionCount: Int, 
+        isAdsEnabled: Boolean,
+        userTier: com.mkn0079.expensetracker.models.UserTier
+    ) {
         this.transactionCount = transactionCount
         this.isAdsEnabled = isAdsEnabled
+        this.userTier = userTier
         rebuildUiState()
     }
 
@@ -102,7 +112,8 @@ class SettingsViewModel @Inject constructor(
                 settingsSections = buildSettingsSections(
                     transactionCountLabel = transactionCount.toString(),
                     isAdsEnabled = isAdsEnabled,
-                    isAnonymous = isAnonymous
+                    isAnonymous = isAnonymous,
+                    userTier = userTier
                 )
             )
         }
@@ -112,7 +123,8 @@ class SettingsViewModel @Inject constructor(
 private fun buildSettingsSections(
     transactionCountLabel: String,
     isAdsEnabled: Boolean,
-    isAnonymous: Boolean
+    isAnonymous: Boolean,
+    userTier: com.mkn0079.expensetracker.models.UserTier
 ): List<SettingsSectionUi> {
     val accountItems = mutableListOf<SettingsItemUi>()
     
@@ -138,6 +150,21 @@ private fun buildSettingsSections(
         )
     )
 
+    // Add Cloud Sync & Devices (Locked for Free, Active for Premium) - Only for Authenticated
+    if (!isAnonymous) {
+        accountItems.add(
+            SettingsItemUi(
+                titleRes = com.mkn0079.expensetracker.R.string.title_cloud_sync_devices,
+                subtitleRes = if (userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM) 
+                    com.mkn0079.expensetracker.R.string.desc_sync_active_subtitle 
+                else com.mkn0079.expensetracker.R.string.desc_sync_premium_subtitle,
+                icon = Icons.Rounded.CloudSync,
+                actionId = SettingsActionId.ConnectedDevices,
+                isLocked = userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM
+            )
+        )
+    }
+
     // Add Logout if NOT Anonymous
     if (!isAnonymous) {
         accountItems.add(
@@ -160,18 +187,12 @@ private fun buildSettingsSections(
             titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
             items = listOf(
                 SettingsItemUi(
-                    titleRes = if (isAdsEnabled) {
-                        com.mkn0079.expensetracker.R.string.label_remove_all_ads
-                    } else {
-                        com.mkn0079.expensetracker.R.string.label_ad_free_active
-                    },
-                    subtitleRes = if (isAdsEnabled) {
-                        com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free
-                    } else {
-                        com.mkn0079.expensetracker.R.string.msg_ad_free_duration_remaining
-                    },
-                    icon = Icons.Rounded.Person,
-                    actionId = if (isAdsEnabled) SettingsActionId.AdFreeAccess else null
+                    titleRes = com.mkn0079.expensetracker.R.string.label_remove_all_ads,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                    icon = Icons.Rounded.CreditCard,
+                    actionId = SettingsActionId.AdFreeAccess,
+                    trailing = if (!isAdsEnabled) "ACTIVE" else "WATCH NOW",
+                    showChevron = false
                 )
             )
         ),
@@ -181,18 +202,13 @@ private fun buildSettingsSections(
                 SettingsItemUi(
                     titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
-                    icon = Icons.Rounded.Tune,
+                    icon = Icons.Rounded.SettingsSuggest,
                     actionId = SettingsActionId.AppPreferences
-                )
-            )
-        ),
-        SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_customize_caps,
-            items = listOf(
+                ),
                 SettingsItemUi(
                     titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
-                    icon = Icons.Rounded.CreditCard,
+                    icon = Icons.Rounded.Tune,
                     actionId = SettingsActionId.TransactionCardCustomize
                 ),
                 SettingsItemUi(
@@ -215,14 +231,14 @@ private fun buildSettingsSections(
             )
         ),
         SettingsSectionUi(
-            titleRes = com.mkn0079.expensetracker.R.string.title_data_management_1,
+            titleRes = com.mkn0079.expensetracker.R.string.title_database,
             items = listOf(
                 SettingsItemUi(
                     titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
                     icon = Icons.Rounded.Dns,
                     actionId = SettingsActionId.DataManagement,
-                    trailing = transactionCountLabel
+                    showChevron = true
                 )
             )
         ),
@@ -241,7 +257,7 @@ private fun buildSettingsSections(
             titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
             items = listOf(
                 SettingsItemUi(
-                    titleRes = com.mkn0079.expensetracker.R.string.label_about,
+                    titleRes = com.mkn0079.expensetracker.R.string.title_about,
                     subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
                     icon = Icons.Rounded.Info,
                     actionId = SettingsActionId.About

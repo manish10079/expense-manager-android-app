@@ -64,7 +64,7 @@ class SyncRepositoryImpl @Inject constructor(
             // 2. If this device is already registered, just update last active
             if (existingDevices.contains(androidId)) {
                 devicesCollection.document(androidId).update("lastActiveMillis", System.currentTimeMillis()).await()
-                refreshDeviceList(uid)
+                refreshDevices()
                 return Result.success(Unit)
             }
             
@@ -81,7 +81,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "lastActiveMillis" to System.currentTimeMillis()
             )
             devicesCollection.document(androidId).set(deviceData).await()
-            refreshDeviceList(uid)
+            refreshDevices()
             
             return Result.success(Unit)
         } catch (e: Exception) {
@@ -95,7 +95,28 @@ class SyncRepositoryImpl @Inject constructor(
             firestore.collection("users").document(uid)
                 .collection("devices").document(deviceId)
                 .delete().await()
-            refreshDeviceList(uid)
+            refreshDevices()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun refreshDevices(): Result<Unit> {
+        val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
+        return try {
+            val snapshot = firestore.collection("users").document(uid)
+                .collection("devices").get().await()
+            
+            val devices = snapshot.documents.map { doc ->
+                RegisteredDevice(
+                    id = doc.id,
+                    modelName = doc.getString("modelName") ?: "Unknown Device",
+                    lastActiveMillis = doc.getLong("lastActiveMillis") ?: 0L,
+                    isCurrentDevice = doc.id == androidId
+                )
+            }
+            _registeredDevices.value = devices
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -255,25 +276,6 @@ class SyncRepositoryImpl @Inject constructor(
                     recurringRuleDao.upsert(it.copy(syncState = SyncState.SYNCED))
                 }
             }
-        }
-    }
-
-    private suspend fun refreshDeviceList(uid: String) {
-        try {
-            val snapshot = firestore.collection("users").document(uid)
-                .collection("devices").get().await()
-            
-            val devices = snapshot.documents.map { doc ->
-                RegisteredDevice(
-                    id = doc.id,
-                    modelName = doc.getString("modelName") ?: "Unknown Device",
-                    lastActiveMillis = doc.getLong("lastActiveMillis") ?: 0L,
-                    isCurrentDevice = doc.id == androidId
-                )
-            }
-            _registeredDevices.value = devices
-        } catch (e: Exception) {
-            // Log error
         }
     }
 }

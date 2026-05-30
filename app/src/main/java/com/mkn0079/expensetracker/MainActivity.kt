@@ -56,8 +56,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 import androidx.activity.SystemBarStyle
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 import com.mkn0079.expensetracker.monetization.AdsCoordinator
+import com.mkn0079.expensetracker.domain.repository.AuthRepository
+import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -66,8 +70,15 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var adsCoordinator: AdsCoordinator
 
+    @Inject
+    lateinit var authRepository: AuthRepository
+
     private val splashViewModel: SplashViewModel by viewModels()
     private val appLockViewModel: AppLockViewModel by viewModels()
+    
+    // AuthViewModel is provided at the Composable level to avoid activity scope leaks,
+    // but we can use it to handle incoming intents.
+    private var currentIntent by mutableStateOf<Intent?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Task 2: Apply Theme BEFORE super.onCreate()
@@ -81,8 +92,6 @@ class MainActivity : AppCompatActivity() {
 
         val splashScreen = installSplashScreen()
         
-        // Keep the system splash screen visible until our custom splash screen is ready to take over.
-        // This prevents the "flicker" or "blank frame" during the hand-off.
         splashScreen.setKeepOnScreenCondition {
             splashViewModel.currentTask.value == InitTask.Start
         }
@@ -99,6 +108,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         super.onCreate(savedInstanceState)
+        
+        currentIntent = intent
 
         // Initialize AdMob with Privacy Flow (UMP)
         adsCoordinator.initPrivacyFlow(this) {
@@ -108,15 +119,20 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            AppRoot(splashViewModel, appLockViewModel, intent)
+            AppRoot(splashViewModel, appLockViewModel, currentIntent)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        currentIntent = intent
     }
 
     @Composable
     private fun AppRoot(
         splashViewModel: SplashViewModel,
         appLockViewModel: AppLockViewModel,
-        intent: Intent
+        intent: Intent?
     ) {
         val isReady by splashViewModel.isReady.collectAsState()
         val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsState()
@@ -126,7 +142,20 @@ class MainActivity : AppCompatActivity() {
         val context = LocalContext.current
         val activity = context.findFragmentActivity()
         
-        val initialNavDestination = intent.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
+        // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
+        val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+        
+        val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
+
+        // Handle Magic Link Intent
+        LaunchedEffect(intent) {
+            intent?.data?.let { data ->
+                val link = data.toString()
+                if (authRepository.isSignInWithEmailLink(link)) {
+                    authViewModel.completeMagicLinkSignIn(link)
+                }
+            }
+        }
 
         val appSettings by AppSettingsDataStore
             .getAppSettingsFlow(context)
@@ -136,8 +165,6 @@ class MainActivity : AppCompatActivity() {
             .collectAsState(initial = defaultUserProfile)
             
         val systemDarkTheme = isSystemInDarkTheme()
-        
-        // Use synchronous preference for initial state to match AppCompatDelegate
         val syncTheme = remember { ThemePreferenceSync.getTheme(context) }
         
         val darkTheme = if (appSettings == null) {
@@ -171,12 +198,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
-            // Task 6: Draw Behind System Bars
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
             ) {
-                // Apply privacy settings whenever settings are available
                 appSettings?.let { settings ->
                     LaunchedEffect(
                         settings.blurInRecentsEnabled,
@@ -196,7 +221,6 @@ class MainActivity : AppCompatActivity() {
                             targetState = appLockState,
                             transitionSpec = {
                                 if (targetState is AppLockState.Unlocked) {
-                                    // Unlock transition: Scale and Fade (Premium Feel)
                                     (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
                                         scaleIn(
                                             initialScale = 0.92f,
@@ -210,7 +234,6 @@ class MainActivity : AppCompatActivity() {
                                                 )
                                         )
                                 } else {
-                                    // Default transitions (Locking or Loading)
                                     fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
                                         animationSpec = tween(300)
                                     )
@@ -221,7 +244,6 @@ class MainActivity : AppCompatActivity() {
                         ) { state ->
                             when (state) {
                                 is AppLockState.Loading -> {
-                                    // Fail-Secure: Show black screen while determining lock state
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
@@ -265,7 +287,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    // Splash Screen stays on top until boot work is complete.
                     if (!isReady) {
                         SplashOverlay(viewModel = splashViewModel)
                     }

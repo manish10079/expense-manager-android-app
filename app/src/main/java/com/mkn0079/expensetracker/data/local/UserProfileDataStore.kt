@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 
 private const val USER_PROFILE_DATASTORE_NAME = "user_profile"
 
-private val Context.userProfileDataStore: DataStore<Preferences> by preferencesDataStore(
+val Context.userProfileDataStore: DataStore<Preferences> by preferencesDataStore(
     name = USER_PROFILE_DATASTORE_NAME
 )
 

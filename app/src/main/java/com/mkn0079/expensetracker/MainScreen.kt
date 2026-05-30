@@ -413,6 +413,7 @@ fun MainScreen(
                         autoLockDurationMinutes = autoLockDurationMinutes,
                         isAutoBackupEnabled = isAutoBackupEnabled,
                         autoBackupFrequencyDays = autoBackupFrequencyDays,
+                        userTier = appSettings.userTier,
                         onRouteChange = navigationState::navigateTo,
                         onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
                         onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,

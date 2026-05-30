@@ -34,6 +34,7 @@ import com.mkn0079.expensetracker.ui.screens.ItemizedCalculatorScreen
 import com.mkn0079.expensetracker.ui.screens.NotificationSettingsScreen
 import com.mkn0079.expensetracker.ui.screens.PreferencesScreen
 import com.mkn0079.expensetracker.ui.screens.ProfileScreen
+import com.mkn0079.expensetracker.ui.screens.ConnectedDevicesScreen
 import com.mkn0079.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mkn0079.expensetracker.ui.screens.SettingsScreen
 import com.mkn0079.expensetracker.ui.screens.TransactionCardCustomizeScreen
@@ -73,6 +74,7 @@ fun AppNavigationHost(
     autoLockDurationMinutes: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
+    userTier: com.mkn0079.expensetracker.models.UserTier,
     onRouteChange: (AppRoute) -> Unit,
     onProfileOriginRouteChange: (AppRoute) -> Unit,
     onBottomBarVisibilityChange: (Boolean) -> Unit,
@@ -250,6 +252,7 @@ fun AppNavigationHost(
                 AppRoute.Settings -> {
                     SettingsScreen(
                         userProfile = userProfile,
+                        userTier = userTier,
                         isDailyReminderEnabled = isDailyReminderEnabled,
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
@@ -295,6 +298,22 @@ fun AppNavigationHost(
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
+                        }
+                    )
+                }
+
+                AppRoute.ConnectedDevices -> {
+                    ConnectedDevicesScreen(
+                        userTier = userTier,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Settings)
+                        },
+                        onUpgradeClick = {
+                            // This will trigger the AdFreeAccess flow which doubles as our current 'Premium' upsell
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Settings)
+                            // We trigger the AdFree flow in the next turn via SettingsActionId handling
                         }
                     )
                 }
@@ -523,7 +542,3 @@ fun AppNavigationHost(
     }
 }
 }
-
-
-
-

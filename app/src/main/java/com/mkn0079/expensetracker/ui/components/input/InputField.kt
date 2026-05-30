@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -63,6 +65,7 @@ fun InputFieldCard(
     )
 
     val isClickable = inputType == InputType.Date && isEnabled
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier
@@ -217,7 +220,7 @@ fun InputFieldCard(
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Password
                                     ),
-                                    visualTransformation = PasswordVisualTransformation(),
+                                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                                     textStyle = LocalTextStyle.current.copy(
                                         color = onSurface,
                                         fontSize = 16.sp
@@ -261,6 +264,14 @@ fun InputFieldCard(
             if (trailingContent != null) {
                 Spacer(Modifier.width(8.dp))
                 trailingContent()
+            } else if (inputType == InputType.Password) {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        imageVector = if (isPasswordVisible) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff,
+                        contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                        tint = onSurfaceVariant
+                    )
+                }
             }
         }
     }

@@ -41,6 +41,7 @@ const val DEFAULT_AUTO_BACKUP_ENABLED = false
 const val DEFAULT_AUTO_BACKUP_FREQUENCY_DAYS = 7
 const val DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS = 0L
 const val DEFAULT_LAST_SYNC_TIME_MILLIS = 0L
+val DEFAULT_PENDING_AUTH_EMAIL: String? = null
 val DEFAULT_USER_TIER = com.mkn0079.expensetracker.models.UserTier.FREE
 
 val defaultAppSettings = AppSettings(
@@ -79,5 +80,6 @@ val defaultAppSettings = AppSettings(
     autoBackupFrequencyDays = DEFAULT_AUTO_BACKUP_FREQUENCY_DAYS,
     lastAutoBackupTimeMillis = DEFAULT_LAST_AUTO_BACKUP_TIME_MILLIS,
     lastSyncTimeMillis = DEFAULT_LAST_SYNC_TIME_MILLIS,
+    pendingAuthEmail = DEFAULT_PENDING_AUTH_EMAIL,
     userTier = DEFAULT_USER_TIER
 )

@@ -3,9 +3,12 @@ package com.mkn0079.expensetracker.workers
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
+import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.domain.repository.SyncRepository
+import com.mkn0079.expensetracker.models.UserTier
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -16,7 +19,13 @@ class SyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        // 1. Handshake (Register/Check Device Limit)
+        // 1. Check Tier - Only Premium users get Cloud Sync
+        val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
+        if (settings.userTier != UserTier.PREMIUM) {
+            return Result.success() // Silent skip for free users
+        }
+
+        // 2. Handshake (Register/Check Device Limit)
         val handshakeResult = syncRepository.registerCurrentDevice()
         
         if (handshakeResult.isFailure) {
@@ -28,7 +37,7 @@ class SyncWorker @AssistedInject constructor(
             }
         }
 
-        // 2. Perform actual data sync
+        // 3. Perform actual data sync
         val syncResult = syncRepository.syncTransactions()
         
         return if (syncResult.isSuccess) {

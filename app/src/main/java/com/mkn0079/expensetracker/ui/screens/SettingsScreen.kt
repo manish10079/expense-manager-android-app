@@ -112,6 +112,7 @@ import com.mkn0079.expensetracker.monetization.AccessStatus
 @Composable
 fun SettingsScreen(
     userProfile: UserProfile = defaultUserProfile,
+    userTier: com.mkn0079.expensetracker.models.UserTier = com.mkn0079.expensetracker.models.UserTier.FREE,
     isDailyReminderEnabled: Boolean = DEFAULT_NOTIFICATIONS_ENABLED,
     isBudgetLimitAlertsEnabled: Boolean = DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED,
     isMissedEntryReminderEnabled: Boolean = DEFAULT_MISSED_ENTRY_REMINDER_ENABLED,
@@ -137,9 +138,13 @@ fun SettingsScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(
-        transactionCount, isAdsEnabled
+        transactionCount, isAdsEnabled, userTier
     ) {
-        settingsViewModel.updateInputs(transactionCount = transactionCount, isAdsEnabled = isAdsEnabled)
+        settingsViewModel.updateInputs(
+            transactionCount = transactionCount, 
+            isAdsEnabled = isAdsEnabled,
+            userTier = userTier
+        )
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -315,6 +320,7 @@ private fun SettingsSection(
                 isEnabled = true,
                 isChecked = toggleState ?: false,
                 isHighlight = item.isHighlight,
+                isLocked = item.isLocked,
                 onCheckedChange = { isChecked ->
                     when (item.toggleId) {
                         SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)

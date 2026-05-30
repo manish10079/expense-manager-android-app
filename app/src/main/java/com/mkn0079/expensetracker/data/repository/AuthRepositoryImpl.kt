@@ -3,6 +3,7 @@ package com.mkn0079.expensetracker.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ActionCodeSettings
 import com.mkn0079.expensetracker.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,6 +81,38 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun sendMagicLink(email: String): Result<Unit> {
+        return try {
+            val actionCodeSettings = ActionCodeSettings.newBuilder()
+                .setUrl("https://expense-tracker-2ea00.web.app/login")
+                .setHandleCodeInApp(true)
+                .setAndroidPackageName(
+                    "com.mkn0079.expensetracker",
+                    true, /* installIfNotAvailable */
+                    "1" /* minimumVersion */
+                )
+                .build()
+
+            firebaseAuth.sendSignInLinkToEmail(email, actionCodeSettings).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Unit> {
+        return try {
+            firebaseAuth.signInWithEmailLink(email, emailLink).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun isSignInWithEmailLink(link: String): Boolean {
+        return firebaseAuth.isSignInWithEmailLink(link)
     }
 
     override fun signOut() {

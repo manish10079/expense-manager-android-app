@@ -43,6 +43,21 @@ interface AuthRepository {
     suspend fun deleteAccount(): Result<Unit>
 
     /**
+     * Sends a magic sign-in link to the user's email.
+     */
+    suspend fun sendMagicLink(email: String): Result<Unit>
+
+    /**
+     * Completes the sign-in process using the link received via email.
+     */
+    suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Unit>
+
+    /**
+     * Returns true if the provided link is a valid Firebase Sign-In link.
+     */
+    fun isSignInWithEmailLink(link: String): Boolean
+
+    /**
      * Signs the user out of the current session.
      */
     fun signOut()

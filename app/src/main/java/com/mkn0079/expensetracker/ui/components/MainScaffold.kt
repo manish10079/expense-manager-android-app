@@ -68,6 +68,7 @@ fun MainScaffold(
     autoLockDurationMinutes: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
+    userTier: com.mkn0079.expensetracker.models.UserTier,
     onRouteChange: (AppRoute) -> Unit,
     onProfileOriginRouteChange: (AppRoute) -> Unit,
     onBottomBarVisibilityChange: (Boolean) -> Unit,
@@ -166,7 +167,8 @@ fun MainScaffold(
             autoLockDurationMinutes = autoLockDurationMinutes,
             userProfile = userProfile,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
-            paymentMethods = paymentMethods
+            paymentMethods = paymentMethods,
+            userTier = userTier
         )
 
         AppNavigationHost(
@@ -200,6 +202,7 @@ fun MainScaffold(
             autoLockDurationMinutes = autoLockDurationMinutes,
             isAutoBackupEnabled = isAutoBackupEnabled,
             autoBackupFrequencyDays = autoBackupFrequencyDays,
+            userTier = userTier,
             onRouteChange = onRouteChange,
             onProfileOriginRouteChange = onProfileOriginRouteChange,
             onBottomBarVisibilityChange = onBottomBarVisibilityChange,
@@ -272,7 +275,8 @@ private fun BoxScope.PreloadSecondaryScreenData(
     autoLockDurationMinutes: Int,
     userProfile: UserProfile,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
-    paymentMethods: List<PaymentType>
+    paymentMethods: List<PaymentType>,
+    userTier: com.mkn0079.expensetracker.models.UserTier
 ) {
     val homeViewModel: HomeViewModel = viewModel()
     val transactionsViewModel: TransactionsViewModel = viewModel()
@@ -280,30 +284,32 @@ private fun BoxScope.PreloadSecondaryScreenData(
     val budgetViewModel: BudgetViewModel = viewModel()
     val calendarViewModel: CalendarViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-androidx.compose.runtime.LaunchedEffect(
-    userProfile,
-    transactions,
-    categories,
-    recurringRules,
-    selectedCurrencyId,
-    amountFormatPreferences,
-    selectedDateFormatPattern,
-    selectedTimeFormat,
-    transactionCount,
-    isAdsEnabled,
-    autoLockDurationMinutes,
-    transactionCardCustomizationSettings,
-    paymentMethods
-) {
-    homeViewModel.updateInputs(
-        userProfile = userProfile,
-        currencyId = selectedCurrencyId,
-        amountFormatPreferences = amountFormatPreferences,
-        dateFormatPattern = selectedDateFormatPattern,
-        timeFormat = selectedTimeFormat,
-        categories = categories,
-        customizationSettings = transactionCardCustomizationSettings
-    )
+
+    LaunchedEffect(
+        userProfile,
+        transactions,
+        categories,
+        recurringRules,
+        selectedCurrencyId,
+        amountFormatPreferences,
+        selectedDateFormatPattern,
+        selectedTimeFormat,
+        transactionCount,
+        isAdsEnabled,
+        autoLockDurationMinutes,
+        transactionCardCustomizationSettings,
+        paymentMethods,
+        userTier
+    ) {
+        homeViewModel.updateInputs(
+            userProfile = userProfile,
+            currencyId = selectedCurrencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = selectedDateFormatPattern,
+            timeFormat = selectedTimeFormat,
+            categories = categories,
+            customizationSettings = transactionCardCustomizationSettings
+        )
         analyticsViewModel.updateInputs(
             transactions,
             categories,
@@ -336,6 +342,6 @@ androidx.compose.runtime.LaunchedEffect(
             selectedTimeFormat,
             transactionCardCustomizationSettings
         )
-        settingsViewModel.updateInputs(transactionCount, isAdsEnabled)
+        settingsViewModel.updateInputs(transactionCount, isAdsEnabled, userTier)
     }
 }

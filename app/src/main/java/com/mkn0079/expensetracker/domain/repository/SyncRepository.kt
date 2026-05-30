@@ -38,6 +38,11 @@ interface SyncRepository {
     suspend fun unregisterDevice(deviceId: String): Result<Unit>
 
     /**
+     * Refreshes the list of registered devices from the cloud.
+     */
+    suspend fun refreshDevices(): Result<Unit>
+
+    /**
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).
      */
     suspend fun syncTransactions(): Result<Unit>

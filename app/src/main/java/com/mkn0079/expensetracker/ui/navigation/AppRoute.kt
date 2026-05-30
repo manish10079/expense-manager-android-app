@@ -18,6 +18,7 @@ enum class AppRoute(
     About("about", false),
     NotificationSettings("notification_settings", false),
     Profile("profile", false),
+    ConnectedDevices("connected_devices", false),
     AddTransaction("add_transaction", false),
     ItemizedCalculator("itemized_calculator", false),
     AddCategory("add_category", false);
