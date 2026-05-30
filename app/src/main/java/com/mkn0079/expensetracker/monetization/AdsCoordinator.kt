@@ -46,7 +46,6 @@ enum class RewardedPlacement {
  * Defines unique identifiers for Interstitial ads.
  */
 enum class InterstitialPlacement {
-    ON_SAVE,
     DATA_ACTION
 }
 
@@ -111,7 +110,7 @@ class AdsCoordinator @Inject constructor(
         if (com.mkn0079.expensetracker.BuildConfig.DEBUG) return REWARDED_TEST_ID
 
         return when (placement) {
-            RewardedPlacement.FEATURE_UNLOCK -> REWARDED_TEST_ID // Using test for now
+            RewardedPlacement.FEATURE_UNLOCK -> REWARDED_AD_FREE_ID
             RewardedPlacement.AD_FREE_ACCESS -> REWARDED_AD_FREE_ID
         }
     }
@@ -120,7 +119,6 @@ class AdsCoordinator @Inject constructor(
         if (com.mkn0079.expensetracker.BuildConfig.DEBUG) return INTERSTITIAL_TEST_ID
 
         return when (placement) {
-            InterstitialPlacement.ON_SAVE -> INTERSTITIAL_TEST_ID // No real ID yet
             InterstitialPlacement.DATA_ACTION -> INTERSTITIAL_DATA_ACTION_ID
         }
     }
@@ -176,7 +174,6 @@ class AdsCoordinator @Inject constructor(
         MobileAds.initialize(context) {
             // Preload common ads
             loadRewardedAd(RewardedPlacement.FEATURE_UNLOCK)
-            loadInterstitialAd(InterstitialPlacement.ON_SAVE)
             loadNativeAd(AdPlacement.HOME_DASHBOARD)
             onComplete()
         }

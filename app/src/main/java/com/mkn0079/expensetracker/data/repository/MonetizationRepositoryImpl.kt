@@ -23,8 +23,18 @@ class MonetizationRepositoryImpl @Inject constructor(
         const val TEST_PREMIUM_DURATION_MILLIS = 1 * 60 * 60 * 1000L
     }
 
-    override val isAdsEnabled: Flow<Boolean> = AppSettingsDataStore.getAppSettingsFlow(context)
-        .map { it.userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM }
+    override val isAdsEnabled: Flow<Boolean> = combine(
+        AppSettingsDataStore.getAppSettingsFlow(context),
+        MonetizationDataStore.getGlobalAdAccessExpiry(context)
+    ) { settings, globalAdExpiry ->
+        val isPremium = settings.userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM
+        val hasActivePass = globalAdExpiry > System.currentTimeMillis()
+        
+        // Ads are enabled if NOT premium AND NOT having an active pass
+        !isPremium && !hasActivePass
+    }
+
+    override val globalAdAccessExpiry: Flow<Long> = MonetizationDataStore.getGlobalAdAccessExpiry(context)
 
     override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> {
         return combine(

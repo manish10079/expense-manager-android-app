@@ -11,6 +11,11 @@ interface MonetizationRepository {
     val isAdsEnabled: Flow<Boolean>
 
     /**
+     * Emits the timestamp (ms) when the current temporary ad-free pass expires.
+     */
+    val globalAdAccessExpiry: Flow<Long>
+
+    /**
      * Observes the access status for a specific feature or option.
      */
     fun observeAccessStatus(feature: Feature, optionId: String? = null): Flow<AccessStatus>

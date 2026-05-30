@@ -22,7 +22,11 @@ import kotlinx.coroutines.flow.update
 
 import androidx.lifecycle.viewModelScope
 import com.mkn0079.expensetracker.domain.repository.AuthRepository
+import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -75,13 +79,15 @@ data class SettingsScreenUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val monetizationRepository: MonetizationRepository
 ) : ViewModel() {
 
     private var transactionCount: Int = 0
     private var isAdsEnabled: Boolean = true
     private var isAnonymous: Boolean = true
     private var userTier: com.mkn0079.expensetracker.models.UserTier = com.mkn0079.expensetracker.models.UserTier.FREE
+    private var adFreeRemainingTime: String? = null
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
@@ -90,6 +96,30 @@ class SettingsViewModel @Inject constructor(
         authRepository.currentUser
             .onEach { user ->
                 isAnonymous = user?.isAnonymous ?: true
+                rebuildUiState()
+            }
+            .launchIn(viewModelScope)
+
+        // Ticker to update the ad-free timer every second
+        monetizationRepository.globalAdAccessExpiry
+            .flatMapLatest { expiry ->
+                flow {
+                    while (true) {
+                        val remaining = expiry - System.currentTimeMillis()
+                        if (remaining > 0) {
+                            val minutes = (remaining / 1000) / 60
+                            val seconds = (remaining / 1000) % 60
+                            emit(String.format("%02d:%02d", minutes, seconds))
+                            delay(1000)
+                        } else {
+                            emit(null)
+                            break
+                        }
+                    }
+                }
+            }
+            .onEach { time ->
+                adFreeRemainingTime = time
                 rebuildUiState()
             }
             .launchIn(viewModelScope)
@@ -113,7 +143,8 @@ class SettingsViewModel @Inject constructor(
                     transactionCountLabel = transactionCount.toString(),
                     isAdsEnabled = isAdsEnabled,
                     isAnonymous = isAnonymous,
-                    userTier = userTier
+                    userTier = userTier,
+                    adFreeRemainingTime = adFreeRemainingTime
                 )
             )
         }
@@ -124,7 +155,8 @@ private fun buildSettingsSections(
     transactionCountLabel: String,
     isAdsEnabled: Boolean,
     isAnonymous: Boolean,
-    userTier: com.mkn0079.expensetracker.models.UserTier
+    userTier: com.mkn0079.expensetracker.models.UserTier,
+    adFreeRemainingTime: String?
 ): List<SettingsSectionUi> {
     val accountItems = mutableListOf<SettingsItemUi>()
     
@@ -191,7 +223,12 @@ private fun buildSettingsSections(
                     subtitleRes = com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
                     icon = Icons.Rounded.CreditCard,
                     actionId = SettingsActionId.AdFreeAccess,
-                    trailing = if (!isAdsEnabled) "ACTIVE" else "WATCH NOW",
+                    trailing = when {
+                        userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM -> "PREMIUM"
+                        !isAdsEnabled && adFreeRemainingTime != null -> adFreeRemainingTime
+                        !isAdsEnabled -> "ACTIVE"
+                        else -> "WATCH NOW"
+                    },
                     showChevron = false
                 )
             )

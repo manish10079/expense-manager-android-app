@@ -1219,4 +1219,8 @@
     <string name="label_devices_used">%1$d of %2$d slots used</string>
     <string name="title_upgrade_for_sync">Upgrade for Cloud Sync</string>
     <string name="desc_upgrade_for_sync">Unlock automatic cloud backup and sync your data across 4 devices.</string>
+    <string name="title_ad_expiry_warning">Convenience Ending Soon</string>
+    <string name="msg_ad_expiry_warning">Your ad-free convenience pass will expire in %1$d minutes. Watch another ad now to keep your settings for another hour?</string>
+    <string name="btn_extend_now">Extend Now</string>
+    <string name="btn_remind_later">Remind Later</string>
 </resources>

@@ -15,12 +15,14 @@ import com.mkn0079.expensetracker.domain.repository.PaymentMethodRepository
 import com.mkn0079.expensetracker.domain.repository.RecurringRuleRepository
 import com.mkn0079.expensetracker.domain.repository.SecurityRepository
 import com.mkn0079.expensetracker.domain.repository.TransactionRepository
+import com.mkn0079.expensetracker.domain.repository.MonetizationRepository
 import com.mkn0079.expensetracker.models.CategoryType
 import com.mkn0079.expensetracker.models.PaymentType
 import com.mkn0079.expensetracker.models.RecurringFrequency
 import com.mkn0079.expensetracker.models.RecurringTransactionDraft
 import com.mkn0079.expensetracker.models.RecurringTransactionRule
 import com.mkn0079.expensetracker.models.Transaction
+import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,7 +35,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -43,6 +47,7 @@ import kotlin.math.min
 
 sealed class MainUiEvent {
     object TransactionOperationCompleted : MainUiEvent()
+    data class ShowAdExpiryWarning(val minutesRemaining: Int) : MainUiEvent()
 }
 
 data class MainDataUiState(
@@ -66,7 +71,8 @@ class MainViewModel @Inject constructor(
     private val dataManagementRepository: DataManagementRepository,
     private val legacyImportRepository: LegacyImportRepository,
     private val securityRepository: SecurityRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val monetizationRepository: MonetizationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -105,6 +111,54 @@ class MainViewModel @Inject constructor(
                 )
             }.collect { state ->
                 _uiState.value = state
+            }
+        }
+
+        // Monitor Ad Expiry for 15-minute warning and Snap-Back
+        viewModelScope.launch {
+            var hasShownWarning = false
+            
+            monetizationRepository.globalAdAccessExpiry.collect { expiry ->
+                if (expiry == 0L) {
+                    hasShownWarning = false
+                    return@collect
+                }
+
+                while (true) {
+                    val remainingMillis = expiry - System.currentTimeMillis()
+                    val minutes = (remainingMillis / 1000) / 60
+                    
+                    // 1. Snap-Back Logic (Timer hit 0)
+                    if (remainingMillis <= 0) {
+                        val settings = AppSettingsDataStore.getAppSettingsFlow(appContext).first()
+                        val currentTimeout = settings.appLockTimeoutMinutes
+                        if (currentTimeout in listOf(5, 10, 15)) {
+                            AppSettingsDataStore.updateAppSettings(appContext) { it.copy(appLockTimeoutMinutes = 1) }
+                            // Also update legacy preferences for consistency
+                            com.mkn0079.expensetracker.data.local.AppLockPreferences.setAutoLockDurationMinutes(appContext, 1)
+                        }
+                        hasShownWarning = false
+                        break
+                    }
+                    
+                    // 2. 15-Minute Warning Logic
+                    if (minutes <= 15 && !hasShownWarning) {
+                        val settings = AppSettingsDataStore.getAppSettingsFlow(appContext).first()
+                        val currentTimeout = settings.appLockTimeoutMinutes
+                        // Only warn if they are actually using an ad-supported setting
+                        if (currentTimeout in listOf(5, 10, 15)) {
+                            _uiEvent.emit(MainUiEvent.ShowAdExpiryWarning(minutes.toInt().coerceAtLeast(1)))
+                            hasShownWarning = true
+                        }
+                    }
+
+                    if (remainingMillis > 1000) {
+                        delay(1000)
+                    } else {
+                        delay(remainingMillis.coerceAtLeast(0))
+                        // Re-run loop one last time to hit the Snap-Back logic at exactly <= 0
+                    }
+                }
             }
         }
     }

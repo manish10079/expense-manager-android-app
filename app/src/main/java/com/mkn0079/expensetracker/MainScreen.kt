@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -133,6 +134,9 @@ fun MainScreen(
     
     var showAuthSheet by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
+    var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
+
     val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val selectedCurrencyId = appSettings.currencyId
@@ -346,6 +350,20 @@ fun MainScreen(
                 mainViewModel.setTransactionObservationEnabled(
                     navigationState.currentRoute in routesKeepingTransactionsWarm
                 )
+            }
+
+            LaunchedEffect(Unit) {
+                mainViewModel.uiEvent.collect { event ->
+                    when (event) {
+                        is com.mkn0079.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted -> {
+                            // Handled internally in screens
+                        }
+                        is com.mkn0079.expensetracker.ui.viewmodels.MainUiEvent.ShowAdExpiryWarning -> {
+                            adExpiryMinutesRemaining = event.minutesRemaining
+                            showAdExpiryWarningDialog = true
+                        }
+                    }
+                }
             }
 
             // Sync Firebase User with local UserProfileDataStore
@@ -610,6 +628,45 @@ fun MainScreen(
                     )
                 }
 
+                if (showAdExpiryWarningDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showAdExpiryWarningDialog = false },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        title = {
+                            Text(
+                                text = "15 Minutes Remaining",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "Your ad-free convenience pass will expire in $adExpiryMinutesRemaining minutes. Would you like to watch another ad now to extend it for another hour?",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showAdExpiryWarningDialog = false
+                                    if (activity != null) {
+                                        monetizationViewModel.onWatchAdFreeClicked(activity)
+                                    }
+                                },
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("Extend Now")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showAdExpiryWarningDialog = false }) {
+                                Text("Remind me later")
+                            }
+                        }
+                    )
+                }
+
                 if (showLogoutDialog) {
                     AlertDialog(
                         onDismissRequest = { showLogoutDialog = false },
@@ -642,6 +699,45 @@ fun MainScreen(
                         dismissButton = {
                             TextButton(onClick = { showLogoutDialog = false }) {
                                 Text(text = stringResource(id = R.string.label_cancel))
+                            }
+                        }
+                    )
+                }
+
+                if (showAdExpiryWarningDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showAdExpiryWarningDialog = false },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.title_ad_expiry_warning),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showAdExpiryWarningDialog = false
+                                    if (activity != null) {
+                                        monetizationViewModel.onWatchAdFreeClicked(activity)
+                                    }
+                                },
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(stringResource(id = R.string.btn_extend_now))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showAdExpiryWarningDialog = false }) {
+                                Text(stringResource(id = R.string.btn_remind_later))
                             }
                         }
                     )
