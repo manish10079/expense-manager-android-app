@@ -221,17 +221,20 @@ private fun buildSettingsSections(
 
     // Only show Monetization section for Free users
     if (userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM) {
+        val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
         settingsSections.add(
             SettingsSectionUi(
                 titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
                 items = listOf(
                     SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.label_remove_all_ads,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                        titleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.label_ad_free_active 
+                                  else com.mkn0079.expensetracker.R.string.label_remove_all_ads,
+                        subtitleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.msg_ad_free_duration_remaining 
+                                     else com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
                         icon = Icons.Rounded.CreditCard,
-                        actionId = SettingsActionId.AdFreeAccess,
-                        trailing = if (!isAdsEnabled && adFreeRemainingTime != null) adFreeRemainingTime else null,
-                        showChevron = false
+                        actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
+                        trailing = if (adPassActive) adFreeRemainingTime else null,
+                        showChevron = !adPassActive
                     )
                 )
             )

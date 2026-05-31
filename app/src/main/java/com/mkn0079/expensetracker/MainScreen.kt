@@ -54,7 +54,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.flow.first
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
@@ -83,6 +82,7 @@ import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import com.mkn0079.expensetracker.workers.AutoBackupScheduler
 import com.mkn0079.expensetracker.utils.AppRestartUtils
 
@@ -124,7 +124,7 @@ fun MainScreen(
 ) {
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
-    val mainViewModel: MainViewModel = viewModel()
+    val mainViewModel: MainViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val activity = rawContext.findFragmentActivity()
@@ -133,7 +133,7 @@ fun MainScreen(
     }
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
-    val monetizationViewModel: MonetizationViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
@@ -362,11 +362,13 @@ fun MainScreen(
 
             LaunchedEffect(Unit) {
                 mainViewModel.uiEvent.collect { event ->
+                    android.util.Log.d("MainScreen", "Received UI Event: $event")
                     when (event) {
                         is com.mkn0079.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted -> {
                             // Handled internally in screens
                         }
                         is com.mkn0079.expensetracker.ui.viewmodels.MainUiEvent.ShowAdExpiryWarning -> {
+                            android.util.Log.d("MainScreen", "Showing Expiry Warning Dialog")
                             adExpiryMinutesRemaining = event.minutesRemaining
                             showAdExpiryWarningDialog = true
                         }
@@ -654,7 +656,11 @@ fun MainScreen(
 
                 if (showAdExpiryWarningDialog) {
                     AlertDialog(
-                        onDismissRequest = { showAdExpiryWarningDialog = false },
+                        onDismissRequest = { /* No-op to make persistent */ },
+                        properties = androidx.compose.ui.window.DialogProperties(
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false
+                        ),
                         containerColor = MaterialTheme.colorScheme.surface,
                         title = {
                             Text(
@@ -685,7 +691,7 @@ fun MainScreen(
                         },
                         dismissButton = {
                             TextButton(onClick = { showAdExpiryWarningDialog = false }) {
-                                Text(stringResource(id = R.string.btn_remind_later))
+                                Text(stringResource(id = R.string.btn_maybe_later))
                             }
                         }
                     )

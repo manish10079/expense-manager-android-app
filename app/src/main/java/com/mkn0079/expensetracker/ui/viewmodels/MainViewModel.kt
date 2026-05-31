@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -116,48 +117,38 @@ class MainViewModel @Inject constructor(
 
         // Monitor Ad Expiry for 15-minute warning and Snap-Back
         viewModelScope.launch {
-            var hasShownWarning = false
-            
-            monetizationRepository.globalAdAccessExpiry.collect { expiry ->
-                if (expiry == 0L) {
-                    hasShownWarning = false
-                    return@collect
+            monetizationRepository.globalAdAccessExpiry.collectLatest { expiry ->
+                android.util.Log.d("MainVM", "Monitoring new Expiry: $expiry")
+                if (expiry <= System.currentTimeMillis()) {
+                    return@collectLatest
                 }
 
+                var hasShownWarning = false
+                
                 while (true) {
                     val remainingMillis = expiry - System.currentTimeMillis()
                     val minutes = (remainingMillis / 1000) / 60
                     
                     // 1. Snap-Back Logic (Timer hit 0)
                     if (remainingMillis <= 0) {
+                        android.util.Log.d("MainVM", "Timer Expired. Triggering Snap-Back.")
                         val settings = AppSettingsDataStore.getAppSettingsFlow(appContext).first()
                         val currentTimeout = settings.appLockTimeoutMinutes
                         if (currentTimeout in listOf(5, 10, 15)) {
                             AppSettingsDataStore.updateAppSettings(appContext) { it.copy(appLockTimeoutMinutes = 1) }
-                            // Also update legacy preferences for consistency
                             com.mkn0079.expensetracker.data.local.AppLockPreferences.setAutoLockDurationMinutes(appContext, 1)
                         }
-                        hasShownWarning = false
                         break
                     }
                     
                     // 2. 15-Minute Warning Logic
                     if (minutes <= 15 && !hasShownWarning) {
-                        val settings = AppSettingsDataStore.getAppSettingsFlow(appContext).first()
-                        val currentTimeout = settings.appLockTimeoutMinutes
-                        // Only warn if they are actually using an ad-supported setting
-                        if (currentTimeout in listOf(5, 10, 15)) {
-                            _uiEvent.emit(MainUiEvent.ShowAdExpiryWarning(minutes.toInt().coerceAtLeast(1)))
-                            hasShownWarning = true
-                        }
+                        android.util.Log.d("MainVM", "Emitting ShowAdExpiryWarning event.")
+                        _uiEvent.emit(MainUiEvent.ShowAdExpiryWarning(minutes.toInt().coerceAtLeast(1)))
+                        hasShownWarning = true
                     }
 
-                    if (remainingMillis > 1000) {
-                        delay(1000)
-                    } else {
-                        delay(remainingMillis.coerceAtLeast(0))
-                        // Re-run loop one last time to hit the Snap-Back logic at exactly <= 0
-                    }
+                    delay(1000)
                 }
             }
         }
