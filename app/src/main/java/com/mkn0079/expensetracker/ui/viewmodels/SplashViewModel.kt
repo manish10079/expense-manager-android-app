@@ -48,7 +48,7 @@ class SplashViewModel @Inject constructor(
     private val _isUnderMaintenance = MutableStateFlow(false)
     val isUnderMaintenance: StateFlow<Boolean> = _isUnderMaintenance.asStateFlow()
 
-    private val minDuration = 2400L // Adjusted for 3 major steps
+    private val minDuration = 2400L // Restored to normal speed
 
     init {
         observeConfiguration()

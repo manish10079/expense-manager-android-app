@@ -12,10 +12,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,8 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -47,15 +51,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mkn0079.expensetracker.R
-import com.mkn0079.expensetracker.ui.components.WavyLoadingBar
 import com.mkn0079.expensetracker.ui.viewmodels.SplashViewModel
 
-private val SplashLogoSize = 148.dp
+private val SplashLogoSize = 132.dp
 
 @Composable
 fun SplashOverlay(viewModel: SplashViewModel) {
     val currentTask by viewModel.currentTask.collectAsState()
-
     val loadingProgress = remember { Animatable(0f) }
 
     LaunchedEffect(currentTask) {
@@ -70,13 +72,22 @@ fun SplashOverlay(viewModel: SplashViewModel) {
 
     val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
     val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.05f,
+        initialValue = 0.96f,
+        targetValue = 1.04f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = LinearEasing),
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "logo_pulse_scale"
+    )
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.05f,
+        targetValue = 0.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_alpha"
     )
 
     Box(
@@ -87,120 +98,129 @@ fun SplashOverlay(viewModel: SplashViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 28.dp),
+                .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo
+            // Logo Area
+            val brandPurple = Color(0xFF7B61FF)
             Box(
                 modifier = Modifier
-                    .size(SplashLogoSize)
+                    .size(SplashLogoSize * 2.2f)
+                    .drawBehind {
+                        val radius = this.size.minDimension / 2.2f // Tightest radius
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                0.0f to Color.Transparent,
+                                0.45f to brandPurple.copy(alpha = glowAlpha * 0.4f),
+                                0.6f to brandPurple.copy(alpha = glowAlpha),
+                                1.0f to Color.Transparent,
+                                center = center,
+                                radius = radius
+                            ),
+                            radius = radius
+                        )
+                    }
                     .scale(pulseScale),
                 contentAlignment = Alignment.Center
             ) {
-                // Soft Gradient Glow
-                Box(
-                    modifier = Modifier
-                        .size(SplashLogoSize * 1.5f)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                                    Color.Transparent
-                                )
-                            ),
-                            shape = CircleShape
-                        )
-                )
-
                 Image(
                     painter = painterResource(id = R.drawable.splash_logo),
-                    contentDescription = stringResource(id = R.string.desc_expense_tracker_logo),
-                    modifier = Modifier.fillMaxSize()
+                    contentDescription = null,
+                    modifier = Modifier.size(SplashLogoSize)
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
+            // Title Hierarchy
             Text(
-                text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 32.sp
+                text = stringResource(id = R.string.label_app_name_display),
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Text(
+                text = stringResource(id = R.string.label_budget_and_spend),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
 
-            // Progress Section
-            Column(
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = stringResource(id = R.string.label_splash_tagline),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    letterSpacing = 3.sp,
+                    fontWeight = FontWeight.Light
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // Bottom Loading Area
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 64.dp)
+                .width(200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LinearProgressIndicator(
+                progress = { loadingProgress.value },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                AnimatedContent(
-                    targetState = currentTask.labelResId,
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(300)) +
-                                slideInVertically { it / 2 } togetherWith
-                                fadeOut(animationSpec = tween(200)) +
-                                slideOutVertically { -it / 2 }
-                    },
-                    label = "StepAnimation"
-                ) { labelResId ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(id = labelResId),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Medium
-                            )
-                        )
-                        LoadingDots()
-                    }
-                }
+                    .height(3.dp)
+                    .clip(CircleShape),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            )
 
-                Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                WavyLoadingBar(
-                    progress = loadingProgress.value,
-                    activeColor = MaterialTheme.colorScheme.secondary,
-                    inactiveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(28.dp),
-                    waveLength = 30.dp,
-                    waveHeight = 11.5.dp,
-                    strokeWidth = 4.dp
+            AnimatedContent(
+                targetState = currentTask.labelResId,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(300))
+                },
+                label = "TaskAnimation"
+            ) { labelResId ->
+                Text(
+                    text = stringResource(id = labelResId).lowercase(),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        letterSpacing = 3.sp,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 13.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    textAlign = TextAlign.Center
                 )
-
             }
         }
-    }
-}
 
-@Composable
-fun LoadingDots() {
-    val transition = rememberInfiniteTransition(label = "loading_dots")
-    val dotCount by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 3.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(900),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "dot_count"
-    )
-
-    Text(
-        text = ".".repeat(dotCount.toInt()),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.SemiBold
+        // Fixed Footer
+        Text(
+            text = stringResource(id = R.string.label_splash_footer),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 9.sp,
+                letterSpacing = 1.5.sp
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 24.dp),
+            textAlign = TextAlign.Center
         )
-    )
+    }
 }

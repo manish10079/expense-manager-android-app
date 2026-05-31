@@ -684,6 +684,9 @@
     <string name="msg_syncing_transactions">Syncing your transactions</string>
     <string name="msg_securing_data">Securing your data</string>
     <string name="msg_initializing">Initializing</string>
+    <string name="label_splash_tagline">Elegance in Every Transaction</string>
+    <string name="label_splash_footer">Handcrafted with Precision &amp; Love</string>
+    <string name="label_budget_and_spend">Budget &amp; Spend</string>
     <string name="msg_starting_security_services">Starting security services</string>
     <string name="msg_loading_preferences">Loading your preferences</string>
     <string name="msg_preparing_database">Preparing your Database</string>
