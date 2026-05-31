@@ -253,6 +253,13 @@ private fun calculateInSampleSize(
 
 private fun openImageInputStream(context: Context, uri: Uri) = when (uri.scheme) {
     "file" -> uri.path?.let(::FileInputStream)
+    "http", "https" -> {
+        try {
+            java.net.URL(uri.toString()).openStream()
+        } catch (e: Exception) {
+            null
+        }
+    }
     else -> context.contentResolver.openInputStream(uri)
 }
 

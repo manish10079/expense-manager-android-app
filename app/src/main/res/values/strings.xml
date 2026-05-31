@@ -1226,6 +1226,9 @@
     <string name="msg_ad_expiry_warning">Your ad-free convenience pass will expire in %1$d minutes. Watch another ad now to keep your settings for another hour?</string>
     <string name="btn_extend_now">Extend Now</string>
     <string name="btn_remind_later">Remind Later</string>
+    <string name="label_custom_minutes">Custom Minutes</string>
+    <string name="placeholder_enter_minutes">Enter minutes</string>
+    <string name="btn_apply">Apply</string>
     <string name="msg_preparing_pro_experience">Preparing your pro-level experience…</string>
     <string name="msg_wont_take_long">This won’t take long</string>
 </resources>

@@ -54,6 +54,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.first
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.data.local.AppLockPreferences
 import com.mkn0079.expensetracker.data.local.UserProfileDataStore
@@ -378,16 +379,32 @@ fun MainScreen(
             LaunchedEffect(firebaseUser) {
                 if (firebaseUser != null && !firebaseUser!!.isAnonymous) {
                     firebaseUser?.let { user ->
+                        val remotePhotoUrl = user.photoUrl
                         UserProfileDataStore.updateUserProfile(context) { profile ->
+                            // 1. Logic to localize network photo to prevent blinking
+                            if (remotePhotoUrl != null && profile.photoUri?.startsWith("http") == true) {
+                                // If already has a remote URL, we trigger localization
+                                coroutineScope.launch {
+                                    val localUri = com.mkn0079.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUrl)
+                                    if (localUri != null) {
+                                        UserProfileDataStore.updateUserProfile(context) { it.copy(photoUri = localUri) }
+                                    }
+                                }
+                            }
+
                             profile.copy(
                                 fullName = user.displayName ?: profile.fullName,
                                 emailAddress = user.email ?: profile.emailAddress,
-                                photoUri = user.photoUrl?.toString() ?: profile.photoUri
+                                // Initially set remote, then localize in background
+                                photoUri = profile.photoUri ?: remotePhotoUrl?.toString()
                             )
                         }
                     }
                 } else if (firebaseUser == null) {
                     // Fix: Clear local profile info when signed out
+                    val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                    com.mkn0079.expensetracker.utils.ProfilePhotoManager.deleteManagedPhoto(currentProfile.photoUri)
+                    
                     UserProfileDataStore.updateUserProfile(context) { profile ->
                         profile.copy(
                             fullName = "Guest User",

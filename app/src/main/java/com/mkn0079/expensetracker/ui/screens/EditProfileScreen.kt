@@ -43,6 +43,7 @@ import com.mkn0079.expensetracker.ui.theme.Dimens
 import com.mkn0079.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mkn0079.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mkn0079.expensetracker.utils.formatDate
+import com.mkn0079.expensetracker.utils.ProfilePhotoManager
 import androidx.compose.material.icons.rounded.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,12 +125,12 @@ fun ProfileScreen(
         coroutineScope.launch {
             isPhotoProcessing = true
             val previousUnsavedPhotoUri = photoUri.takeIf { it != initialPhotoUri }
-            val savedUri = copyProfilePhotoToInternalStorage(
+            val savedUri = ProfilePhotoManager.localizePhoto(
                 context = context,
                 sourceUri = selectedUri
             )
             if (savedUri != null) {
-                previousUnsavedPhotoUri?.let { deleteManagedProfilePhoto(it) }
+                previousUnsavedPhotoUri?.let { ProfilePhotoManager.deleteManagedPhoto(it) }
                 photoUri = savedUri
             } else {
                 Toast.makeText(
@@ -170,7 +171,7 @@ fun ProfileScreen(
                 onRemovePhoto = {
                     photoUri
                         ?.takeIf { it != initialPhotoUri }
-                        ?.let(::deleteManagedProfilePhoto)
+                        ?.let(ProfilePhotoManager::deleteManagedPhoto)
                     photoUri = null
                 },
                 onPrepareForExternalActivity = onPrepareForExternalActivity
@@ -268,7 +269,7 @@ fun ProfileScreen(
                         )
                     )
                     if (initialPhotoUri != photoUri) {
-                        initialPhotoUri?.let(::deleteManagedProfilePhoto)
+                        initialPhotoUri?.let(ProfilePhotoManager::deleteManagedPhoto)
                     }
                 },
                 enabled = !isPhotoProcessing,
@@ -432,44 +433,6 @@ private fun String.avatarLetters(): String {
         photoUri = null
     )
     return profile.avatarInitials()
-}
-
-private suspend fun copyProfilePhotoToInternalStorage(
-    context: Context,
-    sourceUri: Uri
-): String? {
-    return withContext(Dispatchers.IO) {
-        runCatching {
-            val directory = File(context.filesDir, "profile_photos").apply {
-                if (!exists()) {
-                    mkdirs()
-                }
-            }
-            val targetFile = File(directory, "profile_${UUID.randomUUID()}.jpg")
-
-            context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                targetFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            } ?: return@withContext null
-
-            Uri.fromFile(targetFile).toString()
-        }.getOrNull()
-    }
-}
-
-private fun deleteManagedProfilePhoto(uriString: String) {
-    runCatching {
-        val uri = Uri.parse(uriString)
-        if (uri.scheme != "file") {
-            return
-        }
-
-        val file = uri.path?.let(::File) ?: return
-        if (file.parentFile?.name == "profile_photos" && file.exists()) {
-            file.delete()
-        }
-    }
 }
 
 @Preview(

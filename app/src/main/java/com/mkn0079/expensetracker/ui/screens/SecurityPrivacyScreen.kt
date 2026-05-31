@@ -349,8 +349,8 @@ private fun AutoLockDurationPickerSheet(
                         if (isLocked) onClick() 
                         else if (input.all { char -> char.isDigit() }) customMinutesInput = input 
                     },
-                    label = { Text("Custom Minutes") },
-                    placeholder = { Text("Enter minutes") },
+                    label = { Text(stringResource(R.string.label_custom_minutes)) },
+                    placeholder = { Text(stringResource(R.string.placeholder_enter_minutes)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -365,7 +365,7 @@ private fun AutoLockDurationPickerSheet(
                                     onDismiss()
                                 }
                             }) {
-                                Text("Apply")
+                                Text(stringResource(R.string.btn_apply))
                             }
                         }
                     }
