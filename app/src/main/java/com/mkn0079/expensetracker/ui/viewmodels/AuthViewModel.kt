@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import androidx.credentials.exceptions.NoCredentialException
 import javax.inject.Inject
 
 sealed class AuthState {
@@ -24,6 +25,7 @@ sealed class AuthState {
     data class Success(val isNewUser: Boolean = false) : AuthState()
     object ResetEmailSent : AuthState()
     object MagicLinkSent : AuthState()
+    object NoGoogleAccounts : AuthState()
     data class Error(@StringRes val messageRes: Int) : AuthState()
 }
 
@@ -46,30 +48,106 @@ class AuthViewModel @Inject constructor(
 
     val currentUser = authRepository.currentUser
 
-    fun signInWithGoogle() {
+    var shouldAttemptAutoSignInAfterReturn = false
+
+    /**
+     * Specifically used when returning from the "Add Account" system screen.
+     * Retries a few times because system sync can be slow.
+     */
+    fun attemptAutoSignInAfterReturn(context: Context) {
+        viewModelScope.launch {
+            repeat(3) { attempt ->
+                val delayTime = when(attempt) {
+                    0 -> 1000L
+                    1 -> 3000L
+                    else -> 5000L
+                }
+                kotlinx.coroutines.delay(delayTime)
+                
+                // We use autoSelect=true and silent=true for the retry attempts
+                // so we don't flash the "No Accounts" error state if it's still syncing.
+                googleAuthHelper.getGoogleIdToken(context = context, autoSelect = true, filterByAuthorized = false)
+                    .onSuccess { idToken ->
+                        if (idToken != null) {
+                            authRepository.signInWithGoogle(idToken)
+                                .onSuccess { isNewUser -> 
+                                    _authState.value = AuthState.Success(isNewUser)
+                                    return@launch // Success! Exit the loop.
+                                }
+                        }
+                    }
+                    .onFailure { error ->
+                        // Only on the LAST attempt, if it still fails, we set the visible error state
+                        if (attempt == 2 && error is NoCredentialException) {
+                            _authState.value = AuthState.NoGoogleAccounts
+                        }
+                    }
+            }
+        }
+    }
+
+    fun signInWithGoogle(context: Context? = null, autoSelect: Boolean = false, silent: Boolean = false) {
+        android.util.Log.d("AUTH", "Starting Google sign in, silent = $silent, autoSelect = $autoSelect")
         if (!networkMonitor.isConnected()) {
-            _authState.value = AuthState.Error(R.string.error_no_internet)
+            if (!silent) {
+                _authState.value = AuthState.Error(R.string.error_no_internet)
+            }
             return
         }
 
+        val targetContext = context ?: this.context
+
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            googleAuthHelper.getGoogleIdToken()
+            if (!silent) {
+                _authState.value = AuthState.Loading
+            }
+            
+            googleAuthHelper.getGoogleIdToken(context = targetContext, autoSelect = autoSelect, filterByAuthorized = silent)
                 .onSuccess { idToken ->
+                    android.util.Log.d("AUTH", "Credential received, ID Token exists: ${idToken != null}")
                     if (idToken != null) {
+                        android.util.Log.d("AUTH", "Google ID Token = $idToken")
                         authRepository.signInWithGoogle(idToken)
-                            .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
+                            .onSuccess { isNewUser -> 
+                                android.util.Log.d("AUTH", "Firebase sign in success, isNewUser = $isNewUser")
+                                _authState.value = AuthState.Success(isNewUser) 
+                            }
                             .onFailure { error ->
-                                _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                                android.util.Log.e("AUTH", "Firebase sign in failed", error)
+                                if (!silent) {
+                                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                                }
                             }
                     } else {
-                        _authState.value = AuthState.Idle
+                        android.util.Log.d("AUTH", "Sign in cancelled or idToken is null")
+                        if (!silent) {
+                            _authState.value = AuthState.Idle
+                        }
                     }
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
+                    android.util.Log.e("AUTH", "Google Auth Helper failed", error)
+                    if (!silent) {
+                        if (error is NoCredentialException) {
+                            android.util.Log.d("AUTH", "No Google accounts found on device")
+                            _authState.value = AuthState.NoGoogleAccounts
+                        } else {
+                            _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
+                        }
+                    }
                 }
         }
+    }
+
+    /**
+     * Attempts to sign in silently using authorized accounts and auto-selection.
+     */
+    fun trySilentSignIn(context: Context? = null) {
+        if (authRepository.isUserLoggedIn()) {
+            return
+        }
+        // Redirect to the main signInWithGoogle logic with silent flag set to true
+        signInWithGoogle(context = context, autoSelect = true, silent = true)
     }
 
     fun signInWithEmail(email: String, password: String) {

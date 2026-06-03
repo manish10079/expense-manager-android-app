@@ -20,18 +20,26 @@ class GoogleAuthHelper @Inject constructor(
 ) {
     private val credentialManager = CredentialManager.create(context)
 
-    suspend fun getGoogleIdToken(): Result<String?> {
-        // Clear any stale state first to ensure fresh picker
-        try {
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-        } catch (e: Exception) {
-            // Ignore clearing errors
+    suspend fun getGoogleIdToken(
+        context: Context,
+        autoSelect: Boolean = false,
+        filterByAuthorized: Boolean = false
+    ): Result<String?> {
+        val credentialManager = CredentialManager.create(context)
+        
+        // Clear any stale state first to ensure fresh picker if not auto-selecting
+        if (!autoSelect) {
+            try {
+                credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            } catch (e: Exception) {
+                // Ignore clearing errors
+            }
         }
 
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
+            .setFilterByAuthorizedAccounts(filterByAuthorized)
             .setServerClientId(context.getString(R.string.default_web_client_id))
-            .setAutoSelectEnabled(false)
+            .setAutoSelectEnabled(autoSelect)
             .build()
 
         val request = GetCredentialRequest.Builder()
@@ -44,6 +52,7 @@ class GoogleAuthHelper @Inject constructor(
                 request = request
             )
             
+            android.util.Log.d("AUTH", "GoogleAuthHelper: Credential received from CredentialManager")
             val credential = result.credential
             
             // Fix: Use the static factory method to create the object from data

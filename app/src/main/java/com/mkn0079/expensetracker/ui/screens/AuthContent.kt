@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +30,8 @@ import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.viewmodels.AuthState
 import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.ColorFilter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class EmailAuthAction {
     Login,
@@ -41,6 +45,7 @@ fun AuthContent(
     onGuestContinue: () -> Unit = onAuthSuccess,
     onSignUpSuccess: (() -> Unit)? = null
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val authState by viewModel.authState.collectAsState()
     val cooldownSeconds by viewModel.cooldownSeconds.collectAsState()
     var isSignUp by remember { mutableStateOf(false) }
@@ -48,23 +53,57 @@ fun AuthContent(
     var password by remember { mutableStateOf("") }
     var pendingEmailAuthAction by remember { mutableStateOf<EmailAuthAction?>(null) }
 
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
+
     val isEmailValid = remember(email) {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     val passwordErrors = remember(password, isSignUp) {
-        if (!isSignUp || password.isEmpty()) return@remember emptyList<String>()
-        val errors = mutableListOf<String>()
-        if (password.length < 8) errors.add("At least 8 characters")
-        if (!password.any { it.isDigit() }) errors.add("At least 1 number")
-        if (!password.any { !it.isLetterOrDigit() }) errors.add("At least 1 special character")
+        if (!isSignUp || password.isEmpty()) return@remember emptyList<Int>()
+        val errors = mutableListOf<Int>()
+        if (password.length < 8) errors.add(R.string.error_password_min_chars)
+        if (!password.any { it.isDigit() }) errors.add(R.string.error_password_need_digit)
+        if (!password.any { !it.isLetterOrDigit() }) errors.add(R.string.error_password_need_special)
         errors
     }
 
     val isPasswordStrong = passwordErrors.isEmpty()
     val canSubmit = email.isNotEmpty() && isEmailValid && password.isNotEmpty() && (isPasswordStrong || !isSignUp)
 
+    // Try silent sign-in on first load
+    LaunchedEffect(Unit) {
+        viewModel.trySilentSignIn(context)
+    }
+
+    // Handle returning from settings (Add Account)
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                if (viewModel.shouldAttemptAutoSignInAfterReturn) {
+                    viewModel.shouldAttemptAutoSignInAfterReturn = false
+                    viewModel.attemptAutoSignInAfterReturn(context)
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+
     LaunchedEffect(authState) {
+        if (authState is AuthState.NoGoogleAccounts) {
+            viewModel.shouldAttemptAutoSignInAfterReturn = true
+            val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
+                putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
+            }
+            context.startActivity(intent)
+            viewModel.resetState()
+        }
+
         if (authState is AuthState.Success) {
             val isNewUser = (authState as AuthState.Success).isNewUser
             pendingEmailAuthAction = null
@@ -88,7 +127,7 @@ fun AuthContent(
         ) {
         // Google Sign In Button
         OutlinedButton(
-            onClick = { viewModel.signInWithGoogle() },
+            onClick = { viewModel.signInWithGoogle(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -146,9 +185,9 @@ fun AuthContent(
             onValueChange = { email = it },
             inputType = InputType.Text,
             leadingIcon = Icons.Filled.Email,
-            placeholder = "name@example.com",
+            placeholder = stringResource(id = R.string.placeholder_email),
             isError = email.isNotEmpty() && !isEmailValid,
-            errorText = if (email.isNotEmpty() && !isEmailValid) "Please enter a valid email address" else null
+            errorText = if (email.isNotEmpty() && !isEmailValid) stringResource(id = R.string.error_invalid_email) else null
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -159,9 +198,12 @@ fun AuthContent(
             onValueChange = { password = it },
             inputType = InputType.Password,
             leadingIcon = Icons.Filled.Lock,
-            placeholder = "••••••••",
+            placeholder = stringResource(id = R.string.placeholder_password),
             isError = isSignUp && password.isNotEmpty() && !isPasswordStrong,
-            errorText = if (isSignUp && passwordErrors.isNotEmpty()) "Required: ${passwordErrors.joinToString(", ")}" else null
+            errorText = if (isSignUp && passwordErrors.isNotEmpty()) {
+                stringResource(id = R.string.error_password_required_prefix) + 
+                passwordErrors.joinToString(", ") { context.getString(it) }
+            } else null
         )
 
         if (!isSignUp) {
@@ -172,7 +214,7 @@ fun AuthContent(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Text(
-                    text = "Forgot Password?",
+                    text = stringResource(id = R.string.label_forgot_password),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable(enabled = email.isNotEmpty() && isEmailValid) {
@@ -218,7 +260,7 @@ fun AuthContent(
 
         if (authState is AuthState.Error) {
             val error = authState as AuthState.Error
-            
+
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(12.dp),
@@ -298,7 +340,7 @@ fun AuthContent(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = if (cooldownSeconds > 0) "Resend in ${cooldownSeconds}s" else stringResource(id = R.string.label_send_magic_link),
+                            text = if (cooldownSeconds > 0) stringResource(id = R.string.label_resend_cooldown, cooldownSeconds) else stringResource(id = R.string.label_send_magic_link),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }

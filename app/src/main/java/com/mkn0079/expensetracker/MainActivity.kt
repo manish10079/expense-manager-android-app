@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private var currentIntent by mutableStateOf<Intent?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        android.util.Log.d("AUTH", "MainActivity: onCreate")
         // Task 2: Apply Theme BEFORE super.onCreate()
         val syncTheme = ThemePreferenceSync.getTheme(this)
         val mode = when (syncTheme) {
@@ -111,6 +112,11 @@ class MainActivity : AppCompatActivity() {
         
         currentIntent = intent
 
+        // Monitor Firebase Auth State
+        com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            android.util.Log.d("AUTH", "Firebase Auth State Change: Current user = ${auth.currentUser?.uid}")
+        }
+
         // Initialize AdMob with Privacy Flow (UMP)
         adsCoordinator.initPrivacyFlow(this) {
             // Ads are ready to be loaded or SDK is initialized
@@ -121,6 +127,17 @@ class MainActivity : AppCompatActivity() {
         setContent {
             AppRoot(splashViewModel, appLockViewModel, currentIntent)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        android.util.Log.d("AUTH", "MainActivity: onStart, user = ${user?.uid}")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        android.util.Log.d("AUTH", "MainActivity: onResume")
     }
 
     override fun onNewIntent(intent: Intent) {
