@@ -19,8 +19,7 @@
 **Last Audit:** 2026-05-15 (Verified current status of all items)
  
 
-
-
+ 
 ### ViewModels (Core Business Logic Labels)
 - [x] **PreferencesViewModel.kt**
     - [x] Theme Labels: `"System"`, `"Light"`, `"Dark"`.

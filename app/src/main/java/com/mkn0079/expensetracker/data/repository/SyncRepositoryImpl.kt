@@ -5,13 +5,16 @@ import android.os.Build
 import android.provider.Settings
 import androidx.room.withTransaction
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
+import com.mkn0079.expensetracker.data.local.UserProfileDataStore
 import com.mkn0079.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mkn0079.expensetracker.domain.repository.ConfigurationRepository
 import com.mkn0079.expensetracker.domain.repository.RegisteredDevice
 import com.mkn0079.expensetracker.domain.repository.SyncRepository
 import com.mkn0079.expensetracker.models.SyncState
+import com.mkn0079.expensetracker.models.UserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -123,6 +126,17 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun syncUserProfile(): Result<Unit> {
+        val uid = firebaseAuth.currentUser?.uid ?: return Result.success(Unit)
+
+        return try {
+            syncUserProfile(uid)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun syncTransactions(): Result<Unit> {
         val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
         
@@ -130,6 +144,8 @@ class SyncRepositoryImpl @Inject constructor(
             val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
+
+            syncUserProfile(uid)
 
             // 1. PUSH (Local -> Cloud)
             pushLocalChanges(uid)
@@ -144,6 +160,64 @@ class SyncRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             return Result.failure(e)
         }
+    }
+
+    private suspend fun syncUserProfile(uid: String) {
+        pushUserProfile(uid)
+        pullUserProfile(uid)
+    }
+
+    private suspend fun pushUserProfile(uid: String) {
+        val userDoc = firestore.collection("users").document(uid)
+        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+        val currentUser = firebaseAuth.currentUser
+        val remoteUpdatedAt = userDoc.get().await().getLong("profileUpdatedAtMillis") ?: 0L
+
+        if (localProfile.updatedAtMillis <= remoteUpdatedAt) {
+            return
+        }
+
+        val profileData = mapOf(
+            "fullName" to localProfile.fullName,
+            "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
+            "phoneNumber" to localProfile.phoneNumber,
+            "dateOfBirthMillis" to localProfile.dateOfBirthMillis,
+            "gender" to localProfile.gender,
+            "memberSinceLabel" to localProfile.memberSinceLabel,
+            "accountTier" to localProfile.accountTier,
+            "photoUri" to localProfile.photoUri,
+            "isAnonymous" to (currentUser?.isAnonymous ?: false),
+            "profileUpdatedAtMillis" to localProfile.updatedAtMillis
+        )
+
+        userDoc.set(profileData, SetOptions.merge()).await()
+    }
+
+    private suspend fun pullUserProfile(uid: String) {
+        val userDoc = firestore.collection("users").document(uid)
+        val snapshot = userDoc.get().await()
+        if (!snapshot.exists()) return
+
+        val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+        if (remoteUpdatedAt <= localProfile.updatedAtMillis) return
+
+        val authUser = firebaseAuth.currentUser
+        val remoteProfile = UserProfile(
+            fullName = snapshot.getString("fullName") ?: localProfile.fullName,
+            emailAddress = snapshot.getString("emailAddress")
+                ?: authUser?.email
+                ?: localProfile.emailAddress,
+            phoneNumber = snapshot.getString("phoneNumber") ?: localProfile.phoneNumber,
+            dateOfBirthMillis = snapshot.getLong("dateOfBirthMillis") ?: localProfile.dateOfBirthMillis,
+            gender = snapshot.getString("gender") ?: localProfile.gender,
+            memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
+            accountTier = snapshot.getString("accountTier") ?: localProfile.accountTier,
+            photoUri = snapshot.getString("photoUri") ?: localProfile.photoUri,
+            updatedAtMillis = remoteUpdatedAt
+        )
+
+        UserProfileDataStore.setUserProfile(context, remoteProfile)
     }
 
     private suspend fun pushLocalChanges(uid: String) {

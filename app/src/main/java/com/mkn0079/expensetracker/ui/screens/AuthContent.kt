@@ -27,19 +27,26 @@ import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
 import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.viewmodels.AuthState
 import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
-
 import androidx.compose.ui.graphics.ColorFilter
+
+private enum class EmailAuthAction {
+    Login,
+    SignUp
+}
 
 @Composable
 fun AuthContent(
     viewModel: AuthViewModel,
-    onAuthSuccess: () -> Unit
+    onAuthSuccess: () -> Unit,
+    onGuestContinue: () -> Unit = onAuthSuccess,
+    onSignUpSuccess: (() -> Unit)? = null
 ) {
     val authState by viewModel.authState.collectAsState()
     val cooldownSeconds by viewModel.cooldownSeconds.collectAsState()
     var isSignUp by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var pendingEmailAuthAction by remember { mutableStateOf<EmailAuthAction?>(null) }
 
     val isEmailValid = remember(email) {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
@@ -59,16 +66,26 @@ fun AuthContent(
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
-            onAuthSuccess()
+            val isNewUser = (authState as AuthState.Success).isNewUser
+            pendingEmailAuthAction = null
+            if (isNewUser) {
+                (onSignUpSuccess ?: onAuthSuccess).invoke()
+            } else {
+                onAuthSuccess()
+            }
+            viewModel.resetState()
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 16.dp)
     ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         // Google Sign In Button
         OutlinedButton(
             onClick = { viewModel.signInWithGoogle() },
@@ -101,48 +118,6 @@ fun AuthContent(
                         modifier = Modifier.size(24.dp),
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                     )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Magic Link Button (Passwordless)
-        if (!isSignUp) {
-            Button(
-                onClick = { 
-                    if (cooldownSeconds == 0) {
-                        viewModel.sendMagicLink(email)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = email.isNotEmpty() && isEmailValid && authState !is AuthState.Loading && cooldownSeconds == 0,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSecondary
-                )
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    if (authState is AuthState.Loading && !isSignUp && email.isNotEmpty()) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onSecondary)
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = if (cooldownSeconds > 0) "Resend in ${cooldownSeconds}s" else stringResource(id = R.string.label_send_magic_link),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
                 }
             }
         }
@@ -262,8 +237,10 @@ fun AuthContent(
         Button(
             onClick = {
                 if (isSignUp) {
+                    pendingEmailAuthAction = EmailAuthAction.SignUp
                     viewModel.signUpWithEmail(email, password)
                 } else {
+                    pendingEmailAuthAction = EmailAuthAction.Login
                     viewModel.signInWithEmail(email, password)
                 }
             },
@@ -274,7 +251,11 @@ fun AuthContent(
             enabled = canSubmit && authState !is AuthState.Loading
         ) {
             if (authState is AuthState.Loading && isSignUp) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp
+                )
             } else {
                 Text(
                     text = if (isSignUp) stringResource(id = R.string.label_create_account) else stringResource(id = R.string.label_login),
@@ -284,6 +265,46 @@ fun AuthContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Magic Link Button (Passwordless)
+        if (!isSignUp) {
+            Button(
+                onClick = {
+                    if (cooldownSeconds == 0) {
+                        viewModel.sendMagicLink(email)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = email.isNotEmpty() && isEmailValid && authState !is AuthState.Loading && cooldownSeconds == 0,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (authState is AuthState.Loading && !isSignUp && email.isEmpty()) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onSecondary)
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = if (cooldownSeconds > 0) "Resend in ${cooldownSeconds}s" else stringResource(id = R.string.label_send_magic_link),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+            }
+        }
 
         TextButton(onClick = { 
             isSignUp = !isSignUp 
@@ -299,7 +320,10 @@ fun AuthContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(
-            onClick = { viewModel.signInAnonymously() },
+            onClick = {
+                viewModel.startGuestSignIn()
+                onGuestContinue()
+            },
             enabled = authState !is AuthState.Loading
         ) {
             Text(
@@ -311,4 +335,5 @@ fun AuthContent(
             )
         }
     }
+}
 }

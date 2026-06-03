@@ -21,7 +21,7 @@ import javax.inject.Inject
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
-    object Success : AuthState()
+    data class Success(val isNewUser: Boolean = false) : AuthState()
     object ResetEmailSent : AuthState()
     object MagicLinkSent : AuthState()
     data class Error(@StringRes val messageRes: Int) : AuthState()
@@ -42,6 +42,7 @@ class AuthViewModel @Inject constructor(
     val cooldownSeconds: StateFlow<Int> = _cooldownSeconds.asStateFlow()
 
     private var cooldownJob: kotlinx.coroutines.Job? = null
+    private var guestSignInSessionId: Long = 0L
 
     val currentUser = authRepository.currentUser
 
@@ -57,7 +58,7 @@ class AuthViewModel @Inject constructor(
                 .onSuccess { idToken ->
                     if (idToken != null) {
                         authRepository.signInWithGoogle(idToken)
-                            .onSuccess { _authState.value = AuthState.Success }
+                            .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
                             .onFailure { error ->
                                 _authState.value = AuthState.Error(mapFirebaseError(error.message))
                             }
@@ -80,7 +81,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signInWithEmail(email, password)
-                .onSuccess { _authState.value = AuthState.Success }
+                .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error.message))
                 }
@@ -96,7 +97,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signUpWithEmail(email, password)
-                .onSuccess { _authState.value = AuthState.Success }
+                .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error.message))
                 }
@@ -165,8 +166,8 @@ class AuthViewModel @Inject constructor(
             
             if (pendingEmail != null) {
                 authRepository.completeSignInWithLink(pendingEmail, emailLink)
-                    .onSuccess {
-                        _authState.value = AuthState.Success
+                    .onSuccess { isNewUser ->
+                        _authState.value = AuthState.Success(isNewUser)
                         // Clear the pending email
                         AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = null) }
                     }
@@ -179,13 +180,28 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signInAnonymously() {
+    fun startGuestSignIn() {
+        val sessionId = System.currentTimeMillis()
+        guestSignInSessionId = sessionId
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signInAnonymously()
-                .onSuccess { _authState.value = AuthState.Success }
-                .onFailure { _authState.value = AuthState.Error(R.string.error_auth_generic_fail) }
+                .onSuccess { isNewUser ->
+                    if (guestSignInSessionId == sessionId) {
+                        _authState.value = AuthState.Success(isNewUser)
+                    }
+                }
+                .onFailure {
+                    if (guestSignInSessionId == sessionId) {
+                        _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
+                    }
+                }
         }
+    }
+
+    fun cancelGuestSignIn() {
+        guestSignInSessionId = 0L
     }
 
     private fun mapFirebaseError(message: String?): Int {

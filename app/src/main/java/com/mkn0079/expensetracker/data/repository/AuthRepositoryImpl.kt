@@ -27,30 +27,30 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signInWithGoogle(idToken: String): Result<Unit> {
+    override suspend fun signInWithGoogle(idToken: String): Result<Boolean> {
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(credential).await()
-            Result.success(Unit)
+            val result = firebaseAuth.signInWithCredential(credential).await()
+            Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
             android.util.Log.e("AuthRepo", "Firebase Sign-In failed: ${e.message}", e)
             Result.failure(e)
         }
     }
 
-    override suspend fun signInWithEmail(email: String, password: String): Result<Unit> {
+    override suspend fun signInWithEmail(email: String, password: String): Result<Boolean> {
         return try {
-            firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            Result.success(Unit)
+            val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun signUpWithEmail(email: String, password: String): Result<Unit> {
+    override suspend fun signUpWithEmail(email: String, password: String): Result<Boolean> {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            Result.success(Unit)
+            Result.success(true) // signUp always means a new user
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -65,10 +65,10 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signInAnonymously(): Result<Unit> {
+    override suspend fun signInAnonymously(): Result<Boolean> {
         return try {
-            firebaseAuth.signInAnonymously().await()
-            Result.success(Unit)
+            val result = firebaseAuth.signInAnonymously().await()
+            Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -102,10 +102,10 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Unit> {
+    override suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Boolean> {
         return try {
-            firebaseAuth.signInWithEmailLink(email, emailLink).await()
-            Result.success(Unit)
+            val result = firebaseAuth.signInWithEmailLink(email, emailLink).await()
+            Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
             Result.failure(e)
         }

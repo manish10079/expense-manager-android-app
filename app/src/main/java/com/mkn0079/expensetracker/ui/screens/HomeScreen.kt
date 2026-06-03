@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Settings
@@ -259,7 +260,7 @@ private fun HomeScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(id = R.string.label_recent_activity),
+                    text = stringResource(id = R.string.label_recent_activities),
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
@@ -272,11 +273,8 @@ private fun HomeScreenContent(
                 )
                 val scope = rememberCoroutineScope()
 
-                Text(
-                    text = stringResource(id = R.string.label_view_all),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .scale(scale)
                         .clickable {
@@ -288,7 +286,20 @@ private fun HomeScreenContent(
                                 isPressed = false
                             }
                         }
-                )
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_view_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

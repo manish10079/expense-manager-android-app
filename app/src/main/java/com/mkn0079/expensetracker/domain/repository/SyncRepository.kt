@@ -43,6 +43,11 @@ interface SyncRepository {
     suspend fun refreshDevices(): Result<Unit>
 
     /**
+     * Synchronizes the user's profile document to the cloud and back.
+     */
+    suspend fun syncUserProfile(): Result<Unit>
+
+    /**
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).
      */
     suspend fun syncTransactions(): Result<Unit>

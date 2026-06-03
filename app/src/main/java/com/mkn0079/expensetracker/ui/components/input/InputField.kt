@@ -25,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +54,7 @@ fun InputFieldCard(
     trailingContent: (@Composable (() -> Unit))? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val focusManager = LocalFocusManager.current
 
     val containerColor = colorScheme.surface
     val primary = colorScheme.primary
@@ -129,6 +132,13 @@ fun InputFieldCard(
                                     value = value,
                                     onValueChange = onValueChange,
                                     enabled = isEnabled,
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                        onDone = { focusManager.clearFocus() }
+                                    ),
                                     textStyle = LocalTextStyle.current.copy(
                                         color = onSurface,
                                         fontSize = 16.sp
@@ -157,8 +167,13 @@ fun InputFieldCard(
                                         value = value,
                                         onValueChange = onValueChange,
                                         enabled = isEnabled,
+                                        singleLine = true,
                                         keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Email
+                                            keyboardType = KeyboardType.Email,
+                                            imeAction = ImeAction.Done
+                                        ),
+                                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                            onDone = { focusManager.clearFocus() }
                                         ),
                                         textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
                                         cursorBrush = SolidColor(primary),
@@ -185,8 +200,13 @@ fun InputFieldCard(
                                 BasicTextField(
                                     value = value,
                                     onValueChange = onValueChange,
+                                    singleLine = true,
                                     keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Phone
+                                        keyboardType = KeyboardType.Phone,
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                        onDone = { focusManager.clearFocus() }
                                     ),
                                     textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
                                     cursorBrush = SolidColor(primary),
@@ -217,8 +237,13 @@ fun InputFieldCard(
                                     value = value,
                                     onValueChange = onValueChange,
                                     enabled = isEnabled,
+                                    singleLine = true,
                                     keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Password
+                                        keyboardType = KeyboardType.Password,
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                        onDone = { focusManager.clearFocus() }
                                     ),
                                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                                     textStyle = LocalTextStyle.current.copy(

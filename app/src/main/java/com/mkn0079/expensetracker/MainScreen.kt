@@ -2,6 +2,7 @@ package com.mkn0079.expensetracker
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -77,6 +78,7 @@ import com.mkn0079.expensetracker.ui.viewmodels.MainViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mkn0079.expensetracker.ui.viewmodels.AuthViewModel
 import com.mkn0079.expensetracker.ui.screens.AuthContent
+import com.mkn0079.expensetracker.workers.SyncWorker
 import com.mkn0079.expensetracker.utils.toAmountFormatPreferences
 import com.mkn0079.expensetracker.utils.BiometricAuthManager
 import com.mkn0079.expensetracker.utils.findFragmentActivity
@@ -141,11 +143,19 @@ fun MainScreen(
     val navigationState = rememberMainNavigationState()
     
     var showAuthSheet by remember { mutableStateOf(false) }
+    var showAccountCreatedPopup by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
 
     val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(showAccountCreatedPopup) {
+        if (showAccountCreatedPopup) {
+            kotlinx.coroutines.delay(2200)
+            showAccountCreatedPopup = false
+        }
+    }
 
     val selectedCurrencyId = appSettings.currencyId
     val amountFormatPreferences = remember(appSettings) {
@@ -266,8 +276,9 @@ fun MainScreen(
 
 
 
-    AnimatedContent(
-        targetState = showOnboarding,
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedContent(
+            targetState = showOnboarding,
         transitionSpec = {
             if (!targetState) {
                 // Premium Onboarding -> Home Transition
@@ -316,6 +327,9 @@ fun MainScreen(
                             )
                         }
                     }
+                },
+                onSignUpSuccess = {
+                    showAccountCreatedPopup = true
                 }
             )
         } else {
@@ -380,27 +394,44 @@ fun MainScreen(
             val firebaseUser by authViewModel.currentUser.collectAsState()
             LaunchedEffect(firebaseUser) {
                 if (firebaseUser != null && !firebaseUser!!.isAnonymous) {
-                    firebaseUser?.let { user ->
+                    firebaseUser?.let { user -> 
                         val remotePhotoUrl = user.photoUrl
-                        UserProfileDataStore.updateUserProfile(context) { profile ->
-                            // 1. Logic to localize network photo to prevent blinking
-                            if (remotePhotoUrl != null && profile.photoUri?.startsWith("http") == true) {
-                                // If already has a remote URL, we trigger localization
-                                coroutineScope.launch {
-                                    val localUri = com.mkn0079.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUrl)
-                                    if (localUri != null) {
-                                        UserProfileDataStore.updateUserProfile(context) { it.copy(photoUri = localUri) }
-                                    }
+                        val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                        if (
+                            currentProfile.fullName.isBlank() ||
+                            currentProfile.fullName == "Guest User" ||
+                            currentProfile.emailAddress.isBlank() ||
+                            currentProfile.photoUri.isNullOrBlank()
+                        ) {
+                            UserProfileDataStore.updateUserProfile(context) { profile ->
+                                profile.copy(
+                                    fullName = if (profile.fullName.isBlank() || profile.fullName == "Guest User") {
+                                        user.displayName ?: profile.fullName
+                                    } else {
+                                        profile.fullName
+                                    },
+                                    emailAddress = if (profile.emailAddress.isBlank()) {
+                                        user.email ?: profile.emailAddress
+                                    } else {
+                                        profile.emailAddress
+                                    },
+                                    // Initially set remote, then localize in background
+                                    photoUri = profile.photoUri ?: remotePhotoUrl?.toString()
+                                )
+                            }
+                        }
+
+                        // 1. Logic to localize network photo to prevent blinking
+                        if (remotePhotoUrl != null && currentProfile.photoUri?.startsWith("http") == true) {
+                            coroutineScope.launch {
+                                val localUri = com.mkn0079.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUrl)
+                                if (localUri != null) {
+                                    UserProfileDataStore.updateUserProfile(context) { it.copy(photoUri = localUri) }
                                 }
                             }
-
-                            profile.copy(
-                                fullName = user.displayName ?: profile.fullName,
-                                emailAddress = user.email ?: profile.emailAddress,
-                                // Initially set remote, then localize in background
-                                photoUri = profile.photoUri ?: remotePhotoUrl?.toString()
-                            )
                         }
+
+                        SyncWorker.startImmediate(context)
                     }
                 } else if (firebaseUser == null) {
                     // Fix: Clear local profile info when signed out
@@ -485,6 +516,7 @@ fun MainScreen(
                                 UserProfileDataStore.updateUserProfile(context) {
                                     updatedProfile
                                 }
+                                SyncWorker.startImmediate(context)
                             }
                         },
                         onDailyReminderChange = { isEnabled ->
@@ -647,197 +679,244 @@ fun MainScreen(
                         },
                         onLinkAccountClick = { 
                             authViewModel.resetState()
-                            showAuthSheet = true 
-                        },
+                        showAuthSheet = true 
+                    },
                         onLogoutClick = { showLogoutDialog = true },
                         onPrepareForExternalActivity = { isAppLockSuppressed = true }
                     )
                 }
+            }
+        }
+    }
 
-                if (showAdExpiryWarningDialog) {
-                    AlertDialog(
-                        onDismissRequest = { /* No-op to make persistent */ },
-                        properties = androidx.compose.ui.window.DialogProperties(
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false
-                        ),
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.title_ad_expiry_warning),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    showAdExpiryWarningDialog = false
-                                    if (activity != null) {
-                                        monetizationViewModel.onWatchAdFreeClicked(activity)
-                                    }
-                                },
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(stringResource(id = R.string.btn_extend_now))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showAdExpiryWarningDialog = false }) {
-                                Text(stringResource(id = R.string.btn_maybe_later))
-                            }
-                        }
+    if (showAdExpiryWarningDialog) {
+            AlertDialog(
+                onDismissRequest = { /* No-op to make persistent */ },
+                properties = androidx.compose.ui.window.DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
+                ),
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.title_ad_expiry_warning),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
-                }
-
-                if (showLogoutDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showLogoutDialog = false },
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.label_logout),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(id = R.string.msg_logout_confirm),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    showLogoutDialog = false
-                                    authViewModel.signOut()
-                                },
-                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                            ) {
-                                Text(text = stringResource(id = R.string.label_logout), fontWeight = FontWeight.Bold)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showLogoutDialog = false }) {
-                                Text(text = stringResource(id = R.string.label_cancel))
-                            }
-                        }
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                }
-
-                if (showAuthSheet) {
-                    ModalBottomSheet(
-                        onDismissRequest = { 
-                            showAuthSheet = false
-                            authViewModel.resetState()
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showAdExpiryWarningDialog = false
+                            if (activity != null) {
+                                monetizationViewModel.onWatchAdFreeClicked(activity)
+                            }
                         },
-                        sheetState = authSheetState,
-                        containerColor = MaterialTheme.colorScheme.background,
-                        dragHandle = {
-                            Box(
-                                modifier = Modifier
-                                    .padding(vertical = 12.dp)
-                                    .size(32.dp, 4.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                                        RoundedCornerShape(2.dp)
-                                    )
-                            )
-                        }
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Box(modifier = Modifier.padding(bottom = 32.dp)) {
-                            AuthContent(
-                                viewModel = authViewModel,
-                                onAuthSuccess = {
-                                    showAuthSheet = false
-                                }
+                        Text(stringResource(id = R.string.btn_extend_now))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAdExpiryWarningDialog = false }) {
+                        Text(stringResource(id = R.string.btn_maybe_later))
+                    }
+                }
+            )
+        }
+
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.label_logout),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.msg_logout_confirm),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                            authViewModel.signOut()
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text(text = stringResource(id = R.string.label_logout), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLogoutDialog = false }) {
+                        Text(text = stringResource(id = R.string.label_cancel))
+                    }
+                }
+            )
+        }
+
+        if (showAccountCreatedPopup) {
+            AnimatedVisibility(
+                visible = showAccountCreatedPopup,
+                enter = fadeIn(animationSpec = tween(250)) + scaleIn(animationSpec = tween(250), initialScale = 0.96f),
+                exit = fadeOut(animationSpec = tween(450)) + scaleOut(animationSpec = tween(450), targetScale = 0.96f),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material3.Surface(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+                        tonalElevation = 8.dp,
+                        shadowElevation = 10.dp,
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.title_account_created),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.msg_account_created_successfully),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
                     }
                 }
+            }
+        }
 
-                if (appLockFlow != null) {
-                    AppLockOverlay(
-                        isReady = isReady,
-                        appSettings = appSettings,
-                        initialFlow = appLockFlow!!,
-                        isAppUnlocked = true, // MainScreen only exists in Unlocked state
-                        biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
-                        scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
-                        isBiometricAvailable = biometricAvailability.isAvailable,
-                        securityQuestionPrompt = null, // Handled internally by AppLockOverlay
-                        onBackClick = { appLockFlow = null },
-                        autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
-                        onBiometricClick = unlockWithBiometric,
-                        onSetupComplete = { pin, questionId, answer ->
-                            // 1. Dismiss UI immediately
-                            completeUnlock()
-
-                            // 2. Background heavy work
-                            coroutineScope.launch(Dispatchers.Default) {
-                                AppLockPreferences.savePin(context, pin)
-                                AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                                appLockState = AppLockPreferences.getCachedState()
-
-                                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                                    settings.copy(appLockEnabled = true)
-                                }
-                            }
-                        },
-                        onUnlockSuccess = completeUnlock,
-                        validateUnlockPin = { pin ->
-                            AppLockPreferences.validatePinForUnlock(context, pin).also {
-                                appLockState = AppLockPreferences.getCachedState()
-                            }
-                        },
-                        onForgotPinRecovery = {
-                            disableAppLock(true)
-                        },
-                        validateSecurityAnswer = { answer ->
-                            AppLockPreferences.validateSecurityAnswer(context, answer)
-                        }
-                    )
-                }
-
-                if (isAdLoading) {
+        if (showAuthSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { 
+                    showAuthSheet = false
+                    authViewModel.resetState()
+                },
+                sheetState = authSheetState,
+                containerColor = MaterialTheme.colorScheme.background,
+                dragHandle = {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.6f))
-                            .clickable(enabled = false) {},
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(56.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = 4.dp
+                            .padding(vertical = 12.dp)
+                            .size(32.dp, 4.dp)
+                            .background(
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                RoundedCornerShape(2.dp)
                             )
-                            Spacer(Modifier.height(20.dp))
-                            Text(
-                                text = stringResource(id = R.string.msg_preparing_pro_experience),
-                                color = Color.White,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(id = R.string.msg_wont_take_long),
-                                color = Color.White.copy(alpha = 0.7f),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                    )
+                }
+            ) {
+                Box(modifier = Modifier.padding(bottom = 32.dp)) {
+                    AuthContent(
+                        viewModel = authViewModel,
+                        onAuthSuccess = {
+                            showAuthSheet = false
+                        },
+                        onGuestContinue = {
+                            showAuthSheet = false
+                        },
+                        onSignUpSuccess = {
+                            showAuthSheet = false
+                            showAccountCreatedPopup = true
+                        }
+                    )
+                }
+            }
+        }
+
+        if (appLockFlow != null) {
+            AppLockOverlay(
+                isReady = isReady,
+                appSettings = appSettings,
+                initialFlow = appLockFlow!!,
+                isAppUnlocked = true, // MainScreen only exists in Unlocked state
+                biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
+                scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
+                isBiometricAvailable = biometricAvailability.isAvailable,
+                securityQuestionPrompt = null, // Handled internally by AppLockOverlay
+                onBackClick = { appLockFlow = null },
+                autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
+                onBiometricClick = unlockWithBiometric,
+                onSetupComplete = { pin, questionId, answer ->
+                    // 1. Dismiss UI immediately
+                    completeUnlock()
+
+                    // 2. Background heavy work
+                    coroutineScope.launch(Dispatchers.Default) {
+                        AppLockPreferences.savePin(context, pin)
+                        AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
+                        appLockState = AppLockPreferences.getCachedState()
+
+                        AppSettingsDataStore.updateAppSettings(context) { settings ->
+                            settings.copy(appLockEnabled = true)
                         }
                     }
+                },
+                onUnlockSuccess = completeUnlock,
+                validateUnlockPin = { pin ->
+                    AppLockPreferences.validatePinForUnlock(context, pin).also {
+                        appLockState = AppLockPreferences.getCachedState()
+                    }
+                },
+                onForgotPinRecovery = {
+                    disableAppLock(true)
+                },
+                validateSecurityAnswer = { answer ->
+                    AppLockPreferences.validateSecurityAnswer(context, answer)
+                }
+            )
+        }
+
+        if (isAdLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(56.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 4.dp
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        text = stringResource(id = R.string.msg_preparing_pro_experience),
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.msg_wont_take_long),
+                        color = Color.White.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }

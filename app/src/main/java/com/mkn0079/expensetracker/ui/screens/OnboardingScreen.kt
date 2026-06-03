@@ -27,8 +27,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.CheckCircle
@@ -43,6 +45,7 @@ import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.Female
 import androidx.compose.material.icons.rounded.Male
 import androidx.compose.material.icons.rounded.Person
@@ -52,6 +55,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -80,6 +84,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,12 +93,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mkn0079.expensetracker.R
 import com.mkn0079.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mkn0079.expensetracker.ui.components.AppSelectionSheet
 import com.mkn0079.expensetracker.ui.components.ProfileAvatar
 import com.mkn0079.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mkn0079.expensetracker.ui.components.WheelPickerMode
+import com.mkn0079.expensetracker.ui.components.UserBadge
+import com.mkn0079.expensetracker.ui.components.UserBadgeType
 import com.mkn0079.expensetracker.ui.components.input.InputFieldCard
 import com.mkn0079.expensetracker.ui.components.input.InputType
 import com.mkn0079.expensetracker.ui.models.SelectionItem
@@ -113,13 +121,14 @@ private data class OnboardingPage(
     val titleFontSize: TextUnit = 42.sp,
     val titleLineHeight: TextUnit = 48.sp,
     val supportingContent: (@Composable () -> Unit)? = null,
-    val illustration: @Composable BoxScope.() -> Unit
+    val illustration: @Composable (BoxScope.() -> Unit)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
+    onSignUpSuccess: (() -> Unit)? = null,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -157,7 +166,7 @@ fun OnboardingScreen(
                 title = context.getString(R.string.title_secure_your_account),
                 description = context.getString(R.string.desc_sync_and_premium_features),
                 actionLabel = context.getString(R.string.label_next),
-                illustration = { SecureTrackerIllustration() } // Reuse or new
+                illustration = { SecureTrackerIllustration() } 
             ),
             OnboardingPage(
                 title = context.getString(R.string.title_lets_get_started),
@@ -172,14 +181,6 @@ fun OnboardingScreen(
     val isAuthPage = currentPage == 4
     val isSetupPage = currentPage == 5
 
-    // Finishing Animation State
-    var isFinishing by remember { mutableStateOf(false) }
-    val finishProgress by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isFinishing) 1f else 0f,
-        animationSpec = tween(durationMillis = 850, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "onboarding_finish_expansion"
-    )
-
     // Setup state
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
@@ -188,7 +189,7 @@ fun OnboardingScreen(
     var isDatePickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val currentUser by authViewModel.currentUser.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
 
     // Auto-fill name if user logged in via social provider
     LaunchedEffect(currentUser) {
@@ -199,20 +200,25 @@ fun OnboardingScreen(
         }
     }
 
+    // Force redirection to Setup Page once user is detected
+    LaunchedEffect(currentUser) {
+        if (currentUser != null && currentPage == 4) {
+            Log.d("Onboarding", "User detected! Force-advancing to Setup Page.")
+            currentPage = 5
+        }
+    }
+
     var toastMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(toastMessage) {
         if (toastMessage != null) {
-            Log.d("Onboarding", "Displaying Toast: $toastMessage")
             Toast.makeText(context.applicationContext, toastMessage, Toast.LENGTH_LONG).show()
             toastMessage = null
         }
     }
 
-    LaunchedEffect(finishProgress) {
-        if (finishProgress == 1f) {
-            onFinish(userName, userGender, userDobMillis)
-        }
+    val onCompleteInternal: () -> Unit = {
+        onFinish(userName, userGender, userDobMillis)
     }
 
     val maleLabel = stringResource(id = R.string.label_male)
@@ -230,9 +236,16 @@ fun OnboardingScreen(
         }
     }
 
-    BackHandler(enabled = currentPage > 0 && !isFinishing) {
+    BackHandler(enabled = currentPage > 0) {
+        authViewModel.cancelGuestSignIn()
+        authViewModel.resetState()
         currentPage -= 1
     }
+
+    val nameStr = stringResource(id = R.string.label_name_capitalized)
+    val genderStr = stringResource(id = R.string.label_gender_capitalized)
+    val dobStr = stringResource(id = R.string.label_dob_capitalized)
+    val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
 
     Box(
         modifier = Modifier
@@ -246,218 +259,262 @@ fun OnboardingScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 16.dp)
-                .alpha(1f - finishProgress) // Fade out content as we expand
+                .padding(top = Dimens.HeaderSpacing, bottom = 16.dp)
         ) {
-            if (!isSetupPage) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AnimatedContent(
-                        targetState = currentPage,
-                        label = "onboarding_illustration"
-                    ) { pageIndex ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(390.dp)
-                        ) {
-                            onboardingPages[pageIndex].illustration(this)
+            // Main Content Area (Weight 1 pushes footer down)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .then(
+                        if (isAuthPage || isSetupPage) Modifier.verticalScroll(rememberScrollState())
+                        else Modifier
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Illustration Section
+                if (!isSetupPage && !isAuthPage) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(320.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedContent(
+                            targetState = currentPage,
+                            label = "onboarding_illustration"
+                        ) { pageIndex ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(320.dp)
+                            ) {
+                                onboardingPages[pageIndex].illustration(this)
+                            }
                         }
                     }
+                } else {
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
-            } else {
-                Spacer(modifier = Modifier.height(56.dp))
-            }
 
-            AnimatedContent(
-                targetState = currentPage,
-                label = "onboarding_copy"
-            ) { pageIndex ->
-                val current = onboardingPages[pageIndex]
-                val isSetup = pageIndex == 4
+                // Title & Description Section
+                AnimatedContent(
+                    targetState = currentPage,
+                    label = "onboarding_copy",
+                    modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
+                ) { pageIndex ->
+                    val current = onboardingPages[pageIndex]
+                    val isAuthOnThisPageIndex = pageIndex == 4
+                    val isSetupOnThisPageIndex = pageIndex == 5
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = buildAnnotatedString {
-                            if (current.accentedText.isNullOrEmpty() || !current.title.contains(current.accentedText)) {
-                                append(current.title)
-                            } else {
-                                val accentStart = current.title.indexOf(current.accentedText)
-                                append(current.title.substring(0, accentStart))
-                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
-                                    append(current.accentedText)
-                                }
-                                append(current.title.substring(accentStart + current.accentedText.length))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (isSetupOnThisPageIndex) {
+                            val isAnonymous = currentUser?.isAnonymous ?: true
+                            
+                            if (isAnonymous) {
+                                UserBadge(
+                                    label = stringResource(R.string.label_guest_user),
+                                    type = UserBadgeType.GUEST,
+                                    modifier = Modifier.padding(bottom = 12.dp)
+                                )
                             }
-                        },
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = current.titleFontSize,
-                            lineHeight = current.titleLineHeight
-                        )
-                    )
 
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    if (isAuthPage) {
-                        AuthContent(
-                            viewModel = authViewModel,
-                            onAuthSuccess = {
-                                currentPage += 1
-                            }
-                        )
-                    } else if (isSetupPage) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            InputFieldCard(
-                                title = stringResource(id = R.string.label_full_name),
-                                value = userName,
-                                onValueChange = { userName = it },
-                                inputType = InputType.Text,
-                                leadingIcon = Icons.Rounded.Person,
-                                placeholder = stringResource(id = R.string.placeholder_enter_name)
-                            )
-
-                            InputFieldCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(id = R.string.label_gender),
-                                value = userGender,
-                                onValueChange = {},
-                                inputType = InputType.Date,
-                                leadingIcon = genderToIcon(userGender, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel),
-                                placeholder = stringResource(id = R.string.label_select_gender),
-                                onClick = { isGenderPickerVisible = true },
-                                trailingContent = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = current.title,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineLarge.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = current.titleFontSize,
+                                        lineHeight = current.titleLineHeight
+                                    )
+                                )
+                                
+                                Spacer(Modifier.width(8.dp))
+                                
+                                IconButton(
+                                    onClick = { toastMessage = context.getString(R.string.msg_privacy_info) },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Filled.KeyboardArrowDown,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = stringResource(R.string.cd_privacy_info),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
+                            }
+
+                            Spacer(modifier = Modifier.height(32.dp))
+                        } else {
+                            Text(
+                                text = buildAnnotatedString {
+                                    if (current.accentedText.isNullOrEmpty() || !current.title.contains(current.accentedText)) {
+                                        append(current.title)
+                                    } else {
+                                        val accentStart = current.title.indexOf(current.accentedText)
+                                        append(current.title.substring(0, accentStart))
+                                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                                            append(current.accentedText)
+                                        }
+                                        append(current.title.substring(accentStart + current.accentedText.length))
+                                    }
+                                },
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.headlineLarge.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = current.titleFontSize,
+                                    lineHeight = current.titleLineHeight
+                                )
                             )
 
-                            InputFieldCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(id = R.string.label_date_of_birth),
-                                value = if (userDobMillis == 0L) "" else formatDate(userDobMillis, DEFAULT_DATE_FORMAT_PATTERN),
-                                onValueChange = {},
-                                inputType = InputType.Date,
-                                leadingIcon = Icons.Filled.CalendarMonth,
-                                placeholder = stringResource(id = R.string.placeholder_select_dob),
-                                onClick = { isDatePickerVisible = true }
-                            )
+                            Spacer(modifier = Modifier.height(if (isAuthOnThisPageIndex) 24.dp else 32.dp))
                         }
-                    } else {
-                        Text(
-                            text = current.description,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 15.sp,
-                                lineHeight = 27.sp
-                            ),
-                            modifier = Modifier.fillMaxWidth(0.88f)
-                        )
 
-                        current.supportingContent?.let { content ->
-                            Spacer(modifier = Modifier.height(28.dp))
-                            content()
+                        if (isAuthOnThisPageIndex) {
+                            AuthContent(
+                                viewModel = authViewModel,
+                                onAuthSuccess = {
+                                    Log.d("Onboarding", "Auth SUCCESS callback triggered.")
+                                    currentPage = 5
+                                },
+                                onGuestContinue = {
+                                    Log.d("Onboarding", "Guest continue triggered.")
+                                    currentPage = 5
+                                },
+                                onSignUpSuccess = {
+                                    Log.d("Onboarding", "Sign up success callback triggered.")
+                                    onSignUpSuccess?.invoke()
+                                    currentPage = 5
+                                }
+                            )
+                        } else if (isSetupOnThisPageIndex) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                InputFieldCard(
+                                    title = stringResource(id = R.string.label_full_name),
+                                    value = userName,
+                                    onValueChange = { userName = it },
+                                    inputType = InputType.Text,
+                                    leadingIcon = Icons.Rounded.Person,
+                                    placeholder = stringResource(id = R.string.placeholder_enter_name)
+                                )
+
+                                InputFieldCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(id = R.string.label_gender),
+                                    value = userGender,
+                                    onValueChange = {},
+                                    inputType = InputType.Date,
+                                    leadingIcon = genderToIcon(userGender, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel),
+                                    placeholder = stringResource(id = R.string.label_select_gender),
+                                    onClick = { isGenderPickerVisible = true },
+                                    trailingContent = {
+                                        Icon(
+                                            imageVector = Icons.Filled.KeyboardArrowDown,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                )
+
+                                InputFieldCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(id = R.string.label_date_of_birth),
+                                    value = if (userDobMillis == 0L) "" else formatDate(userDobMillis, DEFAULT_DATE_FORMAT_PATTERN),
+                                    onValueChange = {},
+                                    inputType = InputType.Date,
+                                    leadingIcon = Icons.Filled.CalendarMonth,
+                                    placeholder = stringResource(id = R.string.placeholder_select_dob),
+                                    onClick = { isDatePickerVisible = true }
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = current.description,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 15.sp,
+                                    lineHeight = 27.sp
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.88f)
+                            )
+
+                            current.supportingContent?.let { content ->
+                                Spacer(modifier = Modifier.height(28.dp))
+                                content()
+                            }
                         }
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(32.dp))
             }
 
-            if (isSetupPage) {
-                Spacer(modifier = Modifier.weight(1f))
-            } else {
-                Spacer(modifier = Modifier.height(if (page.supportingContent == null) 34.dp else 24.dp))
-            }
-
-            val nameStr = stringResource(id = R.string.label_name_capitalized)
-            val genderStr = stringResource(id = R.string.label_gender_capitalized)
-            val dobStr = stringResource(id = R.string.label_dob_capitalized)
-            val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
-            
             if (!isAuthPage) {
-                PrimaryOnboardingButton(
-                    label = page.actionLabel,
-                    onClick = {
-                        if (isFinishing) return@PrimaryOnboardingButton
-                        
-                        val lastIndex = onboardingPages.lastIndex
-                        Log.d("Onboarding", "Button clicked at page $currentPage. Target page: $lastIndex")
-                        
-                        if (currentPage == lastIndex) {
-                            val missingFields = mutableListOf<String>()
-                            if (userName.trim().isEmpty()) missingFields.add(nameStr)
-                            if (userGender.trim().isEmpty()) missingFields.add(genderStr)
-                            if (userDobMillis == 0L) missingFields.add(dobStr)
+                // Fixed Footer Area
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.ScreenPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    PrimaryOnboardingButton(
+                        label = page.actionLabel,
+                        onClick = {
+                            val lastIndex = onboardingPages.lastIndex
+                            
+                            if (currentPage == lastIndex) {
+                                val missingFields = mutableListOf<String>()
+                                if (userName.trim().isEmpty()) missingFields.add(nameStr)
+                                if (userGender.trim().isEmpty()) missingFields.add(genderStr)
+                                if (userDobMillis == 0L) missingFields.add(dobStr)
 
-                            Log.d("Onboarding", "Form validation: missing=${missingFields.joinToString()}")
-
-                            if (missingFields.isEmpty()) {
-                                isFinishing = true
+                                if (missingFields.isEmpty()) {
+                                    onCompleteInternal()
+                                } else {
+                                    toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                                }
                             } else {
-                                toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                                currentPage += 1
                             }
-                        } else {
-                            currentPage += 1
                         }
-                    }
-                )
-            } else {
-                // Spacer to maintain layout height when button is hidden
-                Spacer(modifier = Modifier.height(78.dp))
-            }
-
-            Spacer(modifier = Modifier.height(26.dp))
-
-            BottomControls(
-                pageCount = onboardingPages.size,
-                currentPage = currentPage,
-                showSkip = currentPage < 4, // Don't show skip on Auth or Setup pages
-                onPreviousClick = {
-                    if (currentPage > 0) {
-                        currentPage -= 1
-                    }
-                },
-                onSkipClick = { currentPage = onboardingPages.lastIndex }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // Expansion Overlay
-        if (finishProgress > 0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        // Expansion starts from the bottom area where the button is
-                        val scale = finishProgress * 8f
-                        scaleX = scale
-                        scaleY = scale
-                        alpha = if (finishProgress < 0.1f) finishProgress * 10f else 1f
-                        translationY = size.height * 0.35f // Offset expansion center towards button
-                    }
-                    .background(
-                        brush = brandGradient(),
-                        shape = CircleShape
                     )
-            )
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    BottomControls(
+                        pageCount = onboardingPages.size,
+                        currentPage = currentPage,
+                        showSkip = currentPage < 4,
+                        onPreviousClick = {
+                            if (currentPage > 0) {
+                                currentPage -= 1
+                            }
+                        },
+                        onNextClick = {
+                            if (currentPage < onboardingPages.lastIndex) {
+                                currentPage += 1
+                            }
+                        },
+                        onSkipClick = { currentPage = 4 }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
     }
 
@@ -518,50 +575,75 @@ private fun BottomControls(
     currentPage: Int,
     showSkip: Boolean = true,
     onPreviousClick: () -> Unit,
+    onNextClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
+    val isAuthPage = currentPage == 4
+    val isSetupPage = currentPage == 5
+
+    if (isAuthPage || isSetupPage) {
+        Spacer(modifier = Modifier.height(56.dp)) 
+        return
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = stringResource(id = R.string.label_prev),
-            color = if (currentPage == 0) {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f)
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.4.sp,
-                fontSize = 14.sp
-            ),
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .alpha(if (currentPage == 0) 0.45f else 1f)
-                .clickable(enabled = currentPage > 0, onClick = onPreviousClick)
-                .padding(vertical = 12.dp)
-        )
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+            if (currentPage > 0 && !isAuthPage) {
+                Text(
+                    text = stringResource(id = R.string.label_prev),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.4.sp,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier
+                        .clickable(onClick = onPreviousClick)
+                        .padding(vertical = 12.dp, horizontal = 8.dp)
+                )
+            }
+        }
 
         PageIndicator(
             pageCount = pageCount,
             currentPage = currentPage,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
 
-        if (showSkip) {
-            Text(
-                text = stringResource(id = R.string.label_skip),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.4.sp,
-                    fontSize = 14.sp
-                ),
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clickable(onClick = onSkipClick)
-                    .padding(vertical = 12.dp)
-            )
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+            if (showSkip) {
+                Text(
+                    text = stringResource(id = R.string.label_skip),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.4.sp,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier
+                        .clickable(onClick = onSkipClick)
+                        .padding(vertical = 12.dp, horizontal = 8.dp)
+                )
+            } else {
+                Text(
+                    text = stringResource(id = R.string.label_next_caps),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.4.sp,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier
+                        .clickable(onClick = onNextClick)
+                        .padding(vertical = 12.dp, horizontal = 8.dp)
+                )
+            }
         }
     }
 }
@@ -591,7 +673,7 @@ private fun PrimaryOnboardingButton(
             .height(78.dp)
             .scale(scale)
             .shadow(
-                elevation = 34.dp,
+                elevation = 16.dp, // Reduced from 34dp
                 shape = RoundedCornerShape(999.dp),
                 ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
@@ -1099,12 +1181,12 @@ private fun BenefitCard(
     title: String,
     value: String
 ) {
-    Column(
+    Row(
         modifier = modifier
             .clip(RoundedCornerShape(30.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -1121,24 +1203,33 @@ private fun BenefitCard(
             )
         }
 
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.titleMedium.copy(
-                letterSpacing = 2.sp,
-                fontSize = 11.sp
-            )
-        )
+        Spacer(modifier = Modifier.width(14.dp))
 
-        Text(
-            text = value,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            ),
-            modifier = Modifier.widthIn(max = 132.dp)
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    letterSpacing = 2.sp,
+                    fontSize = 10.sp
+                )
+            )
+
+            Text(
+                text = value,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp
+                ),
+                textAlign = TextAlign.Start,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

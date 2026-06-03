@@ -34,6 +34,7 @@ object UserProfileDataStore {
         val memberSinceLabel = stringPreferencesKey("member_since_label")
         val accountTier = stringPreferencesKey("account_tier")
         val photoUri = stringPreferencesKey("photo_uri")
+        val updatedAtMillis = longPreferencesKey("updated_at_millis")
     }
 
     fun getUserProfileFlow(context: Context): Flow<UserProfile> {
@@ -57,8 +58,20 @@ object UserProfileDataStore {
         transform: (UserProfile) -> UserProfile
     ) {
         context.applicationContext.userProfileDataStore.edit { preferences ->
-            val updatedProfile = transform(preferences.toUserProfile())
+            val updatedProfile = transform(preferences.toUserProfile()).copy(
+                updatedAtMillis = System.currentTimeMillis()
+            )
             preferences.writeUserProfile(updatedProfile)
+            preferences[Keys.initialized] = true
+        }
+    }
+
+    suspend fun setUserProfile(
+        context: Context,
+        profile: UserProfile
+    ) {
+        context.applicationContext.userProfileDataStore.edit { preferences ->
+            preferences.writeUserProfile(profile)
             preferences[Keys.initialized] = true
         }
     }
@@ -72,7 +85,8 @@ object UserProfileDataStore {
             gender = this[Keys.gender] ?: defaultUserProfile.gender,
             memberSinceLabel = this[Keys.memberSinceLabel] ?: defaultUserProfile.memberSinceLabel,
             accountTier = this[Keys.accountTier] ?: defaultUserProfile.accountTier,
-            photoUri = this[Keys.photoUri] ?: defaultUserProfile.photoUri
+            photoUri = this[Keys.photoUri] ?: defaultUserProfile.photoUri,
+            updatedAtMillis = this[Keys.updatedAtMillis] ?: defaultUserProfile.updatedAtMillis
         )
     }
 
@@ -85,6 +99,7 @@ object UserProfileDataStore {
         this[Keys.memberSinceLabel] = profile.memberSinceLabel
         this[Keys.accountTier] = profile.accountTier
         profile.photoUri?.let { this[Keys.photoUri] = it } ?: remove(Keys.photoUri)
+        this[Keys.updatedAtMillis] = profile.updatedAtMillis
     }
 
     suspend fun clearAll(context: Context) {

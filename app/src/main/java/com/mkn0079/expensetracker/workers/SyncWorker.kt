@@ -6,6 +6,7 @@ import androidx.work.*
 import com.mkn0079.expensetracker.data.local.AppSettingsDataStore
 import com.mkn0079.expensetracker.domain.repository.SyncRepository
 import com.mkn0079.expensetracker.models.UserTier
+import com.google.firebase.auth.FirebaseAuth
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -15,17 +16,29 @@ import java.util.concurrent.TimeUnit
 class SyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
-    private val syncRepository: SyncRepository
+    private val syncRepository: SyncRepository,
+    private val firebaseAuth: FirebaseAuth
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        // 1. Check Tier - Only Premium users get Cloud Sync
-        val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
-        if (settings.userTier != UserTier.PREMIUM) {
-            return Result.success() // Silent skip for free users
+        // 1. Sync profile for any authenticated user (free, premium, guest/anonymous)
+        val profileSyncResult = syncRepository.syncUserProfile()
+        if (profileSyncResult.isFailure) {
+            return Result.retry()
         }
 
-        // 2. Handshake (Register/Check Device Limit)
+        // If not signed in, profile sync is a no-op and we're done.
+        if (firebaseAuth.currentUser == null) {
+            return Result.success()
+        }
+
+        // 2. Check Tier - Only Premium users get full Room DB cloud sync
+        val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
+        if (settings.userTier != UserTier.PREMIUM) {
+            return Result.success()
+        }
+
+        // 3. Handshake (Register/Check Device Limit)
         val handshakeResult = syncRepository.registerCurrentDevice()
         
         if (handshakeResult.isFailure) {
@@ -37,7 +50,7 @@ class SyncWorker @AssistedInject constructor(
             }
         }
 
-        // 3. Perform actual data sync
+        // 4. Perform actual data sync
         val syncResult = syncRepository.syncTransactions()
         
         return if (syncResult.isSuccess) {

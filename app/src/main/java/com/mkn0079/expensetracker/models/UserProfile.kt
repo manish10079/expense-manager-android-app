@@ -11,7 +11,8 @@ data class UserProfile(
     val gender: String,
     val memberSinceLabel: String,
     val accountTier: String,
-    val photoUri: String? = null
+    val photoUri: String? = null,
+    val updatedAtMillis: Long = 0L
 )
 
 val defaultUserProfile = UserProfile(

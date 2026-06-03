@@ -354,10 +354,9 @@
     <string name="label_pick_a_preset_in_5minute_steps">Pick a preset in 5-minute steps up to 60, or enter a custom value in minutes.</string>
     <string name="label_pick_a_preset_or_enter_a_custo">Pick a preset or enter a custom value between 1 and 30 days.</string>
     <string name="label_premium_member">PREMIUM MEMBER</string>
-    <string name="label_prev">PREV</string>
     <string name="label_private_member">PRIVATE MEMBER</string>
     <string name="label_qval">Q%1$s</string>
-    <string name="label_recent_activity">Recent Activity</string>
+    <string name="label_recent_activities">Recent Activities</string>
     <string name="label_repeat_count">Repeat count</string>
     <string name="label_reset">Reset</string>
     <string name="label_restore_database">Restore database?</string>
@@ -374,7 +373,6 @@
     <string name="label_select_time_format">Select Time Format</string>
     <string name="label_select_visual_identity">SELECT VISUAL IDENTITY</string>
     <string name="label_selected">Selected</string>
-    <string name="label_skip">SKIP</string>
     <string name="label_smart_ai_tip">Smart AI Tip</string>
     <string name="label_sort_filter">Sort &amp; Filter</string>
     <string name="label_stepanimation">StepAnimation</string>
@@ -401,7 +399,7 @@
     <string name="label_val_val">%1$s (%2$s)</string>
     <string name="label_valx">%1$sX</string>
     <string name="label_version_100">VERSION 1.0.0</string>
-    <string name="label_view_all">VIEW ALL</string>
+    <string name="label_view_all">View All</string>
     <string name="label_website">WEBSITE</string>
     <string name="label_wk_val">WK %1$s</string>
     <string name="label_year">Year</string>
@@ -541,7 +539,7 @@
     <string name="label_next">Next</string>
     <string name="desc_financial_data_secure">Your financial data is stored locally and protected by biometric security.</string>
     <string name="desc_visualize_spending">Visualize your spending habits with interactive charts and detailed category breakdowns.</string>
-    <string name="desc_modern_finance">Modern personal finance at your fingertips. Fully offline by default, your data never leaves your device.</string>
+    <string name="desc_modern_finance">Modern personal finance at your fingertips. Offline-first by default, your data never leaves your device.</string>
     <string name="label_continue">Continue</string>
     <string name="label_private_by_nature">Private by Nature</string>
     <string name="title_secure_your_account">Secure Your Account</string>
@@ -552,6 +550,9 @@
     <string name="label_email">Email Address</string>
     <string name="label_password">Password</string>
     <string name="label_create_account">Create Account</string>
+    <string name="msg_creating_account">Creating account...</string>
+    <string name="title_account_created">Account created</string>
+    <string name="label_ok">OK</string>
     <string name="label_login">Login</string>
     <string name="label_already_have_account">Already have an account? Login</string>
     <string name="label_no_account_signup">Don\'t have an account? Sign up</string>
@@ -571,7 +572,7 @@
     <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
     <string name="label_secure_logging">SECURE LOGGING</string>
     <string name="label_architecture">ARCHITECTURE</string>
-    <string name="label_100_offline">100% Offline</string>
+    <string name="label_100_offline">100% Offline First</string>
     <string name="label_access">ACCESS</string>
     <string name="label_full_control">Full Control</string>
     <string name="label_zero">0</string>
@@ -1189,6 +1190,9 @@
     <string name="msg_maintenance_desc">We are currently performing scheduled maintenance to improve our services. We\'ll be back shortly. Thank you for your patience!</string>
     <string name="title_protect_your_data">Protect Your Data</string>
     <string name="msg_link_account_desc">Your data is currently only on this device. Sign in to enable cloud sync and backup.</string>
+    <string name="label_guest_user">Guest User</string>
+    <string name="msg_privacy_info">We use this information to personalize your dashboard and provide age-appropriate insights. Your data stays 100% private and secure.</string>
+    <string name="cd_privacy_info">View privacy information</string>
     <string name="title_lets_get_started">Let\'s get started!</string>
     <string name="desc_delete_all_data_subtitle">Irreversible destructive action</string>
     <string name="label_delete_recurring">Delete Recurring</string>
@@ -1208,6 +1212,8 @@
     <string name="msg_auth_reset_email_sent">Password reset link sent! Please check your inbox.</string>
     <string name="label_send_magic_link">Sign in with Email Link</string>
     <string name="msg_auth_magic_link_sent">Magic link sent! Please check your inbox (and spam folder) to sign in.</string>
+    <string name="msg_identity_secured_setting_up_profile">Identity secured. Setting up your profile...</string>
+    <string name="msg_account_created_successfully">Account created successfully.</string>
     <string name="msg_auth_cooldown_wait">Please wait %1$d seconds before requesting another link.</string>
     <string name="title_cloud_sync_devices">Cloud Sync &amp; Devices</string>
     <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Premium)</string>
@@ -1231,4 +1237,7 @@
     <string name="btn_apply">Apply</string>
     <string name="msg_preparing_pro_experience">Preparing your pro-level experience…</string>
     <string name="msg_wont_take_long">This won’t take long</string>
+    <string name="label_prev">PREV</string>
+    <string name="label_next_caps">NEXT</string>
+    <string name="label_skip">SKIP</string>
 </resources>

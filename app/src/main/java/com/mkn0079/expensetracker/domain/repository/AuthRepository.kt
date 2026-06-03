@@ -14,18 +14,21 @@ interface AuthRepository {
 
     /**
      * Signs in using a Google ID Token (obtained from the Credential Manager).
+     * Returns true if a new user was created.
      */
-    suspend fun signInWithGoogle(idToken: String): Result<Unit>
+    suspend fun signInWithGoogle(idToken: String): Result<Boolean>
 
     /**
      * Signs in with Email and Password.
+     * Returns true if a new user was created (should usually be false).
      */
-    suspend fun signInWithEmail(email: String, password: String): Result<Unit>
+    suspend fun signInWithEmail(email: String, password: String): Result<Boolean>
 
     /**
      * Creates a new account with Email and Password.
+     * Returns true on success.
      */
-    suspend fun signUpWithEmail(email: String, password: String): Result<Unit>
+    suspend fun signUpWithEmail(email: String, password: String): Result<Boolean>
 
     /**
      * Sends a password reset email.
@@ -34,8 +37,9 @@ interface AuthRepository {
 
     /**
      * Signs in anonymously. Useful for guest access.
+     * Returns true if a new user was created.
      */
-    suspend fun signInAnonymously(): Result<Unit>
+    suspend fun signInAnonymously(): Result<Boolean>
 
     /**
      * Deletes the user's account from Firebase Auth.
@@ -49,8 +53,9 @@ interface AuthRepository {
 
     /**
      * Completes the sign-in process using the link received via email.
+     * Returns true if a new user was created.
      */
-    suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Unit>
+    suspend fun completeSignInWithLink(email: String, emailLink: String): Result<Boolean>
 
     /**
      * Returns true if the provided link is a valid Firebase Sign-In link.
