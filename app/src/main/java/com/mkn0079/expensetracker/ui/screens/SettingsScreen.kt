@@ -131,6 +131,8 @@ fun SettingsScreen(
     onManageCategoryClick: () -> Unit = {},
     onLinkAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onConnectedDevicesClick: () -> Unit = {},
+    onShowUpgradeSheet: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -170,6 +172,8 @@ fun SettingsScreen(
         onManageCategoryClick = onManageCategoryClick,
         onLinkAccountClick = onLinkAccountClick,
         onLogoutClick = onLogoutClick,
+        onConnectedDevicesClick = onConnectedDevicesClick,
+        onShowUpgradeSheet = onShowUpgradeSheet,
         onAdFreeAccessClick = {
             val activity = context as? android.app.Activity
             if (activity != null) {
@@ -201,6 +205,8 @@ private fun SettingsScreenContent(
     onManageCategoryClick: () -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onConnectedDevicesClick: () -> Unit,
+    onShowUpgradeSheet: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -245,8 +251,8 @@ private fun SettingsScreenContent(
                             isDailyReminderEnabled = isDailyReminderEnabled,
                             isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                             isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                            onItemClick = { actionId ->
-                                when (actionId) {
+                            onItemClick = { item ->
+                                when (item.actionId) {
                                     SettingsActionId.EditProfile -> onProfileClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
@@ -257,6 +263,13 @@ private fun SettingsScreenContent(
                                     SettingsActionId.ManageCategories -> onManageCategoryClick()
                                     SettingsActionId.AdFreeAccess -> onAdFreeAccessClick()
                                     SettingsActionId.LinkAccount -> onLinkAccountClick()
+                                    SettingsActionId.ConnectedDevices -> {
+                                        if (item.isLocked) {
+                                            onShowUpgradeSheet()
+                                        } else {
+                                            onConnectedDevicesClick()
+                                        }
+                                    }
                                     SettingsActionId.Logout -> onLogoutClick()
                                     else -> Unit
                                 }
@@ -290,7 +303,7 @@ private fun SettingsSection(
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
-    onItemClick: (SettingsActionId?) -> Unit,
+    onItemClick: (SettingsItemUi) -> Unit,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit
@@ -333,7 +346,7 @@ private fun SettingsSection(
                     }
                 },
                 onClick = {
-                    onItemClick(item.actionId)
+                    onItemClick(item)
                 }
             )
         }
@@ -476,6 +489,8 @@ private fun SettingsScreenPreview() {
             onManageCategoryClick = {},
             onLinkAccountClick = {},
             onLogoutClick = {},
+            onConnectedDevicesClick = {},
+            onShowUpgradeSheet = {},
             onAdFreeAccessClick = {},
             onBackClick = {}
         )

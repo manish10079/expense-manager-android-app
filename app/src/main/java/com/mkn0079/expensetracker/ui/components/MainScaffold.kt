@@ -105,6 +105,7 @@ fun MainScaffold(
     onAutoBackupFrequencyChange: (Int) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
     val transactionsViewModel: TransactionsViewModel = viewModel()
@@ -239,6 +240,7 @@ fun MainScaffold(
             onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
+            onShowUpgradeSheet = onShowUpgradeSheet,
             onPrepareForExternalActivity = onPrepareForExternalActivity
         )
 

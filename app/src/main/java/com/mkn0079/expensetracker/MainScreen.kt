@@ -67,6 +67,7 @@ import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.InterstitialPlacement
 import com.mkn0079.expensetracker.ui.components.AppLockOverlay
 import com.mkn0079.expensetracker.ui.components.MainScaffold
+import com.mkn0079.expensetracker.ui.components.PremiumGateSheet
 import com.mkn0079.expensetracker.ui.navigation.AppRoute
 import com.mkn0079.expensetracker.ui.navigation.AppLockFlow
 import com.mkn0079.expensetracker.ui.navigation.rememberMainNavigationState
@@ -143,6 +144,7 @@ fun MainScreen(
     val navigationState = rememberMainNavigationState()
     
     var showAuthSheet by remember { mutableStateOf(false) }
+    var showPremiumSheet by remember { mutableStateOf(false) }
     var showAccountCreatedPopup by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
@@ -682,11 +684,22 @@ fun MainScreen(
                         showAuthSheet = true 
                     },
                         onLogoutClick = { showLogoutDialog = true },
+                        onShowUpgradeSheet = { showPremiumSheet = true },
                         onPrepareForExternalActivity = { isAppLockSuppressed = true }
                     )
                 }
             }
         }
+    }
+
+    if (showPremiumSheet) {
+        PremiumGateSheet(
+            onDismiss = { showPremiumSheet = false },
+            onUpgradeClick = {
+                monetizationViewModel.onPurchaseSimulated()
+                showPremiumSheet = false
+            }
+        )
     }
 
     if (showAdExpiryWarningDialog) {
