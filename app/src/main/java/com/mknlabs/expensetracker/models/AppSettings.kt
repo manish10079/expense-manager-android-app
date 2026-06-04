@@ -1,0 +1,44 @@
+package com.mknlabs.expensetracker.models
+
+import androidx.compose.runtime.Immutable
+
+@Immutable
+data class AppSettings(
+    val currencyId: Int,
+    val currencyGroupingStyle: CurrencyGroupingStyle,
+    val currencyDecimalPlaces: Int,
+    val dateFormatPattern: String,
+    val timeFormat: String,
+    val sortBy: String,
+    val sortOrder: SortType,
+    val defaultTransactionTypeId: Int,
+    val defaultTransactionTypeFilterId: Int,
+    val defaultPaymentTypeId: Int,
+    val languageCode: String,
+    val notificationsEnabled: Boolean,
+    val budgetLimitAlertsEnabled: Boolean,
+    val missedEntryReminderEnabled: Boolean,
+    val appLockEnabled: Boolean,
+    val biometricLockEnabled: Boolean,
+    val scrambledPinKeypadEnabled: Boolean,
+    val blurInRecentsEnabled: Boolean,
+    val screenshotProtectionEnabled: Boolean,
+    val appLockTimeoutMinutes: Int,
+    val showOnboardingScreen: Boolean,
+    val showSplashScreen: Boolean,
+    val themeMode: AppThemeMode,
+    val transactionCardShowIncomeExpenseLabels: Boolean,
+    val transactionCardShowTransactionDate: Boolean,
+    val transactionCardShowPaymentMethod: Boolean,
+    val transactionCardShowTransactionTime: Boolean,
+    val transactionCardShowCategoryIcon: Boolean,
+    val transactionCardShowCategoryLabel: Boolean,
+    val transactionCardShowDateSeparators: Boolean,
+    val installDateMillis: Long,
+    val isAutoBackupEnabled: Boolean,
+    val autoBackupFrequencyDays: Int,
+    val lastAutoBackupTimeMillis: Long,
+    val lastSyncTimeMillis: Long,
+    val pendingAuthEmail: String?,
+    val userTier: UserTier
+)
