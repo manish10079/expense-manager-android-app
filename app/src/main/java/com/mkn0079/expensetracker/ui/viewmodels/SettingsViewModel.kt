@@ -158,9 +158,10 @@ private fun buildSettingsSections(
     userTier: com.mkn0079.expensetracker.models.UserTier,
     adFreeRemainingTime: String?
 ): List<SettingsSectionUi> {
+    val settingsSections = mutableListOf<SettingsSectionUi>()
+
+    // 1. Account Section (Profile, Link Account, Cloud Sync)
     val accountItems = mutableListOf<SettingsItemUi>()
-    
-    // Add Link Account Highlight if Guest
     if (isAnonymous) {
         accountItems.add(
             SettingsItemUi(
@@ -172,7 +173,6 @@ private fun buildSettingsSections(
             )
         )
     }
-
     accountItems.add(
         SettingsItemUi(
             titleRes = com.mkn0079.expensetracker.R.string.label_edit_profile,
@@ -181,14 +181,12 @@ private fun buildSettingsSections(
             actionId = SettingsActionId.EditProfile
         )
     )
-
-    // Add Cloud Sync & Devices (Locked for Free, Active for Premium) - Only for Authenticated
     if (!isAnonymous) {
         accountItems.add(
             SettingsItemUi(
                 titleRes = com.mkn0079.expensetracker.R.string.title_cloud_sync_devices,
-                subtitleRes = if (userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM) 
-                    com.mkn0079.expensetracker.R.string.desc_sync_active_subtitle 
+                subtitleRes = if (userTier == com.mkn0079.expensetracker.models.UserTier.PREMIUM)
+                    com.mkn0079.expensetracker.R.string.desc_sync_active_subtitle
                 else com.mkn0079.expensetracker.R.string.desc_sync_premium_subtitle,
                 icon = Icons.Rounded.CloudSync,
                 actionId = SettingsActionId.ConnectedDevices,
@@ -196,22 +194,6 @@ private fun buildSettingsSections(
             )
         )
     }
-
-    // Add Logout if NOT Anonymous
-    if (!isAnonymous) {
-        accountItems.add(
-            SettingsItemUi(
-                titleRes = com.mkn0079.expensetracker.R.string.label_logout,
-                subtitleRes = com.mkn0079.expensetracker.R.string.desc_logout_subtitle,
-                icon = Icons.AutoMirrored.Rounded.Logout,
-                actionId = SettingsActionId.Logout,
-                showChevron = false
-            )
-        )
-    }
-
-    val settingsSections = mutableListOf<SettingsSectionUi>()
-    
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mkn0079.expensetracker.R.string.title_account,
@@ -219,7 +201,70 @@ private fun buildSettingsSections(
         )
     )
 
-    // Only show Monetization section for Free users
+    // 2. Security Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy_1,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_security_privacy_subtitle,
+                    icon = Icons.Rounded.Security,
+                    actionId = SettingsActionId.SecurityPrivacy
+                )
+            )
+        )
+    )
+
+    // 3. Workspace / Configuration Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mkn0079.expensetracker.R.string.title_preference,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_manage_category,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_manage_category_subtitle,
+                    icon = Icons.Rounded.Category,
+                    actionId = SettingsActionId.ManageCategories
+                ),
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
+                    icon = Icons.Rounded.SettingsSuggest,
+                    actionId = SettingsActionId.AppPreferences
+                ),
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_notifications_1,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_notifications_subtitle,
+                    icon = Icons.Rounded.NotificationAdd,
+                    actionId = SettingsActionId.Notifications
+                ),
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
+                    icon = Icons.Rounded.Tune,
+                    actionId = SettingsActionId.TransactionCardCustomize
+                )
+            )
+        )
+    )
+
+    // 4. Data Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mkn0079.expensetracker.R.string.title_database,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
+                    icon = Icons.Rounded.Dns,
+                    actionId = SettingsActionId.DataManagement
+                )
+            )
+        )
+    )
+
+    // 5. Monetization Section (Only for Free)
     if (userTier != com.mkn0079.expensetracker.models.UserTier.PREMIUM) {
         val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
         settingsSections.add(
@@ -227,10 +272,10 @@ private fun buildSettingsSections(
                 titleRes = com.mkn0079.expensetracker.R.string.title_monetization_caps,
                 items = listOf(
                     SettingsItemUi(
-                        titleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.label_ad_free_active 
-                                  else com.mkn0079.expensetracker.R.string.label_remove_all_ads,
-                        subtitleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.msg_ad_free_duration_remaining 
-                                     else com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                        titleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.label_ad_free_active
+                        else com.mkn0079.expensetracker.R.string.label_remove_all_ads,
+                        subtitleRes = if (adPassActive) com.mkn0079.expensetracker.R.string.msg_ad_free_duration_remaining
+                        else com.mkn0079.expensetracker.R.string.msg_watch_ad_for_ad_free,
                         icon = Icons.Rounded.CreditCard,
                         actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
                         trailing = if (adPassActive) adFreeRemainingTime else null,
@@ -241,79 +286,39 @@ private fun buildSettingsSections(
         )
     }
 
-    settingsSections.addAll(
-        listOf(
+    // 6. Session Section (Logout - Above About)
+    if (!isAnonymous) {
+        settingsSections.add(
             SettingsSectionUi(
-                titleRes = com.mkn0079.expensetracker.R.string.title_preference,
+                titleRes = com.mkn0079.expensetracker.R.string.title_account, // Reusing title_account if session label not found
                 items = listOf(
                     SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_app_preferences,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_app_preferences_subtitle,
-                        icon = Icons.Rounded.SettingsSuggest,
-                        actionId = SettingsActionId.AppPreferences
-                    ),
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_transaction_card,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_transaction_card_subtitle,
-                        icon = Icons.Rounded.Tune,
-                        actionId = SettingsActionId.TransactionCardCustomize
-                    ),
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_manage_category,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_manage_category_subtitle,
-                        icon = Icons.Rounded.Category,
-                        actionId = SettingsActionId.ManageCategories
-                    )
-                )
-            ),
-            SettingsSectionUi(
-                titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy_1,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_security_privacy,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_security_privacy_subtitle,
-                        icon = Icons.Rounded.Security,
-                        actionId = SettingsActionId.SecurityPrivacy
-                    )
-                )
-            ),
-            SettingsSectionUi(
-                titleRes = com.mkn0079.expensetracker.R.string.title_database,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_data_management,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_data_management_subtitle,
-                        icon = Icons.Rounded.Dns,
-                        actionId = SettingsActionId.DataManagement,
-                        showChevron = true
-                    )
-                )
-            ),
-            SettingsSectionUi(
-                titleRes = com.mkn0079.expensetracker.R.string.title_notifications,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_notifications_1,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_notifications_subtitle,
-                        icon = Icons.Rounded.NotificationAdd,
-                        actionId = SettingsActionId.Notifications
-                    )
-                )
-            ),
-            SettingsSectionUi(
-                titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = com.mkn0079.expensetracker.R.string.title_about,
-                        subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
-                        icon = Icons.Rounded.Info,
-                        actionId = SettingsActionId.About
+                        titleRes = com.mkn0079.expensetracker.R.string.label_logout,
+                        subtitleRes = com.mkn0079.expensetracker.R.string.desc_logout_subtitle,
+                        icon = Icons.AutoMirrored.Rounded.Logout,
+                        actionId = SettingsActionId.Logout,
+                        showChevron = false
                     )
                 )
             )
         )
+    }
+
+    // 7. About Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mkn0079.expensetracker.R.string.title_about_caps,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mkn0079.expensetracker.R.string.title_about,
+                    subtitleRes = com.mkn0079.expensetracker.R.string.label_about_subtitle,
+                    icon = Icons.Rounded.Info,
+                    actionId = SettingsActionId.About
+                )
+            )
+        )
     )
-    
+
     return settingsSections
 }
 

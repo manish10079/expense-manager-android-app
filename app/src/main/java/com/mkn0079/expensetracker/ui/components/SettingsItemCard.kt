@@ -69,6 +69,7 @@ fun SettingsItemCard(
     isDanger: Boolean = false,
     isLocked: Boolean = false,
     isHighlight: Boolean = false,
+    standalone: Boolean = true,
     accessLevel: AccessLevel = AccessLevel.FREE,
     isChecked: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)? = null,
@@ -126,22 +127,7 @@ fun SettingsItemCard(
         else -> onSurfaceVariant.copy(alpha = if (finalEnabled) 1f else 0.6f)
     }
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(
-                if (isHighlight) {
-                    Modifier.background(
-                        brush = com.mkn0079.expensetracker.ui.theme.brandGradient(),
-                        shape = containerShape
-                    ).padding(2.dp) // Simulated border - slightly thicker for better visibility
-                } else Modifier
-            ),
-        shape = containerShape,
-        color = containerColor,
-        border = if (isHighlight) null else BorderStroke(width = 1.dp, color = borderColor),
-        shadowElevation = if (isHighlight) 16.dp else 8.dp // More elevation for highlighted items
-    ) {
+    val itemContent = @Composable {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,7 +138,7 @@ fun SettingsItemCard(
                 ) {
                     updatedOnClick?.invoke()
                 }
-                .padding(horizontal = 16.dp, vertical = 12.dp) // Fix: Increased vertical padding to prevent internal overlap
+                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .heightIn(min = 72.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -273,6 +259,31 @@ fun SettingsItemCard(
                     }
                 }
             }
+        }
+    }
+
+    if (standalone) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .then(
+                    if (isHighlight) {
+                        Modifier.background(
+                            brush = com.mkn0079.expensetracker.ui.theme.brandGradient(),
+                            shape = containerShape
+                        ).padding(2.dp)
+                    } else Modifier
+                ),
+            shape = containerShape,
+            color = containerColor,
+            border = if (isHighlight) null else BorderStroke(width = 1.dp, color = borderColor),
+            shadowElevation = if (isHighlight) 16.dp else 8.dp
+        ) {
+            itemContent()
+        }
+    } else {
+        Box(modifier = modifier.fillMaxWidth()) {
+            itemContent()
         }
     }
 }

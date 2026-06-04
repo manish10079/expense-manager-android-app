@@ -108,6 +108,8 @@ import com.mkn0079.expensetracker.ui.components.NativeAdCard
 import com.mkn0079.expensetracker.monetization.AdPlacement
 import com.mkn0079.expensetracker.monetization.Feature
 import com.mkn0079.expensetracker.monetization.AccessStatus
+import com.mkn0079.expensetracker.ui.components.SettingsGroup
+import com.mkn0079.expensetracker.ui.components.SettingsGroupDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -279,8 +281,8 @@ private fun SettingsScreenContent(
                             onMissedEntryReminderChange = onMissedEntryReminderChange
                         )
 
-                        // Inline Native Ad after the "Customize" section
-                        if (section.titleRes == R.string.title_customize_caps) {
+                        // Inline Native Ad after the "Workspace / Configuration" section
+                        if (section.titleRes == R.string.title_preference) {
                             Spacer(modifier = Modifier.height(18.dp))
                             AdContainer(isAdsEnabled = isAdsEnabled) {
                                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
@@ -312,45 +314,97 @@ private fun SettingsSection(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        section.items.forEach { item ->
-            val toggleState = when (item.toggleId) {
-                SettingsToggleId.DailyReminder -> isDailyReminderEnabled
-                SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
-                SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
-                else -> null
-            }
-            val itemType = when {
-                toggleState != null -> SettingsItemType.Toggle
-                !item.trailing.isNullOrEmpty() && !item.showChevron -> SettingsItemType.Value
-                item.showChevron -> SettingsItemType.Navigation
-                else -> SettingsItemType.Value
-            }
+        val nonHighlightItems = section.items.filter { !it.isHighlight }
+        val highlightItems = section.items.filter { it.isHighlight }
 
-            SettingsItemCard(
-                icon = item.icon,
-                title = stringResource(item.titleRes),
-                subtitle = item.subtitleRes?.let { stringResource(it) },
-                type = itemType,
-                valueText = item.trailing,
-                isEnabled = true,
-                isChecked = toggleState ?: false,
-                isHighlight = item.isHighlight,
-                isLocked = item.isLocked,
-                onCheckedChange = { isChecked ->
-                    when (item.toggleId) {
-                        SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
-                        SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
-                        SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
-                        null -> Unit
-                        else -> Unit
-                    }
-                },
-                onClick = {
-                    onItemClick(item)
-                }
+        // Render Highlight items first (Standalone)
+        highlightItems.forEach { item ->
+            SettingsItemContent(
+                item = item,
+                standalone = true,
+                isDailyReminderEnabled = isDailyReminderEnabled,
+                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                onItemClick = onItemClick,
+                onDailyReminderChange = onDailyReminderChange,
+                onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+                onMissedEntryReminderChange = onMissedEntryReminderChange
             )
         }
+
+        // Render non-highlight items in a Grouped Card
+        if (nonHighlightItems.isNotEmpty()) {
+            SettingsGroup {
+                nonHighlightItems.forEachIndexed { index, item ->
+                    SettingsItemContent(
+                        item = item,
+                        standalone = false,
+                        isDailyReminderEnabled = isDailyReminderEnabled,
+                        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        onItemClick = onItemClick,
+                        onDailyReminderChange = onDailyReminderChange,
+                        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+                        onMissedEntryReminderChange = onMissedEntryReminderChange
+                    )
+                    if (index < nonHighlightItems.size - 1) {
+                        SettingsGroupDivider()
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+private fun SettingsItemContent(
+    item: SettingsItemUi,
+    standalone: Boolean,
+    isDailyReminderEnabled: Boolean,
+    isBudgetLimitAlertsEnabled: Boolean,
+    isMissedEntryReminderEnabled: Boolean,
+    onItemClick: (SettingsItemUi) -> Unit,
+    onDailyReminderChange: (Boolean) -> Unit,
+    onBudgetLimitAlertsChange: (Boolean) -> Unit,
+    onMissedEntryReminderChange: (Boolean) -> Unit
+) {
+    val toggleState = when (item.toggleId) {
+        SettingsToggleId.DailyReminder -> isDailyReminderEnabled
+        SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
+        SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
+        else -> null
+    }
+    val itemType = when {
+        toggleState != null -> SettingsItemType.Toggle
+        !item.trailing.isNullOrEmpty() && !item.showChevron -> SettingsItemType.Value
+        item.showChevron -> SettingsItemType.Navigation
+        else -> SettingsItemType.Value
+    }
+
+    SettingsItemCard(
+        icon = item.icon,
+        title = stringResource(item.titleRes),
+        subtitle = item.subtitleRes?.let { stringResource(it) },
+        type = itemType,
+        valueText = item.trailing,
+        isEnabled = true,
+        isChecked = toggleState ?: false,
+        isHighlight = item.isHighlight,
+        isLocked = item.isLocked,
+        standalone = standalone,
+        onCheckedChange = { isChecked ->
+            when (item.toggleId) {
+                SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
+                SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
+                SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
+                null -> Unit
+                else -> Unit
+            }
+        },
+        onClick = {
+            onItemClick(item)
+        }
+    )
 }
 
  
