@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mkn0079.expensetracker.baselineprofile"
+    namespace = "com.mknlabs.expensetracker.baselineprofile"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1

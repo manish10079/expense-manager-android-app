@@ -310,7 +310,6 @@
     <string name="label_choose_year">Choose Year</string>
     <string name="label_clear">Clear</string>
     <string name="label_custom_duration">Custom Duration</string>
-    <string name="label_custom_frequency">Custom Frequency</string>
     <string name="label_customize_how_your_data_is_vis">Customize how your data is visualized</string>
     <string name="label_date">DATE</string>
     <string name="label_date_of_birth">DATE OF BIRTH</string>
@@ -323,7 +322,6 @@
     <string name="label_edit">EDIT</string>
     <string name="label_email_address">EMAIL ADDRESS</string>
     <string name="label_encrypted_mode">ENCRYPTED MODE</string>
-    <string name="label_enter_days">Enter days</string>
     <string name="label_enter_minutes">Enter minutes</string>
     <string name="label_forgot">FORGOT</string>
     <string name="label_full_name">FULL NAME</string>
@@ -586,8 +584,12 @@
     <string name="content_desc_add_item">Add item</string>
     <!-- Data Management -->
     <string name="label_automated_sync">AUTOMATED SYNC</string>
-    <string name="desc_auto_backup_subtitle">Automatic cloud/local sync</string>
-    <string name="desc_backup_frequency_subtitle">How often to sync data</string>
+    <string name="desc_auto_backup_subtitle">Automatic local backup</string>
+    <string name="desc_backup_frequency_subtitle">How often to perform backup</string>
+    <string name="label_custom_frequency">Custom...</string>
+    <string name="title_custom_backup_frequency">Custom Frequency</string>
+    <string name="label_enter_days">Enter number of days</string>
+    <string name="placeholder_days">Days</string>
     <plurals name="label_days_count_formatted">
         <item quantity="one">1 day</item>
         <item quantity="other">%1$d days</item>

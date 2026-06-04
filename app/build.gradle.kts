@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mkn0079.expensetracker"
+    namespace = "com.mknlabs.expensetracker"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -14,11 +14,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mkn0079.expensetracker"
+        applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,7 +45,7 @@ android {
         getByName("main") {
             assets {
                 directories.add(
-                    "src/main/java/com/mkn0079/expensetracker/data/legacyimport"
+                    "src/main/java/com/mknlabs/expensetracker/data/legacyimport"
                 )
             }
         }
