@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -101,7 +100,7 @@ fun AnalyticsScreen(
     categories: List<CategoryType> = emptyList(),
     paymentMethods: List<PaymentType> = emptyList(),
     onBackClick: () -> Unit = {},
-    analyticsViewModel: AnalyticsViewModel = viewModel()
+    analyticsViewModel: AnalyticsViewModel = hiltViewModel()
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()

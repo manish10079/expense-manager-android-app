@@ -6,10 +6,12 @@ import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class AppPreferencesRepositoryImpl(
-    private val context: Context
+class AppPreferencesRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : AppPreferencesRepository {
 
     override fun observeAppSettings(): Flow<AppSettings> {

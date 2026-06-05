@@ -49,6 +49,16 @@ object DynamicNotificationEngine {
         R.string.notification_budget_exceeded_5
     )
 
+    private val budgetApproachingLines = listOf(
+        R.string.notification_budget_approaching_1, R.string.notification_budget_approaching_2,
+        R.string.notification_budget_approaching_3
+    )
+
+    private val budgetOverspentLines = listOf(
+        R.string.notification_budget_overspent_1, R.string.notification_budget_overspent_2,
+        R.string.notification_budget_overspent_3
+    )
+
     private val missedEntryLines = listOf(
         R.string.notification_missed_entry_1, R.string.notification_missed_entry_2,
         R.string.notification_missed_entry_3, R.string.notification_missed_entry_4,
@@ -130,6 +140,31 @@ object DynamicNotificationEngine {
         val opener = context.getString(sarcasticOpeners.random())
         val core = context.getString(budgetExceededLines.random())
         return context.getString(R.string.notification_format_budget_exceeded, opener, category, core)
+    }
+
+    fun generateBudgetApproachingMessage(
+        context: Context,
+        category: String,
+        percentUsed: Int,
+        remainingAmount: String
+    ): String {
+        val reaction = context.getString(budgetApproachingLines.random())
+        return context.getString(
+            R.string.notification_format_budget_approaching,
+            reaction,
+            "$percentUsed%",
+            category,
+            remainingAmount
+        )
+    }
+
+    fun generateBudgetReachedMessage(context: Context, category: String, limit: String): String {
+        return context.getString(R.string.notification_format_budget_reached, limit, category)
+    }
+
+    fun generateBudgetOverspentMessage(context: Context, category: String, overAmount: String): String {
+        val guilt = context.getString(budgetOverspentLines.random())
+        return context.getString(R.string.notification_format_budget_overspent, overAmount, category, guilt)
     }
 
     fun generateMissedEntryMessage(context: Context): String {

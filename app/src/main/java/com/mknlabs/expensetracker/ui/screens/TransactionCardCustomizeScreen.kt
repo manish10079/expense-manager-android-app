@@ -54,6 +54,9 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
 
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.ui.components.SettingsGroupHeader
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
@@ -80,7 +83,7 @@ fun TransactionCardCustomizeScreen(
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
-    previewTransactions: List<Transaction> = transactionList.take(3),
+    previewTransactions: List<Transaction> = transactionList.take(2),
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
@@ -291,45 +294,47 @@ fun TransactionCardCustomizeScreen(
                 )
             }
 
+            // Group 1: Visual Style
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    toggleItems.forEach { item ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(
-                            feature = Feature.CARD_CUSTOMIZATION,
-                            optionId = item.optionId
+                SettingsGroup {
+                    val groupItems = toggleItems.filter { it.optionId in listOf("showIncomeExpenseLabels", "showCategoryIcon") }
+                    groupItems.forEachIndexed { index, item ->
+                        ToggleSettingsItem(
+                            item = item,
+                            isInPreview = isInPreview,
+                            standalone = false
                         )
-                        if (isInPreview) {
-                            SettingsItemCard(
-                                icon = item.icon,
-                                title = item.title,
-                                subtitle = item.subtitle,
-                                type = SettingsItemType.Toggle,
-                                accessLevel = accessLevel,
-                                isLocked = false,
-                                isChecked = item.checked,
-                                onCheckedChange = item.onCheckedChange,
-                                onClick = { item.onCheckedChange(!item.checked) }
-                            )
-                        } else {
-                            GatedAction(
-                                feature = Feature.CARD_CUSTOMIZATION,
-                                optionId = item.optionId,
-                                displayName = item.title,
-                                onAction = { item.onCheckedChange(!item.checked) }
-                            ) { status, onClick ->
-                                SettingsItemCard(
-                                    icon = item.icon,
-                                    title = item.title,
-                                    subtitle = item.subtitle,
-                                    type = SettingsItemType.Toggle,
-                                    accessLevel = accessLevel,
-                                    isLocked = status !is AccessStatus.Granted,
-                                    isChecked = item.checked,
-                                    onCheckedChange = { onClick() },
-                                    onClick = onClick
-                                )
-                            }
-                        }
+                        if (index < groupItems.size - 1) SettingsGroupDivider()
+                    }
+                }
+            }
+
+            // Group 2: Transaction Details
+            item {
+                SettingsGroup {
+                    val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryLabel", "showPaymentMethod", "showTransactionTime") }
+                    groupItems.forEachIndexed { index, item ->
+                        ToggleSettingsItem(
+                            item = item,
+                            isInPreview = isInPreview,
+                            standalone = false
+                        )
+                        if (index < groupItems.size - 1) SettingsGroupDivider()
+                    }
+                }
+            }
+
+            // Group 3: Time & Organization
+            item {
+                SettingsGroup {
+                    val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
+                    groupItems.forEachIndexed { index, item ->
+                        ToggleSettingsItem(
+                            item = item,
+                            isInPreview = isInPreview,
+                            standalone = false
+                        )
+                        if (index < groupItems.size - 1) SettingsGroupDivider()
                     }
                 }
             }
@@ -344,6 +349,52 @@ fun TransactionCardCustomizeScreen(
                 .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
         ) {
             NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+        }
+    }
+}
+
+@Composable
+private fun ToggleSettingsItem(
+    item: TransactionCardToggleItem,
+    isInPreview: Boolean,
+    standalone: Boolean = true
+) {
+    val accessLevel = FeatureRegistry.getAccessLevel(
+        feature = Feature.CARD_CUSTOMIZATION,
+        optionId = item.optionId
+    )
+    if (isInPreview) {
+        SettingsItemCard(
+            icon = item.icon,
+            title = item.title,
+            subtitle = item.subtitle,
+            type = SettingsItemType.Toggle,
+            accessLevel = accessLevel,
+            isLocked = false,
+            isChecked = item.checked,
+            onCheckedChange = item.onCheckedChange,
+            onClick = { item.onCheckedChange(!item.checked) },
+            standalone = standalone
+        )
+    } else {
+        GatedAction(
+            feature = Feature.CARD_CUSTOMIZATION,
+            optionId = item.optionId,
+            displayName = item.title,
+            onAction = { item.onCheckedChange(!item.checked) }
+        ) { status, onClick ->
+            SettingsItemCard(
+                icon = item.icon,
+                title = item.title,
+                subtitle = item.subtitle,
+                type = SettingsItemType.Toggle,
+                accessLevel = accessLevel,
+                isLocked = status !is AccessStatus.Granted,
+                isChecked = item.checked,
+                onCheckedChange = { onClick() },
+                onClick = onClick,
+                standalone = standalone
+            )
         }
     }
 }

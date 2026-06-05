@@ -77,7 +77,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.transactionList
@@ -129,7 +128,7 @@ fun BudgetScreen(
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
-    val budgetViewModel: BudgetViewModel = viewModel()
+    val budgetViewModel: BudgetViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 

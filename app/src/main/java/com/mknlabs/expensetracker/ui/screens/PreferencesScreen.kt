@@ -16,13 +16,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppSelectionSheet
+import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.models.SelectionItem
 import com.mknlabs.expensetracker.ui.viewmodels.PreferencesSheetType
@@ -42,7 +44,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 fun PreferencesScreen(
     onManageCategoryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    preferencesViewModel: PreferencesViewModel = viewModel()
+    preferencesViewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
@@ -71,75 +73,88 @@ fun PreferencesScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                // Group 1: Currency & Formats
                 item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_currency),
-                        subtitle = stringResource(R.string.label_primary_currency),
-                        icon = Icons.Rounded.CurrencyRupee,
-                        valueText = if (uiState.currentCurrencyLabelRes != 0) {
-                            stringResource(uiState.currentCurrencyLabelRes)
-                        } else {
-                            uiState.currentCurrencyLabel
-                        },
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
-                    )
+                    SettingsGroup {
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_currency),
+                            subtitle = stringResource(R.string.label_primary_currency),
+                            icon = Icons.Rounded.CurrencyRupee,
+                            valueText = if (uiState.currentCurrencyLabelRes != 0) {
+                                stringResource(uiState.currentCurrencyLabelRes)
+                            } else {
+                                uiState.currentCurrencyLabel
+                            },
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_decimal_places),
+                            subtitle = stringResource(R.string.label_decimal_places_subtitle),
+                            icon = Icons.Rounded.Straighten,
+                            valueText = uiState.currentDecimalPlacesLabel,
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_number_format),
+                            subtitle = stringResource(R.string.label_number_format_subtitle),
+                            icon = Icons.Rounded.Pin,
+                            valueText = stringResource(uiState.currentGroupingLabelRes),
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
+                        )
+                    }
                 }
+
+                // Group 2: Date & Time
                 item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_theme),
-                        subtitle = stringResource(R.string.label_theme_subtitle),
-                        icon = Icons.Filled.Palette,
-                        valueText = stringResource(uiState.currentThemeModeLabelRes),
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.ThemeMode) }
-                    )
+                    SettingsGroup {
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_date_format),
+                            subtitle = stringResource(R.string.label_date_format_subtitle),
+                            icon = Icons.Rounded.DateRange,
+                            valueText = uiState.currentDateFormatLabel,
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DateFormat) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_time_format),
+                            subtitle = stringResource(R.string.label_time_format_subtitle),
+                            icon = Icons.Rounded.MoreTime,
+                            valueText = stringResource(uiState.currentTimeFormatLabelRes),
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
+                        )
+                    }
                 }
+
+                // Group 3: Appearance
                 item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_date_format),
-                        subtitle = stringResource(R.string.label_date_format_subtitle),
-                        icon = Icons.Rounded.DateRange,
-                        valueText = uiState.currentDateFormatLabel,
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DateFormat) }
-                    )
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_time_format),
-                        subtitle = stringResource(R.string.label_time_format_subtitle),
-                        icon = Icons.Rounded.MoreTime,
-                        valueText = stringResource(uiState.currentTimeFormatLabelRes),
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
-                    )
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_number_format),
-                        subtitle = stringResource(R.string.label_number_format_subtitle),
-                        icon = Icons.Rounded.Pin,
-                        valueText = stringResource(uiState.currentGroupingLabelRes),
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
-                    )
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_decimal_places),
-                        subtitle = stringResource(R.string.label_decimal_places_subtitle),
-                        icon = Icons.Rounded.Straighten,
-                        valueText = uiState.currentDecimalPlacesLabel,
-                        type = SettingsItemType.Value,
-                        onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
-                    )
+                    SettingsGroup {
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_theme),
+                            subtitle = stringResource(R.string.label_theme_subtitle),
+                            icon = Icons.Filled.Palette,
+                            valueText = stringResource(uiState.currentThemeModeLabelRes),
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.ThemeMode) }
+                        )
+                    }
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
                     AdContainer(isAdsEnabled = isAdsEnabled) {
                         NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }

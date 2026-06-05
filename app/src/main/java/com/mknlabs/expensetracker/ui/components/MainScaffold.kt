@@ -31,6 +31,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
@@ -108,7 +109,7 @@ fun MainScaffold(
     onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
-    val transactionsViewModel: TransactionsViewModel = viewModel()
+    val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val transactionsUiState by transactionsViewModel.uiState.collectAsState()
     val isSelectionMode = currentRoute == AppRoute.Transactions && transactionsUiState.isSelectionMode
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
@@ -280,12 +281,12 @@ private fun BoxScope.PreloadSecondaryScreenData(
     paymentMethods: List<PaymentType>,
     userTier: com.mknlabs.expensetracker.models.UserTier
 ) {
-    val homeViewModel: HomeViewModel = viewModel()
-    val transactionsViewModel: TransactionsViewModel = viewModel()
-    val analyticsViewModel: AnalyticsViewModel = viewModel()
-    val budgetViewModel: BudgetViewModel = viewModel()
-    val calendarViewModel: CalendarViewModel = viewModel()
-    val settingsViewModel: SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val transactionsViewModel: TransactionsViewModel = hiltViewModel()
+    val analyticsViewModel: AnalyticsViewModel = hiltViewModel()
+    val budgetViewModel: BudgetViewModel = hiltViewModel()
+    val calendarViewModel: CalendarViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     LaunchedEffect(
         userProfile,

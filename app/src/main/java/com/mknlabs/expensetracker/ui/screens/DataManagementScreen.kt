@@ -135,179 +135,178 @@ fun DataManagementScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 contentPadding = PaddingValues(bottom = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // SECTION 1: AUTOMATED SYNC
-                item { SectionHeader(text = stringResource(id = R.string.label_automated_sync)) }
+                // SECTION 1: CLOUD & AUTOMATION
                 item {
-                    GatedAction(
-                        feature = Feature.AUTO_BACKUP,
-                        onAction = { onAutoBackupEnabledChange(!isAutoBackupEnabled) }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
-                        SettingsItemCard(
-                            title = stringResource(id = R.string.title_auto_backup),
-                            subtitle = stringResource(id = R.string.desc_auto_backup_subtitle),
-                            icon = Icons.Rounded.CloudUpload,
-                            type = SettingsItemType.Toggle,
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            isChecked = isAutoBackupEnabled,
-                            onCheckedChange = { onClick() },
-                            onClick = onClick
-                        )
-                    }
-                }
-                item {
-                    GatedAction(
-                        feature = Feature.AUTO_BACKUP,
-                        onAction = { isFrequencyPickerVisible = true }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
-                        SettingsItemCard(
-                            title = stringResource(id = R.string.title_backup_frequency),
-                            subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
-                            icon = Icons.Rounded.Timelapse,
-                            type = SettingsItemType.Value,
-                            valueText = pluralStringResource(id = R.plurals.label_days_count_formatted, count = autoBackupFrequencyDays, autoBackupFrequencyDays),
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            isEnabled = isAutoBackupEnabled,
-                            onClick = onClick
-                        )
+                    SettingsGroup {
+                        GatedAction(
+                            feature = Feature.AUTO_BACKUP,
+                            onAction = { onAutoBackupEnabledChange(!isAutoBackupEnabled) }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.title_auto_backup),
+                                subtitle = stringResource(id = R.string.desc_auto_backup_subtitle),
+                                icon = Icons.Rounded.CloudUpload,
+                                type = SettingsItemType.Toggle,
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                isChecked = isAutoBackupEnabled,
+                                onCheckedChange = { onClick() },
+                                onClick = onClick,
+                                standalone = false
+                            )
+                        }
+                        SettingsGroupDivider()
+                        GatedAction(
+                            feature = Feature.AUTO_BACKUP,
+                            onAction = { isFrequencyPickerVisible = true }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.title_backup_frequency),
+                                subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
+                                icon = Icons.Rounded.Timelapse,
+                                type = SettingsItemType.Value,
+                                valueText = pluralStringResource(id = R.plurals.label_days_count_formatted, count = autoBackupFrequencyDays, autoBackupFrequencyDays),
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                isEnabled = isAutoBackupEnabled,
+                                onClick = onClick,
+                                standalone = false
+                            )
+                        }
                     }
                 }
 
                 // Inline Native Ad before Data Transfer
                 item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                    AdContainer(
+                        isAdsEnabled = isAdsEnabled,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
                         NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }
                 }
 
-                // SECTION 2: DATA TRANSFER
-                item { 
-                    SectionHeader(
-                        text = stringResource(id = R.string.label_data_transfer),
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                            indication = null // Silent clicks
-                        ) {
-                            importJsonClickCount++
-                        }
-                    ) 
-                }
+                // SECTION 2: FILE TRANSFER
                 item {
-                    GatedAction(
-                        feature = Feature.DATA_EXPORT,
-                        onAction = {
-                            onPrepareForExternalActivity()
-                            jsonExportFileCreator.launch("expense_tracker_export_$todayLabel.json")
+                    SettingsGroup {
+                        GatedAction(
+                            feature = Feature.DATA_EXPORT,
+                            onAction = {
+                                onPrepareForExternalActivity()
+                                jsonExportFileCreator.launch("expense_tracker_export_$todayLabel.json")
+                            }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.DATA_EXPORT)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.label_export_data_json),
+                                subtitle = stringResource(id = R.string.desc_export_data_subtitle),
+                                icon = Icons.Rounded.FileDownload,
+                                type = SettingsItemType.Button,
+                                valueText = stringResource(id = R.string.label_export),
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                onClick = onClick,
+                                standalone = false
+                            )
                         }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.DATA_EXPORT)
+                        SettingsGroupDivider()
                         SettingsItemCard(
-                            title = stringResource(id = R.string.label_export_data_json),
-                            subtitle = stringResource(id = R.string.desc_export_data_subtitle),
-                            icon = Icons.Rounded.FileDownload,
+                            title = stringResource(id = R.string.label_import_data_json),
+                            subtitle = stringResource(id = R.string.desc_import_data_subtitle),
+                            icon = Icons.Rounded.FileUpload,
                             type = SettingsItemType.Button,
-                            valueText = stringResource(id = R.string.label_export),
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            onClick = onClick
-                        )
-                    }
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(id = R.string.label_import_data_json),
-                        subtitle = stringResource(id = R.string.desc_import_data_subtitle),
-                        icon = Icons.Rounded.FileUpload,
-                        type = SettingsItemType.Button,
-                        valueText = stringResource(id = R.string.label_import),
-                        onClick = {
-                            onPrepareForExternalActivity()
-                            jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
-                        }
-                    )
-                }
-                item {
-                    GatedAction(
-                        feature = Feature.AUTO_BACKUP, // Using auto backup as proxy for premium DB tools
-                        onAction = {
-                            onPrepareForExternalActivity()
-                            databaseBackupFileCreator.launch("expense_tracker_backup_$todayLabel.db")
-                        }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
-                        SettingsItemCard(
-                            title = stringResource(id = R.string.label_backup_database_db),
-                            subtitle = stringResource(id = R.string.desc_backup_db_subtitle),
-                            icon = Icons.Rounded.Storage,
-                            type = SettingsItemType.Button,
-                            valueText = stringResource(id = R.string.title_backup),
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            onClick = onClick
-                        )
-                    }
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(id = R.string.label_restore_database_db),
-                        subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
-                        icon = Icons.Rounded.SettingsBackupRestore,
-                        type = SettingsItemType.Button,
-                        valueText = stringResource(id = R.string.title_restore),
-                        onClick = { isRestorePickerVisible = true }
-                    )
-                }
-                if (isLegacyImportVisible) {
-                    item {
-                        SettingsItemCard(
-                            title = stringResource(id = R.string.label_legacy_import),
-                            subtitle = stringResource(id = R.string.desc_legacy_import_subtitle),
-                            icon = Icons.Rounded.History,
-                            type = SettingsItemType.Button,
-                            valueText = stringResource(id = R.string.label_migrate),
+                            valueText = stringResource(id = R.string.label_import),
                             onClick = {
                                 onPrepareForExternalActivity()
-                                legacyImportFilePicker.launch(arrayOf("application/json", "*/*"))
-                            }
+                                jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
+                            },
+                            standalone = false
                         )
+                        SettingsGroupDivider()
+                        GatedAction(
+                            feature = Feature.AUTO_BACKUP, // Using auto backup as proxy for premium DB tools
+                            onAction = {
+                                onPrepareForExternalActivity()
+                                databaseBackupFileCreator.launch("expense_tracker_backup_$todayLabel.db")
+                            }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.label_backup_database_db),
+                                subtitle = stringResource(id = R.string.desc_backup_db_subtitle),
+                                icon = Icons.Rounded.Storage,
+                                type = SettingsItemType.Button,
+                                valueText = stringResource(id = R.string.title_backup),
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                onClick = onClick,
+                                standalone = false
+                            )
+                        }
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(id = R.string.label_restore_database_db),
+                            subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
+                            icon = Icons.Rounded.SettingsBackupRestore,
+                            type = SettingsItemType.Button,
+                            valueText = stringResource(id = R.string.title_restore),
+                            onClick = { isRestorePickerVisible = true },
+                            standalone = false
+                        )
+                        if (isLegacyImportVisible) {
+                            SettingsGroupDivider()
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.label_legacy_import),
+                                subtitle = stringResource(id = R.string.desc_legacy_import_subtitle),
+                                icon = Icons.Rounded.History,
+                                type = SettingsItemType.Button,
+                                valueText = stringResource(id = R.string.label_migrate),
+                                onClick = {
+                                    onPrepareForExternalActivity()
+                                    legacyImportFilePicker.launch(arrayOf("application/json", "*/*"))
+                                },
+                                standalone = false
+                            )
+                        }
                     }
                 }
 
-                // SECTION 3: UTILITIES & STATS
-                item { SectionHeader(text = stringResource(id = R.string.label_utilities_and_stats)) }
+                // SECTION 3: STORAGE & MAINTENANCE
                 item {
-                    GatedAction(
-                        feature = Feature.TRANSACTION_COUNT,
-                        onAction = { /* No action for count info */ }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.TRANSACTION_COUNT)
+                    SettingsGroup {
+                        GatedAction(
+                            feature = Feature.TRANSACTION_COUNT,
+                            onAction = { /* No action for count info */ }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.TRANSACTION_COUNT)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.title_transaction_count),
+                                subtitle = stringResource(id = R.string.desc_transaction_count_subtitle),
+                                icon = Icons.AutoMirrored.Rounded.Notes,
+                                type = SettingsItemType.Value,
+                                valueText = transactionCount.toString(),
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                onClick = onClick,
+                                standalone = false
+                            )
+                        }
+                        SettingsGroupDivider()
                         SettingsItemCard(
-                            title = stringResource(id = R.string.title_transaction_count),
-                            subtitle = stringResource(id = R.string.desc_transaction_count_subtitle),
-                            icon = Icons.AutoMirrored.Rounded.Notes,
-                            type = SettingsItemType.Value,
-                            valueText = transactionCount.toString(),
-                            accessLevel = accessLevel,
-                            isLocked = status !is AccessStatus.Granted,
-                            onClick = onClick
+                            title = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
+                            subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
+                            icon = Icons.Rounded.DeleteForever,
+                            type = SettingsItemType.Button,
+                            valueText = stringResource(id = R.string.label_delete_all),
+                            isDanger = true,
+                            onClick = { isDeleteTransactionsDialogVisible = true },
+                            standalone = false
                         )
                     }
-                }
-                item {
-                    SettingsItemCard(
-                        title = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
-                        subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
-                        icon = Icons.Rounded.DeleteForever,
-                        type = SettingsItemType.Button,
-                        valueText = stringResource(id = R.string.label_delete_all),
-                        isDanger = true,
-                        onClick = { isDeleteTransactionsDialogVisible = true }
-                    )
                 }
             }
         }

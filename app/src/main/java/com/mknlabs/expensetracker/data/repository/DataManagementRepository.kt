@@ -7,6 +7,11 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mknlabs.expensetracker.data.local.room.toDomain
+import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
+import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
+import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
+import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
+import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
@@ -17,22 +22,30 @@ import com.mknlabs.expensetracker.domain.repository.JsonExportResult
 import com.mknlabs.expensetracker.domain.repository.JsonImportResult
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.SyncState
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
+import javax.inject.Inject
 
 private const val JSON_SCHEMA_VERSION = 1
 
-class DataManagementRepository(
-    context: Context
+class DataManagementRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val database: ExpenseTrackerDatabase,
+    private val transactionDao: TransactionDao,
+    private val categoryDao: CategoryDao,
+    private val paymentMethodDao: PaymentMethodDao,
+    private val budgetDao: BudgetDao,
+    private val recurringRuleDao: RecurringRuleDao
 ) : DomainDataManagementRepository {
     private val appContext = context.applicationContext
 
-    override suspend fun backupDatabase(uri: Uri) {
-        val database = ExpenseTrackerDatabase.getInstance(appContext)
-        
+    override suspend fun backupDatabase(uri: Uri): Unit = withContext(Dispatchers.IO) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             // Android 11+ (API 30+) supports VACUUM INTO, which is the safest way 
             // to create a consistent backup of a live WAL database.
@@ -57,9 +70,6 @@ class DataManagementRepository(
             database.query(SimpleSQLiteQuery("PRAGMA wal_checkpoint(RESTART)")).use { cursor ->
                 if (cursor.moveToFirst()) {
                     // Log checkpoint result for debugging if needed
-                    // val status = cursor.getInt(0)
-                    // val walPages = cursor.getInt(1)
-                    // val checkpointedPages = cursor.getInt(2)
                 }
             }
             
@@ -70,7 +80,7 @@ class DataManagementRepository(
         }
     }
 
-    override suspend fun restoreDatabase(uri: Uri) {
+    override suspend fun restoreDatabase(uri: Uri): Unit = withContext(Dispatchers.IO) {
         val tempBackupFile = copyUriToTempFile(uri, suffix = ".db")
         val databaseFile = ExpenseTrackerDatabase.databaseFile(appContext)
         val parentDirectory = databaseFile.parentFile
@@ -92,14 +102,12 @@ class DataManagementRepository(
         tempBackupFile.delete()
     }
 
-    override suspend fun exportJson(uri: Uri): JsonExportResult {
-        val database = ExpenseTrackerDatabase.getInstance(appContext)
-
-        val categories = database.categoryDao().getActiveCategories()
-        val paymentMethods = database.paymentMethodDao().getActivePaymentMethods()
-        val transactions = database.transactionDao().getActiveTransactions()
-        val budgets = database.budgetDao().getActiveBudgets()
-        val recurringRules = database.recurringRuleDao().getActiveRules()
+    override suspend fun exportJson(uri: Uri): JsonExportResult = withContext(Dispatchers.IO) {
+        val categories = categoryDao.getActiveCategories()
+        val paymentMethods = paymentMethodDao.getActivePaymentMethods()
+        val transactions = transactionDao.getActiveTransactions()
+        val budgets = budgetDao.getActiveBudgets()
+        val recurringRules = recurringRuleDao.getActiveRules()
 
         val payload = JSONObject().apply {
             put("schemaVersion", JSON_SCHEMA_VERSION)
@@ -126,7 +134,7 @@ class DataManagementRepository(
             content = payload.toString(2)
         )
 
-        return JsonExportResult(
+        JsonExportResult(
             exportedTransactions = transactions.size,
             exportedBudgets = budgets.size,
             exportedRecurringRules = recurringRules.size,
@@ -135,7 +143,7 @@ class DataManagementRepository(
         )
     }
 
-    override suspend fun importJson(uri: Uri): JsonImportResult {
+    override suspend fun importJson(uri: Uri): JsonImportResult = withContext(Dispatchers.IO) {
         ExpenseTrackerDatabaseInitializer.initialize(appContext)
 
         val json = appContext.contentResolver.openInputStream(uri)
@@ -153,13 +161,6 @@ class DataManagementRepository(
         val importedTransactions = root.optJSONArray("transactions").toTransactionEntities()
         val importedBudgets = root.optJSONArray("budgets").toBudgetEntities()
         val importedRecurringRules = root.optJSONArray("recurringRules").toRecurringRuleEntities()
-
-        val database = ExpenseTrackerDatabase.getInstance(appContext)
-        val categoryDao = database.categoryDao()
-        val paymentMethodDao = database.paymentMethodDao()
-        val transactionDao = database.transactionDao()
-        val budgetDao = database.budgetDao()
-        val recurringRuleDao = database.recurringRuleDao()
 
         var importedCategoryCount = 0
         var skippedCategoryCount = 0
@@ -375,7 +376,7 @@ class DataManagementRepository(
             }
         }
 
-        return JsonImportResult(
+        JsonImportResult(
             importedTransactions = importedTransactionCount,
             skippedTransactions = skippedTransactionCount,
             importedBudgets = importedBudgetCount,

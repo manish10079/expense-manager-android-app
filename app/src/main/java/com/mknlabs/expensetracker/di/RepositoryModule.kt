@@ -1,6 +1,5 @@
 package com.mknlabs.expensetracker.di
 
-import android.content.Context
 import com.mknlabs.expensetracker.data.legacy.LegacyImportRepository as LegacyImportRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.AppPreferencesRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.BudgetRepository as BudgetRepositoryImpl
@@ -9,119 +8,83 @@ import com.mknlabs.expensetracker.data.repository.DataManagementRepository as Da
 import com.mknlabs.expensetracker.data.repository.PaymentMethodRepository as PaymentMethodRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.RecurringRuleRepository as RecurringRuleRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.TransactionRepository as TransactionRepositoryImpl
-import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
-import com.mknlabs.expensetracker.domain.repository.BudgetRepository
-import com.mknlabs.expensetracker.domain.repository.CategoryRepository
-import com.mknlabs.expensetracker.domain.repository.DataManagementRepository
-import com.mknlabs.expensetracker.domain.repository.LegacyImportRepository
-import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
-import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
-import com.mknlabs.expensetracker.domain.repository.TransactionRepository
-import com.mknlabs.expensetracker.domain.repository.SecurityRepository
 import com.mknlabs.expensetracker.data.repository.SecurityRepositoryImpl
-import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.data.repository.ConfigurationRepositoryImpl
-import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.data.repository.SyncRepositoryImpl
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.mknlabs.expensetracker.domain.repository.*
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideTransactionRepository(
-        @ApplicationContext context: Context
-    ): TransactionRepository {
-        return TransactionRepositoryImpl(context)
-    }
+    abstract fun bindTransactionRepository(
+        impl: TransactionRepositoryImpl
+    ): TransactionRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideAppPreferencesRepository(
-        @ApplicationContext context: Context
-    ): AppPreferencesRepository {
-        return AppPreferencesRepositoryImpl(context)
-    }
+    abstract fun bindAppPreferencesRepository(
+        impl: AppPreferencesRepositoryImpl
+    ): AppPreferencesRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideCategoryRepository(
-        @ApplicationContext context: Context
-    ): CategoryRepository {
-        return CategoryRepositoryImpl(context)
-    }
+    abstract fun bindCategoryRepository(
+        impl: CategoryRepositoryImpl
+    ): CategoryRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun providePaymentMethodRepository(
-        @ApplicationContext context: Context
-    ): PaymentMethodRepository {
-        return PaymentMethodRepositoryImpl(context)
-    }
+    abstract fun bindPaymentMethodRepository(
+        impl: PaymentMethodRepositoryImpl
+    ): PaymentMethodRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideBudgetRepository(
-        @ApplicationContext context: Context
-    ): BudgetRepository {
-        return BudgetRepositoryImpl(context)
-    }
+    abstract fun bindBudgetRepository(
+        impl: BudgetRepositoryImpl
+    ): BudgetRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideRecurringRuleRepository(
-        @ApplicationContext context: Context
-    ): RecurringRuleRepository {
-        return RecurringRuleRepositoryImpl(context)
-    }
+    abstract fun bindRecurringRuleRepository(
+        impl: RecurringRuleRepositoryImpl
+    ): RecurringRuleRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideDataManagementRepository(
-        @ApplicationContext context: Context
-    ): DataManagementRepository {
-        return DataManagementRepositoryImpl(context)
-    }
+    abstract fun bindDataManagementRepository(
+        impl: DataManagementRepositoryImpl
+    ): DataManagementRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideLegacyImportRepository(
-        @ApplicationContext context: Context
-    ): LegacyImportRepository {
-        return LegacyImportRepositoryImpl(context)
-    }
+    abstract fun bindLegacyImportRepository(
+        impl: LegacyImportRepositoryImpl
+    ): LegacyImportRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSecurityRepository(
-        @ApplicationContext context: Context
-    ): SecurityRepository {
-        return SecurityRepositoryImpl(context)
-    }
+    abstract fun bindSecurityRepository(
+        impl: SecurityRepositoryImpl
+    ): SecurityRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideConfigurationRepository(): ConfigurationRepository {
-        return ConfigurationRepositoryImpl()
-    }
+    abstract fun bindConfigurationRepository(
+        impl: ConfigurationRepositoryImpl
+    ): ConfigurationRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSyncRepository(
-        @ApplicationContext context: Context,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        configRepository: ConfigurationRepository
-    ): SyncRepository {
-        return SyncRepositoryImpl(context, firestore, firebaseAuth, configRepository)
-    }
+    abstract fun bindSyncRepository(
+        impl: SyncRepositoryImpl
+    ): SyncRepository
 }

@@ -1,27 +1,29 @@
 package com.mknlabs.expensetracker.data.repository
 
-import android.content.Context
 import androidx.room.withTransaction
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.toDomain
 import com.mknlabs.expensetracker.data.local.room.toEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
-import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
+import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository as DomainTransactionRepository
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import java.util.UUID
+import javax.inject.Inject
 
-class TransactionRepository(context: Context) : DomainTransactionRepository {
-
-    private val database = ExpenseTrackerDatabase.getInstance(context)
-    private val dao = database.transactionDao()
-    private val recurringRuleDao = database.recurringRuleDao()
+class TransactionRepository @Inject constructor(
+    private val database: ExpenseTrackerDatabase,
+    private val dao: TransactionDao,
+    private val recurringRuleDao: RecurringRuleDao
+) : DomainTransactionRepository {
 
     override fun observeActiveTransactions(): Flow<List<Transaction>> {
         return dao.observeActiveTransactions().map { entities ->
@@ -51,11 +53,11 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
         return dao.observeActiveTransactionCount()
     }
 
-    override suspend fun getTransactionById(id: String): Transaction? {
-        return dao.getById(id)?.toDomain()
+    override suspend fun getTransactionById(id: String): Transaction? = withContext(Dispatchers.IO) {
+        dao.getById(id)?.toDomain()
     }
 
-    override suspend fun upsertTransaction(transaction: Transaction): Transaction {
+    override suspend fun upsertTransaction(transaction: Transaction): Transaction = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
         val existing = transaction.id.takeIf { it.isNotBlank() }?.let { dao.getById(it) }
         val resolved = transaction.copy(
@@ -65,10 +67,10 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
             updatedAt = now
         )
         dao.upsert(resolved.toEntity())
-        return resolved
+        resolved
     }
 
-    override suspend fun softDeleteTransaction(id: String) {
+    override suspend fun softDeleteTransaction(id: String) = withContext(Dispatchers.IO) {
         dao.softDelete(
             id = id,
             syncState = SyncState.PENDING_DELETE.name,
@@ -76,8 +78,8 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
         )
     }
 
-    override suspend fun softDeleteTransactions(ids: List<String>) {
-        if (ids.isEmpty()) return
+    override suspend fun softDeleteTransactions(ids: List<String>) = withContext(Dispatchers.IO) {
+        if (ids.isEmpty()) return@withContext
         database.withTransaction {
             ids.forEach { id ->
                 dao.softDelete(
@@ -89,51 +91,11 @@ class TransactionRepository(context: Context) : DomainTransactionRepository {
         }
     }
 
-    override suspend fun deleteAllTransactions() {
+    override suspend fun deleteAllTransactions() = withContext(Dispatchers.IO) {
         database.withTransaction {
             recurringRuleDao.deleteAll()
             dao.deleteAll()
         }
-    }
-
-    override suspend fun checkBudgetAndNotify(
-        context: android.content.Context,
-        transaction: Transaction
-    ) {
-        if (transaction.transactionTypeId != 2) return // Only for expenses
-        
-        val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
-        if (!settings.budgetLimitAlertsEnabled) return
-
-        val sdf = java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.getDefault())
-        val monthStr = sdf.format(java.util.Date(transaction.createdAt))
-        
-        // Find if there's a budget for this category and month
-        val budgetEntity = database.budgetDao().getActiveByCategoryAndMonthStart(
-            categoryId = transaction.categoryId,
-            monthStart = getStartOfMonthTimestamp(transaction.createdAt)
-        )
-
-        if (budgetEntity != null) {
-            val currentSpending = dao.getMonthlyCategorySpending(transaction.categoryId, monthStr)
-            if (currentSpending > budgetEntity.limitMinor) {
-                // Get category name for message
-                val categoryName = database.categoryDao().getById(transaction.categoryId)?.name ?: "Unknown"
-                val message = com.mknlabs.expensetracker.notifications.DynamicNotificationEngine.generateBudgetExceededMessage(context, categoryName)
-                com.mknlabs.expensetracker.notifications.NotificationHelper.showBudgetExceededNotification(context, message)
-            }
-        }
-    }
-
-    private fun getStartOfMonthTimestamp(timestamp: Long): Long {
-        return java.util.Calendar.getInstance().apply {
-            timeInMillis = timestamp
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
-        }.timeInMillis
     }
 }
 

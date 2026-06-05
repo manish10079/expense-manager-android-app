@@ -41,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -92,7 +91,7 @@ fun CategoryManagementScreen(
     onDeleteCustomPaymentType: (Int) -> Unit = {},
     onAddCategoryClick: (CategoryManagementTab) -> Unit = {}
 ) {
-    val categoryManagementViewModel: CategoryManagementViewModel = viewModel()
+    val categoryManagementViewModel: CategoryManagementViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
@@ -137,7 +136,10 @@ fun CategoryManagementScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             // Inline Native Ad before category count text
-            AdContainer(isAdsEnabled = isAdsEnabled) {
+            AdContainer(
+                isAdsEnabled = isAdsEnabled,
+                modifier = Modifier.padding(bottom = 18.dp)
+            ) {
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 

@@ -583,7 +583,8 @@
     <string name="placeholder_amount_zero">0.00</string>
     <string name="content_desc_add_item">Add item</string>
     <!-- Data Management -->
-    <string name="label_automated_sync">AUTOMATED SYNC</string>
+    <string name="label_automated_sync">Cloud &amp; Automation</string>
+    <string name="desc_automated_sync">Manage how your data is automatically protected without manual effort.</string>
     <string name="desc_auto_backup_subtitle">Automatic local backup</string>
     <string name="desc_backup_frequency_subtitle">How often to perform backup</string>
     <string name="label_custom_frequency">Custom...</string>
@@ -594,7 +595,8 @@
         <item quantity="one">1 day</item>
         <item quantity="other">%1$d days</item>
     </plurals>
-    <string name="label_data_transfer">DATA TRANSFER</string>
+    <string name="label_data_transfer">File Transfer</string>
+    <string name="desc_data_transfer">Manual tools for when you want to move your data between devices or keep a physical file.</string>
     <string name="label_export_data_json">Export Data (JSON)</string>
     <string name="desc_export_data_subtitle">Download merge-safe JSON file</string>
     <string name="label_export">Export</string>
@@ -608,7 +610,8 @@
     <string name="label_legacy_import">Legacy Import</string>
     <string name="desc_legacy_import_subtitle">Import from older app versions</string>
     <string name="label_migrate">Migrate</string>
-    <string name="label_utilities_and_stats">UTILITIES &amp; STATS</string>
+    <string name="label_utilities_and_stats">Storage &amp; Maintenance</string>
+    <string name="desc_utilities_and_stats">Tools for monitoring your database health and performing \"reset\" actions.</string>
     <string name="desc_transaction_count_subtitle">Total records in database</string>
     <plurals name="desc_auto_backup_every_days">
         <item quantity="one">Automatically backup every day</item>
@@ -656,8 +659,14 @@
     <string name="title_show_category">Show Category</string>
     <string name="desc_display_category_label">Display category label on card</string>
     <string name="desc_display_wallet_or_card">Display wallet or card used</string>
-    <string name="desc_group_transactions_by_day">Group transactions by day</string>
+    <string name="desc_group_transactions_by_day">Group transactions under sticky day headers (e.g., \"Today\", \"Yesterday\").</string>
     <string name="title_transaction_card_settings">Transaction Card Settings</string>
+    <string name="label_visual_style">Visual Style</string>
+    <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>
+    <string name="label_transaction_details">Transaction Details</string>
+    <string name="desc_transaction_details">These settings control the specific data points displayed on the card.</string>
+    <string name="label_time_and_organization">Time &amp; Organization</string>
+    <string name="desc_time_and_organization">These settings control how time information is presented and how transactions are grouped in the list.</string>
     <string name="label_preview">Preview</string>
     <string name="title_customize_transaction_card">Customize Transaction Card</string>
     <!-- Edit Profile Screen -->
@@ -1078,6 +1087,18 @@
     <string name="label_24_hour">24-hour</string>
     <string name="label_all_records">All Records</string>
     <string name="label_custom_payment_method">Custom payment method</string>
+    <string name="notification_format_budget_approaching">%1$s! You\'ve used %2$s of your %3$s budget. %4$s left.</string>
+    <string name="notification_format_budget_reached">Budget alert: You\'ve reached your %1$s limit for %2$s.</string>
+    <string name="notification_format_budget_overspent">Alert: You are now %1$s over your %2$s budget. %3$s</string>
+
+    <string name="notification_budget_approaching_1">Time to slow down? 🛑</string>
+    <string name="notification_budget_approaching_2">Future you will thank you for stopping now. 😇</string>
+    <string name="notification_budget_approaching_3">That wallet is getting light. 💸</string>
+
+    <string name="notification_budget_overspent_1">Your budget is in the rearview mirror. 🏎️</string>
+    <string name="notification_budget_overspent_2">We\'re in uncharted territory now. 🗺️</string>
+    <string name="notification_budget_overspent_3">The limit was just a suggestion, right? 🙃</string>
+
     <!-- Notifications -->
     <string name="notification_channel_reminders">Daily Reminders</string>
     <string name="notification_channel_reminders_desc">Periodic reminders to log your expenses.</string>

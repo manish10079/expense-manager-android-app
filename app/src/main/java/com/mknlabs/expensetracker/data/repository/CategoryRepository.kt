@@ -1,19 +1,20 @@
 package com.mknlabs.expensetracker.data.repository
 
-import android.content.Context
-import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.toDomain
 import com.mknlabs.expensetracker.data.local.room.toEntity
+import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository as DomainCategoryRepository
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
-import com.mknlabs.expensetracker.models.SyncState
-
-class CategoryRepository(context: Context) : DomainCategoryRepository {
-
-    private val dao = ExpenseTrackerDatabase.getInstance(context).categoryDao()
+class CategoryRepository @Inject constructor(
+    private val dao: CategoryDao
+) : DomainCategoryRepository {
 
     override fun observeActiveCategories(): Flow<List<CategoryType>> {
         return dao.observeActiveCategories().map { entities ->
@@ -31,7 +32,7 @@ class CategoryRepository(context: Context) : DomainCategoryRepository {
         name: String,
         iconKey: String,
         transactionTypeId: Int
-    ) {
+    ) = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
         val nextId = dao.getMaxId() + 1
         dao.upsert(
@@ -50,7 +51,7 @@ class CategoryRepository(context: Context) : DomainCategoryRepository {
         )
     }
 
-    override suspend fun deleteCustomCategory(id: Int) {
+    override suspend fun deleteCustomCategory(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
         dao.updateSyncState(id = id, syncState = SyncState.PENDING_DELETE.name)
     }

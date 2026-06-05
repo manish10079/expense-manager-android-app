@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
@@ -30,7 +31,7 @@ fun GatedAction(
     content: @Composable (status: AccessStatus, onClick: () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
-    val monetizationViewModel: MonetizationViewModel = viewModel()
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val accessStatus by monetizationViewModel.getAccessStatus(feature, optionId).collectAsStateWithLifecycle()
 
     var showPremiumSheet by remember { mutableStateOf(false) }

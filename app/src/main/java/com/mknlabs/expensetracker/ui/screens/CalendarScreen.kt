@@ -63,7 +63,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -117,7 +116,7 @@ fun CalendarScreen(
     onBackClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {}
 ) {
-    val calendarViewModel: CalendarViewModel = viewModel()
+    val calendarViewModel: CalendarViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 

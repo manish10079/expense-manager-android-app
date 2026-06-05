@@ -73,7 +73,8 @@ class MainViewModel @Inject constructor(
     private val legacyImportRepository: LegacyImportRepository,
     private val securityRepository: SecurityRepository,
     private val authRepository: AuthRepository,
-    private val monetizationRepository: MonetizationRepository
+    private val monetizationRepository: MonetizationRepository,
+    private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -195,7 +196,7 @@ class MainViewModel @Inject constructor(
             }
             
             // Check budget and notify if needed
-            transactionRepository.checkBudgetAndNotify(appContext, savedTransaction)
+            checkBudgetUseCase(savedTransaction)
 
             // If a recurring rule was added/updated, trigger immediate processing
             if (recurringDraft != null) {

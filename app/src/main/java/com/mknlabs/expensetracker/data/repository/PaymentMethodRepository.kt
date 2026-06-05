@@ -1,19 +1,20 @@
 package com.mknlabs.expensetracker.data.repository
 
-import android.content.Context
-import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.toDomain
 import com.mknlabs.expensetracker.data.local.room.toEntity
+import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository as DomainPaymentMethodRepository
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
-import com.mknlabs.expensetracker.models.SyncState
-
-class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository {
-
-    private val dao = ExpenseTrackerDatabase.getInstance(context).paymentMethodDao()
+class PaymentMethodRepository @Inject constructor(
+    private val dao: PaymentMethodDao
+) : DomainPaymentMethodRepository {
 
     override fun observeActivePaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActivePaymentMethods().map { entities ->
@@ -30,7 +31,7 @@ class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository 
     override suspend fun createCustomPaymentMethod(
         name: String,
         iconKey: String
-    ) {
+    ) = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
         val nextId = dao.getMaxId() + 1
         dao.upsert(
@@ -48,7 +49,7 @@ class PaymentMethodRepository(context: Context) : DomainPaymentMethodRepository 
         )
     }
 
-    override suspend fun deleteCustomPaymentMethod(id: Int) {
+    override suspend fun deleteCustomPaymentMethod(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
         dao.updateSyncState(id = id, syncState = SyncState.PENDING_DELETE.name)
     }

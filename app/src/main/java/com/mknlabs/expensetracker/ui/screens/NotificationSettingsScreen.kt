@@ -26,6 +26,8 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 
@@ -69,48 +71,41 @@ fun NotificationSettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = Dimens.ScreenPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            SettingsGroup {
+                SettingsItemCard(
+                    icon = Icons.Rounded.NotificationsActive,
+                    title = stringResource(id = R.string.title_daily_reminder),
+                    subtitle = stringResource(id = R.string.desc_daily_reminder),
+                    type = SettingsItemType.Toggle,
+                    standalone = false,
+                    isChecked = isDailyReminderEnabled,
+                    onCheckedChange = onDailyReminderChange
+                )
+                SettingsGroupDivider()
+                SettingsItemCard(
+                    icon = Icons.Rounded.PriceCheck,
+                    title = stringResource(id = R.string.title_budget_limit_alerts),
+                    subtitle = stringResource(id = R.string.desc_budget_limit_alerts),
+                    type = SettingsItemType.Toggle,
+                    standalone = false,
+                    isChecked = isBudgetLimitAlertsEnabled,
+                    onCheckedChange = onBudgetLimitAlertsChange
+                )
+                SettingsGroupDivider()
+                SettingsItemCard(
+                    icon = Icons.Rounded.History,
+                    title = stringResource(id = R.string.title_missed_entry_reminder),
+                    subtitle = stringResource(id = R.string.desc_missed_entry_reminder),
+                    type = SettingsItemType.Toggle,
+                    standalone = false,
+                    isChecked = isMissedEntryReminderEnabled,
+                    onCheckedChange = onMissedEntryReminderChange
+                )
+            }
 
-            Text(
-                text = stringResource(id = R.string.dialog_alerts_reminders),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp
-                ),
-                modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-            )
-
-            SettingsItemCard(
-                icon = Icons.Rounded.NotificationsActive,
-                title = stringResource(id = R.string.title_daily_reminder),
-                subtitle = stringResource(id = R.string.desc_daily_reminder),
-                type = SettingsItemType.Toggle,
-                isChecked = isDailyReminderEnabled,
-                onCheckedChange = onDailyReminderChange
-            )
-
-            SettingsItemCard(
-                icon = Icons.Rounded.PriceCheck,
-                title = stringResource(id = R.string.title_budget_limit_alerts),
-                subtitle = stringResource(id = R.string.desc_budget_limit_alerts),
-                type = SettingsItemType.Toggle,
-                isChecked = isBudgetLimitAlertsEnabled,
-                onCheckedChange = onBudgetLimitAlertsChange
-            )
-
-            SettingsItemCard(
-                icon = Icons.Rounded.History,
-                title = stringResource(id = R.string.title_missed_entry_reminder),
-                subtitle = stringResource(id = R.string.desc_missed_entry_reminder),
-                type = SettingsItemType.Toggle,
-                isChecked = isMissedEntryReminderEnabled,
-                onCheckedChange = onMissedEntryReminderChange
-            )
-
-            // Inline Native Ad after Missed Entry Reminder
+            // Inline Native Ad after Group
             AdContainer(isAdsEnabled = isAdsEnabled) {
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }

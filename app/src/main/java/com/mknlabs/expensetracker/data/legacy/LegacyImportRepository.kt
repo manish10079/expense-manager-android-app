@@ -8,12 +8,17 @@ import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
+import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.domain.repository.LegacyImportRepository as DomainLegacyImportRepository
 import com.mknlabs.expensetracker.domain.repository.LegacyImportResult
 import com.mknlabs.expensetracker.models.SyncState
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import javax.inject.Inject
 
 private const val INCOME_TRANSACTION_TYPE_ID = 1
 private const val EXPENSE_TRANSACTION_TYPE_ID = 2
@@ -21,20 +26,19 @@ private const val FALLBACK_INCOME_CATEGORY_ID = 105
 private const val FALLBACK_EXPENSE_CATEGORY_ID = 23
 private const val FALLBACK_PAYMENT_METHOD_ID = 5
 
-class LegacyImportRepository(
-    private val context: Context
+class LegacyImportRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val database: ExpenseTrackerDatabase,
+    private val transactionDao: TransactionDao
 ) : DomainLegacyImportRepository {
-    private val appContext = context.applicationContext
-    private val database = ExpenseTrackerDatabase.getInstance(appContext)
-    private val transactionDao = database.transactionDao()
 
-    override suspend fun importBackup(uri: Uri): LegacyImportResult {
-        ExpenseTrackerDatabaseInitializer.initialize(appContext)
+    override suspend fun importBackup(uri: Uri): LegacyImportResult = withContext(Dispatchers.IO) {
+        ExpenseTrackerDatabaseInitializer.initialize(context)
 
-        val backupJson = appContext.contentResolver.openInputStream(uri)
+        val backupJson = context.contentResolver.openInputStream(uri)
             ?.bufferedReader()
             ?.use { it.readText() }
-            ?: error("Unable to open selected legacy backup file.")
+            ?: throw IllegalStateException("Unable to open selected legacy backup file.")
         val transactionsJson = JSONObject(backupJson).getJSONArray("transactions")
         val transactionsToImport = mutableListOf<TransactionEntity>()
         var skippedTransactions = 0
@@ -57,7 +61,7 @@ class LegacyImportRepository(
             }
         }
 
-        return LegacyImportResult(
+        LegacyImportResult(
             totalTransactions = transactionsJson.length(),
             importedTransactions = transactionsToImport.size,
             skippedTransactions = skippedTransactions

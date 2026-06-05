@@ -125,7 +125,7 @@ fun TransactionScreen(
     onAddTransactionClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {}
 ) {
-    val transactionsViewModel: TransactionsViewModel = viewModel()
+    val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 

@@ -8,7 +8,11 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
-import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
+import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
+import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
+import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
+import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
+import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
@@ -20,6 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,15 +34,13 @@ class SyncRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val firestore: FirebaseFirestore,
     private val firebaseAuth: FirebaseAuth,
-    private val configRepository: ConfigurationRepository
+    private val configRepository: ConfigurationRepository,
+    private val transactionDao: TransactionDao,
+    private val categoryDao: CategoryDao,
+    private val budgetDao: BudgetDao,
+    private val paymentMethodDao: PaymentMethodDao,
+    private val recurringRuleDao: RecurringRuleDao
 ) : SyncRepository {
-
-    private val database = ExpenseTrackerDatabase.getInstance(context)
-    private val transactionDao = database.transactionDao()
-    private val categoryDao = database.categoryDao()
-    private val budgetDao = database.budgetDao()
-    private val paymentMethodDao = database.paymentMethodDao()
-    private val recurringRuleDao = database.recurringRuleDao()
 
     private val _registeredDevices = MutableStateFlow<List<RegisteredDevice>>(emptyList())
     override val registeredDevices: StateFlow<List<RegisteredDevice>> = _registeredDevices.asStateFlow()
@@ -52,8 +56,8 @@ class SyncRepositoryImpl @Inject constructor(
         "${Build.MANUFACTURER} ${Build.MODEL}"
     }
 
-    override suspend fun registerCurrentDevice(): Result<Unit> {
-        val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
+    override suspend fun registerCurrentDevice(): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         
         try {
             val userDocRef = firestore.collection("users").document(uid)
@@ -67,14 +71,14 @@ class SyncRepositoryImpl @Inject constructor(
             if (existingDevices.contains(androidId)) {
                 devicesCollection.document(androidId).update("lastActiveMillis", System.currentTimeMillis()).await()
                 refreshDevices()
-                return Result.success(Unit)
+                return@withContext Result.success(Unit)
             }
             
             // 3. Check limit from Remote Config
             val maxLimit = configRepository.maxSyncDevices.value
             
             if (existingDevices.size >= maxLimit) {
-                return Result.failure(Exception("Device limit reached ($maxLimit). Please remove another device first."))
+                return@withContext Result.failure(Exception("Device limit reached ($maxLimit). Please remove another device first."))
             }
             
             // 4. Register new device
@@ -85,15 +89,15 @@ class SyncRepositoryImpl @Inject constructor(
             devicesCollection.document(androidId).set(deviceData).await()
             refreshDevices()
             
-            return Result.success(Unit)
+            return@withContext Result.success(Unit)
         } catch (e: Exception) {
-            return Result.failure(e)
+            return@withContext Result.failure(e)
         }
     }
 
-    override suspend fun unregisterDevice(deviceId: String): Result<Unit> {
-        val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
-        return try {
+    override suspend fun unregisterDevice(deviceId: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
+        return@withContext try {
             firestore.collection("users").document(uid)
                 .collection("devices").document(deviceId)
                 .delete().await()
@@ -104,9 +108,9 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshDevices(): Result<Unit> {
-        val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
-        return try {
+    override suspend fun refreshDevices(): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
+        return@withContext try {
             val snapshot = firestore.collection("users").document(uid)
                 .collection("devices").get().await()
             
@@ -125,26 +129,26 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun syncUserProfile(): Result<Unit> {
-        val uid = firebaseAuth.currentUser?.uid ?: return Result.success(Unit)
+    override suspend fun syncUserProfile(): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.success(Unit)
 
-        return try {
-            syncUserProfile(uid)
+        return@withContext try {
+            syncUserProfileInternal(uid)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun syncTransactions(): Result<Unit> {
-        val uid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
+    override suspend fun syncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         
-        return try {
+        return@withContext try {
             val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
 
-            syncUserProfile(uid)
+            syncUserProfileInternal(uid)
 
             // 1. PUSH (Local -> Cloud)
             pushLocalChanges(uid)
@@ -157,11 +161,11 @@ class SyncRepositoryImpl @Inject constructor(
             
             Result.success(Unit)
         } catch (e: Exception) {
-            return Result.failure(e)
+            return@withContext Result.failure(e)
         }
     }
 
-    private suspend fun syncUserProfile(uid: String) {
+    private suspend fun syncUserProfileInternal(uid: String) {
         pushUserProfile(uid)
         pullUserProfile(uid)
     }

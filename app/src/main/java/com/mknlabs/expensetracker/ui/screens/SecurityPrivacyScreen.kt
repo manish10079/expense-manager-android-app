@@ -39,6 +39,8 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
@@ -94,106 +96,108 @@ fun SecurityPrivacyScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_app_lock),
-                        subtitle = stringResource(R.string.label_secure_app_pin),
-                        icon = Icons.Rounded.Lock,
-                        type = SettingsItemType.Toggle,
-                        isChecked = isAppLockEnabled,
-                        onCheckedChange = onAppLockChange
-                    )
-                }
-
-                item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_auto_lock_duration),
-                        subtitle = stringResource(R.string.label_auto_lock_subtitle),
-                        icon = Icons.Filled.AccessTime,
-                        type = SettingsItemType.Value,
-                        valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
-                        isEnabled = isAppLockEnabled,
-                        onClick = { isAutoLockDurationPickerVisible = true }
-                    )
-                }
-
-                item {
-                    SettingsItemCard(
-                        title = stringResource(R.string.title_biometric),
-                        subtitle = stringResource(R.string.label_use_biometric_subtitle),
-                        icon = Icons.Rounded.Fingerprint,
-                        type = SettingsItemType.Toggle,
-                        isEnabled = isAppLockEnabled && hasAppLockPin,
-                        isChecked = isBiometricEnabled,
-                        onCheckedChange = onBiometricChange
-                    )
-                }
-
-                item {
-                    GatedAction(
-                        feature = Feature.SCRAMBLED_PIN_KEYPAD,
-                        onAction = { onScrambledPinKeypadChange(!isScrambledPinKeypadEnabled) }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.SCRAMBLED_PIN_KEYPAD)
+                    SettingsGroup {
                         SettingsItemCard(
-                            title = stringResource(R.string.label_scrambled_keypad),
-                            subtitle = stringResource(R.string.label_scrambled_keypad_subtitle),
-                            icon = Icons.Rounded.GridView,
+                            title = stringResource(R.string.title_app_lock),
+                            subtitle = stringResource(R.string.label_secure_app_pin),
+                            icon = Icons.Rounded.Lock,
                             type = SettingsItemType.Toggle,
-                            accessLevel = accessLevel,
-                            isLocked = !isScrambledPinKeypadEnabled && status !is AccessStatus.Granted,
+                            standalone = false,
+                            isChecked = isAppLockEnabled,
+                            onCheckedChange = onAppLockChange
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_auto_lock_duration),
+                            subtitle = stringResource(R.string.label_auto_lock_subtitle),
+                            icon = Icons.Filled.AccessTime,
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
+                            isEnabled = isAppLockEnabled,
+                            onClick = { isAutoLockDurationPickerVisible = true }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_biometric),
+                            subtitle = stringResource(R.string.label_use_biometric_subtitle),
+                            icon = Icons.Rounded.Fingerprint,
+                            type = SettingsItemType.Toggle,
+                            standalone = false,
                             isEnabled = isAppLockEnabled && hasAppLockPin,
-                            isChecked = isScrambledPinKeypadEnabled,
-                            onCheckedChange = { onClick() },
-                            onClick = onClick
+                            isChecked = isBiometricEnabled,
+                            onCheckedChange = onBiometricChange
                         )
+                        SettingsGroupDivider()
+                        GatedAction(
+                            feature = Feature.SCRAMBLED_PIN_KEYPAD,
+                            onAction = { onScrambledPinKeypadChange(!isScrambledPinKeypadEnabled) }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.SCRAMBLED_PIN_KEYPAD)
+                            SettingsItemCard(
+                                title = stringResource(R.string.label_scrambled_keypad),
+                                subtitle = stringResource(R.string.label_scrambled_keypad_subtitle),
+                                icon = Icons.Rounded.GridView,
+                                type = SettingsItemType.Toggle,
+                                standalone = false,
+                                accessLevel = accessLevel,
+                                isLocked = !isScrambledPinKeypadEnabled && status !is AccessStatus.Granted,
+                                isEnabled = isAppLockEnabled && hasAppLockPin,
+                                isChecked = isScrambledPinKeypadEnabled,
+                                onCheckedChange = { onClick() },
+                                onClick = onClick
+                            )
+                        }
                     }
                 }
 
                 item {
-                    GatedAction(
-                        feature = Feature.PRIVACY_PROTECTION,
-                        onAction = { onBlurInRecentsChange(!isBlurInRecentsEnabled) }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
-                        SettingsItemCard(
-                            title = stringResource(R.string.label_blur_in_recents),
-                            subtitle = stringResource(R.string.label_blur_in_recents_subtitle),
-                            icon = Icons.Rounded.BlurOn,
-                            type = SettingsItemType.Toggle,
-                            accessLevel = accessLevel,
-                            isLocked = !isBlurInRecentsEnabled && status !is AccessStatus.Granted,
-                            isChecked = isBlurInRecentsEnabled,
-                            onCheckedChange = { onClick() },
-                            onClick = onClick
-                        )
+                    SettingsGroup {
+                        GatedAction(
+                            feature = Feature.PRIVACY_PROTECTION,
+                            onAction = { onBlurInRecentsChange(!isBlurInRecentsEnabled) }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
+                            SettingsItemCard(
+                                title = stringResource(R.string.label_blur_in_recents),
+                                subtitle = stringResource(R.string.label_blur_in_recents_subtitle),
+                                icon = Icons.Rounded.BlurOn,
+                                type = SettingsItemType.Toggle,
+                                standalone = false,
+                                accessLevel = accessLevel,
+                                isLocked = !isBlurInRecentsEnabled && status !is AccessStatus.Granted,
+                                isChecked = isBlurInRecentsEnabled,
+                                onCheckedChange = { onClick() },
+                                onClick = onClick
+                            )
+                        }
+                        SettingsGroupDivider()
+                        GatedAction(
+                            feature = Feature.PRIVACY_PROTECTION,
+                            onAction = { onScreenshotProtectionChange(!isScreenshotProtectionEnabled) }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
+                            SettingsItemCard(
+                                title = stringResource(R.string.title_block_screenshots),
+                                subtitle = stringResource(R.string.label_block_screenshots_subtitle),
+                                icon = Icons.Rounded.NoPhotography,
+                                type = SettingsItemType.Toggle,
+                                standalone = false,
+                                accessLevel = accessLevel,
+                                isLocked = !isScreenshotProtectionEnabled && status !is AccessStatus.Granted,
+                                isChecked = isScreenshotProtectionEnabled,
+                                onCheckedChange = { onClick() },
+                                onClick = onClick
+                            )
+                        }
                     }
                 }
 
                 item {
-                    GatedAction(
-                        feature = Feature.PRIVACY_PROTECTION,
-                        onAction = { onScreenshotProtectionChange(!isScreenshotProtectionEnabled) }
-                    ) { status, onClick ->
-                        val accessLevel = FeatureRegistry.getAccessLevel(Feature.PRIVACY_PROTECTION)
-                        SettingsItemCard(
-                            title = stringResource(R.string.title_block_screenshots),
-                            subtitle = stringResource(R.string.label_block_screenshots_subtitle),
-                            icon = Icons.Rounded.NoPhotography,
-                            type = SettingsItemType.Toggle,
-                            accessLevel = accessLevel,
-                            isLocked = !isScreenshotProtectionEnabled && status !is AccessStatus.Granted,
-                            isChecked = isScreenshotProtectionEnabled,
-                            onCheckedChange = { onClick() },
-                            onClick = onClick
-                        )
-                    }
-                }
-
-                item {
-                    // Inline Native Ad after Auto Lock Duration
+                    // Inline Native Ad after Groups
                     AdContainer(isAdsEnabled = isAdsEnabled) {
                         NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }

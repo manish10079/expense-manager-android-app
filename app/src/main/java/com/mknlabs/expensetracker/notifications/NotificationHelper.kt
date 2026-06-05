@@ -83,7 +83,7 @@ object NotificationHelper {
         }
     }
 
-    fun showBudgetExceededNotification(context: Context, message: String) {
+    fun showBudgetNotification(context: Context, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             // Potentially add nav to a budget screen here if it exists.
