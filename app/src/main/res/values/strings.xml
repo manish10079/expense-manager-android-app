@@ -228,6 +228,7 @@
     <string name="label_active_caps">ACTIVE</string>
     <string name="label_watch_now_caps">WATCH NOW</string>
 
+    <string name="title_session">SESSION</string>
     <string name="title_about_caps">ABOUT</string>
     <string name="label_edit_profile">Edit Profile</string>
     <string name="label_edit_profile_subtitle">Update your name, email and avatar</string>

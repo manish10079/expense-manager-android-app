@@ -201,7 +201,29 @@ private fun buildSettingsSections(
         )
     )
 
-    // 2. Security Section
+    // 2. Monetization Section (Only for Free) - MOVED TO TOP (2nd Position)
+    if (userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+        val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
+        settingsSections.add(
+            SettingsSectionUi(
+                titleRes = com.mknlabs.expensetracker.R.string.title_monetization_caps,
+                items = listOf(
+                    SettingsItemUi(
+                        titleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.label_ad_free_active
+                        else com.mknlabs.expensetracker.R.string.label_remove_all_ads,
+                        subtitleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.msg_ad_free_duration_remaining
+                        else com.mknlabs.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                        icon = Icons.Rounded.CreditCard,
+                        actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
+                        trailing = if (adPassActive) adFreeRemainingTime else null,
+                        showChevron = !adPassActive
+                    )
+                )
+            )
+        )
+    }
+
+    // 3. Security Section
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy_1,
@@ -216,7 +238,7 @@ private fun buildSettingsSections(
         )
     )
 
-    // 3. Workspace / Configuration Section
+    // 4. Workspace / Configuration Section
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mknlabs.expensetracker.R.string.title_preference,
@@ -249,7 +271,7 @@ private fun buildSettingsSections(
         )
     )
 
-    // 4. Data Section
+    // 5. Data Section
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mknlabs.expensetracker.R.string.title_database,
@@ -264,33 +286,11 @@ private fun buildSettingsSections(
         )
     )
 
-    // 5. Monetization Section (Only for Free)
-    if (userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
-        val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
-        settingsSections.add(
-            SettingsSectionUi(
-                titleRes = com.mknlabs.expensetracker.R.string.title_monetization_caps,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.label_ad_free_active
-                        else com.mknlabs.expensetracker.R.string.label_remove_all_ads,
-                        subtitleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.msg_ad_free_duration_remaining
-                        else com.mknlabs.expensetracker.R.string.msg_watch_ad_for_ad_free,
-                        icon = Icons.Rounded.CreditCard,
-                        actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
-                        trailing = if (adPassActive) adFreeRemainingTime else null,
-                        showChevron = !adPassActive
-                    )
-                )
-            )
-        )
-    }
-
     // 6. Session Section (Logout - Above About)
     if (!isAnonymous) {
         settingsSections.add(
             SettingsSectionUi(
-                titleRes = com.mknlabs.expensetracker.R.string.title_account, // Reusing title_account if session label not found
+                titleRes = com.mknlabs.expensetracker.R.string.title_session, 
                 items = listOf(
                     SettingsItemUi(
                         titleRes = com.mknlabs.expensetracker.R.string.label_logout,
