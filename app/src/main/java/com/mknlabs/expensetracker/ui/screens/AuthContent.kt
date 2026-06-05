@@ -67,11 +67,6 @@ fun AuthContent(
     val isPasswordStrong = passwordErrors.isEmpty()
     val canSubmit = email.isNotEmpty() && isEmailValid && password.isNotEmpty() && (isPasswordStrong || !isSignUp)
 
-    // Try silent sign-in on first load
-    LaunchedEffect(Unit) {
-        viewModel.trySilentSignIn(context)
-    }
-
     // Handle returning from settings (Add Account)
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
