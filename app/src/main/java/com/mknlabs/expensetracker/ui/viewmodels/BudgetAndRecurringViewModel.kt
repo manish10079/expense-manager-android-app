@@ -38,7 +38,7 @@ enum class BudgetPeriodFilter {
 
 enum class BudgetTab {
     Budgets,
-    Commitments
+    Recurring
 }
 
 enum class BudgetAccent {

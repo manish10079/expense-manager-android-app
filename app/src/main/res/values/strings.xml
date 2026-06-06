@@ -114,7 +114,7 @@
     <string name="desc_clear_note">Clear note</string>
     <string name="desc_close">Close</string>
     <string name="desc_enter_amount">Enter amount</string>
-    <string name="label_recurring_track">Turn on to automatically track this commitment in the future.</string>
+    <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>
     <string name="desc_add_category">Add category</string>
     <string name="desc_add_transaction">Add transaction</string>
     <string name="desc_confirm_val_transaction">Confirm %1$s transaction</string>
@@ -624,7 +624,7 @@
     <string name="label_history_locked">HISTORY LOCKED</string>
     <string name="msg_no_recurring_items">No recurring items added yet.</string>
     <string name="label_tab_budgets">Budgets</string>
-    <string name="label_tab_commitments">Commitments</string>
+    <string name="label_tab_recurring">Recurring</string>
     <string name="label_budget_insights">Budget Insights</string>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">CUSTOM MONTH</string>
@@ -640,7 +640,7 @@
     <string name="content_desc_upcoming">Upcoming</string>
     <string name="label_installments_formatted">%1$d OF %2$d</string>
     <string name="label_edit_recurring_rule">Edit Recurring Rule</string>
-    <string name="title_edit_commitment">Edit Commitment</string>
+    <string name="title_edit_recurring">Edit Recurring Expense</string>
     <string name="label_frequency_capitalized">Frequency</string>
     <string name="label_total_installments">Total Installments</string>
     <string name="label_save_changes_caps">SAVE CHANGES</string>
@@ -1036,8 +1036,8 @@
     <string name="msg_no_recurring_start_tracking">No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction.</string>
     <string name="msg_insight_empty">You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.</string>
     <string name="msg_insight_over_budget">%1$s is over budget by %2$s. Tightening that category first will give you the quickest recovery.</string>
-    <string name="msg_insight_recurring_single">You have %1$d recurring expense tracked. %2$s is %3$s, and your recurring commitments average about %4$s per month.</string>
-    <string name="msg_insight_recurring_plural">You have %1$d recurring expenses tracked. %2$s is %3$s, and your recurring commitments average about %4$s per month.</string>
+    <string name="msg_insight_recurring_single">You have %1$d recurring expense tracked. %2$s is %3$s, and your recurring expenses average about %4$s per month.</string>
+    <string name="msg_insight_recurring_plural">You have %1$d recurring expenses tracked. %2$s is %3$s, and your recurring expenses average about %4$s per month.</string>
     <string name="msg_insight_warning">You have used %1$s for %2$s. %3$s is carrying the most spend, so trimming there will protect your remaining %4$s.</string>
     <string name="msg_insight_steady">Your budget pacing looks steady for %1$s. You still have %2$s available, with %3$s leading spend so far.</string>
 
@@ -1052,6 +1052,7 @@
     <string name="format_amount_left">%1$s LEFT</string>
     <string name="format_amount_over">%1$s OVER</string>
     <string name="format_next_due">NEXT %1$s</string>
+
 
     <!-- Calendar Status & Labels -->
     <string name="label_expense_with_val">Expense %1$s</string>

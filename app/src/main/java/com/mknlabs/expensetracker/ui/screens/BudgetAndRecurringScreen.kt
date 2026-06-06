@@ -161,7 +161,7 @@ fun BudgetAndRecurringScreen(
 
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
-        val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Commitments
+        val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Recurring
         if (uiState.selectedTab != tab) {
             budgetViewModel.selectTab(tab)
         }
@@ -299,7 +299,7 @@ fun BudgetAndRecurringScreen(
                             }
                         }
                     } else {
-                        // TAB 2: COMMITMENTS (RECURRING)
+                        // TAB 2: RECURRING
                         item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
 
                         if (uiState.recurringExpenses.isEmpty()) {
@@ -1777,7 +1777,7 @@ private fun BudgetTabRow(
                 BudgetTabChip(
                     label = when (tab) {
                         BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
-                        BudgetTab.Commitments -> stringResource(id = R.string.label_tab_commitments)
+                        BudgetTab.Recurring -> stringResource(id = R.string.label_tab_recurring)
                     },
                     selected = tab == selectedTab,
                     onClick = { onTabSelected(tab) },
@@ -1852,7 +1852,7 @@ private fun RecurringRuleEditorModal(
             verticalArrangement = Arrangement.spacedBy(22.dp)
         ) {
             Text(
-                text = stringResource(id = R.string.title_edit_commitment),
+                text = stringResource(id = R.string.title_edit_recurring),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
