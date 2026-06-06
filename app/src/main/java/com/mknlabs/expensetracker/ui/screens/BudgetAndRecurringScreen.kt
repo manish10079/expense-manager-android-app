@@ -30,6 +30,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
@@ -1261,21 +1263,12 @@ private fun CategoryBudgetCard(
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = budget.statusCaption.asString(),
-                color = budgetAccentColor(budget.accent),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 1.sp
-                )
-            )
-
-            if (budget.remainingEdits != null) {
+        if (budget.remainingEdits != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = if (budget.remainingEdits == 0) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.label_edits_left_formatted, budget.remainingEdits),
                     color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -1296,64 +1289,98 @@ private fun CategoryBudgetCard(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            BudgetCardAction(
-                label = if (budget.canEdit) stringResource(id = R.string.label_edit) else stringResource(id = R.string.label_locked),
-                isLocked = !budget.canEdit,
-                onClick = { if (budget.canEdit) onEditClick() }
+            Text(
+                text = budget.statusCaption.asString(),
+                color = budgetAccentColor(budget.accent),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    letterSpacing = 1.sp
+                )
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BudgetCardAction(
+                    icon = Icons.Default.Edit,
+                    contentDescription = stringResource(id = R.string.label_edit),
+                    accent = MaterialTheme.colorScheme.primary,
+                    isLocked = !budget.canEdit,
+                    onClick = { if (budget.canEdit) onEditClick() }
+                )
 
-            BudgetCardAction(
-                label = stringResource(id = R.string.label_delete),
-                accent = MaterialTheme.colorScheme.error,
-                isLocked = !budget.canEdit,
-                onClick = { if (budget.canEdit) onDeleteClick() }
-            )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                BudgetCardAction(
+                    icon = Icons.Default.Delete,
+                    contentDescription = stringResource(id = R.string.label_delete),
+                    accent = MaterialTheme.colorScheme.error,
+                    isLocked = !budget.canEdit,
+                    onClick = { if (budget.canEdit) onDeleteClick() }
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun BudgetCardAction(
-    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    label: String? = null,
+    contentDescription: String? = null,
     accent: Color = MaterialTheme.colorScheme.primary,
     isLocked: Boolean = false,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val finalAccent = if (isLocked) MaterialTheme.colorScheme.outline else accent
+    val backgroundAlpha = if (isLocked || !enabled) 0.16f else 0.12f
+    val borderAlpha = if (isLocked || !enabled) 0.35f else 0.22f
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(finalAccent.copy(alpha = 0.12f))
+            .background(finalAccent.copy(alpha = backgroundAlpha))
             .border(
                 width = 1.dp,
-                color = finalAccent.copy(alpha = 0.22f),
+                color = finalAccent.copy(alpha = borderAlpha),
                 shape = RoundedCornerShape(12.dp)
             )
-            .clickable(enabled = !isLocked, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = if (label != null) 12.dp else 10.dp, vertical = 8.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = label,
-                color = finalAccent,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 0.8.sp
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription ?: label,
+                    tint = if (isLocked || !enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) else finalAccent,
+                    modifier = Modifier.size(16.dp)
                 )
-            )
+            }
+
+            if (label != null) {
+                if (icon != null) Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = label,
+                    color = if (isLocked || !enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) else finalAccent,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        letterSpacing = 0.8.sp
+                    )
+                )
+            }
 
             if (isLocked) {
+                Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = stringResource(R.string.content_desc_locked_formatted, label),
-                    tint = finalAccent,
+                    contentDescription = stringResource(R.string.content_desc_locked_formatted, contentDescription ?: label ?: ""),
+                    tint = finalAccent.copy(alpha = 0.7f),
                     modifier = Modifier.size(12.dp)
                 )
             }
@@ -1533,7 +1560,7 @@ private fun RecurringExpenseCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = expense.dueLabel.asString(),
@@ -1564,39 +1591,31 @@ private fun RecurringExpenseCard(
                 )
             }
 
-            Text(
-                text = expense.dueAmountLabel,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                )
-            )
-        }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                GatedAction(
+                    feature = Feature.RECURRING_RULE_EDIT,
+                    displayName = stringResource(id = R.string.label_edit_recurring_rule),
+                    onAction = onEditClick
+                ) { status, onClick ->
+                    BudgetCardAction(
+                        icon = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.label_edit),
+                        accent = MaterialTheme.colorScheme.primary,
+                        isLocked = status !is AccessStatus.Granted,
+                        onClick = onClick
+                    )
+                }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            GatedAction(
-                feature = Feature.RECURRING_RULE_EDIT,
-                displayName = stringResource(id = R.string.label_edit_recurring_rule),
-                onAction = onEditClick
-            ) { status, onClick ->
-                val isLocked = status !is AccessStatus.Granted
                 BudgetCardAction(
-                    label = stringResource(id = R.string.label_edit),
-                    accent = MaterialTheme.colorScheme.primary,
-                    isLocked = isLocked,
-                    onClick = if (isLocked) onClick else onEditClick
+                    icon = Icons.Default.Delete,
+                    contentDescription = stringResource(id = R.string.label_delete),
+                    accent = MaterialTheme.colorScheme.error,
+                    onClick = onDeleteClick
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            BudgetCardAction(
-                label = stringResource(id = R.string.label_delete),
-                accent = MaterialTheme.colorScheme.error,
-                onClick = onDeleteClick
-            )
         }
     }
 }
