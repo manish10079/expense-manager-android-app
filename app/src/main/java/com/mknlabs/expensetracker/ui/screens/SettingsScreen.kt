@@ -60,7 +60,6 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
-import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -198,6 +197,16 @@ private fun SettingsScreenContent(
                 }
 
                 settingsSections.forEach { section ->
+                    // Inline Native Ad before the "Workspace / Configuration" section (contains Manage Category)
+                    if (section.titleRes == R.string.title_preference) {
+                        item {
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                            }
+                            Spacer(modifier = Modifier.height(18.dp))
+                        }
+                    }
+
                     item(key = section.titleRes) {
                         SettingsSection(
                             section = section,
@@ -231,14 +240,6 @@ private fun SettingsScreenContent(
                             onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                             onMissedEntryReminderChange = onMissedEntryReminderChange
                         )
-
-                        // Inline Native Ad after the "Workspace / Configuration" section
-                        if (section.titleRes == R.string.title_preference) {
-                            Spacer(modifier = Modifier.height(18.dp))
-                            AdContainer(isAdsEnabled = isAdsEnabled) {
-                                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
-                            }
-                        }
                     }
                 }
 
@@ -286,7 +287,7 @@ private fun SettingsSection(
         // Render non-highlight items in a Grouped Card
         if (nonHighlightItems.isNotEmpty()) {
             SettingsGroup {
-                nonHighlightItems.forEachIndexed { index, item ->
+                nonHighlightItems.forEach { item ->
                     SettingsItemContent(
                         item = item,
                         standalone = false,
@@ -298,9 +299,6 @@ private fun SettingsSection(
                         onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                         onMissedEntryReminderChange = onMissedEntryReminderChange
                     )
-                    if (index < nonHighlightItems.size - 1) {
-                        SettingsGroupDivider()
-                    }
                 }
             }
         }

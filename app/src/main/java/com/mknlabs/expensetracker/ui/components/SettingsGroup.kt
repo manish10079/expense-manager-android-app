@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -40,12 +41,9 @@ fun SettingsGroup(
 
 /**
  * A divider to be used between items in a [SettingsGroup].
+ * Currently empty to remove the visual divider as requested.
  */
 @Composable
 fun SettingsGroupDivider() {
-    HorizontalDivider(
-        modifier = Modifier.fillMaxWidth(),
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
-    )
+    // Intentionally empty to remove the divider line while maintaining build compatibility
 }
