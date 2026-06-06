@@ -62,11 +62,6 @@ fun TransactionPeriodNavigator(
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .background(surfaceColor)
-            .border(
-                width = 1.dp,
-                color = colorScheme.onSurface.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
             .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
