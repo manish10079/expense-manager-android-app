@@ -55,7 +55,7 @@
     - [x] Time Picker: `"AM"`, `"PM"`.
 - [x] **SortFilterModal.kt**
     - [x] Sort Options Fallbacks: `"Date"`, `"Amount"`, `"Category"`.
-- [x] **AnimatedTabSwitcher.kt / BudgetScreen.kt**
+- [x] **AnimatedTabSwitcher.kt / BudgetAndRecurringScreen.kt**
     - [x] Content Descriptions: Templates like `"$label locked"` need string resources.
 
 ## 🟡 Medium Priority (Pending)
@@ -83,7 +83,7 @@
 - [x] `HomeScreen.kt`
 - [x] `TransactionsScreen.kt`
 - [x] `AnalyticsScreen.kt` & `AnalyticsViewModel.kt` (Full i18n, resolved compilation errors, and refactored UI models)
-- [x] `BudgetScreen.kt`
+- [x] `BudgetAndRecurringScreen.kt`
 - [x] `CalendarScreen.kt`
 - [x] `OnboardingScreen.kt`
 - [x] `DataManagementScreen.kt`
@@ -96,7 +96,7 @@
 - [x] `AppBottomBar.kt`
 - [x] `BottomNavConfig.kt`
 - [x] `NativeAdCard.kt`
-- [x] `BudgetViewModel.kt` (Localized budget status, insights, and formatting)
+- [x] `BudgetAndRecurringViewModel.kt` (Localized budget status, insights, and formatting)
 - [x] `CalendarViewModel.kt` (Localized financials, month abbreviations, and empty states)
 - [x] `PreferencesViewModel.kt` (Localized theme labels, descriptions, and time formats)
 - [x] `TransactionsViewModel.kt` (Localized period labels, date patterns, and filter keys)

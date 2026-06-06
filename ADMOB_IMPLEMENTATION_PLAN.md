@@ -21,7 +21,7 @@ These ads are designed to look like the app's native UI cards.
 | `native_home_dashboard` | `HomeScreen` | **Implemented** |
 | `native_transactions_list` | `TransactionsScreen` | **Implemented** |
 | `native_analytics_insights` | `AnalyticsScreen` | **Implemented** |
-| `native_budget_calendar` | `BudgetScreen`, `CalendarScreen` | **Implemented** |
+| `native_budget_calendar` | `BudgetAndRecurringScreen`, `CalendarScreen` | **Implemented** |
 | `native_settings_general` | `Settings`, `Profile`, `Data Management`, `About` | **Implemented** |
 
 ---

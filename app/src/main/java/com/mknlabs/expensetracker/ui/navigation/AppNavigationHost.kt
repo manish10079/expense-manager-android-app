@@ -23,7 +23,7 @@ import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.ui.screens.AboutScreen
 import com.mknlabs.expensetracker.ui.screens.AddTransactionScreen
 import com.mknlabs.expensetracker.ui.screens.AnalyticsScreen
-import com.mknlabs.expensetracker.ui.screens.BudgetScreen
+import com.mknlabs.expensetracker.ui.screens.BudgetAndRecurringScreen
 import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
 import com.mknlabs.expensetracker.ui.screens.CalendarScreen
 import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
@@ -187,7 +187,7 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.Budget -> {
-                    BudgetScreen(
+                    BudgetAndRecurringScreen(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,

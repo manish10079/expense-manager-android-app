@@ -26,7 +26,7 @@ import com.mknlabs.expensetracker.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.resolveBackNavigationRoute
 import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
@@ -284,7 +284,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     val homeViewModel: HomeViewModel = hiltViewModel()
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val analyticsViewModel: AnalyticsViewModel = hiltViewModel()
-    val budgetViewModel: BudgetViewModel = hiltViewModel()
+    val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
     val calendarViewModel: CalendarViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
 

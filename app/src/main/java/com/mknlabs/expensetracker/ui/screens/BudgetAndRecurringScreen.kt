@@ -104,7 +104,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.BudgetInsightUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetPeriodFilter
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -117,7 +117,7 @@ import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 
 @Composable
-fun BudgetScreen(
+fun BudgetAndRecurringScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     transactions: List<Transaction> = transactionList,
@@ -128,7 +128,7 @@ fun BudgetScreen(
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
-    val budgetViewModel: BudgetViewModel = hiltViewModel()
+    val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
@@ -1668,9 +1668,9 @@ private fun InsightCard(
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun BudgetScreenPreview() {
+private fun BudgetAndRecurringScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        BudgetScreen()
+        BudgetAndRecurringScreen()
     }
 }
 @Composable

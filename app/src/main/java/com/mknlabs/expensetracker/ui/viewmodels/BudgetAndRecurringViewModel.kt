@@ -108,7 +108,7 @@ data class BudgetInsightUi(
 )
 
 @Immutable
-data class BudgetScreenUiState(
+data class BudgetAndRecurringScreenUiState(
     val selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth,
     val summary: BudgetSummaryUi = BudgetSummaryUi(),
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
@@ -144,7 +144,7 @@ private data class RecurringEntry(
 )
 
 @HiltViewModel
-class BudgetViewModel @Inject constructor(
+class BudgetAndRecurringViewModel @Inject constructor(
     private val budgetRepository: BudgetRepository
 ) : ViewModel() {
 
@@ -158,8 +158,8 @@ class BudgetViewModel @Inject constructor(
     private var customMonthStart: Long = anchorMonthStart
     private var budgetEntries: List<BudgetEntry> = emptyList()
 
-    private val _uiState = MutableStateFlow(BudgetScreenUiState())
-    val uiState: StateFlow<BudgetScreenUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(BudgetAndRecurringScreenUiState())
+    val uiState: StateFlow<BudgetAndRecurringScreenUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
