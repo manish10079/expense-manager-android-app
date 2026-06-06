@@ -110,6 +110,10 @@ class SplashViewModel @Inject constructor(
             }
 
             _currentTask.value = InitTask.Complete
+            
+            // Allow time for the final progress bar animation (600ms) to complete in the UI
+            delay(800)
+            
             _isReady.value = true
         }
     }

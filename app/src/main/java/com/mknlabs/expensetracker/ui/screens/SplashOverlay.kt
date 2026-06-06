@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.InitTask
 
 private val SplashLogoSize = 132.dp
 
@@ -185,22 +186,27 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedContent(
-                targetState = currentTask.labelResId,
+                targetState = currentTask,
                 transitionSpec = {
                     fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(300))
                 },
                 label = "TaskAnimation"
-            ) { labelResId ->
-                Text(
-                    text = stringResource(id = labelResId).lowercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        letterSpacing = 3.sp,
-                        fontWeight = FontWeight.Light,
-                        fontSize = 13.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    textAlign = TextAlign.Center
-                )
+            ) { task ->
+                if (task !is InitTask.Complete) {
+                    Text(
+                        text = stringResource(id = task.labelResId).lowercase(),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            letterSpacing = 3.sp,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 13.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    // Empty box to maintain layout height while text is hidden
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
         }
 
