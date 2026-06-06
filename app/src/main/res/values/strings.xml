@@ -623,6 +623,8 @@
     <string name="msg_no_category_budget_data">No category budget data is available for this month yet.</string>
     <string name="label_history_locked">HISTORY LOCKED</string>
     <string name="msg_no_recurring_items">No recurring items added yet.</string>
+    <string name="label_tab_budgets">Budgets</string>
+    <string name="label_tab_commitments">Commitments</string>
     <string name="label_budget_insights">Budget Insights</string>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">CUSTOM MONTH</string>

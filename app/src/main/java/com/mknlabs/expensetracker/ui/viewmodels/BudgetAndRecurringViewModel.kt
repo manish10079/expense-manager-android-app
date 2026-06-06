@@ -36,6 +36,11 @@ enum class BudgetPeriodFilter {
     CustomMonth
 }
 
+enum class BudgetTab {
+    Budgets,
+    Commitments
+}
+
 enum class BudgetAccent {
     Primary,
     Warning,
@@ -109,6 +114,7 @@ data class BudgetInsightUi(
 
 @Immutable
 data class BudgetAndRecurringScreenUiState(
+    val selectedTab: BudgetTab = BudgetTab.Budgets,
     val selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth,
     val summary: BudgetSummaryUi = BudgetSummaryUi(),
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
@@ -201,6 +207,10 @@ class BudgetAndRecurringViewModel @Inject constructor(
     fun selectPeriod(period: BudgetPeriodFilter) {
         selectedPeriod = period
         rebuildUiState()
+    }
+
+    fun selectTab(tab: BudgetTab) {
+        _uiState.update { it.copy(selectedTab = tab) }
     }
 
     fun selectCustomMonth(timestamp: Long) {

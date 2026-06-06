@@ -66,6 +66,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -98,13 +100,14 @@ import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.income
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetAccent
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetInsightUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetPeriodFilter
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetTab
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetPeriodFilter
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetAccent
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetInsightUi
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -151,6 +154,25 @@ fun BudgetAndRecurringScreen(
     }
 
     val uiState by budgetViewModel.uiState.collectAsStateWithLifecycle()
+    
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+
+    // Sync ViewModel tab state with PagerState
+    LaunchedEffect(pagerState.currentPage) {
+        val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Commitments
+        if (uiState.selectedTab != tab) {
+            budgetViewModel.selectTab(tab)
+        }
+    }
+
+    // Sync PagerState with ViewModel tab state (for programmatic clicks)
+    LaunchedEffect(uiState.selectedTab) {
+        val page = if (uiState.selectedTab == BudgetTab.Budgets) 0 else 1
+        if (pagerState.currentPage != page) {
+            pagerState.animateScrollToPage(page)
+        }
+    }
+
     val expenseCategories = remember(availableCategories) {
         availableCategories
             .filter { it.transactionTypeId != 1 }
@@ -183,129 +205,142 @@ fun BudgetAndRecurringScreen(
                 AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
             }
 
-            LazyColumn(
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Tab Row
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+                BudgetTabRow(
+                    selectedTab = uiState.selectedTab,
+                    onTabSelected = { budgetViewModel.selectTab(it) }
+                )
+            }
+
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .navigationBarsPadding(),
-                contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 18.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                item {
-                    GatedAction(
-                        feature = Feature.BUDGET_CUSTOM_MONTH,
-                        onAction = { isMonthPickerVisible = true }
-                    ) { status, onCustomMonthClick ->
-                        BudgetPeriodRow(
-                            selectedPeriod = uiState.selectedPeriod,
-                            isCustomMonthLocked = status !is AccessStatus.Granted,
-                            onPeriodSelected = { period ->
-                                if (period == BudgetPeriodFilter.CustomMonth) {
-                                    onCustomMonthClick()
-                                } else {
-                                    budgetViewModel.selectPeriod(period)
-                                }
-                            }
-                        )
-                    }
-                }
-
-                item { BudgetSummaryCard(summary = uiState.summary) }
-                item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
-
-                if (uiState.categoryBudgets.isEmpty()) {
-                    item {
-                        EmptySectionCard(
-                            message = uiState.emptyCategoryMessage?.asString()
-                                ?: stringResource(id = R.string.msg_no_category_budget_data)
-                        )
-                    }
-                } else {
-                    items(uiState.categoryBudgets, key = { it.id }) { budget ->
-                        CategoryBudgetCard(
-                            budget = budget,
-                            onEditClick = {
-                                editingBudgetId = budget.id
-                                budgetEditorSessionKey = System.currentTimeMillis()
-                                isBudgetEditorVisible = true
-                            },
-                            onDeleteClick = {
-                                pendingDeleteBudgetId = budget.id
-                            }
-                        )
-                    }
-                }
-
-                item {
-                    val canAdd = uiState.canAddBudget
-                    BudgetActionButton(
-                        title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
-                        icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
-                        enabled = canAdd,
-                        onClick = {
-                            editingBudgetId = null
-                            budgetEditorSessionKey = System.currentTimeMillis()
-                            isBudgetEditorVisible = true
-                        }
-                    )
-                }
-
-                item {
-                    // Inline Native Ad after Add New Budget button
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
-                    }
-
-                }
-
-                item {
-                    HorizontalDivider(
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
-                    )
-                }
-
-                item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
-
-                if (uiState.recurringExpenses.isEmpty()) {
-                    item {
-                        EmptySectionCard(
-                            message = uiState.emptyRecurringMessage?.asString()
-                                ?: stringResource(id = R.string.msg_no_recurring_items)
-                        )
-                    }
-                } else {
-                    items(uiState.recurringExpenses, key = { it.id }) { expense ->
-                        RecurringExpenseCard(
-                            expense = expense,
-                            onEnabledChange = { enabled ->
-                                onRecurringEnabledChange(expense.id, enabled)
-                            },
-                            onEditClick = { editingRecurringRule = expense },
-                            onDeleteClick = {
-                                pendingDeleteRecurringId = expense.id
-                            }
-                        )
-                    }
-                }
-
-                item {
-                    GatedAction(
-                        feature = Feature.BUDGET_INSIGHTS,
-                        displayName = stringResource(id = R.string.label_budget_insights),
-                        onAction = {}
-                    ) { status, onClick ->
-                        val isLocked = status !is AccessStatus.Granted
-                        Box {
-                            InsightCard(
-                                insight = uiState.insight,
-                                modifier = if (isLocked) Modifier.blur(16.dp) else Modifier
-                            )
-                            if (isLocked) {
-                                FeatureLockedOverlay(
-                                    displayText = stringResource(id = R.string.label_unlock_insights),
-                                    onClick = onClick
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+            ) { page ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding(),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 20.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    if (page == 0) {
+                        // TAB 1: BUDGETS
+                        item {
+                            GatedAction(
+                                feature = Feature.BUDGET_CUSTOM_MONTH,
+                                onAction = { isMonthPickerVisible = true }
+                            ) { status, onCustomMonthClick ->
+                                BudgetPeriodRow(
+                                    selectedPeriod = uiState.selectedPeriod,
+                                    isCustomMonthLocked = status !is AccessStatus.Granted,
+                                    onPeriodSelected = { period ->
+                                        if (period == BudgetPeriodFilter.CustomMonth) {
+                                            onCustomMonthClick()
+                                        } else {
+                                            budgetViewModel.selectPeriod(period)
+                                        }
+                                    }
                                 )
+                            }
+                        }
+
+                        item { BudgetSummaryCard(summary = uiState.summary) }
+                        
+                        item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
+
+                        if (uiState.categoryBudgets.isEmpty()) {
+                            item {
+                                EmptySectionCard(
+                                    message = uiState.emptyCategoryMessage?.asString()
+                                        ?: stringResource(id = R.string.msg_no_category_budget_data)
+                                )
+                            }
+                        } else {
+                            items(uiState.categoryBudgets, key = { it.id }) { budget ->
+                                CategoryBudgetCard(
+                                    budget = budget,
+                                    onEditClick = {
+                                        editingBudgetId = budget.id
+                                        budgetEditorSessionKey = System.currentTimeMillis()
+                                        isBudgetEditorVisible = true
+                                    },
+                                    onDeleteClick = {
+                                        pendingDeleteBudgetId = budget.id
+                                    }
+                                )
+                            }
+                        }
+
+                        item {
+                            val canAdd = uiState.canAddBudget
+                            BudgetActionButton(
+                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
+                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
+                                enabled = canAdd,
+                                onClick = {
+                                    editingBudgetId = null
+                                    budgetEditorSessionKey = System.currentTimeMillis()
+                                    isBudgetEditorVisible = true
+                                }
+                            )
+                        }
+
+                        item {
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                            }
+                        }
+                    } else {
+                        // TAB 2: COMMITMENTS (RECURRING)
+                        item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
+
+                        if (uiState.recurringExpenses.isEmpty()) {
+                            item {
+                                EmptySectionCard(
+                                    message = uiState.emptyRecurringMessage?.asString()
+                                        ?: stringResource(id = R.string.msg_no_recurring_items)
+                                )
+                            }
+                        } else {
+                            items(uiState.recurringExpenses, key = { it.id }) { expense ->
+                                RecurringExpenseCard(
+                                    expense = expense,
+                                    onEnabledChange = { enabled ->
+                                        onRecurringEnabledChange(expense.id, enabled)
+                                    },
+                                    onEditClick = { editingRecurringRule = expense },
+                                    onDeleteClick = {
+                                        pendingDeleteRecurringId = expense.id
+                                    }
+                                )
+                            }
+                        }
+
+                        item {
+                            GatedAction(
+                                feature = Feature.BUDGET_INSIGHTS,
+                                displayName = stringResource(id = R.string.label_budget_insights),
+                                onAction = {}
+                            ) { status, onClick ->
+                                val isLocked = status !is AccessStatus.Granted
+                                Box {
+                                    InsightCard(
+                                        insight = uiState.insight,
+                                        modifier = if (isLocked) Modifier.blur(16.dp) else Modifier
+                                    )
+                                    if (isLocked) {
+                                        FeatureLockedOverlay(
+                                            displayText = stringResource(id = R.string.label_unlock_insights),
+                                            onClick = onClick
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -1673,6 +1708,99 @@ private fun BudgetAndRecurringScreenPreview() {
         BudgetAndRecurringScreen()
     }
 }
+
+@Composable
+private fun BudgetTabRow(
+    selectedTab: BudgetTab,
+    onTabSelected: (BudgetTab) -> Unit
+) {
+    val tabs = remember { BudgetTab.entries }
+    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
+    
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
+            .clip(RoundedCornerShape(26.dp))
+            .background(standardCardGradient())
+            .padding(4.dp)
+    ) {
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / tabs.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "tab_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(brandGradient())
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            tabs.forEach { tab ->
+                BudgetTabChip(
+                    label = when (tab) {
+                        BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
+                        BudgetTab.Commitments -> stringResource(id = R.string.label_tab_commitments)
+                    },
+                    selected = tab == selectedTab,
+                    onClick = { onTabSelected(tab) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetTabChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "tab_text_color"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label.uppercase(),
+            color = animatedColor,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.1.sp,
+                fontSize = 12.sp
+            )
+        )
+    }
+}
+
 @Composable
 private fun RecurringRuleEditorModal(
     rule: BudgetRecurringExpenseUi,
