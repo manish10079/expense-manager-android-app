@@ -1052,6 +1052,7 @@
     <string name="format_amount_left">%1$s LEFT</string>
     <string name="format_amount_over">%1$s OVER</string>
     <string name="format_next_due">NEXT %1$s</string>
+    <string name="format_daily_allowance">You can spend %1$s/day</string>
 
 
     <!-- Calendar Status & Labels -->

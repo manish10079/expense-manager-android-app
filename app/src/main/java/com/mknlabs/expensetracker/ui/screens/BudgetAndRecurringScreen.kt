@@ -64,9 +64,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -680,6 +683,17 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                         letterSpacing = 0.9.sp
                     )
                 )
+
+                if (summary.dailyAllowanceLabel != null) {
+                    Text(
+                        text = summary.dailyAllowanceLabel.asString(),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 0.5.sp
+                        )
+                    )
+                }
 
                 Text(
                     text = summary.limitLabel.asString(),
@@ -1393,6 +1407,12 @@ private fun BudgetProgressBar(
     progress: Float,
     accent: Brush
 ) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+        label = "budget_progress_animation"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1402,7 +1422,7 @@ private fun BudgetProgressBar(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .fillMaxWidth(animatedProgress)
                 .height(12.dp)
                 .clip(CircleShape)
                 .background(accent)

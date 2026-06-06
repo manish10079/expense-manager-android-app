@@ -59,6 +59,7 @@ data class BudgetSummaryUi(
     val totalBudgetLabel: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val spentLabel: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val remainingLabel: UiText = UiText.dynamic(""),
+    val dailyAllowanceLabel: UiText? = null,
     val usageFraction: Float = 0f,
     val usageLabel: UiText = UiText.dynamic(""),
     val limitLabel: UiText = UiText.dynamic("")
@@ -417,6 +418,17 @@ private fun buildSummary(
         else -> UiText.res(R.string.format_over_amount, formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences))
     }
 
+    // Daily Allowance Calculation
+    val now = System.currentTimeMillis()
+    val endOfMonth = endOfMonth(monthStart)
+    val dailyAllowanceLabel = if (remainingAmount > 0.0 && now < endOfMonth) {
+        val daysInMonth = Calendar.getInstance().apply { timeInMillis = monthStart }.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val currentDay = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
+        val remainingDays = (daysInMonth - currentDay + 1).coerceAtLeast(1)
+        val dailyAmount = remainingAmount / remainingDays
+        UiText.res(R.string.format_daily_allowance, formatCurrencyValue(dailyAmount, currencyId, amountFormatPreferences))
+    } else null
+
     return BudgetSummaryUi(
         monthLabel = monthFormatter.format(Date(monthStart)),
         totalBudgetAmount = totalBudgetAmount,
@@ -425,6 +437,7 @@ private fun buildSummary(
         totalBudgetLabel = formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences),
         spentLabel = formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences),
         remainingLabel = remainingLabel,
+        dailyAllowanceLabel = dailyAllowanceLabel,
         usageFraction = usageFraction,
         usageLabel = if (totalBudgetAmount <= 0.0) UiText.res(R.string.label_no_budget) else UiText.res(R.string.format_percent_used, usagePercent),
         limitLabel = if (totalBudgetAmount <= 0.0) {
