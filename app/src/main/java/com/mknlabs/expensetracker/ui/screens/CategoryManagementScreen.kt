@@ -66,6 +66,7 @@ import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.AppIconBox
 import com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
 import com.mknlabs.expensetracker.data.constants.categoryFallbackDescriptions
@@ -76,6 +77,11 @@ import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
+
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,6 +110,21 @@ fun CategoryManagementScreen(
     val uiState by categoryManagementViewModel.uiState.collectAsStateWithLifecycle()
     val activeTab = uiState.selectedTab
 
+    val pagerState = rememberPagerState(initialPage = activeTab.ordinal) { CategoryManagementTab.entries.size }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Sync pager with ViewModel state (when tab is clicked)
+    androidx.compose.runtime.LaunchedEffect(activeTab) {
+        if (pagerState.currentPage != activeTab.ordinal) {
+            pagerState.animateScrollToPage(activeTab.ordinal)
+        }
+    }
+
+    // Sync ViewModel with pager state (when user swipes)
+    androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
+        categoryManagementViewModel.selectTab(CategoryManagementTab.entries[pagerState.currentPage])
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -130,7 +151,9 @@ fun CategoryManagementScreen(
             AnimatedTabSwitcher(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,
-                onItemSelected = categoryManagementViewModel::selectTab
+                onItemSelected = { tab ->
+                    categoryManagementViewModel.selectTab(tab)
+                }
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -143,39 +166,12 @@ fun CategoryManagementScreen(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            Text(
-                text = when (activeTab) {
-                    CategoryManagementTab.Income -> stringResource(R.string.label_income_categories_count, uiState.itemCount)
-                    CategoryManagementTab.Expense -> stringResource(R.string.label_expense_categories_count, uiState.itemCount)
-                    CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, uiState.itemCount)
-                },
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            AnimatedContent(
-                targetState = activeTab,
-                transitionSpec = {
-                    val targetIndex = CategoryManagementTab.entries.indexOf(targetState)
-                    val initialIndex = CategoryManagementTab.entries.indexOf(initialState)
-                    val direction = if (targetIndex > initialIndex) 1 else -1
-
-                    slideInHorizontally(
-                        animationSpec = tween(300),
-                        initialOffsetX = { fullWidth -> fullWidth * direction }
-                    ) togetherWith slideOutHorizontally(
-                        animationSpec = tween(300),
-                        targetOffsetX = { fullWidth -> -fullWidth * direction }
-                    )
-                },
-                label = "category_tab_content_animation",
-                modifier = Modifier.fillMaxSize()
-            ) { currentTab ->
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f),
+                beyondViewportPageCount = 1
+            ) { pageIndex ->
+                val currentTab = CategoryManagementTab.entries[pageIndex]
                 val incomeSourceDesc = stringResource(R.string.desc_income_source)
                 val expenseCategoryDesc = stringResource(R.string.desc_expense_category)
                 val paymentMethodFallbackDesc = stringResource(R.string.desc_payment_method_fallback)
@@ -201,31 +197,48 @@ fun CategoryManagementScreen(
                     }
                 }
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 120.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
-                ) {
-                    items(
-                        items = animatingItems,
-                        key = { item -> item.id },
-                        contentType = { "category_management_item" }
-                    ) { item ->
-                        CategoryManagementCard(
-                            item = item,
-                            onDeleteClick = {
-                                when (currentTab) {
-                                    CategoryManagementTab.Income,
-                                    CategoryManagementTab.Expense -> {
-                                        onDeleteCustomCategory(item.id)
-                                    }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = when (currentTab) {
+                            CategoryManagementTab.Income -> stringResource(R.string.label_income_categories_count, animatingItems.size)
+                            CategoryManagementTab.Expense -> stringResource(R.string.label_expense_categories_count, animatingItems.size)
+                            CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, animatingItems.size)
+                        },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                    )
 
-                                    CategoryManagementTab.Payment -> {
-                                        onDeleteCustomPaymentType(item.id)
+                    Spacer(modifier = Modifier.height(22.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 120.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                    ) {
+                        items(
+                            items = animatingItems,
+                            key = { item -> item.id },
+                            contentType = { "category_management_item" }
+                        ) { item ->
+                            CategoryManagementCard(
+                                item = item,
+                                onDeleteClick = {
+                                    when (currentTab) {
+                                        CategoryManagementTab.Income,
+                                        CategoryManagementTab.Expense -> {
+                                            onDeleteCustomCategory(item.id)
+                                        }
+
+                                        CategoryManagementTab.Payment -> {
+                                            onDeleteCustomPaymentType(item.id)
+                                        }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -329,21 +342,15 @@ private fun CategoryManagementCard(
         }
 
         if (item.isUserCreated) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.errorContainer)
-                    .clickable(onClick = onDeleteClick),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.DeleteOutline,
-                    contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            AppIconBox(
+                icon = Icons.Filled.DeleteOutline,
+                contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
+                size = 42.dp,
+                iconSize = 20.dp,
+                tint = MaterialTheme.colorScheme.error,
+                backgroundColor = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+                modifier = Modifier.clickable(onClick = onDeleteClick)
+            )
         }
     }
 }
