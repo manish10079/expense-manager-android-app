@@ -550,15 +550,20 @@ private fun RecurringTransactionSection(
     onRepeatCountChange: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (isEnabled) Color.Transparent 
+                     else colorScheme.outlineVariant.copy(alpha = 0.3f),
+        label = "recurring_section_border"
+    )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(standardCardGradient())
+            .background(SolidColor(Color.Transparent))
             .border(
-                width = 1.dp,
-                color = if (isEnabled) colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,
+                width = if (isEnabled) 0.dp else 1.dp,
+                color = if (isEnabled) Color.Transparent else animatedBorderColor,
                 shape = RoundedCornerShape(22.dp)
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -591,7 +596,7 @@ private fun RecurringTransactionSection(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.label_recurring_transaction),
-                    color = colorScheme.onSurface,
+                    color = if (isEnabled) colorScheme.primary else colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
@@ -627,7 +632,12 @@ private fun RecurringTransactionSection(
                             .height(IntrinsicSize.Min)
                             .onSizeChanged { containerWidthPx = it.width }
                             .clip(RoundedCornerShape(20.dp))
-                            .background(standardCardGradient())
+                            .background(SolidColor(Color.Transparent))
+                            .border(
+                                width = 1.dp,
+                                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                             .padding(4.dp)
                     ) {
                         val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
@@ -762,12 +772,25 @@ private fun RecurringTransactionSection(
                 }
             }
         } else {
-            Text(
-                text = stringResource(R.string.label_recurring_track),
-                color = colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 52.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 52.dp, top = 4.dp, bottom = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.label_recurring_track),
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+            }
         }
     }
 }
@@ -996,9 +1019,17 @@ private fun SelectionInfoCard(
     label: String,
     value: String,
     isPlaceholder: Boolean = false,
+    highlighted: Boolean = false,
     compact: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (highlighted) Color.Transparent 
+                     else colorScheme.outlineVariant.copy(alpha = 0.5f),
+        label = "selection_card_border"
+    )
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -1008,31 +1039,35 @@ private fun SelectionInfoCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = if (compact) 48.dp else 56.dp) // Tightened min height
+                .heightIn(min = if (compact) 48.dp else 56.dp)
                 .shadow(
-                    elevation = 6.dp, // Reduced elevation for a flatter, tighter look
-                    shape = RoundedCornerShape(20.dp), // Slightly tighter corner radius
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f),
-                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.06f)
+                    elevation = if (highlighted) 12.dp else 6.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    ambientColor = colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f),
+                    spotColor = colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f)
                 )
                 .clip(RoundedCornerShape(20.dp))
-                .background(standardCardGradient())
+                .background(SolidColor(Color.Transparent))
                 .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    width = if (highlighted) 0.dp else 1.dp,
+                    color = if (highlighted) Color.Transparent else animatedBorderColor,
                     shape = RoundedCornerShape(20.dp)
                 )
                 .clickable(onClick = onClick)
                 .padding(
-                    horizontal = if (compact) 12.dp else 16.dp, // Tightened horizontal padding
-                    vertical = if (compact) 8.dp else 12.dp    // Tightened vertical padding
+                    horizontal = if (compact) 12.dp else 16.dp,
+                    vertical = if (compact) 8.dp else 12.dp
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = label,
-                tint = if (isPlaceholder) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.primary,
+                tint = when {
+                    highlighted -> colorScheme.primary
+                    isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    else -> colorScheme.primary
+                },
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
 
@@ -1040,11 +1075,11 @@ private fun SelectionInfoCard(
 
             Text(
                 text = value,
-                color = if (isPlaceholder) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                color = if (isPlaceholder) colorScheme.onSurfaceVariant else colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = if (highlighted) FontWeight.Bold else FontWeight.SemiBold,
                     fontSize = if (compact) 14.sp else 15.sp,
                     fontStyle = if (isPlaceholder) FontStyle.Italic else FontStyle.Normal,
                     lineHeight = 18.sp
@@ -1329,6 +1364,7 @@ private fun RecurringCompactCard(
         label = stringResource(R.string.label_recurring),
         value = if (isEnabled) stringResource(recurringModeOptions.first { it.frequency == frequency }.label) else stringResource(R.string.label_off),
         isPlaceholder = !isEnabled,
+        highlighted = isEnabled,
         compact = compact,
         onClick = onClick
     )
