@@ -69,19 +69,19 @@ fun NativeAdCard(
             Box(
                 modifier = modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(20.dp))
                     .background(surfaceGradient())
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                        shape = RoundedCornerShape(28.dp)
+                        shape = RoundedCornerShape(20.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 AndroidView(
                     factory = { ctx ->
                         val adView = LayoutInflater.from(ctx)
-                            .inflate(R.layout.native_ad_layout, null) as NativeAdView
+                            .inflate(R.layout.native_ad_banner_layout, null) as NativeAdView
                         
                         // Apply theme colors to the views
                         adView.findViewById<TextView>(R.id.ad_headline)?.setTextColor(headlineColor.toArgb())

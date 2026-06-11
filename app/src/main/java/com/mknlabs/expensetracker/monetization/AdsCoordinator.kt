@@ -27,6 +27,7 @@ import javax.inject.Singleton
  */
 enum class AdPlacement {
     HOME_DASHBOARD,
+    HOME_BANNER,
     TRANSACTIONS_LIST,
     ANALYTICS_INSIGHTS,
     BUDGET_CALENDAR,
@@ -98,6 +99,7 @@ class AdsCoordinator @Inject constructor(
 
         return when (placement) {
             AdPlacement.HOME_DASHBOARD -> NATIVE_HOME_ID
+            AdPlacement.HOME_BANNER -> NATIVE_HOME_ID // Using Home ID for test
             AdPlacement.TRANSACTIONS_LIST -> NATIVE_TRANSACTIONS_ID
             AdPlacement.ANALYTICS_INSIGHTS -> NATIVE_ANALYTICS_ID
             AdPlacement.BUDGET_CALENDAR -> NATIVE_BUDGET_CALENDAR_ID

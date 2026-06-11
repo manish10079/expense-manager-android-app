@@ -256,13 +256,7 @@ fun AddTransactionScreen(
         val canSubmit = (amountInput.toDoubleOrNull() ?: 0.0) > 0 &&
             selectedCategory != null &&
             selectedPayment != null &&
-            (!isRecurringEnabled || (selectedTransactionTypeId == expenseTypeId && recurringCount != null && recurringCount > 0))
-
-        LaunchedEffect(selectedTransactionTypeId) {
-            if (selectedTransactionTypeId != expenseTypeId) {
-                isRecurringEnabled = false
-            }
-        }
+            (!isRecurringEnabled || (recurringCount != null && recurringCount > 0))
 
         Column(
             modifier = Modifier
@@ -368,15 +362,13 @@ fun AddTransactionScreen(
                             onClick = { isDatePickerVisible = true }
                         )
 
-                        if (selectedTransactionTypeId == expenseTypeId) {
-                            RecurringCompactCard(
-                                modifier = Modifier.weight(1f),
-                                isEnabled = isRecurringEnabled,
-                                frequency = selectedRecurringFrequency,
-                                compact = compact,
-                                onClick = { isRecurringModalVisible = true }
-                            )
-                        }
+                        RecurringCompactCard(
+                            modifier = Modifier.weight(1f),
+                            isEnabled = isRecurringEnabled,
+                            frequency = selectedRecurringFrequency,
+                            compact = compact,
+                            onClick = { isRecurringModalVisible = true }
+                        )
                     }
                 }
 
@@ -444,7 +436,6 @@ fun AddTransactionScreen(
                             )
                             val recurringDraft = if (
                                 isRecurringEnabled &&
-                                selectedTransactionTypeId == expenseTypeId &&
                                 recurringCount != null &&
                                 recurringCount > 0
                             ) {

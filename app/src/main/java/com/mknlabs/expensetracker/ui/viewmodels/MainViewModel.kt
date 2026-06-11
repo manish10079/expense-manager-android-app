@@ -167,7 +167,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
             when {
-                recurringDraft != null && savedTransaction.transactionTypeId == 2 -> {
+                recurringDraft != null -> {
                     val initialNextRun = calculateInitialNextRun(
                         savedTransaction.createdAt,
                         recurringDraft.frequency

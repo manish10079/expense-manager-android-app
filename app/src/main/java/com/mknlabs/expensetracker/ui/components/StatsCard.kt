@@ -60,12 +60,12 @@ fun StatsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height(210.dp)
             .shadow(
-                elevation = 26.dp,
+                elevation = 20.dp,
                 shape = cardShape,
-                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.48f),
-                spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.36f)
+                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
+                spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
             )
             .clip(cardShape)
             .clickable(onClick = onToggleVisibility)
@@ -75,7 +75,7 @@ fun StatsCard(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = cardShape
             )
-            .padding(horizontal = 28.dp, vertical = 20.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -86,22 +86,22 @@ fun StatsCard(
                 Text(
                     text = stringResource(R.string.label_total_balance),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 3.1.sp
+                    letterSpacing = 2.4.sp
                 )
                 
                 Spacer(modifier = Modifier.width(8.dp))
                 
                 IconButton(
                     onClick = onToggleVisibility,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 ) {
                     Icon(
                         imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (isBalanceHidden) stringResource(R.string.desc_show_balance) else stringResource(R.string.desc_hide_balance),
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }
@@ -109,27 +109,33 @@ fun StatsCard(
             Text(
                 text = currentDateLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Medium
             )
         }
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(2.dp))
+
+        val balanceFontSize = when {
+            totalBalance.length > 12 -> 24.sp
+            totalBalance.length > 10 -> 28.sp
+            else -> 34.sp
+        }
 
         Text(
             text = if (isBalanceHidden) "••••" else totalBalance,
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = if (isBalanceHidden) 32.sp else 40.sp,
-                lineHeight = 60.sp,
+                fontSize = if (isBalanceHidden) 28.sp else balanceFontSize,
+                lineHeight = if (isBalanceHidden) 44.sp else (balanceFontSize.value * 1.2).sp,
                 brush = brandGradient(alpha = 0.95f)
             ),
             maxLines = 1
         )
 
         if (previousMonthBalance.isNotBlank()) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -137,23 +143,25 @@ fun StatsCard(
                 Text(
                     text = stringResource(R.string.label_last_month),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 14.3.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 3.1.sp
+                    letterSpacing = 2.4.sp
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = if (isBalanceHidden) "••••" else previousMonthBalance,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 14.3.sp,
-                        lineHeight = 22.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 20.sp,
                         brush = brandGradient(alpha = 0.95f)
                     ),
                     maxLines = 1
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+        } else {
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         Box(
@@ -163,7 +171,7 @@ fun StatsCard(
                 .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -180,9 +188,9 @@ fun StatsCard(
 
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 16.dp)
                     .width(1.dp)
-                    .height(98.dp)
+                    .height(80.dp)
                     .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
             )
 
@@ -251,10 +259,16 @@ private fun StatItem(
             }
         }
 
+        val valueFontSize = when {
+            value.length > 12 -> 14.sp
+            value.length > 10 -> 16.sp
+            else -> 20.sp
+        }
+
         Text(
             text = value,
             modifier = Modifier.fillMaxWidth(),
-            fontSize = 20.sp,
+            fontSize = valueFontSize,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,

@@ -273,6 +273,15 @@ fun TransactionCardCustomizeScreen(
                     }
                 }
             }
+
+            Text(
+                text = stringResource(id = R.string.title_customize_transaction_card),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = 4.dp)
+            )
         }
 
         // Scrollable Bottom Section: Customization Toggles
@@ -283,17 +292,6 @@ fun TransactionCardCustomizeScreen(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            item {
-                Text(
-                    text = stringResource(id = R.string.title_customize_transaction_card),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = 10.dp)
-                )
-            }
-
             // Group 1: Visual Style
             item {
                 SettingsGroup {

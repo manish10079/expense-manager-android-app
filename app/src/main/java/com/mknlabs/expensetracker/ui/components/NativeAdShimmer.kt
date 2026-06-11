@@ -23,79 +23,60 @@ fun NativeAdShimmer() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(standardCardGradient())
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(20.dp)
             )
-            .padding(vertical = 12.dp),
+            .padding(vertical = 14.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.width(14.dp))
-
-        // Icon placeholder
+        // Icon placeholder (Increased to 52dp)
         Box(
             modifier = Modifier
-                .size(50.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .shimmerEffect()
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            // Title placeholder
+            // Headline placeholder
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
+                    .fillMaxWidth(0.7f)
                     .height(16.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .shimmerEffect()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Subtitle placeholder
+            // Body placeholder
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.4f)
+                    .fillMaxWidth(0.9f)
                     .height(12.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .shimmerEffect()
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Pills placeholder
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                repeat(2) {
-                    Box(
-                        modifier = Modifier
-                            .width(50.dp)
-                            .height(18.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .shimmerEffect()
-                    )
-                }
-            }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
-        // Amount placeholder
+        // CTA Button placeholder
         Box(
             modifier = Modifier
-                .width(60.dp)
-                .height(20.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .width(80.dp)
+                .height(34.dp)
+                .clip(RoundedCornerShape(17.dp))
                 .shimmerEffect()
         )
-
-        Spacer(modifier = Modifier.width(14.dp))
     }
 }
 
