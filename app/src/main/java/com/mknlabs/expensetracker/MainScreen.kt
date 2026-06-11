@@ -304,7 +304,7 @@ fun MainScreen(
     ) { isShowingOnboarding ->
         if (isShowingOnboarding) {
             OnboardingScreen(
-                onFinish = { name, gender, dobMillis ->
+                onFinish = { name, gender, dobMillis, financialGoal ->
                     navigationState.navigateTo(AppRoute.Home)
                     navigationState.updateBottomBarVisibility(false)
                     coroutineScope.launch {
@@ -313,7 +313,8 @@ fun MainScreen(
                             profile.copy(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
-                                dateOfBirthMillis = dobMillis
+                                dateOfBirthMillis = dobMillis,
+                                financialGoal = financialGoal
                             )
                         }
 
@@ -689,6 +690,7 @@ fun MainScreen(
 
     if (showPremiumSheet) {
         PremiumGateSheet(
+            financialGoal = userProfile.financialGoal,
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
                 monetizationViewModel.onPurchaseSimulated()

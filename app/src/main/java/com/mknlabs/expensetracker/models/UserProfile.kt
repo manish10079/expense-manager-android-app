@@ -9,6 +9,7 @@ data class UserProfile(
     val phoneNumber: String,
     val dateOfBirthMillis: Long?,
     val gender: String,
+    val financialGoal: String = "",
     val memberSinceLabel: String,
     val accountTier: String,
     val photoUri: String? = null,

@@ -222,6 +222,10 @@ private fun HomeScreenContent(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            DisciplineScoreCard(userProfile = userProfile)
+
+            Spacer(modifier = Modifier.height(14.dp))
+
             StatsCard(
                 totalBalance = uiState.totalBalance,
                 previousMonthBalance = uiState.previousMonthBalance,
@@ -332,6 +336,84 @@ private fun HomeScreenContent(
     }
 }
 
+
+@Composable
+fun DisciplineScoreCard(userProfile: UserProfile) {
+    val score = remember(userProfile) {
+        var s = 0
+        if (userProfile.fullName.isNotEmpty()) s += 25
+        if (userProfile.gender.isNotEmpty()) s += 25
+        if (userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L) s += 25
+        if (userProfile.financialGoal.isNotEmpty()) s += 25
+        s
+    }
+
+    if (score == 100 && userProfile.financialGoal.isEmpty()) return // Hide if everything done and no goal
+
+    androidx.compose.material3.Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.msg_discipline_score_title),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    if (userProfile.financialGoal.isNotEmpty()) {
+                        Text(
+                            text = "Goal: ${userProfile.financialGoal}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Text(
+                    text = "$score%",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            androidx.compose.material3.LinearProgressIndicator(
+                progress = { score / 100f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(CircleShape),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+
+            if (score < 100) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.msg_discipline_score_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun SettingsButton(onClick: () -> Unit) {

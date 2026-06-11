@@ -123,7 +123,7 @@ private data class OnboardingPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
+    onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit = { _, _, _, _ -> },
     onSignUpSuccess: (() -> Unit)? = null,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -165,6 +165,12 @@ fun OnboardingScreen(
                 illustration = { SecureTrackerIllustration() } 
             ),
             OnboardingPage(
+                title = context.getString(R.string.label_financial_goal_title),
+                description = context.getString(R.string.label_financial_zen),
+                actionLabel = context.getString(R.string.label_next),
+                illustration = { GoalIllustration() }
+            ),
+            OnboardingPage(
                 title = context.getString(R.string.title_lets_get_started),
                 description = context.getString(R.string.desc_tell_us_about_yourself),
                 actionLabel = context.getString(R.string.label_get_started),
@@ -175,12 +181,14 @@ fun OnboardingScreen(
     var currentPage by remember { mutableIntStateOf(0) }
     val page = onboardingPages[currentPage]
     val isAuthPage = currentPage == 4
-    val isSetupPage = currentPage == 5
+    val isGoalPage = currentPage == 5
+    val isSetupPage = currentPage == 6
 
     // Setup state
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
     var userDobMillis by remember { mutableLongStateOf(0L) }
+    var userFinancialGoal by remember { mutableStateOf("") }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -199,7 +207,7 @@ fun OnboardingScreen(
     // Force redirection to Setup Page once user is detected
     LaunchedEffect(currentUser) {
         if (currentUser != null && currentPage == 4) {
-            Log.d("Onboarding", "User detected! Force-advancing to Setup Page.")
+            Log.d("Onboarding", "User detected! Force-advancing to Goal Page.")
             currentPage = 5
         }
     }
@@ -214,7 +222,7 @@ fun OnboardingScreen(
     }
 
     val onCompleteInternal: () -> Unit = {
-        onFinish(userName, userGender, userDobMillis)
+        onFinish(userName, userGender, userDobMillis, userFinancialGoal)
     }
 
     val maleLabel = stringResource(id = R.string.label_male)
@@ -231,6 +239,15 @@ fun OnboardingScreen(
             )
         }
     }
+
+    val goalHome = stringResource(id = R.string.label_goal_home)
+    val goalTravel = stringResource(id = R.string.label_goal_travel)
+    val goalDebt = stringResource(id = R.string.label_goal_debt)
+    val goalRetirement = stringResource(id = R.string.label_goal_retirement)
+    val goalSavings = stringResource(id = R.string.label_goal_savings)
+    
+    val goalOptions = listOf(goalHome, goalTravel, goalDebt, goalRetirement, goalSavings)
+    val goalIcons = listOf(Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Security, Icons.Filled.Savings, Icons.Filled.Analytics)
 
     BackHandler(enabled = currentPage > 0) {
         authViewModel.cancelGuestSignIn()
@@ -392,6 +409,53 @@ fun OnboardingScreen(
                                     currentPage = 5
                                 }
                             )
+                        } else if (isGoalPage) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                goalOptions.forEachIndexed { index, goal ->
+                                    val isSelected = userFinancialGoal == goal
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(24.dp))
+                                            .background(
+                                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                            )
+                                            .clickable { userFinancialGoal = goal }
+                                            .padding(horizontal = 20.dp, vertical = 20.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = goalIcons[index],
+                                            contentDescription = null,
+                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Spacer(Modifier.width(16.dp))
+                                        Text(
+                                            text = goal,
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                            ),
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(Modifier.weight(1f))
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Filled.CheckCircle,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         } else if (isSetupOnThisPageIndex) {
                             Column(
                                 modifier = Modifier
@@ -473,7 +537,13 @@ fun OnboardingScreen(
                         onClick = {
                             val lastIndex = onboardingPages.lastIndex
                             
-                            if (currentPage == lastIndex) {
+                            if (currentPage == 5) { // Goal Page
+                                if (userFinancialGoal.isNotEmpty()) {
+                                    currentPage += 1
+                                } else {
+                                    toastMessage = context.getString(R.string.label_financial_zen)
+                                }
+                            } else if (currentPage == lastIndex) {
                                 val missingFields = mutableListOf<String>()
                                 if (userName.trim().isEmpty()) missingFields.add(nameStr)
                                 if (userGender.trim().isEmpty()) missingFields.add(genderStr)
@@ -1269,6 +1339,32 @@ private fun Modifier.borderGlowCircle(
             shape = CircleShape
         )
 )
+
+@Composable
+private fun BoxScope.GoalIllustration() {
+    Box(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .size(240.dp)
+            .clip(CircleShape)
+            .background(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+                        MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Savings,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(100.dp)
+        )
+    }
+}
 
 @Composable
 private fun BoxScope.SetupIllustration() {

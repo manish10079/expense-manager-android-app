@@ -34,9 +34,9 @@
     <string name="desc_locked">Locked</string>
     <string name="desc_unlock_advanced_search">Unlock Advanced Search</string>
     <string name="desc_use_biometric">Use biometric</string>
-    <string name="label_unlock_pro_features">Unlock Pro Features</string>
-    <string name="label_watch_a_short_video_to_unlock">Watch a short video to unlock all ad-supported features for 1 hour.</string>
-    <string name="label_watch_ad_unlock">Watch Ad &amp; Unlock</string>
+    <string name="label_unlock_pro_features">Unlock Your Financial Zen</string>
+    <string name="label_watch_a_short_video_to_unlock">Watch a quick story to enjoy 1 hour of total focus and peace.</string>
+    <string name="label_watch_ad_unlock">Watch &amp; Unlock Peace</string>
     <string name="msg_biometric_authentication_is_no">Biometric authentication is not available right now.</string>
     <string name="msg_biometric_hardware_is_currentl">Biometric hardware is currently unavailable.</string>
     <string name="msg_enter_the_same_pin_once_more_t">Enter the same PIN once more to confirm.</string>
@@ -387,7 +387,7 @@
     <string name="label_total_analytics">TOTAL ANALYTICS</string>
     <string name="label_total_balance">TOTAL BALANCE</string>
     <string name="label_track_every_move_with_confiden">Track every move with confidence.</string>
-    <string name="label_upgrade_to_pro">Upgrade to Pro</string>
+    <string name="label_upgrade_to_pro">Join the Elite 1% by Upgrading to Pro</string>
     <string name="label_val">%1$s%</string>
     <string name="label_val_1">%1$s%</string>
     <string name="label_val_2">%1$s%</string>
@@ -717,10 +717,10 @@
     <string name="label_no_results_found">No results found.</string>
     <string name="label_select_a_backup_file">Select a backup file to restore your data. This will overwrite current data.</string>
     <string name="label_select_file_manually">Select file manually...</string>
-    <string name="label_advanced_analytics_trends">Advanced Analytics &amp; Trends</string>
-    <string name="label_automatic_cloud_backups">Automatic Cloud Backups</string>
-    <string name="label_unlimited_recurring_rules">Unlimited Recurring Rules</string>
-    <string name="label_privacy_mode_biometric_lock">Privacy Mode &amp; Biometric Lock</string>
+    <string name="label_advanced_analytics_trends">Total Clarity on your Financial Life using Advanced Analytics</string>
+    <string name="label_automatic_cloud_backups">Bulletproof Data Security using Cloud Sync</string>
+    <string name="label_unlimited_recurring_rules">Automate Your Freedom using Recurring Rules</string>
+    <string name="label_privacy_mode_biometric_lock">Your Wealth, Guarded by Biometric Lock</string>
     <string name="label_last_7_days">Last 7 Days</string>
     <string name="label_last_15_days">Last 15 Days</string>
     <string name="label_last_30_days">Last 30 Days</string>
@@ -1278,4 +1278,16 @@
     <string name="error_password_need_special">At least 1 special character</string>
     <string name="label_forgot_password">Forgot Password?</string>
     <string name="label_resend_cooldown">Resend in %1$ds</string>
+
+    <string name="label_financial_goal_title">What is your #1 Financial Goal?</string>
+    <string name="label_goal_home">Buy a Dream Home</string>
+    <string name="label_goal_travel">Travel the World</string>
+    <string name="label_goal_debt">Become Debt-Free</string>
+    <string name="label_goal_retirement">Early Retirement</string>
+    <string name="label_goal_savings">Build a Safety Net</string>
+    <string name="label_financial_zen">Your Financial Zen</string>
+    <string name="msg_discipline_score_title">Discipline Score</string>
+    <string name="msg_discipline_score_desc">You\'re doing great! Complete your setup to reach 100% Zen.</string>
+    <string name="btn_reach_100">Reach 100%</string>
+    <string name="msg_goal_faster_with_pro">Reach your goal of %1$s 20%% faster with Elite features.</string>
 </resources>

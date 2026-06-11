@@ -24,6 +24,7 @@ import com.mknlabs.expensetracker.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumGateSheet(
+    financialGoal: String = "",
     onDismiss: () -> Unit,
     onUpgradeClick: () -> Unit
 ) {
@@ -92,6 +93,19 @@ fun PremiumGateSheet(
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
+
+                if (financialGoal.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.msg_goal_faster_with_pro, financialGoal),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 Text(
                     text = stringResource(R.string.label_take_control_of_your_wealth_wi),
