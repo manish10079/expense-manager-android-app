@@ -76,6 +76,17 @@ com.mkn0079.expensetracker/
 - **UI:** Use `LazyColumn` for lists and `remember` for expensive calculations.
 - **Security:** Use encrypted DataStore for sensitive data and never store credentials in plain text.
 
+### 8. Versioning & Commits
+- **Automated Updates:** Whenever a commit message is prepared or requested, the agent must update `app/build.gradle.kts`.
+- **Version Code:** `versionCode` must always increment by **1**.
+- **Version Name:** `versionName` must follow the format: `major.minor.patch.versionCode`.
+- **Versioning Logic (SemVer):**
+    - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and patch to 0.
+    - **Minor:** Increment for new features (`feat`). Reset patch to 0.
+    - **Patch:** Increment for bug fixes (`fix`).
+    - **Other types (chore, refactor, docs, etc.):** Only increment `versionCode` and update the last segment of `versionName`.
+- **Verification:** Ensure the updated version is reflected in the build file before finalizing the task.
+
 ## 🚀 Workflow for New Features
 
 1. **Analyze:** Identify the impact across Data, Domain, and UI layers.
