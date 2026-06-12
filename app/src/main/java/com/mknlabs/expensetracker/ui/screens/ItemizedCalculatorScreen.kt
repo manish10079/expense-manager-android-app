@@ -72,6 +72,12 @@ import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.launch
+
 @Composable
 fun ItemizedCalculatorScreen(
     viewModel: ItemizedCalculatorViewModel,
@@ -82,9 +88,30 @@ fun ItemizedCalculatorScreen(
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val modes = CalculatorMode.entries
+    val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        initialPage = modes.indexOf(uiState.selectedMode).coerceAtLeast(0),
+        pageCount = { modes.size }
+    )
 
     LaunchedEffect(initialNote) {
         viewModel.initialize(initialNote)
+    }
+
+    // Sync from ViewModel to Pager
+    LaunchedEffect(uiState.selectedMode) {
+        val targetPage = modes.indexOf(uiState.selectedMode)
+        if (pagerState.currentPage != targetPage) {
+            pagerState.animateScrollToPage(targetPage)
+        }
+    }
+
+    // Sync from Pager to ViewModel
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            viewModel.setMode(modes[page])
+        }
     }
 
     Column(
@@ -103,44 +130,55 @@ fun ItemizedCalculatorScreen(
         )
 
         AnimatedTabSwitcher(
-            items = CalculatorMode.entries.map { TabItem(it, it.title) },
+            items = modes.map { TabItem(it, it.title) },
             selectedItemId = uiState.selectedMode,
-            onItemSelected = viewModel::setMode
+            onItemSelected = { mode ->
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(modes.indexOf(mode))
+                }
+            }
         )
 
-        when (uiState.selectedMode) {
-            CalculatorMode.ITEMIZED -> {
-                ItemizedCalculatorContent(
-                    modifier = Modifier.weight(1f),
-                    items = uiState.items,
-                    currencyId = currencyId,
-                    amountFormatPreferences = amountFormatPreferences,
-                    totalAmount = uiState.totalAmount,
-                    isAddingItem = uiState.isAddingItem,
-                    descriptionInput = uiState.descriptionInput,
-                    amountInput = uiState.amountInput,
-                    canAddItem = uiState.canAddItem,
-                    onDeleteItem = viewModel::deleteItem,
-                    onDescriptionChange = viewModel::updateDescriptionInput,
-                    onAmountChange = viewModel::updateAmountInput,
-                    onStartAdding = viewModel::startAddingItem,
-                    onCancelAdding = viewModel::cancelAddingItem,
-                    onAddItem = viewModel::addItem,
-                    onApplyToNoteClick = {
-                        val (amount, note) = viewModel.getFinalResult(currencyId, amountFormatPreferences)
-                        onApplyToNoteClick(amount, note)
-                    }
-                )
-            }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.weight(1f),
+            userScrollEnabled = !uiState.isAddingItem,
+            beyondViewportPageCount = 1
+        ) { page ->
+            when (modes[page]) {
+                CalculatorMode.ITEMIZED -> {
+                    ItemizedCalculatorContent(
+                        modifier = Modifier.fillMaxSize(),
+                        items = uiState.items,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        totalAmount = uiState.totalAmount,
+                        isAddingItem = uiState.isAddingItem,
+                        descriptionInput = uiState.descriptionInput,
+                        amountInput = uiState.amountInput,
+                        canAddItem = uiState.canAddItem,
+                        onDeleteItem = viewModel::deleteItem,
+                        onDescriptionChange = viewModel::updateDescriptionInput,
+                        onAmountChange = viewModel::updateAmountInput,
+                        onStartAdding = viewModel::startAddingItem,
+                        onCancelAdding = viewModel::cancelAddingItem,
+                        onAddItem = viewModel::addItem,
+                        onApplyToNoteClick = {
+                            val (amount, note) = viewModel.getFinalResult(currencyId, amountFormatPreferences)
+                            onApplyToNoteClick(amount, note)
+                        }
+                    )
+                }
 
-            CalculatorMode.NORMAL -> {
-                NormalCalculatorContent(
-                    modifier = Modifier.weight(1f),
-                    display = uiState.normalDisplay,
-                    previewResult = viewModel.calculatePreview(),
-                    expression = viewModel.buildExpression(),
-                    onAction = viewModel::handleNormalAction
-                )
+                CalculatorMode.NORMAL -> {
+                    NormalCalculatorContent(
+                        modifier = Modifier.fillMaxSize(),
+                        display = uiState.normalDisplay,
+                        previewResult = viewModel.calculatePreview(),
+                        expression = viewModel.buildExpression(),
+                        onAction = viewModel::handleNormalAction
+                    )
+                }
             }
         }
     }
