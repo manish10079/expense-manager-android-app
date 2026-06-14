@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.data.repository
 import android.content.Context
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.MonetizationDataStore
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.monetization.AccessLevel
 import com.mknlabs.expensetracker.monetization.AccessStatus

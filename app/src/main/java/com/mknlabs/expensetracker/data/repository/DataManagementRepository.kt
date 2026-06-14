@@ -17,6 +17,7 @@ import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
+import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.domain.repository.DataManagementRepository as DomainDataManagementRepository
 import com.mknlabs.expensetracker.domain.repository.JsonExportResult
 import com.mknlabs.expensetracker.domain.repository.JsonImportResult
@@ -386,7 +387,7 @@ class DataManagementRepository @Inject constructor(
 
             val existingGoals = goalDao.getActiveGoals().toMutableList()
 
-            importedGoals.forEach { imported ->
+            for (imported in importedGoals) {
                 val resolvedGoal = imported.copy(
                     isDeleted = false
                 )
@@ -397,7 +398,7 @@ class DataManagementRepository @Inject constructor(
 
                 if (duplicate != null) {
                     skippedGoalCount++
-                    return@forEach
+                    continue
                 }
 
                 val existingId = goalDao.getById(resolvedGoal.id)
