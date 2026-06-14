@@ -173,6 +173,20 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            if (emailAddress.isNotBlank()) {
+                InputFieldCard(
+                    title = stringResource(id = R.string.label_email_address_caps),
+                    value = emailAddress,
+                    onValueChange = {},
+                    inputType = InputType.Email,
+                    leadingIcon = Icons.Rounded.Email,
+                    placeholder = "",
+                    isEnabled = false
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+
             InputFieldCard(
                 title = stringResource(id = R.string.label_full_name_caps),
                 value = fullName,
@@ -180,17 +194,6 @@ fun ProfileScreen(
                 inputType = InputType.Text,
                 leadingIcon = Icons.Rounded.Person,
                 placeholder = stringResource(id = R.string.placeholder_guest_user)
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            InputFieldCard(
-                title = stringResource(id = R.string.label_email_address_caps),
-                value = emailAddress,
-                onValueChange = { emailAddress = it },
-                inputType = InputType.Email,
-                leadingIcon = Icons.Rounded.Email,
-                placeholder = stringResource(id = R.string.placeholder_email_example)
             )
 
             Spacer(modifier = Modifier.height(18.dp))

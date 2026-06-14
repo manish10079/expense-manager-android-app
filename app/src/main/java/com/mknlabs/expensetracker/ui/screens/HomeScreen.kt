@@ -207,7 +207,7 @@ private fun HomeScreenContent(
                 SettingsButton(onClick = onSettingsClick)
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             if (appSettings != null) {
                 AccountSetupCard(
@@ -226,7 +226,7 @@ private fun HomeScreenContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             StatsCard(
                 totalBalance = uiState.totalBalance,
