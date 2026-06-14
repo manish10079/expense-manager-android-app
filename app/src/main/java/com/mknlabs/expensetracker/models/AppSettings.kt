@@ -40,5 +40,6 @@ data class AppSettings(
     val lastAutoBackupTimeMillis: Long,
     val lastSyncTimeMillis: Long,
     val pendingAuthEmail: String?,
+    val setupDismissedUntilMillis: Long,
     val userTier: UserTier
 )

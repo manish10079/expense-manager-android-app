@@ -185,7 +185,7 @@ class SyncRepositoryImpl @Inject constructor(
             "fullName" to localProfile.fullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
             "phoneNumber" to localProfile.phoneNumber,
-            "dateOfBirthMillis" to localProfile.dateOfBirthMillis,
+            "dateOfBirthMillis" to (localProfile.dateOfBirthMillis ?: 0L),
             "gender" to localProfile.gender,
             "memberSinceLabel" to localProfile.memberSinceLabel,
             "accountTier" to localProfile.accountTier,

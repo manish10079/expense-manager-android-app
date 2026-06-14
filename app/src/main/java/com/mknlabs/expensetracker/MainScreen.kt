@@ -471,6 +471,7 @@ fun MainScreen(
                         paymentMethods = mainUiState.paymentMethods,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         userProfile = userProfile,
+                        appSettings = appSettings,
                         selectedCurrencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         selectedDateFormatPattern = selectedDateFormatPattern,

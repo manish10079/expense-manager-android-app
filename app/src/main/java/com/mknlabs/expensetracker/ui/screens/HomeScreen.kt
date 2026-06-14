@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -61,6 +62,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 @Composable
 fun HomeScreen(
     userProfile: UserProfile = defaultUserProfile,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings? = null,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
@@ -115,6 +117,7 @@ fun HomeScreen(
     HomeScreenContent(
         userProfile = userProfile,
         uiState = uiState,
+        appSettings = appSettings,
         isAdsEnabled = isAdsEnabled,
         onViewAllClick = onViewAllClick,
         onTransactionClick = onTransactionClick,
@@ -130,6 +133,7 @@ fun HomeScreen(
 private fun HomeScreenContent(
     userProfile: UserProfile,
     uiState: HomeScreenUiState,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings? = null,
     isAdsEnabled: Boolean = false,
     onViewAllClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
@@ -140,6 +144,8 @@ private fun HomeScreenContent(
     onToggleBalanceVisibility: () -> Unit
 ) {
     val profileAvatarGradient = brandGradient()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -203,7 +209,22 @@ private fun HomeScreenContent(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            DisciplineScoreCard(userProfile = userProfile)
+            if (appSettings != null) {
+                AccountSetupCard(
+                    userProfile = userProfile,
+                    appSettings = appSettings,
+                    onDismiss = {
+                        scope.launch {
+                            val randomDays = (3..4).random()
+                            val nextShowTime = System.currentTimeMillis() + (randomDays * 24 * 60 * 60 * 1000L)
+                            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
+                                it.copy(setupDismissedUntilMillis = nextShowTime)
+                            }
+                        }
+                    },
+                    onActionClick = onProfileClick
+                )
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -335,17 +356,26 @@ private fun HomeScreenContent(
 
 
 @Composable
-fun DisciplineScoreCard(userProfile: UserProfile) {
+fun AccountSetupCard(
+    userProfile: UserProfile,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings,
+    onDismiss: () -> Unit,
+    onActionClick: () -> Unit
+) {
     val score = remember(userProfile) {
         var s = 0
-        if (userProfile.fullName.isNotEmpty()) s += 25
-        if (userProfile.gender.isNotEmpty()) s += 25
-        if (userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L) s += 25
-        if (userProfile.financialGoal.isNotEmpty()) s += 25
+        if (userProfile.fullName.isNotEmpty() && userProfile.fullName != "Guest User") s += 20
+        if (userProfile.emailAddress.isNotEmpty()) s += 20
+        if (userProfile.phoneNumber.isNotEmpty()) s += 20
+        if (userProfile.gender.isNotEmpty()) s += 20
+        if (userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L) s += 20
         s
     }
 
-    if (score == 100 && userProfile.financialGoal.isEmpty()) return // Hide if everything done and no goal
+    val isComplete = score >= 100
+    val isDismissed = System.currentTimeMillis() < appSettings.setupDismissedUntilMillis
+
+    if (isComplete || isDismissed) return
 
     androidx.compose.material3.Card(
         modifier = Modifier.fillMaxWidth(),
@@ -368,24 +398,31 @@ fun DisciplineScoreCard(userProfile: UserProfile) {
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "$score%",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    )
                     
-                    if (userProfile.financialGoal.isNotEmpty()) {
-                        Text(
-                            text = "Goal: ${userProfile.financialGoal}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                    Spacer(modifier = Modifier.width(8.dp))
+                    
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Dismiss",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
-
-                Text(
-                    text = "$score%",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -400,13 +437,31 @@ fun DisciplineScoreCard(userProfile: UserProfile) {
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
-            if (score < 100) {
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = stringResource(R.string.msg_discipline_score_desc),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
                 )
+
+                androidx.compose.material3.Button(
+                    onClick = onActionClick,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                    modifier = Modifier.height(32.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.btn_reach_100),
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     }

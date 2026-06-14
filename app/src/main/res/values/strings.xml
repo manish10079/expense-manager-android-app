@@ -1286,8 +1286,8 @@
     <string name="label_goal_retirement">Early Retirement</string>
     <string name="label_goal_savings">Build a Safety Net</string>
     <string name="label_financial_zen">Your Financial Zen</string>
-    <string name="msg_discipline_score_title">Discipline Score</string>
-    <string name="msg_discipline_score_desc">You\'re doing great! Complete your setup to reach 100% Zen.</string>
+    <string name="msg_discipline_score_title">Account Setup</string>
+    <string name="msg_discipline_score_desc">You\'re doing great! Complete your setup to reach 100%.</string>
     <string name="btn_reach_100">Reach 100%</string>
     <string name="msg_goal_faster_with_pro">Reach your goal of %1$s 20%% faster with Elite features.</string>
 

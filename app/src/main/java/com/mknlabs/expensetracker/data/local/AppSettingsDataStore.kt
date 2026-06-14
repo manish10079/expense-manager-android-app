@@ -60,6 +60,7 @@ object AppSettingsDataStore {
         val lastAutoBackupTimeMillis = longPreferencesKey("last_auto_backup_time_millis")
         val lastSyncTimeMillis = longPreferencesKey("last_sync_time_millis")
         val pendingAuthEmail = stringPreferencesKey("pending_auth_email")
+        val setupDismissedUntilMillis = longPreferencesKey("setup_dismissed_until_millis")
         val userTier = stringPreferencesKey("user_tier")
     }
 
@@ -128,6 +129,7 @@ object AppSettingsDataStore {
             lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis,
             lastSyncTimeMillis = this[Keys.lastSyncTimeMillis] ?: 0L,
             pendingAuthEmail = this[Keys.pendingAuthEmail],
+            setupDismissedUntilMillis = this[Keys.setupDismissedUntilMillis] ?: 0L,
             userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier
         )
     }
@@ -173,6 +175,7 @@ object AppSettingsDataStore {
         } else {
             remove(Keys.pendingAuthEmail)
         }
+        this[Keys.setupDismissedUntilMillis] = settings.setupDismissedUntilMillis
         this[Keys.userTier] = settings.userTier.name
     }
 

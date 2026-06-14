@@ -58,6 +58,7 @@ fun AppNavigationHost(
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
     userProfile: UserProfile,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings,
     selectedCurrencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     selectedDateFormatPattern: String,
@@ -142,6 +143,7 @@ fun AppNavigationHost(
                 AppRoute.Home -> {
                     HomeScreen(
                         userProfile = userProfile,
+                        appSettings = appSettings,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
