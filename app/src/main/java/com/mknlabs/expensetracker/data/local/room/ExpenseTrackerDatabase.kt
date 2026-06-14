@@ -9,11 +9,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
 import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
+import com.mknlabs.expensetracker.data.local.room.dao.GoalDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
+import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
@@ -25,9 +27,10 @@ import java.io.File
         CategoryEntity::class,
         PaymentMethodEntity::class,
         BudgetEntity::class,
-        RecurringRuleEntity::class
+        RecurringRuleEntity::class,
+        GoalEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -38,6 +41,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun paymentMethodDao(): PaymentMethodDao
     abstract fun budgetDao(): BudgetDao
     abstract fun recurringRuleDao(): RecurringRuleDao
+    abstract fun goalDao(): GoalDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -52,8 +56,33 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add last_notified_occurrence_at to recurring_rules
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN last_notified_occurrence_at INTEGER")
+
+                // Create goals table
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `goals` (
+                        `id` TEXT NOT NULL, 
+                        `name` TEXT NOT NULL, 
+                        `target_amount_minor` INTEGER NOT NULL, 
+                        `current_amount_minor` INTEGER NOT NULL, 
+                        `deadline_at` INTEGER, 
+                        `icon_key` TEXT NOT NULL, 
+                        `color_hex` TEXT NOT NULL, 
+                        `is_completed` INTEGER NOT NULL, 
+                        `created_at` INTEGER NOT NULL, 
+                        `updated_at` INTEGER NOT NULL, 
+                        `sync_state` TEXT NOT NULL, 
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
             }
         }
 

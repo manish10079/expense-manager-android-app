@@ -28,6 +28,7 @@ import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
 import com.mknlabs.expensetracker.ui.screens.CalendarScreen
 import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
 import com.mknlabs.expensetracker.ui.screens.DataManagementScreen
+import com.mknlabs.expensetracker.ui.screens.GoalsScreen
 import com.mknlabs.expensetracker.ui.screens.HomeScreen
 import com.mknlabs.expensetracker.ui.screens.ItemizedCalculatorScreen
 import com.mknlabs.expensetracker.ui.screens.NotificationSettingsScreen
@@ -89,6 +90,7 @@ fun AppNavigationHost(
     onCreateCustomPaymentType: (String, String) -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
     onDeleteCustomPaymentType: (Int) -> Unit,
+    onGoalsClick: () -> Unit,
     onTransactionCardCustomizationSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onUserProfileChange: (UserProfile) -> Unit,
     onDailyReminderChange: (Boolean) -> Unit,
@@ -167,6 +169,10 @@ fun AppNavigationHost(
                         onTodaySpendingClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Calendar)
+                        },
+                        onGoalsClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Goals)
                         }
                     )
                 }
@@ -293,6 +299,7 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.CategoryManagement)
                         },
+                        onGoalsClick = onGoalsClick,
                         onConnectedDevicesClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.ConnectedDevices)
@@ -539,6 +546,16 @@ fun AppNavigationHost(
                             onAddTransactionDraftNoteChange(finalNote)
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.AddTransaction)
+                        }
+                    )
+                }
+
+                AppRoute.Goals -> {
+                    GoalsScreen(
+                        onBackClick = {
+                            val backRoute = resolveBackNavigationRoute(AppRoute.Goals, profileOriginRoute, previousRoute) ?: AppRoute.Home
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(backRoute)
                         }
                     )
                 }

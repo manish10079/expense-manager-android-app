@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.InitTask
 
@@ -100,7 +101,7 @@ fun SplashOverlay(viewModel: SplashViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Logo Area
-            val brandPurple = Color(0xFF7B61FF)
+            val brandPurple = PurplePrimary
             Box(
                 modifier = Modifier
                     .size(SplashLogoSize * 2.2f)

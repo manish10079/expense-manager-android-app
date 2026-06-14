@@ -1290,4 +1290,26 @@
     <string name="msg_discipline_score_desc">You\'re doing great! Complete your setup to reach 100% Zen.</string>
     <string name="btn_reach_100">Reach 100%</string>
     <string name="msg_goal_faster_with_pro">Reach your goal of %1$s 20%% faster with Elite features.</string>
+
+    <!-- Goals Feature -->
+    <string name="title_savings_goals">Savings Goals</string>
+    <string name="title_add_goal">Add Savings Goal</string>
+    <string name="title_fund_goal">Fund Goal</string>
+    <string name="title_delete_goal">Delete Goal</string>
+    <string name="msg_delete_goal_confirm">Are you sure you want to delete the goal \"%1$s\"? This action cannot be undone.</string>
+    <string name="label_fund_amount">Amount to Add</string>
+    <string name="label_goal_name">Goal Name</string>
+    <string name="label_target_amount">Target Amount</string>
+    <string name="label_goal_name_hint">e.g. New Car, Vacation</string>
+    <string name="msg_no_goals">No goals yet. Tap + to start saving!</string>
+    <string name="cd_add_goal">Add Goal</string>
+    <string name="cd_delete_goal">Delete Goal</string>
+    <string name="format_goal_progress">%1$d%% complete</string>
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+    <string name="format_goal_target">Target: %1$s</string>
+    <string name="label_test_goal">Test Goal </string>
+
+    <!-- Recurring Notifications -->
+    <string name="notification_title_upcoming_bill">Upcoming Transaction</string>
+    <string name="notification_format_upcoming_bill">%1$s for \"%2$s\" will be deducted in 48 hours.</string>
 </resources>

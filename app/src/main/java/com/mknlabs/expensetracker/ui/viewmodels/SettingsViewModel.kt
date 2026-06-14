@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationAdd
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Savings
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material.icons.rounded.Tune
@@ -66,6 +67,7 @@ enum class SettingsActionId {
     About,
     Notifications,
     ManageCategories,
+    Goals,
     AdFreeAccess,
     LinkAccount,
     ConnectedDevices,
@@ -248,6 +250,12 @@ private fun buildSettingsSections(
                     subtitleRes = com.mknlabs.expensetracker.R.string.label_manage_category_subtitle,
                     icon = Icons.Rounded.Category,
                     actionId = SettingsActionId.ManageCategories
+                ),
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_savings_goals,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_app_preferences_subtitle,
+                    icon = Icons.Rounded.Savings,
+                    actionId = SettingsActionId.Goals
                 ),
                 SettingsItemUi(
                     titleRes = com.mknlabs.expensetracker.R.string.title_app_preferences,

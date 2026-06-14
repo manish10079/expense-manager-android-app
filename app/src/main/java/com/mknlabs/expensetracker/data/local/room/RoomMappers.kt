@@ -2,14 +2,48 @@ package com.mknlabs.expensetracker.data.local.room
 
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
+import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
+
+fun GoalEntity.toDomain(): Goal {
+    return Goal(
+        id = id,
+        name = name,
+        targetAmountMinor = targetAmountMinor,
+        currentAmountMinor = currentAmountMinor,
+        deadlineAt = deadlineAt,
+        iconKey = iconKey,
+        colorHex = colorHex,
+        isCompleted = isCompleted,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        syncState = syncState
+    )
+}
+
+fun Goal.toEntity(): GoalEntity {
+    return GoalEntity(
+        id = id,
+        name = name,
+        targetAmountMinor = targetAmountMinor,
+        currentAmountMinor = currentAmountMinor,
+        deadlineAt = deadlineAt,
+        iconKey = iconKey,
+        colorHex = colorHex,
+        isCompleted = isCompleted,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        syncState = syncState
+    )
+}
 
 fun CategoryEntity.toDomain(): CategoryType {
     return CategoryType(
@@ -144,6 +178,7 @@ fun RecurringRuleEntity.toDomain(): RecurringTransactionRule {
         anchorAt = anchorAt,
         nextRunAt = nextRunAt,
         lastRunAt = lastRunAt,
+        lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt,
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,
@@ -162,6 +197,7 @@ fun RecurringTransactionRule.toEntity(): RecurringRuleEntity {
         anchorAt = anchorAt,
         nextRunAt = nextRunAt,
         lastRunAt = lastRunAt,
+        lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt,
         isEnabled = isEnabled,
         createdAt = createdAt,
         updatedAt = updatedAt,

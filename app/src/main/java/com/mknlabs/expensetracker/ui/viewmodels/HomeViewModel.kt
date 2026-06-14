@@ -8,9 +8,11 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
+import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
@@ -39,6 +41,7 @@ data class HomeScreenUiState(
     val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
+    val activeGoal: Goal? = null,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isBalanceHidden: Boolean = true
 )
@@ -58,7 +61,8 @@ private const val HOME_RECENT_TRANSACTION_LIMIT = 10
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val application: Application,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val goalRepository: GoalRepository
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(HomeInputState())
@@ -77,8 +81,9 @@ class HomeViewModel @Inject constructor(
             combine(
                 transactionRepository.observeHomeSummary(),
                 transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
+                goalRepository.observeAllGoals(),
                 inputState
-            ) { summary, recentTransactions, inputs ->
+            ) { summary, recentTransactions, allGoals, inputs ->
                 HomeScreenUiState(
                     greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
@@ -117,6 +122,7 @@ class HomeViewModel @Inject constructor(
                             fallbackCategoryName = application.getString(R.string.label_other)
                         )
                     },
+                    activeGoal = allGoals.firstOrNull { !it.isCompleted },
                     customizationSettings = inputs.customizationSettings,
                     isBalanceHidden = _uiState.value.isBalanceHidden
                 )

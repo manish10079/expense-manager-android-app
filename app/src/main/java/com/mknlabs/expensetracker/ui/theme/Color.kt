@@ -24,6 +24,31 @@ val ExpenseRed = Color(0xFFFF7D7D)
 val PurplePrimaryLight = Color(0xFF6A4DFF)
 val PurpleAccentLight = Color(0xFF8C6DFF)
 
+// Savings Goal Progress Shades
+val GoalProgressLow = Color(0xFFD6C8FF)
+val GoalProgressMedium = Color(0xFF9E84FF)
+val GoalProgressHigh = PurplePrimary
+
+// Default Goal Color Hex (Brand Purple)
+const val DEFAULT_GOAL_COLOR_HEX = "#7B61FF"
+
+// Shimmer Effect Colors
+val ShimmerBase = Color(0xFFB8B5B5)
+val ShimmerHighlight = Color(0xFF8F8B8B)
+
+// Ad Loading Screen Colors
+val AdLoadingScrim = Color(0x99000000) // Black with 60% alpha
+val AdLoadingText = Color(0xFFFFFFFF)
+
+// App Lock Colors
+val AppLockLoadingBackground = Color(0xFF000000)
+
+// Semantic UI Highlights
+val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
+
+// Neutral Shades
+val NeutralGray = Color(0xFF8E8E93)
+
 val BackgroundLight = Color(0xFFF6F6F8)
 val SurfaceLight = Color(0xFFFFFFFF)
 val CardLight = Color(0xFFD2D2E3)

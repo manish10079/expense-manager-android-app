@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
+import com.mknlabs.expensetracker.ui.theme.ShimmerBase
+import com.mknlabs.expensetracker.ui.theme.ShimmerHighlight
 
 /**
  * Reusable modifier for handling horizontal swipe gestures across the UI layer.
@@ -67,9 +69,9 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     background(
         brush = Brush.linearGradient(
             colors = listOf(
-                Color(0xFFB8B5B5).copy(alpha = 0.2f),
-                Color(0xFF8F8B8B).copy(alpha = 0.4f),
-                Color(0xFFB8B5B5).copy(alpha = 0.2f),
+                ShimmerBase.copy(alpha = 0.2f),
+                ShimmerHighlight.copy(alpha = 0.4f),
+                ShimmerBase.copy(alpha = 0.2f),
             ),
             start = Offset(startOffsetX, 0f),
             end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())

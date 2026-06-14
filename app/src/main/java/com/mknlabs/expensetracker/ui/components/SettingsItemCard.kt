@@ -53,6 +53,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.AccessLevel
+import com.mknlabs.expensetracker.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -209,9 +210,9 @@ fun SettingsItemCard(
                                     checkedThumbColor = colorScheme.onPrimary,
                                     checkedTrackColor = primary,
                                     checkedBorderColor = Color.Transparent,
-                                    uncheckedThumbColor = Color.Gray,
+                                    uncheckedThumbColor = NeutralGray,
                                     uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
-                                    uncheckedBorderColor = Color.Gray,
+                                    uncheckedBorderColor = NeutralGray,
                                     disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
                                     disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
                                     disabledCheckedBorderColor = Color.Transparent,

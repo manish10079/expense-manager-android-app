@@ -21,7 +21,8 @@ enum class AppRoute(
     ConnectedDevices("connected_devices", false),
     AddTransaction("add_transaction", false),
     ItemizedCalculator("itemized_calculator", false),
-    AddCategory("add_category", false);
+    AddCategory("add_category", false),
+    Goals("goals", false);
 
     companion object {
         fun fromRoute(route: String?): AppRoute? {

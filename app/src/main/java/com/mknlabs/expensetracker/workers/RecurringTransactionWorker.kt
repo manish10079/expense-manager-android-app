@@ -36,9 +36,33 @@ class RecurringTransactionWorker @AssistedInject constructor(
             
             val now = System.currentTimeMillis()
             var transactionsAddedCount = 0
+            val advanceNotificationWindow = now + TimeUnit.HOURS.toMillis(48)
 
             activeRules.forEach { rule ->
                 Log.d("RecurringWorker", "doWork: Processing rule ${rule.id} for transaction ${rule.transactionId}")
+                
+                // 1. Check for 48-hour alerts
+                if (rule.nextRunAt in (now + 1)..advanceNotificationWindow && 
+                    rule.lastNotifiedOccurrenceAt != rule.nextRunAt) {
+                    
+                    val originalTransaction = transactionRepository.getTransactionById(rule.transactionId)
+                    if (originalTransaction != null) {
+                        val amountStr = String.format("%.2f", originalTransaction.amountMinor / 100.0)
+                        NotificationHelper.showGenericNotification(
+                            context = appContext,
+                            title = appContext.getString(com.mknlabs.expensetracker.R.string.notification_title_upcoming_bill),
+                            message = appContext.getString(
+                                com.mknlabs.expensetracker.R.string.notification_format_upcoming_bill,
+                                amountStr,
+                                originalTransaction.note
+                            )
+                        )
+                        // Mark as notified for this specific occurrence
+                        recurringRuleRepository.upsertRule(rule.copy(lastNotifiedOccurrenceAt = rule.nextRunAt))
+                    }
+                }
+
+                // 2. Process due transactions
                 processRule(rule, now) {
                     transactionsAddedCount++
                     Log.d("RecurringWorker", "doWork: Added a transaction for rule ${rule.id}. Total so far: $transactionsAddedCount")

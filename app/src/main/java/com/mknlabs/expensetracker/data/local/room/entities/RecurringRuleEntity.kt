@@ -41,6 +41,8 @@ data class RecurringRuleEntity(
     val nextRunAt: Long,
     @ColumnInfo(name = "last_run_at")
     val lastRunAt: Long?,
+    @ColumnInfo(name = "last_notified_occurrence_at")
+    val lastNotifiedOccurrenceAt: Long? = null,
     @ColumnInfo(name = "is_enabled")
     val isEnabled: Boolean,
     @ColumnInfo(name = "created_at")

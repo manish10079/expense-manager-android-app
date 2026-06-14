@@ -46,6 +46,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AppLockViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AppLockState
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.ui.theme.AppLockLoadingBackground
 import dagger.hilt.android.AndroidEntryPoint
 
 import androidx.activity.SystemBarStyle
@@ -258,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .background(Color.Black)
+                                            .background(AppLockLoadingBackground)
                                     )
                                 }
 

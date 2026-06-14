@@ -81,6 +81,7 @@ fun SettingsScreen(
     onAboutClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
+    onGoalsClick: () -> Unit = {},
     onLinkAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onConnectedDevicesClick: () -> Unit = {},
@@ -122,6 +123,7 @@ fun SettingsScreen(
         onAboutClick = onAboutClick,
         onNotificationsClick = onNotificationsClick,
         onManageCategoryClick = onManageCategoryClick,
+        onGoalsClick = onGoalsClick,
         onLinkAccountClick = onLinkAccountClick,
         onLogoutClick = onLogoutClick,
         onConnectedDevicesClick = onConnectedDevicesClick,
@@ -155,6 +157,7 @@ private fun SettingsScreenContent(
     onAboutClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onManageCategoryClick: () -> Unit,
+    onGoalsClick: () -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onConnectedDevicesClick: () -> Unit,
@@ -223,6 +226,7 @@ private fun SettingsScreenContent(
                                     SettingsActionId.About -> onAboutClick()
                                     SettingsActionId.Notifications -> onNotificationsClick()
                                     SettingsActionId.ManageCategories -> onManageCategoryClick()
+                                    SettingsActionId.Goals -> onGoalsClick()
                                     SettingsActionId.AdFreeAccess -> onAdFreeAccessClick()
                                     SettingsActionId.LinkAccount -> onLinkAccountClick()
                                     SettingsActionId.ConnectedDevices -> {
@@ -490,6 +494,7 @@ private fun SettingsScreenPreview() {
             onAboutClick = {},
             onNotificationsClick = {},
             onManageCategoryClick = {},
+            onGoalsClick = {},
             onLinkAccountClick = {},
             onLogoutClick = {},
             onConnectedDevicesClick = {},

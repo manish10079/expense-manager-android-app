@@ -32,5 +32,8 @@ object DatabaseModule {
     fun provideRecurringRuleDao(database: ExpenseTrackerDatabase) = database.recurringRuleDao()
 
     @Provides
+    fun provideGoalDao(database: ExpenseTrackerDatabase) = database.goalDao()
+
+    @Provides
     fun providePaymentMethodDao(database: ExpenseTrackerDatabase) = database.paymentMethodDao()
 }

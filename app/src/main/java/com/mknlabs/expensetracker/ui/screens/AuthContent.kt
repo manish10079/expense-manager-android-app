@@ -27,6 +27,7 @@ import com.mknlabs.expensetracker.ui.components.input.InputType
 import com.mknlabs.expensetracker.ui.viewmodels.AuthState
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.ColorFilter
+import com.mknlabs.expensetracker.ui.theme.SurfaceHighlight
 
 private enum class EmailAuthAction {
     Login,
@@ -125,7 +126,7 @@ fun AuthContent(
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
             colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White.copy(alpha = 0.05f)
+                containerColor = SurfaceHighlight
             )
         ) {
             Row(

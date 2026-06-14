@@ -10,47 +10,30 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.mknlabs.expensetracker.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -61,10 +44,7 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
-import com.mknlabs.expensetracker.ui.components.ProfileAvatar
-import com.mknlabs.expensetracker.ui.components.StatsCard
-import com.mknlabs.expensetracker.ui.components.TodaySpendingCard
-import com.mknlabs.expensetracker.ui.components.TransactionCard
+import com.mknlabs.expensetracker.ui.components.*
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -76,8 +56,6 @@ import kotlinx.coroutines.launch
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 
 @Composable
@@ -93,7 +71,8 @@ fun HomeScreen(
     onTransactionClick: (Transaction) -> Unit = {},
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onTodaySpendingClick: () -> Unit = {}
+    onTodaySpendingClick: () -> Unit = {},
+    onGoalsClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -142,6 +121,7 @@ fun HomeScreen(
         onProfileClick = onProfileClick,
         onSettingsClick = onSettingsClick,
         onTodaySpendingClick = onTodaySpendingClick,
+        onGoalsClick = onGoalsClick,
         onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility
     )
 }
@@ -156,6 +136,7 @@ private fun HomeScreenContent(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onTodaySpendingClick: () -> Unit,
+    onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit
 ) {
     val profileAvatarGradient = brandGradient()
@@ -237,10 +218,26 @@ private fun HomeScreenContent(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            TodaySpendingCard(
-                amount = uiState.todaySpending,
-                onClick = onTodaySpendingClick
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                SmallHomeCard(
+                    title = stringResource(R.string.label_todays_spending),
+                    value = uiState.todaySpending,
+                    icon = Icons.Default.CalendarMonth,
+                    modifier = Modifier.weight(1f),
+                    onClick = onTodaySpendingClick
+                )
+                
+                SmallHomeCard(
+                    title = stringResource(R.string.title_savings_goals),
+                    value = uiState.activeGoal?.let { "${(it.progress * 100).toInt()}%" } ?: "0%",
+                    icon = Icons.Default.Savings,
+                    modifier = Modifier.weight(1f),
+                    onClick = onGoalsClick
+                )
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -464,6 +461,7 @@ fun HomeScreenDarkPreview() {
             onProfileClick = {},
             onSettingsClick = {},
             onTodaySpendingClick = {},
+            onGoalsClick = {},
             onToggleBalanceVisibility = {}
         )
     }
@@ -481,6 +479,7 @@ fun HomeScreenLightPreview() {
             onProfileClick = {},
             onSettingsClick = {},
             onTodaySpendingClick = {},
+            onGoalsClick = {},
             onToggleBalanceVisibility = {}
         )
     }

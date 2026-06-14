@@ -83,6 +83,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import com.mknlabs.expensetracker.workers.AutoBackupScheduler
 import com.mknlabs.expensetracker.utils.AppRestartUtils
+import com.mknlabs.expensetracker.ui.theme.AdLoadingScrim
+import com.mknlabs.expensetracker.ui.theme.AdLoadingText
 
 private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCardCustomizationSettings {
     return TransactionCardCustomizationSettings(
@@ -502,6 +504,10 @@ fun MainScreen(
                         onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
                         onDeleteCustomCategory = mainViewModel::deleteCustomCategory,
                         onDeleteCustomPaymentType = mainViewModel::deleteCustomPaymentMethod,
+                        onGoalsClick = {
+                            navigationState.navigateTo(AppRoute.Goals)
+                            navigationState.updateBottomBarVisibility(false)
+                        },
                         onTransactionCardCustomizationSettingsChange = { updatedSettings ->
                             coroutineScope.launch {
                                 AppSettingsDataStore.updateAppSettings(context) { settings ->
@@ -903,7 +909,7 @@ fun MainScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
+                    .background(AdLoadingScrim)
                     .clickable(enabled = false) {},
                 contentAlignment = Alignment.Center
             ) {
@@ -916,7 +922,7 @@ fun MainScreen(
                     Spacer(Modifier.height(20.dp))
                     Text(
                         text = stringResource(id = R.string.msg_preparing_pro_experience),
-                        color = Color.White,
+                        color = AdLoadingText,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 32.dp)
@@ -924,7 +930,7 @@ fun MainScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = stringResource(id = R.string.msg_wont_take_long),
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = AdLoadingText.copy(alpha = 0.7f),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

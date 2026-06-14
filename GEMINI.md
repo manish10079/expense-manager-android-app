@@ -79,11 +79,12 @@ com.mkn0079.expensetracker/
 ### 8. Versioning & Commits
 - **Automated Updates:** Whenever a commit message is prepared or requested, the agent must update `app/build.gradle.kts`.
 - **Version Code:** `versionCode` must always increment by **1**.
-- **Version Name:** `versionName` must follow the format: `major.minor.patch.versionCode`.
+- **Version Name:** `versionName` must follow the format: `major.minor.bug.versioncode`.
+- **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `bumped version to <versionName>`.
 - **Versioning Logic (SemVer):**
-    - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and patch to 0.
-    - **Minor:** Increment for new features (`feat`). Reset patch to 0.
-    - **Patch:** Increment for bug fixes (`fix`).
+    - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and bug to 0.
+    - **Minor:** Increment for new features (`feat`). Reset bug to 0.
+    - **Bug:** Increment for bug fixes (`fix`).
     - **Other types (chore, refactor, docs, etc.):** Only increment `versionCode` and update the last segment of `versionName`.
 - **Verification:** Ensure the updated version is reflected in the build file before finalizing the task.
 
@@ -102,6 +103,7 @@ com.mkn0079.expensetracker/
 - No usage of `ExpenseTrackerRepositoryProvider` (deprecated/forbidden).
 - No skipping of `Result` wrapping for critical data operations.
 - No hardcoded strings in UI or ViewModels (Mandatory use of `strings.xml`).
+- No hardcoded colors in UI components (Mandatory use of `ui/theme/Color.kt`).
 - No untested code or business logic in the UI layer.
 
 ---
@@ -113,3 +115,5 @@ com.mkn0079.expensetracker/
 - **UI**: Jetpack Compose + Material 3.
 - **Persistence**: Room (KSP) + DataStore.
 - **Guidelines**: Follow `GEMINI.md` for full technical specifications.
+
+

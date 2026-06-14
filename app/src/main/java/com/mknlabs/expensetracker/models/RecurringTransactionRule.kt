@@ -21,6 +21,7 @@ data class RecurringTransactionRule(
     val anchorAt: Long = System.currentTimeMillis(),
     val nextRunAt: Long = anchorAt,
     val lastRunAt: Long? = null,
+    val lastNotifiedOccurrenceAt: Long? = null,
     val createdAt: Long = anchorAt,
     val updatedAt: Long = createdAt,
     val syncState: SyncState = SyncState.LOCAL_ONLY,

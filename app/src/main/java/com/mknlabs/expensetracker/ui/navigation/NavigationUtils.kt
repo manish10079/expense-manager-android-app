@@ -51,7 +51,8 @@ fun resolveBackNavigationRoute(
         AppRoute.About,
         AppRoute.NotificationSettings -> AppRoute.Settings
         AppRoute.Profile -> profileOriginRoute
-        AppRoute.AddTransaction -> previousRoute
+        AppRoute.AddTransaction,
+        AppRoute.Goals -> previousRoute
         AppRoute.ItemizedCalculator -> AppRoute.AddTransaction
         else -> null
     }
