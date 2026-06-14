@@ -17,8 +17,8 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 15
-        versionName = "2.4.5.15"
+        versionCode = 16
+        versionName = "2.4.6.16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
