@@ -39,7 +39,8 @@ class SyncRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val budgetDao: BudgetDao,
     private val paymentMethodDao: PaymentMethodDao,
-    private val recurringRuleDao: RecurringRuleDao
+    private val recurringRuleDao: RecurringRuleDao,
+    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao
 ) : SyncRepository {
 
     private val _registeredDevices = MutableStateFlow<List<RegisteredDevice>>(emptyList())
@@ -206,6 +207,7 @@ class SyncRepositoryImpl @Inject constructor(
         if (remoteUpdatedAt <= localProfile.updatedAtMillis) return
 
         val authUser = firebaseAuth.currentUser
+        val remoteAccountTier = snapshot.getString("accountTier") ?: localProfile.accountTier
         val remoteProfile = UserProfile(
             fullName = snapshot.getString("fullName") ?: localProfile.fullName,
             emailAddress = snapshot.getString("emailAddress")
@@ -215,12 +217,17 @@ class SyncRepositoryImpl @Inject constructor(
             dateOfBirthMillis = snapshot.getLong("dateOfBirthMillis") ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
             memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
-            accountTier = snapshot.getString("accountTier") ?: localProfile.accountTier,
+            accountTier = remoteAccountTier,
             photoUri = snapshot.getString("photoUri") ?: localProfile.photoUri,
             updatedAtMillis = remoteUpdatedAt
         )
 
         UserProfileDataStore.setUserProfile(context, remoteProfile)
+
+        // Sync Tier to AppSettings
+        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier }
+            ?: com.mknlabs.expensetracker.models.UserTier.FREE
+        AppSettingsDataStore.updateUserTier(context, tier)
     }
 
     private suspend fun pushLocalChanges(uid: String) {
@@ -274,6 +281,16 @@ class SyncRepositoryImpl @Inject constructor(
                 userDoc.collection("recurring_rules").document(entity.id).set(entity).await()
             }
             recurringRuleDao.updateSyncState(entity.id, SyncState.SYNCED.name)
+        }
+
+        // Push Goals
+        goalDao.getUnsynced().forEach { entity ->
+            if (entity.isDeleted) {
+                userDoc.collection("goals").document(entity.id).delete().await()
+            } else {
+                userDoc.collection("goals").document(entity.id).set(entity).await()
+            }
+            goalDao.updateSyncState(entity.id, SyncState.SYNCED.name)
         }
     }
 
@@ -351,6 +368,21 @@ class SyncRepositoryImpl @Inject constructor(
                 val localItem = recurringRuleDao.getById(it.id)
                 if (localItem == null || it.updatedAt > localItem.updatedAt) {
                     recurringRuleDao.upsert(it.copy(syncState = SyncState.SYNCED))
+                }
+            }
+        }
+
+        // Pull Goals
+        val goalSnapshot = userDoc.collection("goals")
+            .whereGreaterThan("updatedAt", lastSync)
+            .get().await()
+        
+        goalSnapshot.documents.forEach { doc ->
+            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.GoalEntity::class.java)
+            cloudItem?.let {
+                val localItem = goalDao.getById(it.id)
+                if (localItem == null || it.updatedAt > localItem.updatedAt) {
+                    goalDao.upsert(it.copy(syncState = SyncState.SYNCED))
                 }
             }
         }

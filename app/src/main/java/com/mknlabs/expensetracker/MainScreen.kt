@@ -574,7 +574,8 @@ fun MainScreen(
                                 onComplete = { result ->
                                     showToast(
                                         "JSON exported: ${result.exportedTransactions} transactions, " +
-                                            "${result.exportedBudgets} budgets."
+                                            "${result.exportedBudgets} budgets, " +
+                                            "${result.exportedGoals} goals."
                                     )
                                 },
                                 onError = {
@@ -941,5 +942,5 @@ fun MainScreen(
 
 private fun JsonImportResult.toJsonImportMessage(): String {
     return "Imported $importedTransactions tx, $importedBudgets budgets, " +
-        "$importedRecurringRules rules. Skipped $skippedTransactions tx duplicates."
+        "$importedRecurringRules rules, $importedGoals goals. Skipped $skippedTransactions tx duplicates."
 }

@@ -17,7 +17,8 @@ data class JsonExportResult(
     val exportedBudgets: Int,
     val exportedRecurringRules: Int,
     val exportedCategories: Int,
-    val exportedPaymentMethods: Int
+    val exportedPaymentMethods: Int,
+    val exportedGoals: Int
 )
 
 data class JsonImportResult(
@@ -30,5 +31,7 @@ data class JsonImportResult(
     val importedCategories: Int,
     val skippedCategories: Int,
     val importedPaymentMethods: Int,
-    val skippedPaymentMethods: Int
+    val skippedPaymentMethods: Int,
+    val importedGoals: Int,
+    val skippedGoals: Int
 )

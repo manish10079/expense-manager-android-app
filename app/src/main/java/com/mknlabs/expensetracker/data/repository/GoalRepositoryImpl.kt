@@ -32,6 +32,6 @@ class GoalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteGoal(id: String) = withContext(Dispatchers.IO) {
-        goalDao.deleteById(id)
+        goalDao.softDeleteById(id, System.currentTimeMillis())
     }
 }

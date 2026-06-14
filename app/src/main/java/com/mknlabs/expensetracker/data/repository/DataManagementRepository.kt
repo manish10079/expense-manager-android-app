@@ -41,7 +41,8 @@ class DataManagementRepository @Inject constructor(
     private val categoryDao: CategoryDao,
     private val paymentMethodDao: PaymentMethodDao,
     private val budgetDao: BudgetDao,
-    private val recurringRuleDao: RecurringRuleDao
+    private val recurringRuleDao: RecurringRuleDao,
+    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao
 ) : DomainDataManagementRepository {
     private val appContext = context.applicationContext
 
@@ -108,6 +109,7 @@ class DataManagementRepository @Inject constructor(
         val transactions = transactionDao.getActiveTransactions()
         val budgets = budgetDao.getActiveBudgets()
         val recurringRules = recurringRuleDao.getActiveRules()
+        val goals = goalDao.getActiveGoals()
 
         val payload = JSONObject().apply {
             put("schemaVersion", JSON_SCHEMA_VERSION)
@@ -127,6 +129,9 @@ class DataManagementRepository @Inject constructor(
             put("recurringRules", JSONArray().apply {
                 recurringRules.forEach { put(it.toJson()) }
             })
+            put("goals", JSONArray().apply {
+                goals.forEach { put(it.toJson()) }
+            })
         }
 
         writeTextToUri(
@@ -139,7 +144,8 @@ class DataManagementRepository @Inject constructor(
             exportedBudgets = budgets.size,
             exportedRecurringRules = recurringRules.size,
             exportedCategories = categories.size,
-            exportedPaymentMethods = paymentMethods.size
+            exportedPaymentMethods = paymentMethods.size,
+            exportedGoals = goals.size
         )
     }
 
@@ -161,6 +167,7 @@ class DataManagementRepository @Inject constructor(
         val importedTransactions = root.optJSONArray("transactions").toTransactionEntities()
         val importedBudgets = root.optJSONArray("budgets").toBudgetEntities()
         val importedRecurringRules = root.optJSONArray("recurringRules").toRecurringRuleEntities()
+        val importedGoals = root.optJSONArray("goals").toGoalEntities()
 
         var importedCategoryCount = 0
         var skippedCategoryCount = 0
@@ -172,6 +179,8 @@ class DataManagementRepository @Inject constructor(
         var skippedBudgetCount = 0
         var importedRecurringRuleCount = 0
         var skippedRecurringRuleCount = 0
+        var importedGoalCount = 0
+        var skippedGoalCount = 0
 
         database.withTransaction {
             val categoryIdMap = mutableMapOf<Int, Int>()
@@ -374,6 +383,33 @@ class DataManagementRepository @Inject constructor(
                 )
                 existingTransactions[index] = updatedTransaction
             }
+
+            val existingGoals = goalDao.getActiveGoals().toMutableList()
+
+            importedGoals.forEach { imported ->
+                val resolvedGoal = imported.copy(
+                    isDeleted = false
+                )
+                val duplicate = existingGoals.firstOrNull {
+                    it.name.normalizedKey() == resolvedGoal.name.normalizedKey() &&
+                        it.targetAmountMinor == resolvedGoal.targetAmountMinor
+                }
+
+                if (duplicate != null) {
+                    skippedGoalCount++
+                    return@forEach
+                }
+
+                val existingId = goalDao.getById(resolvedGoal.id)
+                val finalGoal = if (resolvedGoal.id.isBlank() || existingId != null) {
+                    resolvedGoal.copy(id = UUID.randomUUID().toString())
+                } else {
+                    resolvedGoal
+                }
+                goalDao.upsert(finalGoal)
+                existingGoals += finalGoal
+                importedGoalCount++
+            }
         }
 
         JsonImportResult(
@@ -386,7 +422,9 @@ class DataManagementRepository @Inject constructor(
             importedCategories = importedCategoryCount,
             skippedCategories = skippedCategoryCount,
             importedPaymentMethods = importedPaymentMethodCount,
-            skippedPaymentMethods = skippedPaymentMethodCount
+            skippedPaymentMethods = skippedPaymentMethodCount,
+            importedGoals = importedGoalCount,
+            skippedGoals = skippedGoalCount
         )
     }
 
@@ -480,6 +518,15 @@ private fun JSONArray?.toRecurringRuleEntities(): List<RecurringRuleEntity> {
     }
 }
 
+private fun JSONArray?.toGoalEntities(): List<GoalEntity> {
+    if (this == null) return emptyList()
+    return buildList(length()) {
+        for (index in 0 until length()) {
+            add(getJSONObject(index).toGoalEntity())
+        }
+    }
+}
+
 private fun CategoryEntity.toJson(): JSONObject {
     return JSONObject().apply {
         put("id", id)
@@ -554,6 +601,23 @@ private fun RecurringRuleEntity.toJson(): JSONObject {
         put("updatedAt", updatedAt)
         put("syncState", syncState.name)
         put("isDeleted", isDeleted)
+    }
+}
+
+private fun GoalEntity.toJson(): JSONObject {
+    return JSONObject().apply {
+        put("id", id)
+        put("name", name)
+        put("targetAmountMinor", targetAmountMinor)
+        put("currentAmountMinor", currentAmountMinor)
+        putNullable("deadlineAt", deadlineAt)
+        put("iconKey", iconKey)
+        put("colorHex", colorHex)
+        put("isCompleted", isCompleted)
+        put("createdAt", createdAt)
+        put("updatedAt", updatedAt)
+        put("isDeleted", isDeleted)
+        put("syncState", syncState.name)
     }
 }
 
@@ -637,6 +701,24 @@ private fun JSONObject.toRecurringRuleEntity(): RecurringRuleEntity {
         updatedAt = optLong("updatedAt", createdAt),
         syncState = optString("syncState").toSyncState(),
         isDeleted = optBoolean("isDeleted", false)
+    )
+}
+
+private fun JSONObject.toGoalEntity(): GoalEntity {
+    val createdAt = optLong("createdAt", System.currentTimeMillis())
+    return GoalEntity(
+        id = getString("id"),
+        name = getString("name"),
+        targetAmountMinor = getLong("targetAmountMinor"),
+        currentAmountMinor = getLong("currentAmountMinor"),
+        deadlineAt = optNullableLong("deadlineAt"),
+        iconKey = getString("iconKey"),
+        colorHex = getString("colorHex"),
+        isCompleted = optBoolean("isCompleted", false),
+        createdAt = createdAt,
+        updatedAt = optLong("updatedAt", createdAt),
+        isDeleted = optBoolean("isDeleted", false),
+        syncState = optString("syncState").toSyncState()
     )
 }
 

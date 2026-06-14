@@ -16,6 +16,7 @@ data class Goal(
     val isCompleted: Boolean,
     val createdAt: Long,
     val updatedAt: Long,
+    val isDeleted: Boolean = false,
     val syncState: SyncState = SyncState.LOCAL_ONLY
 ) {
     val icon: ImageVector

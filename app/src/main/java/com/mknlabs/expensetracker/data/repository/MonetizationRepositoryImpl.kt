@@ -72,12 +72,15 @@ class MonetizationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun becomePremium() {
-        // This is a test method to simulate being premium
-        AppSettingsDataStore.updateAppSettings(context) { settings ->
-            settings.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+        // 1. Update App Settings (Primary source for UI features & ads)
+        AppSettingsDataStore.updateUserTier(context, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
+        
+        // 2. Update User Profile (Ensures the status is synced to Firestore)
+        UserProfileDataStore.updateUserProfile(context) { profile ->
+            profile.copy(accountTier = com.mknlabs.expensetracker.models.UserTier.PREMIUM.name)
         }
-        // Grant a 2-hour global pass for testing
-        val newExpiry = System.currentTimeMillis() + TEST_PREMIUM_DURATION_MILLIS
-        MonetizationDataStore.updateGlobalAdAccessExpiry(context, newExpiry)
+        
+        // Clear any temporary passes as they are no longer needed
+        MonetizationDataStore.updateGlobalAdAccessExpiry(context, 0L)
     }
 }

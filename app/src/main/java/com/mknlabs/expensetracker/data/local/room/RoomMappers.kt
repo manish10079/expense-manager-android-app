@@ -25,6 +25,7 @@ fun GoalEntity.toDomain(): Goal {
         isCompleted = isCompleted,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        isDeleted = isDeleted,
         syncState = syncState
     )
 }
@@ -41,6 +42,7 @@ fun Goal.toEntity(): GoalEntity {
         isCompleted = isCompleted,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        isDeleted = isDeleted,
         syncState = syncState
     )
 }

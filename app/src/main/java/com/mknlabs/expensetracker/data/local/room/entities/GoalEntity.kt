@@ -26,6 +26,8 @@ data class GoalEntity(
     val createdAt: Long,
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long,
+    @ColumnInfo(name = "is_deleted")
+    val isDeleted: Boolean,
     @ColumnInfo(name = "sync_state")
     val syncState: SyncState
 )

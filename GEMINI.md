@@ -117,3 +117,4 @@ com.mkn0079.expensetracker/
 - **Guidelines**: Follow `GEMINI.md` for full technical specifications.
 
 
+  

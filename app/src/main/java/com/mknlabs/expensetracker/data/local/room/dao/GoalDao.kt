@@ -8,8 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GoalDao {
-    @Query("SELECT * FROM goals ORDER BY is_completed ASC, created_at DESC")
+    @Query("SELECT * FROM goals WHERE is_deleted = 0 ORDER BY is_completed ASC, created_at DESC")
     fun observeAllGoals(): Flow<List<GoalEntity>>
+
+    @Query("SELECT * FROM goals WHERE is_deleted = 0")
+    suspend fun getActiveGoals(): List<GoalEntity>
 
     @Query("SELECT * FROM goals WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): GoalEntity?
@@ -17,9 +20,15 @@ interface GoalDao {
     @Upsert
     suspend fun upsert(goal: GoalEntity)
 
+    @Query("UPDATE goals SET is_deleted = 1, sync_state = 'PENDING_DELETE', updated_at = :updatedAt WHERE id = :id")
+    suspend fun softDeleteById(id: String, updatedAt: Long)
+
     @Query("DELETE FROM goals WHERE id = :id")
     suspend fun deleteById(id: String)
 
     @Query("SELECT * FROM goals WHERE sync_state != 'SYNCED'")
     suspend fun getUnsynced(): List<GoalEntity>
+
+    @Query("UPDATE goals SET sync_state = :syncState WHERE id = :id")
+    suspend fun updateSyncState(id: String, syncState: String)
 }
