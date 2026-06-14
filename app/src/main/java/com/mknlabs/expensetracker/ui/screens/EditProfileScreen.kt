@@ -73,7 +73,6 @@ fun ProfileScreen(
     val guestUserPlaceholder = stringResource(id = R.string.placeholder_guest_user)
     val unableToLoadMsg = stringResource(id = R.string.msg_unable_to_load_photo)
     var fullName by rememberSaveable(userProfile) { mutableStateOf(userProfile.fullName) }
-    var emailAddress by rememberSaveable(userProfile) { mutableStateOf(userProfile.emailAddress) }
     var phoneNumber by rememberSaveable(userProfile) { mutableStateOf(userProfile.phoneNumber) }
     var dateOfBirthMillis by rememberSaveable(userProfile) { mutableStateOf(userProfile.dateOfBirthMillis) }
     var gender by rememberSaveable(userProfile) {
@@ -173,12 +172,12 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (emailAddress.isNotBlank()) {
+            if (userProfile.emailAddress.isNotBlank()) {
                 InputFieldCard(
                     title = stringResource(id = R.string.label_email_address_caps),
-                    value = emailAddress,
+                    value = userProfile.emailAddress,
                     onValueChange = {},
-                    inputType = InputType.Email,
+                    inputType = InputType.Text,
                     leadingIcon = Icons.Rounded.Email,
                     placeholder = "",
                     isEnabled = false
@@ -258,7 +257,7 @@ fun ProfileScreen(
                     onSaveClick(
                         userProfile.copy(
                             fullName = fullName.trim().ifBlank { guestUserPlaceholder },
-                            emailAddress = emailAddress.trim(),
+                            emailAddress = userProfile.emailAddress.trim(),
                             phoneNumber = phoneNumber.trim(),
                             dateOfBirthMillis = dateOfBirthMillis,
                             gender = gender,

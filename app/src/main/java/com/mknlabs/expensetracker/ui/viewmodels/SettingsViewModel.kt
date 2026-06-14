@@ -252,12 +252,6 @@ private fun buildSettingsSections(
                     actionId = SettingsActionId.ManageCategories
                 ),
                 SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_savings_goals,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_app_preferences_subtitle,
-                    icon = Icons.Rounded.Savings,
-                    actionId = SettingsActionId.Goals
-                ),
-                SettingsItemUi(
                     titleRes = com.mknlabs.expensetracker.R.string.title_app_preferences,
                     subtitleRes = com.mknlabs.expensetracker.R.string.label_app_preferences_subtitle,
                     icon = Icons.Rounded.SettingsSuggest,

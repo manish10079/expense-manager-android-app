@@ -337,7 +337,7 @@ fun GoalItem(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     GoalCardAction(
-                        icon = Icons.Default.Savings,
+                        icon = Icons.Default.Add,
                         contentDescription = "Add Funds",
                         accent = MaterialTheme.colorScheme.primary,
                         onClick = onFund

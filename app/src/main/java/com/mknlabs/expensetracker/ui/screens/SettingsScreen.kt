@@ -200,13 +200,10 @@ private fun SettingsScreenContent(
                 }
 
                 settingsSections.forEach { section ->
-                    // Inline Native Ad before the "Workspace / Configuration" section (contains Manage Category)
-                    if (section.titleRes == R.string.title_preference) {
+                    // Inline Native Ad before the "Workspace / Configuration" section
+                    if (section.titleRes == R.string.title_preference && isAdsEnabled) {
                         item {
-                            AdContainer(isAdsEnabled = isAdsEnabled) {
-                                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
-                            }
-                            Spacer(modifier = Modifier.height(18.dp))
+                            NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                         }
                     }
 

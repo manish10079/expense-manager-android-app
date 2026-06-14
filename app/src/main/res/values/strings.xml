@@ -231,7 +231,7 @@
     <string name="title_session">SESSION</string>
     <string name="title_about_caps">ABOUT</string>
     <string name="label_edit_profile">Edit Profile</string>
-    <string name="label_edit_profile_subtitle">Update your name, email and avatar</string>
+    <string name="label_edit_profile_subtitle">Update your name, avatar etc.</string>
     <string name="label_app_preferences_subtitle">Customize app settings</string>
     <string name="label_transaction_card_subtitle">Adjust transaction display</string>
     <string name="label_manage_category_subtitle">Add or edit categories</string>

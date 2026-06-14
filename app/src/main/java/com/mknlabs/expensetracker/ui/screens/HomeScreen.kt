@@ -255,6 +255,7 @@ private fun HomeScreenContent(
                     title = stringResource(R.string.title_savings_goals),
                     value = uiState.activeGoal?.let { "${(it.progress * 100).toInt()}%" } ?: "0%",
                     icon = Icons.Default.Savings,
+                    badgeCount = uiState.goalCount,
                     modifier = Modifier.weight(1f),
                     onClick = onGoalsClick
                 )

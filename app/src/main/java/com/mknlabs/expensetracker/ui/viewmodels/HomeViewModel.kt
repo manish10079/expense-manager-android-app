@@ -42,6 +42,7 @@ data class HomeScreenUiState(
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
     val activeGoal: Goal? = null,
+    val goalCount: Int = 0,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isBalanceHidden: Boolean = true
 )
@@ -123,6 +124,7 @@ class HomeViewModel @Inject constructor(
                         )
                     },
                     activeGoal = allGoals.firstOrNull { !it.isCompleted },
+                    goalCount = allGoals.count { !it.isCompleted },
                     customizationSettings = inputs.customizationSettings,
                     isBalanceHidden = _uiState.value.isBalanceHidden
                 )

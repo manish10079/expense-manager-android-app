@@ -28,6 +28,7 @@ fun SmallHomeCard(
     title: String,
     value: String,
     icon: ImageVector,
+    badgeCount: Int? = null,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
@@ -56,20 +57,46 @@ fun SmallHomeCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            brush = brandGradient(),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.size(40.dp)
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = brandGradient(),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    if (badgeCount != null && badgeCount > 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 4.dp, y = (-4).dp)
+                                .size(18.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = badgeCount.toString(),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
