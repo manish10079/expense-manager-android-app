@@ -554,6 +554,8 @@ fun AppNavigationHost(
 
                 AppRoute.Goals -> {
                     GoalsScreen(
+                        currencyId = selectedCurrencyId,
+                        amountFormatPreferences = amountFormatPreferences,
                         onBackClick = {
                             val backRoute = resolveBackNavigationRoute(AppRoute.Goals, profileOriginRoute, previousRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)

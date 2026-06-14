@@ -36,10 +36,17 @@ import com.mknlabs.expensetracker.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.ui.theme.GoalProgressMedium
 import com.mknlabs.expensetracker.ui.viewmodels.GoalsViewModel
 
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalsScreen(
     onBackClick: () -> Unit,
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     viewModel: GoalsViewModel = hiltViewModel()
 ) {
     val goals by viewModel.goals.collectAsStateWithLifecycle()
@@ -104,6 +111,8 @@ fun GoalsScreen(
                         items(goals, key = { it.id }) { goal ->
                             GoalItem(
                                 goal = goal,
+                                currencyId = currencyId,
+                                amountFormatPreferences = amountFormatPreferences,
                                 onFund = { fundingGoalId = goal.id },
                                 onDelete = { pendingDeleteGoal = goal }
                             )
@@ -116,6 +125,8 @@ fun GoalsScreen(
 
     if (isAddGoalDialogVisible) {
         AddGoalDialog(
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             onDismiss = { isAddGoalDialogVisible = false },
             onSave = { name, amount ->
                 viewModel.addGoal(name, amount)
@@ -126,6 +137,8 @@ fun GoalsScreen(
 
     fundingGoalId?.let { id ->
         FundGoalDialog(
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
             onDismiss = { fundingGoalId = null },
             onSave = { amount ->
                 viewModel.fundGoal(id, amount)
@@ -185,6 +198,8 @@ fun DeleteGoalDialog(
 
 @Composable
 fun FundGoalDialog(
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     onDismiss: () -> Unit,
     onSave: (Double) -> Unit
 ) {
@@ -236,6 +251,8 @@ fun FundGoalDialog(
 
 @Composable
 fun AddGoalDialog(
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     onDismiss: () -> Unit,
     onSave: (String, Double) -> Unit
 ) {
@@ -303,6 +320,8 @@ fun AddGoalDialog(
 @Composable
 fun GoalItem(
     goal: Goal,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
     onFund: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -380,8 +399,8 @@ fun GoalItem(
                 Text(
                     text = stringResource(
                         R.string.format_goal_amount_status,
-                        (goal.currentAmountMinor / 100).toString() + ".00",
-                        (goal.targetAmountMinor / 100).toString() + ".00"
+                        formatCurrencyValue(goal.currentAmountMinor / 100.0, currencyId, amountFormatPreferences),
+                        formatCurrencyValue(goal.targetAmountMinor / 100.0, currencyId, amountFormatPreferences)
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
