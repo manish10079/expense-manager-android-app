@@ -317,7 +317,7 @@ fun MainScreen(
                             profile.copy(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
-                                dateOfBirthMillis = dobMillis,
+                                dateOfBirthMillis = dobMillis ?: 0L,
                                 financialGoal = financialGoal
                             )
                         }

@@ -34,14 +34,13 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CurrencyBitcoin
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SsidChart
-import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.Female
@@ -50,8 +49,6 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Transgender
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,7 +59,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,11 +89,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.ui.components.AppSelectionSheet
 import com.mknlabs.expensetracker.ui.components.ProfileAvatar
-import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
-import com.mknlabs.expensetracker.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.ui.components.UserBadge
 import com.mknlabs.expensetracker.ui.components.UserBadgeType
 import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
@@ -108,8 +101,6 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.utils.calculateAge
-import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 
 private data class OnboardingPage(
@@ -190,11 +181,8 @@ fun OnboardingScreen(
     // Setup state
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
-    var userDobMillis by remember { mutableLongStateOf(0L) }
     var userFinancialGoal by remember { mutableStateOf("") }
-    var userConsentChecked by remember { mutableStateOf(false) }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
-    var isDatePickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
@@ -262,7 +250,7 @@ fun OnboardingScreen(
 
     val onCompleteInternal: () -> Unit = {
         val finalGoal = if (userFinancialGoal == goalOther) customGoalText else userFinancialGoal
-        onFinish(userName, userGender, userDobMillis, finalGoal)
+        onFinish(userName, userGender, null, finalGoal)
     }
 
     BackHandler(enabled = currentPage > 0) {
@@ -273,7 +261,6 @@ fun OnboardingScreen(
 
     val nameStr = stringResource(id = R.string.label_name_capitalized)
     val genderStr = stringResource(id = R.string.label_gender_capitalized)
-    val dobStr = stringResource(id = R.string.label_dob_capitalized)
     val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
 
     Box(
@@ -524,41 +511,6 @@ fun OnboardingScreen(
                                         )
                                     }
                                 )
-
-                                InputFieldCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    title = stringResource(id = R.string.label_date_of_birth),
-                                    value = if (userDobMillis == 0L) "" else formatDate(userDobMillis, DEFAULT_DATE_FORMAT_PATTERN),
-                                    onValueChange = {},
-                                    inputType = InputType.Date,
-                                    leadingIcon = Icons.Filled.CalendarMonth,
-                                    placeholder = stringResource(id = R.string.placeholder_select_dob),
-                                    onClick = { isDatePickerVisible = true }
-                                )
-
-                                if (userDobMillis != 0L && calculateAge(userDobMillis) in 15..17) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 8.dp)
-                                            .clickable { userConsentChecked = !userConsentChecked },
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Checkbox(
-                                            checked = userConsentChecked,
-                                            onCheckedChange = { userConsentChecked = it },
-                                            colors = CheckboxDefaults.colors(
-                                                checkedColor = MaterialTheme.colorScheme.primary,
-                                                uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        )
-                                        Text(
-                                            text = stringResource(id = R.string.label_parental_consent),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                }
                             }
                         } else {
                             Text(
@@ -607,19 +559,11 @@ fun OnboardingScreen(
                             } else if (currentPage == lastIndex) {
                                 val missingFields = mutableListOf<String>()
                                 if (userName.trim().isEmpty()) missingFields.add(nameStr)
-                                if (userDobMillis == 0L) missingFields.add(dobStr)
 
                                 if (missingFields.isNotEmpty()) {
                                     toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
                                 } else {
-                                    val userAge = calculateAge(userDobMillis)
-                                    if (userAge < 15) {
-                                        toastMessage = context.getString(R.string.error_underage_restriction)
-                                    } else if (userAge in 15..17 && !userConsentChecked) {
-                                        toastMessage = context.getString(R.string.error_parental_consent_required)
-                                    } else {
-                                        onCompleteInternal()
-                                    }
+                                    onCompleteInternal()
                                 }
                             } else {
                                 currentPage += 1
@@ -662,22 +606,6 @@ fun OnboardingScreen(
             onItemSelected = { selectedGender ->
                 userGender = selectedGender
                 isGenderPickerVisible = false
-            }
-        )
-    }
-
-    if (isDatePickerVisible) {
-        WheelDateTimePickerModal(
-            mode = WheelPickerMode.SINGLE_DATE,
-            initialStartMillis = if (userDobMillis == 0L) System.currentTimeMillis() else userDobMillis,
-            onDismissRequest = { isDatePickerVisible = false },
-            onConfirm = { pickedDateMillis, _ ->
-                userDobMillis = datePickerSelectionToLocalDateTimestamp(
-                    selectedDateMillis = pickedDateMillis,
-                    referenceTimestamp = if (userDobMillis == 0L) null else userDobMillis,
-                    isInputUtc = false
-                )
-                isDatePickerVisible = false
             }
         )
     }
