@@ -34,7 +34,7 @@ class PreferencesViewModelTest {
 
         assertEquals(AppThemeMode.DARK, fakeRepository.settings.value.themeMode)
         assertEquals(AppThemeMode.DARK, viewModel.uiState.value.selectedThemeMode)
-        assertEquals("Dark", viewModel.uiState.value.currentThemeModeLabel)
+        assertEquals(com.mknlabs.expensetracker.R.string.label_theme_dark, viewModel.uiState.value.currentThemeModeLabelRes)
     }
 
     @Test

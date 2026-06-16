@@ -318,7 +318,8 @@ fun ProfileScreen(
             onConfirm = { pickedDateMillis, _ ->
                 dateOfBirthMillis = datePickerSelectionToLocalDateTimestamp(
                     selectedDateMillis = pickedDateMillis,
-                    referenceTimestamp = dateOfBirthMillis
+                    referenceTimestamp = dateOfBirthMillis,
+                    isInputUtc = false
                 )
                 isDatePickerVisible = false
             }

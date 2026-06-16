@@ -54,7 +54,11 @@ class TransactionsViewModelTest {
         fakeRepository = FakeTransactionRepository()
         fakeMonetizationRepository = FakeMonetizationRepository()
         observeAccessStatusUseCase = ObserveAccessStatusUseCase(fakeMonetizationRepository)
-        viewModel = TransactionsViewModel(fakeRepository, observeAccessStatusUseCase)
+        viewModel = TransactionsViewModel(
+            application = android.app.Application(),
+            transactionRepository = fakeRepository,
+            observeAccessStatusUseCase = observeAccessStatusUseCase
+        )
         
         // Start collecting the flow to keep it active during tests
         viewModel.viewModelScope.launch(UnconfinedTestDispatcher()) {
@@ -123,12 +127,14 @@ class TransactionsViewModelTest {
         override suspend fun softDeleteTransaction(id: String) {}
         override suspend fun softDeleteTransactions(ids: List<String>) {}
         override suspend fun deleteAllTransactions() {}
-        override suspend fun checkBudgetAndNotify(context: android.content.Context, transaction: Transaction) {}
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {
         override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> = 
             flowOf(AccessStatus.Granted)
         override suspend fun grantTemporaryAccess(feature: Feature, optionId: String?, durationMillis: Long) {}
+        override suspend fun becomePremium() {}
+        override val isAdsEnabled: Flow<Boolean> = flowOf(true)
+        override val globalAdAccessExpiry: Flow<Long> = flowOf(0L)
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationAdd
@@ -23,9 +24,11 @@ import kotlinx.coroutines.flow.update
 
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -71,6 +74,7 @@ enum class SettingsActionId {
     AdFreeAccess,
     LinkAccount,
     ConnectedDevices,
+    RedeemProPass,
     Logout
 }
 
@@ -82,12 +86,14 @@ data class SettingsScreenUiState(
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val monetizationRepository: MonetizationRepository
+    private val monetizationRepository: MonetizationRepository,
+    private val configurationRepository: ConfigurationRepository
 ) : ViewModel() {
 
     private var transactionCount: Int = 0
     private var isAdsEnabled: Boolean = true
     private var isAnonymous: Boolean = true
+    private var isProPassEnabled: Boolean = true
     private var userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
     private var adFreeRemainingTime: String? = null
 
@@ -98,6 +104,13 @@ class SettingsViewModel @Inject constructor(
         authRepository.currentUser
             .onEach { user ->
                 isAnonymous = user?.isAnonymous ?: true
+                rebuildUiState()
+            }
+            .launchIn(viewModelScope)
+
+        configurationRepository.isProPassEnabled
+            .onEach { enabled ->
+                isProPassEnabled = enabled
                 rebuildUiState()
             }
             .launchIn(viewModelScope)
@@ -145,6 +158,7 @@ class SettingsViewModel @Inject constructor(
                     transactionCountLabel = transactionCount.toString(),
                     isAdsEnabled = isAdsEnabled,
                     isAnonymous = isAnonymous,
+                    isProPassEnabled = isProPassEnabled,
                     userTier = userTier,
                     adFreeRemainingTime = adFreeRemainingTime
                 )
@@ -157,6 +171,7 @@ private fun buildSettingsSections(
     transactionCountLabel: String,
     isAdsEnabled: Boolean,
     isAnonymous: Boolean,
+    isProPassEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
     adFreeRemainingTime: String?
 ): List<SettingsSectionUi> {
@@ -205,22 +220,37 @@ private fun buildSettingsSections(
 
     // 2. Monetization Section (Only for Free) - MOVED TO TOP (2nd Position)
     if (userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+        val monetizationItems = mutableListOf<SettingsItemUi>()
         val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
+        
+        monetizationItems.add(
+            SettingsItemUi(
+                titleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.label_ad_free_active
+                else com.mknlabs.expensetracker.R.string.label_remove_all_ads,
+                subtitleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.msg_ad_free_duration_remaining
+                else com.mknlabs.expensetracker.R.string.msg_watch_ad_for_ad_free,
+                icon = Icons.Rounded.CreditCard,
+                actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
+                trailing = if (adPassActive) adFreeRemainingTime else null,
+                showChevron = !adPassActive
+            )
+        )
+
+        if (isProPassEnabled) {
+            monetizationItems.add(
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_redeem_pro_pass,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_redeem_pro_pass_subtitle,
+                    icon = Icons.Rounded.ConfirmationNumber,
+                    actionId = SettingsActionId.RedeemProPass
+                )
+            )
+        }
+
         settingsSections.add(
             SettingsSectionUi(
                 titleRes = com.mknlabs.expensetracker.R.string.title_monetization_caps,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.label_ad_free_active
-                        else com.mknlabs.expensetracker.R.string.label_remove_all_ads,
-                        subtitleRes = if (adPassActive) com.mknlabs.expensetracker.R.string.msg_ad_free_duration_remaining
-                        else com.mknlabs.expensetracker.R.string.msg_watch_ad_for_ad_free,
-                        icon = Icons.Rounded.CreditCard,
-                        actionId = if (adPassActive) null else SettingsActionId.AdFreeAccess,
-                        trailing = if (adPassActive) adFreeRemainingTime else null,
-                        showChevron = !adPassActive
-                    )
-                )
+                items = monetizationItems
             )
         )
     }

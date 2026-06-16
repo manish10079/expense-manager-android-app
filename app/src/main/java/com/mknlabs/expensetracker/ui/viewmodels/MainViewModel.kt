@@ -74,11 +74,14 @@ class MainViewModel @Inject constructor(
     private val securityRepository: SecurityRepository,
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,
+    private val configurationRepository: com.mknlabs.expensetracker.domain.repository.ConfigurationRepository,
     private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()
+    
+    val isProPassEnabled: StateFlow<Boolean> = configurationRepository.isProPassEnabled
     
     private val _uiEvent = MutableSharedFlow<MainUiEvent>()
     val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()

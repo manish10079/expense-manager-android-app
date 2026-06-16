@@ -64,6 +64,7 @@ import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.ui.components.MainScaffold
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
 import com.mknlabs.expensetracker.ui.navigation.rememberMainNavigationState
@@ -145,6 +146,7 @@ fun MainScreen(
     var showAccountCreatedPopup by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
+    var showProPassRedeemDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
 
     val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -434,19 +436,8 @@ fun MainScreen(
                         SyncWorker.startImmediate(context)
                     }
                 } else if (firebaseUser == null) {
-                    // Fix: Clear local profile info when signed out
-                    val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
-                    com.mknlabs.expensetracker.utils.ProfilePhotoManager.deleteManagedPhoto(currentProfile.photoUri)
-                    
-                    UserProfileDataStore.updateUserProfile(context) { profile ->
-                        profile.copy(
-                            fullName = "Guest User",
-                            emailAddress = "",
-                            photoUri = null
-                        )
-                    }
-                    // Reset Last Sync Time on sign out to prevent data pollution if another user signs in
-                    AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
+                    // Note: Clearing profile is now handled ONLY on explicit sign-out in the logout dialog.
+                    // This prevents wiping the Guest profile created during onboarding.
                 }
             }
 
@@ -696,14 +687,30 @@ fun MainScreen(
         }
     }
 
+    val isProPassEnabled by mainViewModel.isProPassEnabled.collectAsStateWithLifecycle()
+
+    if (showProPassRedeemDialog) {
+        ProPassRedeemDialog(
+            viewModel = monetizationViewModel,
+            onDismiss = { showProPassRedeemDialog = false }
+        )
+    }
+
     if (showPremiumSheet) {
         PremiumGateSheet(
             financialGoal = userProfile.financialGoal,
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                monetizationViewModel.onPurchaseSimulated()
+                // monetizationViewModel.onPurchaseSimulated() // Disabled until Google Play Billing is implemented
+                showToast("Premium billing coming soon!")
                 showPremiumSheet = false
-            }
+            },
+            onRedeemClick = if (isProPassEnabled) {
+                {
+                    showPremiumSheet = false
+                    showProPassRedeemDialog = true
+                }
+            } else null
         )
     }
 
@@ -772,7 +779,24 @@ fun MainScreen(
                     TextButton(
                         onClick = {
                             showLogoutDialog = false
-                            authViewModel.signOut()
+                            coroutineScope.launch {
+                                // Clear local profile info on explicit sign out
+                                val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                                com.mknlabs.expensetracker.utils.ProfilePhotoManager.deleteManagedPhoto(currentProfile.photoUri)
+                                
+                                UserProfileDataStore.updateUserProfile(context) { profile ->
+                                    profile.copy(
+                                        fullName = "Guest User",
+                                        emailAddress = "",
+                                        photoUri = null
+                                    )
+                                }
+                                
+                                // Reset Last Sync Time to prevent data pollution
+                                AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
+                                
+                                authViewModel.signOut()
+                            }
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {

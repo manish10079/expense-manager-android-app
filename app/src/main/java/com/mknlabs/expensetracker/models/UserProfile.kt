@@ -13,6 +13,7 @@ data class UserProfile(
     val memberSinceLabel: String,
     val accountTier: String,
     val photoUri: String? = null,
+    val proExpiryTimestamp: Long = 0L,
     val updatedAtMillis: Long = 0L
 )
 
@@ -23,7 +24,8 @@ val defaultUserProfile = UserProfile(
     dateOfBirthMillis = null,
     gender = "",
     memberSinceLabel = "",
-    accountTier = ""
+    accountTier = "",
+    proExpiryTimestamp = 0L
 )
 
 fun UserProfile.firstName(): String {

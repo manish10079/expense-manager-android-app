@@ -59,6 +59,7 @@ com.mkn0079.expensetracker/
 - **Error Handling:** Use `Result<T>` or sealed classes for operations. Never skip error handling in repositories.
 - **Kotlin Conventions:** Use `val` for immutable variables, data classes for state models, and sealed types for results.
 - **Coroutines:** Use `viewModelScope` in ViewModels and `Dispatchers.IO` for database operations.
+- **Theme Awareness:** All UI components MUST be strictly theme-aware. Use `MaterialTheme.colorScheme` for all colors and `MaterialTheme.typography` for all text styles. Components must respond seamlessly to Light/Dark mode transitions.
 
 ### 5. Internationalization (i18n)
 - **Strings:** Never use hardcoded strings for user-facing UI text. All strings must be extracted to `app/src/main/res/values/strings.xml`.
@@ -105,7 +106,8 @@ com.mkn0079.expensetracker/
 - No usage of `ExpenseTrackerRepositoryProvider` (deprecated/forbidden).
 - No skipping of `Result` wrapping for critical data operations.
 - No hardcoded strings in UI or ViewModels (Mandatory use of `strings.xml`).
-- No hardcoded colors in UI components (Mandatory use of `ui/theme/Color.kt`).
+- No hardcoded colors in UI components (Mandatory use of `ui/theme/Color.kt` or `MaterialTheme.colorScheme`).
+- No hardcoded hex values in Composables.
 - No untested code or business logic in the UI layer.
 
 ---

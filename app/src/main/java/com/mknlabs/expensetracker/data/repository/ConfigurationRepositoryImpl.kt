@@ -27,7 +27,11 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
     private val _currentPromoCode = MutableStateFlow("")
     override val currentPromoCode: StateFlow<String> = _currentPromoCode.asStateFlow()
 
-    private val _isSyncEnabled = MutableStateFlow(true)
+    private val _isProPassEnabled = MutableStateFlow(true)
+    override val isProPassEnabled: StateFlow<Boolean> = _isProPassEnabled.asStateFlow()
+
+    private val _isSyncEnabled = MutableStateFlow(false)
+
     override val isSyncEnabled: StateFlow<Boolean> = _isSyncEnabled.asStateFlow()
 
     private val _maxSyncDevices = MutableStateFlow(4)
@@ -43,6 +47,7 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
                 "min_required_version" to 1,
                 "is_under_maintenance" to false,
                 "current_promo_code" to "",
+                "is_pro_pass_enabled" to true,
                 "is_sync_enabled" to true,
                 "max_sync_devices" to 4
             )
@@ -66,6 +71,7 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
         _minRequiredVersion.value = remoteConfig.getLong("min_required_version").toInt()
         _isUnderMaintenance.value = remoteConfig.getBoolean("is_under_maintenance")
         _currentPromoCode.value = remoteConfig.getString("current_promo_code")
+        _isProPassEnabled.value = remoteConfig.getBoolean("is_pro_pass_enabled")
         _isSyncEnabled.value = remoteConfig.getBoolean("is_sync_enabled")
         _maxSyncDevices.value = remoteConfig.getLong("max_sync_devices").toInt()
     }

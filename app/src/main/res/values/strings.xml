@@ -397,7 +397,7 @@
     <string name="label_val_selected">%1$s Selected</string>
     <string name="label_val_val">%1$s (%2$s)</string>
     <string name="label_valx">%1$sX</string>
-    <string name="label_version_100">v2.4.7.17</string>
+    <string name="label_version_100">v2.5.0.19</string>
     <string name="label_view_all">View All</string>
     <string name="label_website">WEBSITE</string>
     <string name="label_wk_val">WK %1$s</string>
@@ -1216,8 +1216,8 @@
     <string name="btn_update_now">Update Now</string>
     <string name="title_system_maintenance">System Maintenance</string>
     <string name="msg_maintenance_desc">We are currently performing scheduled maintenance to improve our services. We\'ll be back shortly. Thank you for your patience!</string>
-    <string name="title_protect_your_data">Protect Your Data</string>
-    <string name="msg_link_account_desc">Your data is currently only on this device. Sign in to enable cloud sync and backup.</string>
+    <string name="title_protect_your_data">Sign In</string>
+    <string name="msg_link_account_desc">Your financial journey is a story worth keeping. Sign in to ensure your achievements and progress never fade away.</string>
     <string name="label_guest_user">Guest User</string>
     <string name="msg_privacy_info">We use this information to personalize your dashboard and provide age-appropriate insights. Your data stays 100% private and secure.</string>
     <string name="cd_privacy_info">View privacy information</string>
@@ -1285,11 +1285,26 @@
     <string name="label_goal_debt">Become Debt-Free</string>
     <string name="label_goal_retirement">Early Retirement</string>
     <string name="label_goal_savings">Build a Safety Net</string>
+    <string name="label_goal_car">Buy a New Car</string>
+    <string name="label_goal_education">Education Fund</string>
+    <string name="label_goal_business">Start a Business</string>
+    <string name="label_goal_invest">Grow My Investments</string>
+    <string name="label_goal_other">Other (Custom Goal)</string>
+    <string name="placeholder_enter_custom_goal">Enter your goal...</string>
     <string name="label_financial_zen">Your Financial Zen</string>
     <string name="msg_discipline_score_title">Account Setup</string>
-    <string name="msg_discipline_score_desc">You\'re doing great! Complete your setup to reach 100%.</string>
+    <string name="msg_discipline_score_desc">You\'re doing great!! Complete your profile.</string>
     <string name="btn_reach_100">Reach 100%</string>
     <string name="msg_goal_faster_with_pro">Reach your goal of %1$s 20%% faster with Elite features.</string>
+
+    <string name="title_setup_progress">Profile Progress</string>
+    <string name="label_checklist_full_name">Full Name</string>
+    <string name="label_checklist_phone">Phone Number</string>
+    <string name="label_checklist_gender">Gender</string>
+    <string name="label_checklist_dob">Date of Birth</string>
+    <string name="label_checklist_email">Email Address</string>
+    <string name="label_checklist_signin_to_add">Sign in to add email</string>
+    <string name="btn_got_it">Got it</string>
 
     <!-- Goals Feature -->
     <string name="title_savings_goals">Savings Goals</string>
@@ -1312,4 +1327,14 @@
     <!-- Recurring Notifications -->
     <string name="notification_title_upcoming_bill">Upcoming Transaction</string>
     <string name="notification_format_upcoming_bill">%1$s for \"%2$s\" will be deducted in 48 hours.</string>
+    <!-- ProPass / Redemption -->
+    <string name="title_redeem_pro_pass">Pro Access Code</string>
+    <string name="label_redeem_pro_pass_subtitle">Enter code to unlock Pro features</string>
+    <string name="title_activate_pro_pass">Activate ProPass</string>
+    <string name="msg_enter_pro_pass_code">Enter your unique alphanumeric ProPass code below.</string>
+    <string name="placeholder_pro_pass_code">e.g. PASS-1234-ABCD</string>
+    <string name="btn_activate_pro">Activate Pro</string>
+    <string name="msg_pro_pass_activated">ProPass Activated! You now have %1$d days of premium access.</string>
+    <string name="error_invalid_pro_pass">Invalid or expired ProPass code.</string>
+    <string name="label_have_a_code">Have a Pro Access Code?</string>
 </resources>

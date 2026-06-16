@@ -35,6 +35,9 @@ import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.ui.screens.SplashOverlay
+import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
+import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
+import android.net.Uri
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
@@ -227,80 +230,95 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
-                    if (isReady && appSettings != null) {
-                        val settings = appSettings!!
-                        AnimatedContent(
-                            targetState = appLockState,
-                            transitionSpec = {
-                                if (targetState is AppLockState.Unlocked) {
-                                    (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
-                                        scaleIn(
-                                            initialScale = 0.92f,
-                                            animationSpec = tween(500, easing = LinearOutSlowInEasing)
-                                        ))
-                                        .togetherWith(
-                                            fadeOut(animationSpec = tween(400)) +
-                                                scaleOut(
-                                                    targetScale = 1.08f,
-                                                    animationSpec = tween(400)
-                                                )
+                    when {
+                        isUnderMaintenance -> {
+                            MaintenanceScreen()
+                        }
+                        isUpdateRequired -> {
+                            UpdateRequiredScreen(onUpdateClick = {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${packageName}"))
+                                    startActivity(intent)
+                                } catch (e: Exception) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${packageName}"))
+                                    startActivity(intent)
+                                }
+                            })
+                        }
+                        isReady && appSettings != null -> {
+                            val settings = appSettings!!
+                            AnimatedContent(
+                                targetState = appLockState,
+                                transitionSpec = {
+                                    if (targetState is AppLockState.Unlocked) {
+                                        (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
+                                            scaleIn(
+                                                initialScale = 0.92f,
+                                                animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                                            ))
+                                            .togetherWith(
+                                                fadeOut(animationSpec = tween(400)) +
+                                                    scaleOut(
+                                                        targetScale = 1.08f,
+                                                        animationSpec = tween(400)
+                                                    )
+                                            )
+                                    } else {
+                                        fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
+                                            animationSpec = tween(300)
                                         )
-                                } else {
-                                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
-                                        animationSpec = tween(300)
-                                    )
-                                }
-                            },
-                            label = "app_lock_transition",
-                            modifier = Modifier.fillMaxSize()
-                        ) { state ->
-                            when (state) {
-                                is AppLockState.Loading -> {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(AppLockLoadingBackground)
-                                    )
-                                }
-
-                                is AppLockState.Locked -> {
-                                    val biometricAuthenticator = remember(activity) {
-                                        activity?.let(BiometricAuthManager::createAuthenticator)
+                                    }
+                                },
+                                label = "app_lock_transition",
+                                modifier = Modifier.fillMaxSize()
+                            ) { state ->
+                                when (state) {
+                                    is AppLockState.Loading -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(AppLockLoadingBackground)
+                                        )
                                     }
 
-                                    AppLockOverlay(
-                                        isReady = true,
-                                        appSettings = settings,
-                                        onUnlockSuccess = { appLockViewModel.unlock() },
-                                        autoTriggerBiometricOnShow = true,
-                                        onBiometricClick = {
-                                            biometricAuthenticator?.authenticate(
-                                                title = "Unlock Expense Tracker",
-                                                subtitle = "Verify your biometric to continue.",
-                                                negativeButtonText = "Use PIN",
-                                                onSuccess = { appLockViewModel.unlock() }
-                                            )
-                                        },
-                                        onForgotPinRecovery = appLockViewModel::disableLock
-                                    )
-                                }
+                                    is AppLockState.Locked -> {
+                                        val biometricAuthenticator = remember(activity) {
+                                            activity?.let(BiometricAuthManager::createAuthenticator)
+                                        }
 
-                                is AppLockState.Unlocked -> {
-                                    MainScreen(
-                                        isReady = true,
-                                        appSettings = settings,
-                                        userProfile = userProfile,
-                                        initialNavDestination = initialNavDestination,
-                                        isRecoveryPerformed = recoveryPerformed,
-                                        onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
-                                    )
+                                        AppLockOverlay(
+                                            isReady = true,
+                                            appSettings = settings,
+                                            onUnlockSuccess = { appLockViewModel.unlock() },
+                                            autoTriggerBiometricOnShow = true,
+                                            onBiometricClick = {
+                                                biometricAuthenticator?.authenticate(
+                                                    title = "Unlock Expense Tracker",
+                                                    subtitle = "Verify your biometric to continue.",
+                                                    negativeButtonText = "Use PIN",
+                                                    onSuccess = { appLockViewModel.unlock() }
+                                                )
+                                            },
+                                            onForgotPinRecovery = appLockViewModel::disableLock
+                                        )
+                                    }
+
+                                    is AppLockState.Unlocked -> {
+                                        MainScreen(
+                                            isReady = true,
+                                            appSettings = settings,
+                                            userProfile = userProfile,
+                                            initialNavDestination = initialNavDestination,
+                                            isRecoveryPerformed = recoveryPerformed,
+                                            onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
-
-                    if (!isReady) {
-                        SplashOverlay(viewModel = splashViewModel)
+                        !isReady -> {
+                            SplashOverlay(viewModel = splashViewModel)
+                        }
                     }
                 }
             }

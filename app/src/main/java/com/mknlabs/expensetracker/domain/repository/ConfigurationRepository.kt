@@ -6,6 +6,7 @@ interface ConfigurationRepository {
     val minRequiredVersion: StateFlow<Int>
     val isUnderMaintenance: StateFlow<Boolean>
     val currentPromoCode: StateFlow<String>
+    val isProPassEnabled: StateFlow<Boolean>
     val isSyncEnabled: StateFlow<Boolean>
     val maxSyncDevices: StateFlow<Int>
 

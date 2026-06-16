@@ -39,6 +39,25 @@ class DateTimeUtilsTest {
         }
     }
 
+    @Test
+    fun datePickerSelectionToLocalDateTimestamp_worksInPositiveOffsetTimezoneWithLocalInput() {
+        // This test verifies the fix for the bug reported by the user.
+        withDefaultTimeZone("Asia/Karachi") { // UTC+5
+            val localTimestamp = Calendar.getInstance().apply {
+                set(2026, Calendar.APRIL, 2, 0, 0, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            
+            // Pass isInputUtc = false because we are giving it a local timestamp
+            val resultTimestamp = datePickerSelectionToLocalDateTimestamp(
+                selectedDateMillis = localTimestamp,
+                isInputUtc = false
+            )
+            
+            assertEquals("2026-04-02", formatDate(resultTimestamp, "yyyy-MM-dd"))
+        }
+    }
+
     private fun utcDateMillis(
         year: Int,
         month: Int,

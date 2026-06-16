@@ -60,6 +60,10 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,6 +108,14 @@ fun SettingsScreen(
         )
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    var showRedeemDialog by remember { mutableStateOf(false) }
+
+    if (showRedeemDialog) {
+        ProPassRedeemDialog(
+            viewModel = monetizationViewModel,
+            onDismiss = { showRedeemDialog = false }
+        )
+    }
 
     SettingsScreenContent(
         userProfile = userProfile,
@@ -128,6 +140,7 @@ fun SettingsScreen(
         onLogoutClick = onLogoutClick,
         onConnectedDevicesClick = onConnectedDevicesClick,
         onShowUpgradeSheet = onShowUpgradeSheet,
+        onRedeemProPassClick = { showRedeemDialog = true },
         onAdFreeAccessClick = {
             val activity = context as? android.app.Activity
             if (activity != null) {
@@ -162,6 +175,7 @@ private fun SettingsScreenContent(
     onLogoutClick: () -> Unit,
     onConnectedDevicesClick: () -> Unit,
     onShowUpgradeSheet: () -> Unit,
+    onRedeemProPassClick: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -234,6 +248,7 @@ private fun SettingsScreenContent(
                                         }
                                     }
                                     SettingsActionId.Logout -> onLogoutClick()
+                                    SettingsActionId.RedeemProPass -> onRedeemProPassClick()
                                     else -> Unit
                                 }
                             },
@@ -496,6 +511,7 @@ private fun SettingsScreenPreview() {
             onLogoutClick = {},
             onConnectedDevicesClick = {},
             onShowUpgradeSheet = {},
+            onRedeemProPassClick = {},
             onAdFreeAccessClick = {},
             onBackClick = {}
         )

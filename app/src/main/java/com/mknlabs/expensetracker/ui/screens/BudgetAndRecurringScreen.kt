@@ -362,7 +362,8 @@ fun BudgetAndRecurringScreen(
             onConfirm = { pickedDateMillis, _ ->
                 val adjustedTimestamp = datePickerSelectionToLocalDateTimestamp(
                     selectedDateMillis = pickedDateMillis,
-                    referenceTimestamp = uiState.customMonthStart
+                    referenceTimestamp = uiState.customMonthStart,
+                    isInputUtc = false
                 )
                 budgetViewModel.selectCustomMonth(adjustedTimestamp)
                 isMonthPickerVisible = false

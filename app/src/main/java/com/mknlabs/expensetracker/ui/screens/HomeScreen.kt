@@ -16,7 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -363,14 +366,21 @@ fun AccountSetupCard(
     onDismiss: () -> Unit,
     onActionClick: () -> Unit
 ) {
-    val score = remember(userProfile) {
-        var s = 0
-        if (userProfile.fullName.isNotEmpty() && userProfile.fullName != "Guest User") s += 20
-        if (userProfile.emailAddress.isNotEmpty()) s += 20
-        if (userProfile.phoneNumber.isNotEmpty()) s += 20
-        if (userProfile.gender.isNotEmpty()) s += 20
-        if (userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L) s += 20
-        s
+    var showChecklist by remember { mutableStateOf(false) }
+
+    val guestUserLabel = stringResource(id = R.string.placeholder_guest_user)
+    val checklist = remember(userProfile, guestUserLabel) {
+        listOf(
+            Triple(R.string.label_checklist_full_name, userProfile.fullName.isNotEmpty() && userProfile.fullName != guestUserLabel, null),
+            Triple(R.string.label_checklist_phone, userProfile.phoneNumber.isNotEmpty(), null),
+            Triple(R.string.label_checklist_gender, userProfile.gender.isNotEmpty(), null),
+            Triple(R.string.label_checklist_dob, userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L, null),
+            Triple(R.string.label_checklist_email, userProfile.emailAddress.isNotEmpty(), R.string.label_checklist_signin_to_add)
+        )
+    }
+
+    val score = remember(checklist) {
+        checklist.count { it.second } * 20
     }
 
     val isComplete = score >= 100
@@ -379,6 +389,7 @@ fun AccountSetupCard(
     if (isComplete || isDismissed) return
 
     androidx.compose.material3.Card(
+        onClick = onActionClick,
         modifier = Modifier.fillMaxWidth(),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
         colors = androidx.compose.material3.CardDefaults.cardColors(
@@ -386,7 +397,7 @@ fun AccountSetupCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -396,7 +407,7 @@ fun AccountSetupCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.msg_discipline_score_title),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -404,7 +415,7 @@ fun AccountSetupCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "$score%",
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -414,31 +425,31 @@ fun AccountSetupCard(
                     
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(20.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Dismiss",
+                            contentDescription = stringResource(id = R.string.label_cancel_1),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             androidx.compose.material3.LinearProgressIndicator(
                 progress = { score / 100f },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
+                    .height(3.dp)
                     .clip(CircleShape),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -447,24 +458,75 @@ fun AccountSetupCard(
             ) {
                 Text(
                     text = stringResource(R.string.msg_discipline_score_desc),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
 
-                androidx.compose.material3.Button(
-                    onClick = onActionClick,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                    modifier = Modifier.height(32.dp),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                IconButton(
+                    onClick = { showChecklist = true },
+                    modifier = Modifier.size(28.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.btn_reach_100),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = stringResource(id = R.string.title_setup_progress),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
         }
+    }
+
+    if (showChecklist) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showChecklist = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.title_setup_progress),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    checklist.forEach { (labelRes, isDone, subtitleRes) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(labelRes),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (isDone) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (!isDone && subtitleRes != null) {
+                                    Text(
+                                        text = stringResource(subtitleRes),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { showChecklist = false }) {
+                    Text(stringResource(R.string.btn_got_it))
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+        )
     }
 }
 

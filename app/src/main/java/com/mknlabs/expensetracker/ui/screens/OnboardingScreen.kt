@@ -221,10 +221,6 @@ fun OnboardingScreen(
         }
     }
 
-    val onCompleteInternal: () -> Unit = {
-        onFinish(userName, userGender, userDobMillis, userFinancialGoal)
-    }
-
     val maleLabel = stringResource(id = R.string.label_male)
     val femaleLabel = stringResource(id = R.string.label_female)
     val nonBinaryLabel = stringResource(id = R.string.label_non_binary)
@@ -245,9 +241,25 @@ fun OnboardingScreen(
     val goalDebt = stringResource(id = R.string.label_goal_debt)
     val goalRetirement = stringResource(id = R.string.label_goal_retirement)
     val goalSavings = stringResource(id = R.string.label_goal_savings)
+    val goalCar = stringResource(id = R.string.label_goal_car)
+    val goalEducation = stringResource(id = R.string.label_goal_education)
+    val goalBusiness = stringResource(id = R.string.label_goal_business)
+    val goalInvest = stringResource(id = R.string.label_goal_invest)
+    val goalOther = stringResource(id = R.string.label_goal_other)
     
-    val goalOptions = listOf(goalHome, goalTravel, goalDebt, goalRetirement, goalSavings)
-    val goalIcons = listOf(Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Security, Icons.Filled.Savings, Icons.Filled.Analytics)
+    val goalOptions = listOf(goalHome, goalTravel, goalDebt, goalRetirement, goalSavings, goalCar, goalEducation, goalBusiness, goalInvest, goalOther)
+    val goalIcons = listOf(
+        Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Security, Icons.Filled.Savings, 
+        Icons.Filled.Analytics, Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Money, 
+        Icons.Filled.Analytics, Icons.Filled.Money
+    )
+
+    var customGoalText by remember { mutableStateOf("") }
+
+    val onCompleteInternal: () -> Unit = {
+        val finalGoal = if (userFinancialGoal == goalOther) customGoalText else userFinancialGoal
+        onFinish(userName, userGender, userDobMillis, finalGoal)
+    }
 
     BackHandler(enabled = currentPage > 0) {
         authViewModel.cancelGuestSignIn()
@@ -280,13 +292,13 @@ fun OnboardingScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .then(
-                        if (isAuthPage || isSetupPage) Modifier.verticalScroll(rememberScrollState())
+                        if (isAuthPage || isSetupPage || isGoalPage) Modifier.verticalScroll(rememberScrollState())
                         else Modifier
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
-                if (!isSetupPage && !isAuthPage) {
+                if (!isSetupPage && !isAuthPage && !isGoalPage) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -318,7 +330,8 @@ fun OnboardingScreen(
                 ) { pageIndex ->
                     val current = onboardingPages[pageIndex]
                     val isAuthOnThisPageIndex = pageIndex == 4
-                    val isSetupOnThisPageIndex = pageIndex == 5
+                    val isGoalOnThisPageIndex = pageIndex == 5
+                    val isSetupOnThisPageIndex = pageIndex == 6
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -409,7 +422,7 @@ fun OnboardingScreen(
                                     currentPage = 5
                                 }
                             )
-                        } else if (isGoalPage) {
+                        } else if (isGoalOnThisPageIndex) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -418,39 +431,57 @@ fun OnboardingScreen(
                             ) {
                                 goalOptions.forEachIndexed { index, goal ->
                                     val isSelected = userFinancialGoal == goal
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(24.dp))
-                                            .background(
-                                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                            )
-                                            .clickable { userFinancialGoal = goal }
-                                            .padding(horizontal = 20.dp, vertical = 20.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = goalIcons[index],
-                                            contentDescription = null,
-                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                        Spacer(Modifier.width(16.dp))
-                                        Text(
-                                            text = goal,
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                            ),
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Spacer(Modifier.weight(1f))
-                                        if (isSelected) {
+                                    val isOther = goal == goalOther
+
+                                    Column {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(24.dp))
+                                                .background(
+                                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                                )
+                                                .clickable { 
+                                                    userFinancialGoal = goal 
+                                                }
+                                                .padding(horizontal = 20.dp, vertical = 18.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
                                             Icon(
-                                                imageVector = Icons.Filled.CheckCircle,
+                                                imageVector = goalIcons[index],
                                                 contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(20.dp)
+                                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                            Spacer(Modifier.width(16.dp))
+                                            Text(
+                                                text = goal,
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                                ),
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Spacer(Modifier.weight(1f))
+                                            if (isSelected) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.CheckCircle,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        }
+
+                                        if (isOther && isSelected) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            InputFieldCard(
+                                                title = "",
+                                                value = customGoalText,
+                                                onValueChange = { customGoalText = it },
+                                                inputType = InputType.Text,
+                                                placeholder = stringResource(id = R.string.placeholder_enter_custom_goal),
+                                                modifier = Modifier.padding(horizontal = 4.dp)
                                             )
                                         }
                                     }
@@ -538,10 +569,12 @@ fun OnboardingScreen(
                             val lastIndex = onboardingPages.lastIndex
                             
                             if (currentPage == 5) { // Goal Page
-                                if (userFinancialGoal.isNotEmpty()) {
+                                val isOther = userFinancialGoal == goalOther
+                                if (userFinancialGoal.isNotEmpty() && (!isOther || customGoalText.trim().isNotEmpty())) {
                                     currentPage += 1
                                 } else {
-                                    toastMessage = context.getString(R.string.label_financial_zen)
+                                    toastMessage = if (isOther) context.getString(R.string.placeholder_enter_custom_goal) 
+                                                   else context.getString(R.string.label_financial_goal_title)
                                 }
                             } else if (currentPage == lastIndex) {
                                 val missingFields = mutableListOf<String>()
@@ -607,7 +640,8 @@ fun OnboardingScreen(
             onConfirm = { pickedDateMillis, _ ->
                 userDobMillis = datePickerSelectionToLocalDateTimestamp(
                     selectedDateMillis = pickedDateMillis,
-                    referenceTimestamp = if (userDobMillis == 0L) null else userDobMillis
+                    referenceTimestamp = if (userDobMillis == 0L) null else userDobMillis,
+                    isInputUtc = false
                 )
                 isDatePickerVisible = false
             }
@@ -645,9 +679,10 @@ private fun BottomControls(
     onSkipClick: () -> Unit
 ) {
     val isAuthPage = currentPage == 4
-    val isSetupPage = currentPage == 5
+    val isGoalPage = currentPage == 5
+    val isSetupPage = currentPage == 6
 
-    if (isAuthPage || isSetupPage) {
+    if (isAuthPage || isSetupPage || isGoalPage) {
         Spacer(modifier = Modifier.height(56.dp)) 
         return
     }

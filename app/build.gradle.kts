@@ -17,8 +17,8 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 17
-        versionName = "2.4.7.17"
+        versionCode = 19
+        versionName = "2.5.0.19"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.config)
     implementation(libs.firebase.analytics)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.play.services.auth)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)

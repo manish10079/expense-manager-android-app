@@ -163,9 +163,14 @@ fun formatTime(
 
 fun datePickerSelectionToLocalDateTimestamp(
     selectedDateMillis: Long,
-    referenceTimestamp: Long? = null
+    referenceTimestamp: Long? = null,
+    isInputUtc: Boolean = true
 ): Long {
-    val utcCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+    val dateCalendar = if (isInputUtc) {
+        Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    } else {
+        Calendar.getInstance()
+    }.apply {
         timeInMillis = selectedDateMillis
     }
     val referenceCalendar = referenceTimestamp?.let { timestamp ->
@@ -174,9 +179,9 @@ fun datePickerSelectionToLocalDateTimestamp(
         }
     }
     return Calendar.getInstance().apply {
-        set(Calendar.YEAR, utcCalendar.get(Calendar.YEAR))
-        set(Calendar.MONTH, utcCalendar.get(Calendar.MONTH))
-        set(Calendar.DAY_OF_MONTH, utcCalendar.get(Calendar.DAY_OF_MONTH))
+        set(Calendar.YEAR, dateCalendar.get(Calendar.YEAR))
+        set(Calendar.MONTH, dateCalendar.get(Calendar.MONTH))
+        set(Calendar.DAY_OF_MONTH, dateCalendar.get(Calendar.DAY_OF_MONTH))
         set(Calendar.HOUR_OF_DAY, referenceCalendar?.get(Calendar.HOUR_OF_DAY) ?: 12)
         set(Calendar.MINUTE, referenceCalendar?.get(Calendar.MINUTE) ?: 0)
         set(Calendar.SECOND, referenceCalendar?.get(Calendar.SECOND) ?: 0)

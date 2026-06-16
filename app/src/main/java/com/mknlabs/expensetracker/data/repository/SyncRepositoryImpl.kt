@@ -189,6 +189,7 @@ class SyncRepositoryImpl @Inject constructor(
             "gender" to localProfile.gender,
             "memberSinceLabel" to localProfile.memberSinceLabel,
             "accountTier" to localProfile.accountTier,
+            "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
             "photoUri" to localProfile.photoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "profileUpdatedAtMillis" to localProfile.updatedAtMillis
@@ -208,6 +209,8 @@ class SyncRepositoryImpl @Inject constructor(
 
         val authUser = firebaseAuth.currentUser
         val remoteAccountTier = snapshot.getString("accountTier") ?: localProfile.accountTier
+        val remoteProExpiry = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp
+
         val remoteProfile = UserProfile(
             fullName = snapshot.getString("fullName") ?: localProfile.fullName,
             emailAddress = snapshot.getString("emailAddress")
@@ -218,16 +221,20 @@ class SyncRepositoryImpl @Inject constructor(
             gender = snapshot.getString("gender") ?: localProfile.gender,
             memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
             accountTier = remoteAccountTier,
+            proExpiryTimestamp = remoteProExpiry,
             photoUri = snapshot.getString("photoUri") ?: localProfile.photoUri,
             updatedAtMillis = remoteUpdatedAt
         )
 
         UserProfileDataStore.setUserProfile(context, remoteProfile)
 
-        // Sync Tier to AppSettings
+        // Sync Tier and Expiry to AppSettings and Monetization
         val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier }
             ?: com.mknlabs.expensetracker.models.UserTier.FREE
         AppSettingsDataStore.updateUserTier(context, tier)
+
+        // Ensure MonetizationDataStore has the latest cloud expiry
+        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, remoteProExpiry)
     }
 
     private suspend fun pushLocalChanges(uid: String) {

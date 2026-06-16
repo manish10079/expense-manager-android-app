@@ -29,6 +29,7 @@ work = "2.10.0"
 hilt = "2.59.2"
 hiltNavigationCompose = "1.2.0"
 kotlinxCoroutinesTest = "1.10.1"
+kotlinxCoroutinesPlayServices = "1.10.1"
 playServicesAds = "23.6.0"
 userMessagingPlatform = "3.1.0"
 credentials = "1.5.0-rc01"
@@ -74,6 +75,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltNavigationCompose" }
 hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltNavigationCompose" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }

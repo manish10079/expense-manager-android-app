@@ -12,18 +12,30 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.RewardedPlacement
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
+import com.mknlabs.expensetracker.domain.repository.ProPassRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed class RedemptionState {
+    object Idle : RedemptionState()
+    object Loading : RedemptionState()
+    data class Success(val days: Int) : RedemptionState()
+    data class Error(val message: String) : RedemptionState()
+}
+
 @HiltViewModel
 class MonetizationViewModel @Inject constructor(
     private val monetizationRepository: MonetizationRepository,
+    private val proPassRepository: ProPassRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
     private val becomePremiumUseCase: BecomePremiumUseCase,
@@ -44,8 +56,31 @@ class MonetizationViewModel @Inject constructor(
     private val _isAdLoading = MutableStateFlow(false)
     val isAdLoading: StateFlow<Boolean> = _isAdLoading.asStateFlow()
 
+    private val _redemptionState = MutableStateFlow<RedemptionState>(RedemptionState.Idle)
+    val redemptionState: StateFlow<RedemptionState> = _redemptionState.asStateFlow()
+
     // Cache flows to prevent recreation and flickering on recomposition
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
+
+    /**
+     * Redeems a ProPass code.
+     */
+    fun redeemProPass(code: String) {
+        viewModelScope.launch {
+            _redemptionState.value = RedemptionState.Loading
+            proPassRepository.redeemCode(code)
+                .onSuccess { days ->
+                    _redemptionState.value = RedemptionState.Success(days)
+                }
+                .onFailure { error ->
+                    _redemptionState.value = RedemptionState.Error(error.message ?: "Unknown error")
+                }
+        }
+    }
+
+    fun resetRedemptionState() {
+        _redemptionState.value = RedemptionState.Idle
+    }
 
     /**
      * Simulates a purchase and grants full access for a limited test window.

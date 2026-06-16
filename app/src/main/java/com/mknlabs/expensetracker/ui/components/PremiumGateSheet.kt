@@ -26,7 +26,8 @@ import com.mknlabs.expensetracker.R
 fun PremiumGateSheet(
     financialGoal: String = "",
     onDismiss: () -> Unit,
-    onUpgradeClick: () -> Unit
+    onUpgradeClick: () -> Unit,
+    onRedeemClick: (() -> Unit)? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -176,6 +177,22 @@ fun PremiumGateSheet(
                             fontWeight = FontWeight.Bold
                         )
                     )
+                }
+
+                if (onRedeemClick != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = onRedeemClick,
+                        modifier = Modifier.height(40.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_have_a_code),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
                 }
             }
         }
