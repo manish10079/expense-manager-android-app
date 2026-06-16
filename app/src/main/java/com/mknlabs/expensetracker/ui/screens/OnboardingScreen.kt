@@ -1282,55 +1282,55 @@ private fun BenefitCard(
     title: String,
     value: String
 ) {
-    Row(
+    Column(
         modifier = modifier
             .clip(RoundedCornerShape(30.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 18.dp, vertical = 18.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = iconTint,
-                modifier = Modifier.size(20.dp)
-            )
-        }
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = iconTint,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
             Text(
                 text = title,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    letterSpacing = 2.sp,
+                    letterSpacing = 1.sp,
                     fontSize = 10.sp
                 )
             )
-
-            Text(
-                text = value,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    lineHeight = 18.sp
-                ),
-                textAlign = TextAlign.Start,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
         }
+
+        Text(
+            text = value,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                lineHeight = 16.sp
+            ),
+            textAlign = TextAlign.Start,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
