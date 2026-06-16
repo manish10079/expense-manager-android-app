@@ -204,6 +204,16 @@ fun localDateTimestampToDatePickerSelection(timestamp: Long): Long {
     }.timeInMillis
 }
 
+fun calculateAge(dobMillis: Long): Int {
+    val dob = Calendar.getInstance().apply { timeInMillis = dobMillis }
+    val today = Calendar.getInstance()
+    var age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR)
+    if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
+        age--
+    }
+    return age
+}
+
 
 data class PickerResult(
     val timestamp: Long? = null,

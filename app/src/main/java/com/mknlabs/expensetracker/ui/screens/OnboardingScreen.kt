@@ -50,6 +50,8 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Transgender
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +108,7 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.utils.calculateAge
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 
@@ -189,6 +192,7 @@ fun OnboardingScreen(
     var userGender by remember { mutableStateOf("") }
     var userDobMillis by remember { mutableLongStateOf(0L) }
     var userFinancialGoal by remember { mutableStateOf("") }
+    var userConsentChecked by remember { mutableStateOf(false) }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -531,6 +535,30 @@ fun OnboardingScreen(
                                     placeholder = stringResource(id = R.string.placeholder_select_dob),
                                     onClick = { isDatePickerVisible = true }
                                 )
+
+                                if (userDobMillis != 0L && calculateAge(userDobMillis) in 15..17) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 8.dp)
+                                            .clickable { userConsentChecked = !userConsentChecked },
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Checkbox(
+                                            checked = userConsentChecked,
+                                            onCheckedChange = { userConsentChecked = it },
+                                            colors = CheckboxDefaults.colors(
+                                                checkedColor = MaterialTheme.colorScheme.primary,
+                                                uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        )
+                                        Text(
+                                            text = stringResource(id = R.string.label_parental_consent),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                             }
                         } else {
                             Text(
@@ -579,13 +607,19 @@ fun OnboardingScreen(
                             } else if (currentPage == lastIndex) {
                                 val missingFields = mutableListOf<String>()
                                 if (userName.trim().isEmpty()) missingFields.add(nameStr)
-                                if (userGender.trim().isEmpty()) missingFields.add(genderStr)
                                 if (userDobMillis == 0L) missingFields.add(dobStr)
 
-                                if (missingFields.isEmpty()) {
-                                    onCompleteInternal()
-                                } else {
+                                if (missingFields.isNotEmpty()) {
                                     toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                                } else {
+                                    val userAge = calculateAge(userDobMillis)
+                                    if (userAge < 15) {
+                                        toastMessage = context.getString(R.string.error_underage_restriction)
+                                    } else if (userAge in 15..17 && !userConsentChecked) {
+                                        toastMessage = context.getString(R.string.error_parental_consent_required)
+                                    } else {
+                                        onCompleteInternal()
+                                    }
                                 }
                             } else {
                                 currentPage += 1

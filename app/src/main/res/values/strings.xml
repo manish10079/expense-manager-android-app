@@ -1336,4 +1336,7 @@
     <string name="msg_pro_pass_activated">ProPass Activated! You now have %1$d days of premium access.</string>
     <string name="error_invalid_pro_pass">Invalid or expired ProPass code.</string>
     <string name="label_have_a_code">Have a Pro Access Code?</string>
+    <string name="error_underage_restriction">You must be at least 15 years old to continue.</string>
+    <string name="label_parental_consent">I have parental consent to use this app.</string>
+    <string name="error_parental_consent_required">Parental consent is required for users under 18.</string>
 </resources>
