@@ -372,10 +372,10 @@ fun AccountSetupCard(
     val checklist = remember(userProfile, guestUserLabel) {
         listOf(
             Triple(R.string.label_checklist_full_name, userProfile.fullName.isNotEmpty() && userProfile.fullName != guestUserLabel, null),
-            Triple(R.string.label_checklist_phone, userProfile.phoneNumber.isNotEmpty(), null),
-            Triple(R.string.label_checklist_gender, userProfile.gender.isNotEmpty(), null),
+            Triple(R.string.label_checklist_email, userProfile.emailAddress.isNotEmpty(), R.string.label_checklist_signin_to_add),
             Triple(R.string.label_checklist_dob, userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L, null),
-            Triple(R.string.label_checklist_email, userProfile.emailAddress.isNotEmpty(), R.string.label_checklist_signin_to_add)
+            Triple(R.string.label_checklist_gender, userProfile.gender.isNotEmpty(), null),
+            Triple(R.string.label_checklist_phone, userProfile.phoneNumber.isNotEmpty(), null)
         )
     }
 

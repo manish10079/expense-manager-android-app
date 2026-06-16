@@ -83,6 +83,15 @@ fun ProfileScreen(
     var isDatePickerVisible by remember { mutableStateOf(false) }
     var isPhotoProcessing by remember { mutableStateOf(false) }
 
+    // Explicitly sync state if userProfile changes (e.g. from background Google sync)
+    LaunchedEffect(userProfile) {
+        fullName = userProfile.fullName
+        phoneNumber = userProfile.phoneNumber
+        dateOfBirthMillis = userProfile.dateOfBirthMillis
+        gender = userProfile.gender.takeUnless { it == "Select Gender" }.orEmpty()
+        photoUri = userProfile.photoUri
+    }
+
     val maleLabel = stringResource(id = R.string.label_male)
     val femaleLabel = stringResource(id = R.string.label_female)
     val nonBinaryLabel = stringResource(id = R.string.label_non_binary)

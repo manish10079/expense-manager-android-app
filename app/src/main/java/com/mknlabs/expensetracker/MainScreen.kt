@@ -397,13 +397,15 @@ fun MainScreen(
             LaunchedEffect(firebaseUser) {
                 if (firebaseUser != null && !firebaseUser!!.isAnonymous) {
                     firebaseUser?.let { user -> 
-                        val remotePhotoUrl = user.photoUrl
+                        val remotePhotoUri = user.photoUrl
                         val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                        
+                        // Sync Name, Email, and Photo URL if they are missing locally
                         if (
                             currentProfile.fullName.isBlank() ||
                             currentProfile.fullName == "Guest User" ||
                             currentProfile.emailAddress.isBlank() ||
-                            currentProfile.photoUri.isNullOrBlank()
+                            (currentProfile.photoUri.isNullOrBlank() && remotePhotoUri != null)
                         ) {
                             UserProfileDataStore.updateUserProfile(context) { profile ->
                                 profile.copy(
@@ -417,27 +419,33 @@ fun MainScreen(
                                     } else {
                                         profile.emailAddress
                                     },
-                                    // Initially set remote, then localize in background
-                                    photoUri = profile.photoUri ?: remotePhotoUrl?.toString()
+                                    photoUri = if (profile.photoUri.isNullOrBlank()) {
+                                        remotePhotoUri?.toString() ?: profile.photoUri
+                                    } else {
+                                        profile.photoUri
+                                    },
+                                    updatedAtMillis = System.currentTimeMillis()
                                 )
                             }
                         }
 
-                        // 1. Logic to localize network photo to prevent blinking
-                        if (remotePhotoUrl != null && currentProfile.photoUri?.startsWith("http") == true) {
+                        // Localize network photo to prevent blinking
+                        if (remotePhotoUri != null && currentProfile.photoUri?.startsWith("http") == true) {
                             coroutineScope.launch {
-                                val localUri = com.mknlabs.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUrl)
+                                val localUri = com.mknlabs.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUri)
                                 if (localUri != null) {
-                                    UserProfileDataStore.updateUserProfile(context) { it.copy(photoUri = localUri) }
+                                    UserProfileDataStore.updateUserProfile(context) { 
+                                        it.copy(
+                                            photoUri = localUri,
+                                            updatedAtMillis = System.currentTimeMillis()
+                                        ) 
+                                    }
                                 }
                             }
                         }
 
                         SyncWorker.startImmediate(context)
                     }
-                } else if (firebaseUser == null) {
-                    // Note: Clearing profile is now handled ONLY on explicit sign-out in the logout dialog.
-                    // This prevents wiping the Guest profile created during onboarding.
                 }
             }
 
