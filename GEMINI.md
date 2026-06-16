@@ -78,10 +78,10 @@ com.mkn0079.expensetracker/
 - **Security:** Use encrypted DataStore for sensitive data and never store credentials in plain text.
 
 ### 8. Versioning & Commits
-- **Automated Updates:** Whenever a commit message is prepared or requested, the agent must update `app/build.gradle.kts`.
+- **Automated Updates:** Whenever a commit message is prepared or requested, the agent must
+ update `app/build.gradle.kts`.
 - **Version Code:** `versionCode` must always increment by **1**.
 - **Version Name:** `versionName` must follow the format: `major.minor.bug.versioncode`.
-- **Settings Version String:** Whenever the version is bumped in `app/build.gradle.kts`, the version string in `app/src/main/res/values/strings.xml` (specifically `label_version_100`) must be updated to match the new `versionName`.
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `bumped version to <versionName>`.
 - **Versioning Logic (SemVer):**
     - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and bug to 0.

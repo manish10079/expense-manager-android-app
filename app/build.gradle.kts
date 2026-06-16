@@ -20,6 +20,7 @@ android {
         versionCode = 20
         versionName = "2.5.1.20"
 
+        resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,6 +41,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true
     }
     sourceSets {
         getByName("main") {

@@ -148,7 +148,7 @@ fun AboutScreen(
             )
 
             Text(
-                text = stringResource(R.string.label_version_100),
+                text = stringResource(R.string.label_app_version),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,

@@ -397,7 +397,6 @@
     <string name="label_val_selected">%1$s Selected</string>
     <string name="label_val_val">%1$s (%2$s)</string>
     <string name="label_valx">%1$sX</string>
-    <string name="label_version_100">v2.5.1.20</string>
     <string name="label_view_all">View All</string>
     <string name="label_website">WEBSITE</string>
     <string name="label_wk_val">WK %1$s</string>
