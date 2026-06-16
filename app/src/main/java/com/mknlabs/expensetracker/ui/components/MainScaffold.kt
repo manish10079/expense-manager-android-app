@@ -106,6 +106,7 @@ fun MainScaffold(
     onAppLockToggleChange: (Boolean) -> Unit,
     onAutoBackupEnabledChange: (Boolean) -> Unit,
     onAutoBackupFrequencyChange: (Int) -> Unit,
+    onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onShowUpgradeSheet: () -> Unit,
@@ -172,6 +173,7 @@ fun MainScaffold(
             userProfile = userProfile,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
             paymentMethods = paymentMethods,
+            isCloudSyncEnabled = appSettings.isCloudSyncEnabled,
             userTier = userTier
         )
 
@@ -207,6 +209,7 @@ fun MainScaffold(
             autoLockDurationMinutes = autoLockDurationMinutes,
             isAutoBackupEnabled = isAutoBackupEnabled,
             autoBackupFrequencyDays = autoBackupFrequencyDays,
+            isCloudSyncEnabled = appSettings.isCloudSyncEnabled,
             userTier = userTier,
             onRouteChange = onRouteChange,
             onProfileOriginRouteChange = onProfileOriginRouteChange,
@@ -243,6 +246,7 @@ fun MainScaffold(
             onAppLockToggleChange = onAppLockToggleChange,
             onAutoBackupEnabledChange = onAutoBackupEnabledChange,
             onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
+            onCloudSyncEnabledChange = onCloudSyncEnabledChange,
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
             onShowUpgradeSheet = onShowUpgradeSheet,
@@ -283,6 +287,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     userProfile: UserProfile,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
     paymentMethods: List<PaymentType>,
+    isCloudSyncEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier
 ) {
     val homeViewModel: HomeViewModel = hiltViewModel()
@@ -306,6 +311,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
         autoLockDurationMinutes,
         transactionCardCustomizationSettings,
         paymentMethods,
+        isCloudSyncEnabled,
         userTier
     ) {
         homeViewModel.updateInputs(
@@ -349,6 +355,6 @@ private fun BoxScope.PreloadSecondaryScreenData(
             selectedTimeFormat,
             transactionCardCustomizationSettings
         )
-        settingsViewModel.updateInputs(transactionCount, isAdsEnabled, userTier)
+        settingsViewModel.updateInputs(transactionCount, isAdsEnabled, userTier, isCloudSyncEnabled)
     }
 }

@@ -59,6 +59,7 @@ object AppSettingsDataStore {
         val autoBackupFrequencyDays = intPreferencesKey("auto_backup_frequency_days")
         val lastAutoBackupTimeMillis = longPreferencesKey("last_auto_backup_time_millis")
         val lastSyncTimeMillis = longPreferencesKey("last_sync_time_millis")
+        val isCloudSyncEnabled = booleanPreferencesKey("is_cloud_sync_enabled")
         val pendingAuthEmail = stringPreferencesKey("pending_auth_email")
         val setupDismissedUntilMillis = longPreferencesKey("setup_dismissed_until_millis")
         val userTier = stringPreferencesKey("user_tier")
@@ -128,6 +129,7 @@ object AppSettingsDataStore {
             autoBackupFrequencyDays = this[Keys.autoBackupFrequencyDays] ?: defaultAppSettings.autoBackupFrequencyDays,
             lastAutoBackupTimeMillis = this[Keys.lastAutoBackupTimeMillis] ?: defaultAppSettings.lastAutoBackupTimeMillis,
             lastSyncTimeMillis = this[Keys.lastSyncTimeMillis] ?: 0L,
+            isCloudSyncEnabled = this[Keys.isCloudSyncEnabled] ?: defaultAppSettings.isCloudSyncEnabled,
             pendingAuthEmail = this[Keys.pendingAuthEmail],
             setupDismissedUntilMillis = this[Keys.setupDismissedUntilMillis] ?: 0L,
             userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier
@@ -170,6 +172,7 @@ object AppSettingsDataStore {
         this[Keys.autoBackupFrequencyDays] = settings.autoBackupFrequencyDays
         this[Keys.lastAutoBackupTimeMillis] = settings.lastAutoBackupTimeMillis
         this[Keys.lastSyncTimeMillis] = settings.lastSyncTimeMillis
+        this[Keys.isCloudSyncEnabled] = settings.isCloudSyncEnabled
         if (settings.pendingAuthEmail != null) {
             this[Keys.pendingAuthEmail] = settings.pendingAuthEmail
         } else {

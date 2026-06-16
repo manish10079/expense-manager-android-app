@@ -95,6 +95,7 @@ class SettingsViewModel @Inject constructor(
     private var isAnonymous: Boolean = true
     private var isProPassEnabled: Boolean = true
     private var userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
+    private var isCloudSyncEnabled: Boolean = true
     private var adFreeRemainingTime: String? = null
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
@@ -143,11 +144,13 @@ class SettingsViewModel @Inject constructor(
     fun updateInputs(
         transactionCount: Int, 
         isAdsEnabled: Boolean,
-        userTier: com.mknlabs.expensetracker.models.UserTier
+        userTier: com.mknlabs.expensetracker.models.UserTier,
+        isCloudSyncEnabled: Boolean
     ) {
         this.transactionCount = transactionCount
         this.isAdsEnabled = isAdsEnabled
         this.userTier = userTier
+        this.isCloudSyncEnabled = isCloudSyncEnabled
         rebuildUiState()
     }
 
@@ -160,6 +163,7 @@ class SettingsViewModel @Inject constructor(
                     isAnonymous = isAnonymous,
                     isProPassEnabled = isProPassEnabled,
                     userTier = userTier,
+                    isCloudSyncEnabled = isCloudSyncEnabled,
                     adFreeRemainingTime = adFreeRemainingTime
                 )
             )
@@ -173,6 +177,7 @@ private fun buildSettingsSections(
     isAnonymous: Boolean,
     isProPassEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
+    isCloudSyncEnabled: Boolean,
     adFreeRemainingTime: String?
 ): List<SettingsSectionUi> {
     val settingsSections = mutableListOf<SettingsSectionUi>()
@@ -202,9 +207,10 @@ private fun buildSettingsSections(
         accountItems.add(
             SettingsItemUi(
                 titleRes = com.mknlabs.expensetracker.R.string.title_cloud_sync_devices,
-                subtitleRes = if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM)
-                    com.mknlabs.expensetracker.R.string.desc_sync_active_subtitle
-                else com.mknlabs.expensetracker.R.string.desc_sync_premium_subtitle,
+                subtitleRes = if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+                    if (isCloudSyncEnabled) com.mknlabs.expensetracker.R.string.desc_sync_active_subtitle
+                    else com.mknlabs.expensetracker.R.string.desc_sync_disabled_subtitle
+                } else com.mknlabs.expensetracker.R.string.desc_sync_premium_subtitle,
                 icon = Icons.Rounded.CloudSync,
                 actionId = SettingsActionId.ConnectedDevices,
                 isLocked = userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM

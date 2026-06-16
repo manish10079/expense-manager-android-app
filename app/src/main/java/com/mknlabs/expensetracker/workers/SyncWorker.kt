@@ -32,9 +32,9 @@ class SyncWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        // 2. Check Tier - Only Premium users get full Room DB cloud sync
+        // 2. Check Tier and Sync Setting - Only Premium users with sync enabled get full Room DB cloud sync
         val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
-        if (settings.userTier != UserTier.PREMIUM) {
+        if (settings.userTier != UserTier.PREMIUM || !settings.isCloudSyncEnabled) {
             return Result.success()
         }
 

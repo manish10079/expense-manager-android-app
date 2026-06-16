@@ -25,9 +25,11 @@ class MonetizationRepositoryImpl @Inject constructor(
 
     override val isAdsEnabled: Flow<Boolean> = combine(
         AppSettingsDataStore.getAppSettingsFlow(context),
+        UserProfileDataStore.getUserProfileFlow(context),
         MonetizationDataStore.getGlobalAdAccessExpiry(context)
-    ) { settings, globalAdExpiry ->
-        val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
+    ) { settings, profile, globalAdExpiry ->
+        val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                profile.accountTier == "PREMIUM"
         val hasActivePass = globalAdExpiry > System.currentTimeMillis()
         
         // Ads are enabled if NOT premium AND NOT having an active pass
@@ -39,10 +41,14 @@ class MonetizationRepositoryImpl @Inject constructor(
     override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> {
         return combine(
             AppSettingsDataStore.getAppSettingsFlow(context),
+            UserProfileDataStore.getUserProfileFlow(context),
             MonetizationDataStore.getGlobalAdAccessExpiry(context)
-        ) { settings, globalAdExpiry ->
-            // 1. Check if user is permanent Premium
-            if (settings.userTier.name == "PREMIUM") {
+        ) { settings, profile, globalAdExpiry ->
+            // 1. Check if user is permanent Premium (from settings or profile sync)
+            val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                    profile.accountTier == "PREMIUM"
+            
+            if (isPremium) {
                 return@combine AccessStatus.Granted
             }
             
@@ -73,12 +79,17 @@ class MonetizationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun becomePremium() {
+        val now = System.currentTimeMillis()
+        
         // 1. Update App Settings (Primary source for UI features & ads)
         AppSettingsDataStore.updateUserTier(context, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
         
         // 2. Update User Profile (Ensures the status is synced to Firestore)
         UserProfileDataStore.updateUserProfile(context) { profile ->
-            profile.copy(accountTier = com.mknlabs.expensetracker.models.UserTier.PREMIUM.name)
+            profile.copy(
+                accountTier = com.mknlabs.expensetracker.models.UserTier.PREMIUM.name,
+                updatedAtMillis = now
+            )
         }
         
         // Clear any temporary passes as they are no longer needed

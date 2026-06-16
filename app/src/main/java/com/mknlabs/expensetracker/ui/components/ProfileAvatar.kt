@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -147,6 +148,21 @@ fun ProfileAvatar(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
+            } else if (initials.isNotBlank()) {
+                Box(
+                    modifier = Modifier.matchParentSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = initials,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = textSize,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            letterSpacing = 0.sp
+                        ),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             } else {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
@@ -255,7 +271,9 @@ private fun openImageInputStream(context: Context, uri: Uri) = when (uri.scheme)
     "file" -> uri.path?.let(::FileInputStream)
     "http", "https" -> {
         try {
-            java.net.URL(uri.toString()).openStream()
+            val connection = java.net.URL(uri.toString()).openConnection()
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36")
+            connection.getInputStream()
         } catch (e: Exception) {
             null
         }

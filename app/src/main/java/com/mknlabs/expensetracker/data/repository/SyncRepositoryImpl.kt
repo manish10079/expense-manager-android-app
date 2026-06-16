@@ -18,6 +18,7 @@ import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.defaultUserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -173,16 +174,38 @@ class SyncRepositoryImpl @Inject constructor(
 
     private suspend fun pushUserProfile(uid: String) {
         val userDoc = firestore.collection("users").document(uid)
+        val snapshot = userDoc.get().await()
+        val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+        val remoteAccountTier = snapshot.getString("accountTier") ?: ""
+        
         val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val currentUser = firebaseAuth.currentUser
-        val remoteUpdatedAt = userDoc.get().await().getLong("profileUpdatedAtMillis") ?: 0L
 
-        if (localProfile.updatedAtMillis <= remoteUpdatedAt) {
+        // 1. Never push if local is Free but remote is already Premium
+        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") {
             return
         }
 
+        // 2. Standard timestamp check for other updates
+        // We allow the push if snapshot doesn't exist yet (first login)
+        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt) {
+            return
+        }
+
+        // Fallback to Google data if local profile is still "Guest" or has no photo
+        val finalFullName = if (localProfile.fullName == defaultUserProfile.fullName) {
+            currentUser?.displayName ?: localProfile.fullName
+        } else localProfile.fullName
+
+        // Never push local file URIs to the cloud, push the Google one instead
+        val finalPhotoUri = if (localProfile.photoUri?.startsWith("file") == true) {
+            currentUser?.photoUrl?.toString()
+        } else {
+            localProfile.photoUri ?: currentUser?.photoUrl?.toString()
+        }
+
         val profileData = mapOf(
-            "fullName" to localProfile.fullName,
+            "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
             "phoneNumber" to localProfile.phoneNumber,
             "dateOfBirthMillis" to (localProfile.dateOfBirthMillis ?: 0L),
@@ -190,9 +213,9 @@ class SyncRepositoryImpl @Inject constructor(
             "memberSinceLabel" to localProfile.memberSinceLabel,
             "accountTier" to localProfile.accountTier,
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
-            "photoUri" to localProfile.photoUri,
+            "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
-            "profileUpdatedAtMillis" to localProfile.updatedAtMillis
+            "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
         )
 
         userDoc.set(profileData, SetOptions.merge()).await()
@@ -201,18 +224,43 @@ class SyncRepositoryImpl @Inject constructor(
     private suspend fun pullUserProfile(uid: String) {
         val userDoc = firestore.collection("users").document(uid)
         val snapshot = userDoc.get().await()
-        if (!snapshot.exists()) return
+        val authUser = firebaseAuth.currentUser
+        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+
+        if (!snapshot.exists()) {
+            // First time login - Cloud doesn't exist yet. 
+            // If local is still Guest, populate from Google immediately so UI updates
+            if (localProfile.fullName == defaultUserProfile.fullName || localProfile.photoUri == null) {
+                val hydratedProfile = localProfile.copy(
+                    fullName = authUser?.displayName ?: localProfile.fullName,
+                    emailAddress = authUser?.email ?: localProfile.emailAddress,
+                    photoUri = authUser?.photoUrl?.toString() ?: localProfile.photoUri,
+                    updatedAtMillis = System.currentTimeMillis()
+                )
+                UserProfileDataStore.setUserProfile(context, hydratedProfile)
+            }
+            return
+        }
 
         val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
-        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
-        if (remoteUpdatedAt <= localProfile.updatedAtMillis) return
+        val remoteAccountTier = snapshot.getString("accountTier") ?: ""
+        
+        // PULL if:
+        // 1. Remote is newer OR
+        // 2. Local tier is missing/Free but remote is Premium OR
+        // 3. Local tier is blank (first sync after clear data)
+        val shouldPull = remoteUpdatedAt > localProfile.updatedAtMillis || 
+                         (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") ||
+                         localProfile.accountTier.isBlank()
 
-        val authUser = firebaseAuth.currentUser
-        val remoteAccountTier = snapshot.getString("accountTier") ?: localProfile.accountTier
+        if (!shouldPull) return
+
         val remoteProExpiry = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp
 
         val remoteProfile = UserProfile(
-            fullName = snapshot.getString("fullName") ?: localProfile.fullName,
+            fullName = snapshot.getString("fullName") 
+                ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null)
+                ?: localProfile.fullName,
             emailAddress = snapshot.getString("emailAddress")
                 ?: authUser?.email
                 ?: localProfile.emailAddress,
@@ -222,7 +270,9 @@ class SyncRepositoryImpl @Inject constructor(
             memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
             accountTier = remoteAccountTier,
             proExpiryTimestamp = remoteProExpiry,
-            photoUri = snapshot.getString("photoUri") ?: localProfile.photoUri,
+            photoUri = snapshot.getString("photoUri") 
+                ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null)
+                ?: localProfile.photoUri,
             updatedAtMillis = remoteUpdatedAt
         )
 

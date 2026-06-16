@@ -35,6 +35,8 @@ import com.mknlabs.expensetracker.utils.formatDate
 @Composable
 fun ConnectedDevicesScreen(
     userTier: UserTier,
+    isSyncEnabled: Boolean,
+    onSyncEnabledChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     onUpgradeClick: () -> Unit,
     viewModel: ConnectedDevicesViewModel = hiltViewModel()
@@ -67,6 +69,8 @@ fun ConnectedDevicesScreen(
                     DeviceListContent(
                         devices = state.devices,
                         maxDevices = state.maxDevices,
+                        isSyncEnabled = isSyncEnabled,
+                        onSyncEnabledChange = onSyncEnabledChange,
                         onUnlink = viewModel::unregisterDevice
                     )
                 }
@@ -142,16 +146,53 @@ private fun SyncTeaseContent(onUpgradeClick: () -> Unit) {
 private fun DeviceListContent(
     devices: List<RegisteredDevice>,
     maxDevices: Int,
+    isSyncEnabled: Boolean,
+    onSyncEnabledChange: (Boolean) -> Unit,
     onUnlink: (String) -> Unit
 ) {
     var deviceToUnlink by remember { mutableStateOf<RegisteredDevice?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Sync Toggle
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.title_cloud_sync),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.desc_cloud_sync),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = isSyncEnabled,
+                    onCheckedChange = onSyncEnabledChange
+                )
+            }
+        }
+
         // Usage Summary
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimens.ScreenPadding),
+                .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
             shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -164,7 +205,8 @@ private fun DeviceListContent(
                 ) {
                     Text(
                         text = stringResource(R.string.label_devices_used, devices.size, maxDevices),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "${(devices.size.toFloat() / maxDevices * 100).toInt()}%",
@@ -238,8 +280,8 @@ private fun DeviceItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.ScreenPadding, vertical = 6.dp),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(
             1.dp, 
@@ -250,12 +292,12 @@ private fun DeviceItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp),
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .background(
                         if (device.isCurrentDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
@@ -266,47 +308,60 @@ private fun DeviceItem(
                 Icon(
                     imageVector = Icons.Rounded.Devices,
                     contentDescription = null,
+                    modifier = Modifier.size(20.dp),
                     tint = if (device.isCurrentDevice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = device.modelName,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = device.modelName,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 18.sp
                     )
-                    if (device.isCurrentDevice) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.label_this_device),
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
+                )
+                
+                if (device.isCurrentDevice) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(6.dp),
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_this_device),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
                     }
                 }
+
                 Text(
                     text = if (device.isCurrentDevice) stringResource(R.string.label_active_now) 
                            else stringResource(R.string.label_last_active, formatDate(device.lastActiveMillis, "dd MMM, HH:mm")),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = if (device.isCurrentDevice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             if (!device.isCurrentDevice) {
-                IconButton(onClick = onUnlinkClick) {
+                IconButton(
+                    onClick = onUnlinkClick, 
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.PhonelinkErase,
                         contentDescription = stringResource(R.string.btn_unlink_device),
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             } else {
@@ -314,7 +369,9 @@ private fun DeviceItem(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterVertically)
                 )
             }
         }

@@ -39,6 +39,7 @@ data class AppSettings(
     val autoBackupFrequencyDays: Int,
     val lastAutoBackupTimeMillis: Long,
     val lastSyncTimeMillis: Long,
+    val isCloudSyncEnabled: Boolean,
     val pendingAuthEmail: String?,
     val setupDismissedUntilMillis: Long,
     val userTier: UserTier

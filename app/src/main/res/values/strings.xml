@@ -1245,6 +1245,7 @@
     <string name="title_cloud_sync_devices">Cloud Sync &amp; Devices</string>
     <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Premium)</string>
     <string name="desc_sync_active_subtitle">Automatic cloud backup is active</string>
+    <string name="desc_sync_disabled_subtitle">Automatic cloud backup is disabled</string>
     <string name="title_connected_devices">Connected Devices</string>
     <string name="desc_connected_devices">Manage up to 4 devices for automatic cloud synchronization.</string>
     <string name="label_active_now">Active Now</string>
@@ -1253,6 +1254,8 @@
     <string name="btn_unlink_device">Unlink</string>
     <string name="msg_unlink_device_confirm">Are you sure you want to unlink this device? Automatic sync will stop on that device.</string>
     <string name="label_devices_used">%1$d of %2$d slots used</string>
+    <string name="title_cloud_sync">Cloud Synchronization</string>
+    <string name="desc_cloud_sync">Keep your transactions and settings synced across all your devices in real-time.</string>
     <string name="title_upgrade_for_sync">Upgrade for Cloud Sync</string>
     <string name="desc_upgrade_for_sync">Unlock automatic cloud backup and sync your data across 4 devices.</string>
     <string name="title_ad_expiry_warning">Convenience Ending Soon</string>

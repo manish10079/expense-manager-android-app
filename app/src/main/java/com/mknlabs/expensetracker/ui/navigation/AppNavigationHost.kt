@@ -75,6 +75,7 @@ fun AppNavigationHost(
     autoLockDurationMinutes: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
+    isCloudSyncEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
     onRouteChange: (AppRoute) -> Unit,
     onProfileOriginRouteChange: (AppRoute) -> Unit,
@@ -111,6 +112,7 @@ fun AppNavigationHost(
     onAppLockToggleChange: (Boolean) -> Unit,
     onAutoBackupEnabledChange: (Boolean) -> Unit,
     onAutoBackupFrequencyChange: (Int) -> Unit,
+    onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onShowUpgradeSheet: () -> Unit,
@@ -319,6 +321,8 @@ fun AppNavigationHost(
                 AppRoute.ConnectedDevices -> {
                     ConnectedDevicesScreen(
                         userTier = userTier,
+                        isSyncEnabled = isCloudSyncEnabled,
+                        onSyncEnabledChange = onCloudSyncEnabledChange,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)

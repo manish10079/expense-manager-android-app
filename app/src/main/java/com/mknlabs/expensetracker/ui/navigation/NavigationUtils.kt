@@ -49,7 +49,8 @@ fun resolveBackNavigationRoute(
         AppRoute.CategoryManagement,
         AppRoute.DataManagement,
         AppRoute.About,
-        AppRoute.NotificationSettings -> AppRoute.Settings
+        AppRoute.NotificationSettings,
+        AppRoute.ConnectedDevices -> AppRoute.Settings
         AppRoute.Profile -> profileOriginRoute
         AppRoute.AddTransaction,
         AppRoute.Goals -> previousRoute

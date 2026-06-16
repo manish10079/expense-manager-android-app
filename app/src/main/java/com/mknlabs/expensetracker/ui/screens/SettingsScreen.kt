@@ -70,6 +70,7 @@ import androidx.compose.runtime.setValue
 fun SettingsScreen(
     userProfile: UserProfile = defaultUserProfile,
     userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE,
+    isCloudSyncEnabled: Boolean = true,
     isDailyReminderEnabled: Boolean = DEFAULT_NOTIFICATIONS_ENABLED,
     isBudgetLimitAlertsEnabled: Boolean = DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED,
     isMissedEntryReminderEnabled: Boolean = DEFAULT_MISSED_ENTRY_REMINDER_ENABLED,
@@ -98,13 +99,23 @@ fun SettingsScreen(
     val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
 
+    val effectiveUserTier = remember(userTier, userProfile.accountTier) {
+        if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+            userProfile.accountTier == "PREMIUM") {
+            com.mknlabs.expensetracker.models.UserTier.PREMIUM
+        } else {
+            com.mknlabs.expensetracker.models.UserTier.FREE
+        }
+    }
+
     LaunchedEffect(
-        transactionCount, isAdsEnabled, userTier
+        transactionCount, isAdsEnabled, effectiveUserTier, isCloudSyncEnabled
     ) {
         settingsViewModel.updateInputs(
             transactionCount = transactionCount, 
             isAdsEnabled = isAdsEnabled,
-            userTier = userTier
+            userTier = effectiveUserTier,
+            isCloudSyncEnabled = isCloudSyncEnabled
         )
     }
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
@@ -119,6 +130,7 @@ fun SettingsScreen(
 
     SettingsScreenContent(
         userProfile = userProfile,
+        userTier = effectiveUserTier,
         settingsSections = uiState.settingsSections,
         isAdsEnabled = isAdsEnabled,
         isDailyReminderEnabled = isDailyReminderEnabled,
@@ -154,6 +166,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsScreenContent(
     userProfile: UserProfile,
+    userTier: com.mknlabs.expensetracker.models.UserTier,
     settingsSections: List<SettingsSectionUi>,
     isAdsEnabled: Boolean,
     isDailyReminderEnabled: Boolean,
@@ -209,7 +222,8 @@ private fun SettingsScreenContent(
                         name = userProfile.fullName,
                         email = userProfile.emailAddress,
                         initials = userProfile.avatarInitials(),
-                        photoUri = userProfile.photoUri
+                        photoUri = userProfile.photoUri,
+                        userTier = userTier
                     )
                 }
 
@@ -385,6 +399,7 @@ private fun SettingsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         SettingsScreenContent(
             userProfile = defaultUserProfile,
+            userTier = com.mknlabs.expensetracker.models.UserTier.FREE,
             settingsSections = listOf(
                 SettingsSectionUi(
                     titleRes = R.string.title_account,

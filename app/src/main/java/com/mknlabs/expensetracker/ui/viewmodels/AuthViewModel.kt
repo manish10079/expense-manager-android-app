@@ -34,7 +34,8 @@ class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val authRepository: AuthRepository,
     private val googleAuthHelper: GoogleAuthHelper,
-    private val networkMonitor: NetworkMonitor
+    private val networkMonitor: NetworkMonitor,
+    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -71,6 +72,7 @@ class AuthViewModel @Inject constructor(
                         if (idToken != null) {
                             authRepository.signInWithGoogle(idToken)
                                 .onSuccess { isNewUser -> 
+                                    syncRepository.syncUserProfile()
                                     _authState.value = AuthState.Success(isNewUser)
                                     return@launch // Success! Exit the loop.
                                 }
@@ -110,6 +112,7 @@ class AuthViewModel @Inject constructor(
                         authRepository.signInWithGoogle(idToken)
                             .onSuccess { isNewUser -> 
                                 android.util.Log.d("AUTH", "Firebase sign in success, isNewUser = $isNewUser")
+                                syncRepository.syncUserProfile()
                                 _authState.value = AuthState.Success(isNewUser) 
                             }
                             .onFailure { error ->
@@ -159,7 +162,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signInWithEmail(email, password)
-                .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
+                .onSuccess { isNewUser -> 
+                    syncRepository.syncUserProfile()
+                    _authState.value = AuthState.Success(isNewUser) 
+                }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error.message))
                 }
@@ -175,7 +181,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signUpWithEmail(email, password)
-                .onSuccess { isNewUser -> _authState.value = AuthState.Success(isNewUser) }
+                .onSuccess { isNewUser -> 
+                    syncRepository.syncUserProfile()
+                    _authState.value = AuthState.Success(isNewUser) 
+                }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error.message))
                 }
@@ -245,6 +254,7 @@ class AuthViewModel @Inject constructor(
             if (pendingEmail != null) {
                 authRepository.completeSignInWithLink(pendingEmail, emailLink)
                     .onSuccess { isNewUser ->
+                        syncRepository.syncUserProfile()
                         _authState.value = AuthState.Success(isNewUser)
                         // Clear the pending email
                         AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = null) }
@@ -267,6 +277,7 @@ class AuthViewModel @Inject constructor(
             authRepository.signInAnonymously()
                 .onSuccess { isNewUser ->
                     if (guestSignInSessionId == sessionId) {
+                        syncRepository.syncUserProfile()
                         _authState.value = AuthState.Success(isNewUser)
                     }
                 }

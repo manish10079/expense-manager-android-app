@@ -15,10 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.toTitleCase
 
@@ -28,6 +30,7 @@ fun ProfileCard(
     email: String,
     initials: String,
     photoUri: String? = null,
+    userTier: UserTier = UserTier.FREE,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -60,11 +63,18 @@ fun ProfileCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
+                val isPremium = userTier == UserTier.PREMIUM
+                UserBadge(
+                    label = if (isPremium) "PRO" else stringResource(com.mknlabs.expensetracker.R.string.label_guest_user),
+                    type = if (isPremium) UserBadgeType.PREMIUM else UserBadgeType.GUEST,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+
                 Text(
                     text = name.toTitleCase(),
                     style = MaterialTheme.typography.titleLarge,
                     color = colorScheme.onSurface,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 

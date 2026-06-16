@@ -667,6 +667,17 @@ fun MainScreen(
                                 }
                             }
                         },
+                        onCloudSyncEnabledChange = { enabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(isCloudSyncEnabled = enabled)
+                                }
+                                if (enabled) {
+                                    com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
+                                }
+                            }
+                        },
+
                         onAppLockToggleChange = { shouldEnable ->
                             if (shouldEnable) {
                                 if (hasAppLockPin) {
@@ -796,9 +807,16 @@ fun MainScreen(
                                     profile.copy(
                                         fullName = "Guest User",
                                         emailAddress = "",
-                                        photoUri = null
+                                        photoUri = null,
+                                        accountTier = "FREE",
+                                        proExpiryTimestamp = 0L,
+                                        updatedAtMillis = 0L
                                     )
                                 }
+                                
+                                // Reset Tier and Ad Access on explicit sign out
+                                AppSettingsDataStore.updateUserTier(context, com.mknlabs.expensetracker.models.UserTier.FREE)
+                                com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, 0L)
                                 
                                 // Reset Last Sync Time to prevent data pollution
                                 AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }

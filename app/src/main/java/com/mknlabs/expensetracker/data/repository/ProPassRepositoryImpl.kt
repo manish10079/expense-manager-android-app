@@ -73,12 +73,15 @@ class ProPassRepositoryImpl @Inject constructor(
             val currentExpiry = monetizationRepository.globalAdAccessExpiry.first()
             val newExpiry = Math.max(System.currentTimeMillis(), currentExpiry) + durationMillis
 
+            val newUpdatedAt = System.currentTimeMillis()
+
             // Save to user's cloud profile for cross-device tracking
             firestore.collection("users").document(currentUser.uid)
                 .set(
                     mapOf(
                         "proExpiryTimestamp" to newExpiry,
-                        "accountTier" to "PREMIUM"
+                        "accountTier" to "PREMIUM",
+                        "profileUpdatedAtMillis" to newUpdatedAt
                     ), 
                     SetOptions.merge()
                 ).await()
@@ -88,7 +91,7 @@ class ProPassRepositoryImpl @Inject constructor(
                 profile.copy(
                     proExpiryTimestamp = newExpiry,
                     accountTier = "PREMIUM",
-                    updatedAtMillis = System.currentTimeMillis()
+                    updatedAtMillis = newUpdatedAt
                 )
             }
 
