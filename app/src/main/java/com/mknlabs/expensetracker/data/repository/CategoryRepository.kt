@@ -53,6 +53,5 @@ class CategoryRepository @Inject constructor(
 
     override suspend fun deleteCustomCategory(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
-        dao.updateSyncStates(ids = listOf(id), syncState = SyncState.PENDING_DELETE.name)
     }
 }

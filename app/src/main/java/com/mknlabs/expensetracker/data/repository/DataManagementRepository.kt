@@ -380,6 +380,7 @@ class DataManagementRepository @Inject constructor(
                     id = updatedTransaction.id,
                     sourceRecurringRuleId = updatedTransaction.sourceRecurringRuleId,
                     contentHash = updatedTransaction.contentHash,
+                    syncState = SyncState.PENDING_UPLOAD.name,
                     updatedAt = updatedTransaction.updatedAt
                 )
                 existingTransactions[index] = updatedTransaction

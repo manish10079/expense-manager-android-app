@@ -46,6 +46,7 @@ class RecurringRuleRepository @Inject constructor(
         dao.updateEnabled(
             id = id,
             enabled = enabled,
+            syncState = SyncState.PENDING_UPLOAD.name,
             updatedAt = System.currentTimeMillis()
         )
     }

@@ -24,8 +24,8 @@ interface RecurringRuleDao {
     @Upsert
     suspend fun upsert(rule: RecurringRuleEntity)
 
-    @Query("UPDATE recurring_rules SET is_enabled = :enabled, updated_at = :updatedAt WHERE id = :id AND is_deleted = 0")
-    suspend fun updateEnabled(id: String, enabled: Boolean, updatedAt: Long)
+    @Query("UPDATE recurring_rules SET is_enabled = :enabled, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id AND is_deleted = 0")
+    suspend fun updateEnabled(id: String, enabled: Boolean, syncState: String, updatedAt: Long)
 
     @Query("UPDATE recurring_rules SET is_deleted = 1, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun softDelete(id: String, syncState: String, updatedAt: Long)

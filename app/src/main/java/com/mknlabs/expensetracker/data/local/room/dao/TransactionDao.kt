@@ -164,6 +164,7 @@ interface TransactionDao {
         UPDATE transactions
         SET source_recurring_rule_id = :sourceRecurringRuleId,
             content_hash = :contentHash,
+            sync_state = :syncState,
             updated_at = :updatedAt
         WHERE id = :id
         """
@@ -172,6 +173,7 @@ interface TransactionDao {
         id: String,
         sourceRecurringRuleId: String?,
         contentHash: String?,
+        syncState: String,
         updatedAt: Long
     )
 

@@ -39,7 +39,7 @@ class GoalsViewModel @Inject constructor(
                 isCompleted = false,
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis(),
-                syncState = SyncState.LOCAL_ONLY
+                syncState = SyncState.PENDING_UPLOAD
             )
             goalRepository.upsertGoal(newGoal)
         }
@@ -56,7 +56,8 @@ class GoalsViewModel @Inject constructor(
             val goal = goalRepository.getGoalById(id) ?: return@launch
             val updatedGoal = goal.copy(
                 currentAmountMinor = goal.currentAmountMinor + (amount * 100).toLong(),
-                updatedAt = System.currentTimeMillis()
+                updatedAt = System.currentTimeMillis(),
+                syncState = SyncState.PENDING_UPLOAD
             )
             goalRepository.upsertGoal(updatedGoal)
         }

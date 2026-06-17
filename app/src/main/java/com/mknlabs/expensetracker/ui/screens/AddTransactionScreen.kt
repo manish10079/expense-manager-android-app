@@ -429,7 +429,7 @@ fun AddTransactionScreen(
                                 paymentTypeId = payment.id,
                                 categoryId = category.id,
                                 contentHash = existingTransaction?.contentHash,
-                                syncState = existingTransaction?.syncState ?: SyncState.LOCAL_ONLY,
+                                syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
                                 isDeleted = false,
                                 updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
                                 sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId

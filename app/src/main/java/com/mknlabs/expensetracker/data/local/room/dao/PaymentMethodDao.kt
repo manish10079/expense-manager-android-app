@@ -33,7 +33,7 @@ interface PaymentMethodDao {
     @Upsert
     suspend fun upsertAll(paymentMethods: List<PaymentMethodEntity>)
 
-    @Query("UPDATE payment_methods SET is_deleted = 1, updated_at = :updatedAt WHERE id = :id AND is_system = 0")
+    @Query("UPDATE payment_methods SET is_deleted = 1, sync_state = 'PENDING_DELETE', updated_at = :updatedAt WHERE id = :id AND is_system = 0")
     suspend fun softDelete(id: Int, updatedAt: Long)
 
     @Query("SELECT * FROM payment_methods WHERE sync_state != 'SYNCED'")
