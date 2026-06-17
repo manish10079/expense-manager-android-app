@@ -9,6 +9,7 @@ import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -33,7 +34,8 @@ sealed class InitTask(val labelResId: Int, val progress: Int) {
 class SplashViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val transactionRepository: TransactionRepository,
-    private val configurationRepository: ConfigurationRepository
+    private val configurationRepository: ConfigurationRepository,
+    private val syncRepository: SyncRepository
 ) : ViewModel() {
 
     private val _currentTask = MutableStateFlow<InitTask>(InitTask.Start)
@@ -78,18 +80,22 @@ class SplashViewModel @Inject constructor(
                 // Fetch latest remote config
                 configurationRepository.fetchAndActivate()
                 
-                delay(800)
+                delay(500)
 
                 // Step 2: Syncing Transactions (Includes Profile and Data Warm-up)
                 _currentTask.value = InitTask.Syncing
                 UserProfileDataStore.initialize(context)
                 
-                // Trigger immediate Cloud Sync
+                // 1. Force a profile sync first to identify Tier (Premium/Free)
+                // This is critical for fresh installs to enable SyncWorker correctly
+                syncRepository.syncUserProfile()
+
+                // 2. Trigger general Cloud Sync (Push/Pull)
                 com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
                 
                 // Perform a warm-up fetch to ensure Room caches are ready
                 transactionRepository.observeActiveTransactionCount().first()
-                delay(800)
+                delay(500)
 
                 // Step 3: Securing Data (Final Checks)
                 _currentTask.value = InitTask.Securing

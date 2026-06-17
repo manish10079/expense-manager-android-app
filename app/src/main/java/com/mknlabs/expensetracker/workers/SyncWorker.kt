@@ -22,6 +22,7 @@ class SyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         // 1. Sync profile for any authenticated user (free, premium, guest/anonymous)
+        // This will update the local UserTier if it changed on the server
         val profileSyncResult = syncRepository.syncUserProfile()
         if (profileSyncResult.isFailure) {
             return Result.retry()
@@ -32,7 +33,7 @@ class SyncWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        // 2. Check Tier and Sync Setting - Only Premium users with sync enabled get full Room DB cloud sync
+        // 2. Re-read settings AFTER profile sync to get the latest tier
         val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
         if (settings.userTier != UserTier.PREMIUM || !settings.isCloudSyncEnabled) {
             return Result.success()

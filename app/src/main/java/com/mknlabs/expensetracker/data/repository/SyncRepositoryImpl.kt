@@ -299,7 +299,8 @@ class SyncRepositoryImpl @Inject constructor(
     private suspend fun pullCloudChanges(uid: String, lastSync: Long) {
         val userDoc = firestore.collection("users").document(uid)
 
-        // Optimized Pull logic: Bulk fetch and map lookups
+        // Optimized Pull logic with strict sequencing: Metadata -> Structural -> Data
+        // 1. Metadata (Required for transactions/budgets)
         pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
             val local = categoryDao.getById(cloudItem.id)
             if (local == null || cloudItem.updatedAt > local.updatedAt) {
@@ -314,6 +315,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
 
+        // 2. Structural/Rules
         pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
             val local = budgetDao.getById(cloudItem.id)
             if (local == null || cloudItem.updatedAt > local.updatedAt) {
@@ -328,6 +330,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
 
+        // 3. Independent Entities
         pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
             val local = goalDao.getById(cloudItem.id)
             if (local == null || cloudItem.updatedAt > local.updatedAt) {
@@ -335,6 +338,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
 
+        // 4. Heavy Data (Dependencies now met)
         pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
             val local = transactionDao.getById(cloudItem.id)
             if (local == null || cloudItem.updatedAt > local.updatedAt) {
@@ -349,9 +353,16 @@ class SyncRepositoryImpl @Inject constructor(
         lastSync: Long,
         crossinline onPull: suspend (T) -> Unit
     ) {
-        val snapshot = userDoc.collection(collectionName)
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
+        // "Full Recovery" Mode: If lastSync is 0, fetch ALL documents. 
+        // Otherwise, fetch only those modified after lastSync.
+        val query = if (lastSync == 0L) {
+            userDoc.collection(collectionName)
+        } else {
+            userDoc.collection(collectionName)
+                .whereGreaterThan("updatedAt", lastSync)
+        }
+        
+        val snapshot = query.get().await()
         
         snapshot.documents.forEach { doc ->
             doc.toObject(T::class.java)?.let { onPull(it) }
