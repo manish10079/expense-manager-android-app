@@ -159,6 +159,7 @@ fun SettingsScreen(
                 monetizationViewModel.onWatchAdFreeClicked(activity)
             }
         },
+        onRepairSync = settingsViewModel::repairSync,
         onBackClick = onBackClick
     )
 }
@@ -190,6 +191,7 @@ private fun SettingsScreenContent(
     onShowUpgradeSheet: () -> Unit,
     onRedeemProPassClick: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
+    onRepairSync: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -263,6 +265,7 @@ private fun SettingsScreenContent(
                                     }
                                     SettingsActionId.Logout -> onLogoutClick()
                                     SettingsActionId.RedeemProPass -> onRedeemProPassClick()
+                                    SettingsActionId.RepairSync -> onRepairSync()
                                     else -> Unit
                                 }
                             },
@@ -528,6 +531,7 @@ private fun SettingsScreenPreview() {
             onShowUpgradeSheet = {},
             onRedeemProPassClick = {},
             onAdFreeAccessClick = {},
+            onRepairSync = {},
             onBackClick = {}
         )
     }

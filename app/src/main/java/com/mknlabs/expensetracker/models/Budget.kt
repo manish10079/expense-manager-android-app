@@ -12,7 +12,7 @@ data class Budget(
     val limitMinor: Long,
     val createdAt: Long,
     val updatedAt: Long = createdAt,
-    val syncState: SyncState = SyncState.LOCAL_ONLY,
+    val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val editCount: Int = 0,
     val isDeleted: Boolean = false
 ) {
@@ -23,7 +23,7 @@ data class Budget(
         limitAmount: Double,
         createdAt: Long = System.currentTimeMillis(),
         updatedAt: Long = createdAt,
-        syncState: SyncState = SyncState.LOCAL_ONLY,
+        syncState: SyncState = SyncState.PENDING_UPLOAD,
         editCount: Int = 0,
         isDeleted: Boolean = false
     ) : this(

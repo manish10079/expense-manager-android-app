@@ -30,11 +30,14 @@ interface RecurringRuleDao {
     @Query("UPDATE recurring_rules SET is_deleted = 1, sync_state = :syncState, updated_at = :updatedAt WHERE id = :id")
     suspend fun softDelete(id: String, syncState: String, updatedAt: Long)
 
-    @Query("SELECT * FROM recurring_rules WHERE sync_state != 'SYNCED' AND sync_state != 'LOCAL_ONLY'")
+    @Query("SELECT * FROM recurring_rules WHERE sync_state != 'SYNCED'")
     suspend fun getUnsynced(): List<RecurringRuleEntity>
 
-    @Query("UPDATE recurring_rules SET sync_state = :syncState WHERE id = :id")
-    suspend fun updateSyncState(id: String, syncState: String)
+    @Query("UPDATE recurring_rules SET sync_state = :syncState WHERE id IN (:ids)")
+    suspend fun updateSyncStates(ids: List<String>, syncState: String)
+
+    @Query("UPDATE recurring_rules SET sync_state = :syncState")
+    suspend fun updateSyncStatesForAll(syncState: String)
 
     @Query("DELETE FROM recurring_rules")
     suspend fun deleteAll()

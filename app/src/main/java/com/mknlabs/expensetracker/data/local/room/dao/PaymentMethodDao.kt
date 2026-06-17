@@ -24,6 +24,9 @@ interface PaymentMethodDao {
     @Query("SELECT COUNT(*) FROM payment_methods")
     suspend fun countAll(): Int
 
+    @Query("SELECT * FROM payment_methods WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): PaymentMethodEntity?
+
     @Upsert
     suspend fun upsert(paymentMethod: PaymentMethodEntity)
 
@@ -33,9 +36,12 @@ interface PaymentMethodDao {
     @Query("UPDATE payment_methods SET is_deleted = 1, updated_at = :updatedAt WHERE id = :id AND is_system = 0")
     suspend fun softDelete(id: Int, updatedAt: Long)
 
-    @Query("SELECT * FROM payment_methods WHERE sync_state != 'SYNCED' AND sync_state != 'LOCAL_ONLY'")
+    @Query("SELECT * FROM payment_methods WHERE sync_state != 'SYNCED'")
     suspend fun getUnsynced(): List<PaymentMethodEntity>
 
-    @Query("UPDATE payment_methods SET sync_state = :syncState WHERE id = :id")
-    suspend fun updateSyncState(id: Int, syncState: String)
+    @Query("UPDATE payment_methods SET sync_state = :syncState WHERE id IN (:ids)")
+    suspend fun updateSyncStates(ids: List<Int>, syncState: String)
+
+    @Query("UPDATE payment_methods SET sync_state = :syncState")
+    suspend fun updateSyncStatesForAll(syncState: String)
 }

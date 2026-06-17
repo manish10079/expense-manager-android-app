@@ -6,6 +6,8 @@ import android.provider.Settings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.WriteBatch
+import androidx.room.withTransaction
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
@@ -41,7 +43,8 @@ class SyncRepositoryImpl @Inject constructor(
     private val budgetDao: BudgetDao,
     private val paymentMethodDao: PaymentMethodDao,
     private val recurringRuleDao: RecurringRuleDao,
-    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao
+    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
+    private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : SyncRepository {
 
     private val _registeredDevices = MutableStateFlow<List<RegisteredDevice>>(emptyList())
@@ -60,49 +63,35 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun registerCurrentDevice(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
-        
         try {
-            val userDocRef = firestore.collection("users").document(uid)
-            val devicesCollection = userDocRef.collection("devices")
-            
-            // 1. Get current devices
+            val devicesCollection = firestore.collection("users").document(uid).collection("devices")
             val snapshot = devicesCollection.get().await()
             val existingDevices = snapshot.documents.map { it.id }
             
-            // 2. If this device is already registered, just update last active
             if (existingDevices.contains(androidId)) {
                 devicesCollection.document(androidId).update("lastActiveMillis", System.currentTimeMillis()).await()
                 refreshDevices()
                 return@withContext Result.success(Unit)
             }
             
-            // 3. Check limit from Remote Config
             val maxLimit = configRepository.maxSyncDevices.value
-            
             if (existingDevices.size >= maxLimit) {
                 return@withContext Result.failure(Exception("Device limit reached ($maxLimit). Please remove another device first."))
             }
             
-            // 4. Register new device
-            val deviceData = mapOf(
-                "modelName" to deviceModel,
-                "lastActiveMillis" to System.currentTimeMillis()
-            )
+            val deviceData = mapOf("modelName" to deviceModel, "lastActiveMillis" to System.currentTimeMillis())
             devicesCollection.document(androidId).set(deviceData).await()
             refreshDevices()
-            
-            return@withContext Result.success(Unit)
+            Result.success(Unit)
         } catch (e: Exception) {
-            return@withContext Result.failure(e)
+            Result.failure(e)
         }
     }
 
     override suspend fun unregisterDevice(deviceId: String): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
-        return@withContext try {
-            firestore.collection("users").document(uid)
-                .collection("devices").document(deviceId)
-                .delete().await()
+        try {
+            firestore.collection("users").document(uid).collection("devices").document(deviceId).delete().await()
             refreshDevices()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -112,10 +101,8 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun refreshDevices(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
-        return@withContext try {
-            val snapshot = firestore.collection("users").document(uid)
-                .collection("devices").get().await()
-            
+        try {
+            val snapshot = firestore.collection("users").document(uid).collection("devices").get().await()
             val devices = snapshot.documents.map { doc ->
                 RegisteredDevice(
                     id = doc.id,
@@ -133,8 +120,7 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun syncUserProfile(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.success(Unit)
-
-        return@withContext try {
+        try {
             syncUserProfileInternal(uid)
             Result.success(Unit)
         } catch (e: Exception) {
@@ -144,26 +130,45 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun syncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
-        
-        return@withContext try {
+        try {
             val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
 
             syncUserProfileInternal(uid)
-
-            // 1. PUSH (Local -> Cloud)
             pushLocalChanges(uid)
-
-            // 2. PULL (Cloud -> Local)
             pullCloudChanges(uid, lastSync)
 
-            // 3. Update Last Sync Time
             AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = currentSyncStart) }
-            
             Result.success(Unit)
         } catch (e: Exception) {
-            return@withContext Result.failure(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun repairSyncMetadata(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // 1. Reset all local sync states to PENDING_UPLOAD
+            database.withTransaction {
+                transactionDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+                categoryDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+                budgetDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+                paymentMethodDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+                recurringRuleDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+                goalDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
+            }
+
+            // 2. Wipe last sync time to ensure we start fresh from the cloud too
+            AppSettingsDataStore.updateAppSettings(context) {
+                it.copy(lastSyncTimeMillis = 0L)
+            }
+
+            // 3. Force an immediate sync run
+            com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -177,27 +182,16 @@ class SyncRepositoryImpl @Inject constructor(
         val snapshot = userDoc.get().await()
         val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
         val remoteAccountTier = snapshot.getString("accountTier") ?: ""
-        
         val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val currentUser = firebaseAuth.currentUser
 
-        // 1. Never push if local is Free but remote is already Premium
-        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") {
-            return
-        }
+        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") return
+        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt) return
 
-        // 2. Standard timestamp check for other updates
-        // We allow the push if snapshot doesn't exist yet (first login)
-        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt) {
-            return
-        }
-
-        // Fallback to Google data if local profile is still "Guest" or has no photo
         val finalFullName = if (localProfile.fullName == defaultUserProfile.fullName) {
             currentUser?.displayName ?: localProfile.fullName
         } else localProfile.fullName
 
-        // Never push local file URIs to the cloud, push the Google one instead
         val finalPhotoUri = if (localProfile.photoUri?.startsWith("file") == true) {
             currentUser?.photoUrl?.toString()
         } else {
@@ -210,6 +204,7 @@ class SyncRepositoryImpl @Inject constructor(
             "phoneNumber" to localProfile.phoneNumber,
             "dateOfBirthMillis" to (localProfile.dateOfBirthMillis ?: 0L),
             "gender" to localProfile.gender,
+            "financialGoal" to localProfile.financialGoal,
             "memberSinceLabel" to localProfile.memberSinceLabel,
             "accountTier" to localProfile.accountTier,
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
@@ -217,7 +212,6 @@ class SyncRepositoryImpl @Inject constructor(
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
         )
-
         userDoc.set(profileData, SetOptions.merge()).await()
     }
 
@@ -228,8 +222,6 @@ class SyncRepositoryImpl @Inject constructor(
         val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
 
         if (!snapshot.exists()) {
-            // First time login - Cloud doesn't exist yet. 
-            // If local is still Guest, populate from Google immediately so UI updates
             if (localProfile.fullName == defaultUserProfile.fullName || localProfile.photoUri == null) {
                 val hydratedProfile = localProfile.copy(
                     fullName = authUser?.displayName ?: localProfile.fullName,
@@ -244,204 +236,225 @@ class SyncRepositoryImpl @Inject constructor(
 
         val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
         val remoteAccountTier = snapshot.getString("accountTier") ?: ""
-        
-        // PULL if:
-        // 1. Remote is newer OR
-        // 2. Local tier is missing/Free but remote is Premium OR
-        // 3. Local tier is blank (first sync after clear data)
         val shouldPull = remoteUpdatedAt > localProfile.updatedAtMillis || 
                          (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") ||
                          localProfile.accountTier.isBlank()
 
         if (!shouldPull) return
 
-        val remoteProExpiry = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp
-
         val remoteProfile = UserProfile(
-            fullName = snapshot.getString("fullName") 
-                ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null)
-                ?: localProfile.fullName,
-            emailAddress = snapshot.getString("emailAddress")
-                ?: authUser?.email
-                ?: localProfile.emailAddress,
+            fullName = snapshot.getString("fullName") ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null) ?: localProfile.fullName,
+            emailAddress = snapshot.getString("emailAddress") ?: authUser?.email ?: localProfile.emailAddress,
             phoneNumber = snapshot.getString("phoneNumber") ?: localProfile.phoneNumber,
             dateOfBirthMillis = snapshot.getLong("dateOfBirthMillis") ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
+            financialGoal = snapshot.getString("financialGoal") ?: localProfile.financialGoal,
             memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
             accountTier = remoteAccountTier,
-            proExpiryTimestamp = remoteProExpiry,
-            photoUri = snapshot.getString("photoUri") 
-                ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null)
-                ?: localProfile.photoUri,
+            proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp,
+            photoUri = snapshot.getString("photoUri") ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null) ?: localProfile.photoUri,
             updatedAtMillis = remoteUpdatedAt
         )
 
         UserProfileDataStore.setUserProfile(context, remoteProfile)
-
-        // Sync Tier and Expiry to AppSettings and Monetization
-        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier }
-            ?: com.mknlabs.expensetracker.models.UserTier.FREE
+        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier } ?: com.mknlabs.expensetracker.models.UserTier.FREE
         AppSettingsDataStore.updateUserTier(context, tier)
-
-        // Ensure MonetizationDataStore has the latest cloud expiry
-        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, remoteProExpiry)
+        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, remoteProfile.proExpiryTimestamp)
     }
 
     private suspend fun pushLocalChanges(uid: String) {
         val userDoc = firestore.collection("users").document(uid)
         
-        // Push Transactions
-        transactionDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("transactions").document(entity.id).delete().await()
-            } else {
-                userDoc.collection("transactions").document(entity.id).set(entity).await()
-            }
-            transactionDao.updateSyncState(entity.id, SyncState.SYNCED.name)
-        }
+        // Prioritize metadata over transactions for reliable initial setup
+        val allTasks = mutableListOf<SyncTask>()
+        
+        categoryDao.getUnsynced().forEach { allTasks.add(SyncTask.CategoryTask(it)) }
+        paymentMethodDao.getUnsynced().forEach { allTasks.add(SyncTask.PaymentMethodTask(it)) }
+        budgetDao.getUnsynced().forEach { allTasks.add(SyncTask.BudgetTask(it)) }
+        recurringRuleDao.getUnsynced().forEach { allTasks.add(SyncTask.RecurringRuleTask(it)) }
+        goalDao.getUnsynced().forEach { allTasks.add(SyncTask.GoalTask(it)) }
+        transactionDao.getUnsynced().forEach { allTasks.add(SyncTask.TransactionTask(it)) }
 
-        // Push Categories
-        categoryDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("categories").document(entity.id.toString()).delete().await()
-            } else {
-                userDoc.collection("categories").document(entity.id.toString()).set(entity).await()
-            }
-            categoryDao.updateSyncState(entity.id, SyncState.SYNCED.name)
-        }
+        if (allTasks.isEmpty()) return
 
-        // Push Budgets
-        budgetDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("budgets").document(entity.id).delete().await()
-            } else {
-                userDoc.collection("budgets").document(entity.id).set(entity).await()
-            }
-            budgetDao.updateSyncState(entity.id, SyncState.SYNCED.name)
-        }
+        // Process in chunks of 200 for better reliability on slow networks
+        allTasks.chunked(200).forEach { chunk ->
+            try {
+                firestore.runBatch { batch ->
+                    chunk.forEach { task ->
+                        val collectionName = task.collectionName
+                        val docId = task.id
+                        val docRef = userDoc.collection(collectionName).document(docId)
+                        
+                        if (task.isDeleted) {
+                            batch.delete(docRef)
+                        } else {
+                            // Convert to Map and remove local sync metadata
+                            val data = task.toCloudMap()
+                            batch.set(docRef, data, SetOptions.merge())
+                        }
+                    }
+                }.await()
 
-        // Push Payment Methods
-        paymentMethodDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("payment_methods").document(entity.id.toString()).delete().await()
-            } else {
-                userDoc.collection("payment_methods").document(entity.id.toString()).set(entity).await()
-            }
-            paymentMethodDao.updateSyncState(entity.id, SyncState.SYNCED.name)
-        }
+                // Mark as SYNCED locally only after batch success
+                val txIds = chunk.filterIsInstance<SyncTask.TransactionTask>().map { it.entity.id }
+                if (txIds.isNotEmpty()) transactionDao.updateSyncStates(txIds, SyncState.SYNCED.name)
 
-        // Push Recurring Rules
-        recurringRuleDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("recurring_rules").document(entity.id).delete().await()
-            } else {
-                userDoc.collection("recurring_rules").document(entity.id).set(entity).await()
-            }
-            recurringRuleDao.updateSyncState(entity.id, SyncState.SYNCED.name)
-        }
+                val catIds = chunk.filterIsInstance<SyncTask.CategoryTask>().map { it.entity.id }
+                if (catIds.isNotEmpty()) categoryDao.updateSyncStates(catIds, SyncState.SYNCED.name)
 
-        // Push Goals
-        goalDao.getUnsynced().forEach { entity ->
-            if (entity.isDeleted) {
-                userDoc.collection("goals").document(entity.id).delete().await()
-            } else {
-                userDoc.collection("goals").document(entity.id).set(entity).await()
+                val budgetIds = chunk.filterIsInstance<SyncTask.BudgetTask>().map { it.entity.id }
+                if (budgetIds.isNotEmpty()) budgetDao.updateSyncStates(budgetIds, SyncState.SYNCED.name)
+
+                val pmIds = chunk.filterIsInstance<SyncTask.PaymentMethodTask>().map { it.entity.id }
+                if (pmIds.isNotEmpty()) paymentMethodDao.updateSyncStates(pmIds, SyncState.SYNCED.name)
+
+                val rrIds = chunk.filterIsInstance<SyncTask.RecurringRuleTask>().map { it.entity.id }
+                if (rrIds.isNotEmpty()) recurringRuleDao.updateSyncStates(rrIds, SyncState.SYNCED.name)
+
+                val goalIds = chunk.filterIsInstance<SyncTask.GoalTask>().map { it.entity.id }
+                if (goalIds.isNotEmpty()) goalDao.updateSyncStates(goalIds, SyncState.SYNCED.name)
+
+            } catch (e: Exception) {
+                // If a batch fails, we skip it and continue to the next one to ensure other data is synced
+                android.util.Log.e("Sync", "Batch failed", e)
             }
-            goalDao.updateSyncState(entity.id, SyncState.SYNCED.name)
         }
     }
 
     private suspend fun pullCloudChanges(uid: String, lastSync: Long) {
         val userDoc = firestore.collection("users").document(uid)
 
-        // Pull Transactions
-        val transSnapshot = userDoc.collection("transactions")
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
-        
-        transSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity::class.java)
-            cloudItem?.let {
-                val localItem = transactionDao.getById(it.id)
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    transactionDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
+        // Optimized Pull logic: Bulk fetch and map lookups
+        pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
+            val local = categoryDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                categoryDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
         }
 
-        // Pull Categories
-        val catSnapshot = userDoc.collection("categories")
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
-        
-        catSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity::class.java)
-            cloudItem?.let {
-                val localItem = categoryDao.getById(it.id)
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    categoryDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
+        pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
+            val local = paymentMethodDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                paymentMethodDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
         }
 
-        // Pull Budgets
-        val budgetSnapshot = userDoc.collection("budgets")
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
-        
-        budgetSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity::class.java)
-            cloudItem?.let {
-                val localItem = budgetDao.getById(it.id)
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    budgetDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
+        pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
+            val local = budgetDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
         }
 
-        // Pull Payment Methods
-        val pmSnapshot = userDoc.collection("payment_methods")
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
-        
-        pmSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity::class.java)
-            cloudItem?.let {
-                val localItem = paymentMethodDao.getActivePaymentMethods().find { pm -> pm.id == it.id }
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    paymentMethodDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
+        pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
+            val local = recurringRuleDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
         }
 
-        // Pull Recurring Rules
-        val rrSnapshot = userDoc.collection("recurring_rules")
-            .whereGreaterThan("updatedAt", lastSync)
-            .get().await()
-        
-        rrSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity::class.java)
-            cloudItem?.let {
-                val localItem = recurringRuleDao.getById(it.id)
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    recurringRuleDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
+        pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
+            val local = goalDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                goalDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
         }
 
-        // Pull Goals
-        val goalSnapshot = userDoc.collection("goals")
+        pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
+            val local = transactionDao.getById(cloudItem.id)
+            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+                transactionDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+            }
+        }
+    }
+
+    private suspend inline fun <reified T> pullCollection(
+        userDoc: com.google.firebase.firestore.DocumentReference,
+        collectionName: String,
+        lastSync: Long,
+        crossinline onPull: suspend (T) -> Unit
+    ) {
+        val snapshot = userDoc.collection(collectionName)
             .whereGreaterThan("updatedAt", lastSync)
             .get().await()
         
-        goalSnapshot.documents.forEach { doc ->
-            val cloudItem = doc.toObject(com.mknlabs.expensetracker.data.local.room.entities.GoalEntity::class.java)
-            cloudItem?.let {
-                val localItem = goalDao.getById(it.id)
-                if (localItem == null || it.updatedAt > localItem.updatedAt) {
-                    goalDao.upsert(it.copy(syncState = SyncState.SYNCED))
-                }
-            }
+        snapshot.documents.forEach { doc ->
+            doc.toObject(T::class.java)?.let { onPull(it) }
+        }
+    }
+
+    private sealed class SyncTask {
+        abstract val id: String
+        abstract val collectionName: String
+        abstract val isDeleted: Boolean
+        abstract fun toCloudMap(): Map<String, Any?>
+
+        data class TransactionTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "transactions"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "note" to entity.note, "amountMinor" to entity.amountMinor,
+                "occurredAt" to entity.occurredAt, "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt,
+                "transactionTypeId" to entity.transactionTypeId, "categoryId" to entity.categoryId,
+                "paymentMethodId" to entity.paymentMethodId, "isDeleted" to entity.isDeleted,
+                "contentHash" to entity.contentHash, "sourceRecurringRuleId" to entity.sourceRecurringRuleId
+            )
+        }
+        data class CategoryTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity) : SyncTask() {
+            override val id = entity.id.toString()
+            override val collectionName = "categories"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
+                "transactionTypeId" to entity.transactionTypeId, "isSystem" to entity.isSystem,
+                "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
+            )
+        }
+        data class BudgetTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "budgets"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "categoryId" to entity.categoryId, "monthStart" to entity.monthStart,
+                "limitMinor" to entity.limitMinor, "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt,
+                "editCount" to entity.editCount, "isDeleted" to entity.isDeleted
+            )
+        }
+        data class PaymentMethodTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity) : SyncTask() {
+            override val id = entity.id.toString()
+            override val collectionName = "payment_methods"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
+                "isSystem" to entity.isSystem, "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
+            )
+        }
+        data class RecurringRuleTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "recurring_rules"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "transactionId" to entity.transactionId, "frequency" to entity.frequency,
+                "repeatCount" to entity.repeatCount, "isEnabled" to entity.isEnabled, "intervalCount" to entity.intervalCount,
+                "remainingCount" to entity.remainingCount, "anchorAt" to entity.anchorAt, "nextRunAt" to entity.nextRunAt,
+                "lastRunAt" to entity.lastRunAt, "lastNotifiedOccurrenceAt" to entity.lastNotifiedOccurrenceAt,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
+            )
+        }
+        data class GoalTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "goals"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "name" to entity.name, "targetAmountMinor" to entity.targetAmountMinor,
+                "currentAmountMinor" to entity.currentAmountMinor, "deadlineAt" to entity.deadlineAt,
+                "iconKey" to entity.iconKey, "colorHex" to entity.colorHex, "isCompleted" to entity.isCompleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
+            )
         }
     }
 }

@@ -29,6 +29,9 @@ interface GoalDao {
     @Query("SELECT * FROM goals WHERE sync_state != 'SYNCED'")
     suspend fun getUnsynced(): List<GoalEntity>
 
-    @Query("UPDATE goals SET sync_state = :syncState WHERE id = :id")
-    suspend fun updateSyncState(id: String, syncState: String)
+    @Query("UPDATE goals SET sync_state = :syncState WHERE id IN (:ids)")
+    suspend fun updateSyncStates(ids: List<String>, syncState: String)
+
+    @Query("UPDATE goals SET sync_state = :syncState")
+    suspend fun updateSyncStatesForAll(syncState: String)
 }

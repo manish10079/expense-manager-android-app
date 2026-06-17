@@ -518,7 +518,7 @@ fun MainScreen(
                         onUserProfileChange = { updatedProfile ->
                             coroutineScope.launch {
                                 UserProfileDataStore.updateUserProfile(context) {
-                                    updatedProfile
+                                    updatedProfile.copy(updatedAtMillis = System.currentTimeMillis())
                                 }
                                 SyncWorker.startImmediate(context)
                             }

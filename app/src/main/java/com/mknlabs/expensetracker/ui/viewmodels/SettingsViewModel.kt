@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Immutable
@@ -67,6 +68,7 @@ enum class SettingsActionId {
     SecurityPrivacy,
     TransactionCardCustomize,
     DataManagement,
+    RepairSync,
     About,
     Notifications,
     ManageCategories,
@@ -87,7 +89,8 @@ data class SettingsScreenUiState(
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,
-    private val configurationRepository: ConfigurationRepository
+    private val configurationRepository: ConfigurationRepository,
+    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository
 ) : ViewModel() {
 
     private var transactionCount: Int = 0
@@ -152,6 +155,12 @@ class SettingsViewModel @Inject constructor(
         this.userTier = userTier
         this.isCloudSyncEnabled = isCloudSyncEnabled
         rebuildUiState()
+    }
+
+    fun repairSync() {
+        viewModelScope.launch {
+            syncRepository.repairSyncMetadata()
+        }
     }
 
     private fun rebuildUiState() {
@@ -319,6 +328,12 @@ private fun buildSettingsSections(
                     subtitleRes = com.mknlabs.expensetracker.R.string.label_data_management_subtitle,
                     icon = Icons.Rounded.Dns,
                     actionId = SettingsActionId.DataManagement
+                ),
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_cloud_sync_devices, 
+                    subtitleRes = com.mknlabs.expensetracker.R.string.desc_sync_active_subtitle,
+                    icon = Icons.Rounded.CloudSync,
+                    actionId = SettingsActionId.RepairSync
                 )
             )
         )

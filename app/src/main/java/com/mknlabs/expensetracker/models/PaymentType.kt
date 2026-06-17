@@ -12,7 +12,7 @@ data class PaymentType(
     val isSystem: Boolean = true,
     val sortOrder: Int = id,
     val isDeleted: Boolean = false,
-    val syncState: SyncState = SyncState.LOCAL_ONLY,
+    val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val createdAt: Long = 0L,
     val updatedAt: Long = createdAt
 ) {

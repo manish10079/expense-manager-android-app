@@ -24,7 +24,7 @@ data class RecurringTransactionRule(
     val lastNotifiedOccurrenceAt: Long? = null,
     val createdAt: Long = anchorAt,
     val updatedAt: Long = createdAt,
-    val syncState: SyncState = SyncState.LOCAL_ONLY,
+    val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val isDeleted: Boolean = false
 )
 

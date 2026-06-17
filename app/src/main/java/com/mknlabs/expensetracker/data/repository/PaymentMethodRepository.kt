@@ -51,6 +51,6 @@ class PaymentMethodRepository @Inject constructor(
 
     override suspend fun deleteCustomPaymentMethod(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
-        dao.updateSyncState(id = id, syncState = SyncState.PENDING_DELETE.name)
+        dao.updateSyncStates(ids = listOf(id), syncState = SyncState.PENDING_DELETE.name)
     }
 }

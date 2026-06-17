@@ -63,7 +63,7 @@ class TransactionRepository @Inject constructor(
         val resolved = transaction.copy(
             id = transaction.id.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString(),
             contentHash = TransactionContentHashBuilder.build(transaction),
-            syncState = if (existing == null) SyncState.LOCAL_ONLY else SyncState.PENDING_UPLOAD,
+            syncState = SyncState.PENDING_UPLOAD,
             updatedAt = now
         )
         dao.upsert(resolved.toEntity())

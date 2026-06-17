@@ -60,6 +60,7 @@ com.mkn0079.expensetracker/
 - **Kotlin Conventions:** Use `val` for immutable variables, data classes for state models, and sealed types for results.
 - **Coroutines:** Use `viewModelScope` in ViewModels and `Dispatchers.IO` for database operations.
 - **Theme Awareness:** All UI components MUST be strictly theme-aware. Use `MaterialTheme.colorScheme` for all colors and `MaterialTheme.typography` for all text styles. Components must respond seamlessly to Light/Dark mode transitions.
+- **Cloud Sync Naming:** All keys in Firestore documents MUST use `camelCase`. This includes Transactions, Profiles, and metadata. Standardizing on camelCase ensures that Firestore keys map 1:1 to Kotlin/Room property names, preventing issues during automated deserialization (`toObject()`).
 
 ### 5. Internationalization (i18n)
 - **Strings:** Never use hardcoded strings for user-facing UI text. All strings must be extracted to `app/src/main/res/values/strings.xml`.

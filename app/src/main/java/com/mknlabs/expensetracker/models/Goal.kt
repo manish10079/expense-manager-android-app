@@ -17,7 +17,7 @@ data class Goal(
     val createdAt: Long,
     val updatedAt: Long,
     val isDeleted: Boolean = false,
-    val syncState: SyncState = SyncState.LOCAL_ONLY
+    val syncState: SyncState = SyncState.PENDING_UPLOAD
 ) {
     val icon: ImageVector
         get() = ExpenseTrackerIconRegistry.iconForKey(iconKey)

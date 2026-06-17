@@ -16,7 +16,7 @@ data class Transaction(
     val paymentTypeId: Int,
     val categoryId: Int,
     val contentHash: String? = null,
-    val syncState: SyncState = SyncState.LOCAL_ONLY,
+    val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val isDeleted: Boolean = false,
     val updatedAt: Long = createdAt,
     val sourceRecurringRuleId: String? = null
@@ -46,7 +46,7 @@ data class Transaction(
         syncState = when {
             cloudSync -> SyncState.SYNCED
             localSync -> SyncState.PENDING_UPLOAD
-            else -> SyncState.LOCAL_ONLY
+            else -> SyncState.PENDING_UPLOAD
         },
         isDeleted = isDeleted,
         updatedAt = createdAt,
@@ -66,5 +66,5 @@ data class Transaction(
         get() = syncState == SyncState.SYNCED
 
     val localSync: Boolean
-        get() = syncState == SyncState.LOCAL_ONLY || syncState == SyncState.PENDING_UPLOAD
+        get() = syncState != SyncState.SYNCED
 }
