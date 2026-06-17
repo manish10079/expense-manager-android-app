@@ -11,7 +11,7 @@ class RoomConverters {
 
     @TypeConverter
     fun toSyncState(value: String): SyncState {
-        return SyncState.entries.firstOrNull { it.name == value } ?: SyncState.LOCAL_ONLY
+        return SyncState.entries.firstOrNull { it.name == value } ?: SyncState.PENDING_UPLOAD
     }
 
     @TypeConverter

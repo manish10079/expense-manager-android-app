@@ -40,28 +40,28 @@ import com.mknlabs.expensetracker.models.SyncState
 )
 data class TransactionEntity(
     @PrimaryKey
-    val id: String,
-    val note: String,
+    val id: String = "",
+    val note: String = "",
     @ColumnInfo(name = "amount_minor")
-    val amountMinor: Long,
+    val amountMinor: Long = 0L,
     @ColumnInfo(name = "occurred_at")
-    val occurredAt: Long,
+    val occurredAt: Long = 0L,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long,
+    val updatedAt: Long = 0L,
     @ColumnInfo(name = "transaction_type_id")
-    val transactionTypeId: Int,
+    val transactionTypeId: Int = 0,
     @ColumnInfo(name = "category_id")
-    val categoryId: Int,
+    val categoryId: Int = 0,
     @ColumnInfo(name = "payment_method_id")
-    val paymentMethodId: Int,
+    val paymentMethodId: Int = 0,
     @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean,
+    val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")
-    val syncState: SyncState,
+    val syncState: SyncState = SyncState.SYNCED,
     @ColumnInfo(name = "content_hash")
-    val contentHash: String?,
+    val contentHash: String? = null,
     @ColumnInfo(name = "source_recurring_rule_id")
-    val sourceRecurringRuleId: String?
+    val sourceRecurringRuleId: String? = null
 )

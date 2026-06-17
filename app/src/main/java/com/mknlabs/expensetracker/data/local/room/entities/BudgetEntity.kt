@@ -25,21 +25,21 @@ import com.mknlabs.expensetracker.models.SyncState
 )
 data class BudgetEntity(
     @PrimaryKey
-    val id: String,
+    val id: String = "",
     @ColumnInfo(name = "category_id")
-    val categoryId: Int,
+    val categoryId: Int = 0,
     @ColumnInfo(name = "month_start")
-    val monthStart: Long,
+    val monthStart: Long = 0L,
     @ColumnInfo(name = "limit_minor")
-    val limitMinor: Long,
+    val limitMinor: Long = 0L,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long,
+    val updatedAt: Long = 0L,
     @ColumnInfo(name = "sync_state")
-    val syncState: SyncState,
+    val syncState: SyncState = SyncState.SYNCED,
     @ColumnInfo(name = "edit_count")
     val editCount: Int = 0,
     @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean
+    val isDeleted: Boolean = false
 )

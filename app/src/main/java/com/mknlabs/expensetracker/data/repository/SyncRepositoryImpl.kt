@@ -316,51 +316,47 @@ class SyncRepositoryImpl @Inject constructor(
     private suspend fun pullCloudChanges(uid: String, lastSync: Long) {
         val userDoc = firestore.collection("users").document(uid)
 
-        // Optimized Pull logic with strict sequencing: Metadata -> Structural -> Data
-        // 1. Metadata (Required for transactions/budgets)
-        pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
-            val local = categoryDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+        // 1. Pull Metadata (Categories & Payment Methods)
+        // These MUST be pulled first because almost everything else depends on them.
+        try {
+            pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
                 categoryDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
-        }
+        } catch (e: Exception) { android.util.Log.e("Sync", "Categories pull failed", e) }
 
-        pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
-            val local = paymentMethodDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+        try {
+            pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
                 paymentMethodDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
-        }
+        } catch (e: Exception) { android.util.Log.e("Sync", "Payment methods pull failed", e) }
 
-        // 2. Structural/Rules
-        pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
-            val local = budgetDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
-                budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
-            }
-        }
+        // 2. Relational Data (Handle circular/reverse dependencies)
+        // We use a raw PRAGMA to disable foreign keys globally for this connection.
+        // This is the most reliable way to handle high-volume sync with circular dependencies.
+        try {
+            database.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = OFF")
 
-        pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
-            val local = recurringRuleDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
-                recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
-            }
-        }
-
-        // 3. Independent Entities
-        pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
-            val local = goalDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+            // Pull independent items
+            pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
                 goalDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
-        }
 
-        // 4. Heavy Data (Dependencies now met)
-        pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
-            val local = transactionDao.getById(cloudItem.id)
-            if (local == null || cloudItem.updatedAt > local.updatedAt) {
+            // Pull Transactions & Rules (Circular Dependency Zone)
+            pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
                 transactionDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+
+            pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
+                recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+            }
+
+            pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
+                budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "Relational data pull failed", e)
+        } finally {
+            database.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = ON")
         }
     }
 
@@ -380,10 +376,27 @@ class SyncRepositoryImpl @Inject constructor(
         }
         
         val snapshot = query.get().await()
+        var deserializedCount = 0
+        var savedCount = 0
+        
+        android.util.Log.d("Sync", "[$collectionName] Total documents in Cloud: ${snapshot.size()}")
         
         snapshot.documents.forEach { doc ->
-            doc.toObject(T::class.java)?.let { onPull(it) }
+            try {
+                val item = doc.toObject(T::class.java)
+                if (item != null) {
+                    deserializedCount++
+                    onPull(item)
+                    savedCount++
+                } else {
+                    android.util.Log.w("Sync", "[$collectionName] Deserialization returned null for ID: ${doc.id}")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("Sync", "[$collectionName] Failed to process document ID: ${doc.id}", e)
+            }
         }
+        
+        android.util.Log.i("Sync", "[$collectionName] Completed: Fetched=${snapshot.size()}, Deserialized=$deserializedCount, Saved=$savedCount")
     }
 
     private sealed class SyncTask {

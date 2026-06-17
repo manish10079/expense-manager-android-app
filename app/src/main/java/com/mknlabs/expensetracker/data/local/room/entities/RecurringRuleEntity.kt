@@ -25,32 +25,32 @@ import com.mknlabs.expensetracker.models.SyncState
 )
 data class RecurringRuleEntity(
     @PrimaryKey
-    val id: String,
+    val id: String = "",
     @ColumnInfo(name = "transaction_id")
-    val transactionId: String,
-    val frequency: RecurringFrequency,
+    val transactionId: String = "",
+    val frequency: RecurringFrequency = RecurringFrequency.Monthly,
     @ColumnInfo(name = "interval_count")
-    val intervalCount: Int,
+    val intervalCount: Int = 1,
     @ColumnInfo(name = "repeat_count")
-    val repeatCount: Int,
+    val repeatCount: Int = 0,
     @ColumnInfo(name = "remaining_count")
-    val remainingCount: Int?,
+    val remainingCount: Int? = null,
     @ColumnInfo(name = "anchor_at")
-    val anchorAt: Long,
+    val anchorAt: Long = 0L,
     @ColumnInfo(name = "next_run_at")
-    val nextRunAt: Long,
+    val nextRunAt: Long = 0L,
     @ColumnInfo(name = "last_run_at")
-    val lastRunAt: Long?,
+    val lastRunAt: Long? = null,
     @ColumnInfo(name = "last_notified_occurrence_at")
     val lastNotifiedOccurrenceAt: Long? = null,
     @ColumnInfo(name = "is_enabled")
-    val isEnabled: Boolean,
+    val isEnabled: Boolean = true,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long,
+    val updatedAt: Long = 0L,
     @ColumnInfo(name = "sync_state")
-    val syncState: SyncState,
+    val syncState: SyncState = SyncState.SYNCED,
     @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean
+    val isDeleted: Boolean = false
 )

@@ -15,20 +15,20 @@ import com.mknlabs.expensetracker.models.SyncState
 )
 data class PaymentMethodEntity(
     @PrimaryKey
-    val id: Int,
-    val name: String,
+    val id: Int = 0,
+    val name: String = "",
     @ColumnInfo(name = "icon_key")
-    val iconKey: String,
+    val iconKey: String = "",
     @ColumnInfo(name = "is_system")
-    val isSystem: Boolean,
+    val isSystem: Boolean = false,
     @ColumnInfo(name = "sort_order")
-    val sortOrder: Int,
+    val sortOrder: Int = 0,
     @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean,
+    val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")
-    val syncState: SyncState,
+    val syncState: SyncState = SyncState.SYNCED,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long
+    val updatedAt: Long = 0L
 )

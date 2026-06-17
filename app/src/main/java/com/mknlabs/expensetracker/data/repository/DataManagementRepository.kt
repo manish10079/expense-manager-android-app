@@ -740,7 +740,7 @@ private fun JSONObject.optNullableInt(key: String): Int? {
 }
 
 private fun String.toSyncState(): SyncState {
-    return SyncState.entries.firstOrNull { it.name == this } ?: SyncState.LOCAL_ONLY
+    return SyncState.entries.firstOrNull { it.name == this } ?: SyncState.PENDING_UPLOAD
 }
 
 private fun String.toRecurringFrequency(): RecurringFrequency {

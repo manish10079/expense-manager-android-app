@@ -93,7 +93,7 @@ class LegacyImportRepository @Inject constructor(
             ),
             paymentMethodId = resolvePaymentMethodId(optString("source")),
             isDeleted = false,
-            syncState = SyncState.LOCAL_ONLY,
+            syncState = SyncState.PENDING_UPLOAD,
             contentHash = optString("hash").takeIf { it.isNotBlank() },
             sourceRecurringRuleId = null
         )

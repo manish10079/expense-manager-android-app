@@ -8,26 +8,26 @@ import com.mknlabs.expensetracker.models.SyncState
 @Entity(tableName = "goals")
 data class GoalEntity(
     @PrimaryKey
-    val id: String,
-    val name: String,
+    val id: String = "",
+    val name: String = "",
     @ColumnInfo(name = "target_amount_minor")
-    val targetAmountMinor: Long,
+    val targetAmountMinor: Long = 0L,
     @ColumnInfo(name = "current_amount_minor")
-    val currentAmountMinor: Long,
+    val currentAmountMinor: Long = 0L,
     @ColumnInfo(name = "deadline_at")
-    val deadlineAt: Long?,
+    val deadlineAt: Long? = null,
     @ColumnInfo(name = "icon_key")
-    val iconKey: String,
+    val iconKey: String = "",
     @ColumnInfo(name = "color_hex")
-    val colorHex: String,
+    val colorHex: String = "",
     @ColumnInfo(name = "is_completed")
-    val isCompleted: Boolean,
+    val isCompleted: Boolean = false,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long,
+    val updatedAt: Long = 0L,
     @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean,
+    val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")
-    val syncState: SyncState
+    val syncState: SyncState = SyncState.SYNCED
 )
