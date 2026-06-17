@@ -31,7 +31,4 @@ interface GoalDao {
 
     @Query("UPDATE goals SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<String>, syncState: String)
-
-    @Query("UPDATE goals SET sync_state = :syncState")
-    suspend fun updateSyncStatesForAll(syncState: String)
 }

@@ -146,32 +146,6 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun repairSyncMetadata(): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            // 1. Reset all local sync states to PENDING_UPLOAD
-            database.withTransaction {
-                transactionDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-                categoryDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-                budgetDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-                paymentMethodDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-                recurringRuleDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-                goalDao.updateSyncStatesForAll(SyncState.PENDING_UPLOAD.name)
-            }
-
-            // 2. Wipe last sync time to ensure we start fresh from the cloud too
-            AppSettingsDataStore.updateAppSettings(context) {
-                it.copy(lastSyncTimeMillis = 0L)
-            }
-
-            // 3. Force an immediate sync run
-            com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
-
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     private suspend fun syncUserProfileInternal(uid: String) {
         pushUserProfile(uid)
         pullUserProfile(uid)

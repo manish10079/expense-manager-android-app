@@ -51,9 +51,4 @@ interface SyncRepository {
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).
      */
     suspend fun syncTransactions(): Result<Unit>
-
-    /**
-     * Resets local sync metadata to force a full re-upload of all data to the cloud.
-     */
-    suspend fun repairSyncMetadata(): Result<Unit>
 }

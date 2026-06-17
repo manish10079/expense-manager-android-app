@@ -68,7 +68,6 @@ enum class SettingsActionId {
     SecurityPrivacy,
     TransactionCardCustomize,
     DataManagement,
-    RepairSync,
     About,
     Notifications,
     ManageCategories,
@@ -155,12 +154,6 @@ class SettingsViewModel @Inject constructor(
         this.userTier = userTier
         this.isCloudSyncEnabled = isCloudSyncEnabled
         rebuildUiState()
-    }
-
-    fun repairSync() {
-        viewModelScope.launch {
-            syncRepository.repairSyncMetadata()
-        }
     }
 
     private fun rebuildUiState() {
@@ -328,12 +321,6 @@ private fun buildSettingsSections(
                     subtitleRes = com.mknlabs.expensetracker.R.string.label_data_management_subtitle,
                     icon = Icons.Rounded.Dns,
                     actionId = SettingsActionId.DataManagement
-                ),
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_cloud_sync_devices, 
-                    subtitleRes = com.mknlabs.expensetracker.R.string.desc_sync_active_subtitle,
-                    icon = Icons.Rounded.CloudSync,
-                    actionId = SettingsActionId.RepairSync
                 )
             )
         )
@@ -343,7 +330,7 @@ private fun buildSettingsSections(
     if (!isAnonymous) {
         settingsSections.add(
             SettingsSectionUi(
-                titleRes = com.mknlabs.expensetracker.R.string.title_session, 
+                titleRes = com.mknlabs.expensetracker.R.string.title_session,
                 items = listOf(
                     SettingsItemUi(
                         titleRes = com.mknlabs.expensetracker.R.string.label_logout,

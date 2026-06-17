@@ -36,9 +36,6 @@ interface RecurringRuleDao {
     @Query("UPDATE recurring_rules SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<String>, syncState: String)
 
-    @Query("UPDATE recurring_rules SET sync_state = :syncState")
-    suspend fun updateSyncStatesForAll(syncState: String)
-
     @Query("DELETE FROM recurring_rules")
     suspend fun deleteAll()
 }
