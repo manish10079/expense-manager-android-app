@@ -294,13 +294,18 @@ fun AppLockScreen(
         }
     }
 
-    BackHandler(enabled = headerAction != null) {
+    BackHandler(enabled = mode == AppLockScreenMode.Unlock || headerAction != null) {
         headerAction?.invoke()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {} // Consume clicks to prevent interaction with layers below
+            )
     ) {
         // Base background to ensure opacity
         Box(

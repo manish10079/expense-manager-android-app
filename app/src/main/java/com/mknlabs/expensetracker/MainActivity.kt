@@ -247,6 +247,18 @@ class MainActivity : AppCompatActivity() {
                         }
                         isReady && appSettings != null -> {
                             val settings = appSettings!!
+                            
+                            // Layer 1: Main App Content (Always in composition to preserve NavController state)
+                            MainScreen(
+                                isReady = true,
+                                appSettings = settings,
+                                userProfile = userProfile,
+                                initialNavDestination = initialNavDestination,
+                                isRecoveryPerformed = recoveryPerformed,
+                                onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
+                            )
+
+                            // Layer 2: App Lock Overlay
                             AnimatedContent(
                                 targetState = appLockState,
                                 transitionSpec = {
@@ -304,14 +316,8 @@ class MainActivity : AppCompatActivity() {
                                     }
 
                                     is AppLockState.Unlocked -> {
-                                        MainScreen(
-                                            isReady = true,
-                                            appSettings = settings,
-                                            userProfile = userProfile,
-                                            initialNavDestination = initialNavDestination,
-                                            isRecoveryPerformed = recoveryPerformed,
-                                            onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
-                                        )
+                                        // Empty Box when unlocked to reveal MainScreen underneath
+                                        Box(Modifier.fillMaxSize())
                                     }
                                 }
                             }
