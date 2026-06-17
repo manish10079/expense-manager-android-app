@@ -3,10 +3,13 @@ package com.mknlabs.expensetracker.ui.components
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -23,12 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -42,10 +48,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Surface
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
+import java.io.InputStream
 
 @Composable
 fun ProfileAvatar(
@@ -61,7 +69,9 @@ fun ProfileAvatar(
     backgroundBrush: Brush? = null,
     backgroundColor: Color? = null,
     borderBrush: Brush? = null,
-    placeholderIconBrush: Brush? = null
+    placeholderIconBrush: Brush? = null,
+    userTier: UserTier = UserTier.FREE,
+    isSyncing: Boolean = false
 ) {
     val context = LocalContext.current
     val targetSizePx = with(LocalDensity.current) { size.roundToPx().coerceAtLeast(1) }
@@ -78,6 +88,19 @@ fun ProfileAvatar(
             )
         }
     }
+
+    val isPremium = userTier == UserTier.PREMIUM
+    
+    val infiniteTransition = rememberInfiniteTransition(label = "SyncRingTransition")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "SyncRingRotation"
+    )
 
     Box(
         modifier = modifier.size(size),
@@ -105,9 +128,35 @@ fun ProfileAvatar(
             )
         }
 
+        // Premium Sync Ring
+        if (isPremium) {
+            val ringColor = MaterialTheme.colorScheme.primary
+            if (isSyncing) {
+                Canvas(
+                    modifier = Modifier
+                        .size(size)
+                        .rotate(rotation)
+                ) {
+                    drawArc(
+                        color = ringColor,
+                        startAngle = 0f,
+                        sweepAngle = 280f,
+                        useCenter = false,
+                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .border(width = 2.dp, color = ringColor, shape = CircleShape)
+                )
+            }
+        }
+
         Box(
             modifier = Modifier
-                .size(size * 0.95f)
+                .size(if (isPremium) size * 0.88f else size * 0.95f)
                 .clip(CircleShape)
                 .then(
                     backgroundBrush?.let { brush ->
@@ -118,7 +167,7 @@ fun ProfileAvatar(
                     )
                 )
                 .then(
-                    if (showBorder) {
+                    if (showBorder && !isPremium) {
                         if (borderBrush != null) {
                             Modifier.border(
                                 width = 2.dp,

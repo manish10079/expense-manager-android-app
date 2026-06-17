@@ -98,6 +98,7 @@ fun HomeScreen(
 
     androidx.compose.runtime.LaunchedEffect(
         userProfile,
+        appSettings?.userTier,
         currencyId,
         amountFormatPreferences,
         dateFormatPattern,
@@ -107,6 +108,7 @@ fun HomeScreen(
     ) {
         homeViewModel.updateInputs(
             userProfile = userProfile,
+            userTier = appSettings?.userTier ?: com.mknlabs.expensetracker.models.UserTier.FREE,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
@@ -175,6 +177,8 @@ private fun HomeScreenContent(
                         size = 60.dp,
                         textSize = 18.sp,
                         photoUri = userProfile.photoUri,
+                        userTier = uiState.userTier,
+                        isSyncing = uiState.isSyncing,
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                         borderBrush = profileAvatarGradient,
                         placeholderIconBrush = profileAvatarGradient,

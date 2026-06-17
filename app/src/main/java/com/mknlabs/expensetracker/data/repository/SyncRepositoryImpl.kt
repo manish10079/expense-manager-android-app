@@ -53,6 +53,9 @@ class SyncRepositoryImpl @Inject constructor(
     private val _isSyncEnabled = MutableStateFlow(false)
     override val isSyncEnabled: StateFlow<Boolean> = _isSyncEnabled.asStateFlow()
 
+    private val _isSyncing = MutableStateFlow(false)
+    override val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
     private val androidId: String by lazy {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
     }
@@ -121,16 +124,20 @@ class SyncRepositoryImpl @Inject constructor(
     override suspend fun syncUserProfile(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.success(Unit)
         try {
+            _isSyncing.value = true
             syncUserProfileInternal(uid)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        } finally {
+            _isSyncing.value = false
         }
     }
 
     override suspend fun syncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         try {
+            _isSyncing.value = true
             val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
@@ -143,6 +150,8 @@ class SyncRepositoryImpl @Inject constructor(
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        } finally {
+            _isSyncing.value = false
         }
     }
 
@@ -232,7 +241,15 @@ class SyncRepositoryImpl @Inject constructor(
 
         UserProfileDataStore.setUserProfile(context, remoteProfile)
         val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier } ?: com.mknlabs.expensetracker.models.UserTier.FREE
-        AppSettingsDataStore.updateUserTier(context, tier)
+        
+        // Update tier and automatically enable sync if user is Premium
+        AppSettingsDataStore.updateAppSettings(context) { current ->
+            current.copy(
+                userTier = tier,
+                isCloudSyncEnabled = if (tier == com.mknlabs.expensetracker.models.UserTier.PREMIUM) true else current.isCloudSyncEnabled
+            )
+        }
+        
         com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, remoteProfile.proExpiryTimestamp)
     }
 

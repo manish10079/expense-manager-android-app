@@ -17,6 +17,8 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.firstName
+import com.mknlabs.expensetracker.domain.repository.SyncRepository
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -44,11 +46,14 @@ data class HomeScreenUiState(
     val activeGoal: Goal? = null,
     val goalCount: Int = 0,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
-    val isBalanceHidden: Boolean = true
+    val isBalanceHidden: Boolean = true,
+    val isSyncing: Boolean = false,
+    val userTier: UserTier = UserTier.FREE
 )
 
 private data class HomeInputState(
     val userProfile: UserProfile = defaultUserProfile,
+    val userTier: UserTier = UserTier.FREE,
     val currencyId: Int = DEFAULT_CURRENCY_ID,
     val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     val dateFormatPattern: String = "dd MMM",
@@ -63,7 +68,8 @@ private const val HOME_RECENT_TRANSACTION_LIMIT = 10
 class HomeViewModel @Inject constructor(
     private val application: Application,
     private val transactionRepository: TransactionRepository,
-    private val goalRepository: GoalRepository
+    private val goalRepository: GoalRepository,
+    private val syncRepository: SyncRepository
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(HomeInputState())
@@ -83,8 +89,9 @@ class HomeViewModel @Inject constructor(
                 transactionRepository.observeHomeSummary(),
                 transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
                 goalRepository.observeAllGoals(),
+                syncRepository.isSyncing,
                 inputState
-            ) { summary, recentTransactions, allGoals, inputs ->
+            ) { summary, recentTransactions, allGoals, isSyncing, inputs ->
                 HomeScreenUiState(
                     greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
@@ -126,7 +133,9 @@ class HomeViewModel @Inject constructor(
                     activeGoal = allGoals.firstOrNull { !it.isCompleted },
                     goalCount = allGoals.count { !it.isCompleted },
                     customizationSettings = inputs.customizationSettings,
-                    isBalanceHidden = _uiState.value.isBalanceHidden
+                    isBalanceHidden = _uiState.value.isBalanceHidden,
+                    isSyncing = isSyncing,
+                    userTier = inputs.userTier
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -136,6 +145,7 @@ class HomeViewModel @Inject constructor(
 
     fun updateInputs(
         userProfile: UserProfile,
+        userTier: UserTier,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
@@ -146,6 +156,7 @@ class HomeViewModel @Inject constructor(
         inputState.update {
             it.copy(
                 userProfile = userProfile,
+                userTier = userTier,
                 currencyId = currencyId,
                 amountFormatPreferences = amountFormatPreferences,
                 dateFormatPattern = dateFormatPattern,

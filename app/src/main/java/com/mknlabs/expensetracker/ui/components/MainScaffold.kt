@@ -316,6 +316,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
     ) {
         homeViewModel.updateInputs(
             userProfile = userProfile,
+            userTier = userTier,
             currencyId = selectedCurrencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = selectedDateFormatPattern,

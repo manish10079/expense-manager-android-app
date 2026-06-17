@@ -27,6 +27,11 @@ interface SyncRepository {
     val isSyncEnabled: StateFlow<Boolean>
 
     /**
+     * Whether a synchronization operation is currently in progress.
+     */
+    val isSyncing: StateFlow<Boolean>
+
+    /**
      * Registers the current device in the cloud.
      * Returns a [Result] indicating success or failure (e.g., limit reached).
      */
