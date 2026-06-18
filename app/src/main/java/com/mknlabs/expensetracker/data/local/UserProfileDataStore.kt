@@ -24,7 +24,7 @@ object UserProfileDataStore {
         val dateOfBirthMillis = longPreferencesKey("date_of_birth_millis")
         val gender = stringPreferencesKey("gender")
         val financialGoal = stringPreferencesKey("financial_goal")
-        val memberSinceLabel = stringPreferencesKey("member_since_label")
+        val accountCreatedMillis = longPreferencesKey("account_created_millis")
         val accountTier = stringPreferencesKey("account_tier")
         val photoUri = stringPreferencesKey("photo_uri")
         val proExpiryTimestamp = longPreferencesKey("pro_expiry_timestamp")
@@ -67,7 +67,7 @@ object UserProfileDataStore {
             dateOfBirthMillis = this[Keys.dateOfBirthMillis] ?: defaultUserProfile.dateOfBirthMillis,
             gender = this[Keys.gender] ?: defaultUserProfile.gender,
             financialGoal = this[Keys.financialGoal] ?: defaultUserProfile.financialGoal,
-            memberSinceLabel = this[Keys.memberSinceLabel] ?: defaultUserProfile.memberSinceLabel,
+            accountCreatedMillis = this[Keys.accountCreatedMillis] ?: defaultUserProfile.accountCreatedMillis,
             accountTier = this[Keys.accountTier] ?: defaultUserProfile.accountTier,
             photoUri = this[Keys.photoUri] ?: defaultUserProfile.photoUri,
             proExpiryTimestamp = this[Keys.proExpiryTimestamp] ?: defaultUserProfile.proExpiryTimestamp,
@@ -82,7 +82,7 @@ object UserProfileDataStore {
         profile.dateOfBirthMillis?.let { this[Keys.dateOfBirthMillis] = it } ?: remove(Keys.dateOfBirthMillis)
         this[Keys.gender] = profile.gender
         this[Keys.financialGoal] = profile.financialGoal
-        this[Keys.memberSinceLabel] = profile.memberSinceLabel
+        this[Keys.accountCreatedMillis] = profile.accountCreatedMillis
         this[Keys.accountTier] = profile.accountTier
         profile.photoUri?.let { this[Keys.photoUri] = it } ?: remove(Keys.photoUri)
         this[Keys.proExpiryTimestamp] = profile.proExpiryTimestamp

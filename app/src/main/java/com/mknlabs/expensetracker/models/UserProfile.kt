@@ -10,7 +10,7 @@ data class UserProfile(
     val dateOfBirthMillis: Long?,
     val gender: String,
     val financialGoal: String = "",
-    val memberSinceLabel: String,
+    val accountCreatedMillis: Long = 0L,
     val accountTier: String,
     val photoUri: String? = null,
     val proExpiryTimestamp: Long = 0L,
@@ -23,7 +23,7 @@ val defaultUserProfile = UserProfile(
     phoneNumber = "",
     dateOfBirthMillis = null,
     gender = "",
-    memberSinceLabel = "",
+    accountCreatedMillis = 0L,
     accountTier = "",
     proExpiryTimestamp = 0L
 )

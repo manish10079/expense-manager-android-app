@@ -434,7 +434,7 @@ private fun String.avatarLetters(): String {
         phoneNumber = "",
         dateOfBirthMillis = null,
         gender = "",
-        memberSinceLabel = "",
+        accountCreatedMillis = 0L,
         accountTier = "",
         photoUri = null
     )

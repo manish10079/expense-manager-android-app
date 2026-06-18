@@ -50,7 +50,7 @@ interface SyncRepository {
     /**
      * Synchronizes the user's profile document to the cloud and back.
      */
-    suspend fun syncUserProfile(): Result<Unit>
+    suspend fun syncUserProfile(isNewUser: Boolean = false): Result<Unit>
 
     /**
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).

@@ -21,6 +21,7 @@ import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.utils.formatDate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -121,11 +122,11 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun syncUserProfile(): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun syncUserProfile(isNewUser: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.success(Unit)
         try {
             _isSyncing.value = true
-            syncUserProfileInternal(uid)
+            syncUserProfileInternal(uid, isNewUser)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -142,7 +143,7 @@ class SyncRepositoryImpl @Inject constructor(
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
 
-            syncUserProfileInternal(uid)
+            syncUserProfileInternal(uid, isNewUser = false)
             pushLocalChanges(uid)
             pullCloudChanges(uid, lastSync)
 
@@ -155,21 +156,27 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun syncUserProfileInternal(uid: String) {
-        pushUserProfile(uid)
+    private suspend fun syncUserProfileInternal(uid: String, isNewUser: Boolean) {
+        pushUserProfile(uid, isNewUser)
         pullUserProfile(uid)
     }
 
-    private suspend fun pushUserProfile(uid: String) {
+    private suspend fun pushUserProfile(uid: String, isNewUser: Boolean) {
         val userDoc = firestore.collection("users").document(uid)
         val snapshot = userDoc.get().await()
         val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
         val remoteAccountTier = snapshot.getString("accountTier") ?: ""
-        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+        var localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val currentUser = firebaseAuth.currentUser
 
         if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") return
-        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt) return
+        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt && !isNewUser) return
+
+        if (isNewUser && localProfile.accountCreatedMillis == 0L) {
+            val creationTime = System.currentTimeMillis()
+            localProfile = localProfile.copy(accountCreatedMillis = creationTime)
+            UserProfileDataStore.setUserProfile(context, localProfile)
+        }
 
         val finalFullName = if (localProfile.fullName == defaultUserProfile.fullName) {
             currentUser?.displayName ?: localProfile.fullName
@@ -181,20 +188,24 @@ class SyncRepositoryImpl @Inject constructor(
             localProfile.photoUri ?: currentUser?.photoUrl?.toString()
         }
 
-        val profileData = mapOf(
+        val profileData = mutableMapOf(
             "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
             "phoneNumber" to localProfile.phoneNumber,
             "dateOfBirthMillis" to (localProfile.dateOfBirthMillis ?: 0L),
             "gender" to localProfile.gender,
             "financialGoal" to localProfile.financialGoal,
-            "memberSinceLabel" to localProfile.memberSinceLabel,
             "accountTier" to localProfile.accountTier,
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
         )
+
+        if (isNewUser) {
+            profileData["AccountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
+        }
+
         userDoc.set(profileData, SetOptions.merge()).await()
     }
 
@@ -232,7 +243,7 @@ class SyncRepositoryImpl @Inject constructor(
             dateOfBirthMillis = snapshot.getLong("dateOfBirthMillis") ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
             financialGoal = snapshot.getString("financialGoal") ?: localProfile.financialGoal,
-            memberSinceLabel = snapshot.getString("memberSinceLabel") ?: localProfile.memberSinceLabel,
+            accountCreatedMillis = localProfile.accountCreatedMillis, // Don't pull from cloud, keep local
             accountTier = remoteAccountTier,
             proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp,
             photoUri = snapshot.getString("photoUri") ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null) ?: localProfile.photoUri,
