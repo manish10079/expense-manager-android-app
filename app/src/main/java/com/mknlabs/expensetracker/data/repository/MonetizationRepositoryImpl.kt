@@ -28,9 +28,11 @@ class MonetizationRepositoryImpl @Inject constructor(
         UserProfileDataStore.getUserProfileFlow(context),
         MonetizationDataStore.getGlobalAdAccessExpiry(context)
     ) { settings, profile, globalAdExpiry ->
-        val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-                profile.accountTier == "PREMIUM"
-        val hasActivePass = globalAdExpiry > System.currentTimeMillis()
+        val now = System.currentTimeMillis()
+        val isPremium = (settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                profile.accountTier == "PREMIUM") && profile.proExpiryTimestamp > now
+        
+        val hasActivePass = globalAdExpiry > now
         
         // Ads are enabled if NOT premium AND NOT having an active pass
         !isPremium && !hasActivePass
@@ -44,9 +46,10 @@ class MonetizationRepositoryImpl @Inject constructor(
             UserProfileDataStore.getUserProfileFlow(context),
             MonetizationDataStore.getGlobalAdAccessExpiry(context)
         ) { settings, profile, globalAdExpiry ->
-            // 1. Check if user is permanent Premium (from settings or profile sync)
-            val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-                    profile.accountTier == "PREMIUM"
+            val now = System.currentTimeMillis()
+            // 1. Check if user is permanent Premium (from settings or profile sync) AND not expired
+            val isPremium = (settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                    profile.accountTier == "PREMIUM") && profile.proExpiryTimestamp > now
             
             if (isPremium) {
                 return@combine AccessStatus.Granted
@@ -57,12 +60,12 @@ class MonetizationRepositoryImpl @Inject constructor(
             when (requiredLevel) {
                 AccessLevel.FREE -> AccessStatus.Granted
                 
-                // Premium features are ONLY granted if user is permanent Premium
+                // Premium features are ONLY granted if user is permanent Premium and not expired
                 AccessLevel.PREMIUM -> AccessStatus.DeniedPremium
                 
                 // Ad-supported features are granted if the Global Pass is active
                 AccessLevel.AD_SUPPORTED -> {
-                    if (globalAdExpiry > System.currentTimeMillis()) {
+                    if (globalAdExpiry > now) {
                         AccessStatus.Granted
                     } else {
                         AccessStatus.DeniedAd

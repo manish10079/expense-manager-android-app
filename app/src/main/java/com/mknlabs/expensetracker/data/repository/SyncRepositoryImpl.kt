@@ -22,6 +22,7 @@ import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.parseDate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -169,10 +170,13 @@ class SyncRepositoryImpl @Inject constructor(
         var localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val currentUser = firebaseAuth.currentUser
 
-        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") return
-        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt && !isNewUser) return
+        // Treat as new user if isNewUser is true OR if we haven't set a creation timestamp locally yet
+        val effectiveIsNewUser = isNewUser || localProfile.accountCreatedMillis == 0L
 
-        if (isNewUser && localProfile.accountCreatedMillis == 0L) {
+        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") return
+        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt && !effectiveIsNewUser) return
+
+        if (effectiveIsNewUser && localProfile.accountCreatedMillis == 0L) {
             val creationTime = System.currentTimeMillis()
             localProfile = localProfile.copy(accountCreatedMillis = creationTime)
             UserProfileDataStore.setUserProfile(context, localProfile)
@@ -192,17 +196,17 @@ class SyncRepositoryImpl @Inject constructor(
             "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
             "phoneNumber" to localProfile.phoneNumber,
-            "dateOfBirthMillis" to (localProfile.dateOfBirthMillis ?: 0L),
+            "DateOfBirthOn" to localProfile.dateOfBirthMillis?.let { formatDate(it, "dd MMMM yyyy") }.orEmpty(),
             "gender" to localProfile.gender,
             "financialGoal" to localProfile.financialGoal,
-            "accountTier" to localProfile.accountTier,
+            "accountTier" to if (effectiveIsNewUser) "FREE" else localProfile.accountTier,
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
         )
 
-        if (isNewUser) {
+        if (effectiveIsNewUser) {
             profileData["AccountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
         }
 
@@ -240,7 +244,7 @@ class SyncRepositoryImpl @Inject constructor(
             fullName = snapshot.getString("fullName") ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null) ?: localProfile.fullName,
             emailAddress = snapshot.getString("emailAddress") ?: authUser?.email ?: localProfile.emailAddress,
             phoneNumber = snapshot.getString("phoneNumber") ?: localProfile.phoneNumber,
-            dateOfBirthMillis = snapshot.getLong("dateOfBirthMillis") ?: localProfile.dateOfBirthMillis,
+            dateOfBirthMillis = snapshot.getString("DateOfBirthOn")?.let { parseDate(it, "dd MMMM yyyy") } ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
             financialGoal = snapshot.getString("financialGoal") ?: localProfile.financialGoal,
             accountCreatedMillis = localProfile.accountCreatedMillis, // Don't pull from cloud, keep local
@@ -250,8 +254,16 @@ class SyncRepositoryImpl @Inject constructor(
             updatedAtMillis = remoteUpdatedAt
         )
 
-        UserProfileDataStore.setUserProfile(context, remoteProfile)
-        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == remoteAccountTier } ?: com.mknlabs.expensetracker.models.UserTier.FREE
+        // Industry Standard: Handle automatic downgrade if PREMIUM has expired
+        val now = System.currentTimeMillis()
+        val isExpired = remoteAccountTier == "PREMIUM" && remoteProfile.proExpiryTimestamp in 1..<now
+        
+        val finalTier = if (isExpired) "FREE" else remoteAccountTier
+        val finalProfile = if (isExpired) remoteProfile.copy(accountTier = "FREE", updatedAtMillis = now) else remoteProfile
+
+        UserProfileDataStore.setUserProfile(context, finalProfile)
+        
+        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == finalTier } ?: com.mknlabs.expensetracker.models.UserTier.FREE
         
         // Update tier and automatically enable sync if user is Premium
         AppSettingsDataStore.updateAppSettings(context) { current ->
@@ -261,7 +273,12 @@ class SyncRepositoryImpl @Inject constructor(
             )
         }
         
-        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, remoteProfile.proExpiryTimestamp)
+        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, finalProfile.proExpiryTimestamp)
+
+        // If we downgraded locally, push the "FREE" status back to Firestore immediately
+        if (isExpired) {
+            pushUserProfile(uid, isNewUser = false)
+        }
     }
 
     private suspend fun pushLocalChanges(uid: String) {

@@ -108,6 +108,14 @@ fun getShortDayName(timestamp: Long): String {
     return formatWithPattern(timestamp, "EEE")
 }
 
+fun parseDate(dateString: String, pattern: String): Long? {
+    return try {
+        SimpleDateFormat(pattern, Locale.getDefault()).parse(dateString)?.time
+    } catch (e: Exception) {
+        null
+    }
+}
+
 fun getMonthYear(timestamp: Long): String {
     return formatWithPattern(timestamp, "MMM yyyy")
 }

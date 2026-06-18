@@ -318,7 +318,8 @@ fun MainScreen(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
                                 dateOfBirthMillis = dobMillis ?: 0L,
-                                financialGoal = financialGoal
+                                financialGoal = financialGoal,
+                                updatedAtMillis = System.currentTimeMillis()
                             )
                         }
 
@@ -328,6 +329,9 @@ fun MainScreen(
                                 showOnboardingScreen = false
                             )
                         }
+
+                        // 3. Trigger Sync
+                        SyncWorker.startImmediate(context)
                     }
                 },
                 onSignUpSuccess = {
@@ -444,7 +448,9 @@ fun MainScreen(
                             }
                         }
 
-                        SyncWorker.startImmediate(context)
+                        if (!showOnboarding) {
+                            SyncWorker.startImmediate(context)
+                        }
                     }
                 }
             }
