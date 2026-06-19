@@ -53,8 +53,10 @@ class SyncWorker @AssistedInject constructor(
         val handshakeResult = syncRepository.registerCurrentDevice()
         
         if (handshakeResult.isFailure) {
+            val error = handshakeResult.exceptionOrNull()
+            android.util.Log.e("SyncWorker", "Device registration failed", error)
             // If the failure is due to device limit, we stop trying
-            return if (handshakeResult.exceptionOrNull()?.message?.contains("limit reached") == true) {
+            return if (error?.message?.contains("limit reached") == true) {
                 Result.failure()
             } else {
                 Result.retry()
@@ -67,6 +69,9 @@ class SyncWorker @AssistedInject constructor(
         val success = syncResult.isSuccess
         if (success) {
             schedule(applicationContext)
+        } else {
+            val error = syncResult.exceptionOrNull()
+            android.util.Log.e("SyncWorker", "Transaction sync failed", error)
         }
         
         return if (success) {

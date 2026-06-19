@@ -154,15 +154,36 @@ class SyncRepositoryImpl @Inject constructor(
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         try {
             _isSyncing.value = true
+
+            // One-time reset of lastSyncTimeMillis to heal any clock-drift issues from the old implementation
+            val migrationPrefs = context.getSharedPreferences("sync_migration_prefs", Context.MODE_PRIVATE)
+            val resetDone = migrationPrefs.getBoolean("watermark_reset_done_v2", false)
+            if (!resetDone) {
+                AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
+                migrationPrefs.edit().putBoolean("watermark_reset_done_v2", true).apply()
+                android.util.Log.i("Sync", "One-time watermark reset triggered for clock-drift correction.")
+            }
+
             val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
             val lastSync = settings.lastSyncTimeMillis
             val currentSyncStart = System.currentTimeMillis()
 
             syncUserProfileInternal(uid, isNewUser = false)
-            pushLocalChanges(uid)
-            pullCloudChanges(uid, lastSync)
+            
+            var maxUpdatedAt = 0L
+            val localMax = pushLocalChanges(uid)
+            maxUpdatedAt = java.lang.Math.max(maxUpdatedAt, localMax)
 
-            AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = currentSyncStart) }
+            val remoteMax = pullCloudChanges(uid, lastSync)
+            maxUpdatedAt = java.lang.Math.max(maxUpdatedAt, remoteMax)
+
+            val newSyncTime = if (maxUpdatedAt > lastSync) {
+                maxUpdatedAt
+            } else {
+                if (lastSync == 0L) currentSyncStart else lastSync
+            }
+
+            AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = newSyncTime) }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -340,20 +361,39 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun pushLocalChanges(uid: String) {
+    private suspend fun pushLocalChanges(uid: String): Long {
         val userDoc = firestore.collection("users").document(uid)
         
         // Prioritize metadata over transactions for reliable initial setup
         val allTasks = mutableListOf<SyncTask>()
+        var maxLocalUpdatedAt = 0L
         
-        categoryDao.getUnsynced().forEach { allTasks.add(SyncTask.CategoryTask(it)) }
-        paymentMethodDao.getUnsynced().forEach { allTasks.add(SyncTask.PaymentMethodTask(it)) }
-        budgetDao.getUnsynced().forEach { allTasks.add(SyncTask.BudgetTask(it)) }
-        recurringRuleDao.getUnsynced().forEach { allTasks.add(SyncTask.RecurringRuleTask(it)) }
-        goalDao.getUnsynced().forEach { allTasks.add(SyncTask.GoalTask(it)) }
-        transactionDao.getUnsynced().forEach { allTasks.add(SyncTask.TransactionTask(it)) }
+        categoryDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.CategoryTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        paymentMethodDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.PaymentMethodTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        budgetDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.BudgetTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        recurringRuleDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.RecurringRuleTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        goalDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.GoalTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        transactionDao.getUnsynced().forEach { 
+            allTasks.add(SyncTask.TransactionTask(it)) 
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
 
-        if (allTasks.isEmpty()) return
+        if (allTasks.isEmpty()) return maxLocalUpdatedAt
 
         // Process in chunks of 200 for better reliability on slow networks
         allTasks.chunked(200).forEach { chunk ->
@@ -398,23 +438,28 @@ class SyncRepositoryImpl @Inject constructor(
                 android.util.Log.e("Sync", "Batch failed", e)
             }
         }
+        
+        return maxLocalUpdatedAt
     }
 
-    private suspend fun pullCloudChanges(uid: String, lastSync: Long) {
+    private suspend fun pullCloudChanges(uid: String, lastSync: Long): Long {
+        var maxRemoteUpdatedAt = 0L
         val userDoc = firestore.collection("users").document(uid)
 
         // 1. Pull Metadata (Categories & Payment Methods)
         // These MUST be pulled first because almost everything else depends on them.
         try {
-            pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
+            val catMax = pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
                 categoryDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, catMax)
         } catch (e: Exception) { android.util.Log.e("Sync", "Categories pull failed", e) }
 
         try {
-            pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
+            val pmMax = pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
                 paymentMethodDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, pmMax)
         } catch (e: Exception) { android.util.Log.e("Sync", "Payment methods pull failed", e) }
 
         // 2. Relational Data (Handle circular/reverse dependencies)
@@ -424,27 +469,33 @@ class SyncRepositoryImpl @Inject constructor(
             database.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = OFF")
 
             // Pull independent items
-            pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
+            val goalMax = pullCollection(userDoc, "goals", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.GoalEntity ->
                 goalDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, goalMax)
 
             // Pull Transactions & Rules (Circular Dependency Zone)
-            pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
+            val txMax = pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
                 transactionDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, txMax)
 
-            pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
+            val rrMax = pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
                 recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, rrMax)
 
-            pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
+            val budgetMax = pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
                 budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, budgetMax)
         } catch (e: Exception) {
             android.util.Log.e("Sync", "Relational data pull failed", e)
         } finally {
             database.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = ON")
         }
+
+        return maxRemoteUpdatedAt
     }
 
     private suspend inline fun <reified T> pullCollection(
@@ -452,9 +503,11 @@ class SyncRepositoryImpl @Inject constructor(
         collectionName: String,
         lastSync: Long,
         crossinline onPull: suspend (T) -> Unit
-    ) {
+    ): Long {
         // Subtract a safety buffer of 5 minutes (300,000 ms) to account for clock drift and network propagation delays.
         val safeLastSync = if (lastSync == 0L) 0L else (lastSync - 5 * 60 * 1000L).coerceAtLeast(0L)
+
+        android.util.Log.d("Sync", "[$collectionName] Querying with lastSync=$lastSync, safeLastSync=$safeLastSync")
 
         // "Full Recovery" Mode: If lastSync is 0, fetch ALL documents. 
         // Otherwise, fetch only those modified after safeLastSync.
@@ -468,11 +521,16 @@ class SyncRepositoryImpl @Inject constructor(
         val snapshot = query.get().await()
         var deserializedCount = 0
         var savedCount = 0
+        var maxDocUpdatedAt = 0L
         
         android.util.Log.d("Sync", "[$collectionName] Total documents in Cloud: ${snapshot.size()}")
         
         snapshot.documents.forEach { doc ->
             try {
+                val docUpdatedAt = doc.getLong("updatedAt") ?: 0L
+                maxDocUpdatedAt = java.lang.Math.max(maxDocUpdatedAt, docUpdatedAt)
+                
+                android.util.Log.d("Sync", "[$collectionName] Found doc: ${doc.id}, updatedAt=$docUpdatedAt")
                 val item = doc.toObject(T::class.java)
                 if (item != null) {
                     deserializedCount++
@@ -487,6 +545,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
         
         android.util.Log.i("Sync", "[$collectionName] Completed: Fetched=${snapshot.size()}, Deserialized=$deserializedCount, Saved=$savedCount")
+        return maxDocUpdatedAt
     }
 
     private sealed class SyncTask {
