@@ -404,13 +404,10 @@ class SyncRepositoryImpl @Inject constructor(
                         val docId = task.id
                         val docRef = userDoc.collection(collectionName).document(docId)
                         
-                        if (task.isDeleted) {
-                            batch.delete(docRef)
-                        } else {
-                            // Convert to Map and remove local sync metadata
-                            val data = task.toCloudMap()
-                            batch.set(docRef, data, SetOptions.merge())
-                        }
+                        // Soft delete propagation: always upload the state to Firestore (including isDeleted = true)
+                        // so that other devices can pull the soft-deleted state and hide the items locally.
+                        val data = task.toCloudMap()
+                        batch.set(docRef, data, SetOptions.merge())
                     }
                 }.await()
 
