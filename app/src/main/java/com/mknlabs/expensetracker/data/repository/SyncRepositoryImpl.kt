@@ -537,22 +537,24 @@ class SyncRepositoryImpl @Inject constructor(
         
         android.util.Log.d("Sync", "[$collectionName] Total documents in Cloud: ${snapshot.size()}")
         
-        snapshot.documents.forEach { doc ->
-            try {
-                val docUpdatedAt = doc.getLong("updatedAt") ?: 0L
-                maxDocUpdatedAt = java.lang.Math.max(maxDocUpdatedAt, docUpdatedAt)
-                
-                android.util.Log.d("Sync", "[$collectionName] Found doc: ${doc.id}, updatedAt=$docUpdatedAt")
-                val item = doc.toObject(T::class.java)
-                if (item != null) {
-                    deserializedCount++
-                    onPull(item)
-                    savedCount++
-                } else {
-                    android.util.Log.w("Sync", "[$collectionName] Deserialization returned null for ID: ${doc.id}")
+        database.withTransaction {
+            snapshot.documents.forEach { doc ->
+                try {
+                    val docUpdatedAt = doc.getLong("updatedAt") ?: 0L
+                    maxDocUpdatedAt = java.lang.Math.max(maxDocUpdatedAt, docUpdatedAt)
+                    
+                    android.util.Log.d("Sync", "[$collectionName] Found doc: ${doc.id}, updatedAt=$docUpdatedAt")
+                    val item = doc.toObject(T::class.java)
+                    if (item != null) {
+                        deserializedCount++
+                        onPull(item)
+                        savedCount++
+                    } else {
+                        android.util.Log.w("Sync", "[$collectionName] Deserialization returned null for ID: ${doc.id}")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("Sync", "[$collectionName] Failed to process document ID: ${doc.id}", e)
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("Sync", "[$collectionName] Failed to process document ID: ${doc.id}", e)
             }
         }
         

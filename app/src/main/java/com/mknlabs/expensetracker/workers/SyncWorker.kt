@@ -11,13 +11,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
+import com.mknlabs.expensetracker.domain.repository.AuthRepository
 
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val syncRepository: SyncRepository,
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val authRepository: AuthRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -26,12 +28,29 @@ class SyncWorker @AssistedInject constructor(
         // Stabilization: Give Firebase Auth a moment to restore the session if it was just launched
         kotlinx.coroutines.delay(1000)
         
-        val currentUser = firebaseAuth.currentUser
+        var currentUser = firebaseAuth.currentUser
         android.util.Log.d("SyncWorker", "Starting sync work. isNewUser: $isNewUser, user: ${currentUser?.uid}, isAnon: ${currentUser?.isAnonymous}")
         
+        var isPendingNewUser = isNewUser
+        if (currentUser == null) {
+            val localProfile = com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(applicationContext).first()
+            if (localProfile.authProvider == "anonymous") {
+                android.util.Log.i("SyncWorker", "Offline guest user detected. Attempting catch-up anonymous sign-in.")
+                val signInResult = authRepository.signInAnonymously()
+                if (signInResult.isSuccess) {
+                    currentUser = firebaseAuth.currentUser
+                    isPendingNewUser = true
+                    android.util.Log.i("SyncWorker", "Catch-up anonymous sign-in successful: ${currentUser?.uid}")
+                } else {
+                    android.util.Log.e("SyncWorker", "Failed catch-up anonymous sign-in", signInResult.exceptionOrNull())
+                    return Result.retry()
+                }
+            }
+        }
+
         // 1. Sync profile for any authenticated user (free, premium, guest/anonymous)
         // This will update the local UserTier if it changed on the server
-        val profileSyncResult = syncRepository.syncUserProfile(isNewUser)
+        val profileSyncResult = syncRepository.syncUserProfile(isPendingNewUser)
         if (profileSyncResult.isFailure) {
             return Result.retry()
         }
