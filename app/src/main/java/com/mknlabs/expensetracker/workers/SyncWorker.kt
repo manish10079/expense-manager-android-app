@@ -38,12 +38,14 @@ class SyncWorker @AssistedInject constructor(
 
         // If not signed in, profile sync is a no-op and we're done.
         if (firebaseAuth.currentUser == null) {
+            schedule(applicationContext)
             return Result.success()
         }
 
         // 2. Re-read settings AFTER profile sync to get the latest tier
         val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
         if (settings.userTier != UserTier.PREMIUM || !settings.isCloudSyncEnabled) {
+            schedule(applicationContext)
             return Result.success()
         }
 
@@ -62,7 +64,12 @@ class SyncWorker @AssistedInject constructor(
         // 4. Perform actual data sync
         val syncResult = syncRepository.syncTransactions()
         
-        return if (syncResult.isSuccess) {
+        val success = syncResult.isSuccess
+        if (success) {
+            schedule(applicationContext)
+        }
+        
+        return if (success) {
             Result.success()
         } else {
             Result.retry()
@@ -77,14 +84,16 @@ class SyncWorker @AssistedInject constructor(
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
-            val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.HOURS)
+            // Temporary 1-minute interval using OneTimeWorkRequest for testing
+            val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(constraints)
+                .setInitialDelay(1, TimeUnit.MINUTES)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                 .build()
 
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            WorkManager.getInstance(context).enqueueUniqueWork(
                 SYNC_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingWorkPolicy.REPLACE,
                 syncRequest
             )
         }

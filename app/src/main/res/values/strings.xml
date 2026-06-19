@@ -1215,7 +1215,7 @@
     <string name="btn_update_now">Update Now</string>
     <string name="title_system_maintenance">System Maintenance</string>
     <string name="msg_maintenance_desc">We are currently performing scheduled maintenance to improve our services. We\'ll be back shortly. Thank you for your patience!</string>
-    <string name="title_protect_your_data">Sign In</string>
+    <string name="title_protect_your_data">Sign up / Sign In</string>
     <string name="msg_link_account_desc">Your financial journey is a story worth keeping. Sign in to ensure your achievements and progress never fade away.</string>
     <string name="label_guest_user">Guest User</string>
     <string name="msg_privacy_info">We use this information to personalize your dashboard and provide age-appropriate insights. Your data stays 100% private and secure.</string>

@@ -186,6 +186,7 @@ class SyncRepositoryImpl @Inject constructor(
         var remoteAccountTier = ""
         var remoteAccountCreatedOn: String? = null
         var docExists = false
+        var remoteProExpiryTimestamp = 0L
 
         if (!isNewUser) {
             try {
@@ -195,6 +196,7 @@ class SyncRepositoryImpl @Inject constructor(
                     remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
                     remoteAccountTier = snapshot.getString("accountTier") ?: ""
                     remoteAccountCreatedOn = snapshot.getString("accountCreatedOn") ?: snapshot.getString("AccountCreatedOn")
+                    remoteProExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: 0L
                 }
             } catch (e: Exception) {
                 android.util.Log.e("Sync", "Failed to fetch remote profile for uid: $uid", e)
@@ -207,8 +209,11 @@ class SyncRepositoryImpl @Inject constructor(
 
         android.util.Log.d("Sync", "Push Decision - uid: $uid, isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
 
-        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") {
-            android.util.Log.d("Sync", "Skipping push: Remote is PREMIUM, local is not.")
+        val now = System.currentTimeMillis()
+        val isRemotePremiumExpired = remoteAccountTier == "PREMIUM" && remoteProExpiryTimestamp in 1..<now
+
+        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM" && !isRemotePremiumExpired) {
+            android.util.Log.d("Sync", "Skipping push: Remote is active PREMIUM, local is not.")
             return
         }
         if (docExists && localProfile.updatedAtMillis <= remoteUpdatedAt && !isFirstTimeInitialization) {

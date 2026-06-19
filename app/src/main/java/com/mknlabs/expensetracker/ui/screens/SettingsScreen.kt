@@ -98,9 +98,11 @@ fun SettingsScreen(
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    val effectiveUserTier = remember(userTier, userProfile.accountTier) {
-        if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-            userProfile.accountTier == "PREMIUM") {
+    val effectiveUserTier = remember(userTier, userProfile.accountTier, userProfile.proExpiryTimestamp) {
+        val now = System.currentTimeMillis()
+        val isPremium = userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                (userProfile.accountTier == "PREMIUM" && userProfile.proExpiryTimestamp > now)
+        if (isPremium) {
             com.mknlabs.expensetracker.models.UserTier.PREMIUM
         } else {
             com.mknlabs.expensetracker.models.UserTier.FREE

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import androidx.credentials.exceptions.NoCredentialException
 import javax.inject.Inject
+import com.google.firebase.auth.FirebaseAuthException
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -116,7 +117,7 @@ class AuthViewModel @Inject constructor(
                             .onFailure { error ->
                                 android.util.Log.e("AUTH", "Firebase sign in failed", error)
                                 if (!silent) {
-                                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                                    _authState.value = AuthState.Error(mapFirebaseError(error))
                                 }
                             }
                     } else {
@@ -164,7 +165,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Success(isNewUser) 
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
                 }
         }
     }
@@ -182,7 +183,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Success(isNewUser) 
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
                 }
         }
     }
@@ -198,7 +199,7 @@ class AuthViewModel @Inject constructor(
             authRepository.sendPasswordResetEmail(email)
                 .onSuccess { _authState.value = AuthState.ResetEmailSent }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
                 }
         }
     }
@@ -224,7 +225,7 @@ class AuthViewModel @Inject constructor(
                     startCooldown()
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
                 }
         }
     }
@@ -255,7 +256,7 @@ class AuthViewModel @Inject constructor(
                         AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = null) }
                     }
                     .onFailure { error ->
-                        _authState.value = AuthState.Error(mapFirebaseError(error.message))
+                        _authState.value = AuthState.Error(mapFirebaseError(error))
                     }
             } else {
                 _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
@@ -288,16 +289,31 @@ class AuthViewModel @Inject constructor(
         guestSignInSessionId = 0L
     }
 
-    private fun mapFirebaseError(message: String?): Int {
-        val error = message ?: ""
+    private fun mapFirebaseError(error: Throwable): Int {
+        if (error is FirebaseAuthException) {
+            val errorCode = error.errorCode
+            android.util.Log.w("AuthVM", "Mapping Firebase Auth Exception: $errorCode - ${error.message}")
+            return when (errorCode) {
+                "ERROR_USER_NOT_FOUND" -> R.string.error_auth_user_not_found
+                "ERROR_WRONG_PASSWORD" -> R.string.error_auth_wrong_password
+                "ERROR_INVALID_CREDENTIAL" -> R.string.error_auth_invalid_credentials
+                "ERROR_EMAIL_ALREADY_IN_USE", "ERROR_CREDENTIAL_ALREADY_IN_USE", "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> R.string.error_auth_email_already_in_use
+                "ERROR_USER_DISABLED" -> R.string.error_auth_user_disabled
+                "ERROR_TOO_MANY_REQUESTS" -> R.string.error_auth_too_many_requests
+                "ERROR_WEAK_PASSWORD" -> R.string.error_auth_weak_password
+                else -> R.string.error_auth_generic_fail
+            }
+        }
+
+        val message = error.message ?: ""
         return when {
-            error.contains("user-not-found") -> R.string.error_auth_user_not_found
-            error.contains("wrong-password") -> R.string.error_auth_wrong_password
-            error.contains("invalid-credential") -> R.string.error_auth_invalid_credentials
-            error.contains("email-already-in-use") -> R.string.error_auth_email_already_in_use
-            error.contains("user-disabled") -> R.string.error_auth_user_disabled
-            error.contains("too-many-requests") -> R.string.error_auth_too_many_requests
-            error.contains("weak-password") -> R.string.error_auth_weak_password
+            message.contains("user-not-found") -> R.string.error_auth_user_not_found
+            message.contains("wrong-password") -> R.string.error_auth_wrong_password
+            message.contains("invalid-credential") -> R.string.error_auth_invalid_credentials
+            message.contains("email-already-in-use") || message.contains("already exists") || message.contains("already-in-use") -> R.string.error_auth_email_already_in_use
+            message.contains("user-disabled") -> R.string.error_auth_user_disabled
+            message.contains("too-many-requests") -> R.string.error_auth_too_many_requests
+            message.contains("weak-password") -> R.string.error_auth_weak_password
             else -> R.string.error_auth_generic_fail
         }
     }
