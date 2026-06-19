@@ -157,10 +157,10 @@ class SyncRepositoryImpl @Inject constructor(
 
             // One-time reset of lastSyncTimeMillis to heal any clock-drift issues from the old implementation
             val migrationPrefs = context.getSharedPreferences("sync_migration_prefs", Context.MODE_PRIVATE)
-            val resetDone = migrationPrefs.getBoolean("watermark_reset_done_v2", false)
+            val resetDone = migrationPrefs.getBoolean("watermark_reset_done_v3", false)
             if (!resetDone) {
                 AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
-                migrationPrefs.edit().putBoolean("watermark_reset_done_v2", true).apply()
+                migrationPrefs.edit().putBoolean("watermark_reset_done_v3", true).apply()
                 android.util.Log.i("Sync", "One-time watermark reset triggered for clock-drift correction.")
             }
 

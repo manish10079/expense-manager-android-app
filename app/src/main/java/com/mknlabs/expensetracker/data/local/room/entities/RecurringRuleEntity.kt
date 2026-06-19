@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.SyncState
 
+import com.google.firebase.firestore.PropertyName
+
 @Entity(
     tableName = "recurring_rules",
     foreignKeys = [
@@ -43,6 +45,8 @@ data class RecurringRuleEntity(
     val lastRunAt: Long? = null,
     @ColumnInfo(name = "last_notified_occurrence_at")
     val lastNotifiedOccurrenceAt: Long? = null,
+    @get:PropertyName("isEnabled")
+    @field:PropertyName("isEnabled")
     @ColumnInfo(name = "is_enabled")
     val isEnabled: Boolean = true,
     @ColumnInfo(name = "created_at")
@@ -51,6 +55,8 @@ data class RecurringRuleEntity(
     val updatedAt: Long = 0L,
     @ColumnInfo(name = "sync_state")
     val syncState: SyncState = SyncState.SYNCED,
+    @get:PropertyName("isDeleted")
+    @field:PropertyName("isDeleted")
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false
 )

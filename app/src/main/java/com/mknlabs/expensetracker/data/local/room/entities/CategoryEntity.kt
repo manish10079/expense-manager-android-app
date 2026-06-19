@@ -6,6 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.SyncState
 
+import com.google.firebase.firestore.PropertyName
+
 @Entity(
     tableName = "categories",
     indices = [
@@ -21,10 +23,14 @@ data class CategoryEntity(
     val transactionTypeId: Int = 0,
     @ColumnInfo(name = "icon_key")
     val iconKey: String = "",
+    @get:PropertyName("isSystem")
+    @field:PropertyName("isSystem")
     @ColumnInfo(name = "is_system")
     val isSystem: Boolean = false,
     @ColumnInfo(name = "sort_order")
     val sortOrder: Int = 0,
+    @get:PropertyName("isDeleted")
+    @field:PropertyName("isDeleted")
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")

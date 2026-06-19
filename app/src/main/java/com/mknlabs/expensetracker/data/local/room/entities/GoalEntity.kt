@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.SyncState
 
+import com.google.firebase.firestore.PropertyName
+
 @Entity(tableName = "goals")
 data class GoalEntity(
     @PrimaryKey
@@ -20,12 +22,16 @@ data class GoalEntity(
     val iconKey: String = "",
     @ColumnInfo(name = "color_hex")
     val colorHex: String = "",
+    @get:PropertyName("isCompleted")
+    @field:PropertyName("isCompleted")
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long = 0L,
+    @get:PropertyName("isDeleted")
+    @field:PropertyName("isDeleted")
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")

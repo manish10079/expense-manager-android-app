@@ -7,6 +7,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.SyncState
 
+import com.google.firebase.firestore.PropertyName
+
 @Entity(
     tableName = "transactions",
     foreignKeys = [
@@ -56,6 +58,8 @@ data class TransactionEntity(
     val categoryId: Int = 0,
     @ColumnInfo(name = "payment_method_id")
     val paymentMethodId: Int = 0,
+    @get:PropertyName("isDeleted")
+    @field:PropertyName("isDeleted")
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
     @ColumnInfo(name = "sync_state")

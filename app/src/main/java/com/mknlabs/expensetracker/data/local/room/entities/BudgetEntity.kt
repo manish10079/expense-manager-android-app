@@ -7,6 +7,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.SyncState
 
+import com.google.firebase.firestore.PropertyName
+
 @Entity(
     tableName = "budgets",
     foreignKeys = [
@@ -40,6 +42,8 @@ data class BudgetEntity(
     val syncState: SyncState = SyncState.SYNCED,
     @ColumnInfo(name = "edit_count")
     val editCount: Int = 0,
+    @get:PropertyName("isDeleted")
+    @field:PropertyName("isDeleted")
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false
 )
