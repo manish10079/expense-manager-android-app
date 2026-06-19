@@ -453,13 +453,16 @@ class SyncRepositoryImpl @Inject constructor(
         lastSync: Long,
         crossinline onPull: suspend (T) -> Unit
     ) {
+        // Subtract a safety buffer of 5 minutes (300,000 ms) to account for clock drift and network propagation delays.
+        val safeLastSync = if (lastSync == 0L) 0L else (lastSync - 5 * 60 * 1000L).coerceAtLeast(0L)
+
         // "Full Recovery" Mode: If lastSync is 0, fetch ALL documents. 
-        // Otherwise, fetch only those modified after lastSync.
+        // Otherwise, fetch only those modified after safeLastSync.
         val query = if (lastSync == 0L) {
             userDoc.collection(collectionName)
         } else {
             userDoc.collection(collectionName)
-                .whereGreaterThan("updatedAt", lastSync)
+                .whereGreaterThan("updatedAt", safeLastSync)
         }
         
         val snapshot = query.get().await()
