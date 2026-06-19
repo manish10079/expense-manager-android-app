@@ -23,6 +23,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,6 +92,7 @@ private enum class PinSetupStage {
     SecurityQuestion
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppLockScreen(
     mode: AppLockScreenMode,
@@ -269,6 +276,7 @@ fun AppLockScreen(
     }
     val primaryActionLabel = if (isRecoveryMode) stringResource(R.string.label_disable_app_lock) else stringResource(R.string.label_save)
     val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isKeyboardOpen = WindowInsets.isImeVisible
     val recoveryAnswerPlaceholder = stringResource(R.string.placeholder_type_recovery_answer)
     val enterAnswerMsg = stringResource(R.string.msg_enter_an_answer_for_your_secur)
     val incorrectAnswerMsg = stringResource(R.string.msg_incorrect_answer_try_again)
@@ -366,7 +374,13 @@ fun AppLockScreen(
                     .weight(1f)
                     .padding(horizontal = 20.dp)
                 ,
-                contentAlignment = if (isPinEntryVisible) Alignment.Center else Alignment.TopCenter
+                contentAlignment = if (isPinEntryVisible) {
+                    Alignment.Center
+                } else if (isKeyboardOpen) {
+                    Alignment.BottomCenter
+                } else {
+                    Alignment.TopCenter
+                }
             ) {
                 if (!isRecoveryMode) {
                     Box(
@@ -396,7 +410,7 @@ fun AppLockScreen(
                                 alpha = if (isDarkPalette) 0.42f else 0.72f
                             )
                         )
-                        .padding(horizontal = 20.dp, vertical = 28.dp)
+                        .padding(horizontal = 20.dp, vertical = if (isKeyboardOpen) 16.dp else 28.dp)
                         .then(
                             if (isPinEntryVisible) {
                                 Modifier
@@ -461,7 +475,8 @@ fun AppLockScreen(
                                 onAnswerChange = {
                                     recoveryAnswer = it
                                     message = null
-                                }
+                                },
+                                onDone = onPrimaryActionClick
                             )
                         }
 
@@ -476,7 +491,8 @@ fun AppLockScreen(
                                 onAnswerChange = {
                                     securityAnswer = it
                                     message = null
-                                }
+                                },
+                                onDone = onPrimaryActionClick
                             )
                         }
 
@@ -516,11 +532,11 @@ fun AppLockScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(22.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 0.dp else 22.dp))
                 }
             }
 
-            if (!isPinEntryVisible) {
+            if (!isPinEntryVisible && !isKeyboardOpen) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -618,7 +634,8 @@ private fun SetupSecurityQuestionContent(
     selectedQuestionId: String,
     answer: String,
     onQuestionSelected: (String) -> Unit,
-    onAnswerChange: (String) -> Unit
+    onAnswerChange: (String) -> Unit,
+    onDone: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -638,7 +655,8 @@ private fun SetupSecurityQuestionContent(
             value = answer,
             label = stringResource(R.string.label_your_answer),
             placeholder = stringResource(R.string.placeholder_type_recovery_answer),
-            onValueChange = onAnswerChange
+            onValueChange = onAnswerChange,
+            onDone = onDone
         )
     }
 }
@@ -647,7 +665,8 @@ private fun SetupSecurityQuestionContent(
 private fun RecoveryQuestionContent(
     questionPrompt: String?,
     answer: String,
-    onAnswerChange: (String) -> Unit
+    onAnswerChange: (String) -> Unit,
+    onDone: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -673,7 +692,8 @@ private fun RecoveryQuestionContent(
             value = answer,
             label = stringResource(R.string.label_security_answer),
             placeholder = stringResource(R.string.placeholder_enter_your_answer),
-            onValueChange = onAnswerChange
+            onValueChange = onAnswerChange,
+            onDone = onDone
         )
     }
 }
@@ -713,8 +733,10 @@ private fun AppLockAnswerField(
     value: String,
     label: String,
     placeholder: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onDone: (() -> Unit)? = null
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -727,7 +749,16 @@ private fun AppLockAnswerField(
         placeholder = {
             Text(text = placeholder)
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = if (onDone != null) ImeAction.Done else ImeAction.Default
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onDone?.invoke()
+                keyboardController?.hide()
+            }
+        ),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
