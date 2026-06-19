@@ -36,4 +36,7 @@ object DatabaseModule {
 
     @Provides
     fun providePaymentMethodDao(database: ExpenseTrackerDatabase) = database.paymentMethodDao()
+
+    @Provides
+    fun provideCountryCodeDao(database: ExpenseTrackerDatabase) = database.countryCodeDao()
 }

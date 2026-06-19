@@ -13,12 +13,14 @@ import com.mknlabs.expensetracker.data.local.room.dao.GoalDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
+import com.mknlabs.expensetracker.data.local.room.dao.CountryCodeDao
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
+import com.mknlabs.expensetracker.data.local.room.entities.CountryCodeEntity
 import java.io.File
 
 @Database(
@@ -28,9 +30,10 @@ import java.io.File
         PaymentMethodEntity::class,
         BudgetEntity::class,
         RecurringRuleEntity::class,
-        GoalEntity::class
+        GoalEntity::class,
+        CountryCodeEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -42,6 +45,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun budgetDao(): BudgetDao
     abstract fun recurringRuleDao(): RecurringRuleDao
     abstract fun goalDao(): GoalDao
+    abstract fun countryCodeDao(): CountryCodeDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -56,8 +60,21 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `country_codes` (
+                        `id` INTEGER NOT NULL, 
+                        `country` TEXT NOT NULL, 
+                        `dial_code` TEXT NOT NULL, 
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
             }
         }
 

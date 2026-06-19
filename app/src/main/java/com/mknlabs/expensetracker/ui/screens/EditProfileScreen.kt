@@ -51,6 +51,19 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.ui.viewmodels.ProfileViewModel
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.SolidColor
+
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 
@@ -72,8 +85,17 @@ fun ProfileScreen(
     val selectGenderPlaceholder = stringResource(id = R.string.placeholder_select_gender)
     val guestUserPlaceholder = stringResource(id = R.string.placeholder_guest_user)
     val unableToLoadMsg = stringResource(id = R.string.msg_unable_to_load_photo)
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val dbCountryCodes by profileViewModel.countryCodes.collectAsStateWithLifecycle()
+
+    var selectedCountryCode by rememberSaveable { mutableStateOf("+91") }
+    var localPhoneNumber by rememberSaveable { mutableStateOf("") }
+    var isCountryPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var countrySearchQuery by rememberSaveable { mutableStateOf("") }
+    var lastParsedPhone by remember { mutableStateOf<String?>(null) }
+    var hasAppliedDbCountryCodes by remember { mutableStateOf(false) }
+
     var fullName by rememberSaveable(userProfile) { mutableStateOf(userProfile.fullName) }
-    var phoneNumber by rememberSaveable(userProfile) { mutableStateOf(userProfile.phoneNumber) }
     var dateOfBirthMillis by rememberSaveable(userProfile) { mutableStateOf(userProfile.dateOfBirthMillis) }
     var gender by rememberSaveable(userProfile) {
         mutableStateOf(userProfile.gender.takeUnless { it == "Select Gender" }.orEmpty())
@@ -83,13 +105,22 @@ fun ProfileScreen(
     var isDatePickerVisible by remember { mutableStateOf(false) }
     var isPhotoProcessing by remember { mutableStateOf(false) }
 
-    // Explicitly sync state if userProfile changes (e.g. from background Google sync)
-    LaunchedEffect(userProfile) {
+    // Explicitly sync state if userProfile changes or database country codes load
+    LaunchedEffect(userProfile, dbCountryCodes) {
         fullName = userProfile.fullName
-        phoneNumber = userProfile.phoneNumber
         dateOfBirthMillis = userProfile.dateOfBirthMillis
         gender = userProfile.gender.takeUnless { it == "Select Gender" }.orEmpty()
         photoUri = userProfile.photoUri
+
+        if (lastParsedPhone != userProfile.phoneNumber || (dbCountryCodes.isNotEmpty() && !hasAppliedDbCountryCodes)) {
+            val (code, number) = parsePhoneNumber(userProfile.phoneNumber, dbCountryCodes)
+            selectedCountryCode = code
+            localPhoneNumber = number
+            lastParsedPhone = userProfile.phoneNumber
+            if (dbCountryCodes.isNotEmpty()) {
+                hasAppliedDbCountryCodes = true
+            }
+        }
     }
 
     val maleLabel = stringResource(id = R.string.label_male)
@@ -206,12 +237,12 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            InputFieldCard(
+            PhoneInputFieldCard(
                 title = stringResource(id = R.string.label_phone_number_caps),
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                inputType = InputType.Phone,
-                leadingIcon = Icons.Rounded.Call,
+                phoneNumber = localPhoneNumber,
+                onPhoneNumberChange = { localPhoneNumber = it },
+                selectedCountryCode = selectedCountryCode,
+                onCountryCodeClick = { isCountryPickerVisible = true },
                 placeholder = stringResource(id = R.string.placeholder_phone_example)
             )
 
@@ -267,7 +298,7 @@ fun ProfileScreen(
                         userProfile.copy(
                             fullName = fullName.trim().ifBlank { guestUserPlaceholder },
                             emailAddress = userProfile.emailAddress.trim(),
-                            phoneNumber = phoneNumber.trim(),
+                            phoneNumber = "${selectedCountryCode.trim()}${localPhoneNumber.trim()}",
                             dateOfBirthMillis = dateOfBirthMillis,
                             gender = gender,
                             photoUri = photoUri
@@ -347,6 +378,51 @@ fun ProfileScreen(
                 gender = selectedGender
                 isGenderPickerVisible = false
             }
+        )
+    }
+
+    if (isCountryPickerVisible) {
+        val filteredCountryCodes = remember(dbCountryCodes, countrySearchQuery) {
+            if (countrySearchQuery.isBlank()) {
+                dbCountryCodes
+            } else {
+                dbCountryCodes.filter {
+                    it.country.contains(countrySearchQuery, ignoreCase = true) ||
+                    it.dialCode.contains(countrySearchQuery)
+                }
+            }
+        }
+
+        val countrySelectionItems = remember(filteredCountryCodes) {
+            filteredCountryCodes.map { country ->
+                SelectionItem(
+                    id = country,
+                    title = country.country,
+                    leadingText = country.dialCode
+                )
+            }
+        }
+
+        val countryPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+        AppSelectionSheet(
+            title = stringResource(id = R.string.title_select_country),
+            onDismiss = {
+                isCountryPickerVisible = false
+                countrySearchQuery = ""
+            },
+            items = countrySelectionItems,
+            selectedId = dbCountryCodes.find { it.dialCode == selectedCountryCode },
+            onItemSelected = { country ->
+                selectedCountryCode = country.dialCode
+                isCountryPickerVisible = false
+                countrySearchQuery = ""
+            },
+            showSearch = true,
+            searchQuery = countrySearchQuery,
+            onSearchQueryChange = { countrySearchQuery = it },
+            searchPlaceholder = stringResource(id = R.string.placeholder_search_country),
+            sheetState = countryPickerSheetState
         )
     }
 }
@@ -453,5 +529,173 @@ private fun ProfileScreenPreview() {
         ProfileScreen(
             userProfile = defaultUserProfile
         )
+    }
+}
+
+@Composable
+private fun PhoneInputFieldCard(
+    title: String,
+    phoneNumber: String,
+    onPhoneNumberChange: (String) -> Unit,
+    selectedCountryCode: String,
+    onCountryCodeClick: () -> Unit,
+    placeholder: String
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val containerColor = colorScheme.surface
+    val primary = colorScheme.primary
+    val onSurface = colorScheme.onSurface
+    val onSurfaceVariant = colorScheme.onSurfaceVariant
+    val containerShape = RoundedCornerShape(28.dp)
+    val borderColor = colorScheme.outlineVariant.copy(alpha = 0.4f)
+    val focusManager = LocalFocusManager.current
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = containerShape,
+        color = containerColor,
+        border = BorderStroke(width = 1.dp, color = borderColor),
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Call,
+                    contentDescription = null,
+                    tint = primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Country Code selector
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onCountryCodeClick() }
+                            .padding(vertical = 4.dp, horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = selectedCountryCode,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = primary
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowDown,
+                            contentDescription = stringResource(id = R.string.title_select_country),
+                            tint = primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    // Divider line
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .height(18.dp)
+                            .width(1.dp)
+                            .background(colorScheme.outlineVariant)
+                    )
+
+                    // Phone input
+                    BasicTextField(
+                        value = phoneNumber,
+                        onValueChange = onPhoneNumberChange,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
+                        textStyle = LocalTextStyle.current.copy(
+                            color = onSurface,
+                            fontSize = 16.sp
+                        ),
+                        cursorBrush = SolidColor(primary),
+                        modifier = Modifier.fillMaxWidth(),
+                        decorationBox = { innerTextField ->
+                            if (phoneNumber.isEmpty()) {
+                                Text(
+                                    text = placeholder,
+                                    color = onSurfaceVariant.copy(alpha = 0.5f),
+                                    fontSize = 16.sp
+                                )
+                            }
+                            innerTextField()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun parsePhoneNumber(
+    fullNumber: String,
+    countryCodes: List<com.mknlabs.expensetracker.models.CountryCode>
+): Pair<String, String> {
+    val cleanNumber = fullNumber.trim()
+    if (cleanNumber.isBlank()) {
+        return Pair("+91", "")
+    }
+
+    // Find the longest matching dial code that prefix matches the full number
+    val matchingCode = countryCodes
+        .filter { cleanNumber.startsWith(it.dialCode) }
+        .maxByOrNull { it.dialCode.length }
+
+    return if (matchingCode != null) {
+        val remaining = cleanNumber.substring(matchingCode.dialCode.length)
+        Pair(matchingCode.dialCode, remaining)
+    } else {
+        // Fallback for +91 or other common prefixes if dbCountryCodes hasn't loaded yet
+        if (cleanNumber.startsWith("+91")) {
+            Pair("+91", cleanNumber.removePrefix("+91"))
+        } else if (cleanNumber.startsWith("+1")) {
+            Pair("+1", cleanNumber.removePrefix("+1"))
+        } else if (cleanNumber.startsWith("+")) {
+            // Find if starts with + followed by 1 to 4 digits
+            val plusMatch = Regex("^\\+\\d{1,4}").find(cleanNumber)
+            if (plusMatch != null) {
+                val code = plusMatch.value
+                val remaining = cleanNumber.substring(code.length)
+                Pair(code, remaining)
+            } else {
+                Pair("+91", cleanNumber)
+            }
+        } else {
+            Pair("+91", cleanNumber)
+        }
     }
 }

@@ -24,6 +24,7 @@ import com.mknlabs.expensetracker.ui.models.SelectionItem
 
 import androidx.compose.material.icons.rounded.Lock
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
+import androidx.compose.ui.text.style.TextOverflow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,15 +177,19 @@ private fun <T> SelectionRow(
         if (item.leadingText != null || item.leadingIcon != null) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
+                    .height(42.dp)
+                    .widthIn(min = 42.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(boxBackgroundColor),
+                    .background(boxBackgroundColor)
+                    .padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (item.leadingText != null) {
                     Text(
                         text = item.leadingText,
                         color = contentColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -212,6 +217,8 @@ private fun <T> SelectionRow(
                         fontWeight = FontWeight.SemiBold
                     ),
                     lineHeight = 22.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false)
                 )
 
@@ -237,7 +244,9 @@ private fun <T> SelectionRow(
                     text = subtitleText,
                     color = if (item.isLocked) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 18.sp
+                    lineHeight = 18.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

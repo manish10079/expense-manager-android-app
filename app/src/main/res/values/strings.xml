@@ -680,7 +680,7 @@
     <string name="label_email_address_caps">EMAIL ADDRESS</string>
     <string name="placeholder_email_example">alex.j@example.com</string>
     <string name="label_phone_number_caps">PHONE NUMBER</string>
-    <string name="placeholder_phone_example">+1234 567 8900</string>
+    <string name="placeholder_phone_example">1112223334...</string>
     <string name="label_date_of_birth_caps">DATE OF BIRTH</string>
     <string name="label_gender_caps">GENDER</string>
     <string name="content_desc_open_gender_options">Open gender options</string>
@@ -688,6 +688,8 @@
     <string name="content_desc_add_photo">Add photo</string>
     <string name="content_desc_edit_photo">Edit photo</string>
     <string name="content_desc_delete_photo">Delete photo</string>
+    <string name="title_select_country">Select Country</string>
+    <string name="placeholder_search_country">Search country…</string>
     <!-- Notification Settings Screen -->
     <string name="desc_daily_reminder">Get notified to log your daily transactions.</string>
     <string name="title_budget_limit_alerts">Budget Limit Alerts</string>

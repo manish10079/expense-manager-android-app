@@ -13,6 +13,7 @@ import com.mknlabs.expensetracker.data.repository.SecurityRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ConfigurationRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ProPassRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.SyncRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.CountryCodeRepositoryImpl
 import com.mknlabs.expensetracker.domain.repository.*
 import dagger.Binds
 import dagger.Module
@@ -23,6 +24,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindCountryCodeRepository(
+        impl: CountryCodeRepositoryImpl
+    ): CountryCodeRepository
 
     @Binds
     @Singleton
