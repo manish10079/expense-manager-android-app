@@ -124,12 +124,26 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncUserProfile(isNewUser: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
-        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.success(Unit)
+        val currentUser = firebaseAuth.currentUser
+        val uid = currentUser?.uid ?: return@withContext Result.success(Unit)
+        
         try {
             _isSyncing.value = true
+            
+            // Stabilization: For anonymous users, wait a moment for the session to "settle" before Firestore ops
+            if (currentUser.isAnonymous) {
+                android.util.Log.d("Sync", "Stabilizing anonymous session for uid: $uid...")
+                kotlinx.coroutines.delay(500)
+            }
+            
+            if (uid.isBlank()) {
+                throw Exception("Invalid UID for sync")
+            }
+
             syncUserProfileInternal(uid, isNewUser)
             Result.success(Unit)
         } catch (e: Exception) {
+            android.util.Log.e("Sync", "Sync User Profile failed for uid: $uid", e)
             Result.failure(e)
         } finally {
             _isSyncing.value = false
@@ -164,19 +178,46 @@ class SyncRepositoryImpl @Inject constructor(
 
     private suspend fun pushUserProfile(uid: String, isNewUser: Boolean) {
         val userDoc = firestore.collection("users").document(uid)
-        val snapshot = userDoc.get().await()
-        val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
-        val remoteAccountTier = snapshot.getString("accountTier") ?: ""
-        var localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val currentUser = firebaseAuth.currentUser
+        var localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
 
-        // Treat as new user if isNewUser is true OR if we haven't set a creation timestamp locally yet
-        val effectiveIsNewUser = isNewUser || localProfile.accountCreatedMillis == 0L
+        // Optimization: For new users, skip the 'get()' to avoid permission issues with non-existent documents
+        var remoteUpdatedAt = 0L
+        var remoteAccountTier = ""
+        var remoteAccountCreatedOn: String? = null
+        var docExists = false
 
-        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") return
-        if (snapshot.exists() && localProfile.updatedAtMillis <= remoteUpdatedAt && !effectiveIsNewUser) return
+        if (!isNewUser) {
+            try {
+                val snapshot = userDoc.get().await()
+                docExists = snapshot.exists()
+                if (docExists) {
+                    remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+                    remoteAccountTier = snapshot.getString("accountTier") ?: ""
+                    remoteAccountCreatedOn = snapshot.getString("accountCreatedOn") ?: snapshot.getString("AccountCreatedOn")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("Sync", "Failed to fetch remote profile for uid: $uid", e)
+                // Continue with local data if fetch fails
+            }
+        }
 
-        if (effectiveIsNewUser && localProfile.accountCreatedMillis == 0L) {
+        // Robust Detection: Treat as new if flag is true OR doc doesn't exist OR critical field missing
+        val isFirstTimeInitialization = isNewUser || !docExists || remoteAccountCreatedOn == null
+
+        android.util.Log.d("Sync", "Push Decision - uid: $uid, isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
+
+        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") {
+            android.util.Log.d("Sync", "Skipping push: Remote is PREMIUM, local is not.")
+            return
+        }
+        if (docExists && localProfile.updatedAtMillis <= remoteUpdatedAt && !isFirstTimeInitialization) {
+            android.util.Log.d("Sync", "Skipping push: Cloud is up-to-date or newer.")
+            return
+        }
+
+        // Initialize local creation timestamp if missing
+        if (localProfile.accountCreatedMillis == 0L) {
             val creationTime = System.currentTimeMillis()
             localProfile = localProfile.copy(accountCreatedMillis = creationTime)
             UserProfileDataStore.setUserProfile(context, localProfile)
@@ -193,24 +234,37 @@ class SyncRepositoryImpl @Inject constructor(
         }
 
         val profileData = mutableMapOf(
+            "uid" to uid,
             "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
             "phoneNumber" to localProfile.phoneNumber,
-            "DateOfBirthOn" to localProfile.dateOfBirthMillis?.let { formatDate(it, "dd MMMM yyyy") }.orEmpty(),
+            "dateOfBirthOn" to localProfile.dateOfBirthMillis?.takeIf { it != 0L }?.let { formatDate(it, "dd MMMM yyyy") }.orEmpty(),
             "gender" to localProfile.gender,
             "financialGoal" to localProfile.financialGoal,
-            "accountTier" to if (effectiveIsNewUser) "FREE" else localProfile.accountTier,
+            "accountTier" to if (localProfile.accountTier == "PREMIUM") "PREMIUM" else "FREE",
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
+            "authProvider" to if (localProfile.authProvider.isNotBlank()) localProfile.authProvider else {
+                if (currentUser?.isAnonymous == true) "anonymous" else {
+                    currentUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
+                }
+            },
             "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
         )
 
-        if (effectiveIsNewUser) {
-            profileData["AccountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
+        // Always push creation date if it's a first-time init or missing in cloud
+        if (isFirstTimeInitialization) {
+            profileData["accountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
         }
 
-        userDoc.set(profileData, SetOptions.merge()).await()
+        try {
+            userDoc.set(profileData, SetOptions.merge()).await()
+            android.util.Log.i("Sync", "Successfully pushed profile for uid: $uid (isNewUser: $isNewUser)")
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "Failed to push profile for uid: $uid", e)
+            throw e // Re-throw to trigger worker retry
+        }
     }
 
     private suspend fun pullUserProfile(uid: String) {
@@ -244,7 +298,7 @@ class SyncRepositoryImpl @Inject constructor(
             fullName = snapshot.getString("fullName") ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null) ?: localProfile.fullName,
             emailAddress = snapshot.getString("emailAddress") ?: authUser?.email ?: localProfile.emailAddress,
             phoneNumber = snapshot.getString("phoneNumber") ?: localProfile.phoneNumber,
-            dateOfBirthMillis = snapshot.getString("DateOfBirthOn")?.let { parseDate(it, "dd MMMM yyyy") } ?: localProfile.dateOfBirthMillis,
+            dateOfBirthMillis = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn"))?.let { parseDate(it, "dd MMMM yyyy") } ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
             financialGoal = snapshot.getString("financialGoal") ?: localProfile.financialGoal,
             accountCreatedMillis = localProfile.accountCreatedMillis, // Don't pull from cloud, keep local

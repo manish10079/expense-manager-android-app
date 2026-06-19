@@ -108,7 +108,7 @@ fun SettingsScreen(
     }
 
     LaunchedEffect(
-        transactionCount, isAdsEnabled, effectiveUserTier, isCloudSyncEnabled
+        transactionCount, isAdsEnabled, effectiveUserTier, isCloudSyncEnabled, userProfile
     ) {
         settingsViewModel.updateInputs(
             transactionCount = transactionCount, 

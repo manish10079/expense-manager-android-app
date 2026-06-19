@@ -29,6 +29,7 @@ object UserProfileDataStore {
         val photoUri = stringPreferencesKey("photo_uri")
         val proExpiryTimestamp = longPreferencesKey("pro_expiry_timestamp")
         val updatedAtMillis = longPreferencesKey("updated_at_millis")
+        val authProvider = stringPreferencesKey("auth_provider")
     }
 
     fun getUserProfileFlow(context: Context): Flow<UserProfile> {
@@ -71,7 +72,8 @@ object UserProfileDataStore {
             accountTier = this[Keys.accountTier] ?: defaultUserProfile.accountTier,
             photoUri = this[Keys.photoUri] ?: defaultUserProfile.photoUri,
             proExpiryTimestamp = this[Keys.proExpiryTimestamp] ?: defaultUserProfile.proExpiryTimestamp,
-            updatedAtMillis = this[Keys.updatedAtMillis] ?: defaultUserProfile.updatedAtMillis
+            updatedAtMillis = this[Keys.updatedAtMillis] ?: defaultUserProfile.updatedAtMillis,
+            authProvider = this[Keys.authProvider] ?: defaultUserProfile.authProvider
         )
     }
 
@@ -87,6 +89,7 @@ object UserProfileDataStore {
         profile.photoUri?.let { this[Keys.photoUri] = it } ?: remove(Keys.photoUri)
         this[Keys.proExpiryTimestamp] = profile.proExpiryTimestamp
         this[Keys.updatedAtMillis] = profile.updatedAtMillis
+        this[Keys.authProvider] = profile.authProvider
     }
 
     suspend fun clearAll(context: Context) {

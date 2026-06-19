@@ -140,6 +140,7 @@ fun MainScreen(
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
+    val firebaseUser by authViewModel.currentUser.collectAsState()
     
     var showAuthSheet by remember { mutableStateOf(false) }
     var showPremiumSheet by remember { mutableStateOf(false) }
@@ -254,6 +255,64 @@ fun MainScreen(
         }
     }
 
+    val handleSuccessfulAuth: () -> Unit = {
+        coroutineScope.launch {
+            // Wait a moment for Firebase Auth session/provider data to settle/flush
+            kotlinx.coroutines.delay(600)
+            val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                val remotePhotoUri = user.photoUrl
+                val currentProfile = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                    UserProfileDataStore.getUserProfileFlow(context).first()
+                }
+                
+                UserProfileDataStore.updateUserProfile(context) { profile ->
+                    val newProvider = if (user.isAnonymous) "anonymous" else {
+                        user.providerData.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
+                    }
+                    val providerEmail = user.email ?: user.providerData.firstOrNull { !it.email.isNullOrBlank() }?.email
+                    
+                    profile.copy(
+                        fullName = if (profile.fullName.isBlank() || profile.fullName == "Guest User") {
+                            user.displayName ?: profile.fullName
+                        } else {
+                            profile.fullName
+                        },
+                        emailAddress = if (!user.isAnonymous && !providerEmail.isNullOrBlank()) {
+                            providerEmail
+                        } else {
+                            profile.emailAddress
+                        },
+                        photoUri = if (profile.photoUri.isNullOrBlank()) {
+                            remotePhotoUri?.toString() ?: profile.photoUri
+                        } else {
+                            profile.photoUri
+                        },
+                        authProvider = newProvider,
+                        updatedAtMillis = System.currentTimeMillis()
+                    )
+                }
+
+                // Localize photo if needed
+                if (remotePhotoUri != null && (currentProfile.photoUri.isNullOrBlank() || currentProfile.photoUri.startsWith("http"))) {
+                    val localUri = com.mknlabs.expensetracker.utils.ProfilePhotoManager.localizePhoto(context, remotePhotoUri)
+                    if (localUri != null) {
+                        UserProfileDataStore.updateUserProfile(context) { 
+                            it.copy(
+                                photoUri = localUri,
+                                updatedAtMillis = System.currentTimeMillis()
+                            ) 
+                        }
+                    }
+                }
+
+                // Trigger Sync immediately
+                android.util.Log.d("Sync", "Triggering sync post-auth for user: ${user.uid}")
+                SyncWorker.startImmediate(context)
+            }
+        }
+    }
+
     val unlockWithBiometric: () -> Unit = {
         if (biometricAuthenticator == null) {
             showToast(rawContext.getString(R.string.toast_biometric_authentication_is_un))
@@ -312,14 +371,19 @@ fun MainScreen(
                     navigationState.navigateTo(AppRoute.Home)
                     navigationState.updateBottomBarVisibility(false)
                     coroutineScope.launch {
-                        // 1. Update Profile
+                        val now = System.currentTimeMillis()
+                        // 1. Update Profile (Initializing creation time if it's 0)
                         UserProfileDataStore.updateUserProfile(context) { profile ->
                             profile.copy(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
-                                dateOfBirthMillis = dobMillis ?: 0L,
+                                dateOfBirthMillis = dobMillis,
                                 financialGoal = financialGoal,
-                                updatedAtMillis = System.currentTimeMillis()
+                                accountCreatedMillis = if (profile.accountCreatedMillis == 0L) now else profile.accountCreatedMillis,
+                                updatedAtMillis = now,
+                                authProvider = if (firebaseUser?.isAnonymous == true) "anonymous" else {
+                                    firebaseUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
+                                }
                             )
                         }
 
@@ -330,8 +394,8 @@ fun MainScreen(
                             )
                         }
 
-                        // 3. Trigger Sync
-                        SyncWorker.startImmediate(context)
+                        // 3. Stabilization: Wait a moment for DataStore to flush and Auth to settle
+                        kotlinx.coroutines.delay(1000)
                     }
                 },
                 onSignUpSuccess = {
@@ -397,29 +461,48 @@ fun MainScreen(
             }
 
             // Sync Firebase User with local UserProfileDataStore
-            val firebaseUser by authViewModel.currentUser.collectAsState()
             LaunchedEffect(firebaseUser) {
-                if (firebaseUser != null && !firebaseUser!!.isAnonymous) {
+                if (firebaseUser != null) {
                     firebaseUser?.let { user -> 
-                        val remotePhotoUri = user.photoUrl
-                        val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                        // If user just linked an anonymous account, wait a tiny bit for provider data to flush
+                        if (!user.isAnonymous) {
+                            kotlinx.coroutines.delay(400)
+                        }
                         
-                        // Sync Name, Email, and Photo URL if they are missing locally
-                        if (
+                        val remotePhotoUri = user.photoUrl
+                        val currentProfile = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                            UserProfileDataStore.getUserProfileFlow(context).first()
+                        }
+                        
+                        // Precise Sync Decision:
+                        // 1. If anonymous, only initialize if provider is completely blank
+                        // 2. If permanent, sync if details are blank, or if transitioning from anonymous guest mode
+                        val shouldUpdateProfile = if (user.isAnonymous) {
+                            currentProfile.authProvider.isBlank()
+                        } else {
                             currentProfile.fullName.isBlank() ||
-                            currentProfile.fullName == "Guest User" ||
+                            (currentProfile.fullName == "Guest User" && !user.isAnonymous) ||
                             currentProfile.emailAddress.isBlank() ||
-                            (currentProfile.photoUri.isNullOrBlank() && remotePhotoUri != null)
-                        ) {
+                            currentProfile.authProvider.isBlank() ||
+                            currentProfile.authProvider == "anonymous"
+                        }
+
+                        if (shouldUpdateProfile) {
                             UserProfileDataStore.updateUserProfile(context) { profile ->
+                                val newProvider = if (user.isAnonymous) "anonymous" else {
+                                    user.providerData.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
+                                }
+                                
+                                val providerEmail = user.email ?: user.providerData.firstOrNull { !it.email.isNullOrBlank() }?.email
+                                
                                 profile.copy(
                                     fullName = if (profile.fullName.isBlank() || profile.fullName == "Guest User") {
                                         user.displayName ?: profile.fullName
                                     } else {
                                         profile.fullName
                                     },
-                                    emailAddress = if (profile.emailAddress.isBlank()) {
-                                        user.email ?: profile.emailAddress
+                                    emailAddress = if (profile.emailAddress.isBlank() && !user.isAnonymous) {
+                                        providerEmail ?: profile.emailAddress
                                     } else {
                                         profile.emailAddress
                                     },
@@ -428,6 +511,7 @@ fun MainScreen(
                                     } else {
                                         profile.photoUri
                                     },
+                                    authProvider = newProvider,
                                     updatedAtMillis = System.currentTimeMillis()
                                 )
                             }
@@ -449,6 +533,7 @@ fun MainScreen(
                         }
 
                         if (!showOnboarding) {
+                            android.util.Log.d("Sync", "Triggering sync for ${if (user.isAnonymous) "Guest" else "Auth"} user: ${user.uid}")
                             SyncWorker.startImmediate(context)
                         }
                     }
@@ -907,6 +992,7 @@ fun MainScreen(
                         viewModel = authViewModel,
                         onAuthSuccess = {
                             showAuthSheet = false
+                            handleSuccessfulAuth()
                         },
                         onGuestContinue = {
                             showAuthSheet = false
@@ -914,6 +1000,7 @@ fun MainScreen(
                         onSignUpSuccess = {
                             showAuthSheet = false
                             showAccountCreatedPopup = true
+                            handleSuccessfulAuth()
                         }
                     )
                 }

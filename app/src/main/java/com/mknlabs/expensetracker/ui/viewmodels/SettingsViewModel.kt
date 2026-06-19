@@ -153,6 +153,10 @@ class SettingsViewModel @Inject constructor(
         this.isAdsEnabled = isAdsEnabled
         this.userTier = userTier
         this.isCloudSyncEnabled = isCloudSyncEnabled
+        
+        // Force refresh the live anonymous state from Firebase SDK
+        this.isAnonymous = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isAnonymous ?: true
+        
         rebuildUiState()
     }
 

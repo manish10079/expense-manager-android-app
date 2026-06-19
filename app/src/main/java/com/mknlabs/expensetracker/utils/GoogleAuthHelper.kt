@@ -26,20 +26,13 @@ class GoogleAuthHelper @Inject constructor(
         filterByAuthorized: Boolean = false
     ): Result<String?> {
         val credentialManager = CredentialManager.create(context)
-        
-        // Clear any stale state first to ensure fresh picker if not auto-selecting
-        if (!autoSelect) {
-            try {
-                credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            } catch (e: Exception) {
-                // Ignore clearing errors
-            }
-        }
 
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(filterByAuthorized)
             .setServerClientId(context.getString(R.string.default_web_client_id))
             .setAutoSelectEnabled(autoSelect)
+            // Explicitly set this to false if filterByAuthorized is false to avoid the system quirk
+            // that prompts an "Add Account" intent on certain Android OS versions.
             .build()
 
         val request = GetCredentialRequest.Builder()

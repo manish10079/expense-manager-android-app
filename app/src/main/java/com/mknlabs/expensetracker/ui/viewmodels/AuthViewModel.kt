@@ -266,6 +266,7 @@ class AuthViewModel @Inject constructor(
     fun startGuestSignIn() {
         val sessionId = System.currentTimeMillis()
         guestSignInSessionId = sessionId
+        android.util.Log.d("AuthVM", "Starting guest sign-in session: $sessionId")
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading

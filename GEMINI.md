@@ -92,6 +92,20 @@ com.mkn0079.expensetracker/
 - **Verification:** Ensure the updated version is reflected in the build file before finalizing the task.
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
 
+### 9. Naming Conventions
+- **PascalCase (UpperCamelCase):** 
+    - Used for Classes, Interfaces, Objects, and Enums (`TransactionRepository`, `SyncState`).
+    - Used for UI Composable functions that emit UI (`HomeScreen`, `ProfileAvatar`).
+- **camelCase (lowerCamelCase):**
+    - Used for Variables, Properties, and Functions (`fullName`, `signInAnonymously`).
+    - **Mandatory for Firestore Keys:** All keys in Firestore documents must be camelCase to maintain a 1:1 mapping with Kotlin data classes.
+- **snake_case (lower_case_with_underscores):**
+    - Mandatory for all Android Resource files (XML layouts, drawables, assets).
+    - Mandatory for Resource IDs in XML (`@+id/btn_save`).
+    - **Mandatory for Room Tables and Columns:** Use snake_case for table names and column names (via `@ColumnInfo`) to follow SQL standards, while keeping the Kotlin properties in camelCase.
+- **SCREAMING_SNAKE_CASE:**
+    - Used for static constants and companion object constants (`const val MAX_RETRIES = 3`).
+
 ## 🚀 Workflow for New Features
 
 1. **Analyze:** Identify the impact across Data, Domain, and UI layers.

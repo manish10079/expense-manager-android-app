@@ -79,6 +79,7 @@ class ProPassRepositoryImpl @Inject constructor(
             firestore.collection("users").document(currentUser.uid)
                 .set(
                     mapOf(
+                        "uid" to currentUser.uid,
                         "proExpiryTimestamp" to newExpiry,
                         "accountTier" to "PREMIUM",
                         "profileUpdatedAtMillis" to newUpdatedAt

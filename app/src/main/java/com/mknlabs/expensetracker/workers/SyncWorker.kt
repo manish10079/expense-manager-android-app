@@ -21,9 +21,17 @@ class SyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        val isNewUser = inputData.getBoolean("is_new_user", false)
+        
+        // Stabilization: Give Firebase Auth a moment to restore the session if it was just launched
+        kotlinx.coroutines.delay(1000)
+        
+        val currentUser = firebaseAuth.currentUser
+        android.util.Log.d("SyncWorker", "Starting sync work. isNewUser: $isNewUser, user: ${currentUser?.uid}, isAnon: ${currentUser?.isAnonymous}")
+        
         // 1. Sync profile for any authenticated user (free, premium, guest/anonymous)
         // This will update the local UserTier if it changed on the server
-        val profileSyncResult = syncRepository.syncUserProfile()
+        val profileSyncResult = syncRepository.syncUserProfile(isNewUser)
         if (profileSyncResult.isFailure) {
             return Result.retry()
         }
@@ -81,13 +89,18 @@ class SyncWorker @AssistedInject constructor(
             )
         }
 
-        fun startImmediate(context: Context) {
+        fun startImmediate(context: Context, isNewUser: Boolean = false) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
+            val data = Data.Builder()
+                .putBoolean("is_new_user", isNewUser)
+                .build()
+
             val oneTimeRequest = OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(constraints)
+                .setInputData(data)
                 .build()
 
             WorkManager.getInstance(context).enqueue(oneTimeRequest)
