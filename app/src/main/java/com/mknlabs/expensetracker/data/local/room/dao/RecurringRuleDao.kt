@@ -38,4 +38,7 @@ interface RecurringRuleDao {
 
     @Query("DELETE FROM recurring_rules")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM recurring_rules WHERE is_deleted = 1 AND sync_state = 'SYNCED' AND updated_at < :threshold")
+    suspend fun purgeOldDeleted(threshold: Long)
 }

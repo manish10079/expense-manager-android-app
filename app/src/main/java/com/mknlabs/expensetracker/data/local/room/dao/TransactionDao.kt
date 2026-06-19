@@ -185,4 +185,7 @@ interface TransactionDao {
 
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM transactions WHERE is_deleted = 1 AND sync_state = 'SYNCED' AND updated_at < :threshold")
+    suspend fun purgeOldDeleted(threshold: Long)
 }

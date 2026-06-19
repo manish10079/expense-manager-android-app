@@ -43,4 +43,7 @@ interface BudgetDao {
 
     @Query("UPDATE budgets SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<String>, syncState: String)
+
+    @Query("DELETE FROM budgets WHERE is_deleted = 1 AND sync_state = 'SYNCED' AND updated_at < :threshold")
+    suspend fun purgeOldDeleted(threshold: Long)
 }

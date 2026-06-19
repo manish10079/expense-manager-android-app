@@ -184,6 +184,21 @@ class SyncRepositoryImpl @Inject constructor(
             }
 
             AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = newSyncTime) }
+
+            // Purge local soft-deleted synced records older than 30 days
+            try {
+                val threshold = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+                database.withTransaction {
+                    transactionDao.purgeOldDeleted(threshold)
+                    goalDao.purgeOldDeleted(threshold)
+                    budgetDao.purgeOldDeleted(threshold)
+                    recurringRuleDao.purgeOldDeleted(threshold)
+                }
+                android.util.Log.i("Sync", "Successfully purged local synced deleted records older than 30 days.")
+            } catch (e: Exception) {
+                android.util.Log.e("Sync", "Failed to purge local synced deleted records", e)
+            }
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
