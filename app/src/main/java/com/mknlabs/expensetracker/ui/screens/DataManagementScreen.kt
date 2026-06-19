@@ -221,6 +221,7 @@ fun DataManagementScreen(
                             type = SettingsItemType.Button,
                             valueText = stringResource(id = R.string.label_import),
                             onClick = {
+                                importJsonClickCount++
                                 onPrepareForExternalActivity()
                                 jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
                             },
