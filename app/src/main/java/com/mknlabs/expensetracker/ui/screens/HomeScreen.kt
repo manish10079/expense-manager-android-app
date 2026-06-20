@@ -48,6 +48,7 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.models.hasPhoneNumber
 import com.mknlabs.expensetracker.ui.components.*
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
@@ -379,7 +380,7 @@ fun AccountSetupCard(
             Triple(R.string.label_checklist_email, userProfile.emailAddress.isNotEmpty(), R.string.label_checklist_signin_to_add),
             Triple(R.string.label_checklist_dob, userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L, null),
             Triple(R.string.label_checklist_gender, userProfile.gender.isNotEmpty(), null),
-            Triple(R.string.label_checklist_phone, userProfile.phoneNumber.isNotEmpty(), null)
+            Triple(R.string.label_checklist_phone, userProfile.hasPhoneNumber, null)
         )
     }
 

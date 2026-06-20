@@ -298,7 +298,7 @@ fun ProfileScreen(
                         userProfile.copy(
                             fullName = fullName.trim().ifBlank { guestUserPlaceholder },
                             emailAddress = userProfile.emailAddress.trim(),
-                            phoneNumber = "${selectedCountryCode.trim()}${localPhoneNumber.trim()}",
+                            phoneNumber = if (localPhoneNumber.trim().isEmpty()) "" else "${selectedCountryCode.trim()}${localPhoneNumber.trim()}",
                             dateOfBirthMillis = dateOfBirthMillis,
                             gender = gender,
                             photoUri = photoUri

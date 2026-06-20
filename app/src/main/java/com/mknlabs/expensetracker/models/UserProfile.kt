@@ -48,3 +48,10 @@ fun UserProfile.avatarInitials(): String {
         .take(2)
         .joinToString(separator = "") { it.first().uppercase() }
 }
+
+val UserProfile.hasPhoneNumber: Boolean
+    get() {
+        val clean = phoneNumber.replace(Regex("[^0-9]"), "")
+        return clean.length > 4
+    }
+

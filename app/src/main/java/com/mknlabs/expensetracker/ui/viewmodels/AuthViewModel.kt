@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
+import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.utils.GoogleAuthHelper
 import com.mknlabs.expensetracker.utils.NetworkMonitor
+import com.mknlabs.expensetracker.utils.ProfilePhotoManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -395,7 +400,53 @@ class AuthViewModel @Inject constructor(
     }
 
     fun signOut() {
-        authRepository.signOut()
+        viewModelScope.launch {
+            // 1. Delete profile photo if any
+            try {
+                val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+                ProfilePhotoManager.deleteManagedPhoto(currentProfile.photoUri)
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Failed to delete managed profile photo: ${e.message}", e)
+            }
+
+            // 2. Clear local profile info (sets to defaultUserProfile)
+            try {
+                UserProfileDataStore.clearAll(context)
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Failed to clear UserProfileDataStore: ${e.message}", e)
+            }
+
+            // 3. Reset Tier and Ad Access
+            try {
+                AppSettingsDataStore.updateUserTier(context, com.mknlabs.expensetracker.models.UserTier.FREE)
+                MonetizationDataStore.updateGlobalAdAccessExpiry(context, 0L)
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Failed to reset Tier/Ad Access: ${e.message}", e)
+            }
+
+            // 4. Reset App Settings specific fields: lastSyncTimeMillis = 0L, isCloudSyncEnabled = false
+            try {
+                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                    settings.copy(
+                        lastSyncTimeMillis = 0L,
+                        isCloudSyncEnabled = false,
+                        pendingAuthEmail = null
+                    )
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Failed to reset app settings: ${e.message}", e)
+            }
+
+            // 6. Sign out from Firebase Auth
+            authRepository.signOut()
+
+            // 7. Sign out from Google Auth Helper
+            try {
+                googleAuthHelper.signOut()
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Google Auth sign out failed: ${e.message}", e)
+            }
+        }
     }
 
     fun resendVerificationEmail() {
