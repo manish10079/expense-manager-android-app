@@ -64,6 +64,8 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import androidx.compose.foundation.BorderStroke
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
@@ -288,34 +290,32 @@ private fun CategoryManagementCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(34.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(
-                brush = surfaceGradient()
+                brush = standardCardGradient()
             )
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(34.dp)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(28.dp)
             )
-            .padding(horizontal = 18.dp, vertical = 20.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = item.title,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp)
-            )
-        }
+        Spacer(modifier = Modifier.width(14.dp))
 
-        Spacer(modifier = Modifier.width(18.dp))
+        AppIconBox(
+            icon = item.icon,
+            contentDescription = item.title,
+            size = 50.dp,
+            iconSize = 25.dp,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+            )
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(
             modifier = Modifier.weight(1f)
@@ -325,7 +325,7 @@ private fun CategoryManagementCard(
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp
+                    fontSize = 16.sp
                 )
             )
 
@@ -342,6 +342,7 @@ private fun CategoryManagementCard(
         }
 
         if (item.isUserCreated) {
+            Spacer(modifier = Modifier.width(8.dp))
             AppIconBox(
                 icon = Icons.Filled.DeleteOutline,
                 contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
@@ -352,6 +353,8 @@ private fun CategoryManagementCard(
                 modifier = Modifier.clickable(onClick = onDeleteClick)
             )
         }
+
+        Spacer(modifier = Modifier.width(14.dp))
     }
 }
 
