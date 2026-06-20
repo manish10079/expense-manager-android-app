@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_DECIMAL_PLACES
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -67,14 +68,14 @@ data class PreferencesScreenUiState(
     val selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     val selectedTimeFormat: String = DEFAULT_TIME_FORMAT,
     val selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN,
-    val selectedDecimalPlaces: Int = 2,
+    val selectedDecimalPlaces: Int = DEFAULT_CURRENCY_DECIMAL_PLACES,
     val currentCurrencyLabel: String = "",
     val currentCurrencyLabelRes: Int = R.string.label_select,
     val currentThemeModeLabelRes: Int = R.string.label_theme_system,
     val currentDateFormatLabel: String = getDateFormatPreviewLabel(DEFAULT_DATE_FORMAT_PATTERN),
     val currentTimeFormatLabelRes: Int = getTimeFormatPreviewLabel(DEFAULT_TIME_FORMAT),
     val currentGroupingLabelRes: Int = R.string.label_system_active,
-    val currentDecimalPlacesLabel: String = "2",
+    val currentDecimalPlacesLabel: String = DEFAULT_CURRENCY_DECIMAL_PLACES.toString(),
     val currencySearchQuery: String = "",
     val filteredCurrencies: List<Currency> = emptyList(),
     val themeModeOptions: List<ThemeModeOptionUi> = buildThemeModeOptions(),
@@ -103,12 +104,12 @@ class PreferencesViewModel @Inject constructor(
     private var selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var selectedTimeFormat: String = DEFAULT_TIME_FORMAT
     private var selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN
-    private var selectedDecimalPlaces: Int = 2
+    private var selectedDecimalPlaces: Int = DEFAULT_CURRENCY_DECIMAL_PLACES
 
     private val _uiState = MutableStateFlow(
         PreferencesScreenUiState(
             filteredCurrencies = allCurrencies,
-            numberFormatOptions = buildNumberFormatOptions(2),
+            numberFormatOptions = buildNumberFormatOptions(DEFAULT_CURRENCY_DECIMAL_PLACES),
             decimalPlaceOptions = buildDecimalPlaceOptions(CurrencyGroupingStyle.INDIAN)
         )
     )

@@ -8,7 +8,7 @@ import com.mknlabs.expensetracker.utils.getDefaultOrder
 
 const val DEFAULT_CURRENCY_ID = 1
 val DEFAULT_CURRENCY_GROUPING_STYLE = CurrencyGroupingStyle.INDIAN
-const val DEFAULT_CURRENCY_DECIMAL_PLACES = 2
+const val DEFAULT_CURRENCY_DECIMAL_PLACES = 0
 const val DEFAULT_DATE_FORMAT_PATTERN = "dd/MM/yyyy"
 const val DEFAULT_TIME_FORMAT = "12-hour"
 const val DEFAULT_SORT_BY = "Date"
