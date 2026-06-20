@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 
+import androidx.compose.runtime.remember
+import com.mknlabs.expensetracker.ui.models.PremiumCopy
+import com.mknlabs.expensetracker.ui.models.PremiumCopyOptions
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumGateSheet(
@@ -30,6 +34,7 @@ fun PremiumGateSheet(
     onRedeemClick: (() -> Unit)? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val selectedCopy = remember { PremiumCopyOptions.random() }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -83,8 +88,27 @@ fun PremiumGateSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
+                // Pill Badge displaying the randomized punchy CTA banner text
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = stringResource(selectedCopy.ctaResId).uppercase(),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            letterSpacing = 1.2.sp
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
-                    text = stringResource(R.string.label_unlock_pro_features),
+                    text = stringResource(selectedCopy.sloganResId),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -93,7 +117,7 @@ fun PremiumGateSheet(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 if (financialGoal.isNotEmpty()) {
                     Text(
@@ -109,7 +133,7 @@ fun PremiumGateSheet(
                 }
 
                 Text(
-                    text = stringResource(R.string.label_take_control_of_your_wealth_wi),
+                    text = stringResource(selectedCopy.subheadlineResId),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),

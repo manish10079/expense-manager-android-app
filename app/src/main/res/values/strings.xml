@@ -376,6 +376,40 @@
     <string name="label_sort_filter">Sort &amp; Filter</string>
     <string name="label_stepanimation">StepAnimation</string>
     <string name="label_system_active">System Active</string>
+
+    <!-- Pro Upgrade Randomized Slogans & Badges -->
+    <string name="pro_slogan_1">Let Your Money Track Itself.</string>
+    <string name="pro_subheadline_1">Stop manually typing out repeating rent, bills, and subscription payments. Let automated recurring logs and instant cross-device cloud sync handle the busywork for you.</string>
+    <string name="pro_cta_1">Unlock Autopilot Savings</string>
+
+    <string name="pro_slogan_2">Log Once. Sync Everywhere. Effortlessly.</string>
+    <string name="pro_subheadline_2">Keep all your wallets and bank accounts in perfect sync across your phone, tablet, and partner\'s device in real time, completely hands-free.</string>
+    <string name="pro_cta_2">Ditch the Manual Hassle</string>
+
+    <string name="pro_slogan_3">Zero Manual Work. 100% Financial Control.</string>
+    <string name="pro_subheadline_3">Turn daily expense tracking from a chore into a background task. Automate your monthly billing logs and experience seamless, silent finance tracking.</string>
+    <string name="pro_cta_3">Unlock Autopilot Savings</string>
+
+    <string name="pro_slogan_4">See Where Your Money Goes Before You Spend It.</string>
+    <string name="pro_subheadline_4">Go beyond static past histories. Unlock advanced category-wise spending projections and trend forecasting to visualize next month\'s balance today.</string>
+    <string name="pro_cta_4">Upgrade to Lifetime Clarity</string>
+
+    <string name="pro_slogan_5">Stop Guessing. Start Growing Your Wealth.</string>
+    <string name="pro_subheadline_5">Eliminate financial blind spots. Use advanced Pro analytics to pinpoint exactly where you are overspending and redirect those leaks into your savings.</string>
+    <string name="pro_cta_5">Take Control of Your Wealth</string>
+
+    <string name="pro_slogan_6">Master Your Cash Flow with Smart Projections.</string>
+    <string name="pro_subheadline_6">Take the guesswork out of monthly budgeting. Get automated trend forecasts based on your real spending habits to build a bulletproof financial plan.</string>
+    <string name="pro_cta_6">Upgrade to Lifetime Clarity</string>
+
+    <string name="pro_slogan_7">Your Financial History, Safe Forever.</string>
+    <string name="pro_subheadline_7">A lost, broken, or upgraded phone shouldn\'t wipe out years of hard-earned habits. Secure your data with automated, silent Google Drive backups and 1-click restore.</string>
+    <string name="pro_cta_7">Upgrade to Lifetime Clarity</string>
+
+    <string name="pro_slogan_8">Crash-Proof. Phone-Proof. Worry-Proof.</string>
+    <string name="pro_subheadline_8">Rest easy knowing your transaction histories and budget sheets are encrypted, synchronized, and backed up automatically to secure cloud storage.</string>
+    <string name="pro_cta_8">Secure Your Data Now</string>
+
     <string name="label_take_control_of_your_wealth_wi">Take control of your wealth with our most powerful tools.</string>
     <string name="label_this_name_already_exists_in_va">This name already exists in %1$s.</string>
     <string name="label_this_new_item_will_be_added_un">This new item will be added under %1$s.</string>
