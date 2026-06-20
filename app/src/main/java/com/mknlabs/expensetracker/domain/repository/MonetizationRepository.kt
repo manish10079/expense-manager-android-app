@@ -1,10 +1,16 @@
 package com.mknlabs.expensetracker.domain.repository
 
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import kotlinx.coroutines.flow.Flow
 
 interface MonetizationRepository {
+    /**
+     * Unified reactive stream for the user's current effective tier.
+     */
+    val userTier: Flow<UserTier>
+
     /**
      * Emits true if ads should be shown, false if the user is premium or has an active pass.
      */

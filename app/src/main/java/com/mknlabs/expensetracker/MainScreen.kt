@@ -58,6 +58,7 @@ import com.mknlabs.expensetracker.domain.repository.JsonImportResult
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
@@ -178,6 +179,10 @@ fun MainScreen(
     val autoBackupFrequencyDays = appSettings.autoBackupFrequencyDays
     val transactionCardCustomizationSettings = remember(appSettings) {
         appSettings.toTransactionCardCustomizationSettings()
+    }
+    val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+    val effectiveAppSettings = remember(appSettings, effectiveUserTier) {
+        appSettings.copy(userTier = effectiveUserTier)
     }
     val scrambledPinKeypadAccessStatus by monetizationViewModel
         .getAccessStatus(Feature.SCRAMBLED_PIN_KEYPAD)
@@ -561,7 +566,7 @@ fun MainScreen(
                         paymentMethods = mainUiState.paymentMethods,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         userProfile = userProfile,
-                        appSettings = appSettings,
+                        appSettings = effectiveAppSettings,
                         selectedCurrencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         selectedDateFormatPattern = selectedDateFormatPattern,
@@ -579,7 +584,7 @@ fun MainScreen(
                         autoLockDurationMinutes = autoLockDurationMinutes,
                         isAutoBackupEnabled = isAutoBackupEnabled,
                         autoBackupFrequencyDays = autoBackupFrequencyDays,
-                        userTier = appSettings.userTier,
+                        userTier = effectiveUserTier,
                         onRouteChange = navigationState::navigateTo,
                         onProfileOriginRouteChange = navigationState::updateProfileOriginRoute,
                         onBottomBarVisibilityChange = navigationState::updateBottomBarVisibility,
@@ -986,7 +991,7 @@ fun MainScreen(
         if (appLockFlow != null) {
             AppLockOverlay(
                 isReady = isReady,
-                appSettings = appSettings,
+                appSettings = effectiveAppSettings,
                 initialFlow = appLockFlow!!,
                 isAppUnlocked = true, // MainScreen only exists in Unlocked state
                 biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,

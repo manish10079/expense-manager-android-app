@@ -13,6 +13,7 @@ import com.mknlabs.expensetracker.monetization.RewardedPlacement
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository
+import com.mknlabs.expensetracker.models.UserTier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +52,16 @@ class MonetizationViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
+        )
+
+    /**
+     * Unified reactive stream for the effective UserTier.
+     */
+    val userTier: StateFlow<UserTier> = monetizationRepository.userTier
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = UserTier.FREE
         )
 
     private val _isAdLoading = MutableStateFlow(false)
