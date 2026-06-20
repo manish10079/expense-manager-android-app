@@ -208,6 +208,24 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun syncUserProfileInternal(uid: String, isNewUser: Boolean) {
+        // First check if local profile is expired
+        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+        val now = System.currentTimeMillis()
+        val isLocalExpired = localProfile.accountTier == "PREMIUM" && localProfile.proExpiryTimestamp in 1..<now
+        if (isLocalExpired) {
+            android.util.Log.d("Sync", "Local Premium has expired. Downgrading locally before sync.")
+            val updatedProfile = localProfile.copy(
+                accountTier = "FREE",
+                updatedAtMillis = now
+            )
+            UserProfileDataStore.setUserProfile(context, updatedProfile)
+            AppSettingsDataStore.updateAppSettings(context) { current ->
+                current.copy(
+                    userTier = com.mknlabs.expensetracker.models.UserTier.FREE
+                )
+            }
+        }
+
         pushUserProfile(uid, isNewUser)
         pullUserProfile(uid)
     }

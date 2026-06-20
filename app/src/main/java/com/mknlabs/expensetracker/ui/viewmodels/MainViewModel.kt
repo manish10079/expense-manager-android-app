@@ -156,6 +156,59 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+
+        // Monitor Premium/Pro Expiry to perform automatic local downgrade
+        viewModelScope.launch {
+            combine(
+                com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(appContext),
+                AppSettingsDataStore.getAppSettingsFlow(appContext)
+            ) { profile, settings ->
+                profile to settings
+            }.collectLatest { (profile, settings) ->
+                val now = System.currentTimeMillis()
+                val isExpired = profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp in 1..<now
+                if (isExpired) {
+                    android.util.Log.d("MainVM", "Premium has expired. Downgrading user locally.")
+                    // 1. Downgrade locally in AppSettings
+                    AppSettingsDataStore.updateAppSettings(appContext) { current ->
+                        current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+                    }
+                    // 2. Downgrade locally in UserProfile
+                    com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentProfile ->
+                        currentProfile.copy(
+                            accountTier = "FREE",
+                            updatedAtMillis = now
+                        )
+                    }
+                    // 3. Trigger a sync worker to push this downgraded status to Firestore
+                    com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
+                } else if (profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp > now) {
+                    // If the subscription is active, but we haven't reached the expiry yet,
+                    // we can schedule a delay until the expiry time, then trigger a recheck!
+                    val delayMillis = profile.proExpiryTimestamp - now
+                    if (delayMillis > 0) {
+                        android.util.Log.d("MainVM", "Scheduling expiry recheck in ${delayMillis / 1000} seconds")
+                        delay(delayMillis + 1000) // add 1 second padding
+                        
+                        val currentProfile = com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(appContext).first()
+                        val currentNow = System.currentTimeMillis()
+                        if (currentProfile.accountTier == "PREMIUM" && currentProfile.proExpiryTimestamp in 1..<currentNow) {
+                            android.util.Log.d("MainVM", "Premium expired during session. Downgrading user locally.")
+                            AppSettingsDataStore.updateAppSettings(appContext) { current ->
+                                current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+                            }
+                            com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentP ->
+                                currentP.copy(
+                                    accountTier = "FREE",
+                                    updatedAtMillis = currentNow
+                                )
+                            }
+                            com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun setTransactionObservationEnabled(enabled: Boolean) {

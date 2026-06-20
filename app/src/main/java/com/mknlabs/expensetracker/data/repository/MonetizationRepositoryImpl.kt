@@ -29,8 +29,9 @@ class MonetizationRepositoryImpl @Inject constructor(
         MonetizationDataStore.getGlobalAdAccessExpiry(context)
     ) { settings, profile, globalAdExpiry ->
         val now = System.currentTimeMillis()
-        val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-                (profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp > now)
+        val isExpired = profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp in 1..<now
+        val isPremium = !isExpired && (settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                (profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)))
         
         val hasActivePass = globalAdExpiry > now
         
@@ -47,9 +48,10 @@ class MonetizationRepositoryImpl @Inject constructor(
             MonetizationDataStore.getGlobalAdAccessExpiry(context)
         ) { settings, profile, globalAdExpiry ->
             val now = System.currentTimeMillis()
+            val isExpired = profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp in 1..<now
             // 1. Check if user is Premium (permanent or active temporary ProPass)
-            val isPremium = settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-                    (profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp > now)
+            val isPremium = !isExpired && (settings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                    (profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)))
             
             if (isPremium) {
                 return@combine AccessStatus.Granted

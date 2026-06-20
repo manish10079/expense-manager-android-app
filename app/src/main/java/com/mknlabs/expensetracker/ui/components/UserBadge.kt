@@ -48,7 +48,7 @@ fun UserBadge(
             )
     ) {
         Text(
-            text = label.uppercase(),
+            text = if (isPremium) label else label.uppercase(),
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.2.sp,

@@ -1220,6 +1220,7 @@
     <string name="title_protect_your_data">Sign up / Sign In</string>
     <string name="msg_link_account_desc">Your financial journey is a story worth keeping. Sign in to ensure your achievements and progress never fade away.</string>
     <string name="label_guest_user">Guest User</string>
+    <string name="label_pro_expiry_format">PRO (ends on %1$s)</string>
     <string name="msg_privacy_info">We use this information to personalize your dashboard and provide age-appropriate insights. Your data stays 100% private and secure.</string>
     <string name="cd_privacy_info">View privacy information</string>
     <string name="title_lets_get_started">Let\'s get started!</string>

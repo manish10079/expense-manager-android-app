@@ -24,6 +24,8 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.toTitleCase
 
+import androidx.compose.runtime.remember
+
 @Composable
 fun ProfileCard(
     name: String,
@@ -31,6 +33,7 @@ fun ProfileCard(
     initials: String,
     photoUri: String? = null,
     userTier: UserTier = UserTier.FREE,
+    proExpiryTimestamp: Long = 0L,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -64,8 +67,22 @@ fun ProfileCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 val isPremium = userTier == UserTier.PREMIUM
+                val badgeLabel = if (isPremium) {
+                    val formattedDate = remember(proExpiryTimestamp) {
+                        try {
+                            java.text.SimpleDateFormat("dd/MM/yy HH:mm", java.util.Locale.getDefault())
+                                .format(java.util.Date(proExpiryTimestamp))
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    }
+                    stringResource(com.mknlabs.expensetracker.R.string.label_pro_expiry_format, formattedDate)
+                } else {
+                    stringResource(com.mknlabs.expensetracker.R.string.label_guest_user)
+                }
+
                 UserBadge(
-                    label = if (isPremium) "PRO" else stringResource(com.mknlabs.expensetracker.R.string.label_guest_user),
+                    label = badgeLabel,
                     type = if (isPremium) UserBadgeType.PREMIUM else UserBadgeType.GUEST,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )

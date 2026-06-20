@@ -100,8 +100,9 @@ fun SettingsScreen(
 
     val effectiveUserTier = remember(userTier, userProfile.accountTier, userProfile.proExpiryTimestamp) {
         val now = System.currentTimeMillis()
-        val isPremium = userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
-                (userProfile.accountTier == "PREMIUM" && userProfile.proExpiryTimestamp > now)
+        val isExpired = userProfile.accountTier == "PREMIUM" && userProfile.proExpiryTimestamp in 1..<now
+        val isPremium = !isExpired && (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM ||
+                (userProfile.accountTier == "PREMIUM" && (userProfile.proExpiryTimestamp == 0L || userProfile.proExpiryTimestamp > now)))
         if (isPremium) {
             com.mknlabs.expensetracker.models.UserTier.PREMIUM
         } else {
@@ -224,7 +225,8 @@ private fun SettingsScreenContent(
                         email = userProfile.emailAddress,
                         initials = userProfile.avatarInitials(),
                         photoUri = userProfile.photoUri,
-                        userTier = userTier
+                        userTier = userTier,
+                        proExpiryTimestamp = userProfile.proExpiryTimestamp
                     )
                 }
 
