@@ -16,9 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import androidx.credentials.exceptions.NoCredentialException
 import javax.inject.Inject
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -27,7 +29,11 @@ sealed class AuthState {
     object ResetEmailSent : AuthState()
     object MagicLinkSent : AuthState()
     object NoGoogleAccounts : AuthState()
-    object EmailVerificationRequired : AuthState()
+    data class EmailVerificationRequired(
+        val isLoading: Boolean = false,
+        val errorRes: Int? = null,
+        val isResendSuccess: Boolean = false
+    ) : AuthState()
     data class Error(@StringRes val messageRes: Int) : AuthState()
 }
 
@@ -50,6 +56,33 @@ class AuthViewModel @Inject constructor(
     private var guestSignInSessionId: Long = 0L
 
     val currentUser = authRepository.currentUser
+
+    private val _verificationExpiry = MutableStateFlow<Long?>(null)
+    val verificationExpiry: StateFlow<Long?> = _verificationExpiry.asStateFlow()
+
+    fun loadVerificationExpiry() {
+        val uid = authRepository.currentUser.value?.uid ?: return
+        viewModelScope.launch {
+            try {
+                val snapshot = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                val expiry = snapshot.getLong("verificationExpiry")
+                _verificationExpiry.value = expiry
+            } catch (e: Exception) {
+                android.util.Log.e("AuthVM", "Failed to fetch verification expiry from Firestore", e)
+            }
+        }
+    }
+
+    private suspend fun updateVerificationExpiryInFirestore(uid: String, expiryTime: Long) {
+        try {
+            val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid)
+            val data = mapOf("verificationExpiry" to expiryTime)
+            userDoc.set(data, com.google.firebase.firestore.SetOptions.merge()).await()
+            _verificationExpiry.value = expiryTime
+        } catch (e: Exception) {
+            android.util.Log.e("AuthVM", "Failed to update verification expiry in Firestore", e)
+        }
+    }
 
     var shouldAttemptAutoSignInAfterReturn = false
 
@@ -165,7 +198,26 @@ class AuthViewModel @Inject constructor(
                 .onSuccess { isNewUser -> 
                     val user = authRepository.currentUser.value
                     if (user != null && !user.isEmailVerified) {
-                        _authState.value = AuthState.EmailVerificationRequired
+                        val uid = user.uid
+                        try {
+                            val snapshot = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                            var expiry = snapshot.getLong("verificationExpiry")
+                            val now = System.currentTimeMillis()
+                            
+                            if (expiry == null || now > (expiry ?: 0L)) {
+                                authRepository.sendEmailVerification()
+                                expiry = now + 72L * 60 * 60 * 1000
+                                updateVerificationExpiryInFirestore(uid, expiry)
+                            } else {
+                                _verificationExpiry.value = expiry
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("AuthVM", "Error checking verification status during sign in", e)
+                            authRepository.sendEmailVerification()
+                            val expiry = System.currentTimeMillis() + 72L * 60 * 60 * 1000
+                            updateVerificationExpiryInFirestore(uid, expiry)
+                        }
+                        _authState.value = AuthState.EmailVerificationRequired()
                     } else {
                         _authState.value = AuthState.Success(isNewUser)
                     }
@@ -186,10 +238,24 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             authRepository.signUpWithEmail(email, password)
                 .onSuccess {
-                    _authState.value = AuthState.EmailVerificationRequired
+                    val uid = authRepository.currentUser.value?.uid
+                    if (uid != null) {
+                        val expiryTime = System.currentTimeMillis() + 72 * 60 * 60 * 1000
+                        updateVerificationExpiryInFirestore(uid, expiryTime)
+                    }
+                    _authState.value = AuthState.EmailVerificationRequired()
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                    val isCollision = error is com.google.firebase.auth.FirebaseAuthUserCollisionException || 
+                                     (error.message?.contains("already in use") == true) ||
+                                     (error.message?.contains("already exists") == true)
+                    
+                    if (isCollision) {
+                        android.util.Log.i("AuthVM", "Email already in use, trying to sign in instead")
+                        signInWithEmail(email, password)
+                    } else {
+                        _authState.value = AuthState.Error(mapFirebaseError(error))
+                    }
                 }
         }
     }
@@ -334,39 +400,67 @@ class AuthViewModel @Inject constructor(
 
     fun resendVerificationEmail() {
         if (!networkMonitor.isConnected()) {
-            _authState.value = AuthState.Error(R.string.error_no_internet)
+            _authState.value = AuthState.EmailVerificationRequired(errorRes = R.string.error_no_internet)
             return
         }
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            val expiry = _verificationExpiry.value
+            val now = System.currentTimeMillis()
+            if (expiry != null && now < expiry) {
+                _authState.value = AuthState.EmailVerificationRequired(
+                    errorRes = R.string.error_link_still_valid
+                )
+                return@launch
+            }
+
+            _authState.value = AuthState.EmailVerificationRequired(isLoading = true)
             authRepository.sendEmailVerification()
                 .onSuccess {
-                    _authState.value = AuthState.EmailVerificationRequired
+                    val uid = authRepository.currentUser.value?.uid
+                    if (uid != null) {
+                        val newExpiry = System.currentTimeMillis() + 72 * 60 * 60 * 1000
+                        updateVerificationExpiryInFirestore(uid, newExpiry)
+                    }
+                    _authState.value = AuthState.EmailVerificationRequired(isResendSuccess = true)
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseError(error))
                 }
         }
     }
 
     fun checkEmailVerificationStatus() {
         if (!networkMonitor.isConnected()) {
-            _authState.value = AuthState.Error(R.string.error_no_internet)
+            _authState.value = AuthState.EmailVerificationRequired(errorRes = R.string.error_no_internet)
             return
         }
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.EmailVerificationRequired(isLoading = true)
             authRepository.reloadUser()
                 .onSuccess {
                     val user = authRepository.currentUser.value
                     if (user != null && user.isEmailVerified) {
                         _authState.value = AuthState.Success(isNewUser = false)
                     } else {
-                        _authState.value = AuthState.Error(R.string.error_email_not_verified)
+                        val expiry = _verificationExpiry.value
+                        val now = System.currentTimeMillis()
+                        if (expiry == null || now > (expiry ?: 0L)) {
+                            authRepository.sendEmailVerification()
+                            val newExpiry = now + 72L * 60 * 60 * 1000
+                            val uid = user?.uid
+                            if (uid != null) {
+                                updateVerificationExpiryInFirestore(uid, newExpiry)
+                            }
+                            _authState.value = AuthState.EmailVerificationRequired(
+                                errorRes = R.string.error_email_not_verified_expired_sent
+                            )
+                        } else {
+                            _authState.value = AuthState.EmailVerificationRequired(errorRes = R.string.error_email_not_verified)
+                        }
                     }
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseError(error))
                 }
         }
     }

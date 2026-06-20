@@ -1347,8 +1347,13 @@
     
     <!-- Email Verification -->
     <string name="title_email_verification">Verify Your Email</string>
-    <string name="label_verification_email_sent">A verification email has been sent to %1$s. Please verify your email to continue.</string>
-    <string name="error_email_not_verified">Email is not verified yet. Please check your inbox and click the verification link.</string>
+    <string name="label_verification_email_sent">A verification email has been sent to %1$s. Please verify your email to continue (be sure to check your spam or junk folder if you do not see it).</string>
+    <string name="error_email_not_verified">Email is not verified yet. Please check your inbox (including your spam folder) and click the verification link.</string>
     <string name="btn_check_status">Check Verification Status</string>
     <string name="btn_resend_email">Resend Verification Email</string>
+    <string name="info_verification_email_sent_again">Verification email resent successfully. Please check your inbox and spam folder.</string>
+    <string name="error_link_still_valid">Your current verification link is still valid. Please check your inbox and spam folder before requesting a new one.</string>
+    <string name="error_email_not_verified_expired_sent">Your verification link had expired, so a new one has been sent to your email. Please check your inbox and spam folder.</string>
+    <string name="label_verification_link_expired">Your verification link has expired. Please click Resend below to request a new one.</string>
+    <string name="label_verification_link_expires_in">Link expires in: %1$s</string>
 </resources>

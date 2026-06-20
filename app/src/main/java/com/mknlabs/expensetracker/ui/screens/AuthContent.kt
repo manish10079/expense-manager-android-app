@@ -385,6 +385,24 @@ private fun EmailVerificationContent(
     email: String
 ) {
     val authState by viewModel.authState.collectAsState()
+    val verificationExpiry by viewModel.verificationExpiry.collectAsState()
+    val isVerificationLoading = authState is AuthState.EmailVerificationRequired && (authState as AuthState.EmailVerificationRequired).isLoading
+
+    LaunchedEffect(Unit) {
+        viewModel.loadVerificationExpiry()
+    }
+
+    var remainingTimeMs by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(verificationExpiry) {
+        val expiry = verificationExpiry ?: 0L
+        while (true) {
+            val now = System.currentTimeMillis()
+            remainingTimeMs = (expiry - now).coerceAtLeast(0L)
+            if (remainingTimeMs <= 0L) break
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -409,21 +427,58 @@ private fun EmailVerificationContent(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
+        if (remainingTimeMs > 0L) {
+            Text(
+                text = stringResource(id = R.string.label_verification_link_expires_in, formatRemainingTime(remainingTimeMs)),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        } else if (verificationExpiry != null && verificationExpiry != 0L) {
+            Text(
+                text = stringResource(id = R.string.label_verification_link_expired),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (authState is AuthState.Error) {
-            val error = authState as AuthState.Error
-            Surface(
-                color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(id = error.messageRes),
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(12.dp)
-                )
+        if (authState is AuthState.EmailVerificationRequired) {
+            val state = authState as AuthState.EmailVerificationRequired
+            if (state.errorRes != null) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = state.errorRes),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            } else if (state.isResendSuccess) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.info_verification_email_sent_again),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
             }
         }
 
@@ -433,9 +488,9 @@ private fun EmailVerificationContent(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            enabled = authState !is AuthState.Loading
+            enabled = !isVerificationLoading
         ) {
-            if (authState is AuthState.Loading) {
+            if (isVerificationLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -455,9 +510,9 @@ private fun EmailVerificationContent(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            enabled = authState !is AuthState.Loading
+            enabled = !isVerificationLoading
         ) {
-            if (authState is AuthState.Loading) {
+            if (isVerificationLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -476,7 +531,7 @@ private fun EmailVerificationContent(
                 viewModel.signOut()
                 viewModel.resetState()
             },
-            enabled = authState !is AuthState.Loading
+            enabled = !isVerificationLoading
         ) {
             Text(
                 text = stringResource(id = R.string.btn_cancel),
@@ -486,5 +541,20 @@ private fun EmailVerificationContent(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+private fun formatRemainingTime(millis: Long): String {
+    val seconds = millis / 1000
+    val days = seconds / (24 * 3600)
+    val hours = (seconds % (24 * 3600)) / 3600
+    val minutes = (seconds % 3600) / 60
+    val secs = seconds % 60
+    
+    return buildString {
+        if (days > 0) append("${days}d ")
+        if (hours > 0 || days > 0) append("${hours}h ")
+        if (minutes > 0 || hours > 0 || days > 0) append("${minutes}m ")
+        append("${secs}s")
     }
 }
