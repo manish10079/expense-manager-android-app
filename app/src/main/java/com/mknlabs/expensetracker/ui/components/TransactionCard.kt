@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.utils.formatTime
 import com.mknlabs.expensetracker.utils.getAmountColor
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
@@ -109,13 +111,21 @@ fun TransactionCard(
         Column(
             modifier = Modifier.weight(1f)
         ) {
+            val isNoteEmpty = note.isBlank()
+            val displayNote = if (isNoteEmpty) stringResource(R.string.label_no_note) else note
+
             Text(
-                text = note,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = displayNote,
+                color = if (isNoteEmpty) {
+                    NeutralGray
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.ExtraBold,
+                    fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
                     fontSize = 16.sp
                 )
             )
