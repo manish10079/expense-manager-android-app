@@ -25,6 +25,8 @@ import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
 import kotlinx.coroutines.delay
 
+import com.mknlabs.expensetracker.models.PinVisualMode
+
 private const val APP_LOCK_BIOMETRIC_AUTO_TRIGGER_DELAY_MS = 650L
 
 /**
@@ -50,7 +52,8 @@ fun AppLockOverlay(
     onSetupComplete: ((String, String, String) -> Unit)? = null,
     validateUnlockPin: ((String) -> Boolean)? = null,
     onForgotPinRecovery: (() -> Unit)? = null,
-    validateSecurityAnswer: ((String) -> Boolean)? = null
+    validateSecurityAnswer: ((String) -> Boolean)? = null,
+    pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
 ) {
     val context = LocalContext.current
     val biometricAvailability = remember(context) { BiometricAuthManager.getAvailability(context) }
@@ -114,7 +117,8 @@ fun AppLockOverlay(
                 onForgotPinRecovery = onForgotPinRecovery ?: {},
                 validateSecurityAnswer = validateSecurityAnswer ?: { answer ->
                     AppLockPreferences.validateSecurityAnswer(context, answer)
-                }
+                },
+                pinVisualMode = pinVisualMode
             )
         }
     }

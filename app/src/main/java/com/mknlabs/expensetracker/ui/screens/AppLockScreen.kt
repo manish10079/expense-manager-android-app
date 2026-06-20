@@ -77,6 +77,26 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.mknlabs.expensetracker.models.PinVisualMode
+import com.mknlabs.expensetracker.models.PinSlotState
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Spa
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,7 +126,8 @@ fun AppLockScreen(
     onUnlockSuccess: () -> Unit = {},
     onForgotPinRecovery: () -> Unit = {},
     validateUnlockPin: (String) -> Boolean = { false },
-    validateSecurityAnswer: (String) -> Boolean = { false }
+    validateSecurityAnswer: (String) -> Boolean = { false },
+    pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
 ) {
     var enteredPin by rememberSaveable(mode) { mutableStateOf("") }
     var firstPin by rememberSaveable(mode) { mutableStateOf("") }
@@ -519,7 +540,8 @@ fun AppLockScreen(
                                 },
                                 onForgotClick = {
                                     triggerForgotRecovery()
-                                }
+                                },
+                                pinVisualMode = pinVisualMode
                             )
 
                             if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
@@ -561,31 +583,17 @@ private fun PinEntryContent(
     mode: AppLockScreenMode,
     onDigitClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onForgotClick: () -> Unit
+    onForgotClick: () -> Unit,
+    pinVisualMode: PinVisualMode
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(4) { index ->
-            val filled = index < enteredPin.length
-            Box(
-                modifier = Modifier
-                    .size(18.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (filled) {
-                            MaterialTheme.colorScheme.secondary
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
-                        }
-                    )
-                    .shadow(
-                        elevation = if (filled) 14.dp else 0.dp,
-                        shape = CircleShape,
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
-                    )
+            PinSlot(
+                isFilled = index < enteredPin.length,
+                pinVisualMode = pinVisualMode
             )
         }
     }
@@ -979,5 +987,109 @@ private suspend fun Animatable<Float, AnimationVector1D>.animateAppLockKeypadErr
             targetValue = target,
             animationSpec = tween(durationMillis = 36)
         )
+    }
+}
+
+@Composable
+private fun PinSlot(
+    isFilled: Boolean,
+    pinVisualMode: PinVisualMode,
+    modifier: Modifier = Modifier
+) {
+    val iconPool = remember {
+        listOf(
+            Icons.Filled.Pets,
+            Icons.Filled.Eco,
+            Icons.Filled.Favorite,
+            Icons.Filled.Star,
+            Icons.Filled.Diamond,
+            Icons.Filled.AutoAwesome,
+            Icons.Filled.RocketLaunch,
+            Icons.Filled.Spa
+        )
+    }
+
+    var currentState by remember { mutableStateOf<PinSlotState>(PinSlotState.Empty) }
+
+    LaunchedEffect(isFilled, pinVisualMode) {
+        if (!isFilled) {
+            currentState = PinSlotState.Empty
+        } else {
+            if (currentState is PinSlotState.Empty) {
+                if (pinVisualMode == PinVisualMode.PRO_ANIMATED) {
+                    val randomIcon = iconPool.random()
+                    currentState = PinSlotState.AnimatedIcon(randomIcon, System.nanoTime())
+                    delay(400) // target duration 350-500ms
+                    // Check if still filled (not deleted during delay)
+                    if (currentState is PinSlotState.AnimatedIcon) {
+                        currentState = PinSlotState.Dot
+                    }
+                } else {
+                    currentState = PinSlotState.Dot
+                }
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier.size(28.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedContent(
+            targetState = currentState,
+            transitionSpec = {
+                val springSpec = spring<Float>(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+
+                if (initialState is PinSlotState.Empty && targetState is PinSlotState.AnimatedIcon) {
+                    (fadeIn(animationSpec = tween(150)) + scaleIn(initialScale = 0.7f, animationSpec = springSpec))
+                        .togetherWith(fadeOut(animationSpec = tween(100)))
+                } else if (initialState is PinSlotState.AnimatedIcon && targetState is PinSlotState.Dot) {
+                    fadeIn(animationSpec = tween(200))
+                        .togetherWith(fadeOut(animationSpec = tween(200)))
+                } else if (targetState is PinSlotState.Empty) {
+                    fadeIn(animationSpec = tween(50))
+                        .togetherWith(fadeOut(animationSpec = tween(100)) + scaleOut(targetScale = 0.8f, animationSpec = tween(100)))
+                } else {
+                    fadeIn(animationSpec = tween(150)) togetherWith fadeOut(animationSpec = tween(150))
+                }
+            },
+            label = "PinSlotAnimation"
+        ) { state ->
+            when (state) {
+                is PinSlotState.Empty -> {
+                    Box(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.outlineVariant)
+                    )
+                }
+                is PinSlotState.AnimatedIcon -> {
+                    Icon(
+                        imageVector = state.icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                is PinSlotState.Dot -> {
+                    Box(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .shadow(
+                                elevation = 14.dp,
+                                shape = CircleShape,
+                                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                            )
+                    )
+                }
+            }
+        }
     }
 }

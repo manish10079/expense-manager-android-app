@@ -63,6 +63,7 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.ui.components.MainScaffold
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
@@ -1027,7 +1028,8 @@ fun MainScreen(
                 },
                 validateSecurityAnswer = { answer ->
                     AppLockPreferences.validateSecurityAnswer(context, answer)
-                }
+                },
+                pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL
             )
         }
 

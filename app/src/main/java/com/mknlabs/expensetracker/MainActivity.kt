@@ -58,8 +58,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
+import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.models.PinVisualMode
+import com.mknlabs.expensetracker.models.UserTier
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -159,6 +163,8 @@ class MainActivity : AppCompatActivity() {
         
         // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
         val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+        val monetizationViewModel: MonetizationViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+        val effectiveUserTier by monetizationViewModel.userTier.collectAsState()
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
@@ -311,7 +317,8 @@ class MainActivity : AppCompatActivity() {
                                                     onSuccess = { appLockViewModel.unlock() }
                                                 )
                                             },
-                                            onForgotPinRecovery = appLockViewModel::disableLock
+                                            onForgotPinRecovery = appLockViewModel::disableLock,
+                                            pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL
                                         )
                                     }
 
