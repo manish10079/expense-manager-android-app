@@ -83,6 +83,10 @@ class AuthRepositoryImpl @Inject constructor(
             } else {
                 firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             }
+            
+            // Automatically send verification email on account creation
+            firebaseAuth.currentUser?.sendEmailVerification()?.await()
+            
             Result.success(true) 
         } catch (e: Exception) {
             android.util.Log.e("AuthRepo", "Email Sign-Up failed: ${e.message}", e)
@@ -168,5 +172,26 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
+    }
+
+    override suspend fun sendEmailVerification(): Result<Unit> {
+        return try {
+            firebaseAuth.currentUser?.sendEmailVerification()?.await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Send verification email failed: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun reloadUser(): Result<Unit> {
+        return try {
+            firebaseAuth.currentUser?.reload()?.await()
+            _currentUser.value = firebaseAuth.currentUser
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Reload user failed: ${e.message}", e)
+            Result.failure(e)
+        }
     }
 }

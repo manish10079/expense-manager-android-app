@@ -71,4 +71,14 @@ interface AuthRepository {
      * Returns true if the user is authenticated.
      */
     fun isUserLoggedIn(): Boolean
+
+    /**
+     * Sends a verification email to the currently logged in user.
+     */
+    suspend fun sendEmailVerification(): Result<Unit>
+
+    /**
+     * Reloads the current user's profile and auth state from Firebase.
+     */
+    suspend fun reloadUser(): Result<Unit>
 }

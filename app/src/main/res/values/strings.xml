@@ -445,7 +445,7 @@
     <string name="title_payment_mode">Payment Mode</string>
     <string name="title_premium_by_designnprivate_by_n">Premium by Design,\nPrivate by Nature</string>
     <string name="title_privacy_policy">Privacy Policy</string>
-    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/</string>
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
     <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
     <string name="title_rate_app">Rate App</string>
     <string name="title_report_bug">Report Bug</string>
@@ -1344,4 +1344,11 @@
     <string name="error_underage_restriction">You must be at least 15 years old to continue.</string>
     <string name="label_parental_consent">I have parental consent to use this app.</string>
     <string name="error_parental_consent_required">Parental consent is required for users under 18.</string>
+    
+    <!-- Email Verification -->
+    <string name="title_email_verification">Verify Your Email</string>
+    <string name="label_verification_email_sent">A verification email has been sent to %1$s. Please verify your email to continue.</string>
+    <string name="error_email_not_verified">Email is not verified yet. Please check your inbox and click the verification link.</string>
+    <string name="btn_check_status">Check Verification Status</string>
+    <string name="btn_resend_email">Resend Verification Email</string>
 </resources>

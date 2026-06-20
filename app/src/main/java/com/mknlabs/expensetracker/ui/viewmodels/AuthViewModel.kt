@@ -27,6 +27,7 @@ sealed class AuthState {
     object ResetEmailSent : AuthState()
     object MagicLinkSent : AuthState()
     object NoGoogleAccounts : AuthState()
+    object EmailVerificationRequired : AuthState()
     data class Error(@StringRes val messageRes: Int) : AuthState()
 }
 
@@ -162,7 +163,12 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             authRepository.signInWithEmail(email, password)
                 .onSuccess { isNewUser -> 
-                    _authState.value = AuthState.Success(isNewUser) 
+                    val user = authRepository.currentUser.value
+                    if (user != null && !user.isEmailVerified) {
+                        _authState.value = AuthState.EmailVerificationRequired
+                    } else {
+                        _authState.value = AuthState.Success(isNewUser)
+                    }
                 }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error))
@@ -179,8 +185,8 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             authRepository.signUpWithEmail(email, password)
-                .onSuccess { isNewUser -> 
-                    _authState.value = AuthState.Success(isNewUser) 
+                .onSuccess {
+                    _authState.value = AuthState.EmailVerificationRequired
                 }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error))
@@ -324,5 +330,44 @@ class AuthViewModel @Inject constructor(
 
     fun signOut() {
         authRepository.signOut()
+    }
+
+    fun resendVerificationEmail() {
+        if (!networkMonitor.isConnected()) {
+            _authState.value = AuthState.Error(R.string.error_no_internet)
+            return
+        }
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            authRepository.sendEmailVerification()
+                .onSuccess {
+                    _authState.value = AuthState.EmailVerificationRequired
+                }
+                .onFailure { error ->
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                }
+        }
+    }
+
+    fun checkEmailVerificationStatus() {
+        if (!networkMonitor.isConnected()) {
+            _authState.value = AuthState.Error(R.string.error_no_internet)
+            return
+        }
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            authRepository.reloadUser()
+                .onSuccess {
+                    val user = authRepository.currentUser.value
+                    if (user != null && user.isEmailVerified) {
+                        _authState.value = AuthState.Success(isNewUser = false)
+                    } else {
+                        _authState.value = AuthState.Error(R.string.error_email_not_verified)
+                    }
+                }
+                .onFailure { error ->
+                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                }
+        }
     }
 }
