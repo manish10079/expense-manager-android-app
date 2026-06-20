@@ -189,8 +189,7 @@ fun MainScreen(
         .getAccessStatus(Feature.SCRAMBLED_PIN_KEYPAD)
         .collectAsStateWithLifecycle()
     val isScrambledPinKeypadAccessGranted = scrambledPinKeypadAccessStatus is AccessStatus.Granted
-    val isScrambledPinKeypadEffective =
-        isScrambledPinKeypadEnabled && isScrambledPinKeypadAccessGranted
+    val isScrambledPinKeypadEffective = effectiveUserTier == UserTier.PREMIUM
     val biometricAvailability = BiometricAuthManager.getAvailability(rawContext)
     val hasAppLockPin = remember(appLockState) {
         AppLockPreferences.hasPin(context)
@@ -436,11 +435,9 @@ fun MainScreen(
                 AutoBackupScheduler.scheduleOrUpdate(context, isAutoBackupEnabled, autoBackupFrequencyDays)
             }
 
-            LaunchedEffect(isScrambledPinKeypadEnabled, isScrambledPinKeypadAccessGranted) {
-                if (isScrambledPinKeypadEnabled && !isScrambledPinKeypadAccessGranted) {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(scrambledPinKeypadEnabled = false)
-                    }
+            LaunchedEffect(effectiveUserTier) {
+                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                    settings.copy(scrambledPinKeypadEnabled = effectiveUserTier == UserTier.PREMIUM)
                 }
             }
 

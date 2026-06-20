@@ -318,7 +318,8 @@ class MainActivity : AppCompatActivity() {
                                                 )
                                             },
                                             onForgotPinRecovery = appLockViewModel::disableLock,
-                                            pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL
+                                            pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL,
+                                            scrambledPinKeypadEnabled = effectiveUserTier == UserTier.PREMIUM
                                         )
                                     }
 
