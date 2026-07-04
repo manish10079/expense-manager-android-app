@@ -56,4 +56,9 @@ interface SyncRepository {
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).
      */
     suspend fun syncTransactions(): Result<Unit>
+
+    /**
+     * Force push local changes and pull cloud changes, ignoring the last sync time.
+     */
+    suspend fun forceSyncTransactions(): Result<Unit>
 }

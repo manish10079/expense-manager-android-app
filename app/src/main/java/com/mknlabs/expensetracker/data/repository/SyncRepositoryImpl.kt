@@ -207,6 +207,35 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun forceSyncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
+        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
+        try {
+            _isSyncing.value = true
+
+            // 1. Reset local lastSyncTimeMillis so pullCloudChanges queries everything from Firestore
+            AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
+
+            // 2. Mark all synced records as PENDING_UPLOAD so pushLocalChanges uploads them
+            database.withTransaction {
+                val db = database.openHelper.writableDatabase
+                db.execSQL("UPDATE transactions SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE categories SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE budgets SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE payment_methods SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE recurring_rules SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE goals SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+            }
+
+            // 3. Trigger immediate sync
+            syncTransactions()
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "Force sync failed", e)
+            Result.failure(e)
+        } finally {
+            _isSyncing.value = false
+        }
+    }
+
     private suspend fun syncUserProfileInternal(uid: String, isNewUser: Boolean) {
         // First check if local profile is expired
         val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()

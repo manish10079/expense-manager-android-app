@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.Devices
 import androidx.compose.material.icons.rounded.PhonelinkErase
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
@@ -42,6 +44,8 @@ fun ConnectedDevicesScreen(
     viewModel: ConnectedDevicesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -71,6 +75,25 @@ fun ConnectedDevicesScreen(
                         maxDevices = state.maxDevices,
                         isSyncEnabled = isSyncEnabled,
                         onSyncEnabledChange = onSyncEnabledChange,
+                        isSyncing = isSyncing,
+                        onForceSyncClick = {
+                            viewModel.forceSync { result ->
+                                if (result.isSuccess) {
+                                    android.widget.Toast.makeText(
+                                        context,
+                                        context.getString(R.string.toast_force_sync_success),
+                                        android.widget.Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    val errorMsg = result.exceptionOrNull()?.message ?: "Unknown error"
+                                    android.widget.Toast.makeText(
+                                        context,
+                                        context.getString(R.string.toast_force_sync_failed, errorMsg),
+                                        android.widget.Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        },
                         onUnlink = viewModel::unregisterDevice
                     )
                 }
@@ -148,9 +171,12 @@ private fun DeviceListContent(
     maxDevices: Int,
     isSyncEnabled: Boolean,
     onSyncEnabledChange: (Boolean) -> Unit,
+    isSyncing: Boolean,
+    onForceSyncClick: () -> Unit,
     onUnlink: (String) -> Unit
 ) {
     var deviceToUnlink by remember { mutableStateOf<RegisteredDevice?>(null) }
+    var showForceSyncInfo by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Sync Toggle
@@ -185,6 +211,76 @@ private fun DeviceListContent(
                     checked = isSyncEnabled,
                     onCheckedChange = onSyncEnabledChange
                 )
+            }
+        }
+
+        // Force Sync option if sync is enabled
+        if (isSyncEnabled) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(R.string.title_force_sync),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            IconButton(
+                                onClick = { showForceSyncInfo = true },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Info,
+                                    contentDescription = stringResource(R.string.desc_force_sync),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    if (isSyncing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 2.5.dp
+                        )
+                    } else {
+                        Button(
+                            onClick = onForceSyncClick,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.CloudSync,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.btn_sync_now),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -266,6 +362,29 @@ private fun DeviceListContent(
             dismissButton = {
                 TextButton(onClick = { deviceToUnlink = null }) {
                     Text(stringResource(R.string.label_cancel_confirm))
+                }
+            }
+        )
+    }
+
+    if (showForceSyncInfo) {
+        AlertDialog(
+            onDismissRequest = { showForceSyncInfo = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.title_force_sync),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.desc_force_sync),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showForceSyncInfo = false }) {
+                    Text(text = stringResource(R.string.label_ok))
                 }
             }
         )

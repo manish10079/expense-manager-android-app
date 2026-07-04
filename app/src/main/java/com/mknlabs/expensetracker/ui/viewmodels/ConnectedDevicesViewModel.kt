@@ -45,6 +45,8 @@ class ConnectedDevicesViewModel @Inject constructor(
             }
         }
 
+    val isSyncing: StateFlow<Boolean> = syncRepository.isSyncing
+
     fun unregisterDevice(deviceId: String) {
         viewModelScope.launch {
             syncRepository.unregisterDevice(deviceId)
@@ -54,6 +56,13 @@ class ConnectedDevicesViewModel @Inject constructor(
     fun refreshDevices() {
         viewModelScope.launch {
             syncRepository.refreshDevices()
+        }
+    }
+
+    fun forceSync(onResult: (Result<Unit>) -> Unit) {
+        viewModelScope.launch {
+            val result = syncRepository.forceSyncTransactions()
+            onResult(result)
         }
     }
 }
