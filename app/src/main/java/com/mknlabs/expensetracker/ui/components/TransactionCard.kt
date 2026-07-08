@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +68,12 @@ fun TransactionCard(
     onLongClick: () -> Unit = {}
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
+    val cardBorder = remember(borderColor) {
+        BorderStroke(
+            width = 1.dp,
+            color = borderColor
+        )
+    }
 
     Row(
         modifier = Modifier
@@ -80,8 +87,7 @@ fun TransactionCard(
                 }
             )
             .border(
-                width = 1.dp,
-                color = borderColor,
+                border = cardBorder,
                 shape = RoundedCornerShape(28.dp)
             )
             .combinedClickable(
@@ -95,15 +101,19 @@ fun TransactionCard(
         Spacer(modifier = Modifier.width(14.dp))
 
         if (showCategoryIcon) {
+            val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+            val iconBorder = remember(iconBorderColor) {
+                BorderStroke(
+                    width = 1.dp,
+                    color = iconBorderColor
+                )
+            }
             AppIconBox(
                 icon = icon,
                 contentDescription = note,
                 size = 50.dp,
                 iconSize = 25.dp,
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-                )
+                border = iconBorder
             )
             Spacer(modifier = Modifier.width(12.dp))
         }

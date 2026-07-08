@@ -12,6 +12,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import kotlinx.coroutines.flow.flowOn
+
 @Singleton
 class GoalRepositoryImpl @Inject constructor(
     private val goalDao: GoalDao
@@ -20,7 +22,7 @@ class GoalRepositoryImpl @Inject constructor(
     override fun observeAllGoals(): Flow<List<Goal>> {
         return goalDao.observeAllGoals().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun getGoalById(id: String): Goal? = withContext(Dispatchers.IO) {

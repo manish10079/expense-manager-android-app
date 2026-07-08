@@ -14,6 +14,7 @@ import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import java.util.UUID
@@ -28,7 +29,7 @@ class TransactionRepository @Inject constructor(
     override fun observeActiveTransactions(): Flow<List<Transaction>> {
         return dao.observeActiveTransactions().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun observeHomeSummary(): Flow<TransactionSummary> {
@@ -40,13 +41,13 @@ class TransactionRepository @Inject constructor(
                 previousMonthIncomeMinor = row.previousMonthIncomeMinor,
                 previousMonthExpenseMinor = row.previousMonthExpenseMinor
             )
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> {
         return dao.observeRecentTransactions(limit).map { rows ->
             rows.map(HomeRecentTransactionRow::toRecentTransaction)
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun observeActiveTransactionCount(): Flow<Int> {

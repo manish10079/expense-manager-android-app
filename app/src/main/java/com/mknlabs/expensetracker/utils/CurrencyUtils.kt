@@ -49,6 +49,10 @@ fun formatCurrencyValue(
 /**
  * Formats a currency value in a compact way (e.g., $1.2k, €5M) for limited UI space.
  */
+private val compactDecimalFormat = java.text.DecimalFormat("#.#").apply {
+    roundingMode = java.math.RoundingMode.HALF_UP
+}
+
 fun formatCompactCurrencyValue(
     amount: Double,
     currencyId: Int = DEFAULT_CURRENCY_ID,
@@ -68,9 +72,10 @@ fun formatCompactCurrencyValue(
     val formattedAmount = if (abbreviatedAmount == null) {
         formatNumberValue(absAmount, amountFormatPreferences)
     } else {
-        val df = java.text.DecimalFormat("#.#")
-        df.roundingMode = java.math.RoundingMode.HALF_UP
-        df.format(abbreviatedAmount) + suffix
+        val formatted = synchronized(compactDecimalFormat) {
+            compactDecimalFormat.format(abbreviatedAmount)
+        }
+        formatted + suffix
     }
 
     val safePrefix = prefix.trim().ifEmpty {

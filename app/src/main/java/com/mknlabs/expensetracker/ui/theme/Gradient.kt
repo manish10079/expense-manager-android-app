@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.ui.theme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.MaterialTheme
 
@@ -10,40 +11,44 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun brandGradient(alpha: Float = 1f): Brush {
-    return Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = alpha),
-            MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
+    val primaryColor = MaterialTheme.colorScheme.primary.copy(alpha = alpha)
+    val secondaryColor = MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
+    return remember(primaryColor, secondaryColor) {
+        Brush.linearGradient(
+            colors = listOf(primaryColor, secondaryColor)
         )
-    )
+    }
 }
 
 @Composable
 fun standardCardGradient(): Brush {
-    return Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    val color1 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    val color2 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    return remember(color1, color2) {
+        Brush.verticalGradient(
+            colors = listOf(color1, color2)
         )
-    )
+    }
 }
 
 @Composable
 fun surfaceGradient(): Brush {
-    return Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+    val color1 = MaterialTheme.colorScheme.surface
+    val color2 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+    return remember(color1, color2) {
+        Brush.verticalGradient(
+            colors = listOf(color1, color2)
         )
-    )
+    }
 }
 
 @Composable
 fun subtlePrimaryGradient(): Brush {
-    return Brush.horizontalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
-            MaterialTheme.colorScheme.surface
+    val color1 = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+    val color2 = MaterialTheme.colorScheme.surface
+    return remember(color1, color2) {
+        Brush.horizontalGradient(
+            colors = listOf(color1, color2)
         )
-    )
+    }
 }

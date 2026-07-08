@@ -8,6 +8,7 @@ import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -19,13 +20,13 @@ class PaymentMethodRepository @Inject constructor(
     override fun observeActivePaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActivePaymentMethods().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun observeActiveCustomPaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActiveCustomPaymentMethods().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun createCustomPaymentMethod(

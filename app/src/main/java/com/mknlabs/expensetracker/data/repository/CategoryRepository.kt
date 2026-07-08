@@ -8,6 +8,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -19,13 +20,13 @@ class CategoryRepository @Inject constructor(
     override fun observeActiveCategories(): Flow<List<CategoryType>> {
         return dao.observeActiveCategories().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun observeActiveCustomCategories(): Flow<List<CategoryType>> {
         return dao.observeActiveCustomCategories().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun createCustomCategory(

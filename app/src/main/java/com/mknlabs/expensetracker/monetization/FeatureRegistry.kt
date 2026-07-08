@@ -96,10 +96,10 @@ object FeatureRegistry {
             "showIncomeExpenseLabels" to AccessLevel.FREE,
             "showTransactionDate" to AccessLevel.FREE,
             "showCategoryIcon" to AccessLevel.FREE,
-            "showCategoryLabel" to AccessLevel.AD_SUPPORTED,
+            "showCategoryLabel" to AccessLevel.FREE,        // Aligned with category icon — same concept
             "showTransactionTime" to AccessLevel.AD_SUPPORTED,
-            "showPaymentMethod" to AccessLevel.PREMIUM,
-            "showDateSeparators" to AccessLevel.PREMIUM
+            "showDateSeparators" to AccessLevel.AD_SUPPORTED, // Readability feature, too harsh at Premium
+            "showPaymentMethod" to AccessLevel.PREMIUM
         ),
         
         Feature.PRIVACY_PROTECTION to AccessLevel.PREMIUM,

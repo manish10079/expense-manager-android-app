@@ -276,6 +276,17 @@ fun validateAndCalculateTimestamp(
     return PickerResult(timestamp = cal.timeInMillis)
 }
 
+private val formatters = mutableMapOf<String, SimpleDateFormat>()
+
 private fun formatWithPattern(timestamp: Long, pattern: String): String {
-    return SimpleDateFormat(pattern, Locale.getDefault()).format(Date(timestamp))
+    val locale = Locale.getDefault()
+    val cacheKey = "$pattern-$locale"
+    val formatter = synchronized(formatters) {
+        formatters.getOrPut(cacheKey) {
+            SimpleDateFormat(pattern, locale)
+        }
+    }
+    return synchronized(formatter) {
+        formatter.format(Date(timestamp))
+    }
 }

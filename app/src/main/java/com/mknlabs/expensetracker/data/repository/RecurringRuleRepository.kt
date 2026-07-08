@@ -8,6 +8,7 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import java.util.UUID
@@ -20,7 +21,7 @@ class RecurringRuleRepository @Inject constructor(
     override fun observeActiveRecurringRules(): Flow<List<RecurringTransactionRule>> {
         return dao.observeActiveRecurringRules().map { entities ->
             entities.map { it.toDomain() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun getActiveRules(): List<RecurringTransactionRule> = withContext(Dispatchers.IO) {
