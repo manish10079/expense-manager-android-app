@@ -3,15 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
+    id("com.google.dagger.hilt.android")
 }
 
 android {
     namespace = "com.mknlabs.expensetracker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mknlabs.expensetracker"
@@ -122,5 +119,3 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.user.messaging.platform)
 }
-
-apply(plugin = "com.google.dagger.hilt.android")
