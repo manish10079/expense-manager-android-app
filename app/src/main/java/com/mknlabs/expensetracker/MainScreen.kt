@@ -472,6 +472,13 @@ fun MainScreen(
                             kotlinx.coroutines.delay(400)
                         }
                         
+                        if (!user.isAnonymous && !user.isEmailVerified) {
+                            // Automatically show verification sheet if user is logged in but unverified
+                            authViewModel.loadVerificationExpiry()
+                            showAuthSheet = true
+                            return@let
+                        }
+                        
                         val remotePhotoUri = user.photoUrl
                         val currentProfile = kotlinx.coroutines.withContext(Dispatchers.IO) {
                             UserProfileDataStore.getUserProfileFlow(context).first()
@@ -950,6 +957,10 @@ fun MainScreen(
             ModalBottomSheet(
                 onDismissRequest = { 
                     showAuthSheet = false
+                    val user = firebaseUser
+                    if (user != null && !user.isAnonymous && !user.isEmailVerified) {
+                        authViewModel.signOutFirebaseOnly()
+                    }
                     authViewModel.resetState()
                 },
                 sheetState = authSheetState,

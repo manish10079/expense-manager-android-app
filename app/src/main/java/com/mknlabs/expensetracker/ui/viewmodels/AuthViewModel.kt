@@ -449,6 +449,22 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Signs out from Firebase and Google only, without clearing the local
+     * UserProfileDataStore. Used when an unverified signup is cancelled so
+     * the user's existing profile (name, etc.) is preserved.
+     */
+    fun signOutFirebaseOnly() {
+        viewModelScope.launch {
+            authRepository.signOut()
+            try {
+                googleAuthHelper.signOut()
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Firebase-only sign out failed: ${e.message}", e)
+            }
+        }
+    }
+
     fun resendVerificationEmail() {
         if (!networkMonitor.isConnected()) {
             _authState.value = AuthState.EmailVerificationRequired(errorRes = R.string.error_no_internet)

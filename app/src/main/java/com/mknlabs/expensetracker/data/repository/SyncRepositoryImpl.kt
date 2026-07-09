@@ -67,7 +67,15 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun registerCurrentDevice(): Result<Unit> = withContext(Dispatchers.IO) {
-        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser == null) {
+            return@withContext Result.failure(Exception("User not logged in"))
+        }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+            android.util.Log.d("Sync", "Skipping device registration: user email is not verified yet.")
+            return@withContext Result.success(Unit)
+        }
+        val uid = currentUser.uid
         try {
             val devicesCollection = firestore.collection("users").document(uid).collection("devices")
             val snapshot = devicesCollection.get().await()
@@ -125,7 +133,14 @@ class SyncRepositoryImpl @Inject constructor(
 
     override suspend fun syncUserProfile(isNewUser: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
         val currentUser = firebaseAuth.currentUser
-        val uid = currentUser?.uid ?: return@withContext Result.success(Unit)
+        if (currentUser == null) {
+            return@withContext Result.success(Unit)
+        }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+            android.util.Log.d("Sync", "Skipping user profile sync: user email is not verified yet.")
+            return@withContext Result.success(Unit)
+        }
+        val uid = currentUser.uid
         
         try {
             _isSyncing.value = true
@@ -151,7 +166,15 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
-        val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser == null) {
+            return@withContext Result.failure(Exception("User not logged in"))
+        }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+            android.util.Log.d("Sync", "Skipping transaction sync: user email is not verified yet.")
+            return@withContext Result.success(Unit)
+        }
+        val uid = currentUser.uid
         try {
             _isSyncing.value = true
 
