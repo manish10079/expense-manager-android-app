@@ -105,7 +105,7 @@ fun PremiumGateSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 Text(
                     text = stringResource(selectedCopy.sloganResId),
@@ -119,18 +119,18 @@ fun PremiumGateSheet(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                if (financialGoal.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.msg_goal_faster_with_pro, financialGoal),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                // if (financialGoal.isNotEmpty()) {
+                //     Text(
+                //         text = stringResource(R.string.msg_goal_faster_with_pro, financialGoal),
+                //         style = MaterialTheme.typography.bodyMedium.copy(
+                //             color = MaterialTheme.colorScheme.primary,
+                //             fontWeight = FontWeight.Bold
+                //         ),
+                //         textAlign = TextAlign.Center,
+                //         modifier = Modifier.padding(horizontal = 16.dp)
+                //     )
+                //     Spacer(modifier = Modifier.height(8.dp))
+                // }
 
                 Text(
                     text = stringResource(selectedCopy.subheadlineResId),
@@ -143,10 +143,10 @@ fun PremiumGateSheet(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                BenefitItem(stringResource(R.string.label_advanced_analytics_trends))
-                BenefitItem(stringResource(R.string.label_automatic_cloud_backups))
-                BenefitItem(stringResource(R.string.label_unlimited_recurring_rules))
-                BenefitItem(stringResource(R.string.label_privacy_mode_biometric_lock))
+                // BenefitItem(stringResource(R.string.label_advanced_analytics_trends))
+                // BenefitItem(stringResource(R.string.label_automatic_cloud_backups))
+                // BenefitItem(stringResource(R.string.label_unlimited_recurring_rules))
+                // BenefitItem(stringResource(R.string.label_privacy_mode_biometric_lock))
 
                 Spacer(modifier = Modifier.height(24.dp))
             }

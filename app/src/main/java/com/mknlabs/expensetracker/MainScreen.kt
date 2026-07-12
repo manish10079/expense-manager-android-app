@@ -822,7 +822,7 @@ fun MainScreen(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
                 // monetizationViewModel.onPurchaseSimulated() // Disabled until Google Play Billing is implemented
-                showToast("Premium billing coming soon!")
+                showToast("Pro billing coming soon!")
                 showPremiumSheet = false
             },
             onRedeemClick = if (isProPassEnabled) {
