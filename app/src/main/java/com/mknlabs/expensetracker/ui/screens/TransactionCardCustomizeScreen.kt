@@ -246,7 +246,8 @@ fun TransactionCardCustomizeScreen(
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     previewTransactions.forEach { transaction ->
                         TransactionCard(
@@ -280,7 +281,7 @@ fun TransactionCardCustomizeScreen(
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium
                 ),
-                modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = 4.dp)
+                modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
             )
         }
 

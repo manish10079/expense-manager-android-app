@@ -6,7 +6,7 @@ import com.mknlabs.expensetracker.utils.getCategoryIcon
 //Dummy data
 
 val transactionList = listOf(
-        Transaction(1L, "Salary Credit", 1769936400000, 55000.0, getCategoryIcon(101), 1, 3, 101), // Feb 1
+        Transaction(1L, "Salary Credit", 1769936400000, 35000.0, getCategoryIcon(101), 1, 3, 101), // Feb 1
         Transaction(2L, "Swiggy Dinner", 1770063300000, 450.0, getCategoryIcon(1), 2, 1, 1),
         Transaction(3L, "Uber Ride", 1770104400000, 220.0, getCategoryIcon(2), 2, 1, 2),
         Transaction(4L, "Amazon Shopping", 1770210300000, 2499.0, getCategoryIcon(3), 2, 4, 3),

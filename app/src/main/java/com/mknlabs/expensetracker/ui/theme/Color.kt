@@ -5,9 +5,11 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
+
+val transparent= Color.Transparent;
 val PurplePrimary = Color(0xFF7B61FF)
 val PurpleAccent = Color(0xFFCDBDFF)
-val PurpleGlow = Color(0xFFBFA6FF)
+
 
 val BackgroundDark = Color(0xFF0A0A0A)
 val SurfaceDark = Color(0xFF242423)

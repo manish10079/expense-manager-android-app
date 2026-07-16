@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.income
+import com.mknlabs.expensetracker.ui.theme.transparent
 
 @Composable
 fun TransactionCard(
@@ -83,7 +84,7 @@ fun TransactionCard(
                 if (isSelected) {
                     Modifier.background(MaterialTheme.colorScheme.primaryContainer)
                 } else {
-                    Modifier.background(standardCardGradient())
+                    Modifier.background(transparent)
                 }
             )
             .border(
@@ -275,7 +276,7 @@ fun TransactionCardLightPreview() {
                 note = "Salary Credit",
                 transactionDate = "31 Dec",
                 transactionTime = formatTime(1738368000000, "12-hour"),
-                amount = "+₹55,000",
+                amount = "+₹5,000",
                 transactionTypeId = 1,
                 icon = Icons.Filled.QuestionMark,
                 paymentType = getPaymentTypeName(3),
