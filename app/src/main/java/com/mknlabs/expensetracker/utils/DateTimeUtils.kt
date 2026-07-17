@@ -280,7 +280,8 @@ private val formatters = mutableMapOf<String, SimpleDateFormat>()
 
 private fun formatWithPattern(timestamp: Long, pattern: String): String {
     val locale = Locale.getDefault()
-    val cacheKey = "$pattern-$locale"
+    val timeZoneId = TimeZone.getDefault().id
+    val cacheKey = "$pattern-$locale-$timeZoneId"
     val formatter = synchronized(formatters) {
         formatters.getOrPut(cacheKey) {
             SimpleDateFormat(pattern, locale)

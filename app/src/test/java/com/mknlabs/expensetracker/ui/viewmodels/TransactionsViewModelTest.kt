@@ -136,5 +136,6 @@ class TransactionsViewModelTest {
         override suspend fun becomePremium() {}
         override val isAdsEnabled: Flow<Boolean> = flowOf(true)
         override val globalAdAccessExpiry: Flow<Long> = flowOf(0L)
+        override val userTier: Flow<com.mknlabs.expensetracker.models.UserTier> = flowOf(com.mknlabs.expensetracker.models.UserTier.FREE)
     }
 }

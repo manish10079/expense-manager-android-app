@@ -82,7 +82,32 @@ object AppSettingsDataStore {
         transform: (AppSettings) -> AppSettings
     ) {
         context.applicationContext.appSettingsDataStore.edit { preferences ->
-            val updatedSettings = transform(preferences.toAppSettings())
+            val currentSettings = preferences.toAppSettings()
+            var updatedSettings = transform(currentSettings)
+
+            // Centralized Enforcer: If user is downgraded to FREE, clean up all Premium-only settings!
+            if (updatedSettings.userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+                val needResetTimeout = updatedSettings.appLockTimeoutMinutes !in listOf(0, 1, 5, 10, 15)
+                val newTimeout = if (needResetTimeout) 1 else updatedSettings.appLockTimeoutMinutes
+
+                val needResetBackupFreq = updatedSettings.autoBackupFrequencyDays !in listOf(7, 15, 30)
+                val newBackupFreq = if (needResetBackupFreq) 7 else updatedSettings.autoBackupFrequencyDays
+
+                updatedSettings = updatedSettings.copy(
+                    transactionCardShowPaymentMethod = false,
+                    blurInRecentsEnabled = false,
+                    screenshotProtectionEnabled = false,
+                    scrambledPinKeypadEnabled = false,
+                    appLockTimeoutMinutes = newTimeout,
+                    autoBackupFrequencyDays = newBackupFreq,
+                    isCloudSyncEnabled = false
+                )
+
+                if (needResetTimeout) {
+                    com.mknlabs.expensetracker.data.local.AppLockPreferences.setAutoLockDurationMinutes(context, newTimeout)
+                }
+            }
+
             preferences.writeAppSettings(updatedSettings)
         }
     }
