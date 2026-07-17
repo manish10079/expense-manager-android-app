@@ -56,7 +56,7 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
-import com.mknlabs.expensetracker.ui.components.SettingsGroupHeader
+
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
@@ -66,6 +66,7 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.time.Duration.Companion.milliseconds
 
 private data class TransactionCardToggleItem(
     val title: String,
@@ -96,7 +97,7 @@ fun TransactionCardCustomizeScreen(
 
     // Debounced persistence: write to DataStore 300ms after the last toggle.
     LaunchedEffect(localSettings) {
-        delay(300)
+        delay(300.milliseconds)
         onSettingsChange(localSettings)
     }
 
