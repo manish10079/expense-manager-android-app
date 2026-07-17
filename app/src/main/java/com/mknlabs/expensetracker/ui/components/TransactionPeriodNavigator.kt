@@ -58,11 +58,18 @@ fun TransactionPeriodNavigator(
     val colorScheme = MaterialTheme.colorScheme
     val surfaceColor = colorScheme.surface.copy(alpha = 0.96f)
 
+    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(Color.Transparent)
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(28.dp)
+            )
             .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
