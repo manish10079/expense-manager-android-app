@@ -223,54 +223,27 @@ fun TransactionCardCustomizeScreen(
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         group.value.forEach { transaction ->
-                            TransactionCard(
-                                note = transaction.note,
-                                transactionDate = formatDate(transaction.createdAt, dateFormatPattern),
-                                transactionTime = formatTime(transaction.createdAt, timeFormat),
-                                amount = formatAmount(
-                                    amount = transaction.amount,
-                                    transactionTypeId = transaction.transactionTypeId,
-                                    currencyId = currencyId,
-                                    amountFormatPreferences = amountFormatPreferences
-                                ),
-                                transactionTypeId = transaction.transactionTypeId,
-                                icon = transaction.categoryIcon,
-                                paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                                categoryLabel = stringResource(id = R.string.label_category_1),
-                                showTypeLabel = localSettings.showIncomeExpenseLabels,
-                                showTransactionDate = localSettings.showTransactionDate,
-                                showPaymentMethod = localSettings.showPaymentMethod,
-                                showTransactionTime = localSettings.showTransactionTime,
-                                showCategoryIcon = localSettings.showCategoryIcon,
-                                showCategoryLabel = localSettings.showCategoryLabel
+                            PreviewTransactionCard(
+                                transaction = transaction,
+                                settings = localSettings,
+                                currencyId = currencyId,
+                                amountFormatPreferences = amountFormatPreferences,
+                                dateFormatPattern = dateFormatPattern,
+                                timeFormat = timeFormat
                             )
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     previewTransactions.forEach { transaction ->
-                        TransactionCard(
-                            note = transaction.note,
-                            transactionDate = formatDate(transaction.createdAt, dateFormatPattern),
-                            transactionTime = formatTime(transaction.createdAt, timeFormat),
-                            amount = formatAmount(
-                                amount = transaction.amount,
-                                transactionTypeId = transaction.transactionTypeId,
-                                currencyId = currencyId,
-                                amountFormatPreferences = amountFormatPreferences
-                            ),
-                            transactionTypeId = transaction.transactionTypeId,
-                            icon = transaction.categoryIcon,
-                            paymentType = getPaymentTypeName(transaction.paymentTypeId),
-                            categoryLabel = stringResource(id = R.string.label_category_1),
-                            showTypeLabel = localSettings.showIncomeExpenseLabels,
-                            showTransactionDate = localSettings.showTransactionDate,
-                            showPaymentMethod = localSettings.showPaymentMethod,
-                            showTransactionTime = localSettings.showTransactionTime,
-                            showCategoryIcon = localSettings.showCategoryIcon,
-                            showCategoryLabel = localSettings.showCategoryLabel
+                        PreviewTransactionCard(
+                            transaction = transaction,
+                            settings = localSettings,
+                            currencyId = currencyId,
+                            amountFormatPreferences = amountFormatPreferences,
+                            dateFormatPattern = dateFormatPattern,
+                            timeFormat = timeFormat
                         )
                     }
                 }
@@ -299,10 +272,9 @@ fun TransactionCardCustomizeScreen(
                 SettingsGroup {
                     val groupItems = toggleItems.filter { it.optionId in listOf("showIncomeExpenseLabels", "showCategoryIcon") }
                     groupItems.forEachIndexed { index, item ->
-                        ToggleSettingsItem(
+                        false.ToggleSettingsItem(
                             item = item,
-                            isInPreview = isInPreview,
-                            standalone = false
+                            isInPreview = isInPreview
                         )
                         if (index < groupItems.size - 1) SettingsGroupDivider()
                     }
@@ -314,10 +286,9 @@ fun TransactionCardCustomizeScreen(
                 SettingsGroup {
                     val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryLabel", "showPaymentMethod", "showTransactionTime") }
                     groupItems.forEachIndexed { index, item ->
-                        ToggleSettingsItem(
+                        false.ToggleSettingsItem(
                             item = item,
-                            isInPreview = isInPreview,
-                            standalone = false
+                            isInPreview = isInPreview
                         )
                         if (index < groupItems.size - 1) SettingsGroupDivider()
                     }
@@ -329,10 +300,9 @@ fun TransactionCardCustomizeScreen(
                 SettingsGroup {
                     val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
                     groupItems.forEachIndexed { index, item ->
-                        ToggleSettingsItem(
+                        false.ToggleSettingsItem(
                             item = item,
-                            isInPreview = isInPreview,
-                            standalone = false
+                            isInPreview = isInPreview
                         )
                         if (index < groupItems.size - 1) SettingsGroupDivider()
                     }
@@ -354,10 +324,9 @@ fun TransactionCardCustomizeScreen(
 }
 
 @Composable
-private fun ToggleSettingsItem(
+private fun Boolean.ToggleSettingsItem(
     item: TransactionCardToggleItem,
-    isInPreview: Boolean,
-    standalone: Boolean = true
+    isInPreview: Boolean
 ) {
     val accessLevel = FeatureRegistry.getAccessLevel(
         feature = Feature.CARD_CUSTOMIZATION,
@@ -374,7 +343,7 @@ private fun ToggleSettingsItem(
             isChecked = item.checked,
             onCheckedChange = item.onCheckedChange,
             onClick = { item.onCheckedChange(!item.checked) },
-            standalone = standalone
+            standalone = this
         )
     } else {
         GatedAction(
@@ -393,10 +362,42 @@ private fun ToggleSettingsItem(
                 isChecked = item.checked,
                 onCheckedChange = { onClick() },
                 onClick = onClick,
-                standalone = standalone
+                standalone = this
             )
         }
     }
+}
+
+@Composable
+private fun PreviewTransactionCard(
+    transaction: Transaction,
+    settings: TransactionCardCustomizationSettings,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    timeFormat: String
+) {
+    TransactionCard(
+        note = transaction.note,
+        transactionDate = formatDate(transaction.createdAt, dateFormatPattern),
+        transactionTime = formatTime(transaction.createdAt, timeFormat),
+        amount = formatAmount(
+            amount = transaction.amount,
+            transactionTypeId = transaction.transactionTypeId,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences
+        ),
+        transactionTypeId = transaction.transactionTypeId,
+        icon = transaction.categoryIcon,
+        paymentType = getPaymentTypeName(transaction.paymentTypeId),
+        categoryLabel = stringResource(id = R.string.label_category_1),
+        showTypeLabel = settings.showIncomeExpenseLabels,
+        showTransactionDate = settings.showTransactionDate,
+        showPaymentMethod = settings.showPaymentMethod,
+        showTransactionTime = settings.showTransactionTime,
+        showCategoryIcon = settings.showCategoryIcon,
+        showCategoryLabel = settings.showCategoryLabel
+    )
 }
 
 @Preview(
