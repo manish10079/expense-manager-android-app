@@ -75,7 +75,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.ChartLabelUi
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.ui.components.TransactionCard
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard

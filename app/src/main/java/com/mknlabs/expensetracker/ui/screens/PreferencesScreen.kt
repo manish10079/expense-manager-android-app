@@ -33,7 +33,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
 
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard

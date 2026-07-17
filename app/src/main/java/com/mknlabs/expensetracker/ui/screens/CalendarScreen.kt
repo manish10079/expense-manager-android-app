@@ -93,7 +93,7 @@ import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePicker
 import com.mknlabs.expensetracker.ui.models.TabItem
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard

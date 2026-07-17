@@ -60,7 +60,7 @@ import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard

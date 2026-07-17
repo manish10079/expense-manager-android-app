@@ -39,7 +39,7 @@ import com.mknlabs.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.ui.screens.SettingsScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionScreen
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 
 @Composable

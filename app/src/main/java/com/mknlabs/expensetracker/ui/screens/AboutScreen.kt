@@ -60,7 +60,7 @@ import com.mknlabs.expensetracker.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
 
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard

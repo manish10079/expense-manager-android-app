@@ -31,7 +31,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
