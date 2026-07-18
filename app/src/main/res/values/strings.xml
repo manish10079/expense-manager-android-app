@@ -1291,7 +1291,7 @@
     <string name="label_this_device">This Device</string>
     <string name="btn_unlink_device">Unlink</string>
     <string name="msg_unlink_device_confirm">Are you sure you want to unlink this device? Automatic sync will stop on that device.</string>
-    <string name="label_devices_used">%1$d of %2$d slots used</string>
+    <string name="label_devices_used">%1$d of %2$d Device Connected</string>
     <string name="title_cloud_sync">Cloud Sync</string>
     <string name="desc_cloud_sync">Keep your transactions and settings synced across all your devices in real-time.</string>
     <string name="title_upgrade_for_sync">Upgrade for Cloud Sync</string>
