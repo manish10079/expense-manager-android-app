@@ -301,7 +301,7 @@ private fun DeviceListContent(
                 ) {
                     Text(
                         text = stringResource(R.string.label_devices_used, devices.size, maxDevices),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(

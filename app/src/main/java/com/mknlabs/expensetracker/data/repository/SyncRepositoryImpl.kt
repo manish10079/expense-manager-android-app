@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,6 +58,21 @@ class SyncRepositoryImpl @Inject constructor(
 
     private val _isSyncing = MutableStateFlow(false)
     override val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
+    private val syncCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+    private fun incrementSync() {
+        if (syncCount.incrementAndGet() == 1) {
+            _isSyncing.value = true
+        }
+    }
+
+    private fun decrementSync() {
+        if (syncCount.decrementAndGet() <= 0) {
+            syncCount.set(0)
+            _isSyncing.value = false
+        }
+    }
 
     private val androidId: String by lazy {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
@@ -143,7 +159,7 @@ class SyncRepositoryImpl @Inject constructor(
         val uid = currentUser.uid
         
         try {
-            _isSyncing.value = true
+            incrementSync()
             
             // Stabilization: For anonymous users, wait a moment for the session to "settle" before Firestore ops
             if (currentUser.isAnonymous) {
@@ -161,7 +177,7 @@ class SyncRepositoryImpl @Inject constructor(
             android.util.Log.e("Sync", "Sync User Profile failed for uid: $uid", e)
             Result.failure(e)
         } finally {
-            _isSyncing.value = false
+            decrementSync()
         }
     }
 
@@ -176,7 +192,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
         val uid = currentUser.uid
         try {
-            _isSyncing.value = true
+            incrementSync()
 
             // One-time reset of lastSyncTimeMillis to heal any clock-drift issues from the old implementation
             val migrationPrefs = context.getSharedPreferences("sync_migration_prefs", Context.MODE_PRIVATE)
@@ -226,14 +242,14 @@ class SyncRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
-            _isSyncing.value = false
+            decrementSync()
         }
     }
 
     override suspend fun forceSyncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         try {
-            _isSyncing.value = true
+            incrementSync()
 
             // 1. Reset local lastSyncTimeMillis so pullCloudChanges queries everything from Firestore
             AppSettingsDataStore.updateAppSettings(context) { it.copy(lastSyncTimeMillis = 0L) }
@@ -255,7 +271,7 @@ class SyncRepositoryImpl @Inject constructor(
             android.util.Log.e("Sync", "Force sync failed", e)
             Result.failure(e)
         } finally {
-            _isSyncing.value = false
+            decrementSync()
         }
     }
 
@@ -586,12 +602,13 @@ class SyncRepositoryImpl @Inject constructor(
         lastSync: Long,
         crossinline onPull: suspend (T) -> Unit
     ): Long {
-        // Subtract a safety buffer of 5 minutes (300,000 ms) to account for clock drift and network propagation delays.
+        // Subtract a safety buffer of 5 minutes (300,000 ms) to account for clock drift
+        // and network propagation delays.
         val safeLastSync = if (lastSync == 0L) 0L else (lastSync - 5 * 60 * 1000L).coerceAtLeast(0L)
 
         android.util.Log.d("Sync", "[$collectionName] Querying with lastSync=$lastSync, safeLastSync=$safeLastSync")
 
-        // "Full Recovery" Mode: If lastSync is 0, fetch ALL documents. 
+        // "Full Recovery" Mode: If lastSync is 0, fetch ALL documents.
         // Otherwise, fetch only those modified after safeLastSync.
         val query = if (lastSync == 0L) {
             userDoc.collection(collectionName)
@@ -599,20 +616,32 @@ class SyncRepositoryImpl @Inject constructor(
             userDoc.collection(collectionName)
                 .whereGreaterThan("updatedAt", safeLastSync)
         }
-        
-        val snapshot = query.get().await()
+
+        // Bug #4 fix: Each collection get() is individually bounded to 30 seconds.
+        // Without this, a single slow Firestore read on a weak network would block the
+        // entire syncTransactions() until Firestore's SDK timeout (~60s), then throw,
+        // causing the whole sync to retry with even more exponential backoff.
+        // Now, a timed-out collection returns 0L (no watermark advance) and lets all
+        // other collections continue independently.
+        val snapshot = withTimeoutOrNull(30_000L) {
+            query.get().await()
+        } ?: run {
+            android.util.Log.w("Sync", "[$collectionName] Timed out after 30s — skipping this collection, will retry next sync cycle.")
+            return 0L
+        }
+
         var deserializedCount = 0
         var savedCount = 0
         var maxDocUpdatedAt = 0L
-        
+
         android.util.Log.d("Sync", "[$collectionName] Total documents in Cloud: ${snapshot.size()}")
-        
+
         database.withTransaction {
             snapshot.documents.forEach { doc ->
                 try {
                     val docUpdatedAt = doc.getLong("updatedAt") ?: 0L
                     maxDocUpdatedAt = java.lang.Math.max(maxDocUpdatedAt, docUpdatedAt)
-                    
+
                     android.util.Log.d("Sync", "[$collectionName] Found doc: ${doc.id}, updatedAt=$docUpdatedAt")
                     val item = doc.toObject(T::class.java)
                     if (item != null) {
@@ -627,7 +656,7 @@ class SyncRepositoryImpl @Inject constructor(
                 }
             }
         }
-        
+
         android.util.Log.i("Sync", "[$collectionName] Completed: Fetched=${snapshot.size()}, Deserialized=$deserializedCount, Saved=$savedCount")
         return maxDocUpdatedAt
     }
