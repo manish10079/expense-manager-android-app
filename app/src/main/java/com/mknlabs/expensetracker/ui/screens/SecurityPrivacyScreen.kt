@@ -46,6 +46,12 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
+import com.mknlabs.expensetracker.ui.components.input.InputType
+import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.UpdatePasswordState
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 
@@ -70,7 +76,14 @@ fun SecurityPrivacyScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
+    val isEmailPasswordUser = remember(currentUser) {
+        currentUser?.providerData?.any { it.providerId == com.google.firebase.auth.EmailAuthProvider.PROVIDER_ID } == true
+    }
+
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isChangePasswordSheetVisible by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
 
     Box(
@@ -196,6 +209,21 @@ fun SecurityPrivacyScreen(
                     }
                 }
 
+                if (isEmailPasswordUser) {
+                    item {
+                        SettingsGroup {
+                            SettingsItemCard(
+                                title = stringResource(R.string.title_change_password),
+                                subtitle = stringResource(R.string.label_change_password_subtitle),
+                                icon = Icons.Rounded.Lock,
+                                type = SettingsItemType.Navigation,
+                                standalone = true,
+                                onClick = { isChangePasswordSheetVisible = true }
+                            )
+                        }
+                    }
+                }
+
                 item {
                     // Inline Native Ad after Groups
                     AdContainer(isAdsEnabled = isAdsEnabled) {
@@ -211,6 +239,13 @@ fun SecurityPrivacyScreen(
             selectedDurationMinutes = autoLockDurationMinutes,
             onDismiss = { isAutoLockDurationPickerVisible = false },
             onDurationSelected = onAutoLockDurationChange
+        )
+    }
+
+    if (isChangePasswordSheetVisible) {
+        ChangePasswordSheet(
+            onDismiss = { isChangePasswordSheetVisible = false },
+            authViewModel = authViewModel
         )
     }
 }
@@ -371,6 +406,135 @@ private fun AutoLockDurationPickerSheet(
                         }
                     }
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChangePasswordSheet(
+    onDismiss: () -> Unit,
+    authViewModel: AuthViewModel
+) {
+    val updatePasswordState by authViewModel.updatePasswordState.collectAsStateWithLifecycle()
+
+    var currentPassword by rememberSaveable { mutableStateOf("") }
+    var newPassword by rememberSaveable { mutableStateOf("") }
+    var confirmNewPassword by rememberSaveable { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        onDispose {
+            authViewModel.resetUpdatePasswordState()
+        }
+    }
+
+    LaunchedEffect(updatePasswordState) {
+        if (updatePasswordState is UpdatePasswordState.Success) {
+            Toast.makeText(context, context.getString(R.string.success_password_updated), Toast.LENGTH_SHORT).show()
+            onDismiss()
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.title_change_password),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = stringResource(R.string.label_change_password_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (updatePasswordState is UpdatePasswordState.Error) {
+                val errorMsg = stringResource((updatePasswordState as UpdatePasswordState.Error).messageRes)
+                Text(
+                    text = errorMsg,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            val isLoading = updatePasswordState is UpdatePasswordState.Loading
+
+            InputFieldCard(
+                title = stringResource(R.string.label_current_password),
+                value = currentPassword,
+                onValueChange = { currentPassword = it },
+                inputType = InputType.Password,
+                placeholder = stringResource(R.string.placeholder_current_password),
+                isEnabled = !isLoading
+            )
+
+            val isNewPasswordShort = newPassword.isNotEmpty() && newPassword.length < 6
+            InputFieldCard(
+                title = stringResource(R.string.label_new_password),
+                value = newPassword,
+                onValueChange = { newPassword = it },
+                inputType = InputType.Password,
+                placeholder = stringResource(R.string.placeholder_new_password),
+                isEnabled = !isLoading,
+                isError = isNewPasswordShort,
+                errorText = if (isNewPasswordShort) stringResource(R.string.error_auth_weak_password) else null
+            )
+
+            val doPasswordsMismatch = confirmNewPassword.isNotEmpty() && newPassword != confirmNewPassword
+            InputFieldCard(
+                title = stringResource(R.string.label_confirm_new_password),
+                value = confirmNewPassword,
+                onValueChange = { confirmNewPassword = it },
+                inputType = InputType.Password,
+                placeholder = stringResource(R.string.placeholder_confirm_new_password),
+                isEnabled = !isLoading,
+                isError = doPasswordsMismatch,
+                errorText = if (doPasswordsMismatch) stringResource(R.string.error_passwords_do_not_match) else null
+            )
+
+            val isFormValid = currentPassword.isNotEmpty() &&
+                    newPassword.length >= 6 &&
+                    newPassword == confirmNewPassword
+
+            Button(
+                onClick = {
+                    if (isFormValid) {
+                        authViewModel.updatePassword(currentPassword, newPassword)
+                    }
+                },
+                enabled = isFormValid && !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.btn_change_password),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     }

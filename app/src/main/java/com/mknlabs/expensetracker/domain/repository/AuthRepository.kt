@@ -81,4 +81,10 @@ interface AuthRepository {
      * Reloads the current user's profile and auth state from Firebase.
      */
     suspend fun reloadUser(): Result<Unit>
+
+    /**
+     * Updates the password for the current email-password user.
+     * Requires re-authentication with the current password.
+     */
+    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit>
 }

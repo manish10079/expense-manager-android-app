@@ -194,4 +194,18 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser ?: throw IllegalStateException("No user logged in")
+            val email = user.email ?: throw IllegalStateException("User email not found")
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            user.reauthenticate(credential).await()
+            user.updatePassword(newPassword).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Update password failed: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
 }

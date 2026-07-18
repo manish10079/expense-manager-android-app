@@ -1399,4 +1399,18 @@
     <string name="btn_sync_now">Sync Now</string>
     <string name="toast_force_sync_success">Sync completed successfully!</string>
     <string name="toast_force_sync_failed">Sync failed: %1$s</string>
+
+    <!-- Change Password Feature -->
+    <string name="title_change_password">Change Password</string>
+    <string name="label_change_password_subtitle">Update your account password</string>
+    <string name="label_current_password">Current Password</string>
+    <string name="label_new_password">New Password</string>
+    <string name="label_confirm_new_password">Confirm New Password</string>
+    <string name="placeholder_current_password">Enter current password</string>
+    <string name="placeholder_new_password">Enter new password</string>
+    <string name="placeholder_confirm_new_password">Confirm new password</string>
+    <string name="error_passwords_do_not_match">New passwords do not match.</string>
+    <string name="error_password_update_failed">Password update failed. Please check your current password and try again.</string>
+    <string name="success_password_updated">Password updated successfully!</string>
+    <string name="btn_change_password">Change Password</string>
 </resources>

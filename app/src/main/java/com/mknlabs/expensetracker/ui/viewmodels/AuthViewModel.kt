@@ -42,6 +42,13 @@ sealed class AuthState {
     data class Error(@StringRes val messageRes: Int) : AuthState()
 }
 
+sealed class UpdatePasswordState {
+    object Idle : UpdatePasswordState()
+    object Loading : UpdatePasswordState()
+    object Success : UpdatePasswordState()
+    data class Error(@StringRes val messageRes: Int) : UpdatePasswordState()
+}
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -53,6 +60,9 @@ class AuthViewModel @Inject constructor(
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
+
+    private val _updatePasswordState = MutableStateFlow<UpdatePasswordState>(UpdatePasswordState.Idle)
+    val updatePasswordState: StateFlow<UpdatePasswordState> = _updatePasswordState.asStateFlow()
 
     private val _cooldownSeconds = MutableStateFlow(0)
     val cooldownSeconds: StateFlow<Int> = _cooldownSeconds.asStateFlow()
@@ -530,5 +540,33 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseError(error))
                 }
         }
+    }
+
+    fun updatePassword(currentPassword: String, newPassword: String) {
+        if (!networkMonitor.isConnected()) {
+            _updatePasswordState.value = UpdatePasswordState.Error(R.string.error_no_internet)
+            return
+        }
+
+        viewModelScope.launch {
+            _updatePasswordState.value = UpdatePasswordState.Loading
+            authRepository.updatePassword(currentPassword, newPassword)
+                .onSuccess {
+                    _updatePasswordState.value = UpdatePasswordState.Success
+                }
+                .onFailure { error ->
+                    val errorRes = mapFirebaseError(error)
+                    val finalErrorRes = if (errorRes == R.string.error_auth_generic_fail) {
+                        R.string.error_password_update_failed
+                    } else {
+                        errorRes
+                    }
+                    _updatePasswordState.value = UpdatePasswordState.Error(finalErrorRes)
+                }
+        }
+    }
+
+    fun resetUpdatePasswordState() {
+        _updatePasswordState.value = UpdatePasswordState.Idle
     }
 }
