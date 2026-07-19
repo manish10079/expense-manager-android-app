@@ -86,12 +86,16 @@ class SplashViewModel @Inject constructor(
                 _currentTask.value = InitTask.Syncing
                 UserProfileDataStore.initialize(context)
                 
-                // 1. Force a profile sync first to identify Tier (Premium/Free)
-                // This is critical for fresh installs to enable SyncWorker correctly
-                syncRepository.syncUserProfile()
-
-                // 2. Trigger general Cloud Sync (Push/Pull)
-                com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
+                // 1. Force a profile sync and trigger general Cloud Sync in the background,
+                // so it does not block the splash screen transition and app load time.
+                viewModelScope.launch {
+                    try {
+                        syncRepository.syncUserProfile()
+                        com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(context)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
                 
                 // Perform a warm-up fetch to ensure Room caches are ready
                 transactionRepository.observeActiveTransactionCount().first()
