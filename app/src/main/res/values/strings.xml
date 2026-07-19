@@ -245,6 +245,7 @@
     <!-- Errors -->
     <string name="toast_authentication_failed">Authentication failed.</string>
     <string name="error_auth_cloned_or_unauthorized">Google authentication failed. If you are using a cloned or parallel space app, please use the original app.</string>
+    <string name="error_enter_email">Please enter your email address.</string>
     <string name="toast_legacy_import_failed_check_the">Legacy import failed. Check the backup file and try again.</string>
     <string name="toast_unable_to_export_json_please_t">Unable to export JSON. Please try again.</string>
     <string name="toast_unable_to_import_json_check_th">Unable to import JSON. Check the file and try again.</string>

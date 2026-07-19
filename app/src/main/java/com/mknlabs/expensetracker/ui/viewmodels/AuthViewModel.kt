@@ -276,6 +276,14 @@ class AuthViewModel @Inject constructor(
     }
 
     fun sendPasswordResetEmail(email: String) {
+        if (email.isBlank()) {
+            _authState.value = AuthState.Error(R.string.error_enter_email)
+            return
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _authState.value = AuthState.Error(R.string.error_invalid_email)
+            return
+        }
         if (!networkMonitor.isConnected()) {
             _authState.value = AuthState.Error(R.string.error_no_internet)
             return

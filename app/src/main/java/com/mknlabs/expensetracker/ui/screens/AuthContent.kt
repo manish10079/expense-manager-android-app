@@ -215,7 +215,7 @@ fun AuthContent(
                             text = stringResource(id = R.string.label_forgot_password),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable(enabled = email.isNotEmpty() && isEmailValid) {
+                            modifier = Modifier.clickable {
                                 viewModel.sendPasswordResetEmail(email)
                             }
                         )
@@ -290,10 +290,10 @@ fun AuthContent(
                     shape = RoundedCornerShape(16.dp),
                     enabled = canSubmit && authState !is AuthState.Loading
                 ) {
-                    if (authState is AuthState.Loading && isSignUp) {
+                    if (authState is AuthState.Loading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp
                         )
                     } else {
