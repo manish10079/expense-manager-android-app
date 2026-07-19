@@ -14,17 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.NotificationAdd
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SettingsApplications
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.CloudSync
+import androidx.compose.material.icons.rounded.ConfirmationNumber
+import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.NotificationAdd
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.SettingsSuggest
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -60,6 +61,7 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -310,7 +312,10 @@ private fun SettingsSection(
         // Render non-highlight items in a Grouped Card
         if (nonHighlightItems.isNotEmpty()) {
             SettingsGroup {
-                nonHighlightItems.forEach { item ->
+                nonHighlightItems.forEachIndexed { index, item ->
+                    if (index > 0) {
+                        SettingsGroupDivider()
+                    }
                     SettingsItemContent(
                         item = item,
                         standalone = false,
@@ -394,112 +399,124 @@ private fun SettingsScreenPreview() {
             userProfile = defaultUserProfile,
             userTier = com.mknlabs.expensetracker.models.UserTier.FREE,
             settingsSections = listOf(
+                // 1. Account Section
                 SettingsSectionUi(
                     titleRes = R.string.title_account,
                     items = listOf(
                         SettingsItemUi(
                             titleRes = R.string.label_edit_profile,
                             subtitleRes = R.string.label_edit_profile_subtitle,
-                            icon = Icons.Filled.Person,
+                            icon = Icons.Rounded.Person,
                             actionId = SettingsActionId.EditProfile
-                        )
-                    )
-                ),
-                SettingsSectionUi(
-                    titleRes = R.string.title_preference,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_app_preferences,
-                            subtitleRes = R.string.label_app_preferences_subtitle,
-                            icon = Icons.Filled.Tune,
-                            actionId = SettingsActionId.AppPreferences
-                        )
-                    )
-                ),
-                SettingsSectionUi(
-                    titleRes = R.string.title_customize_caps,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_transaction_card,
-                            subtitleRes = R.string.label_transaction_card_subtitle,
-                            icon = Icons.Filled.SettingsApplications,
-                            actionId = SettingsActionId.TransactionCardCustomize
                         ),
                         SettingsItemUi(
-                            titleRes = R.string.title_manage_category,
-                            subtitleRes = R.string.label_manage_category_subtitle,
-                            icon = Icons.Filled.Category,
-                            actionId = SettingsActionId.ManageCategories
+                            titleRes = R.string.title_cloud_sync_devices,
+                            subtitleRes = R.string.desc_sync_premium_subtitle,
+                            icon = Icons.Rounded.CloudSync,
+                            actionId = SettingsActionId.ConnectedDevices,
+                            isLocked = true
                         )
                     )
                 ),
+                // 2. Monetization Section
+                SettingsSectionUi(
+                    titleRes = R.string.title_monetization_caps,
+                    items = listOf(
+                        SettingsItemUi(
+                            titleRes = R.string.label_remove_all_ads,
+                            subtitleRes = R.string.msg_watch_ad_for_ad_free,
+                            icon = Icons.Rounded.CreditCard,
+                            actionId = SettingsActionId.AdFreeAccess
+                        ),
+                        SettingsItemUi(
+                            titleRes = R.string.title_redeem_pro_pass,
+                            subtitleRes = R.string.label_redeem_pro_pass_subtitle,
+                            icon = Icons.Rounded.ConfirmationNumber,
+                            actionId = SettingsActionId.RedeemProPass
+                        )
+                    )
+                ),
+                // 3. Security Section
                 SettingsSectionUi(
                     titleRes = R.string.title_security_privacy_1,
                     items = listOf(
                         SettingsItemUi(
                             titleRes = R.string.title_security_privacy,
                             subtitleRes = R.string.label_security_privacy_subtitle,
-                            icon = Icons.Filled.Security,
+                            icon = Icons.Rounded.Security,
                             actionId = SettingsActionId.SecurityPrivacy
                         )
                     )
                 ),
+                // 4. Workspace / Configuration Section
                 SettingsSectionUi(
-                    titleRes = R.string.title_data_management_1,
+                    titleRes = R.string.title_preference,
+                    items = listOf(
+                        SettingsItemUi(
+                            titleRes = R.string.title_manage_category,
+                            subtitleRes = R.string.label_manage_category_subtitle,
+                            icon = Icons.Rounded.Category,
+                            actionId = SettingsActionId.ManageCategories
+                        ),
+                        SettingsItemUi(
+                            titleRes = R.string.title_app_preferences,
+                            subtitleRes = R.string.label_app_preferences_subtitle,
+                            icon = Icons.Rounded.SettingsSuggest,
+                            actionId = SettingsActionId.AppPreferences
+                        ),
+                        SettingsItemUi(
+                            titleRes = R.string.title_notifications_1,
+                            subtitleRes = R.string.label_notifications_subtitle,
+                            icon = Icons.Rounded.NotificationAdd,
+                            actionId = SettingsActionId.Notifications
+                        ),
+                        SettingsItemUi(
+                            titleRes = R.string.title_transaction_card,
+                            subtitleRes = R.string.label_transaction_card_subtitle,
+                            icon = Icons.Rounded.Tune,
+                            actionId = SettingsActionId.TransactionCardCustomize
+                        )
+                    )
+                ),
+                // 5. Data Section
+                SettingsSectionUi(
+                    titleRes = R.string.title_database,
                     items = listOf(
                         SettingsItemUi(
                             titleRes = R.string.title_data_management,
                             subtitleRes = R.string.label_data_management_subtitle,
-                            icon = Icons.Filled.Sync,
+                            icon = Icons.Rounded.Dns,
                             actionId = SettingsActionId.DataManagement
                         )
                     )
                 ),
+                // 6. Session Section
                 SettingsSectionUi(
-                    titleRes = R.string.title_notifications,
+                    titleRes = R.string.title_session,
                     items = listOf(
                         SettingsItemUi(
-                            titleRes = R.string.title_notifications_1,
-                            subtitleRes = R.string.label_notifications_subtitle,
-                            icon = Icons.Filled.NotificationAdd,
-                            actionId = SettingsActionId.Notifications
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_daily_reminder,
-                            subtitleRes = R.string.desc_daily_reminder,
-                            icon = Icons.Filled.CalendarMonth,
-                            toggleId = SettingsToggleId.DailyReminder,
-                            showChevron = false
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.dialog_budget_limit_alerts,
-                            subtitleRes = R.string.desc_budget_limit_alerts,
-                            icon = Icons.Filled.CurrencyRupee,
-                            toggleId = SettingsToggleId.BudgetLimitAlerts,
-                            showChevron = false
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_missed_entry_reminder,
-                            subtitleRes = R.string.desc_missed_entry_reminder,
-                            icon = Icons.Filled.Refresh,
-                            toggleId = SettingsToggleId.MissedEntryReminder,
+                            titleRes = R.string.label_logout,
+                            subtitleRes = R.string.desc_logout_subtitle,
+                            icon = Icons.AutoMirrored.Rounded.Logout,
+                            actionId = SettingsActionId.Logout,
                             showChevron = false
                         )
                     )
                 ),
+                // 7. About Section
                 SettingsSectionUi(
                     titleRes = R.string.title_about_caps,
                     items = listOf(
                         SettingsItemUi(
-                            titleRes = R.string.label_about,
+                            titleRes = R.string.title_about,
                             subtitleRes = R.string.label_about_subtitle,
-                            icon = Icons.Filled.Info,
+                            icon = Icons.Rounded.Info,
                             actionId = SettingsActionId.About
                         )
                     )
                 )
             ),
-            isAdsEnabled = true,
+            isAdsEnabled = false,
             isDailyReminderEnabled = true,
             isBudgetLimitAlertsEnabled = true,
             isMissedEntryReminderEnabled = false,

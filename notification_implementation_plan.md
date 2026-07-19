@@ -65,14 +65,17 @@ graph TD
 
 ### C. Data Layer Implementation (Repository & Background Tasks)
 *   **NotificationRepositoryImpl:**
-    *   Interacts with room databases and datastores. Provided via `@Provides` inside Hilt modules.
+*   Interacts with room databases and datastores. Provided via `@Provides` inside Hilt modules.
 *   **Notification Channel Updates:**
     *   Replace channels in [NotificationHelper.kt](file:///C:/Users/mkn00/AndroidStudioProjects/ExpenseTracker/app/src/main/java/com/mknlabs/expensetracker/notifications/NotificationHelper.kt) to define the 7 required channels with correct importance flags.
-*   **WorkManager Jobs:**
+*   **WorkManager Jobs (Simplified Engine Integration):**
     *   `DailyReminderWorker`: Reads `expenseReminderTimeMillis` and schedules exact daily checks.
     *   `WeeklySummaryWorker`: Scheduled for Sundays at 8:00 PM. Queries transactions for the past week, compiles aggregates, and pushes summary alerts.
     *   `GoalMilestoneWorker`: Daily check comparing progress limits and calculating behind-schedule flags.
-    *   `RecurringTransactionWorker`: Updated to check both the global `billRemindersEnabled` setting and the individual rule's `notificationsEnabled` database flag before warning.
+    *   `RecurringTransactionWorker` **(Refactored for Category 7):** Do not create a separate recurring reminder engine. Instead, refactor the existing upcoming bill logic:
+        *   Gate execution by checking the global `billRemindersEnabled` setting from the DataStore.
+        *   Query and filter rules checking `notificationsEnabled` database flag is `true`.
+        *   Expand the advance notification window to evaluate and dispatch warning alerts at exactly **7 Days, 3 Days, 1 Day, and on the Due Date** before `nextRunAt`, instead of the current hardcoded 48-hour window.
 
 ### D. ViewModel Layer
 *   **SettingsViewModel:**
@@ -85,6 +88,7 @@ graph TD
     *   Each toggle includes an Information icon (`IconButton` + `Icons.Rounded.Info`) that triggers a themed `ModalBottomSheet` or dynamic dialog summarizing the nested notification subtypes.
     *   Premium indicators (⭐) show lock states for categories 5–8 when user tier is `FREE`. Clicking a Premium toggle triggers the upgrade screen.
     *   Time selection and threshold input options appear conditionally when their respective categories are enabled.
+
 
 ---
 
@@ -106,7 +110,7 @@ graph TD
 
 ### Phase 3: Logic Engine & Workers
 *   Update channels inside `NotificationHelper`.
-*   Implement `WeeklySummaryWorker`, `DailyReminderWorker`, and `GoalMilestoneWorker`.
+*   Implement `WeeklySummaryWorker`, `DailyReminderWorker`, and `GoalMilestoneWorker`, and refactor `RecurringTransactionWorker` to support the multi-day alert windows (7, 3, 1 days & due date).
 *   Integrate threshold checks in transaction repository insertion logic.
 
 ### Phase 4: ViewModel Event Binding

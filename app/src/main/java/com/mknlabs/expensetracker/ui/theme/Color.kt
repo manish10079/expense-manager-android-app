@@ -12,13 +12,15 @@ val PurpleAccent = Color(0xFFCDBDFF)
 
 
 val BackgroundDark = Color(0xFF0A0A0A)
-val SurfaceDark = Color(0xFF242423)
+
+val SurfaceDark = Color(0xFF181817)
 val CardDark = Color(0xFF353534)
+
 
 val TextPrimaryDark = Color(0xFFEAEAEA)
 val TextSecondaryDark = Color(0xFF9E9E9E)
 
-val DividerDark = Color(0xFF2A2A2A)
+val DividerDark = Color.Black
 
 val IncomeGreen = Color(0xFF81C784)
 val ExpenseRed = Color(0xFFFF7D7D)
@@ -51,7 +53,8 @@ val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
 // Neutral Shades
 val NeutralGray = Color(0xFF8E8E93)
 
-val BackgroundLight = Color(0xFFF6F6F8)
+val BackgroundLight = Color(0xFFEDEDF1)
+
 val SurfaceLight = Color(0xFFFFFFFF)
 val CardLight = Color(0xFFD2D2E3)
 

@@ -42,7 +42,7 @@ fun ProfileCard(
         shape = RoundedCornerShape(28.dp),
         color = colorScheme.surface,
         border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.4f)),
-        shadowElevation = 8.dp,
+        shadowElevation = 1.dp,
         modifier = modifier
             .fillMaxWidth()
     ) {
