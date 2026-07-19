@@ -20,7 +20,7 @@ val CardDark = Color(0xFF353534)
 val TextPrimaryDark = Color(0xFFEAEAEA)
 val TextSecondaryDark = Color(0xFF9E9E9E)
 
-val DividerDark = Color.Black
+val DividerDark = Color(0xFF2A2A2A)
 
 val IncomeGreen = Color(0xFF81C784)
 val ExpenseRed = Color(0xFFFF7D7D)
