@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
@@ -77,6 +78,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.launch
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun ItemizedCalculatorScreen(
@@ -264,15 +266,17 @@ private fun ItemizedCalculatorContent(
             }
 
             if (isAddingItem) {
-                AddItemInputCard(
-                    description = descriptionInput,
-                    amount = amountInput,
-                    canAddItem = canAddItem,
-                    onDescriptionChange = onDescriptionChange,
-                    onAmountChange = onAmountChange,
-                    onCancel = onCancelAdding,
-                    onAddClick = onAddItem
-                )
+                Dialog(onDismissRequest = onCancelAdding) {
+                    AddItemInputCard(
+                        description = descriptionInput,
+                        amount = amountInput,
+                        canAddItem = canAddItem,
+                        onDescriptionChange = onDescriptionChange,
+                        onAmountChange = onAmountChange,
+                        onCancel = onCancelAdding,
+                        onAddClick = onAddItem
+                    )
+                }
             }
 
             AddNewItemButton(onClick = onStartAdding)
@@ -699,11 +703,21 @@ private fun AddItemInputCard(
     onCancel: () -> Unit,
     onAddClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val solidCardGradient = remember(colorScheme.surface, colorScheme.surfaceVariant) {
+        Brush.verticalGradient(
+            colors = listOf(
+                colorScheme.surface,
+                colorScheme.surfaceVariant
+            )
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(standardCardGradient())
+            .background(solidCardGradient)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
