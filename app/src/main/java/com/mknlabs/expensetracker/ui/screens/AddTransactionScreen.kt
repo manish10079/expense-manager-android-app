@@ -29,8 +29,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
@@ -215,7 +220,8 @@ fun AddTransactionScreen(
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
-        var isKeypadExpanded by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
+        val amountFocusRequester = remember { FocusRequester() }
+        val keyboardController = LocalSoftwareKeyboardController.current
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -272,7 +278,10 @@ fun AddTransactionScreen(
         ) {
             AppHeader(
                 title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
-                onBackClick = onBackClick
+                onBackClick = {
+                    keyboardController?.hide()
+                    onBackClick()
+                }
             )
 
             Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
@@ -302,7 +311,18 @@ fun AddTransactionScreen(
                             currencyId = currencyId,
                             selectedTransactionTypeId = selectedTransactionTypeId,
                             compact = compact,
-                            onClick = { isKeypadExpanded = !isKeypadExpanded }
+                            focusRequester = amountFocusRequester,
+                            onAmountChange = {
+                                val validated = validateAmountChange(it, amountInput)
+                                if (validated != amountInput) {
+                                    amountInput = validated
+                                    onAmountInputChange(validated)
+                                }
+                            },
+                            onClick = {
+                                amountFocusRequester.requestFocus()
+                                keyboardController?.show()
+                            }
                         )
                     }
 
@@ -372,26 +392,6 @@ fun AddTransactionScreen(
                     }
                 }
 
-                AnimatedVisibility(
-                    visible = isKeypadExpanded,
-                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                        NumericKeypad(
-                            compact = compact,
-                            onKeyPressed = { pressedKey ->
-                                amountInput = updateAmountInput(current = amountInput, pressedKey = pressedKey)
-                                onAmountInputChange(amountInput)
-                            }
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
 
                 Row(
@@ -402,13 +402,19 @@ fun AddTransactionScreen(
                     SideActionButton(
                         icon = Icons.Filled.DeleteOutline,
                         contentDescription = stringResource(R.string.desc_delete_transaction),
-                        onClick = onDeleteClick
+                        onClick = {
+                            keyboardController?.hide()
+                            onDeleteClick()
+                        }
                     )
 
                     SideActionButton(
                         icon = Icons.Filled.Dialpad,
                         contentDescription = stringResource(R.string.desc_enter_amount),
-                        onClick = { isKeypadExpanded = !isKeypadExpanded }
+                        onClick = {
+                            amountFocusRequester.requestFocus()
+                            keyboardController?.show()
+                        }
                     )
 
                     AddTransactionButton(
@@ -446,6 +452,7 @@ fun AddTransactionScreen(
                             } else {
                                 null
                             }
+                            keyboardController?.hide()
                             onSaveClick(transaction, recurringDraft)
                         }
                     )
@@ -453,7 +460,10 @@ fun AddTransactionScreen(
                     SideActionButton(
                         icon = Icons.Filled.Calculate,
                         contentDescription = stringResource(R.string.desc_open_calculator),
-                        onClick = onCalculatorClick
+                        onClick = {
+                            keyboardController?.hide()
+                            onCalculatorClick()
+                        }
                     )
 
                     if (!isEditMode) {
@@ -794,6 +804,8 @@ private fun CurrencyAmountCard(
     currencyId: Int,
     selectedTransactionTypeId: Int,
     compact: Boolean,
+    focusRequester: FocusRequester,
+    onAmountChange: (String) -> Unit,
     onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
@@ -880,17 +892,44 @@ private fun CurrencyAmountCard(
                     )
                 }
 
-                Text(
-                    text = amountText,
-                    color = amountColor, // Restored solid color
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = if (compact) 42.sp else 50.sp,
-                        lineHeight = if (compact) 46.sp else 54.sp
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = amountText,
+                        color = Color.Transparent,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 42.sp else 50.sp,
+                            lineHeight = if (compact) 46.sp else 54.sp
+                        ),
+                        maxLines = 1
                     )
-                )
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    BasicTextField(
+                        value = amountText,
+                        onValueChange = onAmountChange,
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 42.sp else 50.sp,
+                            lineHeight = if (compact) 46.sp else 54.sp,
+                            color = amountColor,
+                            textAlign = TextAlign.Center
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                            }
+                        ),
+                        singleLine = true,
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                    )
+                }
 
                 if (currency.position == CurrencyPosition.POSTFIX) {
                     Text(
@@ -1325,6 +1364,28 @@ private fun formatTransactionDate(
 
 private fun formatEditableAmount(amount: Double): String {
     return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
+}
+
+private fun validateAmountChange(newValue: String, current: String): String {
+    if (newValue.isEmpty()) return "0"
+    if (newValue.length > 12) return current
+
+    val dotCount = newValue.count { it == '.' }
+    if (dotCount > 1) return current
+
+    if (newValue.any { !it.isDigit() && it != '.' }) return current
+
+    if (newValue.contains(".")) {
+        val decimals = newValue.substringAfter(".")
+        if (decimals.length > 2) return current
+    }
+
+    if (newValue.startsWith("0") && newValue.length > 1 && newValue[1] != '.') {
+        val sanitized = newValue.dropWhile { it == '0' }
+        return if (sanitized.isEmpty()) "0" else sanitized
+    }
+
+    return newValue
 }
 
 @Preview(
