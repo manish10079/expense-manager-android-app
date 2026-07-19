@@ -183,7 +183,7 @@ class AuthViewModel @Inject constructor(
                             android.util.Log.d("AUTH", "No Google accounts found on device")
                             _authState.value = AuthState.NoGoogleAccounts
                         } else {
-                            _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
+                            _authState.value = AuthState.Error(mapGoogleAuthError(error))
                         }
                     }
                 }
@@ -401,6 +401,18 @@ class AuthViewModel @Inject constructor(
             message.contains("user-disabled") -> R.string.error_auth_user_disabled
             message.contains("too-many-requests") -> R.string.error_auth_too_many_requests
             message.contains("weak-password") -> R.string.error_auth_weak_password
+            else -> R.string.error_auth_generic_fail
+        }
+    }
+
+    private fun mapGoogleAuthError(error: Throwable): Int {
+        val message = error.message ?: ""
+        return when {
+            message.contains("DEVELOPER_ERROR") || 
+            message.contains("10:") || 
+            message.contains("12500") -> {
+                R.string.error_auth_cloned_or_unauthorized
+            }
             else -> R.string.error_auth_generic_fail
         }
     }
