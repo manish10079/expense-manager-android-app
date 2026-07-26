@@ -178,6 +178,7 @@ private fun HomeScreenContent(
                         photoUri = userProfile.photoUri,
                         userTier = uiState.userTier,
                         isSyncing = uiState.isSyncing,
+                        isAnonymous = userProfile.authProvider == "anonymous",
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .clip(CircleShape)

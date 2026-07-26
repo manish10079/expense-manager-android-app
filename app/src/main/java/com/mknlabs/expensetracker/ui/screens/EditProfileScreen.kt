@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.ui.components.*
@@ -78,6 +79,7 @@ fun ProfileScreen(
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -207,7 +209,9 @@ fun ProfileScreen(
                         ?.let(ProfilePhotoManager::deleteManagedPhoto)
                     photoUri = null
                 },
-                onPrepareForExternalActivity = onPrepareForExternalActivity
+                onPrepareForExternalActivity = onPrepareForExternalActivity,
+                userTier = userTier,
+                isAnonymous = userProfile.authProvider == "anonymous"
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -434,7 +438,9 @@ private fun ProfilePhotoSection(
     isPhotoProcessing: Boolean,
     onSelectPhoto: () -> Unit,
     onRemovePhoto: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onPrepareForExternalActivity: () -> Unit,
+    userTier: UserTier = UserTier.FREE,
+    isAnonymous: Boolean = false
 ) {
     val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
     val photoActionIconColor = MaterialTheme.colorScheme.secondary
@@ -444,6 +450,8 @@ private fun ProfilePhotoSection(
         size = 150.dp,
         photoUri = photoUri,
         showBadge = false,
+        userTier = userTier,
+        isAnonymous = isAnonymous,
         modifier = Modifier
     )
 

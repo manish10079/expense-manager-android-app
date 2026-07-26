@@ -64,7 +64,8 @@ fun ProfileAvatar(
     backgroundColor: Color? = null,
     borderBrush: Brush? = null,
     userTier: UserTier = UserTier.FREE,
-    isSyncing: Boolean = false
+    isSyncing: Boolean = false,
+    isAnonymous: Boolean = false
 ) {
     val context = LocalContext.current
     val targetSizePx = with(LocalDensity.current) { size.roundToPx().coerceAtLeast(1) }
@@ -168,9 +169,10 @@ fun ProfileAvatar(
                                 shape = CircleShape
                             )
                         } else {
+                            val borderColor = if (isAnonymous) Color.White else MaterialTheme.colorScheme.primary
                             Modifier.border(
                                 width = 2.dp,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = borderColor,
                                 shape = CircleShape
                             )
                         }

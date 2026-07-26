@@ -523,13 +523,18 @@ fun TransactionScreen(
                                 }
                             }
 
-                            // Inject Native Ad every 7th item
-                            if (index > 0 && index % 7 == 0) {
-                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
-                                AdContainer(isAdsEnabled = isAdsEnabled) {
-                                    NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
+                            // Inject Native Ad after every 5th transaction card
+                            if (item is TransactionListItemUi.TransactionRow) {
+                                val transactionCardIndex = remember(uiState.transactionItems, index) {
+                                    uiState.transactionItems.take(index + 1).count { it is TransactionListItemUi.TransactionRow }
                                 }
-                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                if (transactionCardIndex > 0 && transactionCardIndex % 5 == 0) {
+                                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                                        NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
+                                    }
+                                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                }
                             }
                         }
                 }

@@ -33,6 +33,8 @@ fun ProfileCard(
     photoUri: String? = null,
     userTier: UserTier = UserTier.FREE,
     proExpiryTimestamp: Long = 0L,
+    isAnonymous: Boolean = false,
+    isSyncing: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -58,7 +60,10 @@ fun ProfileCard(
                 size = 64.dp,
                 showGlow = false,
                 showBorder = true,
-                backgroundColor = colorScheme.primary.copy(alpha = 0.1f)
+                backgroundColor = colorScheme.primary.copy(alpha = 0.1f),
+                userTier = userTier,
+                isSyncing = isSyncing,
+                isAnonymous = isAnonymous
             )
 
             Spacer(modifier = Modifier.width(16.dp))

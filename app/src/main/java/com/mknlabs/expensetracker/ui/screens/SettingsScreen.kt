@@ -217,7 +217,8 @@ private fun SettingsScreenContent(
                         gender = userProfile.gender,
                         photoUri = userProfile.photoUri,
                         userTier = userTier,
-                        proExpiryTimestamp = userProfile.proExpiryTimestamp
+                        proExpiryTimestamp = userProfile.proExpiryTimestamp,
+                        isAnonymous = userProfile.authProvider == "anonymous"
                     )
                 }
 
