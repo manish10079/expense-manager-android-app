@@ -169,7 +169,7 @@ fun ProfileAvatar(
                                 shape = CircleShape
                             )
                         } else {
-                            val borderColor = if (isAnonymous) Color.White else MaterialTheme.colorScheme.primary
+                            val borderColor = Color.White
                             Modifier.border(
                                 width = 2.dp,
                                 color = borderColor,
