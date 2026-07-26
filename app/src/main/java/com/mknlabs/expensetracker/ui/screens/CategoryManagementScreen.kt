@@ -85,7 +85,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryManagementScreen(
     userProfile: UserProfile = defaultUserProfile,
@@ -110,8 +109,34 @@ fun CategoryManagementScreen(
         )
     }
     val uiState by categoryManagementViewModel.uiState.collectAsStateWithLifecycle()
-    val activeTab = uiState.selectedTab
 
+    CategoryManagementContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        customCategories = customCategories,
+        customPaymentTypes = customPaymentTypes,
+        onBackClick = onBackClick,
+        onDeleteCustomCategory = onDeleteCustomCategory,
+        onDeleteCustomPaymentType = onDeleteCustomPaymentType,
+        onAddCategoryClick = onAddCategoryClick,
+        onSelectTab = { categoryManagementViewModel.selectTab(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryManagementContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState,
+    isAdsEnabled: Boolean,
+    customCategories: List<CategoryType>,
+    customPaymentTypes: List<PaymentType>,
+    onBackClick: () -> Unit,
+    onDeleteCustomCategory: (Int) -> Unit,
+    onDeleteCustomPaymentType: (Int) -> Unit,
+    onAddCategoryClick: (CategoryManagementTab) -> Unit,
+    onSelectTab: (CategoryManagementTab) -> Unit
+) {
+    val activeTab = uiState.selectedTab
     val pagerState = rememberPagerState(initialPage = activeTab.ordinal) { CategoryManagementTab.entries.size }
     val coroutineScope = rememberCoroutineScope()
 
@@ -124,7 +149,7 @@ fun CategoryManagementScreen(
 
     // Sync ViewModel with pager state (when user swipes)
     androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
-        categoryManagementViewModel.selectTab(CategoryManagementTab.entries[pagerState.currentPage])
+        onSelectTab(CategoryManagementTab.entries[pagerState.currentPage])
     }
 
     Box(
@@ -154,7 +179,7 @@ fun CategoryManagementScreen(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,
                 onItemSelected = { tab ->
-                    categoryManagementViewModel.selectTab(tab)
+                    onSelectTab(tab)
                 }
             )
 
@@ -479,6 +504,16 @@ private fun AddCategoryFab(
 @Composable
 private fun CategoryManagementScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        CategoryManagementScreen()
+        CategoryManagementContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState(),
+            isAdsEnabled = true,
+            customCategories = emptyList(),
+            customPaymentTypes = emptyList(),
+            onBackClick = {},
+            onDeleteCustomCategory = {},
+            onDeleteCustomPaymentType = {},
+            onAddCategoryClick = {},
+            onSelectTab = {}
+        )
     }
 }

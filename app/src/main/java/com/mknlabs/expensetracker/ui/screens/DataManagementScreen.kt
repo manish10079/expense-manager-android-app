@@ -38,6 +38,8 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 private val presetAutoBackupFrequencies = listOf(1, 7, 15, 30, 0) // 0 for Custom
 
@@ -64,6 +66,48 @@ fun DataManagementScreen(
     val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
     val isAnonymous = currentUser?.isAnonymous ?: true
 
+    DataManagementContent(
+        transactionCount = transactionCount,
+        isAutoBackupEnabled = isAutoBackupEnabled,
+        autoBackupFrequencyDays = autoBackupFrequencyDays,
+        isAdsEnabled = isAdsEnabled,
+        isAnonymous = isAnonymous,
+        onAutoBackupEnabledChange = onAutoBackupEnabledChange,
+        onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
+        onDatabaseBackupFileSelected = onDatabaseBackupFileSelected,
+        onDatabaseRestoreFileSelected = onDatabaseRestoreFileSelected,
+        onJsonExportFileSelected = onJsonExportFileSelected,
+        onJsonImportFileSelected = onJsonImportFileSelected,
+        onLegacyImportFileSelected = onLegacyImportFileSelected,
+        onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
+        onPrepareForExternalActivity = onPrepareForExternalActivity,
+        onBackClick = onBackClick,
+        getAccessStatus = { feature, optionId -> monetizationViewModel.getAccessStatus(feature, optionId) },
+        onPurchaseSimulated = { monetizationViewModel.onPurchaseSimulated() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DataManagementContent(
+    transactionCount: Int,
+    isAutoBackupEnabled: Boolean,
+    autoBackupFrequencyDays: Int,
+    isAdsEnabled: Boolean,
+    isAnonymous: Boolean,
+    onAutoBackupEnabledChange: (Boolean) -> Unit,
+    onAutoBackupFrequencyChange: (Int) -> Unit,
+    onDatabaseBackupFileSelected: (Uri) -> Unit,
+    onDatabaseRestoreFileSelected: (Uri) -> Unit,
+    onJsonExportFileSelected: (Uri) -> Unit,
+    onJsonImportFileSelected: (Uri) -> Unit,
+    onLegacyImportFileSelected: (Uri) -> Unit,
+    onDeleteAllTransactionsClick: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit,
+    onBackClick: () -> Unit,
+    getAccessStatus: (Feature, String?) -> kotlinx.coroutines.flow.StateFlow<AccessStatus>,
+    onPurchaseSimulated: () -> Unit
+) {
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
     val todayLabel = remember { LocalDate.now().toString() }
@@ -404,7 +448,7 @@ fun DataManagementScreen(
     if (isFrequencyPickerVisible) {
         val frequencyItems = presetAutoBackupFrequencies.map { days ->
             val optionId = if (days == 0) "custom" else days.toString()
-            val status = monetizationViewModel.getAccessStatus(Feature.AUTO_BACKUP, optionId).collectAsState(AccessStatus.Granted).value
+            val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).collectAsState(AccessStatus.Granted).value
             val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP, optionId)
             
             SelectionItem(
@@ -423,7 +467,7 @@ fun DataManagementScreen(
             selectedId = autoBackupFrequencyDays,
             onItemSelected = { days ->
                 val optionId = if (days == 0) "custom" else days.toString()
-                val status = monetizationViewModel.getAccessStatus(Feature.AUTO_BACKUP, optionId).value
+                val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).value
                 if (status is AccessStatus.Granted) {
                     if (days == 0) {
                         isCustomFrequencyDialogVisible = true
@@ -443,7 +487,7 @@ fun DataManagementScreen(
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                monetizationViewModel.onPurchaseSimulated()
+                onPurchaseSimulated()
                 showPremiumSheet = false
             }
         )
@@ -544,4 +588,31 @@ private fun SectionHeader(
         ),
         modifier = modifier.padding(start = 6.dp, top = 8.dp, bottom = 4.dp)
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DataManagementScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        val flow = remember { kotlinx.coroutines.flow.MutableStateFlow(AccessStatus.Granted) }
+        DataManagementContent(
+            transactionCount = 120,
+            isAutoBackupEnabled = true,
+            autoBackupFrequencyDays = 7,
+            isAdsEnabled = true,
+            isAnonymous = false,
+            onAutoBackupEnabledChange = {},
+            onAutoBackupFrequencyChange = {},
+            onDatabaseBackupFileSelected = {},
+            onDatabaseRestoreFileSelected = {},
+            onJsonExportFileSelected = {},
+            onJsonImportFileSelected = {},
+            onLegacyImportFileSelected = {},
+            onDeleteAllTransactionsClick = {},
+            onPrepareForExternalActivity = {},
+            onBackClick = {},
+            getAccessStatus = { _, _ -> flow },
+            onPurchaseSimulated = {}
+        )
+    }
 }

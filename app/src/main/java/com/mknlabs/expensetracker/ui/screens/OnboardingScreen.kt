@@ -121,6 +121,28 @@ fun OnboardingScreen(
     onSignUpSuccess: (() -> Unit)? = null,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
+    val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
+
+    OnboardingScreenContent(
+        currentUser = currentUser,
+        authViewModel = authViewModel,
+        onFinish = onFinish,
+        onSignUpSuccess = onSignUpSuccess,
+        onCancelGuestSignIn = { authViewModel.cancelGuestSignIn() },
+        onResetAuthState = { authViewModel.resetState() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun OnboardingScreenContent(
+    currentUser: com.google.firebase.auth.FirebaseUser?,
+    authViewModel: AuthViewModel?,
+    onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit,
+    onSignUpSuccess: (() -> Unit)?,
+    onCancelGuestSignIn: () -> Unit,
+    onResetAuthState: () -> Unit
+) {
     val context = LocalContext.current
     val onboardingPages = remember {
         listOf(
@@ -184,8 +206,6 @@ fun OnboardingScreen(
     var userFinancialGoal by remember { mutableStateOf("") }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
 
     // Auto-fill name if user logged in via social provider
     LaunchedEffect(currentUser) {
@@ -254,8 +274,8 @@ fun OnboardingScreen(
     }
 
     BackHandler(enabled = currentPage > 0) {
-        authViewModel.cancelGuestSignIn()
-        authViewModel.resetState()
+        onCancelGuestSignIn()
+        onResetAuthState()
         currentPage -= 1
     }
 
@@ -397,22 +417,31 @@ fun OnboardingScreen(
                         }
 
                         if (isAuthOnThisPageIndex) {
-                            AuthContent(
-                                viewModel = authViewModel,
-                                onAuthSuccess = {
-                                    Log.d("Onboarding", "Auth SUCCESS callback triggered.")
-                                    currentPage = 5
-                                },
-                                onGuestContinue = {
-                                    Log.d("Onboarding", "Guest continue triggered.")
-                                    currentPage = 5
-                                },
-                                onSignUpSuccess = {
-                                    Log.d("Onboarding", "Sign up success callback triggered.")
-                                    onSignUpSuccess?.invoke()
-                                    currentPage = 5
-                                }
-                            )
+                            if (authViewModel != null) {
+                                AuthContent(
+                                    viewModel = authViewModel,
+                                    onAuthSuccess = {
+                                        Log.d("Onboarding", "Auth SUCCESS callback triggered.")
+                                        currentPage = 5
+                                    },
+                                    onGuestContinue = {
+                                        Log.d("Onboarding", "Guest continue triggered.")
+                                        currentPage = 5
+                                    },
+                                    onSignUpSuccess = {
+                                        Log.d("Onboarding", "Sign up success callback triggered.")
+                                        onSignUpSuccess?.invoke()
+                                        currentPage = 5
+                                    }
+                                )
+                            } else {
+                                Text(
+                                    text = "Auth Content (Preview Placeholder)",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
                         } else if (isGoalOnThisPageIndex) {
                             Column(
                                 modifier = Modifier
@@ -1396,6 +1425,13 @@ private fun genderToIcon(gender: String, male: String, female: String, nonBinary
 @Composable
 private fun OnboardingScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreen()
+        OnboardingScreenContent(
+            currentUser = null,
+            authViewModel = null,
+            onFinish = { _, _, _, _ -> },
+            onSignUpSuccess = {},
+            onCancelGuestSignIn = {},
+            onResetAuthState = {}
+        )
     }
 }

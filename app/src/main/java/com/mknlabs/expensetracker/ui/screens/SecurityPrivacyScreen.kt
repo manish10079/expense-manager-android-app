@@ -54,6 +54,8 @@ import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.ui.components.input.InputType
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.UpdatePasswordState
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 
@@ -83,7 +85,54 @@ fun SecurityPrivacyScreen(
     val isEmailPasswordUser = remember(currentUser) {
         currentUser?.providerData?.any { it.providerId == com.google.firebase.auth.EmailAuthProvider.PROVIDER_ID } == true
     }
+    val updatePasswordState by authViewModel.updatePasswordState.collectAsStateWithLifecycle()
 
+    SecurityPrivacyContent(
+        isAppLockEnabled = isAppLockEnabled,
+        hasAppLockPin = hasAppLockPin,
+        isBiometricEnabled = isBiometricEnabled,
+        isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,
+        isBlurInRecentsEnabled = isBlurInRecentsEnabled,
+        isScreenshotProtectionEnabled = isScreenshotProtectionEnabled,
+        autoLockDurationMinutes = autoLockDurationMinutes,
+        isAdsEnabled = isAdsEnabled,
+        isEmailPasswordUser = isEmailPasswordUser,
+        updatePasswordState = updatePasswordState,
+        onAppLockChange = onAppLockChange,
+        onBiometricChange = onBiometricChange,
+        onScrambledPinKeypadChange = onScrambledPinKeypadChange,
+        onBlurInRecentsChange = onBlurInRecentsChange,
+        onScreenshotProtectionChange = onScreenshotProtectionChange,
+        onAutoLockDurationChange = onAutoLockDurationChange,
+        onBackClick = onBackClick,
+        onUpdatePassword = { current, new -> authViewModel.updatePassword(current, new) },
+        onResetUpdatePasswordState = { authViewModel.resetUpdatePasswordState() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SecurityPrivacyContent(
+    isAppLockEnabled: Boolean,
+    hasAppLockPin: Boolean,
+    isBiometricEnabled: Boolean,
+    isScrambledPinKeypadEnabled: Boolean,
+    isBlurInRecentsEnabled: Boolean,
+    isScreenshotProtectionEnabled: Boolean,
+    autoLockDurationMinutes: Int,
+    isAdsEnabled: Boolean,
+    isEmailPasswordUser: Boolean,
+    updatePasswordState: UpdatePasswordState,
+    onAppLockChange: (Boolean) -> Unit,
+    onBiometricChange: (Boolean) -> Unit,
+    onScrambledPinKeypadChange: (Boolean) -> Unit,
+    onBlurInRecentsChange: (Boolean) -> Unit,
+    onScreenshotProtectionChange: (Boolean) -> Unit,
+    onAutoLockDurationChange: (Int) -> Unit,
+    onBackClick: () -> Unit,
+    onUpdatePassword: (String, String) -> Unit,
+    onResetUpdatePasswordState: () -> Unit
+) {
     var isAutoLockDurationPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isChangePasswordSheetVisible by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
@@ -247,7 +296,9 @@ fun SecurityPrivacyScreen(
     if (isChangePasswordSheetVisible) {
         ChangePasswordSheet(
             onDismiss = { isChangePasswordSheetVisible = false },
-            authViewModel = authViewModel
+            updatePasswordState = updatePasswordState,
+            onUpdatePassword = onUpdatePassword,
+            onResetUpdatePasswordState = onResetUpdatePasswordState
         )
     }
 }
@@ -417,10 +468,10 @@ private fun AutoLockDurationPickerSheet(
 @Composable
 private fun ChangePasswordSheet(
     onDismiss: () -> Unit,
-    authViewModel: AuthViewModel
+    updatePasswordState: UpdatePasswordState,
+    onUpdatePassword: (String, String) -> Unit,
+    onResetUpdatePasswordState: () -> Unit
 ) {
-    val updatePasswordState by authViewModel.updatePasswordState.collectAsStateWithLifecycle()
-
     var currentPassword by rememberSaveable { mutableStateOf("") }
     var newPassword by rememberSaveable { mutableStateOf("") }
     var confirmNewPassword by rememberSaveable { mutableStateOf("") }
@@ -429,7 +480,7 @@ private fun ChangePasswordSheet(
 
     DisposableEffect(Unit) {
         onDispose {
-            authViewModel.resetUpdatePasswordState()
+            onResetUpdatePasswordState()
         }
     }
 
@@ -518,7 +569,7 @@ private fun ChangePasswordSheet(
             Button(
                 onClick = {
                     if (isFormValid) {
-                        authViewModel.updatePassword(currentPassword, newPassword)
+                        onUpdatePassword(currentPassword, newPassword)
                     }
                 },
                 enabled = isFormValid && !isLoading,
@@ -541,5 +592,33 @@ private fun ChangePasswordSheet(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SecurityPrivacyScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        SecurityPrivacyContent(
+            isAppLockEnabled = true,
+            hasAppLockPin = true,
+            isBiometricEnabled = false,
+            isScrambledPinKeypadEnabled = false,
+            isBlurInRecentsEnabled = true,
+            isScreenshotProtectionEnabled = false,
+            autoLockDurationMinutes = 5,
+            isAdsEnabled = false,
+            isEmailPasswordUser = true,
+            updatePasswordState = UpdatePasswordState.Idle,
+            onAppLockChange = {},
+            onBiometricChange = {},
+            onScrambledPinKeypadChange = {},
+            onBlurInRecentsChange = {},
+            onScreenshotProtectionChange = {},
+            onAutoLockDurationChange = {},
+            onBackClick = {},
+            onUpdatePassword = { _, _ -> },
+            onResetUpdatePasswordState = {}
+        )
     }
 }

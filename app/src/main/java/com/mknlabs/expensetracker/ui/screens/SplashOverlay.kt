@@ -50,12 +50,19 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.InitTask
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 private val SplashLogoSize = 132.dp
 
 @Composable
 fun SplashOverlay(viewModel: SplashViewModel) {
     val currentTask by viewModel.currentTask.collectAsState()
+    SplashOverlayContent(currentTask = currentTask)
+}
+
+@Composable
+private fun SplashOverlayContent(currentTask: InitTask) {
     val loadingProgress = remember { Animatable(0f) }
 
     LaunchedEffect(currentTask) {
@@ -225,5 +232,13 @@ fun SplashOverlay(viewModel: SplashViewModel) {
                 .padding(bottom = 24.dp),
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SplashOverlayPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        SplashOverlayContent(currentTask = InitTask.Start)
     }
 }

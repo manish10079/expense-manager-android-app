@@ -91,6 +91,31 @@ fun TransactionCardCustomizeScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
+    TransactionCardCustomizeContent(
+        settings = settings,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        dateFormatPattern = dateFormatPattern,
+        timeFormat = timeFormat,
+        previewTransactions = previewTransactions,
+        isAdsEnabled = isAdsEnabled,
+        onSettingsChange = onSettingsChange,
+        onBackClick = onBackClick
+    )
+}
+
+@Composable
+private fun TransactionCardCustomizeContent(
+    settings: TransactionCardCustomizationSettings,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    timeFormat: String,
+    previewTransactions: List<Transaction>,
+    isAdsEnabled: Boolean,
+    onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
+    onBackClick: () -> Unit
+) {
     // Local state — initialized once from settings, then owned locally.
     val isInPreview = LocalInspectionMode.current
     var localSettings by remember { mutableStateOf(settings) }
@@ -409,8 +434,16 @@ private fun PreviewTransactionCard(
 @Composable
 private fun TransactionCardCustomizeScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        TransactionCardCustomizeScreen(
-            settings = TransactionCardCustomizationSettings()
+        TransactionCardCustomizeContent(
+            settings = TransactionCardCustomizationSettings(),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            timeFormat = DEFAULT_TIME_FORMAT,
+            previewTransactions = transactionList.take(2),
+            isAdsEnabled = false,
+            onSettingsChange = {},
+            onBackClick = {}
         )
     }
 }

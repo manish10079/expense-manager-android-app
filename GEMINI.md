@@ -49,6 +49,7 @@ com.mkn0079.expensetracker/
 - Keep UI state immutable (use `data class` with `copy()`).
 - Use `collectAsStateWithLifecycle()` in Composables to observe state safely.
 - Follow the single-activity architecture; navigation is managed in `MainScreen.kt`.
+- **Route + Content Pattern:** Separate screen composables into a non-previewable Route (handles ViewModel injection, state collection, `LaunchedEffect` initialization, callbacks, and navigation) and a previewable Content composable (pure UI, no ViewModels, receives everything through parameters and callbacks, relies on realistic fake `PreviewData` for Compose Previews that compile without Hilt), for fake data to generate always ask user first to generate or not..
 
 ### 3. Data & Persistence
 - Use `Room` for structured data (Transactions, Categories, Budgets).
@@ -124,6 +125,7 @@ com.mkn0079.expensetracker/
 - No hardcoded colors in UI components (Mandatory use of `ui/theme/Color.kt` or `MaterialTheme.colorScheme`).
 - No hardcoded hex values in Composables.
 - No untested code or business logic in the UI layer.
+- No `hiltViewModel()`, `viewModel()`, or state collection (`collectAsState`/`collectAsStateWithLifecycle`) inside previewable UI/Content composables.
 
 ---
 **COPY THE ENTIRE CONTENT BELOW WHEN REQUESTING AI ASSISTANCE FOR EXPENSETRACKER**

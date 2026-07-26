@@ -108,6 +108,8 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
+import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
@@ -128,16 +130,6 @@ fun TransactionScreen(
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
-
-    var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-    val searchFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-    val lazyListState = rememberLazyListState()
-    var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
-    
-    val emptyTransactionMessages = stringArrayResource(R.array.empty_transaction_messages).toList()
 
     LaunchedEffect(
         transactions,
@@ -160,10 +152,73 @@ fun TransactionScreen(
     }
     val uiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
 
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
-    var showPeriodPicker by remember { mutableStateOf(false) }
-    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    TransactionScreenContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        onBackClick = onBackClick,
+        onAddTransactionClick = onAddTransactionClick,
+        onTransactionClick = onTransactionClick,
+        clearSelection = transactionsViewModel::clearSelection,
+        selectAll = transactionsViewModel::selectAll,
+        toggleSelection = transactionsViewModel::toggleSelection,
+        enterSelectionMode = transactionsViewModel::enterSelectionMode,
+        updateSearchQuery = transactionsViewModel::updateSearchQuery,
+        updatePeriodFilter = transactionsViewModel::updatePeriodFilter,
+        navigatePeriod = transactionsViewModel::navigatePeriod,
+        jumpToPeriod = transactionsViewModel::jumpToPeriod,
+        updateSort = transactionsViewModel::updateSort,
+        updateOrder = transactionsViewModel::updateOrder,
+        updateDateRange = transactionsViewModel::updateDateRange,
+        updateCustomDateRange = transactionsViewModel::updateCustomDateRange,
+        toggleTransactionTypeFilter = transactionsViewModel::toggleTransactionTypeFilter,
+        toggleCategory = transactionsViewModel::toggleCategory,
+        togglePaymentMode = transactionsViewModel::togglePaymentMode,
+        updateMinAmount = transactionsViewModel::updateMinAmount,
+        updateMaxAmount = transactionsViewModel::updateMaxAmount,
+        applyFilters = transactionsViewModel::applyFilters,
+        resetFilters = transactionsViewModel::resetFilters,
+        deleteSelectedTransactions = transactionsViewModel::deleteSelectedTransactions
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TransactionScreenContent(
+    uiState: TransactionsScreenUiState,
+    isAdsEnabled: Boolean,
+    onBackClick: () -> Unit,
+    onAddTransactionClick: () -> Unit,
+    onTransactionClick: (Transaction) -> Unit,
+    clearSelection: () -> Unit,
+    selectAll: () -> Unit,
+    toggleSelection: (String) -> Unit,
+    enterSelectionMode: (String) -> Unit,
+    updateSearchQuery: (String) -> Unit,
+    updatePeriodFilter: (TransactionPeriodFilter) -> Unit,
+    navigatePeriod: (Int) -> Unit,
+    jumpToPeriod: (Long) -> Unit,
+    updateSort: (String) -> Unit,
+    updateOrder: (SortType) -> Unit,
+    updateDateRange: (String?) -> Unit,
+    updateCustomDateRange: (Long?, Long?) -> Unit,
+    toggleTransactionTypeFilter: (Int) -> Unit,
+    toggleCategory: (Int) -> Unit,
+    togglePaymentMode: (Int) -> Unit,
+    updateMinAmount: (String) -> Unit,
+    updateMaxAmount: (String) -> Unit,
+    applyFilters: () -> Unit,
+    resetFilters: () -> Unit,
+    deleteSelectedTransactions: () -> Unit
+) {
+    var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val searchFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val lazyListState = rememberLazyListState()
+    var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
+    
+    val emptyTransactionMessages = stringArrayResource(R.array.empty_transaction_messages).toList()
 
     val emptyTransactionMessage = remember(
         uiState.selectedPeriodFilter,
@@ -177,8 +232,13 @@ fun TransactionScreen(
         emptyTransactionMessages.random()
     }
 
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
     BackHandler(enabled = uiState.isSelectionMode) {
-        transactionsViewModel.clearSelection()
+        clearSelection()
     }
 
     LaunchedEffect(isSearchExpanded) {
@@ -202,7 +262,7 @@ fun TransactionScreen(
                         if (!tappedInsideSearchBar) {
                             closeSearchBar(
                                 focusManager = focusManager,
-                                onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                onSearchQueryChange = updateSearchQuery,
                                 onSearchExpandedChange = { isSearchExpanded = it }
                             )
                         }
@@ -223,8 +283,8 @@ fun TransactionScreen(
                 if (isSelectionMode) {
                     SelectionHeader(
                         selectedCount = uiState.selectedTransactionIds.size,
-                        onCloseClick = { transactionsViewModel.clearSelection() },
-                        onSelectAllClick = { transactionsViewModel.selectAll() },
+                        onCloseClick = { clearSelection() },
+                        onSelectAllClick = { selectAll() },
                         onDeleteClick = { showDeleteConfirmation = true }
                     )
                 } else {
@@ -257,7 +317,7 @@ fun TransactionScreen(
                                 onClick = {
                                     closeSearchBar(
                                         focusManager = focusManager,
-                                        onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                        onSearchQueryChange = updateSearchQuery,
                                         onSearchExpandedChange = { isSearchExpanded = it }
                                     )
                                     showBottomSheet = true
@@ -283,7 +343,7 @@ fun TransactionScreen(
             ) {
                 OutlinedTextField(
                     value = uiState.searchQuery,
-                    onValueChange = transactionsViewModel::updateSearchQuery,
+                    onValueChange = updateSearchQuery,
                     placeholder = {
                         Text(
                             stringResource(R.string.label_search_placeholder),
@@ -331,7 +391,7 @@ fun TransactionScreen(
                                 onClick = {
                                     closeSearchBar(
                                         focusManager = focusManager,
-                                        onSearchQueryChange = transactionsViewModel::updateSearchQuery,
+                                        onSearchQueryChange = updateSearchQuery,
                                         onSearchExpandedChange = { isSearchExpanded = it }
                                     )
                                 }
@@ -369,14 +429,14 @@ fun TransactionScreen(
                 canNavigateForward = uiState.canNavigateForward,
                 onMenuExpandedChange = { isPeriodMenuExpanded = it },
                 onFilterSelected = { filter ->
-                    transactionsViewModel.updatePeriodFilter(filter)
+                    updatePeriodFilter(filter)
                     isPeriodMenuExpanded = false
                 },
                 onPreviousClick = {
-                    transactionsViewModel.navigatePeriod(-1)
+                    navigatePeriod(-1)
                 },
                 onNextClick = {
-                    transactionsViewModel.navigatePeriod(1)
+                    navigatePeriod(1)
                 },
                 // Only enable label tap for Daily/Monthly/Yearly, not All
                 onLabelClick = when (uiState.selectedPeriodFilter) {
@@ -398,7 +458,7 @@ fun TransactionScreen(
                     initialStartMillis = uiState.focusedPeriodTimestamp,
                     onDismissRequest = { showPeriodPicker = false },
                     onConfirm = { millis, _ ->
-                        transactionsViewModel.jumpToPeriod(millis)
+                        jumpToPeriod(millis)
                         showPeriodPicker = false
                     }
                 )
@@ -509,14 +569,14 @@ fun TransactionScreen(
                                         selectionMode = uiState.isSelectionMode,
                                         onClick = {
                                             if (uiState.isSelectionMode) {
-                                                transactionsViewModel.toggleSelection(card.id)
+                                                toggleSelection(card.id)
                                             } else {
                                                 onTransactionClick(card.transaction)
                                             }
                                         },
                                         onLongClick = {
                                             if (!uiState.isSelectionMode) {
-                                                transactionsViewModel.enterSelectionMode(card.id)
+                                                enterSelectionMode(card.id)
                                             }
                                         }
                                     )
@@ -571,32 +631,24 @@ fun TransactionScreen(
                     selectedPaymentTypeIds = uiState.selectedPaymentTypeIds,
                     minAmount = uiState.selectedMinAmount,
                     maxAmount = uiState.selectedMaxAmount,
-                    onSortChange = { transactionsViewModel.updateSort(it) },
-                    onOrderChange = { transactionsViewModel.updateOrder(it) },
-                    onDateRangeChange = { transactionsViewModel.updateDateRange(it) },
-                    onCustomDateRangeChange = { start, end ->
-                            transactionsViewModel.updateCustomDateRange(start, end)
-                        },
-                    onTransactionTypeToggle = {
-                        transactionsViewModel.toggleTransactionTypeFilter(it)
-                    },
-                    onCategoryToggle = { categoryId ->
-                        transactionsViewModel.toggleCategory(categoryId)
-                    },
-                    onPaymentModeToggle = { paymentTypeId ->
-                        transactionsViewModel.togglePaymentMode(paymentTypeId)
-                    },
-                    onMinAmountChange = { transactionsViewModel.updateMinAmount(it) },
-                    onMaxAmountChange = { transactionsViewModel.updateMaxAmount(it) },
+                    onSortChange = updateSort,
+                    onOrderChange = updateOrder,
+                    onDateRangeChange = updateDateRange,
+                    onCustomDateRangeChange = updateCustomDateRange,
+                    onTransactionTypeToggle = toggleTransactionTypeFilter,
+                    onCategoryToggle = toggleCategory,
+                    onPaymentModeToggle = togglePaymentMode,
+                    onMinAmountChange = updateMinAmount,
+                    onMaxAmountChange = updateMaxAmount,
                     onApply = {
-                        transactionsViewModel.applyFilters()
+                        applyFilters()
                         scope.launch {
                             sheetState.hide()
                             showBottomSheet = false
                         }
                     },
                     onReset = {
-                        transactionsViewModel.resetFilters()
+                        resetFilters()
                         scope.launch {
                             sheetState.hide()
                             showBottomSheet = false
@@ -623,7 +675,7 @@ fun TransactionScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        transactionsViewModel.deleteSelectedTransactions()
+                        deleteSelectedTransactions()
                         showDeleteConfirmation = false
                     }
                 ) {

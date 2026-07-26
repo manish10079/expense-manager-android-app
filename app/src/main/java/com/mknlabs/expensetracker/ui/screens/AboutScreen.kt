@@ -74,7 +74,6 @@ fun AboutScreen(
     onPrepareForExternalActivity: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
@@ -99,6 +98,24 @@ fun AboutScreen(
             // Handle error
         }
     }
+
+    AboutScreenContent(
+        isAdsEnabled = isAdsEnabled,
+        onBackClick = onBackClick,
+        onOpenUrl = openUrl,
+        onSendEmail = sendEmail
+    )
+}
+
+@Composable
+private fun AboutScreenContent(
+    isAdsEnabled: Boolean,
+    onBackClick: () -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onSendEmail: (String) -> Unit
+) {
+    val scrollState = rememberScrollState()
+    val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
 
     Column(
         modifier = Modifier
@@ -170,7 +187,7 @@ fun AboutScreen(
             DeveloperCard(
                 name = "Manish Kumar Nayak",
                 email = "mknlabs.dev@gmail.com",
-                onEmailClick = { sendEmail("mknlabs.dev@gmail.com") }
+                onEmailClick = { onSendEmail("mknlabs.dev@gmail.com") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -193,7 +210,7 @@ fun AboutScreen(
                 AboutActionItem(
                     icon = Icons.Filled.Email,
                     title = stringResource(R.string.title_send_feedback),
-                    onClick = { sendEmail("mknlabs.dev@gmail.com") }
+                    onClick = { onSendEmail("mknlabs.dev@gmail.com") }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.BugReport,
@@ -206,17 +223,16 @@ fun AboutScreen(
 
             // Legal Section
             AboutSectionHeader(title = stringResource(R.string.title_legal))
-            val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
             SupportLegalSection {
                 AboutActionItem(
                     icon = Icons.Filled.Lock,
                     title = stringResource(R.string.title_privacy_policy),
-                    onClick = { openUrl(privacyPolicyUrl) }
+                    onClick = { onOpenUrl(privacyPolicyUrl) }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Description,
                     title = stringResource(R.string.title_terms_conditions),
-                    onClick = { openUrl("https://expense-tracker-2ea00.web.app/") }
+                    onClick = { onOpenUrl("https://expense-tracker-2ea00.web.app/") }
                 )
                 AboutActionItem(
                     icon = Icons.AutoMirrored.Filled.ListAlt,
@@ -237,19 +253,19 @@ fun AboutScreen(
                 SocialButton(
                     icon = Icons.Filled.Public,
                     label = stringResource(R.string.label_website),
-                    onClick = { openUrl("https://expense-tracker-2ea00.web.app/") }
+                    onClick = { onOpenUrl("https://expense-tracker-2ea00.web.app/") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
                     icon = Icons.Filled.Code,
                     label = stringResource(R.string.label_github),
-                    onClick = { openUrl("https://github.com/manish10079") }
+                    onClick = { onOpenUrl("https://github.com/manish10079") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
                     icon = Icons.Filled.Work,
                     label = stringResource(R.string.label_linkedin),
-                    onClick = { openUrl("https://linkedin.com/in/manishkumar10079") }
+                    onClick = { onOpenUrl("https://linkedin.com/in/manishkumar10079") }
                 )
             }
 
@@ -454,7 +470,12 @@ private fun SocialButton(
 @Composable
 fun AboutScreenPreviewLight() {
     ExpenseTrackerTheme(darkTheme = false) {
-        AboutScreen(onBackClick = {})
+        AboutScreenContent(
+            isAdsEnabled = true,
+            onBackClick = {},
+            onOpenUrl = {},
+            onSendEmail = {}
+        )
     }
 }
 
@@ -462,6 +483,11 @@ fun AboutScreenPreviewLight() {
 @Composable
 fun AboutScreenPreviewDark() {
     ExpenseTrackerTheme(darkTheme = true) {
-        AboutScreen(onBackClick = {})
+        AboutScreenContent(
+            isAdsEnabled = false,
+            onBackClick = {},
+            onOpenUrl = {},
+            onSendEmail = {}
+        )
     }
 }

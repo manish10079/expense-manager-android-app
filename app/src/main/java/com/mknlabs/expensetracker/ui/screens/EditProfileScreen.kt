@@ -81,14 +81,39 @@ fun ProfileScreen(
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
 
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val dbCountryCodes by profileViewModel.countryCodes.collectAsStateWithLifecycle()
+
+    ProfileScreenContent(
+        userProfile = userProfile,
+        dateFormatPattern = dateFormatPattern,
+        isAdsEnabled = isAdsEnabled,
+        userTier = userTier,
+        dbCountryCodes = dbCountryCodes,
+        onBackClick = onBackClick,
+        onSaveClick = onSaveClick,
+        onPrepareForExternalActivity = onPrepareForExternalActivity
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProfileScreenContent(
+    userProfile: UserProfile,
+    dateFormatPattern: String,
+    isAdsEnabled: Boolean,
+    userTier: UserTier,
+    dbCountryCodes: List<com.mknlabs.expensetracker.models.CountryCode>,
+    onBackClick: () -> Unit,
+    onSaveClick: (UserProfile) -> Unit,
+    onPrepareForExternalActivity: () -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val initialPhotoUri = userProfile.photoUri
     val selectGenderPlaceholder = stringResource(id = R.string.placeholder_select_gender)
     val guestUserPlaceholder = stringResource(id = R.string.placeholder_guest_user)
     val unableToLoadMsg = stringResource(id = R.string.msg_unable_to_load_photo)
-    val profileViewModel: ProfileViewModel = hiltViewModel()
-    val dbCountryCodes by profileViewModel.countryCodes.collectAsStateWithLifecycle()
 
     var selectedCountryCode by rememberSaveable { mutableStateOf("+91") }
     var localPhoneNumber by rememberSaveable { mutableStateOf("") }
@@ -533,8 +558,15 @@ private fun String.avatarLetters(): String {
 @Composable
 private fun ProfileScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        ProfileScreen(
-            userProfile = defaultUserProfile
+        ProfileScreenContent(
+            userProfile = defaultUserProfile,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            isAdsEnabled = true,
+            userTier = UserTier.PREMIUM,
+            dbCountryCodes = emptyList(),
+            onBackClick = {},
+            onSaveClick = {},
+            onPrepareForExternalActivity = {}
         )
     }
 }

@@ -38,6 +38,8 @@ import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @Composable
 fun NotificationSettingsScreen(
@@ -49,9 +51,33 @@ fun NotificationSettingsScreen(
     onMissedEntryReminderChange: (Boolean) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+
+    NotificationSettingsContent(
+        isDailyReminderEnabled = isDailyReminderEnabled,
+        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+        isAdsEnabled = isAdsEnabled,
+        onDailyReminderChange = onDailyReminderChange,
+        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+        onMissedEntryReminderChange = onMissedEntryReminderChange,
+        onBackClick = onBackClick
+    )
+}
+
+@Composable
+private fun NotificationSettingsContent(
+    isDailyReminderEnabled: Boolean,
+    isBudgetLimitAlertsEnabled: Boolean,
+    isMissedEntryReminderEnabled: Boolean,
+    isAdsEnabled: Boolean,
+    onDailyReminderChange: (Boolean) -> Unit,
+    onBudgetLimitAlertsChange: (Boolean) -> Unit,
+    onMissedEntryReminderChange: (Boolean) -> Unit,
+    onBackClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -115,5 +141,19 @@ fun NotificationSettingsScreen(
     }
 }
 
-
-
+@Preview(showBackground = true)
+@Composable
+private fun NotificationSettingsScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        NotificationSettingsContent(
+            isDailyReminderEnabled = true,
+            isBudgetLimitAlertsEnabled = false,
+            isMissedEntryReminderEnabled = true,
+            isAdsEnabled = false,
+            onDailyReminderChange = {},
+            onBudgetLimitAlertsChange = {},
+            onMissedEntryReminderChange = {},
+            onBackClick = {}
+        )
+    }
+}

@@ -52,6 +52,32 @@ fun AddCategoryScreen(
     onCategoryCreated: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    AddCategoryScreenContent(
+        uiState = uiState,
+        existingCategories = existingCategories,
+        existingPaymentMethods = existingPaymentMethods,
+        onBackClick = onBackClick,
+        onCategoryCreated = onCategoryCreated,
+        onNameChange = viewModel::onNameChange,
+        onIconSearchQueryChange = viewModel::onIconSearchQueryChange,
+        onIconSelected = viewModel::onIconSelected,
+        onSaveCategory = { viewModel.saveCategory(onCategoryCreated) }
+    )
+}
+
+@Composable
+private fun AddCategoryScreenContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.AddCategoryUiState,
+    existingCategories: List<CategoryType>,
+    existingPaymentMethods: List<PaymentType>,
+    onBackClick: () -> Unit,
+    onCategoryCreated: () -> Unit,
+    onNameChange: (String) -> Unit,
+    onIconSearchQueryChange: (String) -> Unit,
+    onIconSelected: (String) -> Unit,
+    onSaveCategory: () -> Unit
+) {
     val targetTab = uiState.targetTab
 
     val existingNamesForTarget = remember(targetTab, existingCategories, existingPaymentMethods) {
@@ -124,7 +150,7 @@ fun AddCategoryScreen(
                 
                 OutlinedTextField(
                     value = uiState.name,
-                    onValueChange = viewModel::onNameChange,
+                    onValueChange = onNameChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     placeholder = {
@@ -187,7 +213,7 @@ fun AddCategoryScreen(
 
                 OutlinedTextField(
                     value = uiState.iconSearchQuery,
-                    onValueChange = viewModel::onIconSearchQueryChange,
+                    onValueChange = onIconSearchQueryChange,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
                         Text(
@@ -204,7 +230,7 @@ fun AddCategoryScreen(
                     },
                     trailingIcon = {
                         if (uiState.iconSearchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.onIconSearchQueryChange("") }) {
+                            IconButton(onClick = { onIconSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = stringResource(R.string.label_delete),
@@ -234,7 +260,7 @@ fun AddCategoryScreen(
                             IconSelectionItem(
                                 option = option,
                                 selected = option.id == uiState.selectedIconId,
-                                onClick = { viewModel.onIconSelected(option.id) }
+                                onClick = { onIconSelected(option.id) }
                             )
                         }
                     }
@@ -289,7 +315,7 @@ fun AddCategoryScreen(
             }
 
             Button(
-                onClick = { viewModel.saveCategory(onCategoryCreated) },
+                onClick = onSaveCategory,
                 enabled = canCreate,
                 modifier = Modifier
                     .weight(1.5f)
@@ -441,3 +467,23 @@ private fun IconSelectionItem(
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun AddCategoryScreenContentPreview() {
+    com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme {
+        AddCategoryScreenContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.AddCategoryUiState(),
+            existingCategories = emptyList(),
+            existingPaymentMethods = emptyList(),
+            onBackClick = {},
+            onCategoryCreated = {},
+            onNameChange = {},
+            onIconSearchQueryChange = {},
+            onIconSelected = {},
+            onSaveCategory = {}
+        )
+    }
+}
+
+

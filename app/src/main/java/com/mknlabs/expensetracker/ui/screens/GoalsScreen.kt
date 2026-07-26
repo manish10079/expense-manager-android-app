@@ -40,6 +40,8 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +52,29 @@ fun GoalsScreen(
     viewModel: GoalsViewModel = hiltViewModel()
 ) {
     val goals by viewModel.goals.collectAsStateWithLifecycle()
+
+    GoalsScreenContent(
+        goals = goals,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        onBackClick = onBackClick,
+        onAddGoal = { name, amount -> viewModel.addGoal(name, amount) },
+        onFundGoal = { id, amount -> viewModel.fundGoal(id, amount) },
+        onDeleteGoal = { viewModel.deleteGoal(it.id) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GoalsScreenContent(
+    goals: List<Goal>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    onBackClick: () -> Unit,
+    onAddGoal: (String, Double) -> Unit,
+    onFundGoal: (String, Double) -> Unit,
+    onDeleteGoal: (Goal) -> Unit
+) {
     var isAddGoalDialogVisible by rememberSaveable { mutableStateOf(false) }
     var fundingGoalId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteGoal by remember { mutableStateOf<Goal?>(null) }
@@ -129,7 +154,7 @@ fun GoalsScreen(
             amountFormatPreferences = amountFormatPreferences,
             onDismiss = { isAddGoalDialogVisible = false },
             onSave = { name, amount ->
-                viewModel.addGoal(name, amount)
+                onAddGoal(name, amount)
                 isAddGoalDialogVisible = false
             }
         )
@@ -141,7 +166,7 @@ fun GoalsScreen(
             amountFormatPreferences = amountFormatPreferences,
             onDismiss = { fundingGoalId = null },
             onSave = { amount ->
-                viewModel.fundGoal(id, amount)
+                onFundGoal(id, amount)
                 fundingGoalId = null
             }
         )
@@ -152,7 +177,7 @@ fun GoalsScreen(
             goalName = goal.name,
             onDismiss = { pendingDeleteGoal = null },
             onConfirm = {
-                viewModel.deleteGoal(goal.id)
+                onDeleteGoal(goal)
                 pendingDeleteGoal = null
             }
         )
@@ -436,6 +461,47 @@ private fun GoalCardAction(
             contentDescription = contentDescription,
             tint = accent,
             modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GoalsScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        GoalsScreenContent(
+            goals = listOf(
+                Goal(
+                    id = "1",
+                    name = "New Car",
+                    targetAmountMinor = 2500000,
+                    currentAmountMinor = 500000,
+                    deadlineAt = null,
+                    iconKey = "savings",
+                    colorHex = "#7B61FF",
+                    isCompleted = false,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                ),
+                Goal(
+                    id = "2",
+                    name = "Emergency Fund",
+                    targetAmountMinor = 1000000,
+                    currentAmountMinor = 800000,
+                    deadlineAt = null,
+                    iconKey = "savings",
+                    colorHex = "#7B61FF",
+                    isCompleted = false,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+            ),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            onBackClick = {},
+            onAddGoal = { _, _ -> },
+            onFundGoal = { _, _ -> },
+            onDeleteGoal = {}
         )
     }
 }

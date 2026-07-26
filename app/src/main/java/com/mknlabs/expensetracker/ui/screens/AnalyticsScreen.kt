@@ -105,6 +105,48 @@ fun AnalyticsScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
+    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
+        analyticsViewModel.updateInputs(
+            transactions = transactions,
+            categories = categories,
+            paymentTypes = paymentMethods,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences
+        )
+    }
+    val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()
+
+    AnalyticsScreenContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        transactions = transactions,
+        categories = categories,
+        paymentMethods = paymentMethods,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        dateFormatPattern = dateFormatPattern,
+        onBackClick = onBackClick,
+        onDateRangeSelected = { analyticsViewModel.selectPeriod(it) },
+        onCustomRangeApplied = { start, end -> analyticsViewModel.applyCustomRange(start, end) },
+        onClearCustomRange = analyticsViewModel::clearCustomRange
+    )
+}
+
+@Composable
+private fun AnalyticsScreenContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState,
+    isAdsEnabled: Boolean,
+    transactions: List<Transaction>,
+    categories: List<CategoryType>,
+    paymentMethods: List<PaymentType>,
+    currencyId: Int,
+    amountFormatPreferences: com.mknlabs.expensetracker.models.AmountFormatPreferences,
+    dateFormatPattern: String,
+    onBackClick: () -> Unit,
+    onDateRangeSelected: (com.mknlabs.expensetracker.ui.viewmodels.AnalyticsPeriod) -> Unit,
+    onCustomRangeApplied: (Long, Long) -> Unit,
+    onClearCustomRange: () -> Unit
+) {
     var isCustomRangePickerVisible by rememberSaveable { mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
     var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -116,16 +158,6 @@ fun AnalyticsScreen(
     var selectedFilterLabel by rememberSaveable { mutableStateOf("") }
     var filterByPayment by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
-        analyticsViewModel.updateInputs(
-            transactions = transactions,
-            categories = categories,
-            paymentTypes = paymentMethods,
-            currencyId = currencyId,
-            amountFormatPreferences = amountFormatPreferences
-        )
-    }
-    val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()
     val filteredTransactions = remember(selectedFilterId, uiState.activeRange, filterByPayment, transactions) {
         if (selectedFilterId == null) emptyList()
         else {
@@ -165,7 +197,7 @@ fun AnalyticsScreen(
                 GatedAction(
                     feature = Feature.ANALYTICS_PERIOD_YEAR,
                     displayName = stringResource(id = R.string.title_yearly_analytics),
-                    onAction = { analyticsViewModel.selectPeriod(AnalyticsPeriod.YEAR) }
+                    onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
                 ) { status, onLockedClick ->
                     val isYearLocked = status !is AccessStatus.Granted
 
@@ -180,7 +212,7 @@ fun AnalyticsScreen(
                         },
                         selectedItemId = uiState.selectedPeriod,
                         onItemSelected = { period ->
-                            analyticsViewModel.selectPeriod(period)
+                            onDateRangeSelected(period)
                         }
                     )
                 }
@@ -192,7 +224,7 @@ fun AnalyticsScreen(
                     onClick = {
                         isCustomRangePickerVisible = true
                     },
-                    onClear = analyticsViewModel::clearCustomRange
+                    onClear = onClearCustomRange
                 )
             }
             item { 
@@ -327,10 +359,7 @@ fun AnalyticsScreen(
             initialEndMillis = uiState.customRangeEnd,
             onDismissRequest = { isCustomRangePickerVisible = false },
             onConfirm = { pickedStart, pickedEnd ->
-                analyticsViewModel.applyCustomRange(
-                    startMillis = pickedStart,
-                    endMillis = pickedEnd ?: pickedStart
-                )
+                onCustomRangeApplied(pickedStart, pickedEnd ?: pickedStart)
                 isCustomRangePickerVisible = false
             }
         )
@@ -2041,6 +2070,19 @@ private fun resolveChartLabel(label: ChartLabelUi): String {
 @Composable
 private fun AnalyticsScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        AnalyticsScreen(dateFormatPattern = stringResource(id = R.string.date_pattern_full_short))
+        AnalyticsScreenContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState(),
+            isAdsEnabled = true,
+            transactions = emptyList(),
+            categories = emptyList(),
+            paymentMethods = emptyList(),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            dateFormatPattern = "dd MMM yyyy",
+            onBackClick = {},
+            onDateRangeSelected = {},
+            onCustomRangeApplied = { _, _ -> },
+            onClearCustomRange = {}
+        )
     }
 }

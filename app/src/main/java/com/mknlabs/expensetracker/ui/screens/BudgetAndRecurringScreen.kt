@@ -140,14 +140,6 @@ fun BudgetAndRecurringScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
-    var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
-    var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
-    var budgetEditorSessionKey by rememberSaveable { mutableStateOf(0L) }
-    var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
-    var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
-    var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
-
     LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules) {
         budgetViewModel.updateInputs(
             transactions = transactions,
@@ -159,14 +151,61 @@ fun BudgetAndRecurringScreen(
     }
 
     val uiState by budgetViewModel.uiState.collectAsStateWithLifecycle()
-    
+
+    BudgetAndRecurringContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        availableCategories = availableCategories,
+        transactions = transactions,
+        onDeleteRecurring = onDeleteRecurring,
+        onRecurringEnabledChange = onRecurringEnabledChange,
+        onUpdateRecurringRule = onUpdateRecurringRule,
+        onBackClick = onBackClick,
+        onSelectTab = { budgetViewModel.selectTab(it) },
+        onSelectPeriod = { budgetViewModel.selectPeriod(it) },
+        onSelectCustomMonth = { budgetViewModel.selectCustomMonth(it) },
+        onUpdateBudget = { budgetId, categoryId, limit -> budgetViewModel.updateBudget(budgetId, categoryId, limit) },
+        onAddBudget = { categoryId, limit -> budgetViewModel.addBudget(categoryId, limit) },
+        onDeleteBudget = { budgetId -> budgetViewModel.deleteBudget(budgetId) }
+    )
+}
+
+@Composable
+private fun BudgetAndRecurringContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringScreenUiState,
+    isAdsEnabled: Boolean,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    availableCategories: List<CategoryType>,
+    transactions: List<Transaction>,
+    onDeleteRecurring: (String) -> Unit,
+    onRecurringEnabledChange: (String, Boolean) -> Unit,
+    onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
+    onBackClick: () -> Unit,
+    onSelectTab: (BudgetTab) -> Unit,
+    onSelectPeriod: (BudgetPeriodFilter) -> Unit,
+    onSelectCustomMonth: (Long) -> Unit,
+    onUpdateBudget: (String, Int, Double) -> Unit,
+    onAddBudget: (Int, Double) -> Unit,
+    onDeleteBudget: (String) -> Unit
+) {
+    var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
+    var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var budgetEditorSessionKey by rememberSaveable { mutableStateOf(0L) }
+    var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
+
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
         val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Recurring
         if (uiState.selectedTab != tab) {
-            budgetViewModel.selectTab(tab)
+            onSelectTab(tab)
         }
     }
 
@@ -216,7 +255,7 @@ fun BudgetAndRecurringScreen(
             Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
                 BudgetTabRow(
                     selectedTab = uiState.selectedTab,
-                    onTabSelected = { budgetViewModel.selectTab(it) }
+                    onTabSelected = onSelectTab
                 )
             }
 
@@ -248,7 +287,7 @@ fun BudgetAndRecurringScreen(
                                         if (period == BudgetPeriodFilter.CustomMonth) {
                                             onCustomMonthClick()
                                         } else {
-                                            budgetViewModel.selectPeriod(period)
+                                            onSelectPeriod(period)
                                         }
                                     }
                                 )
@@ -365,7 +404,7 @@ fun BudgetAndRecurringScreen(
                     referenceTimestamp = uiState.customMonthStart,
                     isInputUtc = false
                 )
-                budgetViewModel.selectCustomMonth(adjustedTimestamp)
+                onSelectCustomMonth(adjustedTimestamp)
                 isMonthPickerVisible = false
             }
         )
@@ -385,16 +424,9 @@ fun BudgetAndRecurringScreen(
             },
             onSave = { categoryId, limitAmount ->
                 if (editingBudget != null) {
-                    budgetViewModel.updateBudget(
-                        budgetId = editingBudget.id,
-                        categoryId = categoryId,
-                        limitAmount = limitAmount
-                    )
+                    onUpdateBudget(editingBudget.id, categoryId, limitAmount)
                 } else {
-                    budgetViewModel.addBudget(
-                        categoryId = categoryId,
-                        limitAmount = limitAmount
-                    )
+                    onAddBudget(categoryId, limitAmount)
                 }
                 isBudgetEditorVisible = false
                 editingBudgetId = null
@@ -407,7 +439,7 @@ fun BudgetAndRecurringScreen(
             budgetName = pendingDeleteBudget.title,
             onDismiss = { pendingDeleteBudgetId = null },
             onConfirm = {
-                budgetViewModel.deleteBudget(pendingDeleteBudget.id)
+                onDeleteBudget(pendingDeleteBudget.id)
                 pendingDeleteBudgetId = null
             }
         )
@@ -1745,7 +1777,24 @@ private fun InsightCard(
 @Composable
 private fun BudgetAndRecurringScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        BudgetAndRecurringScreen()
+        BudgetAndRecurringContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringScreenUiState(),
+            isAdsEnabled = true,
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            availableCategories = emptyList(),
+            transactions = emptyList(),
+            onDeleteRecurring = {},
+            onRecurringEnabledChange = { _, _ -> },
+            onUpdateRecurringRule = { _, _, _ -> },
+            onBackClick = {},
+            onSelectTab = {},
+            onSelectPeriod = {},
+            onSelectCustomMonth = {},
+            onUpdateBudget = { _, _, _ -> },
+            onAddBudget = { _, _ -> },
+            onDeleteBudget = {}
+        )
     }
 }
 

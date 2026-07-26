@@ -33,6 +33,8 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.viewmodels.ConnectedDevicesUiState
 import com.mknlabs.expensetracker.ui.viewmodels.ConnectedDevicesViewModel
 import com.mknlabs.expensetracker.utils.formatDate
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @Composable
 fun ConnectedDevicesScreen(
@@ -47,6 +49,48 @@ fun ConnectedDevicesScreen(
     val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    ConnectedDevicesContent(
+        userTier = userTier,
+        uiState = uiState,
+        isSyncing = isSyncing,
+        isSyncEnabled = isSyncEnabled,
+        onSyncEnabledChange = onSyncEnabledChange,
+        onBackClick = onBackClick,
+        onUpgradeClick = onUpgradeClick,
+        onForceSyncClick = {
+            viewModel.forceSync { result ->
+                if (result.isSuccess) {
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_force_sync_success),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val errorMsg = result.exceptionOrNull()?.message ?: "Unknown error"
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_force_sync_failed, errorMsg),
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        },
+        onUnlink = { viewModel.unregisterDevice(it) }
+    )
+}
+
+@Composable
+private fun ConnectedDevicesContent(
+    userTier: UserTier,
+    uiState: ConnectedDevicesUiState,
+    isSyncing: Boolean,
+    isSyncEnabled: Boolean,
+    onSyncEnabledChange: (Boolean) -> Unit,
+    onBackClick: () -> Unit,
+    onUpgradeClick: () -> Unit,
+    onForceSyncClick: () -> Unit,
+    onUnlink: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +107,7 @@ fun ConnectedDevicesScreen(
         if (userTier != UserTier.PREMIUM) {
             SyncTeaseContent(onUpgradeClick)
         } else {
-            when (val state = uiState) {
+            when (uiState) {
                 is ConnectedDevicesUiState.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
@@ -71,35 +115,18 @@ fun ConnectedDevicesScreen(
                 }
                 is ConnectedDevicesUiState.Success -> {
                     DeviceListContent(
-                        devices = state.devices,
-                        maxDevices = state.maxDevices,
+                        devices = uiState.devices,
+                        maxDevices = uiState.maxDevices,
                         isSyncEnabled = isSyncEnabled,
                         onSyncEnabledChange = onSyncEnabledChange,
                         isSyncing = isSyncing,
-                        onForceSyncClick = {
-                            viewModel.forceSync { result ->
-                                if (result.isSuccess) {
-                                    android.widget.Toast.makeText(
-                                        context,
-                                        context.getString(R.string.toast_force_sync_success),
-                                        android.widget.Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    val errorMsg = result.exceptionOrNull()?.message ?: "Unknown error"
-                                    android.widget.Toast.makeText(
-                                        context,
-                                        context.getString(R.string.toast_force_sync_failed, errorMsg),
-                                        android.widget.Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-                        },
-                        onUnlink = viewModel::unregisterDevice
+                        onForceSyncClick = onForceSyncClick,
+                        onUnlink = onUnlink
                     )
                 }
                 is ConnectedDevicesUiState.Error -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(state.message, color = MaterialTheme.colorScheme.error)
+                        Text(uiState.message, color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -494,5 +521,23 @@ private fun DeviceItem(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ConnectedDevicesScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        ConnectedDevicesContent(
+            userTier = UserTier.PREMIUM,
+            uiState = ConnectedDevicesUiState.Success(devices = emptyList(), maxDevices = 5),
+            isSyncing = false,
+            isSyncEnabled = true,
+            onSyncEnabledChange = {},
+            onBackClick = {},
+            onUpgradeClick = {},
+            onForceSyncClick = {},
+            onUnlink = {}
+        )
     }
 }

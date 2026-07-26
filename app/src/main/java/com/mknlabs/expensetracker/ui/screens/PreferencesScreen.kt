@@ -38,6 +38,8 @@ import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +52,42 @@ fun PreferencesScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
+    PreferencesScreenContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        onManageCategoryClick = onManageCategoryClick,
+        onBackClick = onBackClick,
+        showSheet = { preferencesViewModel.showSheet(it) },
+        selectCurrency = { preferencesViewModel.selectCurrency(it) },
+        clearCurrencySearchQuery = { preferencesViewModel.clearCurrencySearchQuery() },
+        dismissSheet = { preferencesViewModel.dismissSheet() },
+        updateCurrencySearchQuery = { preferencesViewModel.updateCurrencySearchQuery(it) },
+        selectThemeMode = { preferencesViewModel.selectThemeMode(it) },
+        selectDateFormat = { preferencesViewModel.selectDateFormat(it) },
+        selectTimeFormat = { preferencesViewModel.selectTimeFormat(it) },
+        selectGroupingStyle = { preferencesViewModel.selectGroupingStyle(it) },
+        selectDecimalPlaces = { preferencesViewModel.selectDecimalPlaces(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PreferencesScreenContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.PreferencesScreenUiState,
+    isAdsEnabled: Boolean,
+    onManageCategoryClick: () -> Unit,
+    onBackClick: () -> Unit,
+    showSheet: (PreferencesSheetType) -> Unit,
+    selectCurrency: (Int) -> Unit,
+    clearCurrencySearchQuery: () -> Unit,
+    dismissSheet: () -> Unit,
+    updateCurrencySearchQuery: (String) -> Unit,
+    selectThemeMode: (com.mknlabs.expensetracker.models.AppThemeMode) -> Unit,
+    selectDateFormat: (String) -> Unit,
+    selectTimeFormat: (String) -> Unit,
+    selectGroupingStyle: (com.mknlabs.expensetracker.models.CurrencyGroupingStyle) -> Unit,
+    selectDecimalPlaces: (Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +127,7 @@ fun PreferencesScreen(
                             },
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.Currency) }
+                            onClick = { showSheet(PreferencesSheetType.Currency) }
                         )
                         SettingsGroupDivider()
                         SettingsItemCard(
@@ -99,7 +137,7 @@ fun PreferencesScreen(
                             valueText = uiState.currentDecimalPlacesLabel,
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DecimalPlaces) }
+                            onClick = { showSheet(PreferencesSheetType.DecimalPlaces) }
                         )
                         SettingsGroupDivider()
                         SettingsItemCard(
@@ -109,7 +147,7 @@ fun PreferencesScreen(
                             valueText = stringResource(uiState.currentGroupingLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.NumberFormat) }
+                            onClick = { showSheet(PreferencesSheetType.NumberFormat) }
                         )
                     }
                 }
@@ -124,7 +162,7 @@ fun PreferencesScreen(
                             valueText = uiState.currentDateFormatLabel,
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.DateFormat) }
+                            onClick = { showSheet(PreferencesSheetType.DateFormat) }
                         )
                         SettingsGroupDivider()
                         SettingsItemCard(
@@ -134,7 +172,7 @@ fun PreferencesScreen(
                             valueText = stringResource(uiState.currentTimeFormatLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.TimeFormat) }
+                            onClick = { showSheet(PreferencesSheetType.TimeFormat) }
                         )
                     }
                 }
@@ -149,7 +187,7 @@ fun PreferencesScreen(
                             valueText = stringResource(uiState.currentThemeModeLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
-                            onClick = { preferencesViewModel.showSheet(PreferencesSheetType.ThemeMode) }
+                            onClick = { showSheet(PreferencesSheetType.ThemeMode) }
                         )
                     }
                 }
@@ -183,14 +221,14 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_search_by_country_and_pick_the),
                     items = currencyItems,
                     selectedId = uiState.selectedCurrencyId,
-                    onItemSelected = { preferencesViewModel.selectCurrency(it) },
+                    onItemSelected = { selectCurrency(it) },
                     onDismiss = {
-                        preferencesViewModel.clearCurrencySearchQuery()
-                        preferencesViewModel.dismissSheet()
+                        clearCurrencySearchQuery()
+                        dismissSheet()
                     },
                     showSearch = true,
                     searchQuery = uiState.currencySearchQuery,
-                    onSearchQueryChange = preferencesViewModel::updateCurrencySearchQuery,
+                    onSearchQueryChange = updateCurrencySearchQuery,
                     searchPlaceholder = stringResource(R.string.label_search_country)
                 )
             }
@@ -213,8 +251,8 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_theme_selection_desc),
                     items = themeItems,
                     selectedId = uiState.selectedThemeMode,
-                    onItemSelected = { preferencesViewModel.selectThemeMode(it) },
-                    onDismiss = preferencesViewModel::dismissSheet
+                    onItemSelected = { selectThemeMode(it) },
+                    onDismiss = dismissSheet
                 )
             }
 
@@ -234,8 +272,8 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_choose_the_date_style_you_want),
                     items = dateItems,
                     selectedId = uiState.selectedDateFormatPattern,
-                    onItemSelected = { preferencesViewModel.selectDateFormat(it) },
-                    onDismiss = preferencesViewModel::dismissSheet
+                    onItemSelected = { selectDateFormat(it) },
+                    onDismiss = dismissSheet
                 )
             }
 
@@ -256,8 +294,8 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_choose_whether_time_is_shown_i),
                     items = timeItems,
                     selectedId = uiState.selectedTimeFormat,
-                    onItemSelected = { preferencesViewModel.selectTimeFormat(it) },
-                    onDismiss = preferencesViewModel::dismissSheet
+                    onItemSelected = { selectTimeFormat(it) },
+                    onDismiss = dismissSheet
                 )
             }
 
@@ -278,8 +316,8 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_number_format_desc),
                     items = numberItems,
                     selectedId = uiState.selectedGroupingStyle,
-                    onItemSelected = { preferencesViewModel.selectGroupingStyle(it) },
-                    onDismiss = preferencesViewModel::dismissSheet
+                    onItemSelected = { selectGroupingStyle(it) },
+                    onDismiss = dismissSheet
                 )
             }
 
@@ -299,11 +337,41 @@ fun PreferencesScreen(
                     description = stringResource(R.string.label_choose_how_many_decimal_places),
                     items = decimalItems,
                     selectedId = uiState.selectedDecimalPlaces,
-                    onItemSelected = { preferencesViewModel.selectDecimalPlaces(it) },
-                    onDismiss = preferencesViewModel::dismissSheet
+                    onItemSelected = { selectDecimalPlaces(it) },
+                    onDismiss = dismissSheet
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreferencesScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        PreferencesScreenContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.PreferencesScreenUiState(
+                currentCurrencyLabel = "INR",
+                currentDecimalPlacesLabel = "2 decimal places",
+                currentGroupingLabelRes = R.string.label_grouping_indian,
+                currentDateFormatLabel = "dd/MM/yyyy",
+                currentTimeFormatLabelRes = R.string.label_24hour,
+                currentThemeModeLabelRes = R.string.label_theme_dark,
+            ),
+            isAdsEnabled = true,
+            onManageCategoryClick = {},
+            onBackClick = {},
+            showSheet = {},
+            selectCurrency = {},
+            clearCurrencySearchQuery = {},
+            dismissSheet = {},
+            updateCurrencySearchQuery = {},
+            selectThemeMode = {},
+            selectDateFormat = {},
+            selectTimeFormat = {},
+            selectGroupingStyle = {},
+            selectDecimalPlaces = {}
+        )
     }
 }
 

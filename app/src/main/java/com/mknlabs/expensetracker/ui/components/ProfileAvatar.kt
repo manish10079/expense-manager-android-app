@@ -83,7 +83,7 @@ fun ProfileAvatar(
         }
     }
 
-    val isPremium = userTier == UserTier.PREMIUM
+    val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
     
     val infiniteTransition = rememberInfiniteTransition(label = "SyncRingTransition")
     val rotation by infiniteTransition.animateFloat(
@@ -124,7 +124,7 @@ fun ProfileAvatar(
 
         // Premium Sync Ring
         if (isPremium) {
-            val ringColor = MaterialTheme.colorScheme.primary
+            val ringColor = Color(0xFF7B61FF)
             if (isSyncing) {
                 Canvas(
                     modifier = Modifier

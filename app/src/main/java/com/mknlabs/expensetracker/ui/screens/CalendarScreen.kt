@@ -120,9 +120,6 @@ fun CalendarScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
-    var isMonthYearPickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isYearPickerVisible by rememberSaveable { mutableStateOf(false) }
-    
     androidx.compose.runtime.LaunchedEffect(
         transactions,
         currencyId,
@@ -143,6 +140,42 @@ fun CalendarScreen(
         )
     }
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+
+    CalendarScreenContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        onBackClick = onBackClick,
+        onTransactionClick = onTransactionClick,
+        onSetYearView = { calendarViewModel.setYearView(it) },
+        onGoToNextYear = { calendarViewModel.goToNextYear() },
+        onGoToPreviousYear = { calendarViewModel.goToPreviousYear() },
+        onJumpToToday = { calendarViewModel.jumpToToday() },
+        onSelectYear = { calendarViewModel.selectYear(it) },
+        onSelectMonth = { calendarViewModel.selectMonth(it) },
+        onGoToPreviousMonth = { calendarViewModel.goToPreviousMonth() },
+        onGoToNextMonth = { calendarViewModel.goToNextMonth() },
+        onSelectDay = { calendarViewModel.selectDay(it) }
+    )
+}
+
+@Composable
+private fun CalendarScreenContent(
+    uiState: com.mknlabs.expensetracker.ui.viewmodels.CalendarScreenUiState,
+    isAdsEnabled: Boolean,
+    onBackClick: () -> Unit,
+    onTransactionClick: (Transaction) -> Unit,
+    onSetYearView: (Boolean) -> Unit,
+    onGoToNextYear: () -> Unit,
+    onGoToPreviousYear: () -> Unit,
+    onJumpToToday: () -> Unit,
+    onSelectYear: (Int) -> Unit,
+    onSelectMonth: (Long) -> Unit,
+    onGoToPreviousMonth: () -> Unit,
+    onGoToNextMonth: () -> Unit,
+    onSelectDay: (CalendarDayUi) -> Unit
+) {
+    var isMonthYearPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isYearPickerVisible by rememberSaveable { mutableStateOf(false) }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -172,12 +205,12 @@ fun CalendarScreen(
                         GatedAction(
                             feature = Feature.CALENDAR_YEAR_VIEW,
                             displayName = stringResource(id = R.string.label_calendar_year_view),
-                            onAction = { calendarViewModel.setYearView(true) }
+                            onAction = { onSetYearView(true) }
                         ) { status, onClick ->
                             val isYearLocked = status !is AccessStatus.Granted
                             LaunchedEffect(isYearLocked, uiState.isYearView) {
                                 if (isYearLocked && uiState.isYearView) {
-                                    calendarViewModel.setYearView(false)
+                                    onSetYearView(false)
                                 }
                             }
                             AnimatedTabSwitcher(
@@ -191,7 +224,7 @@ fun CalendarScreen(
                                     )
                                 ),
                                 selectedItemId = uiState.isYearView,
-                                onItemSelected = { isYearView -> calendarViewModel.setYearView(isYearView) }
+                                onItemSelected = { isYearView -> onSetYearView(isYearView) }
                             )
                         }
                     }
@@ -220,8 +253,8 @@ fun CalendarScreen(
                                                 .fillMaxWidth()
                                                 .horizontalSwipe(
                                                     key = targetYear,
-                                                    onSwipeLeft = calendarViewModel::goToNextYear,
-                                                    onSwipeRight = calendarViewModel::goToPreviousYear
+                                                    onSwipeLeft = onGoToNextYear,
+                                                    onSwipeRight = onGoToPreviousYear
                                                 ),
                                             verticalArrangement = Arrangement.spacedBy(18.dp)
                                         ) {
@@ -233,9 +266,9 @@ fun CalendarScreen(
                                                 YearHeading(
                                                     year = targetYear,
                                                     isPickerLocked = status !is AccessStatus.Granted,
-                                                    onPreviousYear = calendarViewModel::goToPreviousYear,
-                                                    onNextYear = calendarViewModel::goToNextYear,
-                                                    onTodayClick = calendarViewModel::jumpToToday,
+                                                    onPreviousYear = onGoToPreviousYear,
+                                                    onNextYear = onGoToNextYear,
+                                                    onTodayClick = onJumpToToday,
                                                     onOpenYearPicker = {
                                                         if (status is AccessStatus.Granted) {
                                                             isYearPickerVisible = true
@@ -254,8 +287,17 @@ fun CalendarScreen(
                                             YearSummaryGrid(
                                                 summaries = uiState.yearSummaries,
                                                 onMonthClick = { summary ->
-                                                    calendarViewModel.selectMonth(createDate(uiState.displayedYear, summary.monthIndex, 1))
-                                                    calendarViewModel.setYearView(false)
+                                                    val calendar = Calendar.getInstance().apply {
+                                                        set(Calendar.YEAR, uiState.displayedYear)
+                                                        set(Calendar.MONTH, summary.monthIndex)
+                                                        set(Calendar.DAY_OF_MONTH, 1)
+                                                        set(Calendar.HOUR_OF_DAY, 0)
+                                                        set(Calendar.MINUTE, 0)
+                                                        set(Calendar.SECOND, 0)
+                                                        set(Calendar.MILLISECOND, 0)
+                                                    }
+                                                    onSelectMonth(calendar.timeInMillis)
+                                                    onSetYearView(false)
                                                 }
                                             )
                                         }
@@ -278,9 +320,9 @@ fun CalendarScreen(
                                                 MonthHeading(
                                                     monthStart = targetMonthStart,
                                                     isPickerLocked = status !is AccessStatus.Granted,
-                                                    onPreviousMonth = calendarViewModel::goToPreviousMonth,
-                                                    onNextMonth = calendarViewModel::goToNextMonth,
-                                                    onTodayClick = calendarViewModel::jumpToToday,
+                                                    onPreviousMonth = onGoToPreviousMonth,
+                                                    onNextMonth = onGoToNextMonth,
+                                                    onTodayClick = onJumpToToday,
                                                     onOpenPicker = {
                                                         if (status is AccessStatus.Granted) {
                                                             isMonthYearPickerVisible = true
@@ -295,10 +337,10 @@ fun CalendarScreen(
                                                 days = uiState.monthDays,
                                                 selectedDate = uiState.selectedDate,
                                                 onDaySelected = { day ->
-                                                    calendarViewModel.selectDay(day)
+                                                    onSelectDay(day)
                                                 },
-                                                onSwipePrevious = calendarViewModel::goToPreviousMonth,
-                                                onSwipeNext = calendarViewModel::goToNextMonth
+                                                onSwipePrevious = onGoToPreviousMonth,
+                                                onSwipeNext = onGoToNextMonth
                                             )
                                         }
                                     }
@@ -348,7 +390,7 @@ fun CalendarScreen(
             yearRange = uiState.calendarYearRange,
             onDismiss = { isMonthYearPickerVisible = false },
             onConfirm = { newMonthStart ->
-                calendarViewModel.selectMonth(newMonthStart)
+                onSelectMonth(newMonthStart)
                 isMonthYearPickerVisible = false
             }
         )
@@ -360,7 +402,7 @@ fun CalendarScreen(
             yearRange = uiState.calendarYearRange,
             onDismiss = { isYearPickerVisible = false },
             onConfirm = { newYear ->
-                calendarViewModel.selectYear(newYear)
+                onSelectYear(newYear)
                 isYearPickerVisible = false
             }
         )
@@ -1064,6 +1106,20 @@ private fun YearPickerDialog(
 @Composable
 private fun CalendarScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        CalendarScreen()
+        CalendarScreenContent(
+            uiState = com.mknlabs.expensetracker.ui.viewmodels.CalendarScreenUiState(),
+            isAdsEnabled = true,
+            onBackClick = {},
+            onTransactionClick = {},
+            onSetYearView = {},
+            onGoToNextYear = {},
+            onGoToPreviousYear = {},
+            onJumpToToday = {},
+            onSelectYear = {},
+            onSelectMonth = {},
+            onGoToPreviousMonth = {},
+            onGoToNextMonth = {},
+            onSelectDay = {}
+        )
     }
 }
