@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -30,7 +29,7 @@ import androidx.compose.runtime.remember
 fun ProfileCard(
     name: String,
     email: String,
-    initials: String,
+    gender: String = "",
     photoUri: String? = null,
     userTier: UserTier = UserTier.FREE,
     proExpiryTimestamp: Long = 0L,
@@ -54,10 +53,9 @@ fun ProfileCard(
 
             // Avatar Section
             ProfileAvatar(
-                initials = initials,
+                gender = gender,
                 photoUri = photoUri,
                 size = 64.dp,
-                textSize = 20.sp,
                 showGlow = false,
                 showBorder = true,
                 backgroundColor = colorScheme.primary.copy(alpha = 0.1f)
@@ -119,7 +117,7 @@ private fun ProfileCardPreview() {
             ProfileCard(
                 name = "Johnathan Doe",
                 email = "john.doe@example.com",
-                initials = "JD",
+                gender = "Male",
                 modifier = Modifier.padding(16.dp)
             )
         }

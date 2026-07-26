@@ -197,7 +197,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(
-                initials = fullName.avatarLetters(),
+                gender = gender,
                 photoUri = photoUri,
                 isPhotoProcessing = isPhotoProcessing,
                 onSelectPhoto = { photoPickerLauncher.launch(PROFILE_PHOTO_MIME_TYPE) },
@@ -429,7 +429,7 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfilePhotoSection(
-    initials: String,
+    gender: String,
     photoUri: String?,
     isPhotoProcessing: Boolean,
     onSelectPhoto: () -> Unit,
@@ -440,9 +440,8 @@ private fun ProfilePhotoSection(
     val photoActionIconColor = MaterialTheme.colorScheme.secondary
 
     ProfileAvatar(
-        initials = initials,
+        gender = gender,
         size = 150.dp,
-        textSize = 38.sp,
         photoUri = photoUri,
         showBadge = false,
         modifier = Modifier

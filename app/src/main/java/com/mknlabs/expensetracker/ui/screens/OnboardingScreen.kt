@@ -1373,11 +1373,7 @@ private fun BoxScope.SetupIllustration() {
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
-        ProfileAvatar(
-            initials = "U",
-            size = 200.dp,
-            textSize = 54.sp
-        )
+        ProfileAvatar()
     }
 }
 

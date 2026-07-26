@@ -39,7 +39,6 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_BUDGET_LIMIT_ALERTS_ENA
 import com.mknlabs.expensetracker.data.constants.DEFAULT_MISSED_ENTRY_REMINDER_ENABLED
 import com.mknlabs.expensetracker.data.constants.DEFAULT_NOTIFICATIONS_ENABLED
 import com.mknlabs.expensetracker.models.UserProfile
-import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.ui.components.ProfileCard
 import com.mknlabs.expensetracker.ui.components.AppHeader
@@ -215,7 +214,7 @@ private fun SettingsScreenContent(
                     ProfileCard(
                         name = userProfile.fullName,
                         email = userProfile.emailAddress,
-                        initials = userProfile.avatarInitials(),
+                        gender = userProfile.gender,
                         photoUri = userProfile.photoUri,
                         userTier = userTier,
                         proExpiryTimestamp = userProfile.proExpiryTimestamp

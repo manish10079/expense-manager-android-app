@@ -149,7 +149,6 @@ private fun HomeScreenContent(
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit
 ) {
-    val profileAvatarGradient = brandGradient()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -174,15 +173,12 @@ private fun HomeScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ProfileAvatar(
-                        initials = userProfile.avatarInitials(),
+                        gender = userProfile.gender,
                         size = 60.dp,
-                        textSize = 18.sp,
                         photoUri = userProfile.photoUri,
                         userTier = uiState.userTier,
                         isSyncing = uiState.isSyncing,
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                        borderBrush = profileAvatarGradient,
-                        placeholderIconBrush = profileAvatarGradient,
                         modifier = Modifier
                             .clip(CircleShape)
                     )

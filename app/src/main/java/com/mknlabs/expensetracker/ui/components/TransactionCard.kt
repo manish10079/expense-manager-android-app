@@ -134,10 +134,10 @@ fun TransactionCard(
                 },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.ExtraBold,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
                     fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
-                    fontSize = 16.sp
+                    fontSize = 15.sp
                 )
             )
 
@@ -210,8 +210,8 @@ fun TransactionCard(
                 if (showCategoryLabel && categoryLabel.isNotBlank()) {
                     TransactionPill(
                         text = categoryLabel.uppercase(),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                        color = MaterialTheme.colorScheme.primary,
+                        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                     )
                 }
 
@@ -259,7 +259,7 @@ private fun TransactionPill(
             text = text,
             color = color,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.ExtraBold,
+                fontWeight = FontWeight.Bold,
                 fontSize = 10.sp,
                 letterSpacing = 0.5.sp
             )

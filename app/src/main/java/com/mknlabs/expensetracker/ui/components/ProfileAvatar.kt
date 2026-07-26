@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.ui.components
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -13,36 +14,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Surface
@@ -57,10 +52,9 @@ import java.io.InputStream
 
 @Composable
 fun ProfileAvatar(
-    initials: String,
+    gender: String = "",
     modifier: Modifier = Modifier,
     size: Dp = 56.dp,
-    textSize: TextUnit,
     photoUri: String? = null,
     showBadge: Boolean = false,
     badgeIcon: ImageVector = Icons.Filled.Check,
@@ -69,7 +63,6 @@ fun ProfileAvatar(
     backgroundBrush: Brush? = null,
     backgroundColor: Color? = null,
     borderBrush: Brush? = null,
-    placeholderIconBrush: Brush? = null,
     userTier: UserTier = UserTier.FREE,
     isSyncing: Boolean = false
 ) {
@@ -197,44 +190,15 @@ fun ProfileAvatar(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
-            } else if (initials.isNotBlank()) {
-                Box(
-                    modifier = Modifier.matchParentSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = initials,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontSize = textSize,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                            letterSpacing = 0.sp
-                        ),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
             } else {
-                Icon(
-                    imageVector = Icons.Filled.AccountCircle,
+                // Show gender-based avatar drawable as placeholder
+                Image(
+                    painter = painterResource(id = genderToAvatarRes(gender)),
                     contentDescription = stringResource(R.string.desc_profile_placeholder),
-                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
-                        .size(size * 1.10f)
-                        .align(Alignment.Center)
-                        .then(
-                            placeholderIconBrush?.let { brush ->
-                                Modifier
-                                    .graphicsLayer(
-                                        compositingStrategy = CompositingStrategy.Offscreen
-                                    )
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = brush,
-                                            blendMode = BlendMode.SrcIn
-                                        )
-                                    }
-                            } ?: Modifier
-                        )
+                        .matchParentSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }
@@ -330,15 +294,27 @@ private fun openImageInputStream(context: Context, uri: Uri) = when (uri.scheme)
     else -> context.contentResolver.openInputStream(uri)
 }
 
-@Preview(name = "Light Mode", showBackground = true)
+/**
+ * Returns the appropriate avatar drawable resource based on the user's selected gender.
+ * - "Male" → ic_avatar_male
+ * - "Female" → ic_avatar_female
+ * - Anything else (empty, Non-binary, Prefer not to say) → ic_avatar_default
+ */
+@DrawableRes
+private fun genderToAvatarRes(gender: String): Int = when (gender) {
+    "Male" -> R.drawable.ic_avatar_male
+    "Female" -> R.drawable.ic_avatar_female
+    else -> R.drawable.ic_avatar_default
+}
+
+@Preview(name = "Light Mode - Default", showBackground = true)
 @Composable
 fun ProfileAvatarLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
                 ProfileAvatar(
-                    initials = "JD",
-                    textSize = 20.sp,
+                    gender = "",
                     showBadge = true
                 )
             }
@@ -346,15 +322,14 @@ fun ProfileAvatarLightPreview() {
     }
 }
 
-@Preview(name = "Dark Mode", showBackground = true)
+@Preview(name = "Dark Mode - Male", showBackground = true)
 @Composable
 fun ProfileAvatarDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
                 ProfileAvatar(
-                    initials = "JD",
-                    textSize = 20.sp,
+                    gender = "Male",
                     showBadge = true
                 )
             }

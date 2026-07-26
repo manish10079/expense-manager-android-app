@@ -77,6 +77,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 
@@ -472,7 +473,7 @@ private fun NormalCalculatorDisplay(
                     .background(standardCardGradient())
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
                         shape = RoundedCornerShape(22.dp)
                     )
                     .padding(horizontal = 18.dp, vertical = 18.dp),
@@ -499,7 +500,7 @@ private fun CalculatorKeyButton(
     accent: Boolean = false,
     primary: Boolean = false,
     pill: Boolean = false,
-    buttonHeight: androidx.compose.ui.unit.Dp = if (primary) 168.dp else 72.dp,
+    buttonHeight: Dp = if (primary) 168.dp else 72.dp,
     onClick: () -> Unit
 ) {
     val shape = when {
@@ -514,18 +515,30 @@ private fun CalculatorKeyButton(
             .shadow(
                 elevation = if (primary) 18.dp else if (accent) 10.dp else 0.dp,
                 shape = shape,
-                ambientColor = if (primary) MaterialTheme.colorScheme.primary.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f),
-                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                ambientColor = if (primary) MaterialTheme.colorScheme.primary.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(
+                    alpha = 0.10f
+                ),
+                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.primary.copy(
+                    alpha = 0.08f
+                )
             )
             .clip(shape)
             .background(
                 brush = when {
                     primary -> Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
+                        )
                     )
+
                     accent -> Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+                        )
                     )
+
                     else -> standardCardGradient()
                 }
             )
@@ -717,7 +730,7 @@ private fun AddItemInputCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(solidCardGradient)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -727,7 +740,8 @@ private fun AddItemInputCard(
             style = MaterialTheme.typography.labelLarge.copy(
                 letterSpacing = 1.2.sp,
                 fontWeight = FontWeight.Bold
-            )
+            ),
+            modifier = Modifier.padding(start = 16.dp)
         )
 
         ItemizedTextField(
@@ -893,7 +907,10 @@ private fun PrimaryActionButton(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
                 )
             )
             .clickable(enabled = enabled, onClick = onClick),
@@ -928,7 +945,10 @@ private fun ApplyToNoteButton(
             .clip(RoundedCornerShape(32.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
                 )
             )
             .clickable(enabled = enabled, onClick = onClick),
@@ -967,15 +987,19 @@ private fun ApplyToNoteButton(
     }
 }
 
-@Preview(
-    name = "Itemized Calculator",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
+@Preview
 @Composable
 private fun ItemizedCalculatorScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         // ItemizedCalculatorScreen requires a ViewModel, so we can't easily preview it without a mock or dummy
+        AddItemInputCard(
+            description = "appy fizz",
+            amount = "1000",
+            canAddItem = true,
+            onDescriptionChange = {},
+            onAmountChange = {},
+            onCancel = {},
+            onAddClick = {}
+        )
     }
 }
