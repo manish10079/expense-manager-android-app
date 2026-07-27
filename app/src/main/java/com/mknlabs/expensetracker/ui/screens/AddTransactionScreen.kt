@@ -36,6 +36,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
@@ -904,9 +906,15 @@ private fun CurrencyAmountCard(
                         maxLines = 1
                     )
                     val keyboardController = LocalSoftwareKeyboardController.current
+                    val textFieldValue = remember(amountText) {
+                        TextFieldValue(
+                            text = amountText,
+                            selection = TextRange(amountText.length)
+                        )
+                    }
                     BasicTextField(
-                        value = amountText,
-                        onValueChange = onAmountChange,
+                        value = textFieldValue,
+                        onValueChange = { onAmountChange(it.text) },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .fillMaxWidth(),
