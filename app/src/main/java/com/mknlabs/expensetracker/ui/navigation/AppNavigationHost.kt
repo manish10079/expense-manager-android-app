@@ -579,6 +579,7 @@ fun AppNavigationHost(
                         userTier = userTier,
                         proExpiryTimestamp = userProfile.proExpiryTimestamp,
                         isAnonymous = isAnonymousUser,
+                        isSubscription = userProfile.isSubscription,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)

@@ -355,7 +355,7 @@
     <string name="label_phone_number">PHONE NUMBER</string>
     <string name="label_pick_a_preset_in_5minute_steps">Pick a preset in 5-minute steps up to 60, or enter a custom value in minutes.</string>
     <string name="label_pick_a_preset_or_enter_a_custo">Pick a preset or enter a custom value between 1 and 30 days.</string>
-    <string name="label_premium_member">PREMIUM MEMBER</string>
+    <string name="label_premium_member">PRO MEMBER</string>
     <string name="label_private_member">PRIVATE MEMBER</string>
     <string name="label_qval">Q%1$s</string>
     <string name="label_recent_activities">Recent Activities</string>
@@ -1420,10 +1420,10 @@
     <string name="label_tap_to_sync">Tap to back up data &amp; sync</string>
     <string name="title_membership">My Membership</string>
     <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
-    <string name="label_pro_active">Premium Member</string>
+    <string name="label_pro_active">Pro Member</string>
     <string name="label_free_tier">Free Tier</string>
     <string name="label_pro_benefit_adfree">Ad-Free Experience</string>
-    <string name="label_pro_benefit_devices">Unlimited Device Sync</string>
+    <string name="label_pro_benefit_devices">4 Device Sync</string>
     <string name="label_pro_benefit_custom_card">Customizable Transaction Cards</string>
     <string name="label_pro_benefit_advanced_features">Advanced Analytics &amp; Goals</string>
     <string name="btn_restore_purchase">Restore Purchase</string>
@@ -1431,7 +1431,7 @@
     <string name="btn_upgrade_now">Go Pro Now</string>
     <string name="label_expires_on">Expires on %1$s</string>
     <string name="label_renews_on">Renews on %1$s</string>
-    <string name="label_pro_expires_on">Your subscription will expire on %1$s.</string>
+    <string name="label_pro_expires_on">Your Pro access expires on %1$s.</string>
     <string name="label_pro_renews_on">Your subscription will renew automatically on %1$s.</string>
     <string name="label_unlimited_offline">Offline Local Mode</string>
     <string name="label_offline_warning_desc">Your data is only stored on this device. Sign in or register to secure backups.</string>

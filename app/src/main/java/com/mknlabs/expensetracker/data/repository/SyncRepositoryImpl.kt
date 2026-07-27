@@ -370,6 +370,7 @@ class SyncRepositoryImpl @Inject constructor(
             "financialGoal" to localProfile.financialGoal,
             "accountTier" to if (localProfile.accountTier == "PREMIUM") "PREMIUM" else "FREE",
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
+            "isSubscription" to localProfile.isSubscription,
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "authProvider" to if (localProfile.authProvider.isNotBlank()) localProfile.authProvider else {
@@ -431,6 +432,7 @@ class SyncRepositoryImpl @Inject constructor(
             accountCreatedMillis = localProfile.accountCreatedMillis, // Don't pull from cloud, keep local
             accountTier = remoteAccountTier,
             proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp,
+            isSubscription = snapshot.getBoolean("isSubscription") ?: localProfile.isSubscription,
             photoUri = snapshot.getString("photoUri") ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null) ?: localProfile.photoUri,
             updatedAtMillis = remoteUpdatedAt
         )

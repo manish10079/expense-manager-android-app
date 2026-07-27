@@ -74,19 +74,7 @@ fun ProfileCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
-                
-                if (!isPremium) {
-                    val (badgeLabel, badgeType) = when {
-                        isAnonymous -> "OFFLINE" to UserBadgeType.GUEST
-                        else -> "FREE" to UserBadgeType.MEMBER
-                    }
 
-                    UserBadge(
-                        label = badgeLabel,
-                        type = badgeType,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -112,7 +100,7 @@ fun ProfileCard(
                         modifier = Modifier.weight(1f, fill = false)
                     )
                 }
-
+                    Spacer(Modifier.padding(top = 5.dp))
                 val subtext = if (isAnonymous) {
                     stringResource(com.mknlabs.expensetracker.R.string.label_tap_to_sync)
                 } else {

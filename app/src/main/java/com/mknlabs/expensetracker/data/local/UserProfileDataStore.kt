@@ -28,6 +28,7 @@ object UserProfileDataStore {
         val accountTier = stringPreferencesKey("account_tier")
         val photoUri = stringPreferencesKey("photo_uri")
         val proExpiryTimestamp = longPreferencesKey("pro_expiry_timestamp")
+        val isSubscription = androidx.datastore.preferences.core.booleanPreferencesKey("is_subscription")
         val updatedAtMillis = longPreferencesKey("updated_at_millis")
         val authProvider = stringPreferencesKey("auth_provider")
     }
@@ -72,6 +73,7 @@ object UserProfileDataStore {
             accountTier = this[Keys.accountTier] ?: defaultUserProfile.accountTier,
             photoUri = this[Keys.photoUri] ?: defaultUserProfile.photoUri,
             proExpiryTimestamp = this[Keys.proExpiryTimestamp] ?: defaultUserProfile.proExpiryTimestamp,
+            isSubscription = this[Keys.isSubscription] ?: defaultUserProfile.isSubscription,
             updatedAtMillis = this[Keys.updatedAtMillis] ?: defaultUserProfile.updatedAtMillis,
             authProvider = this[Keys.authProvider] ?: defaultUserProfile.authProvider
         )
@@ -88,6 +90,7 @@ object UserProfileDataStore {
         this[Keys.accountTier] = profile.accountTier
         profile.photoUri?.let { this[Keys.photoUri] = it } ?: remove(Keys.photoUri)
         this[Keys.proExpiryTimestamp] = profile.proExpiryTimestamp
+        this[Keys.isSubscription] = profile.isSubscription
         this[Keys.updatedAtMillis] = profile.updatedAtMillis
         this[Keys.authProvider] = profile.authProvider
     }

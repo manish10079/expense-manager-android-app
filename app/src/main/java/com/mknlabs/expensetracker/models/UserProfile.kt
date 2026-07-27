@@ -14,6 +14,7 @@ data class UserProfile(
     val accountTier: String,
     val photoUri: String? = null,
     val proExpiryTimestamp: Long = 0L,
+    val isSubscription: Boolean = false,
     val updatedAtMillis: Long = 0L,
     val authProvider: String = ""
 )
