@@ -1415,4 +1415,26 @@
     <string name="error_password_update_failed">Password update failed. Please check your current password and try again.</string>
     <string name="success_password_updated">Password updated successfully!</string>
     <string name="btn_change_password">Change Password</string>
+
+    <!-- My Membership & Subscription Feature -->
+    <string name="label_tap_to_sync">Tap to back up data &amp; sync</string>
+    <string name="title_membership">My Membership</string>
+    <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
+    <string name="label_pro_active">Premium Member</string>
+    <string name="label_free_tier">Free Tier</string>
+    <string name="label_pro_benefit_adfree">Ad-Free Experience</string>
+    <string name="label_pro_benefit_devices">Unlimited Device Sync</string>
+    <string name="label_pro_benefit_custom_card">Customizable Transaction Cards</string>
+    <string name="label_pro_benefit_advanced_features">Advanced Analytics &amp; Goals</string>
+    <string name="btn_restore_purchase">Restore Purchase</string>
+    <string name="btn_manage_subscription">Manage Subscription</string>
+    <string name="btn_upgrade_now">Go Pro Now</string>
+    <string name="label_expires_on">Expires on %1$s</string>
+    <string name="label_renews_on">Renews on %1$s</string>
+    <string name="label_pro_expires_on">Your subscription will expire on %1$s.</string>
+    <string name="label_pro_renews_on">Your subscription will renew automatically on %1$s.</string>
+    <string name="label_unlimited_offline">Offline Local Mode</string>
+    <string name="label_offline_warning_desc">Your data is only stored on this device. Sign in or register to secure backups.</string>
+    <string name="title_coming_soon">Coming Soon</string>
+    <string name="msg_billing_coming_soon">Google Play Billing integration is under development. This feature will be available in an upcoming update.</string>
 </resources>

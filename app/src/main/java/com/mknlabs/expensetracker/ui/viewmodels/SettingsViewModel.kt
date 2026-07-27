@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.CardMembership
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.CreditCard
@@ -76,7 +77,8 @@ enum class SettingsActionId {
     LinkAccount,
     ConnectedDevices,
     RedeemProPass,
-    Logout
+    Logout,
+    MyMembership
 }
 
 @Immutable
@@ -207,6 +209,14 @@ private fun buildSettingsSections(
             subtitleRes = com.mknlabs.expensetracker.R.string.label_edit_profile_subtitle,
             icon = Icons.Rounded.Person,
             actionId = SettingsActionId.EditProfile
+        )
+    )
+    accountItems.add(
+        SettingsItemUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_membership,
+            subtitleRes = com.mknlabs.expensetracker.R.string.desc_membership_settings,
+            icon = Icons.Rounded.CardMembership,
+            actionId = SettingsActionId.MyMembership
         )
     )
     if (!isAnonymous) {

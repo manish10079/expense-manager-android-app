@@ -39,6 +39,7 @@ import com.mknlabs.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.ui.screens.SettingsScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionScreen
+import com.mknlabs.expensetracker.ui.screens.MembershipDetailsScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 
@@ -309,6 +310,10 @@ fun AppNavigationHost(
                             onRouteChange(AppRoute.ConnectedDevices)
                         },
                         onShowUpgradeSheet = onShowUpgradeSheet,
+                        onMembershipClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.MembershipDetails)
+                        },
                         onLinkAccountClick = onLinkAccountClick,
                         onLogoutClick = onLogoutClick,
                         onBackClick = {
@@ -564,6 +569,19 @@ fun AppNavigationHost(
                             val backRoute = resolveBackNavigationRoute(AppRoute.Goals, profileOriginRoute, previousRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)
                             onRouteChange(backRoute)
+                        }
+                    )
+                }
+
+                AppRoute.MembershipDetails -> {
+                    val isAnonymousUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isAnonymous ?: true
+                    MembershipDetailsScreen(
+                        userTier = userTier,
+                        proExpiryTimestamp = userProfile.proExpiryTimestamp,
+                        isAnonymous = isAnonymousUser,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Settings)
                         }
                     )
                 }

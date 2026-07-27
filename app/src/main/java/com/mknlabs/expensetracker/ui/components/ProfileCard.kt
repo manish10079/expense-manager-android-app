@@ -24,6 +24,10 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.toTitleCase
 
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.WorkspacePremium
 
 @Composable
 fun ProfileCard(
@@ -69,40 +73,57 @@ fun ProfileCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                val isPremium = userTier == UserTier.PREMIUM
-                val badgeLabel = if (isPremium) {
-                    val formattedDate = remember(proExpiryTimestamp) {
-                        try {
-                            java.text.SimpleDateFormat("dd/MM/yy HH:mm", java.util.Locale.getDefault())
-                                .format(java.util.Date(proExpiryTimestamp))
-                        } catch (e: Exception) {
-                            ""
-                        }
+                val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
+                
+                if (!isPremium) {
+                    val (badgeLabel, badgeType) = when {
+                        isAnonymous -> "OFFLINE" to UserBadgeType.GUEST
+                        else -> "FREE" to UserBadgeType.MEMBER
                     }
-                    stringResource(com.mknlabs.expensetracker.R.string.label_pro_expiry_format, formattedDate)
-                } else {
-                    stringResource(com.mknlabs.expensetracker.R.string.label_guest_user)
+
+                    UserBadge(
+                        label = badgeLabel,
+                        type = badgeType,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
                 }
 
-                UserBadge(
-                    label = badgeLabel,
-                    type = if (isPremium) UserBadgeType.PREMIUM else UserBadgeType.GUEST,
-                    modifier = Modifier.padding(bottom = 6.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isPremium) {
+                        Icon(
+                            imageVector = Icons.Rounded.WorkspacePremium,
+                            contentDescription = "Pro",
+                            tint = colorScheme.primary,
+                            modifier = Modifier
+                                .padding(end = 6.dp)
+                                .size(18.dp)
+                        )
+                    }
 
-                Text(
-                    text = name.toTitleCase(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                if (email.isNotEmpty()) {
                     Text(
-                        text = email,
+                        text = name.toTitleCase(),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                }
+
+                val subtext = if (isAnonymous) {
+                    stringResource(com.mknlabs.expensetracker.R.string.label_tap_to_sync)
+                } else {
+                    email
+                }
+
+                if (subtext.isNotEmpty()) {
+                    Text(
+                        text = subtext,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
+                        color = if (isAnonymous) MaterialTheme.colorScheme.primary else colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

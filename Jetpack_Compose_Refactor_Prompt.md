@@ -435,6 +435,13 @@ This report evaluates every screen composable in app/src/main/java/com/mknlabs/e
 • Status: No refactoring needed.                                                                                                                          
 • Details: Static forced-update UI composable without ViewModels.                                                                                         
 ──────
+### 27. MembershipDetailsScreen.kt — ✅ COMPLIANT (New)
+
+• Status: Created following Route + Content pattern.
+• Route: `MembershipDetailsScreen` — injects `MonetizationViewModel`, extracts subscription state, handles restore and Play Store redirection callbacks.
+• Content: `MembershipDetailsContent` — `internal`, drives glassmorphic hero cards, status indicators, benefit lists, and outlined action controls.
+• Previews: Includes 3 Hilt-free previews for all user states (Premium, Free, Anonymous).
+──────
 ## 📋 Action Plan & Summary Matrix
 
 Screen File                       │     Architecture Status     │      Needs Refactor?       │ Target Refactor Pattern
@@ -456,6 +463,7 @@ GoalsScreen.kt                    │       Route + Content       │           
 HomeScreen.kt                     │       Route + Content       │             NO             │ Compliant
 ItemizedCalculatorScreen.kt       │       Route + Content       │             NO             │ Compliant
 MaintenanceScreen.kt              │           Pure UI           │             NO             │ Compliant
+MembershipDetailsScreen.kt        │       Route + Content       │             NO             │ Compliant (New Screen)
 NotificationSettingsScreen.kt     │       Route + Content       │             NO             │ Compliant (Refactored)
 OnboardingScreen.kt               │       Route + Content       │             NO             │ Compliant (Refactored)
 PreferencesScreen.kt              │       Route + Content       │             NO             │ Compliant (Refactored)

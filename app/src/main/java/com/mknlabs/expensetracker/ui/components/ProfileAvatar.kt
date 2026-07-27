@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.ContentScale
@@ -148,9 +149,25 @@ fun ProfileAvatar(
             }
         }
 
+        // Anonymous Dashed Border
+        if (isAnonymous) {
+            val dashColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            Canvas(
+                modifier = Modifier.size(size)
+            ) {
+                drawCircle(
+                    color = dashColor,
+                    style = Stroke(
+                        width = 1.5.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                    )
+                )
+            }
+        }
+
         Box(
             modifier = Modifier
-                .size(if (isPremium) size * 0.88f else size * 0.95f)
+                .size(if (isPremium || isAnonymous) size * 0.88f else size * 0.95f)
                 .clip(CircleShape)
                 .then(
                     backgroundBrush?.let { brush ->
@@ -161,7 +178,7 @@ fun ProfileAvatar(
                     )
                 )
                 .then(
-                    if (showBorder && !isPremium) {
+                    if (showBorder && !isPremium && !isAnonymous) {
                         if (borderBrush != null) {
                             Modifier.border(
                                 width = 2.dp,
@@ -169,7 +186,7 @@ fun ProfileAvatar(
                                 shape = CircleShape
                             )
                         } else {
-                            val borderColor = Color.White
+                            val borderColor = MaterialTheme.colorScheme.outlineVariant
                             Modifier.border(
                                 width = 2.dp,
                                 color = borderColor,

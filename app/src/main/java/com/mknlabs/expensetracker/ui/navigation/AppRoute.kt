@@ -22,7 +22,8 @@ enum class AppRoute(
     AddTransaction("add_transaction", false),
     ItemizedCalculator("itemized_calculator", false),
     AddCategory("add_category", false),
-    Goals("goals", false);
+    Goals("goals", false),
+    MembershipDetails("membership_details", false);
 
     companion object {
         fun fromRoute(route: String?): AppRoute? {

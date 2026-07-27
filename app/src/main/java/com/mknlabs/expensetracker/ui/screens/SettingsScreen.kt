@@ -92,6 +92,7 @@ fun SettingsScreen(
     onLogoutClick: () -> Unit = {},
     onConnectedDevicesClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit = {},
+    onMembershipClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -133,6 +134,7 @@ fun SettingsScreen(
         onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
         onMissedEntryReminderChange = onMissedEntryReminderChange,
         onProfileClick = onProfileClick,
+        onMembershipClick = onMembershipClick,
         onPreferencesClick = onPreferencesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
         onTransactionCardCustomizeClick = onTransactionCardCustomizeClick,
@@ -169,6 +171,7 @@ private fun SettingsScreenContent(
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
     onProfileClick: () -> Unit,
+    onMembershipClick: () -> Unit,
     onPreferencesClick: () -> Unit,
     onSecurityPrivacyClick: () -> Unit,
     onTransactionCardCustomizeClick: () -> Unit,
@@ -239,6 +242,7 @@ private fun SettingsScreenContent(
                             onItemClick = { item ->
                                 when (item.actionId) {
                                     SettingsActionId.EditProfile -> onProfileClick()
+                                    SettingsActionId.MyMembership -> onMembershipClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
@@ -524,6 +528,7 @@ private fun SettingsScreenPreview() {
             onBudgetLimitAlertsChange = {},
             onMissedEntryReminderChange = {},
             onProfileClick = {},
+            onMembershipClick = {},
             onPreferencesClick = {},
             onSecurityPrivacyClick = {},
             onTransactionCardCustomizeClick = {},
