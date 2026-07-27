@@ -1426,6 +1426,7 @@
     <string name="label_pro_benefit_devices">4 Device Sync</string>
     <string name="label_pro_benefit_custom_card">Customizable Transaction Cards</string>
     <string name="label_pro_benefit_advanced_features">Advanced Analytics &amp; Goals</string>
+    <string name="label_pro_benefit_many_more_features">Many More... You Can Explore</string>
     <string name="btn_restore_purchase">Restore Purchase</string>
     <string name="btn_manage_subscription">Manage Subscription</string>
     <string name="btn_upgrade_now">Go Pro Now</string>
