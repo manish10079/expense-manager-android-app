@@ -2,6 +2,26 @@
    Expense Tracker: Budget & Spend — Responsive Styles
    ============================================================ */
 
+/* ----- Testimonials Grid ----- */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  max-width: 1000px;
+  margin: 0 auto;
+  transition: max-width var(--transition-base),
+              gap var(--transition-base),
+              margin var(--transition-base),
+              padding var(--transition-base);
+}
+
+@media (max-width: 800px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+  }
+}
+
 /* ----- 1400px and above (Ultra-wide) ----- */
 @media (min-width: 1400px) {
   .section-inner,
