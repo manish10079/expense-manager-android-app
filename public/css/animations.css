@@ -1,0 +1,247 @@
+/* ============================================================
+   Expense Tracker: Budget & Spend — Animations
+   ============================================================ */
+
+/* ----- Keyframes ----- */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ----- Scroll Reveal Utility Classes ----- */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ----- Feature Card stagger ----- */
+.features-grid .feature-card {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.features-grid .feature-card.visible {
+  animation: fade-in-up 0.6s ease forwards;
+}
+
+.features-grid .feature-card.visible:nth-child(1) { animation-delay: 0s; }
+.features-grid .feature-card.visible:nth-child(2) { animation-delay: 0.08s; }
+.features-grid .feature-card.visible:nth-child(3) { animation-delay: 0.16s; }
+.features-grid .feature-card.visible:nth-child(4) { animation-delay: 0.24s; }
+.features-grid .feature-card.visible:nth-child(5) { animation-delay: 0.32s; }
+.features-grid .feature-card.visible:nth-child(6) { animation-delay: 0.4s; }
+.features-grid .feature-card.visible:nth-child(7) { animation-delay: 0.48s; }
+.features-grid .feature-card.visible:nth-child(8) { animation-delay: 0.56s; }
+.features-grid .feature-card.visible:nth-child(9) { animation-delay: 0.64s; }
+
+/* ----- Steps stagger ----- */
+.how-steps .step {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.how-steps .step.visible {
+  animation: fade-in-up 0.6s ease forwards;
+}
+
+.how-steps .step.visible:nth-child(1) { animation-delay: 0s; }
+.how-steps .step.visible:nth-child(2) { animation-delay: 0.15s; }
+.how-steps .step.visible:nth-child(3) { animation-delay: 0.3s; }
+.how-steps .step.visible:nth-child(4) { animation-delay: 0.45s; }
+
+/* ----- Button hover ripple effect ----- */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0);
+  animation: ripple-effect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple-effect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ----- Counter animation ----- */
+.counter-value {
+  display: inline-block;
+}
+
+/* ----- Image lazy load blur-up ----- */
+.lazy-image {
+  filter: blur(20px);
+  transition: filter 0.5s ease;
+}
+
+.lazy-image.loaded {
+  filter: blur(0);
+}
+
+/* ----- Parallax utility ----- */
+.parallax {
+  will-change: transform;
+}

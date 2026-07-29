@@ -1,0 +1,322 @@
+/* ============================================================
+   Expense Tracker: Budget & Spend — Responsive Styles
+   ============================================================ */
+
+/* ----- 1400px and above (Ultra-wide) ----- */
+@media (min-width: 1400px) {
+  .section-inner,
+  .nav-inner,
+  .footer-inner,
+  .footer-bottom {
+    max-width: 1320px;
+  }
+
+  .hero-title {
+    font-size: clamp(3.5rem, 5vw, 5rem);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+  }
+
+  .app-preview-inner {
+    gap: var(--space-4xl);
+  }
+}
+
+/* ----- Above 768px (Desktop override for hero floats) ----- */
+@media (min-width: 769px) {
+  .hero-float-3 {
+    bottom: 45%;
+  }
+}
+
+/* ----- 1024px - 1399px (Desktop) ----- */
+@media (max-width: 1399px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .floating-card-1 { right: 0; }
+  .floating-card-2 { left: 0; }
+  .floating-card-3 { right: 0; }
+}
+
+/* ----- 768px - 1023px (Tablet) ----- */
+@media (max-width: 1023px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .app-preview-inner {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .app-preview-text {
+    text-align: center;
+  }
+
+  .floating-card {
+    display: none;
+  }
+
+  .why-choose-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-cards {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+  }
+
+  .how-steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+  }
+
+  .how-steps::before {
+    display: none;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+  }
+
+  .hero-stats {
+    gap: var(--space-xl);
+  }
+
+  .hero-float {
+    display: none;
+  }
+}
+
+/* ----- 480px - 767px (Mobile) ----- */
+@media (max-width: 767px) {
+  .section {
+    padding: var(--space-3xl) var(--space-md);
+  }
+
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex-direction: column;
+    padding: var(--space-xl);
+    gap: var(--space-md);
+    align-items: flex-start;
+    z-index: var(--z-nav);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  [data-theme="dark"] .nav-links {
+    background: rgba(10, 10, 10, 0.97);
+  }
+
+  [data-theme="light"] .nav-links {
+    background: rgba(237, 237, 241, 0.97);
+  }
+
+  .nav-link {
+    font-size: 1.125rem;
+    padding: var(--space-sm) 0;
+  }
+
+  .nav-actions .btn {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .hero {
+    min-height: 90vh;
+    padding: var(--space-3xl) var(--space-md);
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md) var(--space-lg);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-stat {
+    flex: unset;
+    min-width: unset;
+  }
+
+  .hero-stat-divider {
+    display: none;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .why-card {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .why-number {
+    font-size: 1.75rem;
+  }
+
+  .how-steps {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .phone-mockup {
+    width: 280px;
+    height: 580px;
+  }
+
+  .ps-balance-amount {
+    font-size: 1.375rem;
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .google-play-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-brand p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .premium-toggle {
+    flex-direction: column;
+    width: 100%;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ----- Below 480px (Small mobile) ----- */
+@media (max-width: 479px) {
+  .phone-mockup {
+    width: 240px;
+    height: 500px;
+  }
+
+  .ps-balance-card {
+    padding: 12px;
+  }
+
+  .ps-balance-amount {
+    font-size: 1.125rem;
+  }
+
+  .ps-card-small {
+    padding: 8px;
+  }
+
+  .ps-card-small .ps-value {
+    font-size: 0.8125rem;
+  }
+
+  .ps-transaction {
+    padding: 6px;
+  }
+
+  .ps-tx-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .ps-chart {
+    height: 80px;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    max-width: 280px;
+  }
+
+  .hero-stat {
+    min-width: unset;
+  }
+
+  .nav-links.open {
+    padding: var(--space-lg);
+  }
+}
+
+/* ----- Print styles ----- */
+@media print {
+  .nav,
+  .hero-float,
+  .floating-card,
+  .phone-screen-dots,
+  .faq-arrow {
+    display: none !important;
+  }
+
+  .section {
+    padding: 1rem 0;
+    break-inside: avoid;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

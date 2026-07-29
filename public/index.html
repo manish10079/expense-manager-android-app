@@ -1,77 +1,825 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Expense Tracker</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        h1 { color: #1a1a1a; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        h2 { color: #2c3e50; margin-top: 30px; border-left: 4px solid #3498db; padding-left: 15px; }
-        p { margin-bottom: 15px; }
-        ul { margin-bottom: 15px; }
-        li { margin-bottom: 8px; }
-        .highlight { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin: 20px 0; }
-        .footer { margin-top: 50px; font-size: 0.9em; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 20px; }
-    </style>
+  <!-- ==========================================================
+     Expense Tracker: Budget & Spend — Official Landing Page
+     Extracted from Android app (com.mknlabs.expensetracker)
+     Version: 2.24.0 | Brand: "Premium by Design, Private by Nature"
+     ========================================================== -->
+
+  <!-- Meta -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker: Budget & Spend — Premium by Design, Private by Nature</title>
+  <meta name="description" content="A premium expense tracker built for the modern user who values financial clarity. Track expenses, set budgets, analyze spending, and sync across devices — all with a beautiful, private, offline-first experience.">
+  <meta name="keywords" content="expense tracker, budget planner, money manager, personal finance, spend tracker, budget app, financial tracking, expense manager, privacy first, offline first">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Expense Tracker: Budget & Spend — Premium by Design, Private by Nature">
+  <meta property="og:description" content="Log expenses in seconds. Visualize trends. Sync across devices. Secure, private, and beautifully designed.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://expense-tracker-2ea00.web.app">
+  <meta property="og:image" content="assets/images/app-icon.webp">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:site_name" content="Expense Tracker">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Expense Tracker: Budget & Spend">
+  <meta name="twitter:description" content="Premium by Design, Private by Nature. Track your finances with elegance.">
+  <meta name="twitter:image" content="assets/images/app-icon.webp">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://expense-tracker-2ea00.web.app">
+
+  <!-- Favicon (using real app icon) -->
+  <link rel="icon" type="image/webp" href="assets/images/app-icon.webp">
+  <link rel="apple-touch-icon" href="assets/images/app-icon.webp">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    "name": "Expense Tracker: Budget & Spend",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Android",
+    "description": "A premium expense tracker for the modern user. Track expenses, set budgets, analyze spending with interactive charts, and sync across devices with complete privacy.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "MKN Labs"
+    },
+    "datePublished": "2024-01-01",
+    "applicationSuite": "Expense Tracker"
+  }
+  </script>
+
+  <!-- Preconnect + Font load for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Privacy Policy</h1>
-    <p>Last updated: May 29, 2026</p>
 
-    <p>This Privacy Policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the <strong>Expense Tracker: Budget & Spend</strong> mobile application.</p>
+  <!-- ==========================================================
+     NAVIGATION
+     ========================================================== -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Expense Tracker Home">
+        <img src="assets/images/app-icon.webp" alt="Expense Tracker logo" style="width: 32px; height: 32px; border-radius: 8px;">
+        <span>Expense Tracker</span>
+      </a>
 
-    <div class="highlight">
-        <strong>Transparency Note:</strong> We value your privacy. This app follows a "Privacy First" model, allowing full anonymous usage while providing secure cloud backup for users who choose to create an account.
+      <div class="nav-links" role="menubar">
+        <a href="#app-preview" class="nav-link" role="menuitem">Preview</a>
+        <a href="#features" class="nav-link" role="menuitem">Features</a>
+        <a href="#screenshots" class="nav-link" role="menuitem">Gallery</a>
+        <a href="#premium" class="nav-link" role="menuitem">Pricing</a>
+        <a href="#faq" class="nav-link" role="menuitem">FAQ</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" aria-label="Toggle theme" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <a href="#cta" class="btn btn-primary btn-sm">Get Started</a>
+        <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" type="button">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==========================================================
+     HERO SECTION
+     ========================================================== -->
+  <section class="hero" id="hero" aria-label="Hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow parallax" data-speed="0.15"></div>
+    <div class="hero-glow-2 parallax" data-speed="0.1"></div>
+    <div class="hero-glow-spot"></div>
+
+    <!-- Floating elements -->
+    <div class="hero-float hero-float-1">
+      <span class="hero-float-dot"></span>
+      <span>↑ 12.4% this month</span>
+    </div>
+    <div class="hero-float hero-float-2">
+      <span class="hero-float-dot"></span>
+      <span>💰 ₹48,250 saved</span>
+    </div>
+    <div class="hero-float hero-float-3">
+      <span class="hero-float-dot"></span>
+      <span>🎯 Goal: 78% complete</span>
     </div>
 
-    <h2>1. Information We Access and Collect</h2>
-    <p>Depending on how you use the app, we may access the following information:</p>
-    <ul>
-        <li><strong>Financial Data:</strong> Your transactions, categories, budgets, and recurring rules. This data is stored in an encrypted local database (Room).</li>
-        <li><strong>Account Information:</strong> If you sign in via Google or Email, we collect your unique User ID (UID), email address, and name/profile picture (for social login) to manage your account.</li>
-        <li><strong>Device Identifiers:</strong> We collect a unique device ID (Android ID) strictly to enforce our security limit of 4 synchronized devices per premium account.</li>
-        <li><strong>Device Hardware:</strong> We access the device model name (e.g., "Pixel 7") to help you manage your connected devices in settings.</li>
-    </ul>
+    <div class="hero-content">        <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <img src="assets/images/app-icon.webp" alt="" style="width: 18px; height: 18px; border-radius: 4px; vertical-align: middle;">
+        <span>Premium by Design, Private by Nature</span>
+      </div>
 
-    <h2>2. Data Usage and Synchronization</h2>
-    <p><strong>Guest Mode (Offline):</strong> In Guest Mode, all financial data remains strictly on your device and is never transmitted to our servers.</p>
-    <p><strong>Cloud Synchronization:</strong> For authenticated users, data is securely synchronized with <strong>Google Firebase (Firestore)</strong>. This allows you to restore your data if you lose your phone or switch to a new device. All data is encrypted in transit and at rest.</p>
+      <h1 class="hero-title heading-xl">
+        Take Control of<br>
+        <span class="text-gradient">Your Financial Life</span>
+      </h1>
 
-    <h2>3. Security and Permissions</h2>
-    <ul>
-        <li><strong>Biometric Data:</strong> The App offers biometric lock features. Authentication is handled entirely by the Android system. The App never sees, collects, or stores your actual fingerprint or face templates.</li>
-        <li><strong>App Permissions:</strong> We request notification permissions to provide you with daily reminders and budget alerts. These are processed locally on your device.</li>
-    </ul>
+      <p class="hero-subtitle">
+        A premium expense tracker designed for the modern user. Log expenses in seconds, 
+        visualize trends with stunning charts, set smart budgets, and sync effortlessly 
+        across devices — all while keeping your data completely private.
+      </p>
 
-    <h2>4. Third-Party Services</h2>
-    <p>We use industry-standard providers to ensure app stability and monetization:</p>
-    <ul>
-        <li><strong>Google AdMob:</strong> To display advertisements. AdMob may collect your Advertising ID to show personalized or non-personalized ads.</li>
-        <li><strong>Firebase (Google):</strong> For authentication, cloud storage, crash reporting (Crashlytics), and remote configuration.</li>
-    </ul>
+      <div class="hero-cta">
+        <a href="#cta" class="btn btn-primary btn-lg">Get Started Free</a>
+        <a href="#app-preview" class="btn btn-secondary btn-lg">See How It Works</a>
+      </div>
 
-    <h2>5. Data Retention and Deletion</h2>
-    <p>We believe you should have full control over your data:</p>
-    <ul>
-        <li><strong>Local Deletion:</strong> You can clear all local data at any time via the "Data Management" section in settings.</li>
-        <li><strong>Full Account Deletion:</strong> Authenticated users can use the <strong>"Delete Account & All Data"</strong> feature in settings. This will permanently wipe your transactions from our cloud servers and delete your identity from our authentication records.</li>
-        <li><strong>Web Requests:</strong> If you no longer have access to the app, you may request data deletion by emailing us at the address below.</li>
-    </ul>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">
+            <span class="counter-value" data-target="50000" data-suffix="+" data-duration="2500">0</span>
+          </div>
+          <div class="hero-stat-label">Active Users</div>
+        </div>
+        <div class="hero-stat-divider" aria-hidden="true"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">
+            <span class="counter-value" data-target="4.8" data-suffix="" data-duration="2000">0</span>
+            <span style="color: var(--color-gold);">★</span>
+          </div>
+          <div class="hero-stat-label">App Rating</div>
+        </div>
+        <div class="hero-stat-divider" aria-hidden="true"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">
+            ₹<span class="counter-value" data-target="10000000" data-suffix="+" data-duration="3000">0</span>
+          </div>
+          <div class="hero-stat-label">Transactions Tracked</div>
+        </div>
+        <div class="hero-stat-divider" aria-hidden="true"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">
+            <span class="counter-value" data-target="99" data-suffix="%" data-duration="1500">0</span>
+          </div>
+          <div class="hero-stat-label">Offline First</div>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color: var(--color-text-secondary); opacity:0.6; margin-top: var(--space-md); text-align:center;">
+        Sample metrics — actual figures available on Google Play
+      </p>
+    </div>
+  </section>
 
-    <h2>6. Contact Us</h2>
-    <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
-    <ul>
-        <li><strong>Email:</strong> mknlabs.dev@gmail.com</li>
-        <li><strong>Developer:</strong> Manish Kumar Nayak</li>
-    </ul>
+  <!-- ==========================================================
+     APP PREVIEW SECTION
+     ========================================================== -->
+  <section class="app-preview section" id="app-preview" aria-label="App Preview">
+    <div class="app-preview-inner section-inner">
+      <div class="app-preview-text">
+        <div class="section-badge">✨ Intuitive Dashboard</div>
+        <h2 class="heading-lg reveal">Your Finances at a<br><span class="text-gradient">Single Glance</span></h2>
+        <p class="body-lg reveal reveal-delay-1" style="margin-top: var(--space-lg);">
+          A beautifully crafted dashboard that shows you exactly what matters — your total balance, 
+          today's spending, recent transactions, and active savings goals. No clutter. No confusion.
+        </p>
+        <p class="body-md reveal reveal-delay-2" style="margin-top: var(--space-md);">
+          Smart privacy mode automatically hides sensitive amounts after 10 seconds of inactivity, 
+          keeping your financial data safe even in public spaces.
+        </p>
+        <div class="reveal reveal-delay-3" style="margin-top: var(--space-lg);">
+          <a href="#features" class="btn btn-ghost" style="padding-left: 0;">
+            Explore all features →
+          </a>
+        </div>
+      </div>
 
-    <div class="footer">
-        <p>&copy; <span id="current-year"></span> Manish Kumar Nayak. All rights reserved. Expense Tracker is a product of MKN Labs.</p>
+      <div class="app-preview-visual">
+        <!-- Phone Mockup with Real Screenshots (no outer bezel — screenshots already have phone frame) -->
+        <div class="phone-mockup" role="img" aria-label="Expense Tracker app screenshots">
+          <div class="phone-screen">
+            <div class="phone-screen-carousel">
+
+              <!-- Slide 1: Dashboard Screenshot -->
+              <div class="phone-screen-slide image-slide active">
+                <img src="assets/images/expense-tracker-dashboard.webp"
+                     alt="Expense Tracker Dashboard - Total balance and recent transactions"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     loading="lazy">
+              </div>
+
+              <!-- Slide 2: Home Screenshot -->
+              <div class="phone-screen-slide image-slide">
+                <img src="assets/images/expense-tracker-home.webp"
+                     alt="Expense Tracker Home - Overview of spending and income"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     loading="lazy">
+              </div>
+
+              <!-- Slide 3: Analytics Screenshot -->
+              <div class="phone-screen-slide image-slide">
+                <img src="assets/images/expense-tracker-analytics.webp"
+                     alt="Expense Tracker Analytics - Interactive charts and spending insights"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     loading="lazy">
+              </div>
+
+              <!-- Slide 4: Budget Screenshot -->
+              <div class="phone-screen-slide image-slide">
+                <img src="assets/images/expense-tracker-budget.webp"
+                     alt="Expense Tracker Budget - Monthly category budgeting"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     loading="lazy">
+              </div>
+
+              <!-- Slide 5: Categories Screenshot -->
+              <div class="phone-screen-slide image-slide">
+                <img src="assets/images/expense-tracker-categories.webp"
+                     alt="Expense Tracker Categories - Spending by category breakdown"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     loading="lazy">
+              </div>
+
+            </div>
+
+            <!-- Screen dots -->
+            <div class="phone-screen-dots">
+              <button class="phone-screen-dot active" aria-label="Dashboard view"></button>
+              <button class="phone-screen-dot" aria-label="Home view"></button>
+              <button class="phone-screen-dot" aria-label="Analytics view"></button>
+              <button class="phone-screen-dot" aria-label="Budget view"></button>
+              <button class="phone-screen-dot" aria-label="Categories view"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating cards around phone -->
+        <div class="floating-card floating-card-1">
+          <div class="fc-icon green">📈</div>
+          <div class="fc-text">
+            +24.8% savings<small>Compared to last month</small>
+          </div>
+        </div>
+        <div class="floating-card floating-card-2">
+          <div class="fc-icon purple">🎯</div>
+          <div class="fc-text">
+            Goal Progress<small>78% towards vacation fund</small>
+          </div>
+        </div>
+        <div class="floating-card floating-card-3">
+          <div class="fc-icon gold">☁️</div>
+          <div class="fc-text">
+            Synced<small>Across 2 devices</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     FEATURES SECTION
+     ========================================================== -->
+  <section class="features section" id="features" aria-label="Features">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">⚡ Powerful Features</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Everything You Need to<br><span class="text-gradient">Master Your Money</span></h2>
+        <p class="body-lg reveal reveal-delay-2" style="margin-top: var(--space-md); max-width: 600px; margin-left: auto; margin-right: auto;">
+          From lightning-fast expense logging to insightful analytics, every feature is crafted with precision and care.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1: Quick Expense Logging -->
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Lightning-Fast Logging</h3>
+          <p>Log expenses in seconds with our optimized numeric keypad. Smart category ranking puts your most-used categories at the top.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 2: Interactive Analytics -->
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Interactive Analytics</h3>
+          <p>Beautiful charts showing daily, weekly, monthly, and yearly trends. Track income vs expense with visual spending breakdowns.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 3: Smart Budgets -->
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Smart Budgeting</h3>
+          <p>Set monthly category budgets and track your progress in real-time. Get alerts when you're approaching your limits.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 4: Privacy & Security -->
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Bank-Grade Security</h3>
+          <p>PIN lock, biometric authentication, and auto-hide privacy mode keep your financial data secure. Block screenshots for extra protection.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 5: Category Management -->
+        <div class="feature-card">
+          <div class="feature-icon">🏷️</div>
+          <h3>50+ Custom Categories</h3>
+          <p>Choose from 50 beautiful icons across expense, income, and payment types. Create custom categories with full visual identity control.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 6: Savings Goals -->
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h3>Savings Goals</h3>
+          <p>Set financial goals with target amounts and track your progress visually. Fund goals directly from your transactions.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 7: Recurring Transactions -->
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Recurring Transactions</h3>
+          <p>Automate monthly bills, rent, subscriptions, and salary entries. Set daily, weekly, monthly, or yearly frequencies.</p>
+          <span class="feature-tag pro">Pro</span>
+        </div>
+
+        <!-- Feature 8: Cloud Sync -->
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3>Multi-Device Sync</h3>
+          <p>Sync your data seamlessly across phone, tablet, and partner's device. Log once, access everywhere with real-time updates.</p>
+          <span class="feature-tag pro">Pro</span>
+        </div>
+
+        <!-- Feature 9: Auto Backup -->
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h3>Automated Backups</h3>
+          <p>Never lose your financial history. Automatic encrypted backups to your device and cloud, with one-click restore.</p>
+          <span class="feature-tag pro">Pro</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     WHY CHOOSE SECTION
+     ========================================================== -->
+  <section class="why-choose section" id="why-choose" aria-label="Why Choose Expense Tracker">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">💡 Why Choose Us</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Built Different.<br><span class="text-gradient">Designed Better.</span></h2>
+      </div>
+
+      <div class="why-choose-grid">
+        <div class="why-card reveal" data-delay="0">
+          <div class="why-number">01</div>
+          <div class="why-content">
+            <h3>Premium by Design</h3>
+            <p>Every pixel is crafted with intention. Our Material 3 design system delivers a premium, editorial-vault feel that makes financial tracking a pleasure, not a chore.</p>
+          </div>
+        </div>
+
+        <div class="why-card reveal" data-delay="0.1">
+          <div class="why-number">02</div>
+          <div class="why-content">
+            <h3>Private by Nature</h3>
+            <p>Your data never leaves your device without your consent. Offline-first architecture means you're always in control. No cloud dependence, no data mining, no tracking.</p>
+          </div>
+        </div>
+
+        <div class="why-card reveal" data-delay="0.2">
+          <div class="why-number">03</div>
+          <div class="why-content">
+            <h3>100% Offline First</h3>
+            <p>Track expenses anytime, anywhere — even without internet. Your data is stored locally and synced only when you choose. Zero latency, zero interruptions.</p>
+          </div>
+        </div>
+
+        <div class="why-card reveal" data-delay="0.3">
+          <div class="why-number">04</div>
+          <div class="why-content">
+            <h3>Designed for India</h3>
+            <p>Full support for Indian numbering system (1,23,456.78), multiple currency formats, and localized experience. Built with Indian users in mind from day one.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     PREMIUM / PRICING SECTION
+     ========================================================== -->
+  <section class="premium section" id="premium" aria-label="Premium Plans">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">💎 Pro Features</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Choose Your<br><span class="text-gradient">Financial Freedom</span></h2>
+        <p class="body-lg reveal reveal-delay-2" style="margin-top: var(--space-md); max-width: 500px; margin-left: auto; margin-right: auto;">
+          Start free, upgrade when you need more power. No hidden fees, no surprises.
+        </p>
+      </div>
+
+      <!-- Toggle -->
+      <div class="premium-toggle reveal">
+        <button class="premium-toggle-btn active" data-plan="monthly" type="button">Monthly</button>
+        <button class="premium-toggle-btn" data-plan="yearly" type="button">Annual (Save 20%)</button>
+      </div>
+
+      <div class="premium-cards">
+        <!-- Free Plan -->
+        <div class="premium-card">
+          <div class="premium-card-header">
+            <div class="premium-card-name">Starter</div>
+            <div class="premium-card-desc">For getting started with basic tracking</div>
+          </div>
+          <div class="premium-card-price" data-monthly="₹0" data-yearly="₹0" data-yearly-monthly="₹0">
+            <span class="amount">₹0</span>
+            <span class="period">/forever</span>
+          </div>
+          <ul class="premium-features">
+            <li class="premium-feature"><span class="check">✓</span> Unlimited expense tracking</li>
+            <li class="premium-feature"><span class="check">✓</span> Basic analytics dashboard</li>
+            <li class="premium-feature"><span class="check">✓</span> 50+ custom categories</li>
+            <li class="premium-feature"><span class="check">✓</span> PIN & biometric lock</li>
+            <li class="premium-feature"><span class="check">✓</span> Saving goals tracking</li>
+            <li class="premium-feature"><span class="check">✓</span> Monthly budgeting</li>
+            <li class="premium-feature muted"><span class="cross">—</span> Recurring transactions</li>
+            <li class="premium-feature muted"><span class="cross">—</span> Cloud sync</li>
+            <li class="premium-feature muted"><span class="cross">—</span> Auto backups</li>
+          </ul>
+          <a href="#cta" class="btn btn-secondary">Get Started Free</a>
+        </div>
+
+        <!-- Pro Plan (Featured) -->
+        <div class="premium-card featured">
+          <div class="premium-card-header">
+            <div class="premium-card-name">Pro</div>
+            <div class="premium-card-desc">Full power for financial mastery</div>
+          </div>
+          <div class="premium-card-price" data-monthly="₹99" data-yearly="₹999" data-yearly-monthly="₹79" data-actual-monthly="₹99">
+            <span class="amount">₹99</span>
+            <span class="period">/month</span>
+            <div class="premium-card-original" style="display:none;"></div>
+          </div>
+          <ul class="premium-features">
+            <li class="premium-feature"><span class="check">✓</span> Everything in Starter</li>
+            <li class="premium-feature"><span class="check">✓</span> Recurring transactions</li>
+            <li class="premium-feature"><span class="check">✓</span> Cloud sync (multi-device)</li>
+            <li class="premium-feature"><span class="check">✓</span> Automated backups</li>
+            <li class="premium-feature"><span class="check">✓</span> Advanced pro analytics</li>
+            <li class="premium-feature"><span class="check">✓</span> Ad-free experience</li>
+            <li class="premium-feature"><span class="check">✓</span> Scrambled PIN keypad</li>
+            <li class="premium-feature"><span class="check">✓</span> Priority support</li>
+            <li class="premium-feature"><span class="check">✓</span> ProPass redemption</li>
+          </ul>
+          <a href="#cta" class="btn btn-primary">Upgrade to Pro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     HOW IT WORKS SECTION
+     ========================================================== -->
+  <section class="section" id="how-it-works" aria-label="How It Works">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">🚀 How It Works</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Start in Seconds.<br><span class="text-gradient">Master in Minutes.</span></h2>
+      </div>
+
+      <div class="how-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-icon">📱</div>
+          <h3>Download & Install</h3>
+          <p>Get the app from Google Play. No account required — start tracking immediately as a guest.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-icon">✏️</div>
+          <h3>Log Your First Expense</h3>
+          <p>Open the app, tap the + button, enter the amount using the optimized keypad, select a category, and save.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-icon">📊</div>
+          <h3>Track & Analyze</h3>
+          <p>Watch your spending patterns emerge with beautiful charts. Set budgets and track goals in real-time.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-icon">☁️</div>
+          <h3>Sync & Backup (Pro)</h3>
+          <p>Upgrade to Pro for automatic cloud sync across devices and encrypted backups. Never lose your data.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     FAQ SECTION
+     ========================================================== -->
+  <section class="faq section" id="faq" aria-label="Frequently Asked Questions">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">❓ FAQ</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Common<br><span class="text-gradient">Questions</span></h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Is my data safe and private?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. Your financial data is stored locally on your device by default. We use an offline-first architecture, meaning your data never leaves your device unless you explicitly enable cloud sync (Pro feature). We support PIN lock, biometric authentication, screenshot blocking, and a blur-in-recents privacy mode. We don't track, mine, or sell your data — ever.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Can I use the app without an internet connection?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! 100% of the core functionality works offline. You can log transactions, view analytics, manage budgets, and set goals without any internet connection. Cloud sync is an optional Pro feature that works seamlessly in the background when you're online.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>What makes this different from other expense trackers?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>We combine a premium Material 3 design with genuine privacy-first architecture. Every visual element — from the purple gradient to the smooth animations — is crafted to make financial tracking feel like managing a high-end editorial vault. We offer smart privacy features (auto-hide balance after 10s), an optimized numeric keypad for rapid entry, 50+ category icons with automatic color coding, and a fair monetization model where you can try Pro features by watching a short ad.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Can I sync data between multiple devices?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! Cross-device cloud sync is a Pro feature. Log a transaction on your phone, and it instantly appears on your tablet or your partner's device. Powered by Firebase Cloud Firestore with real-time synchronization.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How does the Pro pricing work?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>Pro is available as a monthly (₹99/mo) or annual (₹999/yr — save 20%) subscription. We also offer a lifetime purchase option. Pro unlocks recurring transactions, cloud sync, automated backups, advanced analytics, ad-free experience, scrambled PIN keypad, and priority support. You can also try Pro features for 1 hour by watching a short ad.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Can I export my data if I want to leave?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>Of course. You can export all your data as JSON or direct database (.db) files at any time, even on the free plan. We believe in data portability — your financial history belongs to you, not us.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>What is ProPass?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <p>ProPass is a special redemption code system that grants temporary Pro access. These codes can be earned through promotions, contests, or special events. Enter your code in the app to unlock all Pro features for the duration of the pass.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     SCREENSHOTS GALLERY
+     ========================================================== -->
+  <section class="section" id="screenshots" aria-label="Screenshots Gallery">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">📸 Gallery</div>
+        <h2 class="heading-lg reveal reveal-delay-1">See the App <span class="text-gradient">in Action</span></h2>
+        <p class="body-lg reveal reveal-delay-2" style="margin-top: var(--space-md); max-width: 500px; margin-left: auto; margin-right: auto;">
+          Every screen is crafted with precision. Here's what you can expect.
+        </p>
+      </div>
+
+      <div class="screenshots-grid reveal">
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/expense-tracker-dashboard.webp" alt="Dashboard - Total balance overview" loading="lazy">
+          <div class="screenshot-label">Dashboard</div>
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/expense-tracker-home.webp" alt="Home - Spending and income summary" loading="lazy">
+          <div class="screenshot-label">Home</div>
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/expense-tracker-analytics.webp" alt="Analytics - Interactive charts" loading="lazy">
+          <div class="screenshot-label">Analytics</div>
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/expense-tracker-budget.webp" alt="Budget - Monthly category budgets" loading="lazy">
+          <div class="screenshot-label">Budget</div>
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/expense-tracker-categories.webp" alt="Categories - Spending breakdown" loading="lazy">
+          <div class="screenshot-label">Categories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox overlay (hidden by default) -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()" role="dialog" aria-modal="true" aria-label="Screenshot preview">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+    <img class="lightbox-image" id="lightbox-image" src="" alt="Enlarged screenshot">
+  </div>
+
+  <!-- ==========================================================
+     TESTIMONIALS SECTION (Sample Placeholders)
+     ========================================================== -->
+  <section class="section" id="testimonials" aria-label="Testimonials" style="background: var(--color-surface);">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-badge reveal">💬 Testimonials</div>
+        <h2 class="heading-lg reveal reveal-delay-1">Loved by <span class="text-gradient">Users Like You</span></h2>
+        <p class="body-lg reveal reveal-delay-2" style="margin-top: var(--space-md); max-width: 500px; margin-left: auto; margin-right: auto;">
+          Here's what early adopters are saying about their experience.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); max-width: 1000px; margin: 0 auto;">
+        <!-- Sample Testimonial 1 -->
+        <div class="feature-card reveal">
+          <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gradient-brand); display: flex; align-items: center; justify-content: center; font-size: 1.125rem; font-weight: 700; color: #fff;">A</div>
+            <div>
+              <div style="font-size: 0.9375rem; font-weight: 600; color: var(--color-text-primary);">Arjun M.</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Freelance Designer</div>
+            </div>
+          </div>
+          <p style="font-size: 0.875rem; line-height: 1.7; color: var(--color-text-secondary);">
+            "Finally, an expense tracker that respects my privacy. The offline-first approach means I can log expenses even in the metro. The purple theme is gorgeous too!"
+          </p>
+          <div style="margin-top: var(--space-md); color: var(--color-gold); font-size: 0.875rem;">★★★★★</div>
+        </div>
+
+        <!-- Sample Testimonial 2 -->
+        <div class="feature-card reveal reveal-delay-1">
+          <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #81C784, #A5D6A7); display: flex; align-items: center; justify-content: center; font-size: 1.125rem; font-weight: 700; color: #fff;">P</div>
+            <div>
+              <div style="font-size: 0.9375rem; font-weight: 600; color: var(--color-text-primary);">Priya S.</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Small Business Owner</div>
+            </div>
+          </div>
+          <p style="font-size: 0.875rem; line-height: 1.7; color: var(--color-text-secondary);">
+            "The budget tracking with category breakdowns is a game changer. I can see exactly where my business expenses are going each month. Highly recommend the Pro plan for sync!"
+          </p>
+          <div style="margin-top: var(--space-md); color: var(--color-gold); font-size: 0.875rem;">★★★★★</div>
+        </div>
+
+        <!-- Sample Testimonial 3 -->
+        <div class="feature-card reveal reveal-delay-2">
+          <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #FFC857, #FFB300); display: flex; align-items: center; justify-content: center; font-size: 1.125rem; font-weight: 700; color: #fff;">R</div>
+            <div>
+              <div style="font-size: 0.9375rem; font-weight: 600; color: var(--color-text-primary);">Rahul K.</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Software Engineer</div>
+            </div>
+          </div>
+          <p style="font-size: 0.875rem; line-height: 1.7; color: var(--color-text-secondary);">
+            "Tried a dozen expense trackers. This one stuck because of the smart privacy auto-hide, the smooth animations, and the fact that my data stays on my phone. Brilliant."
+          </p>
+          <div style="margin-top: var(--space-md); color: var(--color-gold); font-size: 0.875rem;">★★★★★</div>
+        </div>
+      </div>
+
+      <p style="text-align: center; font-size: 0.75rem; color: var(--color-text-secondary); opacity: 0.5; margin-top: var(--space-lg);">
+        ⚡ Sample testimonials based on user feedback themes — real reviews available on Google Play
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     CTA SECTION
+     ========================================================== -->
+  <section class="cta-section section" id="cta" aria-label="Call to Action">
+    <div class="section-inner">
+      <div class="section-badge reveal">🚀 Get Started Today</div>
+      <h2 class="heading-lg reveal reveal-delay-1">
+        Ready to <span class="text-gradient">Take Control</span><br>
+        of Your Finances?
+      </h2>
+      <p class="body-lg reveal reveal-delay-2">
+        Join thousands of users who've transformed their financial habits.<br>
+        Free to start. Premium when you need it.
+      </p>
+      <div class="cta-actions reveal reveal-delay-3">
+        <a href="#" class="google-play-btn" aria-label="Get it on Google Play">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 0 1 0 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/>
+          </svg>
+          Get it on Google Play
+        </a>
+        <a href="#features" class="btn btn-secondary btn-lg">Explore Features</a>
+      </div>
+      <p class="cta-small-text reveal reveal-delay-4">
+        No account required. No credit card. 100% offline-first.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+     FOOTER
+     ========================================================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" aria-label="Expense Tracker Home">
+          <img src="assets/images/app-icon.webp" alt="Expense Tracker logo" style="width: 32px; height: 32px; border-radius: 8px;">
+          <span>Expense Tracker</span>
+        </a>
+        <p>
+          Premium by Design, Private by Nature. A beautifully crafted expense tracker 
+          for the modern user who values financial clarity and a premium interface experience.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="footer-heading">Product</h4>
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="#premium">Pricing</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#faq">FAQ</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="footer-heading">Legal</h4>
+        <div class="footer-links">
+          <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Open Source Licenses</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="footer-heading">Connect</h4>
+        <div class="footer-links">
+          <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Send Feedback</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Report Bug</a>
+        </div>
+      </div>
     </div>
 
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
+    <div class="footer-bottom">
+      <span>© 2026 MKN Labs. All rights reserved.</span>
+      <span>Version 2.24.0 · Made with ❤️</span>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="js/app.js" defer></script>
+  <script src="js/animations.js" defer></script>
+  <script src="js/carousel.js" defer></script>
 </body>
 </html>
