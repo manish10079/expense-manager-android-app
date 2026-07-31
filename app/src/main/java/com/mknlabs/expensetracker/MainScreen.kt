@@ -76,7 +76,7 @@ import com.mknlabs.expensetracker.ui.screens.OnboardingScreen
 import com.mknlabs.expensetracker.ui.viewmodels.MainViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.screens.AuthContent
+import com.mknlabs.expensetracker.ui.screens.AuthRoute
 import com.mknlabs.expensetracker.workers.SyncWorker
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
@@ -978,7 +978,7 @@ fun MainScreen(
                 }
             ) {
                 Box(modifier = Modifier.padding(bottom = 32.dp)) {
-                    AuthContent(
+                    AuthRoute(
                         viewModel = authViewModel,
                         onAuthSuccess = {
                             showAuthSheet = false

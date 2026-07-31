@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.ui.Alignment
@@ -35,16 +36,16 @@ private enum class EmailAuthAction {
 }
 
 @Composable
-fun AuthContent(
+fun AuthRoute(
     viewModel: AuthViewModel,
     onAuthSuccess: () -> Unit,
     onGuestContinue: () -> Unit = onAuthSuccess,
     onSignUpSuccess: (() -> Unit)? = null
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val authState by viewModel.authState.collectAsState()
-    val cooldownSeconds by viewModel.cooldownSeconds.collectAsState()
-    val verificationExpiry by viewModel.verificationExpiry.collectAsState()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val cooldownSeconds by viewModel.cooldownSeconds.collectAsStateWithLifecycle()
+    val verificationExpiry by viewModel.verificationExpiry.collectAsStateWithLifecycle()
 
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
@@ -88,33 +89,76 @@ fun AuthContent(
     val isEmailVerificationMode = authState is AuthState.EmailVerificationRequired
     val currentUserEmail = viewModel.currentUser.value?.email
 
+    // Load verification expiry when the email verification UI is shown
+    LaunchedEffect(isEmailVerificationMode) {
+        if (isEmailVerificationMode) {
+            viewModel.loadVerificationExpiry()
+        }
+    }
+
+    AuthContent(
+        authState = authState,
+        cooldownSeconds = cooldownSeconds,
+        verificationExpiry = verificationExpiry,
+        email = currentUserEmail ?: "",
+        isEmailVerificationMode = isEmailVerificationMode,
+        onCheckStatus = { viewModel.checkEmailVerificationStatus() },
+        onResend = { viewModel.resendVerificationEmail() },
+        onCancel = {
+            viewModel.signOut()
+            viewModel.resetState()
+        },
+        onGoogleSignIn = { viewModel.signInWithGoogle(context) },
+        onEmailSignIn = { email, password -> viewModel.signInWithEmail(email, password) },
+        onEmailSignUp = { email, password -> viewModel.signUpWithEmail(email, password) },
+        onForgotPassword = { email -> viewModel.sendPasswordResetEmail(email) },
+        onSendMagicLink = { email -> viewModel.sendMagicLink(email) },
+        onGuestContinue = {
+            viewModel.startGuestSignIn()
+            onGuestContinue()
+        },
+        onToggleSignUp = { viewModel.resetState() }
+    )
+}
+
+@Composable
+fun AuthContent(
+    authState: AuthState,
+    cooldownSeconds: Int,
+    verificationExpiry: Long?,
+    email: String,
+    isEmailVerificationMode: Boolean,
+    onCheckStatus: () -> Unit,
+    onResend: () -> Unit,
+    onCancel: () -> Unit,
+    onGoogleSignIn: () -> Unit,
+    onEmailSignIn: (String, String) -> Unit,
+    onEmailSignUp: (String, String) -> Unit,
+    onForgotPassword: (String) -> Unit,
+    onSendMagicLink: (String) -> Unit,
+    onGuestContinue: () -> Unit,
+    onToggleSignUp: () -> Unit
+) {
     if (isEmailVerificationMode) {
         EmailVerificationContent(
             authState = authState,
             verificationExpiry = verificationExpiry,
-            email = currentUserEmail ?: "",
-            onCheckStatus = { viewModel.checkEmailVerificationStatus() },
-            onResend = { viewModel.resendVerificationEmail() },
-            onCancel = {
-                viewModel.signOut()
-                viewModel.resetState()
-            },
-            onLoadExpiry = { viewModel.loadVerificationExpiry() }
+            email = email,
+            onCheckStatus = onCheckStatus,
+            onResend = onResend,
+            onCancel = onCancel
         )
     } else {
         AuthContentBody(
             authState = authState,
             cooldownSeconds = cooldownSeconds,
-            onGoogleSignIn = { viewModel.signInWithGoogle(context) },
-            onEmailSignIn = { email, password -> viewModel.signInWithEmail(email, password) },
-            onEmailSignUp = { email, password -> viewModel.signUpWithEmail(email, password) },
-            onForgotPassword = { email -> viewModel.sendPasswordResetEmail(email) },
-            onSendMagicLink = { email -> viewModel.sendMagicLink(email) },
-            onGuestContinue = {
-                viewModel.startGuestSignIn()
-                onGuestContinue()
-            },
-            onToggleSignUp = { viewModel.resetState() }
+            onGoogleSignIn = onGoogleSignIn,
+            onEmailSignIn = onEmailSignIn,
+            onEmailSignUp = onEmailSignUp,
+            onForgotPassword = onForgotPassword,
+            onSendMagicLink = onSendMagicLink,
+            onGuestContinue = onGuestContinue,
+            onToggleSignUp = onToggleSignUp
         )
     }
 }
@@ -189,7 +233,7 @@ private fun AuthContentBody(
                         Spacer(modifier = Modifier.width(12.dp))
                         Image(
                             painter = painterResource(id = R.drawable.ic_google_logo),
-                            contentDescription = "Google",
+                            contentDescription = stringResource(id = R.string.content_desc_google_logo),
                             modifier = Modifier.size(24.dp),
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                         )
@@ -418,14 +462,9 @@ private fun EmailVerificationContent(
     email: String,
     onCheckStatus: () -> Unit,
     onResend: () -> Unit,
-    onCancel: () -> Unit,
-    onLoadExpiry: () -> Unit
+    onCancel: () -> Unit
 ) {
     val isVerificationLoading = authState is AuthState.EmailVerificationRequired && (authState as AuthState.EmailVerificationRequired).isLoading
-
-    LaunchedEffect(Unit) {
-        onLoadExpiry()
-    }
 
     var remainingTimeMs by remember { mutableStateOf(0L) }
 

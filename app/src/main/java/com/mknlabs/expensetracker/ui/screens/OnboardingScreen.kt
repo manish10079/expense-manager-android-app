@@ -125,11 +125,18 @@ fun OnboardingScreen(
 
     OnboardingScreenContent(
         currentUser = currentUser,
-        authViewModel = authViewModel,
         onFinish = onFinish,
         onSignUpSuccess = onSignUpSuccess,
         onCancelGuestSignIn = { authViewModel.cancelGuestSignIn() },
-        onResetAuthState = { authViewModel.resetState() }
+        onResetAuthState = { authViewModel.resetState() },
+        authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccess ->
+            AuthRoute(
+                viewModel = authViewModel,
+                onAuthSuccess = onAuthSuccess,
+                onGuestContinue = onGuestContinue,
+                onSignUpSuccess = onSignUpSuccess
+            )
+        }
     )
 }
 
@@ -137,11 +144,11 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingScreenContent(
     currentUser: com.google.firebase.auth.FirebaseUser?,
-    authViewModel: AuthViewModel?,
     onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit,
     onSignUpSuccess: (() -> Unit)?,
     onCancelGuestSignIn: () -> Unit,
-    onResetAuthState: () -> Unit
+    onResetAuthState: () -> Unit,
+    authSection: (@Composable (onAuthSuccess: () -> Unit, onGuestContinue: () -> Unit, onSignUpSuccess: () -> Unit) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val onboardingPages = remember {
@@ -417,18 +424,17 @@ private fun OnboardingScreenContent(
                         }
 
                         if (isAuthOnThisPageIndex) {
-                            if (authViewModel != null) {
-                                AuthContent(
-                                    viewModel = authViewModel,
-                                    onAuthSuccess = {
+                            if (authSection != null) {
+                                authSection(
+                                    {
                                         Log.d("Onboarding", "Auth SUCCESS callback triggered.")
                                         currentPage = 5
                                     },
-                                    onGuestContinue = {
+                                    {
                                         Log.d("Onboarding", "Guest continue triggered.")
                                         currentPage = 5
                                     },
-                                    onSignUpSuccess = {
+                                    {
                                         Log.d("Onboarding", "Sign up success callback triggered.")
                                         onSignUpSuccess?.invoke()
                                         currentPage = 5
@@ -436,7 +442,7 @@ private fun OnboardingScreenContent(
                                 )
                             } else {
                                 Text(
-                                    text = "Auth Content (Preview Placeholder)",
+                                    text = stringResource(id = R.string.msg_auth_content_preview_placeholder),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(16.dp)
@@ -1427,7 +1433,6 @@ private fun OnboardingScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         OnboardingScreenContent(
             currentUser = null,
-            authViewModel = null,
             onFinish = { _, _, _, _ -> },
             onSignUpSuccess = {},
             onCancelGuestSignIn = {},

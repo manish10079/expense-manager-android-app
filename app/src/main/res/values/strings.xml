@@ -580,6 +580,8 @@
     <string name="title_secure_your_account">Secure Your Account</string>
     <string name="desc_sync_and_premium_features">Sign in to enable cross-device sync and access premium features safely.</string>
     <string name="label_continue_with_google">Continue with Google</string>
+    <string name="content_desc_google_logo">Google</string>
+    <string name="msg_auth_content_preview_placeholder">Auth Content (Preview Placeholder)</string>
     <string name="label_continue_with">Continue with</string>
     <string name="label_or">OR</string>
     <string name="label_email">Email Address</string>

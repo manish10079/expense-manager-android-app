@@ -327,6 +327,96 @@ fun AppLockScreen(
         headerAction?.invoke()
     }
 
+    AppLockScreenContent(
+        mode = mode,
+        headerAction = headerAction,
+        title = title,
+        eyebrow = eyebrow,
+        headline = headline,
+        supportText = supportText,
+        supportTextIsError = message != null,
+        isPinEntryVisible = isPinEntryVisible,
+        isSetupSecurityQuestion = mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion,
+        isRecoveryMode = isRecoveryMode,
+        isKeyboardOpen = isKeyboardOpen,
+        isDarkPalette = isDarkPalette,
+        primaryActionLabel = primaryActionLabel,
+        onPrimaryActionClick = onPrimaryActionClick,
+        enteredPin = enteredPin,
+        keypadLayout = keypadLayout,
+        keypadLayoutVersion = keypadLayoutVersion,
+        keypadShakeOffsetPx = if (scrambledPinKeypadEnabled) keypadShakeOffsetPx.value else 0f,
+        pinVisualMode = pinVisualMode,
+        onDigitClick = { digit ->
+            if (enteredPin.length < 4) {
+                enteredPin += digit
+            }
+        },
+        onDeleteClick = {
+            if (enteredPin.isNotEmpty()) {
+                enteredPin = enteredPin.dropLast(1)
+            }
+        },
+        onForgotClick = {
+            triggerForgotRecovery()
+        },
+        biometricEnabled = biometricEnabled,
+        isBiometricAvailable = isBiometricAvailable,
+        onBiometricClick = onBiometricClick,
+        selectedSecurityQuestionId = selectedSecurityQuestionId,
+        securityAnswer = securityAnswer,
+        onQuestionSelected = {
+            selectedSecurityQuestionId = it
+            message = null
+        },
+        onSecurityAnswerChange = {
+            securityAnswer = it
+            message = null
+        },
+        securityQuestionPromptText = securityQuestionPrompt?.let { stringResource(it) },
+        recoveryAnswer = recoveryAnswer,
+        onRecoveryAnswerChange = {
+            recoveryAnswer = it
+            message = null
+        }
+    )
+}
+
+@Composable
+private fun AppLockScreenContent(
+    mode: AppLockScreenMode,
+    headerAction: (() -> Unit)?,
+    title: String,
+    eyebrow: String,
+    headline: String,
+    supportText: String,
+    supportTextIsError: Boolean,
+    isPinEntryVisible: Boolean,
+    isSetupSecurityQuestion: Boolean,
+    isRecoveryMode: Boolean,
+    isKeyboardOpen: Boolean,
+    isDarkPalette: Boolean,
+    primaryActionLabel: String,
+    onPrimaryActionClick: () -> Unit,
+    enteredPin: String,
+    keypadLayout: List<List<String>>,
+    keypadLayoutVersion: Int,
+    keypadShakeOffsetPx: Float,
+    pinVisualMode: PinVisualMode,
+    onDigitClick: (String) -> Unit,
+    onDeleteClick: () -> Unit,
+    onForgotClick: () -> Unit,
+    biometricEnabled: Boolean,
+    isBiometricAvailable: Boolean,
+    onBiometricClick: (() -> Unit)?,
+    selectedSecurityQuestionId: String,
+    securityAnswer: String,
+    onQuestionSelected: (String) -> Unit,
+    onSecurityAnswerChange: (String) -> Unit,
+    securityQuestionPromptText: String?,
+    recoveryAnswer: String,
+    onRecoveryAnswerChange: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -473,10 +563,10 @@ fun AppLockScreen(
                     if (supportText.isNotBlank()) {
                         Text(
                             text = supportText,
-                            color = if (message == null) {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            } else {
+                            color = if (supportTextIsError) {
                                 MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -491,28 +581,19 @@ fun AppLockScreen(
                     when {
                         isRecoveryMode -> {
                             RecoveryQuestionContent(
-                                questionPrompt = securityQuestionPrompt?.let { stringResource(it) },
+                                questionPrompt = securityQuestionPromptText,
                                 answer = recoveryAnswer,
-                                onAnswerChange = {
-                                    recoveryAnswer = it
-                                    message = null
-                                },
+                                onAnswerChange = onRecoveryAnswerChange,
                                 onDone = onPrimaryActionClick
                             )
                         }
 
-                        mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion -> {
+                        isSetupSecurityQuestion -> {
                             SetupSecurityQuestionContent(
                                 selectedQuestionId = selectedSecurityQuestionId,
                                 answer = securityAnswer,
-                                onQuestionSelected = {
-                                    selectedSecurityQuestionId = it
-                                    message = null
-                                },
-                                onAnswerChange = {
-                                    securityAnswer = it
-                                    message = null
-                                },
+                                onQuestionSelected = onQuestionSelected,
+                                onAnswerChange = onSecurityAnswerChange,
                                 onDone = onPrimaryActionClick
                             )
                         }
@@ -522,25 +603,11 @@ fun AppLockScreen(
                                 enteredPin = enteredPin,
                                 keypadLayout = keypadLayout,
                                 keypadLayoutVersion = keypadLayoutVersion,
-                                keypadShakeOffsetPx = if (scrambledPinKeypadEnabled) {
-                                    keypadShakeOffsetPx.value
-                                } else {
-                                    0f
-                                },
+                                keypadShakeOffsetPx = keypadShakeOffsetPx,
                                 mode = mode,
-                                onDigitClick = { digit ->
-                                    if (enteredPin.length < 4) {
-                                        enteredPin += digit
-                                    }
-                                },
-                                onDeleteClick = {
-                                    if (enteredPin.isNotEmpty()) {
-                                        enteredPin = enteredPin.dropLast(1)
-                                    }
-                                },
-                                onForgotClick = {
-                                    triggerForgotRecovery()
-                                },
+                                onDigitClick = onDigitClick,
+                                onDeleteClick = onDeleteClick,
+                                onForgotClick = onForgotClick,
                                 pinVisualMode = pinVisualMode
                             )
 

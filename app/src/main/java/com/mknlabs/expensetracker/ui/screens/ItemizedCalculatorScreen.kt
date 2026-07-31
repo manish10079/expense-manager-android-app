@@ -33,9 +33,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
@@ -90,7 +90,7 @@ fun ItemizedCalculatorScreen(
     onBackClick: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val modes = CalculatorMode.entries
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -320,7 +320,7 @@ private fun NormalCalculatorContent(
             ) {
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
-                    label = "AC",
+                    label = stringResource(id = R.string.label_ac),
                     onClick = { onAction("AC") }
                 )
                 CalculatorKeyButton(
