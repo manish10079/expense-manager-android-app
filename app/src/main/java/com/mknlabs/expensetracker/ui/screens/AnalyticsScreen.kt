@@ -11,11 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -1123,15 +1123,25 @@ private fun CategoryCard(
                     )
                 )
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.label_view_all),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.4.sp
-                        ),
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable(onClick = onViewAllClick)
-                    )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.label_view_all),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.4.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
@@ -1429,15 +1439,25 @@ private fun TopSpendingCard(
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 if (topTransactions.isNotEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.label_view_all),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.4.sp
-                        ),
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable(onClick = onViewAllClick)
-                    )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.label_view_all),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.4.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
@@ -1627,15 +1647,25 @@ private fun PaymentTypeCard(
                     )
                 )
                 if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.label_view_all),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.4.sp
-                        ),
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable(onClick = onViewAllClick)
-                    )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.label_view_all),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.4.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
