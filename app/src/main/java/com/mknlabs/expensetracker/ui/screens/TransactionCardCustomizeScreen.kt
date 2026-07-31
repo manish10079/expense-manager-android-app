@@ -90,6 +90,15 @@ fun TransactionCardCustomizeScreen(
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
+    val proTimeStatus by monetizationViewModel
+        .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionTime")
+        .collectAsStateWithLifecycle()
+    val proDateSeparatorsStatus by monetizationViewModel
+        .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showDateSeparators")
+        .collectAsStateWithLifecycle()
+    val proPaymentMethodStatus by monetizationViewModel
+        .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showPaymentMethod")
+        .collectAsStateWithLifecycle()
 
     TransactionCardCustomizeContent(
         settings = settings,
@@ -99,7 +108,9 @@ fun TransactionCardCustomizeScreen(
         timeFormat = timeFormat,
         previewTransactions = previewTransactions,
         isAdsEnabled = isAdsEnabled,
-        monetizationViewModel = monetizationViewModel,
+        isTransactionTimeProGranted = proTimeStatus is AccessStatus.Granted,
+        isDateSeparatorsProGranted = proDateSeparatorsStatus is AccessStatus.Granted,
+        isPaymentMethodProGranted = proPaymentMethodStatus is AccessStatus.Granted,
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -114,7 +125,9 @@ private fun TransactionCardCustomizeContent(
     timeFormat: String,
     previewTransactions: List<Transaction>,
     isAdsEnabled: Boolean,
-    monetizationViewModel: MonetizationViewModel?,
+    isTransactionTimeProGranted: Boolean,
+    isDateSeparatorsProGranted: Boolean,
+    isPaymentMethodProGranted: Boolean,
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -129,28 +142,15 @@ private fun TransactionCardCustomizeContent(
     }
 
     // Pro-gated toggles must be reset to OFF for non-Pro users.
-    // Observe the access status for each Pro option and force it off whenever access is denied.
-    val proTimeStatus by monetizationViewModel
-        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionTime")
-        ?.collectAsStateWithLifecycle()
-        ?: remember { mutableStateOf(AccessStatus.Granted) }
-    val proDateSeparatorsStatus by monetizationViewModel
-        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showDateSeparators")
-        ?.collectAsStateWithLifecycle()
-        ?: remember { mutableStateOf(AccessStatus.Granted) }
-    val proPaymentMethodStatus by monetizationViewModel
-        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showPaymentMethod")
-        ?.collectAsStateWithLifecycle()
-        ?: remember { mutableStateOf(AccessStatus.Granted) }
-
-    LaunchedEffect(proTimeStatus, proDateSeparatorsStatus, proPaymentMethodStatus) {
-        if (proTimeStatus !is AccessStatus.Granted && localSettings.showTransactionTime) {
+    // The Route layer observes access status and passes plain granted flags down.
+    LaunchedEffect(isTransactionTimeProGranted, isDateSeparatorsProGranted, isPaymentMethodProGranted) {
+        if (!isTransactionTimeProGranted && localSettings.showTransactionTime) {
             localSettings = localSettings.copy(showTransactionTime = false)
         }
-        if (proDateSeparatorsStatus !is AccessStatus.Granted && localSettings.showDateSeparators) {
+        if (!isDateSeparatorsProGranted && localSettings.showDateSeparators) {
             localSettings = localSettings.copy(showDateSeparators = false)
         }
-        if (proPaymentMethodStatus !is AccessStatus.Granted && localSettings.showPaymentMethod) {
+        if (!isPaymentMethodProGranted && localSettings.showPaymentMethod) {
             localSettings = localSettings.copy(showPaymentMethod = false)
         }
     }
@@ -471,7 +471,9 @@ private fun TransactionCardCustomizeScreenPreview() {
             timeFormat = DEFAULT_TIME_FORMAT,
             previewTransactions = transactionList.take(2),
             isAdsEnabled = false,
-            monetizationViewModel = null,
+            isTransactionTimeProGranted = true,
+            isDateSeparatorsProGranted = true,
+            isPaymentMethodProGranted = true,
             onSettingsChange = {},
             onBackClick = {}
         )
