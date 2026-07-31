@@ -177,6 +177,12 @@ class AnalyticsViewModel : ViewModel() {
 
     fun selectPeriod(period: AnalyticsPeriod) {
         selectedPeriod = period
+        // Switching to a Week/Month/Year tab deselects any active custom range so
+        // the cleared range does not stay stuck and the Clear button is not orphaned.
+        if (period != AnalyticsPeriod.CUSTOM) {
+            customRangeStart = null
+            customRangeEnd = null
+        }
         rebuildUiState()
     }
 

@@ -90,6 +90,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -224,6 +225,7 @@ fun AddTransactionScreen(
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
         val amountFocusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -506,10 +508,18 @@ fun AddTransactionScreen(
             TransactionNoteBottomSheet(
                 note = noteDraft,
                 onNoteChange = { noteDraft = it },
-                onDismissRequest = { isNoteSheetVisible = false },
+                onDismissRequest = {
+                    // Prevent focus from returning to the amount field (which would
+                    // slide the numeric keypad back up) when the note sheet closes.
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                    isNoteSheetVisible = false
+                },
                 onSave = {
                     note = noteDraft
                     onNoteChange(note)
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
                     isNoteSheetVisible = false
                 }
             )
@@ -1441,9 +1451,14 @@ private fun TransactionNoteBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    // Keep the cursor at the right-most end of existing text when the sheet opens.
+    var noteFieldValue by remember {
+        mutableStateOf(TextFieldValue(text = note, selection = TextRange(note.length)))
+    }
 
     LaunchedEffect(Unit) {
         delay(300) // Small delay to ensure sheet is visible before focusing
+        noteFieldValue = noteFieldValue.copy(selection = TextRange(noteFieldValue.text.length))
         focusRequester.requestFocus()
         keyboardController?.show()
     }
@@ -1489,8 +1504,13 @@ private fun TransactionNoteBottomSheet(
             // Input Area
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextField(
-                    value = note,
-                    onValueChange = { if (it.length <= 200) onNoteChange(it) },
+                    value = noteFieldValue,
+                    onValueChange = { newValue ->
+                        if (newValue.text.length <= 200) {
+                            noteFieldValue = newValue
+                            onNoteChange(newValue.text)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 120.dp)
@@ -1507,8 +1527,11 @@ private fun TransactionNoteBottomSheet(
                         )
                     },
                     trailingIcon = {
-                        if (note.isNotEmpty()) {
-                            IconButton(onClick = { onNoteChange("") }) {
+                        if (noteFieldValue.text.isNotEmpty()) {
+                            IconButton(onClick = {
+                                noteFieldValue = TextFieldValue("")
+                                onNoteChange("")
+                            }) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = stringResource(R.string.desc_clear_note),
@@ -1529,7 +1552,7 @@ private fun TransactionNoteBottomSheet(
 
                 // Character Counter
                 Text(
-                    text = "${note.length}/200",
+                    text = "${noteFieldValue.text.length}/200",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.labelMedium.copy(
