@@ -182,3 +182,148 @@ The upgraded notification ecosystem consists of **33 unique notification trigger
 *   **Email Changed:** Confirmation of account email update.
 *   **Account Recovery Attempt:** High-priority security warning when an unauthenticated recovery stream is initiated.
 
+---
+
+## 5. Hybrid Architecture Decision: Local + Firebase Cloud Functions
+
+### 5.1 Rationale
+
+The app is **local-first** (Room is the source of truth; Firestore sync is Pro-only). This constrains what can be moved server-side:
+
+- **Server-side notifications only fire when the cloud has the user's data.** Free-tier users (no sync) have nothing on Firestore — Cloud Functions have no data to compute alerts from.
+- **WorkManager is offline-safe** and survives reboot. FCM push requires active internet — offline users get delayed/coalesced delivery.
+- **Heavy computation** (forecasts, predictions, trend analysis) belongs server-side to keep APK size small, enable silent algorithm updates, and make the engine a Pro-only server cost.
+- **Auth-triggered events** (new device login, password change) are best handled by Firebase Auth triggers rather than polling locally.
+
+### 5.2 Allocation: What Stays Local vs What Moves to Cloud Functions
+
+| # | Feature | Tier | Delivery | Why |
+|---|---------|------|----------|-----|
+| 1 | Expense Reminders (daily prompt, missed entry) | Free | **Local WorkManager** | Depends on *local* state ("any transaction logged today?") at reminder time. Cloud data may lag sync. |
+| 2 | Budget Alerts (75%/90%/100%/exceeded) | Free | **Local WorkManager** | Fires at transaction-insert time. If user is offline or not synced, server never sees it in time. |
+| 3 | Large Transaction Detection | Free | **Local WorkManager** | Fires at insert time. Same offline concern. |
+| 4 | Weekly Summary | Free | **Local WorkManager** (Phase 1), **Cloud Functions** (Phase 2) | Phase 1: local for offline safety. Phase 2: server aggregates from Firestore + pushes FCM — reduces on-device CPU for large datasets. |
+| 5 | Financial Insights (12 triggers) | Premium ⭐ | **Cloud Functions + FCM** | Heavy computation (spike detection, forecasts, budget-risk prediction, recommendations). Server runs algorithm once, pushes pre-formatted result. Updatable without app-store release. |
+| 6 | Savings Goal Alerts | Premium ⭐ | **Hybrid** | Goal-progress milestones → Cloud Functions (Firestore trigger on goal document). Behind-schedule velocity check → local (needs daily-state comparison). |
+| 7 | Bill & Subscription Reminders | Premium ⭐ | **Local WorkManager** | Needs precise multi-window timing (7/3/1/due-date). FCM normal-priority messages get batched in Doze, breaking due-date precision. Must work offline. |
+| 8a | Sync Failed / Sync Pending / Backup Failure | Premium ⭐ | **Local WorkManager** | Only the device knows sync/backup status — server cannot self-report its own outage. |
+| 8b | New Device Login / Password Changed / Email Changed / Recovery Attempt | Premium ⭐ | **Cloud Functions (Auth triggers)** | Natively supported by Firebase Auth: `functions.auth.user().onCreate/onDelete/beforeSignIn`. Cleanest server use case; impossible to detect reliably client-side. |
+
+### 5.3 Architecture Overview
+
+```mermaid
+graph TD
+    subgraph "Android App (Local)"
+        WM[WorkManager] -->|schedules| DR[DailyReminderWorker]
+        WM -->|schedules| BA[BudgetAlertWorker]
+        WM -->|schedules| LT[LargeTransactionWorker]
+        WM -->|schedules| RR[RecurringTransactionWorker]
+        WM -->|schedules| WS[WeeklySummaryWorker - Phase 1]
+        RR -->|checks| DS[(AppSettingsDataStore)]
+        RR -->|queries| RDB[(Room DB)]
+        DR -->|triggers| NH[NotificationHelper]
+    end
+
+    subgraph "Firebase Cloud (Server)"
+        CF[Cloud Functions] -->|watches| FS[(Firestore)]
+        ATH[Auth Triggers] -->|security events| CF
+        CRON[Cloud Scheduler] -->|hourly cron| CF
+        CF -->|sends| FCM[Firebase Cloud Messaging]
+        FCM -->|push| APP[Android App FCM Service]
+    end
+
+    NH -->|displays| SYS[Android Notification Manager]
+    APP -->|onMessageReceived| NH
+```
+
+### 5.4 FCM Integration Requirements (New)
+
+To enable Cloud Functions → device push, the Android app needs:
+
+1. **FirebaseMessagingService** — Register a service in `AndroidManifest.xml`:
+   ```xml
+   <service
+       android:name=".notifications.ExpenseTrackerMessagingService"
+       android:exported="false">
+       <intent-filter>
+           <action android:name="com.google.firebase.MESSAGING_EVENT" />
+       </intent-filter>
+   </service>
+   ```
+2. **FCM Token Registration** — On first launch + token refresh, store the device's FCM token in Firestore:
+   ```
+   /users/{uid}/devices/{deviceId} -> { fcmToken: "...", platform: "android", timezone: "Asia/Kolkata" }
+   ```
+3. **Android 13+ `POST_NOTIFICATIONS`** — Runtime permission prompt (regardless of FCM vs local).
+4. **Data-only messages** — FCM payload uses `data` (not `notification`) so `onMessageReceived` builds rich local notifications with proper formatting, actions, and channel assignment.
+
+### 5.5 Firebase Cloud Function Skeleton
+
+```typescript
+// functions/src/index.ts
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+admin.initializeApp();
+
+// --- Auth-triggered security alerts (8b) ---
+
+export const onNewDeviceLogin = functions.auth.user().beforeSignIn((user, context) => {
+    // Compare context.hardwareId against stored device list
+    // If new device detected, send FCM to existing devices
+});
+
+export const onPasswordChange = functions.auth.user().onUpdate((change, context) => {
+    // If password changed, notify all registered devices
+});
+
+// --- Scheduled insights (5) ---
+
+export const scheduledFinancialInsights = functions.pubsub
+    .schedule("0 12 * * 0")  // Weekly Sunday at 12 UTC — match local cohorts via stored timezone
+    .onRun(async (context) => {
+        const premiumUsers = await getPremiumUsersWithTokens();
+        for (const user of premiumUsers) {
+            const insights = await computeInsights(user.uid);
+            if (insights) {
+                await sendFcm(user.fcmToken, {
+                    type: "financial_insight",
+                    title: insights.title,
+                    body: insights.body,
+                    data: { /* action payload */ }
+                });
+            }
+        }
+    });
+
+// --- Weekly summary (4) - Phase 2 optional server path ---
+
+export const scheduledWeeklySummary = functions.pubsub
+    .schedule("0 19 * * 0")  // Sunday 19 UTC
+    .onRun(async (context) => { /* same pattern */ });
+```
+
+### 5.6 Firestore Schema Additions
+
+```
+/users/{uid}/fcmTokens/{deviceId} {
+    token: string,
+    platform: "android",
+    timezone: string,       // e.g. "Asia/Kolkata" — stored on app launch
+    createdAt: Timestamp,
+    lastSeen: Timestamp
+}
+```
+
+### 5.7 Revised Execution Phases
+
+```
+[Phase 1-5: Same as Sections 3 — all local, no cloud dependency] ➔
+[Phase 6: Testing & Validation]                                ➔
+[Phase 7: FCM Infrastructure] — FirebaseMessagingService, token registration, Firestore schema for tokens, runtime permission prompt
+[Phase 8: Auth-triggered Cloud Functions] — new device login, password/email changed, recovery attempt (easiest cloud win)
+[Phase 9: Cloud Insights Engine] — Financial Insights functions + cron scheduler + FCM delivery
+[Phase 10: (Optional) Weekly Summary server path] — move weekly aggregation from WorkManager to Cloud Functions
+```
+
+**Dependency note:** Phase 7 (FCM infra) is a prerequisite for all cloud delivery. Phases 8–10 can be built in any order once Phase 7 is complete. No cloud phase blocks local phases 1–6.
+
