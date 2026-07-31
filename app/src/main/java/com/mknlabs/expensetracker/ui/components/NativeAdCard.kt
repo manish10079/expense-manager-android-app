@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.nativead.NativeAd
@@ -38,6 +39,12 @@ fun NativeAdCard(
     placement: AdPlacement,
     modifier: Modifier = Modifier
 ) {
+    // In preview/design mode, show a shimmer placeholder
+    if (LocalInspectionMode.current) {
+        NativeAdShimmer()
+        return
+    }
+
     val context = LocalContext.current
     val adsCoordinator = remember {
         EntryPoints.get(context.applicationContext, MonetizationEntryPoint::class.java).adsCoordinator()

@@ -18,6 +18,7 @@
 .cxx
 local.properties
 build_output.txt
+/commit.md
 kotlin_compile_log.txt
 gradle_build_err.txt
 gradle_build_out.txt

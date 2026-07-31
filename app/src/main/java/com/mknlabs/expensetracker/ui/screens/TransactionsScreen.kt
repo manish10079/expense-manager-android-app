@@ -233,7 +233,6 @@ private fun TransactionScreenContent(
     }
 
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var isPeriodMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var showPeriodPicker by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
@@ -424,14 +423,9 @@ private fun TransactionScreenContent(
             TransactionPeriodNavigator(
                 selectedFilter = uiState.selectedPeriodFilter,
                 periodLabel = uiState.selectedPeriodLabel.asString(),
-                isMenuExpanded = isPeriodMenuExpanded,
                 canNavigateBackward = uiState.canNavigateBackward,
                 canNavigateForward = uiState.canNavigateForward,
-                onMenuExpandedChange = { isPeriodMenuExpanded = it },
-                onFilterSelected = { filter ->
-                    updatePeriodFilter(filter)
-                    isPeriodMenuExpanded = false
-                },
+                onFilterSelected = updatePeriodFilter,
                 onPreviousClick = {
                     navigatePeriod(-1)
                 },

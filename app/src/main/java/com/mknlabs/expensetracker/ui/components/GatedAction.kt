@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import android.app.Activity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +31,12 @@ fun GatedAction(
     onAction: () -> Unit,
     content: @Composable (status: AccessStatus, onClick: () -> Unit) -> Unit
 ) {
+    // In preview/design mode, skip Hilt dependency and always show as granted
+    if (LocalInspectionMode.current) {
+        content(AccessStatus.Granted, onAction)
+        return
+    }
+
     val context = LocalContext.current
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val accessStatus by monetizationViewModel.getAccessStatus(feature, optionId).collectAsStateWithLifecycle()

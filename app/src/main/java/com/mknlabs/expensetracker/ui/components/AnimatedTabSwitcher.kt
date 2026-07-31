@@ -63,7 +63,7 @@ fun <T> AnimatedTabSwitcher(
     val pillRadius = if (compact) 10.dp else 20.dp
     val innerRadius = if (compact) 10.dp else 18.dp
     val verticalPadding = if (compact) 6.dp else 12.dp
-    val fontSize = if (compact) 12.sp else 15.sp
+    val fontSize = if (compact) 10.sp else 15.sp
 
     Box(
         modifier = modifier

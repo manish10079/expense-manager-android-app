@@ -16,9 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,17 +47,14 @@ fun TransactionPeriodNavigator(
     modifier: Modifier = Modifier,
     selectedFilter: TransactionPeriodFilter,
     periodLabel: String,
-    isMenuExpanded: Boolean,
     canNavigateBackward: Boolean,
     canNavigateForward: Boolean,
-    onMenuExpandedChange: (Boolean) -> Unit,
     onFilterSelected: (TransactionPeriodFilter) -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
     onLabelClick: (() -> Unit)? = null  // null = not clickable (e.g. ALL mode)
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val surfaceColor = colorScheme.surface.copy(alpha = 0.96f)
 
     val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
 
@@ -149,68 +147,23 @@ fun TransactionPeriodNavigator(
             }
         }
 
-        Box {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(colorScheme.background.copy(alpha = 0.50f))
-                    .border(
-                        width = 1.dp,
-                        color = if (isMenuExpanded) {
-                            colorScheme.primary.copy(alpha = 0.55f)
-                        } else {
-                            colorScheme.surface.copy(alpha = 0f)
-                        },
-                        shape = RoundedCornerShape(18.dp)
-                    )
-                    .clickable { onMenuExpandedChange(true) }
-                    .padding(horizontal = 20.dp, vertical = 9.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(selectedFilter.labelRes),
-                    color = colorScheme.onSurface.copy(alpha = 0.88f),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.72f).sp
-                    )
+        DropdownModeSelector(
+            options = TransactionPeriodFilter.entries.map { filter ->
+                DropdownModeOption(
+                    id = filter,
+                    label = stringResource(filter.labelRes),
+                    icon = when (filter) {
+                        TransactionPeriodFilter.ALL -> Icons.AutoMirrored.Filled.List
+                        TransactionPeriodFilter.DAILY -> Icons.Filled.Today
+                        TransactionPeriodFilter.MONTHLY -> Icons.Filled.DateRange
+                        TransactionPeriodFilter.YEARLY -> Icons.Filled.CalendarMonth
+                    },
+                    iconTint = colorScheme.primary
                 )
-            }
-
-            DropdownMenu(
-                expanded = isMenuExpanded,
-                onDismissRequest = { onMenuExpandedChange(false) },
-                modifier = Modifier
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(surfaceColor),
-                containerColor = surfaceColor,
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                TransactionPeriodFilter.values().forEach { filter ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(filter.labelRes),
-                                color = if (filter == selectedFilter) {
-                                    colorScheme.onSurface
-                                } else {
-                                    colorScheme.onSurfaceVariant
-                                },
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = if (filter == selectedFilter) {
-                                        FontWeight.SemiBold
-                                    } else {
-                                        FontWeight.Normal
-                                    },
-                                    fontSize = (MaterialTheme.typography.titleMedium.fontSize.value * 0.96f).sp
-                                )
-                            )
-                        },
-                        onClick = { onFilterSelected(filter) }
-                    )
-                }
-            }
-        }
+            },
+            selectedId = selectedFilter,
+            onOptionSelected = onFilterSelected
+        )
     }
 }
 

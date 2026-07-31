@@ -41,9 +41,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.transactionList
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.ui.components.DropdownModeOption
+import com.mknlabs.expensetracker.ui.components.DropdownModeSelector
 import com.mknlabs.expensetracker.ui.models.TabItem
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
@@ -133,7 +138,7 @@ fun AnalyticsScreen(
 }
 
 @Composable
-private fun AnalyticsScreenContent(
+fun AnalyticsScreenContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState,
     isAdsEnabled: Boolean,
     transactions: List<Transaction>,
@@ -556,12 +561,27 @@ private fun HeroAnalyticsSection(
                     fontWeight = FontWeight.Medium
                 )
             )
-            AnimatedTabSwitcher(
-                items = HeroDisplayMode.entries.map { TabItem(it, stringResource(id = it.labelRes)) },
-                selectedItemId = displayMode,
-                onItemSelected = onDisplayModeChange,
-                modifier = Modifier.width(180.dp),
-                compact = true
+            
+            DropdownModeSelector(
+                options = HeroDisplayMode.entries.map { mode ->
+                    DropdownModeOption(
+                        id = mode,
+                        label = stringResource(id = mode.labelRes),
+                        icon = when (mode) {
+                            HeroDisplayMode.EXPENSE -> Icons.Filled.ArrowDownward
+                            HeroDisplayMode.INCOME -> Icons.Filled.ArrowUpward
+                            HeroDisplayMode.BOTH -> Icons.Filled.SwapHoriz
+                        },
+                        iconTint = when (mode) {
+                            HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
+                            HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
+                            HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
+                        }
+                    )
+                },
+                selectedId = displayMode,
+                onOptionSelected = onDisplayModeChange,
+                menuMaxWidth = 120.dp
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
@@ -670,6 +690,9 @@ private fun AnalyticsLineChart(
                         )
                     }
                     
+                    val lineStrokeWidth = 2.5.dp.toPx()
+                    val dotRadius = 5.dp.toPx()
+                    
                     if (showExpense && expensePoints.isNotEmpty()) {
                         val stepX = if (expensePoints.size > 1) size.width / (expensePoints.size - 1) else size.width
                         val normalized = expensePoints.mapIndexed { index, value ->
@@ -709,11 +732,21 @@ private fun AnalyticsLineChart(
                             )
                         }
                         
+                        // Draw expense line
                         drawPath(
                             path = linePath,
                             color = expenseColor,
-                            style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
+                            style = Stroke(width = lineStrokeWidth, cap = StrokeCap.Round)
                         )
+                        
+                        // Draw filled dots at each data point on expense line
+                        normalized.forEach { point ->
+                            drawCircle(
+                                color = expenseColor,
+                                radius = dotRadius,
+                                center = point
+                            )
+                        }
                     }
                     
                     if (showIncome && incomePoints.isNotEmpty()) {
@@ -755,11 +788,21 @@ private fun AnalyticsLineChart(
                             )
                         }
                         
+                        // Draw income line
                         drawPath(
                             path = linePath,
                             color = incomeColor,
-                            style = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
+                            style = Stroke(width = lineStrokeWidth, cap = StrokeCap.Round)
                         )
+                        
+                        // Draw filled dots at each data point on income line
+                        normalized.forEach { point ->
+                            drawCircle(
+                                color = incomeColor,
+                                radius = dotRadius,
+                                center = point
+                            )
+                        }
                     }
 
                     drawLine(
@@ -2066,16 +2109,196 @@ private fun resolveChartLabel(label: ChartLabelUi): String {
     }
 }
 
-@Preview(showBackground = true)
+// ──────────────────────────────────────────────
+// Preview helpers
+// ──────────────────────────────────────────────
+
+private fun buildPreviewAnalyticsUiState(): com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState {
+    val currencyId = DEFAULT_CURRENCY_ID
+    val fmtPrefs = defaultAmountFormatPreferences
+
+    // Filter transactions for a realistic February 2026 month range
+    val febStart = 1769936400000L // Feb 1, 2026
+    val febEnd = 1774998300000L   // Feb 28, 2026
+    val monthlyTransactions = transactionList.filter { it.createdAt in febStart..febEnd }
+
+    // Compute totals
+    val income = monthlyTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+    val expense = monthlyTransactions.filter { it.transactionTypeId == 2 }.sumOf { it.amount }
+    val savings = income - expense
+    val avgDailyExpense = expense / 28.0
+    val incomeFraction = (income / maxOf(income + expense, 1.0)).toFloat()
+
+    // Category breakdown
+    val categoryTotals = monthlyTransactions
+        .filter { it.transactionTypeId == 2 }
+        .groupBy { it.categoryId }
+        .mapValues { (_, items) -> items.sumOf { it.amount } }
+        .toList()
+        .sortedByDescending { it.second }
+    val totalExp = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
+
+    val allCategoryBreakdown = categoryTotals.mapIndexed { index, (catId, amount) ->
+        val cat = categoryMap[catId]
+        CategoryBreakdownUi(
+            id = catId,
+            label = cat?.name ?: "",
+            isOther = cat == null,
+            amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
+            fraction = (amount / totalExp).toFloat(),
+            percentLabel = ((amount / totalExp) * 100).toInt(),
+            colorIndex = index
+        )
+    }
+
+    // Payment breakdown
+    val paymentTotals = monthlyTransactions
+        .filter { it.transactionTypeId == 2 }
+        .groupBy { it.paymentTypeId }
+        .mapValues { (_, items) -> items.sumOf { it.amount } }
+        .toList()
+        .sortedByDescending { it.second }
+
+    val allPaymentBreakdown = paymentTotals.mapIndexed { index, (pmtId, amount) ->
+        val pmt = paymentTypeMap[pmtId]
+        PaymentTypeBreakdownUi(
+            id = pmtId,
+            label = pmt?.name ?: "",
+            isOther = pmt == null,
+            amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
+            fraction = (amount / totalExp).toFloat(),
+            percentLabel = ((amount / totalExp) * 100).toInt(),
+            colorIndex = index,
+            icon = pmt?.icon ?: Icons.Filled.Analytics
+        )
+    }
+
+    // Top transactions
+    val topTransactions = monthlyTransactions
+        .filter { it.transactionTypeId == 2 }
+        .sortedByDescending { it.amount }
+        .take(3)
+        .map { t ->
+            val cat = categoryMap[t.categoryId]
+            TopSpendingItemUi(
+                id = t.id.toString(),
+                note = t.note,
+                amountDisplay = formatCurrencyValue(t.amount, currencyId, fmtPrefs, prefix = "-"),
+                categoryLabel = cat?.name ?: "",
+                isGeneral = cat == null,
+                icon = cat?.icon ?: Icons.Filled.Analytics,
+                createdAt = t.createdAt
+            )
+        }
+
+    val allTopTransactions = monthlyTransactions
+        .filter { it.transactionTypeId == 2 }
+        .sortedByDescending { it.amount }
+        .take(10)
+        .map { t ->
+            val cat = categoryMap[t.categoryId]
+            TopSpendingItemUi(
+                id = t.id.toString(),
+                note = t.note,
+                amountDisplay = formatCurrencyValue(t.amount, currencyId, fmtPrefs, prefix = "-"),
+                categoryLabel = cat?.name ?: "",
+                isGeneral = cat == null,
+                icon = cat?.icon ?: Icons.Filled.Analytics,
+                createdAt = t.createdAt
+            )
+        }
+
+    // Weekly chart buckets
+    val weekStarts = longArrayOf(febStart, febStart + 7 * 86400000L, febStart + 14 * 86400000L, febStart + 21 * 86400000L)
+    val expenseChartPoints = (0..3).map { i ->
+        val start = weekStarts[i]
+        val end = if (i < 3) weekStarts[i + 1] - 1 else febEnd
+        monthlyTransactions.filter { it.transactionTypeId == 2 && it.createdAt in start..end }.sumOf { it.amount }.toFloat()
+    }
+    val incomeChartPoints = (0..3).map { i ->
+        val start = weekStarts[i]
+        val end = if (i < 3) weekStarts[i + 1] - 1 else febEnd
+        monthlyTransactions.filter { it.transactionTypeId == 1 && it.createdAt in start..end }.sumOf { it.amount }.toFloat()
+    }
+    val chartLabels = listOf(
+        ChartLabelUi(label = UiText.dynamic("W1")),
+        ChartLabelUi(label = UiText.dynamic("W2")),
+        ChartLabelUi(label = UiText.dynamic("W3")),
+        ChartLabelUi(label = UiText.dynamic("W4"))
+    )
+
+    val snapshot = AnalyticsSnapshotUi(
+        summaryLabel = SummaryLabelUi(patternResId = R.string.date_pattern_month_year, timestamp = febStart),
+        totalDisplay = formatCurrencyValue(income + expense, currencyId, fmtPrefs),
+        changeDisplay = UiText.dynamic("+12.5%"),
+        changePercent = 12.5f,
+        avgDailyDisplay = formatCurrencyValue(avgDailyExpense, currencyId, fmtPrefs),
+        dailyDeltaDisplay = UiText.dynamic("-3.2%"),
+        dailyDeltaPercent = -3.2f,
+        savingsDisplay = formatCurrencyValue(savings, currencyId, fmtPrefs),
+        savingsDeltaDisplay = UiText.dynamic("+8.1%"),
+        savingsDeltaPercent = 8.1f,
+        incomeDisplay = formatCurrencyValue(income, currencyId, fmtPrefs),
+        expenseDisplay = formatCurrencyValue(expense, currencyId, fmtPrefs),
+        incomeFraction = incomeFraction,
+        expenseChartPoints = expenseChartPoints,
+        incomeChartPoints = incomeChartPoints,
+        chartLabels = chartLabels,
+        categoryBreakdown = allCategoryBreakdown.take(3),
+        allCategoryBreakdown = allCategoryBreakdown,
+        paymentTypeBreakdown = allPaymentBreakdown.take(3),
+        allPaymentTypeBreakdown = allPaymentBreakdown,
+        topTransactions = topTransactions,
+        allTopTransactions = allTopTransactions,
+        smartTip = SmartTipUi(
+            resId = R.string.msg_spending_trend,
+            flowChange = UiText.dynamic("+12.5%"),
+            directionResId = R.string.label_up,
+            topCategory = allCategoryBreakdown.firstOrNull()?.label ?: "",
+            savingAmount = formatCurrencyValue(avgDailyExpense * 4, currencyId, fmtPrefs),
+            hasSpendingData = true
+        ),
+        hasSpendingData = true
+    )
+
+    return com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState(
+        selectedPeriod = AnalyticsPeriod.MONTH,
+        activeRange = febStart..febEnd,
+        snapshot = snapshot
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AnalyticsScreenPreview() {
+private fun AnalyticsScreenPreviewDark() {
     ExpenseTrackerTheme(darkTheme = true) {
         AnalyticsScreenContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState(),
+            uiState = buildPreviewAnalyticsUiState(),
             isAdsEnabled = true,
-            transactions = emptyList(),
-            categories = emptyList(),
-            paymentMethods = emptyList(),
+            transactions = transactionList,
+            categories = categoryMap.values.toList(),
+            paymentMethods = paymentTypeMap.values.toList(),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            dateFormatPattern = "dd MMM yyyy",
+            onBackClick = {},
+            onDateRangeSelected = {},
+            onCustomRangeApplied = { _, _ -> },
+            onClearCustomRange = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO)
+@Composable
+private fun AnalyticsScreenPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        AnalyticsScreenContent(
+            uiState = buildPreviewAnalyticsUiState(),
+            isAdsEnabled = true,
+            transactions = transactionList,
+            categories = categoryMap.values.toList(),
+            paymentMethods = paymentTypeMap.values.toList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = "dd MMM yyyy",
