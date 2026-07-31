@@ -99,6 +99,7 @@ fun TransactionCardCustomizeScreen(
         timeFormat = timeFormat,
         previewTransactions = previewTransactions,
         isAdsEnabled = isAdsEnabled,
+        monetizationViewModel = monetizationViewModel,
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -113,6 +114,7 @@ private fun TransactionCardCustomizeContent(
     timeFormat: String,
     previewTransactions: List<Transaction>,
     isAdsEnabled: Boolean,
+    monetizationViewModel: MonetizationViewModel?,
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -124,6 +126,33 @@ private fun TransactionCardCustomizeContent(
     LaunchedEffect(localSettings) {
         delay(300.milliseconds)
         onSettingsChange(localSettings)
+    }
+
+    // Pro-gated toggles must be reset to OFF for non-Pro users.
+    // Observe the access status for each Pro option and force it off whenever access is denied.
+    val proTimeStatus by monetizationViewModel
+        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionTime")
+        ?.collectAsStateWithLifecycle()
+        ?: remember { mutableStateOf(AccessStatus.Granted) }
+    val proDateSeparatorsStatus by monetizationViewModel
+        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showDateSeparators")
+        ?.collectAsStateWithLifecycle()
+        ?: remember { mutableStateOf(AccessStatus.Granted) }
+    val proPaymentMethodStatus by monetizationViewModel
+        ?.getAccessStatus(Feature.CARD_CUSTOMIZATION, "showPaymentMethod")
+        ?.collectAsStateWithLifecycle()
+        ?: remember { mutableStateOf(AccessStatus.Granted) }
+
+    LaunchedEffect(proTimeStatus, proDateSeparatorsStatus, proPaymentMethodStatus) {
+        if (proTimeStatus !is AccessStatus.Granted && localSettings.showTransactionTime) {
+            localSettings = localSettings.copy(showTransactionTime = false)
+        }
+        if (proDateSeparatorsStatus !is AccessStatus.Granted && localSettings.showDateSeparators) {
+            localSettings = localSettings.copy(showDateSeparators = false)
+        }
+        if (proPaymentMethodStatus !is AccessStatus.Granted && localSettings.showPaymentMethod) {
+            localSettings = localSettings.copy(showPaymentMethod = false)
+        }
     }
 
     val incomeExpenseTitle = stringResource(id = R.string.title_incomeexpense_labels)
@@ -442,6 +471,7 @@ private fun TransactionCardCustomizeScreenPreview() {
             timeFormat = DEFAULT_TIME_FORMAT,
             previewTransactions = transactionList.take(2),
             isAdsEnabled = false,
+            monetizationViewModel = null,
             onSettingsChange = {},
             onBackClick = {}
         )

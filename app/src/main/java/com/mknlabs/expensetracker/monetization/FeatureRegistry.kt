@@ -97,8 +97,8 @@ object FeatureRegistry {
             "showTransactionDate" to AccessLevel.FREE,
             "showCategoryIcon" to AccessLevel.FREE,
             "showCategoryLabel" to AccessLevel.FREE,        // Aligned with category icon — same concept
-            "showTransactionTime" to AccessLevel.AD_SUPPORTED,
-            "showDateSeparators" to AccessLevel.AD_SUPPORTED, // Readability feature, too harsh at Premium
+            "showTransactionTime" to AccessLevel.PREMIUM,
+            "showDateSeparators" to AccessLevel.PREMIUM,
             "showPaymentMethod" to AccessLevel.PREMIUM
         ),
         
