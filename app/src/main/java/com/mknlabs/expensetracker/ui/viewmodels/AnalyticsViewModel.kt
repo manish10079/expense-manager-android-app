@@ -410,24 +410,14 @@ private fun buildChartBuckets(
             val monthStart = activeRange.first
             val monthEnd = activeRange.last
             val totalDays = (daysBetween(monthStart, monthEnd) + 1).toInt()
+            // Aggregate per week (W1..W5) instead of per day for a cleaner chart
+            val weekCount = ceil(totalDays / 7.0).toInt()
             
-            (0 until totalDays).map { dayIndex ->
-                val start = shiftByDays(monthStart, dayIndex)
-                val end = endOfDay(start)
-                
-                // Show labels only for roughly every 7 days to avoid crowding
-                val label = if (dayIndex % 7 == 0 || dayIndex == totalDays - 1) {
-                    val dayOfMonth = dayIndex + 1
-                    when {
-                        dayOfMonth <= 7 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_1))
-                        dayOfMonth <= 14 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_2))
-                        dayOfMonth <= 21 -> ChartLabelUi(label = UiText.res(R.string.label_week_short_3))
-                        else -> ChartLabelUi(label = UiText.res(R.string.label_week_short_4))
-                    }
-                } else ChartLabelUi(label = UiText.dynamic(""))
-                
+            (0 until weekCount).map { weekIndex ->
+                val start = shiftByDays(monthStart, weekIndex * 7)
+                val end = min(shiftByDays(start, 7) - 1, monthEnd)
                 ChartBucket(
-                    label = label,
+                    label = ChartLabelUi(label = UiText.res(monthWeekLabelRes(weekIndex))),
                     expenseValue = transactions
                         .filter { it.transactionTypeId == 2 && it.createdAt in start..end }
                         .sumOf { it.amount },
@@ -468,6 +458,14 @@ private fun buildChartBuckets(
 
         AnalyticsPeriod.CUSTOM -> buildCustomRangeBuckets(transactions, activeRange)
     }
+}
+
+private fun monthWeekLabelRes(weekIndex: Int): Int = when (weekIndex) {
+    0 -> R.string.label_week_short_1
+    1 -> R.string.label_week_short_2
+    2 -> R.string.label_week_short_3
+    3 -> R.string.label_week_short_4
+    else -> R.string.label_week_short_5
 }
 
 private fun buildSmartTip(

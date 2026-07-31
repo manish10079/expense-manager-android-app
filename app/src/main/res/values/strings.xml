@@ -1116,6 +1116,7 @@
     <string name="label_week_short_2">W2</string>
     <string name="label_week_short_3">W3</string>
     <string name="label_week_short_4">W4</string>
+    <string name="label_week_short_5">W5</string>
     <string name="label_period_short">P%1$d</string>
     <string name="format_percent">%1$s%%</string>
     <string name="format_percent_signed">%1$s%2$s%%</string>

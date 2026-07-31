@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -702,51 +703,21 @@ private fun AnalyticsLineChart(
                             )
                         }
                         
-                        val linePath = Path().apply {
-                            moveTo(normalized.first().x, normalized.first().y)
-                            for (index in 1 until normalized.size) {
-                                val previous = normalized[index - 1]
-                                val current = normalized[index]
-                                val controlX = (previous.x + current.x) / 2f
-                                cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
-                            }
-                        }
-                        
-                        if (displayMode == HeroDisplayMode.EXPENSE) {
-                            val fillPath = Path().apply {
-                                addPath(linePath)
-                                lineTo(normalized.last().x, chartHeight)
-                                lineTo(normalized.first().x, chartHeight)
-                                close()
-                            }
-                            drawPath(
-                                path = fillPath,
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        primaryColor.copy(alpha = 0.6f),
-                                        primaryColor.copy(alpha = 0.2f),
-                                        backgroundColor.copy(alpha = 0.1f)
-                                    ),
-                                    endY = chartHeight
+                        drawSkippedLine(
+                            values = expensePoints,
+                            normalized = normalized,
+                            chartHeight = chartHeight,
+                            lineColor = expenseColor,
+                            fillColors = if (displayMode == HeroDisplayMode.EXPENSE) {
+                                listOf(
+                                    primaryColor.copy(alpha = 0.6f),
+                                    primaryColor.copy(alpha = 0.2f),
+                                    backgroundColor.copy(alpha = 0.1f)
                                 )
-                            )
-                        }
-                        
-                        // Draw expense line
-                        drawPath(
-                            path = linePath,
-                            color = expenseColor,
-                            style = Stroke(width = lineStrokeWidth, cap = StrokeCap.Round)
+                            } else null,
+                            lineStrokeWidth = lineStrokeWidth,
+                            dotRadius = dotRadius
                         )
-                        
-                        // Draw filled dots at each data point on expense line
-                        normalized.forEach { point ->
-                            drawCircle(
-                                color = expenseColor,
-                                radius = dotRadius,
-                                center = point
-                            )
-                        }
                     }
                     
                     if (showIncome && incomePoints.isNotEmpty()) {
@@ -758,51 +729,21 @@ private fun AnalyticsLineChart(
                             )
                         }
                         
-                        val linePath = Path().apply {
-                            moveTo(normalized.first().x, normalized.first().y)
-                            for (index in 1 until normalized.size) {
-                                val previous = normalized[index - 1]
-                                val current = normalized[index]
-                                val controlX = (previous.x + current.x) / 2f
-                                cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
-                            }
-                        }
-                        
-                        if (displayMode == HeroDisplayMode.INCOME) {
-                            val fillPath = Path().apply {
-                                addPath(linePath)
-                                lineTo(normalized.last().x, chartHeight)
-                                lineTo(normalized.first().x, chartHeight)
-                                close()
-                            }
-                            drawPath(
-                                path = fillPath,
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        incomeColor.copy(alpha = 0.6f),
-                                        incomeColor.copy(alpha = 0.2f),
-                                        backgroundColor.copy(alpha = 0.1f)
-                                    ),
-                                    endY = chartHeight
+                        drawSkippedLine(
+                            values = incomePoints,
+                            normalized = normalized,
+                            chartHeight = chartHeight,
+                            lineColor = incomeColor,
+                            fillColors = if (displayMode == HeroDisplayMode.INCOME) {
+                                listOf(
+                                    incomeColor.copy(alpha = 0.6f),
+                                    incomeColor.copy(alpha = 0.2f),
+                                    backgroundColor.copy(alpha = 0.1f)
                                 )
-                            )
-                        }
-                        
-                        // Draw income line
-                        drawPath(
-                            path = linePath,
-                            color = incomeColor,
-                            style = Stroke(width = lineStrokeWidth, cap = StrokeCap.Round)
+                            } else null,
+                            lineStrokeWidth = lineStrokeWidth,
+                            dotRadius = dotRadius
                         )
-                        
-                        // Draw filled dots at each data point on income line
-                        normalized.forEach { point ->
-                            drawCircle(
-                                color = incomeColor,
-                                radius = dotRadius,
-                                center = point
-                            )
-                        }
                     }
 
                     drawLine(
@@ -856,6 +797,85 @@ private fun formatYAxisAmount(amount: Float): String {
         amount >= 1_000_000f -> stringResource(id = R.string.format_millions, amount / 1_000_000f)
         amount >= 1_000f -> stringResource(id = R.string.format_thousands, amount / 1_000f)
         else -> amount.toInt().toString()
+    }
+}
+
+/**
+ * Draws a line chart series while skipping zero-valued data points.
+ * Each zero point is omitted (no dot, no connecting segment), so the line
+ * breaks at weeks/days with no activity instead of dipping to zero.
+ */
+private fun DrawScope.drawSkippedLine(
+    values: List<Float>,
+    normalized: List<Offset>,
+    chartHeight: Float,
+    lineColor: Color,
+    fillColors: List<Color>?,
+    lineStrokeWidth: Float,
+    dotRadius: Float
+) {
+    if (values.isEmpty()) return
+
+    // Runs of consecutive non-zero data points (zero points are skipped)
+    val runs = buildList {
+        var start = -1
+        values.forEachIndexed { index, value ->
+            if (value > 0f) {
+                if (start < 0) start = index
+            } else {
+                if (start >= 0) {
+                    add(start..(index - 1))
+                    start = -1
+                }
+            }
+        }
+        if (start >= 0) add(start..values.lastIndex)
+    }
+
+    // Draw one smoothed segment per run, reusing the path for both fill and line
+    runs.forEach { run ->
+        if (run.last > run.first) {
+            val path = Path().apply {
+                moveTo(normalized[run.first].x, normalized[run.first].y)
+                for (index in run.first + 1..run.last) {
+                    val previous = normalized[index - 1]
+                    val current = normalized[index]
+                    val controlX = (previous.x + current.x) / 2f
+                    cubicTo(controlX, previous.y, controlX, current.y, current.x, current.y)
+                }
+            }
+
+            // Gradient fill under this run (per line separately, zero points excluded)
+            if (fillColors != null) {
+                val fillPath = Path().apply {
+                    addPath(path)
+                    lineTo(normalized[run.last].x, chartHeight)
+                    lineTo(normalized[run.first].x, chartHeight)
+                    close()
+                }
+                drawPath(
+                    path = fillPath,
+                    brush = Brush.verticalGradient(colors = fillColors, endY = chartHeight)
+                )
+            }
+
+            drawPath(
+                path = path,
+                color = lineColor,
+                style = Stroke(width = lineStrokeWidth, cap = StrokeCap.Round)
+            )
+        }
+    }
+
+    // Dots only at non-zero data points
+    runs.forEach { run ->
+        for (index in run.first..run.last) {
+            drawCircle(
+                color = lineColor,
+                radius = dotRadius,
+                center = normalized[index]
+            )
+        }
     }
 }
 
