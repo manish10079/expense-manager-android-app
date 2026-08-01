@@ -27,7 +27,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.MilitaryTech
+import androidx.compose.material.icons.rounded.Stars
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun ProfileCard(
@@ -82,7 +90,7 @@ fun ProfileCard(
                 ) {
                     if (isPremium) {
                         Icon(
-                            imageVector = Icons.Rounded.WorkspacePremium,
+                            painter = painterResource( com.mknlabs.expensetracker.R.drawable.ic_crown),
                             contentDescription = "Pro",
                             tint = colorScheme.primary,
                             modifier = Modifier
@@ -118,6 +126,7 @@ fun ProfileCard(
                 }
             }
 
+
         }
     }
 }
@@ -132,6 +141,7 @@ private fun ProfileCardPreview() {
                 name = "Johnathan Doe",
                 email = "john.doe@example.com",
                 gender = "Male",
+                userTier = UserTier.PREMIUM,
                 modifier = Modifier.padding(16.dp)
             )
         }

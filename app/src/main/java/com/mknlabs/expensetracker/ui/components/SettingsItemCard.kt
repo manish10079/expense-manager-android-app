@@ -138,7 +138,7 @@ fun SettingsItemCard(
                     updatedOnClick?.invoke()
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .heightIn(min = 72.dp),
+                .heightIn(min = 52.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
