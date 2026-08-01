@@ -110,6 +110,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
 
@@ -719,6 +720,92 @@ private fun TransactionDateHeader(
             text = dateLabel,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Preview(
+    name = "Transactions Screen - Empty State (Light)",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
+@Composable
+private fun TransactionsScreenEmptyStatePreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        TransactionScreenContent(
+            uiState = TransactionsScreenUiState(
+                selectedPeriodLabel = UiText.dynamic("July 2026"),
+                canNavigateBackward = true,
+                canNavigateForward = true
+            ),
+            isAdsEnabled = true,
+            onBackClick = {},
+            onAddTransactionClick = {},
+            onTransactionClick = {},
+            clearSelection = {},
+            selectAll = {},
+            toggleSelection = {},
+            enterSelectionMode = {},
+            updateSearchQuery = {},
+            updatePeriodFilter = {},
+            navigatePeriod = {},
+            jumpToPeriod = {},
+            updateSort = {},
+            updateOrder = {},
+            updateDateRange = {},
+            updateCustomDateRange = { _, _ -> },
+            toggleTransactionTypeFilter = {},
+            toggleCategory = {},
+            togglePaymentMode = {},
+            updateMinAmount = {},
+            updateMaxAmount = {},
+            applyFilters = {},
+            resetFilters = {},
+            deleteSelectedTransactions = {}
+        )
+    }
+}
+
+@Preview(
+    name = "Transactions Screen - Empty State (Dark)",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
+@Composable
+private fun TransactionsScreenEmptyStatePreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        TransactionScreenContent(
+            uiState = TransactionsScreenUiState(
+                selectedPeriodLabel = UiText.dynamic("July 2026"),
+                canNavigateBackward = true,
+                canNavigateForward = true
+            ),
+            isAdsEnabled = true,
+            onBackClick = {},
+            onAddTransactionClick = {},
+            onTransactionClick = {},
+            clearSelection = {},
+            selectAll = {},
+            toggleSelection = {},
+            enterSelectionMode = {},
+            updateSearchQuery = {},
+            updatePeriodFilter = {},
+            navigatePeriod = {},
+            jumpToPeriod = {},
+            updateSort = {},
+            updateOrder = {},
+            updateDateRange = {},
+            updateCustomDateRange = { _, _ -> },
+            toggleTransactionTypeFilter = {},
+            toggleCategory = {},
+            togglePaymentMode = {},
+            updateMinAmount = {},
+            updateMaxAmount = {},
+            applyFilters = {},
+            resetFilters = {},
+            deleteSelectedTransactions = {}
         )
     }
 }

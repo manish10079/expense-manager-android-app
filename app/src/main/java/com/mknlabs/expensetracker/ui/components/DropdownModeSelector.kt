@@ -6,15 +6,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -54,9 +56,13 @@ data class DropdownModeOption<T>(
 /**
  * A pill-shaped dropdown style selector. Shows the selected option as a
  * compact chip with a leading icon and a chevron; tapping it opens a menu
- * listing every option with an icon, label and a checkmark on the selected one.
+ * listing every option with an icon and label. The currently selected option
+ * is highlighted in the primary color.
  *
  * The dropdown expansion state is managed internally.
+ *
+ * @param initialExpanded Whether to start with the dropdown menu expanded
+ *                        (used by previews to show the open menu).
  */
 @Composable
 fun <T> DropdownModeSelector(
@@ -64,10 +70,11 @@ fun <T> DropdownModeSelector(
     selectedId: T,
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    menuMaxWidth: Dp = 140.dp,
-    containerBackground: Brush = standardCardGradient()
+    menuMaxWidth: Dp = 120.dp,
+    containerBackground: Brush = standardCardGradient(),
+    initialExpanded: Boolean = false
 ) {
-    var isDropdownExpanded by rememberSaveable { mutableStateOf(false) }
+    var isDropdownExpanded by rememberSaveable { mutableStateOf(initialExpanded) }
     val selectedOption = options.firstOrNull { it.id == selectedId }
 
     Box(modifier = modifier) {
@@ -133,7 +140,7 @@ fun <T> DropdownModeSelector(
                             Text(
                                 text = option.label,
                                 color = if (option.id == selectedId) {
-                                    MaterialTheme.colorScheme.onSurface
+                                    MaterialTheme.colorScheme.primary
                                 } else {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 },
@@ -145,15 +152,6 @@ fun <T> DropdownModeSelector(
                                     }
                                 )
                             )
-                            if (option.id == selectedId) {
-                                Spacer(modifier = Modifier.width(2.dp))
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
                         }
                     },
                     onClick = {
@@ -165,3 +163,28 @@ fun <T> DropdownModeSelector(
         }
     }
 }
+
+@Composable
+private fun DropdownModeSelectorPreviewContent() {
+    var selectedFilter by rememberSaveable { mutableStateOf(TransactionPeriodFilter.MONTHLY) }
+
+    DropdownModeSelector(
+        options = TransactionPeriodFilter.entries.map { filter ->
+            DropdownModeOption(
+                id = filter,
+                label = stringResource(filter.labelRes),
+                icon = when (filter) {
+                    TransactionPeriodFilter.ALL -> Icons.AutoMirrored.Filled.List
+                    TransactionPeriodFilter.DAILY -> Icons.Filled.Today
+                    TransactionPeriodFilter.MONTHLY -> Icons.Filled.DateRange
+                    TransactionPeriodFilter.YEARLY -> Icons.Filled.CalendarMonth
+                },
+                iconTint = MaterialTheme.colorScheme.primary
+            )
+        },
+        selectedId = selectedFilter,
+        onOptionSelected = { selectedFilter = it },
+        initialExpanded = true
+    )
+}
+
