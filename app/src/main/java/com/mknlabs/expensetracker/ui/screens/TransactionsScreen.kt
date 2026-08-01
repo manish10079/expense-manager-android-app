@@ -417,7 +417,7 @@ private fun TransactionScreenContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+
             Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 
             TransactionPeriodNavigator(

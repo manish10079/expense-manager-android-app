@@ -59,6 +59,8 @@ fun ProfileAvatar(
     photoUri: String? = null,
     showBadge: Boolean = false,
     badgeIcon: ImageVector = Icons.Filled.Check,
+    @DrawableRes badgeIconRes: Int? = null,
+    badgeContentDescription: String? = null,
     showGlow: Boolean = true,
     showBorder: Boolean = true,
     backgroundBrush: Brush? = null,
@@ -223,10 +225,12 @@ fun ProfileAvatar(
         }
 
         if (showBadge) {
+            // Drawable badges (e.g. crown) have finer detail, so use a larger chip for them.
+            val badgeChipSize = if (badgeIconRes != null) size * 0.28f else size * 0.24f
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(size * 0.24f)
+                    .size(badgeChipSize)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
@@ -235,12 +239,22 @@ fun ProfileAvatar(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = badgeIcon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(size * 0.12f)
-                )
+                if (badgeIconRes != null) {
+                    // Drawable badges (e.g. crown) have finer detail, so render slightly larger.
+                    Icon(
+                        painter = painterResource(id = badgeIconRes),
+                        contentDescription = badgeContentDescription,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(size * 0.24f)
+                    )
+                } else {
+                    Icon(
+                        imageVector = badgeIcon,
+                        contentDescription = badgeContentDescription,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(size * 0.12f)
+                    )
+                }
             }
         }
     }

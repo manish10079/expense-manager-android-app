@@ -16,26 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextOverflow
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.toTitleCase
-
-import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Logout
-import androidx.compose.material.icons.rounded.MilitaryTech
-import androidx.compose.material.icons.rounded.Stars
-import androidx.compose.material.icons.rounded.Verified
-import androidx.compose.material.icons.rounded.WorkspacePremium
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalRippleConfiguration
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.res.painterResource
 
 @Composable
 fun ProfileCard(
@@ -44,7 +30,6 @@ fun ProfileCard(
     gender: String = "",
     photoUri: String? = null,
     userTier: UserTier = UserTier.FREE,
-    proExpiryTimestamp: Long = 0L,
     isAnonymous: Boolean = false,
     isSyncing: Boolean = false,
     modifier: Modifier = Modifier
@@ -64,6 +49,7 @@ fun ProfileCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
 
             // Avatar Section
             ProfileAvatar(
@@ -75,40 +61,24 @@ fun ProfileCard(
                 backgroundColor = colorScheme.primary.copy(alpha = 0.1f),
                 userTier = userTier,
                 isSyncing = isSyncing,
-                isAnonymous = isAnonymous
+                isAnonymous = isAnonymous,
+                showBadge = isPremium,
+                badgeIconRes = com.mknlabs.expensetracker.R.drawable.ic_crown,
+                badgeContentDescription = stringResource(com.mknlabs.expensetracker.R.string.label_pro)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
-
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Text(
+                    text = name.toTitleCase(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (isPremium) {
-                        Icon(
-                            painter = painterResource( com.mknlabs.expensetracker.R.drawable.ic_crown),
-                            contentDescription = "Pro",
-                            tint = colorScheme.primary,
-                            modifier = Modifier
-                                .padding(end = 6.dp)
-                                .size(18.dp)
-                        )
-                    }
-
-                    Text(
-                        text = name.toTitleCase(),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                }
-                    Spacer(Modifier.padding(top = 5.dp))
+                )
+                Spacer(Modifier.padding(top = 5.dp))
                 val subtext = if (isAnonymous) {
                     stringResource(com.mknlabs.expensetracker.R.string.label_tap_to_sync)
                 } else {

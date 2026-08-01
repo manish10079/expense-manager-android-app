@@ -1423,6 +1423,7 @@
     <string name="label_tap_to_sync">Tap to back up data &amp; sync</string>
     <string name="title_membership">My Membership</string>
     <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
+    <string name="label_pro">Pro</string>
     <string name="label_pro_active">Pro Member</string>
     <string name="label_free_tier">Free Tier</string>
     <string name="label_pro_benefit_adfree">Ad-Free Experience</string>

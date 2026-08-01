@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -354,8 +355,8 @@ private fun MembershipHeroCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.WorkspacePremium,
-                        contentDescription = null,
+                        painter = painterResource(com.mknlabs.expensetracker.R.drawable.ic_crown),
+                        contentDescription = stringResource(R.string.label_pro),
                         tint = if (isPremium) Color(0xFFFFD700) else colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )

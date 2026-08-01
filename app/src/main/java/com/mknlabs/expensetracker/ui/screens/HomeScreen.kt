@@ -172,16 +172,23 @@ private fun HomeScreenContent(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val isAnonymous = userProfile.authProvider == "anonymous"
+                    val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
+                        !isAnonymous
+
+                    // ProfileAvatar clips its own avatar content to a circle; an outer
+                    // clip(CircleShape) here would cut off the corner badge, so none is applied.
                     ProfileAvatar(
                         gender = userProfile.gender,
                         size = 60.dp,
                         photoUri = userProfile.photoUri,
                         userTier = uiState.userTier,
                         isSyncing = uiState.isSyncing,
-                        isAnonymous = userProfile.authProvider == "anonymous",
+                        isAnonymous = isAnonymous,
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier
-                            .clip(CircleShape)
+                        showBadge = isPremium,
+                        badgeIconRes = R.drawable.ic_crown,
+                        badgeContentDescription = stringResource(R.string.label_pro)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
