@@ -72,6 +72,9 @@ data class TransactionsScreenUiState(
     val availableCategories: List<CategoryType> = emptyList(),
     val paymentModes: List<PaymentType> = emptyList(),
     val transactionItems: List<TransactionListItemUi> = emptyList(),
+    val pinnedSummary: TransactionListItemUi.SummaryCard? = null,
+    /** Precomputed ordinal (1-based) of each transaction row within the list, keyed by card id. */
+    val transactionCardOrdinals: Map<String, Int> = emptyMap(),
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isSelectionMode: Boolean = false,
     val selectedTransactionIds: Set<String> = emptySet(),
@@ -79,6 +82,12 @@ data class TransactionsScreenUiState(
 )
 
 private const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
+private const val DEFAULT_MONTH_YEAR_PATTERN = "MMM, yyyy"
+private const val DEFAULT_YEAR_PATTERN = "yyyy"
+private const val FALLBACK_CATEGORY_NAME = "Other"
+private const val FALLBACK_TODAY_LABEL = "Today"
+private const val FALLBACK_YESTERDAY_LABEL = "Yesterday"
+private const val FALLBACK_TOMORROW_LABEL = "Tomorrow"
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
@@ -275,6 +284,7 @@ class TransactionsViewModel @Inject constructor(
     fun updatePeriodFilter(filter: TransactionPeriodFilter) {
         selectedPeriodFilter = filter
         focusedPeriodTimestamp = System.currentTimeMillis()
+        clearSelection()
         rebuildUiState()
     }
 
@@ -284,11 +294,13 @@ class TransactionsViewModel @Inject constructor(
             filter = selectedPeriodFilter,
             step = step
         )
+        clearSelection()
         rebuildUiState()
     }
 
     fun jumpToPeriod(millis: Long) {
         focusedPeriodTimestamp = millis
+        clearSelection()
         rebuildUiState()
     }
 
@@ -456,7 +468,7 @@ class TransactionsViewModel @Inject constructor(
                 timeFormat = currentTimeFormat,
                 paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
                 categories = currentCategories,
-                fallbackCategoryName = application.getString(R.string.label_other)
+                fallbackCategoryName = application.getString(R.string.label_other) ?: FALLBACK_CATEGORY_NAME
             )
         }
 
@@ -465,18 +477,22 @@ class TransactionsViewModel @Inject constructor(
 
         val showSummaries = currentCustomizationSettings.showTransactionListSummaries
         val transactionItems = mutableListOf<TransactionListItemUi>()
+        var pinnedSummary: TransactionListItemUi.SummaryCard? = null
+
+        // Precompute each transaction row's ordinal position here (runs on Dispatchers.Default),
+        // so the UI never has to scan the list on the main thread for ad placement.
+        val transactionCardOrdinals = HashMap<String, Int>()
+        var transactionOrdinal = 0
 
         if (isFilteredOrSearchApplied) {
             val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
             val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
             if (showSummaries) {
-                transactionItems.add(
-                    TransactionListItemUi.SummaryCard(
-                        id = "summary_filtered_search",
-                        totalIncome = formatVal(totalIncome),
-                        totalExpense = formatVal(totalExpense),
-                        periodLabel = null
-                    )
+                pinnedSummary = TransactionListItemUi.SummaryCard(
+                    id = "summary_filtered_search",
+                    totalIncome = formatVal(totalIncome),
+                    totalExpense = formatVal(totalExpense),
+                    periodLabel = null
                 )
             }
             transactionItems.addAll(
@@ -484,9 +500,9 @@ class TransactionsViewModel @Inject constructor(
                     transactions = mappedCardItems,
                     groupByDate = shouldGroupTransactions,
                     sortType = appliedSortType,
-                    todayLabel = application.getString(R.string.label_today),
-                    yesterdayLabel = application.getString(R.string.label_yesterday),
-                    tomorrowLabel = application.getString(R.string.label_tomorrow)
+                    todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
+                    yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
+                    tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
                 )
             )
         } else {
@@ -495,13 +511,11 @@ class TransactionsViewModel @Inject constructor(
                     val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
                     val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
                     if (showSummaries) {
-                        transactionItems.add(
-                            TransactionListItemUi.SummaryCard(
-                                id = "summary_daily",
-                                totalIncome = formatVal(totalIncome),
-                                totalExpense = formatVal(totalExpense),
-                                periodLabel = null
-                            )
+                        pinnedSummary = TransactionListItemUi.SummaryCard(
+                            id = "summary_daily",
+                            totalIncome = formatVal(totalIncome),
+                            totalExpense = formatVal(totalExpense),
+                            periodLabel = null
                         )
                     }
                     transactionItems.addAll(
@@ -509,9 +523,9 @@ class TransactionsViewModel @Inject constructor(
                             transactions = mappedCardItems,
                             groupByDate = false,
                             sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today),
-                            yesterdayLabel = application.getString(R.string.label_yesterday),
-                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
+                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
+                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
                         )
                     )
                 }
@@ -519,13 +533,11 @@ class TransactionsViewModel @Inject constructor(
                     val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
                     val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
                     if (showSummaries) {
-                        transactionItems.add(
-                            TransactionListItemUi.SummaryCard(
-                                id = "summary_monthly",
-                                totalIncome = formatVal(totalIncome),
-                                totalExpense = formatVal(totalExpense),
-                                periodLabel = null
-                            )
+                        pinnedSummary = TransactionListItemUi.SummaryCard(
+                            id = "summary_monthly",
+                            totalIncome = formatVal(totalIncome),
+                            totalExpense = formatVal(totalExpense),
+                            periodLabel = null
                         )
                     }
                     transactionItems.addAll(
@@ -533,13 +545,23 @@ class TransactionsViewModel @Inject constructor(
                             transactions = mappedCardItems,
                             groupByDate = shouldGroupTransactions,
                             sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today),
-                            yesterdayLabel = application.getString(R.string.label_yesterday),
-                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
+                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
+                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
                         )
                     )
                 }
                 TransactionPeriodFilter.YEARLY -> {
+                    val yearIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+                    val yearExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+                    if (showSummaries) {
+                        pinnedSummary = TransactionListItemUi.SummaryCard(
+                            id = "summary_yearly",
+                            totalIncome = formatVal(yearIncome),
+                            totalExpense = formatVal(yearExpense),
+                            periodLabel = null
+                        )
+                    }
                     val cal = Calendar.getInstance()
                     val groupedByMonth = mappedCardItems.groupBy { item ->
                         cal.timeInMillis = item.transaction.createdAt
@@ -576,9 +598,9 @@ class TransactionsViewModel @Inject constructor(
                                 transactions = monthTransactions,
                                 groupByDate = shouldGroupTransactions,
                                 sortType = appliedSortType,
-                                todayLabel = application.getString(R.string.label_today),
-                                yesterdayLabel = application.getString(R.string.label_yesterday),
-                                tomorrowLabel = application.getString(R.string.label_tomorrow)
+                                todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
+                                yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
+                                tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
                             )
                         )
                     }
@@ -604,12 +626,19 @@ class TransactionsViewModel @Inject constructor(
                             transactions = mappedCardItems,
                             groupByDate = shouldGroupTransactions,
                             sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today),
-                            yesterdayLabel = application.getString(R.string.label_yesterday),
-                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
+                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
+                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
                         )
                     )
                 }
+            }
+        }
+
+        transactionItems.forEach { item ->
+            if (item is TransactionListItemUi.TransactionRow) {
+                transactionOrdinal++
+                transactionCardOrdinals[item.card.id] = transactionOrdinal
             }
         }
 
@@ -647,6 +676,8 @@ class TransactionsViewModel @Inject constructor(
             availableCategories = availableCategories,
             paymentModes = paymentTypeMap.values.toList(),
             transactionItems = transactionItems,
+            pinnedSummary = pinnedSummary,
+            transactionCardOrdinals = transactionCardOrdinals,
             customizationSettings = currentCustomizationSettings
         )
     }
@@ -661,8 +692,8 @@ class TransactionsViewModel @Inject constructor(
         return when (filter) {
             TransactionPeriodFilter.ALL -> UiText.res(R.string.label_all_records)
             TransactionPeriodFilter.DAILY -> UiText.dynamic(formatDate(timestamp, dateFormatPattern))
-            TransactionPeriodFilter.MONTHLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_month_year_comma), Locale.getDefault()).format(date))
-            TransactionPeriodFilter.YEARLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_year), Locale.getDefault()).format(date))
+            TransactionPeriodFilter.MONTHLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_month_year_comma) ?: DEFAULT_MONTH_YEAR_PATTERN, Locale.getDefault()).format(date))
+            TransactionPeriodFilter.YEARLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_year) ?: DEFAULT_YEAR_PATTERN, Locale.getDefault()).format(date))
         }
     }
 }

@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -467,6 +467,16 @@ private fun TransactionScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
+            // Pinned summary rendered above the lazy list (out of the scrollable area)
+            uiState.pinnedSummary?.let { summary ->
+                TransactionSummaryCard(
+                    income = summary.totalIncome,
+                    expense = summary.totalExpense,
+                    periodLabel = summary.periodLabel
+                )
+                Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+            }
+
             if (uiState.transactionItems.isEmpty()) {
                 var isEmptyMessageVisible by remember { mutableStateOf(false) }
 
@@ -519,6 +529,11 @@ private fun TransactionScreenContent(
                     }
                 }
             } else {
+                // Ordinals are precomputed in the ViewModel (on Dispatchers.Default) and exposed
+                // via uiState.transactionCardOrdinals, so no list scanning happens on the main
+                // thread for ad placement.
+                val transactionRowOrdinals = uiState.transactionCardOrdinals
+
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier
@@ -526,23 +541,23 @@ private fun TransactionScreenContent(
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 180.dp)
                 ) {
-                        itemsIndexed(
+                        items(
                             items = uiState.transactionItems,
-                            key = { _, item ->
+                            key = { item ->
                                 when (item) {
                                     is TransactionListItemUi.Header -> item.id
                                     is TransactionListItemUi.TransactionRow -> item.card.id
                                     is TransactionListItemUi.SummaryCard -> item.id
                                 }
                             },
-                            contentType = { _, item ->
+                            contentType = { item ->
                                 when (item) {
                                     is TransactionListItemUi.Header -> "header"
                                     is TransactionListItemUi.TransactionRow -> "transaction"
                                     is TransactionListItemUi.SummaryCard -> "summary"
                                 }
                             }
-                        ) { index, item ->
+                        ) { item ->
                             when (item) {
                                 is TransactionListItemUi.SummaryCard -> {
                                     TransactionSummaryCard(
@@ -594,11 +609,9 @@ private fun TransactionScreenContent(
                                 }
                             }
 
-                            // Inject Native Ad after every 5th transaction card
+                            // Inject Native Ad after every 5th transaction card (O(1) lookup)
                             if (item is TransactionListItemUi.TransactionRow) {
-                                val transactionCardIndex = remember(uiState.transactionItems, index) {
-                                    uiState.transactionItems.take(index + 1).count { it is TransactionListItemUi.TransactionRow }
-                                }
+                                val transactionCardIndex = transactionRowOrdinals[item.card.id] ?: 0
                                 if (transactionCardIndex > 0 && transactionCardIndex % 5 == 0) {
                                     Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     AdContainer(isAdsEnabled = isAdsEnabled) {
