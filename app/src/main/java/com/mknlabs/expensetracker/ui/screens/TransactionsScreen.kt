@@ -35,10 +35,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.FilterAlt
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -64,6 +67,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
@@ -110,6 +114,8 @@ import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.ui.theme.ExpenseRed
+import com.mknlabs.expensetracker.ui.theme.IncomeGreen
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
@@ -526,16 +532,26 @@ private fun TransactionScreenContent(
                                 when (item) {
                                     is TransactionListItemUi.Header -> item.id
                                     is TransactionListItemUi.TransactionRow -> item.card.id
+                                    is TransactionListItemUi.SummaryCard -> item.id
                                 }
                             },
                             contentType = { _, item ->
                                 when (item) {
                                     is TransactionListItemUi.Header -> "header"
                                     is TransactionListItemUi.TransactionRow -> "transaction"
+                                    is TransactionListItemUi.SummaryCard -> "summary"
                                 }
                             }
                         ) { index, item ->
                             when (item) {
+                                is TransactionListItemUi.SummaryCard -> {
+                                    TransactionSummaryCard(
+                                        income = item.totalIncome,
+                                        expense = item.totalExpense,
+                                        periodLabel = item.periodLabel
+                                    )
+                                }
+
                                 is TransactionListItemUi.Header -> {
                                     TransactionDateHeader(
                                         dayLabel = item.dayLabel,
@@ -714,7 +730,7 @@ private fun TransactionDateHeader(
         Text(
             text = dayLabel,
             color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
         )
         Text(
             text = dateLabel,
@@ -807,6 +823,86 @@ private fun TransactionsScreenEmptyStatePreviewDark() {
             resetFilters = {},
             deleteSelectedTransactions = {}
         )
+    }
+}
+
+@Composable
+private fun TransactionSummaryCard(
+    income: String,
+    expense: String,
+    periodLabel: String? = null,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                thickness = 0.8.dp
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (!periodLabel.isNullOrBlank()) {
+                    Text(
+                        text = periodLabel,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
+
+                // Income
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDownward,
+                        contentDescription = null,
+                        tint = IncomeGreen,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.label_income) + ": " + income,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                // Expense
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowUpward,
+                        contentDescription = null,
+                        tint = ExpenseRed,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.label_expense) + ": " + expense,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                thickness = 0.8.dp
+            )
+        }
     }
 }
 

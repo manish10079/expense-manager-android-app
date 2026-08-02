@@ -99,7 +99,8 @@ object FeatureRegistry {
             "showCategoryLabel" to AccessLevel.FREE,        // Aligned with category icon — same concept
             "showTransactionTime" to AccessLevel.PREMIUM,
             "showDateSeparators" to AccessLevel.PREMIUM,
-            "showPaymentMethod" to AccessLevel.PREMIUM
+            "showPaymentMethod" to AccessLevel.PREMIUM,
+            "showTransactionListSummaries" to AccessLevel.PREMIUM
         ),
         
         Feature.PRIVACY_PROTECTION to AccessLevel.PREMIUM,

@@ -16,6 +16,7 @@ import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.SortType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
@@ -54,6 +55,7 @@ object AppSettingsDataStore {
         val transactionCardShowCategoryIcon = booleanPreferencesKey("transaction_card_show_category_icon")
         val transactionCardShowCategoryLabel = booleanPreferencesKey("transaction_card_show_category_label")
         val transactionCardShowDateSeparators = booleanPreferencesKey("transaction_card_show_date_separators")
+        val transactionCardShowListSummaries = booleanPreferencesKey("transaction_card_show_list_summaries")
         val installDateMillis = longPreferencesKey("install_date_millis")
         val isAutoBackupEnabled = booleanPreferencesKey("is_auto_backup_enabled")
         val autoBackupFrequencyDays = intPreferencesKey("auto_backup_frequency_days")
@@ -81,12 +83,25 @@ object AppSettingsDataStore {
         context: Context,
         transform: (AppSettings) -> AppSettings
     ) {
+        // Read current profile status to enforce premium features from the single source of truth
+        val profile = UserProfileDataStore.getUserProfileFlow(context).first()
+        val now = System.currentTimeMillis()
+        val isPremium = profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)
+
         context.applicationContext.appSettingsDataStore.edit { preferences ->
             val currentSettings = preferences.toAppSettings()
             var updatedSettings = transform(currentSettings)
 
+            val wasPremium = currentSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
+            val isNowPremium = isPremium || updatedSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
+            if (isNowPremium && !wasPremium) {
+                updatedSettings = updatedSettings.copy(
+                    transactionCardShowListSummaries = true
+                )
+            }
+
             // Centralized Enforcer: If user is downgraded to FREE, clean up all Premium-only settings!
-            if (updatedSettings.userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+            if (!isPremium) {
                 val needResetTimeout = updatedSettings.appLockTimeoutMinutes !in listOf(0, 1, 5, 10, 15)
                 val newTimeout = if (needResetTimeout) 1 else updatedSettings.appLockTimeoutMinutes
 
@@ -100,7 +115,8 @@ object AppSettingsDataStore {
                     scrambledPinKeypadEnabled = false,
                     appLockTimeoutMinutes = newTimeout,
                     autoBackupFrequencyDays = newBackupFreq,
-                    isCloudSyncEnabled = false
+                    isCloudSyncEnabled = false,
+                    transactionCardShowListSummaries = false
                 )
 
                 if (needResetTimeout) {
@@ -149,6 +165,7 @@ object AppSettingsDataStore {
             transactionCardShowCategoryIcon = this[Keys.transactionCardShowCategoryIcon] ?: defaultAppSettings.transactionCardShowCategoryIcon,
             transactionCardShowCategoryLabel = this[Keys.transactionCardShowCategoryLabel] ?: defaultAppSettings.transactionCardShowCategoryLabel,
             transactionCardShowDateSeparators = this[Keys.transactionCardShowDateSeparators] ?: defaultAppSettings.transactionCardShowDateSeparators,
+            transactionCardShowListSummaries = this[Keys.transactionCardShowListSummaries] ?: defaultAppSettings.transactionCardShowListSummaries,
             installDateMillis = this[Keys.installDateMillis] ?: defaultAppSettings.installDateMillis,
             isAutoBackupEnabled = this[Keys.isAutoBackupEnabled] ?: defaultAppSettings.isAutoBackupEnabled,
             autoBackupFrequencyDays = this[Keys.autoBackupFrequencyDays] ?: defaultAppSettings.autoBackupFrequencyDays,
@@ -192,6 +209,7 @@ object AppSettingsDataStore {
         this[Keys.transactionCardShowCategoryIcon] = settings.transactionCardShowCategoryIcon
         this[Keys.transactionCardShowCategoryLabel] = settings.transactionCardShowCategoryLabel
         this[Keys.transactionCardShowDateSeparators] = settings.transactionCardShowDateSeparators
+        this[Keys.transactionCardShowListSummaries] = settings.transactionCardShowListSummaries
         this[Keys.installDateMillis] = settings.installDateMillis
         this[Keys.isAutoBackupEnabled] = settings.isAutoBackupEnabled
         this[Keys.autoBackupFrequencyDays] = settings.autoBackupFrequencyDays

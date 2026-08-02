@@ -16,6 +16,19 @@ import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.Wallet
+import androidx.compose.material.icons.outlined.Summarize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.ui.theme.ExpenseRed
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -99,6 +112,9 @@ fun TransactionCardCustomizeScreen(
     val proPaymentMethodStatus by monetizationViewModel
         .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showPaymentMethod")
         .collectAsStateWithLifecycle()
+    val proListSummariesStatus by monetizationViewModel
+        .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionListSummaries")
+        .collectAsStateWithLifecycle()
 
     TransactionCardCustomizeContent(
         settings = settings,
@@ -111,6 +127,7 @@ fun TransactionCardCustomizeScreen(
         isTransactionTimeProGranted = proTimeStatus is AccessStatus.Granted,
         isDateSeparatorsProGranted = proDateSeparatorsStatus is AccessStatus.Granted,
         isPaymentMethodProGranted = proPaymentMethodStatus is AccessStatus.Granted,
+        isListSummariesProGranted = proListSummariesStatus is AccessStatus.Granted,
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -128,6 +145,7 @@ private fun TransactionCardCustomizeContent(
     isTransactionTimeProGranted: Boolean,
     isDateSeparatorsProGranted: Boolean,
     isPaymentMethodProGranted: Boolean,
+    isListSummariesProGranted: Boolean,
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -143,7 +161,7 @@ private fun TransactionCardCustomizeContent(
 
     // Pro-gated toggles must be reset to OFF for non-Pro users.
     // The Route layer observes access status and passes plain granted flags down.
-    LaunchedEffect(isTransactionTimeProGranted, isDateSeparatorsProGranted, isPaymentMethodProGranted) {
+    LaunchedEffect(isTransactionTimeProGranted, isDateSeparatorsProGranted, isPaymentMethodProGranted, isListSummariesProGranted) {
         if (!isTransactionTimeProGranted && localSettings.showTransactionTime) {
             localSettings = localSettings.copy(showTransactionTime = false)
         }
@@ -152,6 +170,9 @@ private fun TransactionCardCustomizeContent(
         }
         if (!isPaymentMethodProGranted && localSettings.showPaymentMethod) {
             localSettings = localSettings.copy(showPaymentMethod = false)
+        }
+        if (!isListSummariesProGranted && localSettings.showTransactionListSummaries) {
+            localSettings = localSettings.copy(showTransactionListSummaries = false)
         }
     }
 
@@ -169,8 +190,10 @@ private fun TransactionCardCustomizeContent(
     val showPaymentMethodSubtitle = stringResource(id = R.string.desc_display_wallet_or_card)
     val showDateSeparatorsTitle = stringResource(id = R.string.title_show_date_separators)
     val showDateSeparatorsSubtitle = stringResource(id = R.string.desc_group_transactions_by_day)
+    val showListSummariesTitle = stringResource(id = R.string.title_show_list_summaries)
+    val showListSummariesSubtitle = stringResource(id = R.string.desc_show_list_summaries)
 
-    val toggleItems = remember(localSettings, incomeExpenseTitle, incomeExpenseSubtitle, showDateTitle, showDateSubtitle, showCategoryIconTitle, showCategoryIconSubtitle, showTimeTitle, showTimeSubtitle, showCategoryTitle, showCategorySubtitle, showPaymentMethodTitle, showPaymentMethodSubtitle, showDateSeparatorsTitle, showDateSeparatorsSubtitle) {
+    val toggleItems = remember(localSettings, incomeExpenseTitle, incomeExpenseSubtitle, showDateTitle, showDateSubtitle, showCategoryIconTitle, showCategoryIconSubtitle, showTimeTitle, showTimeSubtitle, showCategoryTitle, showCategorySubtitle, showPaymentMethodTitle, showPaymentMethodSubtitle, showDateSeparatorsTitle, showDateSeparatorsSubtitle, showListSummariesTitle, showListSummariesSubtitle) {
         listOf(
             TransactionCardToggleItem(
                 title = incomeExpenseTitle,
@@ -227,8 +250,25 @@ private fun TransactionCardCustomizeContent(
                 optionId = "showDateSeparators",
                 checked = localSettings.showDateSeparators,
                 onCheckedChange = { localSettings = localSettings.copy(showDateSeparators = it) }
+            ),
+            TransactionCardToggleItem(
+                title = showListSummariesTitle,
+                subtitle = showListSummariesSubtitle,
+                icon = Icons.Outlined.Summarize,
+                optionId = "showTransactionListSummaries",
+                checked = localSettings.showTransactionListSummaries,
+                onCheckedChange = { localSettings = localSettings.copy(showTransactionListSummaries = it) }
             )
         )
+    }
+
+    val previewTotalIncome = remember(previewTransactions, currencyId, amountFormatPreferences) {
+        val amount = previewTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+        com.mknlabs.expensetracker.utils.formatCurrencyValue(amount, currencyId, amountFormatPreferences)
+    }
+    val previewTotalExpense = remember(previewTransactions, currencyId, amountFormatPreferences) {
+        val amount = previewTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+        com.mknlabs.expensetracker.utils.formatCurrencyValue(amount, currencyId, amountFormatPreferences)
     }
 
     val previewGroups = remember(previewTransactions) {
@@ -264,17 +304,19 @@ private fun TransactionCardCustomizeContent(
                 )
             )
 
+            if (localSettings.showTransactionListSummaries) {
+                PreviewTransactionSummaryCard(
+                    income = previewTotalIncome,
+                    expense = previewTotalExpense
+                )
+            }
+
             if (localSettings.showDateSeparators) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     previewGroups.forEach { group ->
-                        Text(
-                            text = group.key,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.6.sp
-                            ),
-                            modifier = Modifier.padding(bottom = 4.dp)
+                        PreviewDateHeader(
+                            dayLabel = if (previewGroups.indexOf(group) == 0) "Today" else "Yesterday",
+                            dateLabel = group.key
                         )
                         group.value.forEach { transaction ->
                             PreviewTransactionCard(
@@ -353,6 +395,20 @@ private fun TransactionCardCustomizeContent(
             item {
                 SettingsGroup {
                     val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
+                    groupItems.forEachIndexed { index, item ->
+                        false.ToggleSettingsItem(
+                            item = item,
+                            isInPreview = isInPreview
+                        )
+                        if (index < groupItems.size - 1) SettingsGroupDivider()
+                    }
+                }
+            }
+
+            // Group 4: Transaction List Summaries
+            item {
+                SettingsGroup {
+                    val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionListSummaries") }
                     groupItems.forEachIndexed { index, item ->
                         false.ToggleSettingsItem(
                             item = item,
@@ -474,9 +530,114 @@ private fun TransactionCardCustomizeScreenPreview() {
             isTransactionTimeProGranted = true,
             isDateSeparatorsProGranted = true,
             isPaymentMethodProGranted = true,
+            isListSummariesProGranted = true,
             onSettingsChange = {},
             onBackClick = {}
         )
+    }
+}
+
+@Composable
+private fun PreviewDateHeader(
+    dayLabel: String,
+    dateLabel: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = dayLabel,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+        )
+        Text(
+            text = dateLabel,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun PreviewTransactionSummaryCard(
+    income: String,
+    expense: String,
+    periodLabel: String? = null
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                thickness = 0.8.dp
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (!periodLabel.isNullOrBlank()) {
+                    Text(
+                        text = periodLabel,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
+
+                // Income
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDownward,
+                        contentDescription = null,
+                        tint = IncomeGreen,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.label_income) + ": " + income,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                // Expense
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowUpward,
+                        contentDescription = null,
+                        tint = ExpenseRed,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.label_expense) + ": " + expense,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                thickness = 0.8.dp
+            )
+        }
     }
 }
 

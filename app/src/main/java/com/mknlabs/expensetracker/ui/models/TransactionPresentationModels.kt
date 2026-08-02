@@ -32,4 +32,12 @@ sealed interface TransactionListItemUi {
     data class TransactionRow(
         val card: TransactionCardItemUi
     ) : TransactionListItemUi
+
+    @Immutable
+    data class SummaryCard(
+        val id: String,
+        val totalIncome: String,
+        val totalExpense: String,
+        val periodLabel: String? = null
+    ) : TransactionListItemUi
 }

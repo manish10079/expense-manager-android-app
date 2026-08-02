@@ -430,26 +430,188 @@ class TransactionsViewModel @Inject constructor(
             appliedSortType
         )
 
+        val isFilterApplied = appliedDateRange != null ||
+            appliedCategoryIds.isNotEmpty() ||
+            appliedPaymentTypeIds.isNotEmpty() ||
+            appliedMinAmount.isNotBlank() ||
+            appliedMaxAmount.isNotBlank() ||
+            appliedTransactionTypeIds.size < 2
+
+        val isSearchActive = searchQuery.trim().isNotEmpty()
+        val isFilteredOrSearchApplied = isFilterApplied || isSearchActive
+
+        val formatVal = { value: Double ->
+            com.mknlabs.expensetracker.utils.formatCurrencyValue(
+                amount = value,
+                currencyId = currentCurrencyId,
+                amountFormatPreferences = currentAmountFormatPreferences
+            )
+        }
+
+        val mappedCardItems = filteredTransactions.map { transaction ->
+            transaction.toTransactionCardItemUi(
+                currencyId = currentCurrencyId,
+                amountFormatPreferences = currentAmountFormatPreferences,
+                dateFormatPattern = currentDateFormatPattern,
+                timeFormat = currentTimeFormat,
+                paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
+                categories = currentCategories,
+                fallbackCategoryName = application.getString(R.string.label_other)
+            )
+        }
+
         val shouldGroupTransactions = currentCustomizationSettings.showDateSeparators &&
             selectedPeriodFilter != TransactionPeriodFilter.DAILY
-        val transactionItems = buildTransactionListItems(
-            transactions = filteredTransactions.map { transaction ->
-                transaction.toTransactionCardItemUi(
-                    currencyId = currentCurrencyId,
-                    amountFormatPreferences = currentAmountFormatPreferences,
-                    dateFormatPattern = currentDateFormatPattern,
-                    timeFormat = currentTimeFormat,
-                    paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
-                    categories = currentCategories,
-                    fallbackCategoryName = application.getString(R.string.label_other)
+
+        val showSummaries = currentCustomizationSettings.showTransactionListSummaries
+        val transactionItems = mutableListOf<TransactionListItemUi>()
+
+        if (isFilteredOrSearchApplied) {
+            val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+            val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+            if (showSummaries) {
+                transactionItems.add(
+                    TransactionListItemUi.SummaryCard(
+                        id = "summary_filtered_search",
+                        totalIncome = formatVal(totalIncome),
+                        totalExpense = formatVal(totalExpense),
+                        periodLabel = null
+                    )
                 )
-            },
-            groupByDate = shouldGroupTransactions,
-            sortType = appliedSortType,
-            todayLabel = application.getString(R.string.label_today),
-            yesterdayLabel = application.getString(R.string.label_yesterday),
-            tomorrowLabel = application.getString(R.string.label_tomorrow)
-        )
+            }
+            transactionItems.addAll(
+                buildTransactionListItems(
+                    transactions = mappedCardItems,
+                    groupByDate = shouldGroupTransactions,
+                    sortType = appliedSortType,
+                    todayLabel = application.getString(R.string.label_today),
+                    yesterdayLabel = application.getString(R.string.label_yesterday),
+                    tomorrowLabel = application.getString(R.string.label_tomorrow)
+                )
+            )
+        } else {
+            when (selectedPeriodFilter) {
+                TransactionPeriodFilter.DAILY -> {
+                    val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+                    val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+                    if (showSummaries) {
+                        transactionItems.add(
+                            TransactionListItemUi.SummaryCard(
+                                id = "summary_daily",
+                                totalIncome = formatVal(totalIncome),
+                                totalExpense = formatVal(totalExpense),
+                                periodLabel = null
+                            )
+                        )
+                    }
+                    transactionItems.addAll(
+                        buildTransactionListItems(
+                            transactions = mappedCardItems,
+                            groupByDate = false,
+                            sortType = appliedSortType,
+                            todayLabel = application.getString(R.string.label_today),
+                            yesterdayLabel = application.getString(R.string.label_yesterday),
+                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                        )
+                    )
+                }
+                TransactionPeriodFilter.MONTHLY -> {
+                    val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+                    val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+                    if (showSummaries) {
+                        transactionItems.add(
+                            TransactionListItemUi.SummaryCard(
+                                id = "summary_monthly",
+                                totalIncome = formatVal(totalIncome),
+                                totalExpense = formatVal(totalExpense),
+                                periodLabel = null
+                            )
+                        )
+                    }
+                    transactionItems.addAll(
+                        buildTransactionListItems(
+                            transactions = mappedCardItems,
+                            groupByDate = shouldGroupTransactions,
+                            sortType = appliedSortType,
+                            todayLabel = application.getString(R.string.label_today),
+                            yesterdayLabel = application.getString(R.string.label_yesterday),
+                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                        )
+                    )
+                }
+                TransactionPeriodFilter.YEARLY -> {
+                    val cal = Calendar.getInstance()
+                    val groupedByMonth = mappedCardItems.groupBy { item ->
+                        cal.timeInMillis = item.transaction.createdAt
+                        cal.get(Calendar.MONTH)
+                    }
+
+                    val sortedMonthKeys = if (appliedSortType == SortType.OLDEST) {
+                        groupedByMonth.keys.sorted()
+                    } else {
+                        groupedByMonth.keys.sortedDescending()
+                    }
+
+                    sortedMonthKeys.forEach { monthKey ->
+                        val monthTransactions = groupedByMonth[monthKey].orEmpty()
+                        val monthIncome = monthTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.transaction.amount }
+                        val monthExpense = monthTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.transaction.amount }
+                        
+                        cal.set(Calendar.MONTH, monthKey)
+                        val monthLabel = SimpleDateFormat("MMM", Locale.getDefault()).format(cal.time)
+
+                        if (showSummaries) {
+                            transactionItems.add(
+                                TransactionListItemUi.SummaryCard(
+                                    id = "summary_yearly_month_$monthKey",
+                                    totalIncome = formatVal(monthIncome),
+                                    totalExpense = formatVal(monthExpense),
+                                    periodLabel = monthLabel
+                                )
+                            )
+                        }
+
+                        transactionItems.addAll(
+                            buildTransactionListItems(
+                                transactions = monthTransactions,
+                                groupByDate = shouldGroupTransactions,
+                                sortType = appliedSortType,
+                                todayLabel = application.getString(R.string.label_today),
+                                yesterdayLabel = application.getString(R.string.label_yesterday),
+                                tomorrowLabel = application.getString(R.string.label_tomorrow)
+                            )
+                        )
+                    }
+                }
+                TransactionPeriodFilter.ALL -> {
+                    /* FUTURE EXTENSION: 
+                       If you want to add a yearly/all summary in All View in the future, 
+                       calculate and add a SummaryCard here:
+                       
+                       val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
+                       val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
+                       transactionItems.add(
+                           TransactionListItemUi.SummaryCard(
+                               id = "summary_all",
+                               totalIncome = formatVal(totalIncome),
+                               totalExpense = formatVal(totalExpense),
+                               periodLabel = "All Time"
+                           )
+                       )
+                    */
+                    transactionItems.addAll(
+                        buildTransactionListItems(
+                            transactions = mappedCardItems,
+                            groupByDate = shouldGroupTransactions,
+                            sortType = appliedSortType,
+                            todayLabel = application.getString(R.string.label_today),
+                            yesterdayLabel = application.getString(R.string.label_yesterday),
+                            tomorrowLabel = application.getString(R.string.label_tomorrow)
+                        )
+                    )
+                }
+            }
+        }
 
         return _baseUiState.value.copy(
             searchQuery = searchQuery,

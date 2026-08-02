@@ -96,6 +96,9 @@ class ProPassRepositoryImpl @Inject constructor(
                 )
             }
 
+            // Update local AppSettings state to PREMIUM
+            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateUserTier(appContext, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
+
             // Update local state (Ad-free)
             monetizationRepository.grantTemporaryAccess(
                 feature = Feature.AD_FREE_GLOBAL,

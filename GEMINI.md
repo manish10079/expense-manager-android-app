@@ -83,7 +83,7 @@ com.mkn0079.expensetracker/
 - **Automated Updates:** Whenever a commit message is prepared or requested, the agent must
  update `app/build.gradle.kts`.
 - **Version Code:** `versionCode` must always increment by **1**.
-- **Version Name:** `versionName` must follow the format: `major.minor.bug.versioncode`.
+- **Version Name:** `versionName` must follow the format: `major.minor.bug`.
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `bumped version to <versionName>`.
 - **Versioning Logic (SemVer):**
     - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and bug to 0.

@@ -493,6 +493,8 @@
     <string name="title_security_privacy_1">SECURITY &amp; PRIVACY</string>
     <string name="title_send_feedback">Send Feedback</string>
     <string name="title_show_date_separators">Show Date Separators</string>
+    <string name="title_show_list_summaries">Show Period Summaries</string>
+    <string name="desc_show_list_summaries">Display income and expense totals for the current period</string>
     <string name="title_show_payment_method">Show Payment Method</string>
     <string name="title_sort_by">Sort by</string>
     <string name="title_spent">SPENT</string>

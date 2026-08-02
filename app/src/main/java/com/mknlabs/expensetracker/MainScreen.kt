@@ -97,7 +97,8 @@ private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCar
         showTransactionTime = transactionCardShowTransactionTime,
         showCategoryIcon = transactionCardShowCategoryIcon,
         showCategoryLabel = transactionCardShowCategoryLabel,
-        showDateSeparators = transactionCardShowDateSeparators
+        showDateSeparators = transactionCardShowDateSeparators,
+        showTransactionListSummaries = transactionCardShowListSummaries
     )
 }
 
@@ -111,7 +112,8 @@ private fun AppSettings.withTransactionCardCustomizationSettings(
         transactionCardShowTransactionTime = settings.showTransactionTime,
         transactionCardShowCategoryIcon = settings.showCategoryIcon,
         transactionCardShowCategoryLabel = settings.showCategoryLabel,
-        transactionCardShowDateSeparators = settings.showDateSeparators
+        transactionCardShowDateSeparators = settings.showDateSeparators,
+        transactionCardShowListSummaries = settings.showTransactionListSummaries
     )
 }
 

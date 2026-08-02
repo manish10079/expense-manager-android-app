@@ -1,24 +1,17 @@
+# ===================== Build & IDE =====================
 *.iml
 .gradle
 .gradle-user-home/
 .kotlin/
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/deploymentTargetSelector.xml
-.idea/vcs.xml
-.DS_Store
-/build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+build/
+/build
+/buildOutput*
+*.log
 build_output.txt
-/commit.md
 kotlin_compile_log.txt
 gradle_build_err.txt
 gradle_build_out.txt
@@ -26,4 +19,44 @@ gradle_compile_err.txt
 gradle_compile_out.txt
 gradle_settings_compile_err.txt
 gradle_settings_compile_out.txt
-*.log
+
+# ===================== IDE (IntelliJ / Android Studio) =====================
+/.idea
+.idea/*
+!.idea/codeStyles/
+!.idea/copyright/
+.idea/vcs.xml
+
+# ===================== VS Code =====================
+.vscode/
+
+# ===================== Android =====================
+# Signing keys — NEVER commit these!
+*.jks
+*.keystore
+*.keystore.lock
+.android-user-home/
+# Generated build outputs / bundle files
+*.apk
+*.aab
+*.ap_
+*.hprof
+*.mapping
+local.properties
+
+# ===================== Secrets & API config =====================
+# Firebase config — contains your API keys / OAuth client IDs (add your own copy)
+google-services.json
+app/google-services.json
+
+# ===================== Firebase CLI =====================
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# ===================== OS =====================
+.DS_Store
+Thumbs.db
+
+# ===================== Misc =====================
+/commit.md

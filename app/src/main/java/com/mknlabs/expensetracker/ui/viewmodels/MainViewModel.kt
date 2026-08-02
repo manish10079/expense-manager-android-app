@@ -183,6 +183,9 @@ class MainViewModel @Inject constructor(
                     // 3. Trigger a sync worker to push this downgraded status to Firestore
                     com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
                 } else if (profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp > now) {
+                    if (settings.userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+                        AppSettingsDataStore.updateUserTier(appContext, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
+                    }
                     // If the subscription is active, but we haven't reached the expiry yet,
                     // we can schedule a delay until the expiry time, then trigger a recheck!
                     val delayMillis = profile.proExpiryTimestamp - now
