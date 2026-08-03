@@ -40,8 +40,8 @@ fun Transaction.toTransactionCardItemUi(
         ),
         icon = resolvedIcon,
         transactionTypeId = transactionTypeId,
-        paymentType = paymentTypeName,
-        categoryLabel = category?.name ?: fallbackCategoryName
+        paymentType = paymentTypeName.uppercase(Locale.getDefault()),
+        categoryLabel = (category?.name ?: fallbackCategoryName).uppercase(Locale.getDefault())
     )
 }
 

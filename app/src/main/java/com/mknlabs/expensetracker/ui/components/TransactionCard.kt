@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
@@ -32,7 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
@@ -42,10 +41,14 @@ import com.mknlabs.expensetracker.utils.getAmountColor
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.income
 import com.mknlabs.expensetracker.ui.theme.transparent
+
+private val SeparatorSpanStyle = SpanStyle(letterSpacing = 0.8.sp)
 
 @Composable
 fun TransactionCard(
@@ -75,6 +78,14 @@ fun TransactionCard(
             color = borderColor
         )
     }
+
+    // Hoisted string resources: resolved once per card slot (cached across recompositions)
+    // instead of inside the per-pill branch on every composition. Keyed on the Resources
+    // instance so a runtime locale/config change invalidates the cached strings.
+    val resources = LocalContext.current.resources
+    val incomeLabel = remember(resources) { resources.getString(R.string.label_income) }
+    val expenseLabel = remember(resources) { resources.getString(R.string.label_expense) }
+    val noNoteLabel = remember(resources) { resources.getString(R.string.label_no_note) }
 
     Row(
         modifier = Modifier
@@ -123,7 +134,7 @@ fun TransactionCard(
             modifier = Modifier.weight(1f)
         ) {
             val isNoteEmpty = note.isBlank()
-            val displayNote = if (isNoteEmpty) stringResource(R.string.label_no_note) else note
+            val displayNote = if (isNoteEmpty) noNoteLabel else note
 
             Text(
                 text = displayNote,
@@ -134,6 +145,7 @@ fun TransactionCard(
                 },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                softWrap = false,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
                     fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
@@ -144,64 +156,43 @@ fun TransactionCard(
             if (showTransactionDate || showTransactionTime) {
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (showTransactionDate) {
-                        Text(
-                            text = transactionDate,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                letterSpacing = 1.2.sp
-                            )
-                        )
-                    }
-
-                    if (showTransactionDate && showTransactionTime) {
-                        Text(
-                            text = " • ",//• ● ⬤ 
-
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                letterSpacing = 0.8.sp
-                            ),
-                            modifier = Modifier.wrapContentWidth()
-                        )
-                    }
-
-                    if (showTransactionTime) {
-                        Text(
-                            text = transactionTime,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                letterSpacing = 1.2.sp
-                            )
-                        )
-                    }
-                }
+                Text(
+                    text = remember(transactionDate, transactionTime, showTransactionDate, showTransactionTime) {
+                        buildAnnotatedString {
+                            if (showTransactionDate) {
+                                append(transactionDate)
+                            }
+                            if (showTransactionDate && showTransactionTime) {
+                                withStyle(SeparatorSpanStyle) {
+                                    append(" • ") // • ● ⬤
+                                }
+                            }
+                            if (showTransactionTime) {
+                                append(transactionTime)
+                            }
+                        }
+                    },
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        letterSpacing = 1.2.sp
+                    )
+                )
             }
 
-            // New Pills Section
+            // Pills Section (single-line Row — cheaper than FlowRow for short labels)
             Spacer(modifier = Modifier.height(6.dp))
-            FlowRow(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (showTypeLabel) {
                     TransactionPill(
-                        text = if (transactionTypeId == 1) stringResource(R.string.label_income) else stringResource(R.string.label_expense),
+                        text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
                         color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
                         backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
                     )
@@ -209,7 +200,7 @@ fun TransactionCard(
 
                 if (showCategoryLabel && categoryLabel.isNotBlank()) {
                     TransactionPill(
-                        text = categoryLabel.uppercase(),
+                        text = categoryLabel,
                         color = MaterialTheme.colorScheme.primary,
                         backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                     )
@@ -217,7 +208,7 @@ fun TransactionCard(
 
                 if (showPaymentMethod && paymentType.isNotBlank()) {
                     TransactionPill(
-                        text = paymentType.uppercase(),
+                        text = paymentType,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
                     )
@@ -231,6 +222,7 @@ fun TransactionCard(
             text = amount,
             color = getAmountColor(transactionTypeId),
             maxLines = 1,
+            softWrap = false,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
@@ -250,14 +242,15 @@ private fun TransactionPill(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(backgroundColor)
+            .background(backgroundColor, RoundedCornerShape(6.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = color,
+            maxLines = 1,
+            softWrap = false,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp,
@@ -279,8 +272,8 @@ fun TransactionCardLightPreview() {
                 amount = "+₹5,000",
                 transactionTypeId = 1,
                 icon = Icons.Filled.QuestionMark,
-                paymentType = getPaymentTypeName(3),
-                categoryLabel = "Salary"
+                paymentType = getPaymentTypeName(3).uppercase(),
+                categoryLabel = "Salary".uppercase()
             )
         }
     }
@@ -298,8 +291,8 @@ fun TransactionCardDarkPreview() {
                 amount = "-₹2,500",
                 transactionTypeId = 2,
                 icon = Icons.Filled.QuestionMark,
-                paymentType = getPaymentTypeName(1),
-                categoryLabel = "Food"
+                paymentType = getPaymentTypeName(1).uppercase(),
+                categoryLabel = "Food".uppercase()
             )
         }
     }

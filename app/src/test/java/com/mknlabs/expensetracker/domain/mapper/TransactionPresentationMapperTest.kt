@@ -83,4 +83,43 @@ class TransactionPresentationMapperTest {
         // Assert
         assertEquals(Icons.Filled.QuestionMark, result.icon)
     }
+
+    @Test
+    fun `toTransactionCardItemUi uppercases payment type and category label`() {
+        // Arrange
+        val customCategoryId = 999
+        val categories = listOf(
+            CategoryType(
+                id = customCategoryId,
+                name = "Custom Food",
+                iconKey = "restaurant",
+                transactionTypeId = 2,
+                isSystem = false
+            )
+        )
+        
+        val transaction = Transaction(
+            id = "t3",
+            note = "Uppercase test",
+            createdAt = System.currentTimeMillis(),
+            amountMinor = 1000L,
+            transactionTypeId = 2,
+            paymentTypeId = 1,
+            categoryId = customCategoryId,
+            syncState = SyncState.LOCAL_ONLY
+        )
+
+        // Act
+        val result = transaction.toTransactionCardItemUi(
+            currencyId = DEFAULT_CURRENCY_ID,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            timeFormat = DEFAULT_TIME_FORMAT,
+            paymentTypeName = "Cash",
+            categories = categories
+        )
+
+        // Assert
+        assertEquals("CASH", result.paymentType)
+        assertEquals("CUSTOM FOOD", result.categoryLabel)
+    }
 }

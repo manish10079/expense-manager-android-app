@@ -2008,8 +2008,8 @@ private fun FilteredTransactionsBottomSheet(
                             amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                             transactionTypeId = transaction.transactionTypeId,
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
-                            paymentType = payment?.name ?: stringResource(id = R.string.label_unknown),
-                            categoryLabel = category?.name ?: stringResource(id = R.string.label_other)
+                            paymentType = (payment?.name ?: stringResource(id = R.string.label_unknown)).uppercase(),
+                            categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase()
                         )
                     }
                 }
