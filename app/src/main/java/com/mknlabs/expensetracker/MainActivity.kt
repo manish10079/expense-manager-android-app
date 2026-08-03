@@ -34,6 +34,9 @@ import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.sms.ParsedSms
+import com.mknlabs.expensetracker.sms.SmsNotificationManager
+import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.ui.screens.SplashOverlay
 import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
 import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
@@ -168,6 +171,15 @@ class MainActivity : AppCompatActivity() {
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
+        // Smart SMS Import "Open" action prefill (plan §8) — amount + note draft.
+        val initialAddTransactionAmount = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_AMOUNT)
+        val initialAddTransactionNote = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_NOTE)
+
+        // Smart SMS Import "Change" action payload (plan §8 / Phase 4) — the
+        // full ParsedSms rides in PendingIntent extras and is consumed by the
+        // lightweight Change bottom sheet. Null for every other launch path.
+        val initialParsedSms: ParsedSms? = intent?.toParsedSms()
+
         // Handle Magic Link Intent
         LaunchedEffect(intent) {
             intent?.data?.let { data ->
@@ -260,6 +272,9 @@ class MainActivity : AppCompatActivity() {
                                 appSettings = settings,
                                 userProfile = userProfile,
                                 initialNavDestination = initialNavDestination,
+                                initialAddTransactionAmount = initialAddTransactionAmount,
+                                initialAddTransactionNote = initialAddTransactionNote,
+                                initialParsedSms = initialParsedSms,
                                 isRecoveryPerformed = recoveryPerformed,
                                 onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
                             )

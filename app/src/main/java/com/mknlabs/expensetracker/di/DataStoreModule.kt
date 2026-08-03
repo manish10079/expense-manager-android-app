@@ -3,7 +3,9 @@ package com.mknlabs.expensetracker.di
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.mknlabs.expensetracker.data.local.SmsLearningDataStore
 import com.mknlabs.expensetracker.data.local.appSettingsDataStore
+import com.mknlabs.expensetracker.data.local.smsLearningDataStore
 import com.mknlabs.expensetracker.data.local.userProfileDataStore
 import dagger.Module
 import dagger.Provides
@@ -26,5 +28,12 @@ object DataStoreModule {
     @Singleton
     fun provideUserProfileDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.userProfileDataStore
+    }
+
+    @Provides
+    @Singleton
+    @SmsLearningDataStore
+    fun provideSmsLearningDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.smsLearningDataStore
     }
 }

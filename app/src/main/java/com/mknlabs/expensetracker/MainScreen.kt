@@ -71,8 +71,12 @@ import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
 import com.mknlabs.expensetracker.ui.navigation.rememberMainNavigationState
 import com.mknlabs.expensetracker.ui.navigation.routesKeepingTransactionsWarm
+import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationScheduler
+import com.mknlabs.expensetracker.sms.ParsedSms
+import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.ui.screens.OnboardingScreen
+import com.mknlabs.expensetracker.ui.screens.SmsChangeRoute
 import com.mknlabs.expensetracker.ui.viewmodels.MainViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
@@ -124,6 +128,9 @@ fun MainScreen(
     appSettings: AppSettings,
     userProfile: UserProfile,
     initialNavDestination: String? = null,
+    initialAddTransactionAmount: String? = null,
+    initialAddTransactionNote: String? = null,
+    initialParsedSms: ParsedSms? = null,
     isRecoveryPerformed: Boolean = false,
     onRecoveryConsumed: () -> Unit = {}
 ) {
@@ -153,6 +160,9 @@ fun MainScreen(
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
     var showProPassRedeemDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
+    // Smart SMS Import "Change" sheet request — set when the app is opened via
+    // the notification's Change action (DESTINATION_SMS_CHANGE, plan §8/Phase 4).
+    var smsChangeRequest by remember { mutableStateOf<ParsedSms?>(null) }
 
     val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -410,10 +420,27 @@ fun MainScreen(
                 }
             )
         } else {
-            LaunchedEffect(initialNavDestination) {
-                if (AppRoute.fromRoute(initialNavDestination) == AppRoute.AddTransaction) {
-                    navigationState.navigateTo(AppRoute.AddTransaction)
-                    navigationState.updateBottomBarVisibility(false)
+            // Key on the prefill extras too: a second "Open"/"Change" tap while the
+            // app is already foregrounded (onNewIntent) refreshes the payload for
+            // the new SMS.
+            LaunchedEffect(initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialParsedSms) {
+                when (initialNavDestination) {
+                    NotificationHelper.DESTINATION_ADD_TRANSACTION -> {
+                        // Smart SMS Import "Open" action: prefill the Add Transaction draft
+                        // (amount + note = sender · SMS body) before navigating (plan §8).
+                        initialAddTransactionAmount?.let { navigationState.updateAddTransactionDraftAmount(it) }
+                        initialAddTransactionNote?.let { navigationState.updateAddTransactionDraftNote(it) }
+                        navigationState.navigateTo(AppRoute.AddTransaction)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+
+                    NotificationHelper.DESTINATION_SMS_CHANGE -> {
+                        // Smart SMS Import "Change" action: land on Home and pop the
+                        // lightweight category+note sheet with the parsed payload.
+                        initialParsedSms?.let { smsChangeRequest = it }
+                        navigationState.navigateTo(AppRoute.Home)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
                 }
             }
 
@@ -997,6 +1024,22 @@ fun MainScreen(
                     )
                 }
             }
+        }
+
+        // Smart SMS Import "Change" bottom sheet (plan §8 / Phase 4): shown when
+        // the app was opened via the notification's Change action. On save, the
+        // notification is dismissed and Room flows refresh everything.
+        smsChangeRequest?.let { parsed ->
+            SmsChangeRoute(
+                parsedSms = parsed,
+                categories = mainUiState.categories,
+                onDismiss = { smsChangeRequest = null },
+                onSaved = {
+                    SmsNotificationManager.cancel(context)
+                    smsChangeRequest = null
+                    showToast(context.getString(R.string.toast_sms_transaction_saved))
+                }
+            )
         }
 
         if (appLockFlow != null) {

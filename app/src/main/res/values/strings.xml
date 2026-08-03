@@ -1157,6 +1157,26 @@
     <string name="notification_title_budget_alert">Budget Alert!</string>
     <string name="notification_title_missed_today">Missed Today?</string>
 
+    <!-- Smart SMS Import -->
+    <string name="notification_channel_sms_import">Smart SMS Import</string>
+    <string name="notification_channel_sms_import_desc">Detected bank transaction SMS ready to save.</string>
+    <string name="notification_title_sms_import">💳 Transaction Detected</string>
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+    <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
+    <string name="notification_action_save">Save</string>
+    <string name="notification_action_change">Change</string>
+    <string name="notification_action_open">Open</string>
+    <string name="sms_verb_debited">Debited</string>
+    <string name="sms_verb_credited">Credited</string>
+    <string name="sms_sender_unknown">Unknown sender</string>
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+    <!-- Smart SMS Import - Change sheet (Phase 4) -->
+    <string name="title_sms_change">Change Transaction</string>
+    <string name="label_choose_category">Choose Category</string>
+    <string name="label_optional_note">Optional Note</string>
+    <string name="toast_sms_transaction_saved">Transaction saved</string>
+    <string name="msg_sms_save_failed">Couldn\'t save the transaction. Please try again.</string>
+
     <!-- Dynamic Notification Engine - Sarcastic Openers -->
     <string name="notification_opener_1">Well well well</string>
     <string name="notification_opener_2">Interesting</string>

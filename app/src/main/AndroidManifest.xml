@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
@@ -50,6 +51,25 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <!-- Smart SMS Import: listens for SMS_RECEIVED, delegates to the parser (plan §4/§5) -->
+        <receiver
+            android:name=".sms.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Smart SMS Import: one-tap [ Save ] action from the notification -->
+        <receiver
+            android:name=".sms.SmsActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mknlabs.expensetracker.action.SMS_SAVE" />
+            </intent-filter>
+        </receiver>
 
         <!-- AdMob App ID -->
         <meta-data

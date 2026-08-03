@@ -47,6 +47,7 @@ object AppSettingsDataStore {
         val appLockTimeoutMinutes = intPreferencesKey("app_lock_timeout_minutes")
         val showOnboardingScreen = booleanPreferencesKey("show_onboarding_screen")
         val showSplashScreen = booleanPreferencesKey("show_splash_screen")
+        val smartSmsPrompted = booleanPreferencesKey("smart_sms_prompted")
         val themeMode = stringPreferencesKey("theme_mode")
         val transactionCardShowIncomeExpenseLabels = booleanPreferencesKey("transaction_card_show_income_expense_labels")
         val transactionCardShowTransactionDate = booleanPreferencesKey("transaction_card_show_transaction_date")
@@ -157,6 +158,7 @@ object AppSettingsDataStore {
             appLockTimeoutMinutes = this[Keys.appLockTimeoutMinutes] ?: defaultAppSettings.appLockTimeoutMinutes,
             showOnboardingScreen = this[Keys.showOnboardingScreen] ?: defaultAppSettings.showOnboardingScreen,
             showSplashScreen = this[Keys.showSplashScreen] ?: defaultAppSettings.showSplashScreen,
+            smartSmsPrompted = this[Keys.smartSmsPrompted] ?: defaultAppSettings.smartSmsPrompted,
             themeMode = this[Keys.themeMode]?.let { AppThemeMode.valueOf(it) } ?: defaultAppSettings.themeMode,
             transactionCardShowIncomeExpenseLabels = this[Keys.transactionCardShowIncomeExpenseLabels] ?: defaultAppSettings.transactionCardShowIncomeExpenseLabels,
             transactionCardShowTransactionDate = this[Keys.transactionCardShowTransactionDate] ?: defaultAppSettings.transactionCardShowTransactionDate,
@@ -201,6 +203,7 @@ object AppSettingsDataStore {
         this[Keys.appLockTimeoutMinutes] = settings.appLockTimeoutMinutes
         this[Keys.showOnboardingScreen] = settings.showOnboardingScreen
         this[Keys.showSplashScreen] = settings.showSplashScreen
+        this[Keys.smartSmsPrompted] = settings.smartSmsPrompted
         this[Keys.themeMode] = settings.themeMode.name
         this[Keys.transactionCardShowIncomeExpenseLabels] = settings.transactionCardShowIncomeExpenseLabels
         this[Keys.transactionCardShowTransactionDate] = settings.transactionCardShowTransactionDate

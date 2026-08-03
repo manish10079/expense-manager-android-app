@@ -93,6 +93,32 @@ fun HomeScreen(
         }
     }
 
+    // Smart SMS Import — one-time permission prompt (plan §4 / D5).
+    // Deliberately DIFFERENT from the notification prompt above: guarded by
+    // AppSettings.smartSmsPrompted, which is set BEFORE the request so the
+    // prompt fires exactly once ever (a denial is never re-nagged; only a
+    // reinstall wipes the flag). API <= 25 grants RECEIVE_SMS at install time
+    // (no prompt needed); on API 34+ a denial is permanently blocked by the OS.
+    val smsPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
+    androidx.compose.runtime.LaunchedEffect(appSettings?.smartSmsPrompted) {
+        val shouldPrompt = appSettings != null &&
+            !appSettings.smartSmsPrompted &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) !=
+            PackageManager.PERMISSION_GRANTED
+        if (shouldPrompt) {
+            // Persist the flag first so the decision is honored even if the
+            // user immediately leaves or the app is killed during the dialog.
+            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
+                it.copy(smartSmsPrompted = true)
+            }
+            smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
+        }
+    }
+
     val homeViewModel: HomeViewModel = hiltViewModel()
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()

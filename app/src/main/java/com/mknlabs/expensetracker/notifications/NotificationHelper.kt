@@ -16,9 +16,14 @@ object NotificationHelper {
     const val CHANNEL_DAILY_REMINDERS = "daily_reminders"
     const val CHANNEL_BUDGET_ALERTS = "budget_alerts"
     const val CHANNEL_RECURRING = "recurring_transactions"
+    const val CHANNEL_SMS_IMPORT = "sms_import"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
+    const val DESTINATION_SMS_CHANGE = "sms_change"
+
+    /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8). */
+    const val NOTIFICATION_ID_SMS_IMPORT = 5
 
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -48,9 +53,19 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_recurring_desc)
             }
 
+            // High importance so the Smart SMS Import notification heads-up.
+            val smsImportChannel = NotificationChannel(
+                CHANNEL_SMS_IMPORT,
+                context.getString(R.string.notification_channel_sms_import),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = context.getString(R.string.notification_channel_sms_import_desc)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
             notificationManager.createNotificationChannel(recurringChannel)
+            notificationManager.createNotificationChannel(smsImportChannel)
         }
     }
 

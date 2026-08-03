@@ -23,6 +23,28 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): TransactionEntity?
 
+    /**
+     * Duplicate check for Smart SMS imports (plan D7): true when a transaction
+     * with the same amount and SMS timestamp is already imported.
+     *
+     * Only active rows count — a soft-deleted transaction does NOT block
+     * re-import (the user removed it deliberately, so a re-delivered SMS
+     * re-imports; plan §9 accepted trade-off).
+     */
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1
+            FROM transactions
+            WHERE amount_minor = :amountMinor
+              AND created_at = :createdAt
+              AND is_deleted = 0
+            LIMIT 1
+        )
+        """
+    )
+    suspend fun existsByAmountAndTimestamp(amountMinor: Long, createdAt: Long): Boolean
+
     @Query(
         """
         SELECT
