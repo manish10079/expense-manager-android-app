@@ -1,6 +1,8 @@
 package com.mknlabs.expensetracker.ui.navigation
 
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
@@ -60,7 +62,15 @@ fun resolveBackNavigationRoute(
     }
 }
 
+fun isBottomTabSwitch(fromRoute: AppRoute, toRoute: AppRoute): Boolean =
+    fromRoute in bottomTabRoutes && toRoute in bottomTabRoutes
+
 fun screenTransition(fromRoute: AppRoute, toRoute: AppRoute): ContentTransform {
+    // Switching between bottom navigation tabs should be instant and snappy.
+    if (isBottomTabSwitch(fromRoute, toRoute)) {
+        return EnterTransition.None togetherWith ExitTransition.None
+    }
+
     val duration = 400
 
     return fadeIn(

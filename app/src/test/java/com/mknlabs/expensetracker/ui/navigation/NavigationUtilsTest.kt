@@ -1,7 +1,9 @@
 package com.mknlabs.expensetracker.ui.navigation
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NavigationUtilsTest {
@@ -32,5 +34,24 @@ class NavigationUtilsTest {
         )
 
         assertEquals(AppRoute.AddTransaction, backRoute)
+    }
+
+    @Test
+    fun `isBottomTabSwitch returns true when switching between bottom navigation tabs`() {
+        assertTrue(isBottomTabSwitch(AppRoute.Home, AppRoute.Analytics))
+        assertTrue(isBottomTabSwitch(AppRoute.Analytics, AppRoute.Budget))
+        assertTrue(isBottomTabSwitch(AppRoute.Calendar, AppRoute.Home))
+    }
+
+    @Test
+    fun `isBottomTabSwitch returns false when leaving bottom navigation tabs`() {
+        assertFalse(isBottomTabSwitch(AppRoute.Home, AppRoute.Settings))
+        assertFalse(isBottomTabSwitch(AppRoute.Budget, AppRoute.Transactions))
+    }
+
+    @Test
+    fun `isBottomTabSwitch returns false when entering bottom navigation tabs`() {
+        assertFalse(isBottomTabSwitch(AppRoute.Settings, AppRoute.Home))
+        assertFalse(isBottomTabSwitch(AppRoute.AddTransaction, AppRoute.Home))
     }
 }
