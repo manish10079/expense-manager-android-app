@@ -35,15 +35,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.FilterAlt
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +67,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
@@ -86,10 +85,9 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mknlabs.expensetracker.data.constants.categoryMap
-import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -108,14 +106,13 @@ import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.ui.theme.IncomeGreen
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
-import com.mknlabs.expensetracker.models.SortType
-import com.mknlabs.expensetracker.ui.theme.ExpenseRed
-import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.launch
@@ -879,13 +876,14 @@ private fun TransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowDownward,
+                        imageVector = Icons.Rounded.ArrowDownward,
                         contentDescription = null,
                         tint = IncomeGreen,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = stringResource(R.string.label_income) + ": " + income,
+//                       text = stringResource(R.string.label_income) + ": " + income,
+                        text = "+" + income,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -899,13 +897,14 @@ private fun TransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowUpward,
+                        imageVector = Icons.Rounded.ArrowUpward,
                         contentDescription = null,
                         tint = ExpenseRed,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = stringResource(R.string.label_expense) + ": " + expense,
+//                      text = stringResource(R.string.label_expense) + ": " + expense,
+                        text = "-" + expense,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
