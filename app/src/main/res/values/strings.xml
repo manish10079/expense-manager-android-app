@@ -1464,4 +1464,15 @@
     <string name="label_offline_warning_desc">Your data is only stored on this device. Sign in or register to secure backups.</string>
     <string name="title_coming_soon">Coming Soon</string>
     <string name="msg_billing_coming_soon">Google Play Billing integration is under development. This feature will be available in an upcoming update.</string>
+
+    <!-- Feedback Feature -->
+    <string name="title_feedback">Feedback</string>
+    <string name="label_send_feedback_desc">Tell us what you like or what we can improve.</string>
+    <string name="placeholder_feedback_hint">Write your feedback here…</string>
+    <string name="btn_submit_feedback">SUBMIT FEEDBACK</string>
+    <string name="msg_feedback_success">Thank you for your feedback!</string>
+    <string name="msg_feedback_error">Failed to send feedback. Please try again.</string>
+    <string name="msg_feedback_cooldown">Please wait %1$s minutes before sending feedback again.</string>
+    <string name="label_logged_in_as">Sending as: %1$s (ID: %2$s)</string>
+    <string name="msg_feedback_empty">Feedback cannot be empty.</string>
 </resources>

@@ -37,6 +37,9 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
     private val _maxSyncDevices = MutableStateFlow(4)
     override val maxSyncDevices: StateFlow<Int> = _maxSyncDevices.asStateFlow()
 
+    private val _googleSheetsFeedbackUrl = MutableStateFlow("")
+    override val googleSheetsFeedbackUrl: StateFlow<String> = _googleSheetsFeedbackUrl.asStateFlow()
+
     init {
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
@@ -49,7 +52,8 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
                 "current_promo_code" to "",
                 "is_pro_pass_enabled" to true,
                 "is_sync_enabled" to true,
-                "max_sync_devices" to 4
+                "max_sync_devices" to 4,
+                "google_sheets_feedback_url" to ""
             )
         )
         fetchAndActivate()
@@ -74,6 +78,7 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
         _isProPassEnabled.value = remoteConfig.getBoolean("is_pro_pass_enabled")
         _isSyncEnabled.value = remoteConfig.getBoolean("is_sync_enabled")
         _maxSyncDevices.value = remoteConfig.getLong("max_sync_devices").toInt()
+        _googleSheetsFeedbackUrl.value = remoteConfig.getString("google_sheets_feedback_url")
     }
 
     override fun isUpdateRequired(): Boolean {

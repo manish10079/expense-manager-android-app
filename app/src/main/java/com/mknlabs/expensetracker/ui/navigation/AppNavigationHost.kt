@@ -21,6 +21,7 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.ui.screens.AboutScreen
+import com.mknlabs.expensetracker.ui.screens.FeedbackRoute
 import com.mknlabs.expensetracker.ui.screens.AddTransactionScreen
 import com.mknlabs.expensetracker.ui.screens.AnalyticsScreen
 import com.mknlabs.expensetracker.ui.screens.BudgetAndRecurringScreen
@@ -346,6 +347,19 @@ fun AppNavigationHost(
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
+                        },
+                        onFeedbackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Feedback)
+                        }
+                    )
+                }
+
+                AppRoute.Feedback -> {
+                    FeedbackRoute(
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.About)
                         }
                     )
                 }

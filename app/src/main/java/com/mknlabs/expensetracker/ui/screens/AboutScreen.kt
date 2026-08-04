@@ -71,6 +71,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
+    onFeedbackClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -103,7 +104,8 @@ fun AboutScreen(
         isAdsEnabled = isAdsEnabled,
         onBackClick = onBackClick,
         onOpenUrl = openUrl,
-        onSendEmail = sendEmail
+        onSendEmail = sendEmail,
+        onFeedbackClick = onFeedbackClick
     )
 }
 
@@ -112,7 +114,8 @@ private fun AboutScreenContent(
     isAdsEnabled: Boolean,
     onBackClick: () -> Unit,
     onOpenUrl: (String) -> Unit,
-    onSendEmail: (String) -> Unit
+    onSendEmail: (String) -> Unit,
+    onFeedbackClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
@@ -210,7 +213,7 @@ private fun AboutScreenContent(
                 AboutActionItem(
                     icon = Icons.Filled.Email,
                     title = stringResource(R.string.title_send_feedback),
-                    onClick = { onSendEmail("mknlabs.dev@gmail.com") }
+                    onClick = onFeedbackClick
                 )
                 AboutActionItem(
                     icon = Icons.Filled.BugReport,
@@ -474,7 +477,8 @@ fun AboutScreenPreviewLight() {
             isAdsEnabled = true,
             onBackClick = {},
             onOpenUrl = {},
-            onSendEmail = {}
+            onSendEmail = {},
+            onFeedbackClick = {}
         )
     }
 }
@@ -487,7 +491,8 @@ fun AboutScreenPreviewDark() {
             isAdsEnabled = false,
             onBackClick = {},
             onOpenUrl = {},
-            onSendEmail = {}
+            onSendEmail = {},
+            onFeedbackClick = {}
         )
     }
 }
