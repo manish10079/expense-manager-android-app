@@ -71,7 +71,10 @@ object NotificationHelper {
 
     fun showReminderNotification(context: Context, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
+            // when the app is alive in the background, instead of CLEAR_TASK which
+            // force-restarts the activity and replays the splash screen.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ADD_TRANSACTION)
         }
         
@@ -100,7 +103,10 @@ object NotificationHelper {
 
     fun showBudgetNotification(context: Context, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
+            // when the app is alive in the background, instead of CLEAR_TASK which
+            // force-restarts the activity and replays the splash screen.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             // Potentially add nav to a budget screen here if it exists.
             // For now, sticking to Transactions or Home.
             putExtra(EXTRA_NAV_DESTINATION, "home") 
@@ -129,7 +135,10 @@ object NotificationHelper {
 
     fun showMissedEntryNotification(context: Context, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
+            // when the app is alive in the background, instead of CLEAR_TASK which
+            // force-restarts the activity and replays the splash screen.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ADD_TRANSACTION)
         }
 
@@ -156,7 +165,10 @@ object NotificationHelper {
 
     fun showGenericNotification(context: Context, title: String, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
+            // when the app is alive in the background, instead of CLEAR_TASK which
+            // force-restarts the activity and replays the splash screen.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, "home")
         }
 

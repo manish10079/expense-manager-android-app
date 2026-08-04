@@ -50,8 +50,6 @@ class SplashViewModel @Inject constructor(
     private val _isUnderMaintenance = MutableStateFlow(false)
     val isUnderMaintenance: StateFlow<Boolean> = _isUnderMaintenance.asStateFlow()
 
-    private val minDuration = 2400L // Restored to normal speed
-
     init {
         observeConfiguration()
         startInitialization()
@@ -65,29 +63,46 @@ class SplashViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Fast-start init: only the essential local initialization blocks the first
+     * frame (DataStore, Room, App Lock, profile) plus a quick Room warm-up fetch.
+     * Remote config (update-required / maintenance flags) and cloud sync continue
+     * in the background. Snappy delays are used between tasks to ensure the custom
+     * overlay and progress animation are visible to the user.
+     */
     private fun startInitialization() {
         viewModelScope.launch {
-            val startTime = System.currentTimeMillis()
             val context = appContext
-
             try {
-                // Step 1: Preparing Dashboard (Includes Prefs and DB Init)
+                // Step 1: Preparing Dashboard
                 _currentTask.value = InitTask.Start
                 AppLockPreferences.initialize(context)
                 AppSettingsDataStore.initialize(context)
                 ExpenseTrackerDatabaseInitializer.initialize(context)
-                
-                // Fetch latest remote config
-                configurationRepository.fetchAndActivate()
-                
-                delay(500)
-
-                // Step 2: Syncing Transactions (Includes Profile and Data Warm-up)
-                _currentTask.value = InitTask.Syncing
                 UserProfileDataStore.initialize(context)
+
+                // Warm up Room so the first list renders without a loading hitch.
+                transactionRepository.observeActiveTransactionCount().first()
+
+                // Ensure AppSettings has emitted before transitioning
+                AppSettingsDataStore.getAppSettingsFlow(context).first()
+
+                delay(400)
+
+                // Step 2: Syncing Tasks (runs actual network operations in bg, shows status)
+                _currentTask.value = InitTask.Syncing
                 
-                // 1. Force a profile sync and trigger general Cloud Sync in the background,
-                // so it does not block the splash screen transition and app load time.
+                // Remote config in the background
+                viewModelScope.launch {
+                    try {
+                        configurationRepository.fetchAndActivate()
+                        _isUpdateRequired.value = configurationRepository.isUpdateRequired()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                // Cloud sync in the background
                 viewModelScope.launch {
                     try {
                         syncRepository.syncUserProfile()
@@ -96,34 +111,21 @@ class SplashViewModel @Inject constructor(
                         e.printStackTrace()
                     }
                 }
-                
-                // Perform a warm-up fetch to ensure Room caches are ready
-                transactionRepository.observeActiveTransactionCount().first()
-                delay(500)
 
-                // Step 3: Securing Data (Final Checks)
+                delay(400)
+
+                // Step 3: Securing Data
                 _currentTask.value = InitTask.Securing
                 
-                // Check if update is required after config is fetched
-                _isUpdateRequired.value = configurationRepository.isUpdateRequired()
-                
-                delay(800)
-
+                delay(400)
             } catch (e: Exception) {
                 // Fail-safe: don't block app startup on initialization errors
                 e.printStackTrace()
             }
 
-            val elapsed = System.currentTimeMillis() - startTime
-            if (elapsed < minDuration) {
-                delay(minDuration - elapsed)
-            }
-
             _currentTask.value = InitTask.Complete
-            
-            // Allow time for the final progress bar animation (600ms) to complete in the UI
-            delay(800)
-            
+            // Snappy delay to let the progress bar animation catch up to 100%
+            delay(400)
             _isReady.value = true
         }
     }

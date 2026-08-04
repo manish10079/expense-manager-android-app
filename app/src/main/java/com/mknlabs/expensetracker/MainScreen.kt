@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -131,6 +132,7 @@ fun MainScreen(
     initialAddTransactionAmount: String? = null,
     initialAddTransactionNote: String? = null,
     initialParsedSms: ParsedSms? = null,
+    notificationIntent: Intent? = null,
     isRecoveryPerformed: Boolean = false,
     onRecoveryConsumed: () -> Unit = {}
 ) {
@@ -423,7 +425,11 @@ fun MainScreen(
             // Key on the prefill extras too: a second "Open"/"Change" tap while the
             // app is already foregrounded (onNewIntent) refreshes the payload for
             // the new SMS.
-            LaunchedEffect(initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialParsedSms) {
+            // Keyed on the raw intent reference (not just the extras) so a second
+            // tap of the same notification after onNewIntent — e.g. dismissing the
+            // Change sheet and tapping Change again — re-triggers this block even
+            // when the ParsedSms extras are value-equal to the previous one.
+            LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialParsedSms) {
                 when (initialNavDestination) {
                     NotificationHelper.DESTINATION_ADD_TRANSACTION -> {
                         // Smart SMS Import "Open" action: prefill the Add Transaction draft

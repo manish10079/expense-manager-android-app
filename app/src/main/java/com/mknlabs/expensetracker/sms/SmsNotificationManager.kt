@@ -125,7 +125,10 @@ object SmsNotificationManager {
             context,
             requestCode = REQUEST_CODE_CHANGE,
             intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                // singleTop + SINGLE_TOP: reuse the existing MainActivity via
+                // onNewIntent when the app is alive in the background, instead of
+                // CLEAR_TASK which force-restarts the activity and replays the splash.
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_SMS_CHANGE)
                 putParsedSms(parsed)
             }
@@ -173,7 +176,10 @@ object SmsNotificationManager {
 
     private fun openActivityIntent(context: Context, parsed: ParsedSms): Intent {
         return Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via
+            // onNewIntent when the app is alive in the background, instead of
+            // CLEAR_TASK which force-restarts the activity and replays the splash.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_ADD_TRANSACTION)
             // Plain digits (no grouping) — AddTransactionScreen parses with toDoubleOrNull().
             putExtra(EXTRA_OPEN_AMOUNT, editableAmount(parsed.amountMinor))

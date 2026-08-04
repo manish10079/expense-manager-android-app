@@ -147,6 +147,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // Keep the activity's intent property in sync with the Compose state so
+        // any code reading `intent` directly (e.g. in onResume) sees the latest
+        // notification tap instead of the stale creation-time intent.
+        setIntent(intent)
         currentIntent = intent
     }
 
@@ -275,6 +279,7 @@ class MainActivity : AppCompatActivity() {
                                 initialAddTransactionAmount = initialAddTransactionAmount,
                                 initialAddTransactionNote = initialAddTransactionNote,
                                 initialParsedSms = initialParsedSms,
+                                notificationIntent = intent,
                                 isRecoveryPerformed = recoveryPerformed,
                                 onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
                             )
