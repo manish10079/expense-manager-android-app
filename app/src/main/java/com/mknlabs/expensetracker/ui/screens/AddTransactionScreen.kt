@@ -86,6 +86,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Color
@@ -316,6 +317,10 @@ fun AddTransactionScreen(
                             selectedTransactionTypeId = selectedTransactionTypeId,
                             compact = compact,
                             focusRequester = amountFocusRequester,
+                            // Disable focus while the note sheet is open so that when it
+                            // closes, Compose's focus-restoration pass doesn't re-focus
+                            // this field and pop the numeric keyboard back up.
+                            canFocus = !isNoteSheetVisible,
                             onAmountChange = {
                                 val validated = validateAmountChange(it, amountInput)
                                 if (validated != amountInput) {
@@ -509,16 +514,16 @@ fun AddTransactionScreen(
                 note = noteDraft,
                 onNoteChange = { noteDraft = it },
                 onDismissRequest = {
-                    // Prevent focus from returning to the amount field (which would
-                    // slide the numeric keypad back up) when the note sheet closes.
-                    focusManager.clearFocus()
+                    // force=true prevents Compose from restoring focus to any child
+                    // (e.g. the amount BasicTextField) after the sheet leaves composition.
+                    focusManager.clearFocus(force = true)
                     keyboardController?.hide()
                     isNoteSheetVisible = false
                 },
                 onSave = {
                     note = noteDraft
                     onNoteChange(note)
-                    focusManager.clearFocus()
+                    focusManager.clearFocus(force = true)
                     keyboardController?.hide()
                     isNoteSheetVisible = false
                 }
@@ -817,6 +822,7 @@ private fun CurrencyAmountCard(
     selectedTransactionTypeId: Int,
     compact: Boolean,
     focusRequester: FocusRequester,
+    canFocus: Boolean = true,
     onAmountChange: (String) -> Unit,
     onClick: () -> Unit = {}
 ) {
@@ -927,6 +933,7 @@ private fun CurrencyAmountCard(
                         onValueChange = { onAmountChange(it.text) },
                         modifier = Modifier
                             .focusRequester(focusRequester)
+                            .focusProperties { this.canFocus = canFocus }
                             .fillMaxWidth(),
                         textStyle = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Bold,
