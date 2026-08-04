@@ -424,46 +424,6 @@ private fun TransactionScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 
-            TransactionPeriodNavigator(
-                selectedFilter = uiState.selectedPeriodFilter,
-                periodLabel = uiState.selectedPeriodLabel.asString(),
-                canNavigateBackward = uiState.canNavigateBackward,
-                canNavigateForward = uiState.canNavigateForward,
-                onFilterSelected = updatePeriodFilter,
-                onPreviousClick = {
-                    navigatePeriod(-1)
-                },
-                onNextClick = {
-                    navigatePeriod(1)
-                },
-                // Only enable label tap for Daily/Monthly/Yearly, not All
-                onLabelClick = when (uiState.selectedPeriodFilter) {
-                    TransactionPeriodFilter.ALL -> null
-                    else -> ({ showPeriodPicker = true })
-                }
-            )
-
-            // Period date-jump picker
-            if (showPeriodPicker) {
-                val pickerMode = when (uiState.selectedPeriodFilter) {
-                    TransactionPeriodFilter.DAILY   -> WheelPickerMode.SINGLE_DATE
-                    TransactionPeriodFilter.MONTHLY -> WheelPickerMode.MONTH_YEAR
-                    TransactionPeriodFilter.YEARLY  -> WheelPickerMode.YEAR_ONLY
-                    TransactionPeriodFilter.ALL     -> WheelPickerMode.SINGLE_DATE
-                }
-                WheelDateTimePickerModal(
-                    mode = pickerMode,
-                    initialStartMillis = uiState.focusedPeriodTimestamp,
-                    onDismissRequest = { showPeriodPicker = false },
-                    onConfirm = { millis, _ ->
-                        jumpToPeriod(millis)
-                        showPeriodPicker = false
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
-
             // Pinned summary rendered above the lazy list (out of the scrollable area)
             uiState.pinnedSummary?.let { summary ->
                 TransactionSummaryCard(
@@ -536,7 +496,7 @@ private fun TransactionScreenContent(
                     modifier = Modifier
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
-                    contentPadding = PaddingValues(bottom = 180.dp)
+                    contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                         items(
                             items = uiState.transactionItems,
@@ -620,7 +580,42 @@ private fun TransactionScreenContent(
                         }
                 }
             }
+
+            // Period navigator fixed at the bottom of the screen
+            TransactionPeriodNavigator(
+                selectedFilter = uiState.selectedPeriodFilter,
+                periodLabel = uiState.selectedPeriodLabel.asString(),
+                canNavigateBackward = uiState.canNavigateBackward,
+                canNavigateForward = uiState.canNavigateForward,
+                onFilterSelected = updatePeriodFilter,
+                onPreviousClick = { navigatePeriod(-1) },
+                onNextClick = { navigatePeriod(1) },
+                onLabelClick = when (uiState.selectedPeriodFilter) {
+                    TransactionPeriodFilter.ALL -> null
+                    else -> ({ showPeriodPicker = true })
+                },
+                modifier = Modifier.padding(top = Dimens.PaddingSmall)
+            )
         }
+    }
+
+    // Period date-jump picker
+    if (showPeriodPicker) {
+        val pickerMode = when (uiState.selectedPeriodFilter) {
+            TransactionPeriodFilter.DAILY   -> WheelPickerMode.SINGLE_DATE
+            TransactionPeriodFilter.MONTHLY -> WheelPickerMode.MONTH_YEAR
+            TransactionPeriodFilter.YEARLY  -> WheelPickerMode.YEAR_ONLY
+            TransactionPeriodFilter.ALL     -> WheelPickerMode.SINGLE_DATE
+        }
+        WheelDateTimePickerModal(
+            mode = pickerMode,
+            initialStartMillis = uiState.focusedPeriodTimestamp,
+            onDismissRequest = { showPeriodPicker = false },
+            onConfirm = { millis, _ ->
+                jumpToPeriod(millis)
+                showPeriodPicker = false
+            }
+        )
     }
 
     if (showBottomSheet) {
