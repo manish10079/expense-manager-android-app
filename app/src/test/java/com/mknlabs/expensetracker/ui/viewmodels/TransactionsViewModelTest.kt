@@ -173,7 +173,7 @@ class TransactionsViewModelTest {
         viewModel.updatePeriodFilter(TransactionPeriodFilter.DAILY)
 
         // Act
-        awaitPinnedSummary()
+        awaitPinnedSummary("summary_daily", expectedRows = 2)
 
         // Assert: summary is pinned (out of the lazy list), no summary inside the list
         val state = viewModel.uiState.value
@@ -196,7 +196,7 @@ class TransactionsViewModelTest {
         viewModel.updatePeriodFilter(TransactionPeriodFilter.MONTHLY)
 
         // Act
-        awaitPinnedSummary()
+        awaitPinnedSummary("summary_monthly", expectedRows = 2)
 
         // Assert: summary is pinned, not inside the lazy list
         val state = viewModel.uiState.value
@@ -223,7 +223,7 @@ class TransactionsViewModelTest {
         viewModel.updatePeriodFilter(TransactionPeriodFilter.YEARLY)
 
         // Act
-        awaitPinnedSummary()
+        awaitPinnedSummary("summary_yearly", expectedRows = 3)
 
         // Assert: per-year summary is pinned, per-month summaries still inside the list
         val state = viewModel.uiState.value
@@ -297,7 +297,7 @@ class TransactionsViewModelTest {
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             timeFormat = DEFAULT_TIME_FORMAT,
-            customizationSettings = TransactionCardCustomizationSettings()
+            customizationSettings = TransactionCardCustomizationSettings(showTransactionListSummaries = false)
         )
         viewModel.updatePeriodFilter(TransactionPeriodFilter.MONTHLY)
 
@@ -340,10 +340,13 @@ class TransactionsViewModelTest {
     }
 
     /** Rebuilds run on Dispatchers.Default asynchronously, so poll the state until the summary appears. */
-    private fun awaitPinnedSummary(timeoutMs: Long = 5_000) {
+    private fun awaitPinnedSummary(expectedId: String, expectedRows: Int, timeoutMs: Long = 5_000) {
         awaitUiState(
             timeoutMs = timeoutMs,
-            condition = { it.pinnedSummary != null }
+            condition = { 
+                it.pinnedSummary?.id == expectedId && 
+                it.transactionItems.filterIsInstance<TransactionListItemUi.TransactionRow>().size == expectedRows 
+            }
         )
     }
 

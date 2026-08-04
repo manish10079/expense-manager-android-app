@@ -94,6 +94,22 @@ import com.mknlabs.expensetracker.utils.AppRestartUtils
 import com.mknlabs.expensetracker.ui.theme.AdLoadingScrim
 import com.mknlabs.expensetracker.ui.theme.AdLoadingText
 
+import com.mknlabs.expensetracker.monetization.FeatureRegistry
+import com.mknlabs.expensetracker.monetization.AccessLevel
+
+private fun sanitizeCardSettings(
+    settings: TransactionCardCustomizationSettings,
+    userTier: UserTier
+): TransactionCardCustomizationSettings {
+    if (userTier == UserTier.PREMIUM) return settings
+    return settings.copy(
+        showTransactionTime = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showTransactionTime") == AccessLevel.PREMIUM) false else settings.showTransactionTime,
+        showDateSeparators = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showDateSeparators") == AccessLevel.PREMIUM) false else settings.showDateSeparators,
+        showPaymentMethod = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showPaymentMethod") == AccessLevel.PREMIUM) false else settings.showPaymentMethod,
+        showTransactionListSummaries = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showTransactionListSummaries") == AccessLevel.PREMIUM) false else settings.showTransactionListSummaries
+    )
+}
+
 private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCardCustomizationSettings {
     return TransactionCardCustomizationSettings(
         showIncomeExpenseLabels = transactionCardShowIncomeExpenseLabels,
@@ -192,10 +208,11 @@ fun MainScreen(
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
     val isAutoBackupEnabled = appSettings.isAutoBackupEnabled
     val autoBackupFrequencyDays = appSettings.autoBackupFrequencyDays
-    val transactionCardCustomizationSettings = remember(appSettings) {
-        appSettings.toTransactionCardCustomizationSettings()
-    }
     val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+    val transactionCardCustomizationSettings = remember(appSettings, effectiveUserTier) {
+        val rawSettings = appSettings.toTransactionCardCustomizationSettings()
+        sanitizeCardSettings(rawSettings, effectiveUserTier)
+    }
     val effectiveAppSettings = remember(appSettings, effectiveUserTier) {
         appSettings.copy(userTier = effectiveUserTier)
     }
