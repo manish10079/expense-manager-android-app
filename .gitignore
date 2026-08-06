@@ -35,6 +35,7 @@ gradle_settings_compile_out.txt
 *.jks
 *.keystore
 *.keystore.lock
+keystore.properties
 .android-user-home/
 # Generated build outputs / bundle files
 *.apk
