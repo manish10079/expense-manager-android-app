@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -86,7 +87,12 @@ fun HomeScreen(
     ) { _ -> }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // Benchmark builds must never pop the runtime permission dialog — it would
+        // cover the UI under test (the Macrobenchmark "See All" journeys depend on
+        // an unobstructed Home screen). BuildConfig.BUILD_TYPE is a compile-time
+        // constant, so R8 folds this gate away in release/debug.
+        val isBenchmarkBuild = BuildConfig.BUILD_TYPE == "benchmark"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isBenchmarkBuild) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }

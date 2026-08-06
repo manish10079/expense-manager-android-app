@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Benchmark-only manifest overlay.
+
+  androidx.test library manifests pull WRITE_EXTERNAL_STORAGE / READ_EXTERNAL_STORAGE /
+  QUERY_ALL_PACKAGES into this test APK. MacrobenchmarkRule (a GrantPermissionRule)
+  derives the permissions it auto-grants from this package's manifest, and on Android 13+
+  WRITE_EXTERNAL_STORAGE is a legacy permission that can no longer be granted at all —
+  the grant step hard-fails with "Permission: android.permission.WRITE_EXTERNAL_STORAGE
+  cannot be granted!". Removing them here keeps the benchmark journeys runnable.
+  None are needed by the benchmark itself (UiAutomator doesn't need them).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:node="remove" />
+
+    <queries>
+        <package android:name="com.mknlabs.expensetracker" />
+    </queries>
+</manifest>

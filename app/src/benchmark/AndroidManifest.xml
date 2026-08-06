@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Benchmark-only manifest overrides. Merged ONLY into the "benchmark" build type
+     (src/benchmark source set) — never into release/debug APKs. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!-- Macrobenchmark support: lets the shell capture detailed perf traces without
+             affecting performance (required by the Macrobenchmark library). Benchmark-only —
+             kept out of main/ so release APKs don't carry it. -->
+        <profileable
+            android:shell="true"
+            tools:targetApi="q" />
+    </application>
+
+</manifest>

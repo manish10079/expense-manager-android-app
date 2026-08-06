@@ -12,6 +12,8 @@ import com.mknlabs.expensetracker.monetization.AccessLevel
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
+import com.mknlabs.expensetracker.BuildConfig
+import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -36,6 +38,10 @@ class MonetizationRepositoryImpl @Inject constructor(
         AppSettingsDataStore.getAppSettingsFlow(context),
         UserProfileDataStore.getUserProfileFlow(context)
     ) { settings, profile ->
+        // Benchmark hook (Phase 0): forces the tier for Macrobenchmark journeys. BuildConfig
+        // is a compile-time constant — R8 removes this from release/debug (null there).
+        val forcePro = if (BuildConfig.BUILD_TYPE == "benchmark") BenchmarkHooks.forcePro else null
+        forcePro?.let { return@combine if (it) UserTier.PREMIUM else UserTier.FREE }
         val now = System.currentTimeMillis()
         if (isPremiumUser(settings, profile, now)) UserTier.PREMIUM else UserTier.FREE
     }
@@ -45,6 +51,10 @@ class MonetizationRepositoryImpl @Inject constructor(
         UserProfileDataStore.getUserProfileFlow(context),
         MonetizationDataStore.getGlobalAdAccessExpiry(context)
     ) { settings, profile, globalAdExpiry ->
+        // Benchmark hook (Phase 0): forces ad state for Macrobenchmark journeys. BuildConfig
+        // is a compile-time constant — R8 removes this from release/debug (null there).
+        val forcePro = if (BuildConfig.BUILD_TYPE == "benchmark") BenchmarkHooks.forcePro else null
+        forcePro?.let { return@combine !it }
         val now = System.currentTimeMillis()
         val isPremium = isPremiumUser(settings, profile, now)
         val hasActivePass = globalAdExpiry > now
@@ -61,6 +71,9 @@ class MonetizationRepositoryImpl @Inject constructor(
             UserProfileDataStore.getUserProfileFlow(context),
             MonetizationDataStore.getGlobalAdAccessExpiry(context)
         ) { settings, profile, globalAdExpiry ->
+            // Benchmark hook (Phase 0): forces granted access for the Pro journey.
+            val forcePro = if (BuildConfig.BUILD_TYPE == "benchmark") BenchmarkHooks.forcePro else null
+            forcePro?.let { if (it) return@combine AccessStatus.Granted }
             val now = System.currentTimeMillis()
             val isPremium = isPremiumUser(settings, profile, now)
             

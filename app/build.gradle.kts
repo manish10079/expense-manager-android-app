@@ -51,6 +51,18 @@ android {
                 "proguard-rules.pro"
             )
         }
+        // Macrobenchmark target variant: a release-equivalent build (non-debuggable,
+        // minified) signed with the debug key. Official docs: create a copy of the
+        // release build type via initWith + debug signing.
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            // Keep androidx.tracing/test/benchmark in the target APK so the Macrobenchmark
+            // instrumentation runner's startup dependencies resolve inside the app process
+            // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
+            proguardFiles("benchmark-rules.pro")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

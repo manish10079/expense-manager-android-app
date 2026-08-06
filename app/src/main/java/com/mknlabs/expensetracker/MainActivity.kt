@@ -67,6 +67,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -116,6 +117,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         
         currentIntent = intent
+
+        // Benchmark hooks (ADS_UI_JANK_FIX_PLAN Phase 0): BuildConfig.BUILD_TYPE is a
+        // compile-time constant, so R8 constant-folds this gate to false and strips the
+        // whole block (and BenchmarkHooks) from release/debug APKs — it only exists in the
+        // non-debuggable "benchmark" build type that Macrobenchmark measures.
+        if (BuildConfig.BUILD_TYPE == "benchmark") {
+            BenchmarkHooks.readExtras(intent)
+            BenchmarkHooks.prepare(this)
+        }
 
         // Monitor Firebase Auth State
         com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
