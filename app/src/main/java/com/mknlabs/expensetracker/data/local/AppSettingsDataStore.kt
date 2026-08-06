@@ -97,7 +97,8 @@ object AppSettingsDataStore {
             val isNowPremium = isPremium || updatedSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
             if (isNowPremium && !wasPremium) {
                 updatedSettings = updatedSettings.copy(
-                    transactionCardShowListSummaries = true
+                    transactionCardShowListSummaries = true,
+                    isCloudSyncEnabled = true
                 )
             }
 

@@ -645,7 +645,121 @@ class SyncRepositoryImpl @Inject constructor(
                     maxDocUpdatedAt = java.lang.Math.max(maxDocUpdatedAt, docUpdatedAt)
 
                     android.util.Log.d("Sync", "[$collectionName] Found doc: ${doc.id}, updatedAt=$docUpdatedAt")
-                    val item = doc.toObject(T::class.java)
+                    val item = when (T::class) {
+                        com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity::class -> {
+                            val id = doc.getLong("id")?.toInt() ?: 0
+                            val name = doc.getString("name").orEmpty()
+                            val transactionTypeId = doc.getLong("transactionTypeId")?.toInt() ?: 0
+                            val iconKey = doc.getString("iconKey").orEmpty()
+                            val isSystem = doc.getBoolean("isSystem") ?: false
+                            val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity(
+                                id = id, name = name, transactionTypeId = transactionTypeId,
+                                iconKey = iconKey, isSystem = isSystem, sortOrder = sortOrder,
+                                isDeleted = isDeleted, createdAt = createdAt, updatedAt = updatedAt
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity::class -> {
+                            val id = doc.getLong("id")?.toInt() ?: 0
+                            val name = doc.getString("name").orEmpty()
+                            val iconKey = doc.getString("iconKey").orEmpty()
+                            val isSystem = doc.getBoolean("isSystem") ?: false
+                            val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity(
+                                id = id, name = name, iconKey = iconKey, isSystem = isSystem,
+                                sortOrder = sortOrder, isDeleted = isDeleted, createdAt = createdAt,
+                                updatedAt = updatedAt
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.GoalEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val name = doc.getString("name").orEmpty()
+                            val targetAmountMinor = doc.getLong("targetAmountMinor") ?: 0L
+                            val currentAmountMinor = doc.getLong("currentAmountMinor") ?: 0L
+                            val deadlineAt = doc.getLong("deadlineAt")
+                            val iconKey = doc.getString("iconKey").orEmpty()
+                            val colorHex = doc.getString("colorHex").orEmpty()
+                            val isCompleted = doc.getBoolean("isCompleted") ?: false
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.GoalEntity(
+                                id = id, name = name, targetAmountMinor = targetAmountMinor,
+                                currentAmountMinor = currentAmountMinor, deadlineAt = deadlineAt,
+                                iconKey = iconKey, colorHex = colorHex, isCompleted = isCompleted,
+                                createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val note = doc.getString("note").orEmpty()
+                            val amountMinor = doc.getLong("amountMinor") ?: 0L
+                            val occurredAt = doc.getLong("occurredAt") ?: 0L
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val transactionTypeId = doc.getLong("transactionTypeId")?.toInt() ?: 0
+                            val categoryId = doc.getLong("categoryId")?.toInt() ?: 0
+                            val paymentMethodId = doc.getLong("paymentMethodId")?.toInt() ?: 0
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            val contentHash = doc.getString("contentHash")
+                            val sourceRecurringRuleId = doc.getString("sourceRecurringRuleId")
+                            com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity(
+                                id = id, note = note, amountMinor = amountMinor, occurredAt = occurredAt,
+                                createdAt = createdAt, updatedAt = updatedAt, transactionTypeId = transactionTypeId,
+                                categoryId = categoryId, paymentMethodId = paymentMethodId, isDeleted = isDeleted,
+                                contentHash = contentHash, sourceRecurringRuleId = sourceRecurringRuleId
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val transactionId = doc.getString("transactionId").orEmpty()
+                            val frequencyStr = doc.getString("frequency").orEmpty()
+                            val frequency = try {
+                                com.mknlabs.expensetracker.models.RecurringFrequency.valueOf(frequencyStr)
+                            } catch (e: Exception) {
+                                com.mknlabs.expensetracker.models.RecurringFrequency.Monthly
+                            }
+                            val intervalCount = doc.getLong("intervalCount")?.toInt() ?: 1
+                            val repeatCount = doc.getLong("repeatCount")?.toInt() ?: 0
+                            val remainingCount = doc.getLong("remainingCount")?.toInt()
+                            val anchorAt = doc.getLong("anchorAt") ?: 0L
+                            val nextRunAt = doc.getLong("nextRunAt") ?: 0L
+                            val lastRunAt = doc.getLong("lastRunAt")
+                            val lastNotifiedOccurrenceAt = doc.getLong("lastNotifiedOccurrenceAt")
+                            val isEnabled = doc.getBoolean("isEnabled") ?: true
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity(
+                                id = id, transactionId = transactionId, frequency = frequency,
+                                intervalCount = intervalCount, repeatCount = repeatCount, remainingCount = remainingCount,
+                                anchorAt = anchorAt, nextRunAt = nextRunAt, lastRunAt = lastRunAt,
+                                lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt, isEnabled = isEnabled,
+                                createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val categoryId = doc.getLong("categoryId")?.toInt() ?: 0
+                            val monthStart = doc.getLong("monthStart") ?: 0L
+                            val limitMinor = doc.getLong("limitMinor") ?: 0L
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val editCount = doc.getLong("editCount")?.toInt() ?: 0
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity(
+                                id = id, categoryId = categoryId, monthStart = monthStart, limitMinor = limitMinor,
+                                createdAt = createdAt, updatedAt = updatedAt, editCount = editCount, isDeleted = isDeleted
+                            ) as T
+                        }
+                        else -> doc.toObject(T::class.java)
+                    }
                     if (item != null) {
                         deserializedCount++
                         onPull(item)
