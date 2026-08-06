@@ -17,9 +17,18 @@ import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Defines all locations where ads can be displayed.
@@ -52,6 +61,28 @@ enum class InterstitialPlacement {
 /**
  * Centrally manages ad loading, caching, display, and privacy consent (UMP).
  * Aligned with Phase 1 of the Monetization Roadmap.
+ *
+ * Phase 1 (ADS_UI_JANK_FIX_PLAN) native-ad lifecycle:
+ * - **Preload all placements at SDK init** so screen composition never triggers a
+ *   first-visit network ad request (finding #3).
+ * - **Hourly refresh** — AdMob native ads expire after ~1 hour; the cache is refreshed
+ *   at [NATIVE_AD_REFRESH_MILLIS] and never outlives the expiry.
+ * - **Background construction** — `AdLoader` is built on [Dispatchers.IO] per AdMob
+ *   guidance; GMA callbacks arrive on the main thread and are the only place the maps
+ *   are mutated by the SDK.
+ * - **Destroy-on-unused** — screens `retain` a placement while visible and `release`
+ *   when they leave; when the last holder releases, the cached `NativeAd` is destroyed
+ *   (native ads have a large memory footprint — finding #6). The coordinator is the
+ *   source of truth; screens are holders.
+ * - **Multi-holder callbacks** — every caller of [loadNativeAd] is notified when the ad
+ *   arrives, so two cards for the same placement (e.g. Analytics, finding #7) both
+ *   resolve instead of one being stuck on the shimmer forever.
+ * - **No retry from the failure callback** — failures are logged once; retries happen
+ *   only on explicit triggers (next screen entry / foreground).
+ *
+ * Thread-safety: maps that can be touched from the SDK callbacks (main) and from the
+ * refresh jobs (background) are `ConcurrentHashMap`; the in-flight-load flag is guarded
+ * by [nativeAdLock].
  */
 @Singleton
 class AdsCoordinator @Inject constructor(
@@ -66,8 +97,31 @@ class AdsCoordinator @Inject constructor(
     private val lastInterstitialTime = mutableMapOf<InterstitialPlacement, Long>()
     private val INTERSTITIAL_COOLDOWN_MILLIS = 15 * 60 * 1000L // 15 minutes
 
-    private val nativeAds = mutableMapOf<AdPlacement, NativeAd?>()
-    private val isNativeAdLoading = mutableMapOf<AdPlacement, Boolean>()
+    // --- Native ad state (Phase 1) ---
+    private val nativeAds = ConcurrentHashMap<AdPlacement, NativeAd>()
+    private val isNativeAdLoading = ConcurrentHashMap<AdPlacement, Boolean>()
+    /** Number of screens currently displaying a placement (retain/release use-count). */
+    private val nativeAdUseCounts = ConcurrentHashMap<AdPlacement, Int>()
+    /** Callers waiting for a load to complete (all of them are notified on arrival). */
+    private val nativeAdCallbacks = ConcurrentHashMap<AdPlacement, CopyOnWriteArrayList<(NativeAd) -> Unit>>()
+    private val nativeAdRefreshJobs = ConcurrentHashMap<AdPlacement, Job>()
+    private val nativeAdLock = Any()
+
+    /** AdMob native ads expire after ~1 hour; refresh the cache well before that. */
+    private val NATIVE_AD_REFRESH_MILLIS = 55 * 60 * 1000L
+
+    /** All placements preloaded once the SDK initializes (finding #3). HOME_BANNER shares
+     *  HOME_DASHBOARD's unit ID and is unused by any screen, so it is not preloaded. */
+    private val PRELOAD_NATIVE_PLACEMENTS = listOf(
+        AdPlacement.HOME_DASHBOARD,
+        AdPlacement.TRANSACTIONS_LIST,
+        AdPlacement.ANALYTICS_INSIGHTS,
+        AdPlacement.BUDGET_CALENDAR,
+        AdPlacement.SETTINGS_GENERAL
+    )
+
+    /** Process-lifetime scope for ad refreshes / background AdLoader construction. */
+    private val adScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val isMobileAdsSdkInitialized = AtomicBoolean(false)
     private lateinit var consentInformation: ConsentInformation
@@ -173,9 +227,10 @@ class AdsCoordinator @Inject constructor(
         }
 
         MobileAds.initialize(context) {
-            // Preload common ads
+            // Phase 1: preload the rewarded ad plus every native placement up front, so
+            // screen composition never triggers a first-visit network ad request.
             loadRewardedAd(RewardedPlacement.FEATURE_UNLOCK)
-            loadNativeAd(AdPlacement.HOME_DASHBOARD)
+            PRELOAD_NATIVE_PLACEMENTS.forEach { loadNativeAd(it) }
             onComplete()
         }
     }
@@ -290,32 +345,145 @@ class AdsCoordinator @Inject constructor(
     fun isRewardedAdReady(placement: RewardedPlacement): Boolean = rewardedAds[placement] != null
 
     /**
-     * Loads a Native Ad for a specific placement.
+     * Loads (or returns from cache) a Native Ad for a specific placement.
+     *
+     * Phase 1 lifecycle:
+     * - Every caller's callback is registered and fired when the ad arrives, so multiple
+     *   holders of the same placement all resolve (fixes the Analytics double-card).
+     * - Cache hits are delivered synchronously.
+     * - The [AdLoader] is constructed on [Dispatchers.IO] per AdMob guidance.
+     * - Failed loads are logged once and never retried from the failure callback.
      */
     fun loadNativeAd(placement: AdPlacement, onAdLoaded: ((NativeAd) -> Unit)? = null) {
-        if (isNativeAdLoading[placement] == true) return
+        onAdLoaded?.let {
+            nativeAdCallbacks.getOrPut(placement) { CopyOnWriteArrayList() }.add(it)
+        }
+        // Cache hit: deliver synchronously (e.g. card composed after the load completed).
+        nativeAds[placement]?.let { ad ->
+            deliverNativeAdCallbacks(placement, ad)
+            return
+        }
         if (!isMobileAdsSdkInitialized.get()) return
 
-        isNativeAdLoading[placement] = true
-        val adUnitId = getNativeAdUnitId(placement)
-        
-        val adLoader = AdLoader.Builder(context, adUnitId)
-            .forNativeAd { ad : NativeAd ->
-                nativeAds[placement]?.destroy()
-                nativeAds[placement] = ad
-                isNativeAdLoading[placement] = false
-                onAdLoaded?.invoke(ad)
-            }
-            .withAdListener(object : com.google.android.gms.ads.AdListener() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d("AdsCoordinator", "Native ad ($placement) failed to load: ${adError.message}")
-                    isNativeAdLoading[placement] = false
-                }
-            })
-            .withNativeAdOptions(NativeAdOptions.Builder().build())
-            .build()
+        synchronized(nativeAdLock) {
+            if (isNativeAdLoading[placement] == true) return
+            isNativeAdLoading[placement] = true
+        }
 
-        adLoader.loadAd(AdRequest.Builder().build())
+        adScope.launch {
+            val adUnitId = getNativeAdUnitId(placement)
+            val adLoader = withContext(Dispatchers.IO) {
+                AdLoader.Builder(context, adUnitId)
+                    .forNativeAd { ad -> onNativeAdLoaded(placement, ad) }
+                    .withAdListener(object : com.google.android.gms.ads.AdListener() {
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            Log.w("AdsCoordinator", "Native ad ($placement) failed to load: ${adError.message}")
+                            synchronized(nativeAdLock) {
+                                isNativeAdLoading[placement] = false
+                            }
+                            nativeAdCallbacks.remove(placement)
+                        }
+                    })
+                    .withNativeAdOptions(NativeAdOptions.Builder().build())
+                    .build()
+            }
+            // AdLoader.Builder ran off-main per AdMob guidance; keep loadAd() itself on the
+            // main thread (matches the pre-Phase-1 behavior; the SDK posts callbacks to main).
+            withContext(Dispatchers.Main) {
+                adLoader.loadAd(AdRequest.Builder().build())
+            }
+        }
+    }
+
+    /** GMA callback (main thread): cache the ad, schedule refresh, notify all waiters. */
+    private fun onNativeAdLoaded(placement: AdPlacement, ad: NativeAd) {
+        synchronized(nativeAdLock) {
+            nativeAds[placement]?.takeIf { it !== ad }?.destroy()
+            nativeAds[placement] = ad
+            isNativeAdLoading[placement] = false
+        }
+        scheduleNativeAdRefresh(placement)
+        deliverNativeAdCallbacks(placement, ad)
+    }
+
+    private fun deliverNativeAdCallbacks(placement: AdPlacement, ad: NativeAd) {
+        nativeAdCallbacks.remove(placement)?.forEach { callback ->
+            try {
+                callback(ad)
+            } catch (e: Exception) {
+                Log.w("AdsCoordinator", "Native ad callback failed for $placement: $e")
+            }
+        }
+    }
+
+    /**
+     * Marks a screen as currently displaying this placement. While the use-count is
+     * positive the coordinator keeps the ad alive even if other holders release it.
+     * Call from a [androidx.compose.runtime.DisposableEffect] on entry.
+     */
+    fun retainNativeAd(placement: AdPlacement) {
+        synchronized(nativeAdLock) {
+            nativeAdUseCounts[placement] = (nativeAdUseCounts[placement] ?: 0) + 1
+        }
+    }
+
+    /**
+     * Marks a holder as done with this placement. When the last holder releases, the
+     * cached [NativeAd] is destroyed to free its large memory footprint (finding #6);
+     * the next [loadNativeAd] / screen entry fetches a fresh one.
+     *
+     * The count update and the destroy decision are atomic under [nativeAdLock], so a
+     * concurrent retain (or the background refresh sweep) can never destroy an ad that
+     * is still being shown.
+     */
+    fun releaseNativeAd(placement: AdPlacement) {
+        synchronized(nativeAdLock) {
+            val remaining = (nativeAdUseCounts[placement] ?: 1) - 1
+            if (remaining <= 0) {
+                nativeAdUseCounts.remove(placement)
+                destroyNativeAd(placement)
+            } else {
+                nativeAdUseCounts[placement] = remaining
+            }
+        }
+    }
+
+    /**
+     * Destroys the cached ad for a placement and cancels its pending refresh. Safe to
+     * call from any thread. Used by [releaseNativeAd] and the hourly-refresh sweep.
+     */
+    fun destroyNativeAd(placement: AdPlacement) {
+        nativeAdRefreshJobs.remove(placement)?.cancel()
+        synchronized(nativeAdLock) {
+            nativeAds.remove(placement)?.destroy()
+            isNativeAdLoading[placement] = false
+        }
+    }
+
+    /**
+     * Refreshes the cache before AdMob's 1-hour expiry. If the ad is currently visible
+     * (use-count > 0) the cycle is skipped — a visible ad must not be destroyed
+     * mid-view; it is destroyed by [releaseNativeAd] when the last holder leaves, and
+     * the next visit reloads a fresh ad, so no shown ad ever exceeds the expiry. If the
+     * cached ad is unused (e.g. preloaded but never displayed in a Pro session) it is
+     * destroyed to bound memory instead of being re-loaded.
+     */
+    private fun scheduleNativeAdRefresh(placement: AdPlacement) {
+        nativeAdRefreshJobs.remove(placement)?.cancel()
+        nativeAdRefreshJobs[placement] = adScope.launch {
+            delay(NATIVE_AD_REFRESH_MILLIS)
+            // Check + destroy are atomic under nativeAdLock, so a retain that lands
+            // concurrently is never clobbered.
+            synchronized(nativeAdLock) {
+                if (nativeAds[placement] == null) return@launch
+                val inUse = (nativeAdUseCounts[placement] ?: 0) > 0
+                if (inUse) return@launch
+                Log.d("AdsCoordinator", "Native ad ($placement) expired unused; destroying cache entry.")
+                nativeAds.remove(placement)?.destroy()
+                isNativeAdLoading[placement] = false
+            }
+            nativeAdRefreshJobs.remove(placement)
+        }
     }
 
     fun getNativeAd(placement: AdPlacement): NativeAd? = nativeAds[placement]

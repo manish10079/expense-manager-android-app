@@ -49,7 +49,15 @@ fun NativeAdCard(
     val adsCoordinator = remember {
         EntryPoints.get(context.applicationContext, MonetizationEntryPoint::class.java).adsCoordinator()
     }
-    
+
+    // NOTE (Phase 1 measurement feedback): retain/release (destroy-on-unused) is intentionally
+    // NOT wired here yet. Measured against the Phase 0 baseline, destroying the cached NativeAd
+    // when ad cards scroll out of a LazyColumn (Transactions/Analytics lists) forced a network
+    // reload for the next card mid-scroll → scrollTransactions_free P90 regressed 17.1 → 31.4 ms.
+    // Phase 2 will re-introduce the wiring alongside the single keyed ad item + reuse semantics
+    // (ADS_UI_JANK_FIX_PLAN §5). The coordinator API (AdsCoordinator.retain/release/destroyNativeAd)
+    // is ready and unused for now.
+
     var nativeAd by remember(placement) { mutableStateOf<NativeAd?>(adsCoordinator.getNativeAd(placement)) }
     var isLoading by remember(placement) { mutableStateOf(nativeAd == null) }
 
