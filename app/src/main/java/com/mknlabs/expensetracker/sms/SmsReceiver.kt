@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.provider.Telephony
 import androidx.core.content.ContextCompat
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
+import com.mknlabs.expensetracker.domain.repository.CategoryRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,9 @@ class SmsReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var smsLearningStore: SmsLearningStore
+
+    @Inject
+    lateinit var categoryRepository: CategoryRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
@@ -56,7 +60,19 @@ class SmsReceiver : BroadcastReceiver() {
                     ) ?: continue
 
                     if (smsRepository.isDuplicate(parsed)) continue
-                    SmsNotificationManager.showImportNotification(context.applicationContext, parsed)
+
+                    // Fetch top-3 frequently used categories for the detected type.
+                    // Falls back to sort_order-ranked defaults if user has no history yet.
+                    val frequentCategories = categoryRepository.getFrequentlyUsedCategories(
+                        transactionTypeId = parsed.transactionTypeId,
+                        limit = 3
+                    )
+
+                    SmsNotificationManager.showImportNotification(
+                        context.applicationContext,
+                        parsed,
+                        frequentCategories
+                    )
                 }
             } catch (e: Exception) {
                 android.util.Log.w("SmsReceiver", "Failed to process SMS broadcast", e)

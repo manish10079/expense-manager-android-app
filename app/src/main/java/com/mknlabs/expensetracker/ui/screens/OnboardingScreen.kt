@@ -100,7 +100,13 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.ui.viewmodels.AuthState
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.ReturningUserProfile
+import com.mknlabs.expensetracker.ui.viewmodels.ReturningUserStep
+import com.mknlabs.expensetracker.ui.viewmodels.resolveReturningUserStep
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import com.mknlabs.expensetracker.utils.formatDate
 
 private data class OnboardingPage(
@@ -122,13 +128,19 @@ fun OnboardingScreen(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
+    val returningUserProfile by authViewModel.returningUserProfile.collectAsStateWithLifecycle()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     OnboardingScreenContent(
         currentUser = currentUser,
+        returningUserProfile = returningUserProfile,
+        isEmailVerificationPending = authState is AuthState.EmailVerificationRequired,
         onFinish = onFinish,
         onSignUpSuccess = onSignUpSuccess,
         onCancelGuestSignIn = { authViewModel.cancelGuestSignIn() },
         onResetAuthState = { authViewModel.resetState() },
+        onFetchReturningProfile = { uid -> authViewModel.fetchReturningUserProfile(uid) },
+        onResetReturningProfile = { authViewModel.resetReturningUserProfile() },
         authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccess ->
             AuthRoute(
                 viewModel = authViewModel,
@@ -144,10 +156,14 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingScreenContent(
     currentUser: com.google.firebase.auth.FirebaseUser?,
+    returningUserProfile: ReturningUserProfile? = null,
+    isEmailVerificationPending: Boolean = false,
     onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit,
     onSignUpSuccess: (() -> Unit)?,
     onCancelGuestSignIn: () -> Unit,
     onResetAuthState: () -> Unit,
+    onFetchReturningProfile: (uid: String) -> Unit = {},
+    onResetReturningProfile: () -> Unit = {},
     authSection: (@Composable (onAuthSuccess: () -> Unit, onGuestContinue: () -> Unit, onSignUpSuccess: () -> Unit) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -198,6 +214,13 @@ private fun OnboardingScreenContent(
                 description = context.getString(R.string.desc_tell_us_about_yourself),
                 actionLabel = context.getString(R.string.label_get_started),
                 illustration = { /* No illustration for setup page */ }
+            ),
+            // Page 7: WelcomeBack — shown to returning users who already have a complete profile
+            OnboardingPage(
+                title = "",   // Title rendered separately in WelcomeBackPage composable
+                description = "",
+                actionLabel = context.getString(R.string.label_continue),
+                illustration = { }
             )
         )
     }
@@ -206,6 +229,7 @@ private fun OnboardingScreenContent(
     val isAuthPage = currentPage == 4
     val isGoalPage = currentPage == 5
     val isSetupPage = currentPage == 6
+    val isWelcomeBackPage = currentPage == 7
 
     // Setup state
     var userName by remember { mutableStateOf("") }
@@ -223,11 +247,54 @@ private fun OnboardingScreenContent(
         }
     }
 
-    // Force redirection to Setup Page once user is detected
-    LaunchedEffect(currentUser) {
-        if (currentUser != null && currentPage == 4) {
-            Log.d("Onboarding", "User detected! Force-advancing to Goal Page.")
+    // Smart routing after auth: fetch the existing Firestore profile and skip any
+    // setup steps the returning user has already completed. Keyed on currentPage
+    // too so the routing also applies when the user is already signed in and walks
+    // back to the auth page (page 4) — not only right after the sign-in tap.
+    //
+    // Paused while the email-verification screen is shown: an unverified
+    // email/password user must verify before onboarding advances (the same
+    // guard SyncRepository applies to every sync operation).
+    LaunchedEffect(currentUser, currentPage, isEmailVerificationPending) {
+        if (currentPage != 4) return@LaunchedEffect
+        if (isEmailVerificationPending) return@LaunchedEffect
+        val user = currentUser ?: return@LaunchedEffect
+        if (user.isAnonymous) {
+            // Anonymous / guest user — go straight to the goal page
             currentPage = 5
+        } else {
+            Log.d("Onboarding", "Existing user detected — fetching profile from Firestore.")
+            onFetchReturningProfile(user.uid)
+        }
+    }
+
+    // Once we have the returning profile, decide where to land
+    LaunchedEffect(returningUserProfile, currentPage, isEmailVerificationPending) {
+        if (currentPage != 4) return@LaunchedEffect // only act right after auth page
+        if (isEmailVerificationPending) return@LaunchedEffect
+        val profile = returningUserProfile ?: return@LaunchedEffect
+        when (resolveReturningUserStep(profile)) {
+            ReturningUserStep.WELCOME_BACK -> {
+                // Pre-fill local state from existing data so onFinish has correct values
+                userName = profile.fullName
+                userGender = profile.gender
+                userFinancialGoal = profile.financialGoal
+                Log.d("Onboarding", "Returning user with complete profile — showing WelcomeBack.")
+                currentPage = 7
+            }
+            ReturningUserStep.FINANCIAL_GOAL -> {
+                // Profile exists but no financial goal yet
+                userName = profile.fullName.ifBlank { userName }
+                userGender = profile.gender.ifBlank { userGender }
+                Log.d("Onboarding", "Returning user — missing goal, going to goal page.")
+                currentPage = 5
+            }
+            ReturningUserStep.SETUP_PROFILE -> {
+                // Profile exists but name/gender missing
+                userFinancialGoal = profile.financialGoal.ifBlank { userFinancialGoal }
+                Log.d("Onboarding", "Returning user — missing name/gender, going to setup page.")
+                currentPage = 6
+            }
         }
     }
 
@@ -281,6 +348,10 @@ private fun OnboardingScreenContent(
     }
 
     BackHandler(enabled = currentPage > 0) {
+        if (currentPage == 7) {
+            // Returning from WelcomeBack — reset profile fetch so we don't re-enter
+            onResetReturningProfile()
+        }
         onCancelGuestSignIn()
         onResetAuthState()
         currentPage -= 1
@@ -316,7 +387,7 @@ private fun OnboardingScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
-                if (!isSetupPage && !isAuthPage && !isGoalPage) {
+                if (!isSetupPage && !isAuthPage && !isGoalPage && !isWelcomeBackPage) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -341,6 +412,20 @@ private fun OnboardingScreenContent(
                 }
 
                 // Title & Description Section
+                if (isWelcomeBackPage) {
+                    // WelcomeBack takes over the full content area
+                    WelcomeBackPage(
+                        userName = userName,
+                        userFinancialGoal = userFinancialGoal,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        onContinue = {
+                            onResetReturningProfile()
+                            onCompleteInternal()
+                        }
+                    )
+                } else {
                 AnimatedContent(
                     targetState = currentPage,
                     label = "onboarding_copy",
@@ -425,21 +510,29 @@ private fun OnboardingScreenContent(
 
                         if (isAuthOnThisPageIndex) {
                             if (authSection != null) {
-                                authSection(
-                                    {
-                                        Log.d("Onboarding", "Auth SUCCESS callback triggered.")
-                                        currentPage = 5
-                                    },
-                                    {
-                                        Log.d("Onboarding", "Guest continue triggered.")
-                                        currentPage = 5
-                                    },
-                                    {
-                                        Log.d("Onboarding", "Sign up success callback triggered.")
-                                        onSignUpSuccess?.invoke()
-                                        currentPage = 5
-                                    }
-                                )
+                        authSection(
+                            {
+                                Log.d("Onboarding", "Auth SUCCESS callback triggered.")
+                                // Guest/anonymous users go straight to the goal page.
+                                // Signed-in users stay on the auth page while the
+                                // Firestore profile fetch decides which already-
+                                // completed steps to skip (see LaunchedEffect above).
+                                if (currentUser?.isAnonymous == true) {
+                                    currentPage = 5
+                                }
+                            },
+                            {
+                                Log.d("Onboarding", "Guest continue triggered.")
+                                currentPage = 5
+                            },
+                            {
+                                Log.d("Onboarding", "Sign up success callback triggered.")
+                                onSignUpSuccess?.invoke()
+                                if (currentUser?.isAnonymous == true) {
+                                    currentPage = 5
+                                }
+                            }
+                        )
                             } else {
                                 Text(
                                     text = stringResource(id = R.string.msg_auth_content_preview_placeholder),
@@ -565,12 +658,13 @@ private fun OnboardingScreenContent(
                             }
                         }
                     }
-                }
+                } // end AnimatedContent
+                } // end if(isWelcomeBackPage) else
                 
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            if (!isAuthPage) {
+            if (!isAuthPage && !isWelcomeBackPage) {
                 // Fixed Footer Area
                 Column(
                     modifier = Modifier
@@ -581,27 +675,39 @@ private fun OnboardingScreenContent(
                     PrimaryOnboardingButton(
                         label = page.actionLabel,
                         onClick = {
-                            val lastIndex = onboardingPages.lastIndex
-                            
-                            if (currentPage == 5) { // Goal Page
-                                val isOther = userFinancialGoal == goalOther
-                                if (userFinancialGoal.isNotEmpty() && (!isOther || customGoalText.trim().isNotEmpty())) {
-                                    currentPage += 1
-                                } else {
-                                    toastMessage = if (isOther) context.getString(R.string.placeholder_enter_custom_goal) 
-                                                   else context.getString(R.string.label_financial_goal_title)
-                                }
-                            } else if (currentPage == lastIndex) {
-                                val missingFields = mutableListOf<String>()
-                                if (userName.trim().isEmpty()) missingFields.add(nameStr)
-
-                                if (missingFields.isNotEmpty()) {
-                                    toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
-                                } else {
+                            when {
+                                currentPage == 7 -> { // WelcomeBack Page
+                                    onResetReturningProfile()
                                     onCompleteInternal()
                                 }
-                            } else {
-                                currentPage += 1
+                                currentPage == 5 -> { // Goal Page
+                                    val isOther = userFinancialGoal == goalOther
+                                    if (userFinancialGoal.isNotEmpty() && (!isOther || customGoalText.trim().isNotEmpty())) {
+                                        // Skip the name/gender screen when they are already known
+                                        // (pre-filled from the returning user's cloud profile).
+                                        if (userName.isNotBlank() && userGender.isNotBlank()) {
+                                            onCompleteInternal()
+                                        } else {
+                                            currentPage += 1
+                                        }
+                                    } else {
+                                        toastMessage = if (isOther) context.getString(R.string.placeholder_enter_custom_goal)
+                                                       else context.getString(R.string.label_financial_goal_title)
+                                    }
+                                }
+                                currentPage == 6 -> { // Setup Page (name/gender)
+                                    val missingFields = mutableListOf<String>()
+                                    if (userName.trim().isEmpty()) missingFields.add(nameStr)
+
+                                    if (missingFields.isNotEmpty()) {
+                                        toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                                    } else {
+                                        // Finish directly — the WelcomeBack page is reserved for
+                                        // returning users with a complete cloud profile.
+                                        onCompleteInternal()
+                                    }
+                                }
+                                else -> currentPage += 1
                             }
                         }
                     )
@@ -643,6 +749,191 @@ private fun OnboardingScreenContent(
                 isGenderPickerVisible = false
             }
         )
+    }
+}
+
+@Composable
+private fun WelcomeBackPage(
+    userName: String,
+    userFinancialGoal: String,
+    modifier: Modifier = Modifier,
+    onContinue: (() -> Unit)? = null
+) {
+    val firstName = userName.trim().substringBefore(" ").ifBlank {
+        userName.ifBlank { stringResource(R.string.label_welcome_back_fallback) }
+    }
+
+    // Staggered entrance animations
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    val waveAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        label = "wave_alpha"
+    )
+    val greetingOffset by animateDpAsState(
+        targetValue = if (visible) 0.dp else 24.dp,
+        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
+        label = "greeting_offset"
+    )
+    val greetingAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
+        label = "greeting_alpha"
+    )
+    val subAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(700, delayMillis = 300, easing = FastOutSlowInEasing),
+        label = "sub_alpha"
+    )
+    val subOffset by animateDpAsState(
+        targetValue = if (visible) 0.dp else 20.dp,
+        animationSpec = tween(700, delayMillis = 300, easing = FastOutSlowInEasing),
+        label = "sub_offset"
+    )
+    val cardAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
+        label = "card_alpha"
+    )
+    val cardOffset by animateDpAsState(
+        targetValue = if (visible) 0.dp else 20.dp,
+        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
+        label = "card_offset"
+    )
+    val buttonAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(700, delayMillis = 700, easing = FastOutSlowInEasing),
+        label = "button_alpha"
+    )
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Dimens.ScreenPadding)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Wave emoji
+        Text(
+            text = "\uD83D\uDC4B",
+            fontSize = 56.sp,
+            modifier = Modifier.graphicsLayer(alpha = waveAlpha)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // "Welcome back," line
+        Text(
+            text = stringResource(R.string.label_welcome_back_comma),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp
+            ),
+            modifier = Modifier.graphicsLayer(
+                alpha = greetingAlpha,
+                translationY = greetingOffset.value
+            )
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // User's first name, large and bold with gradient
+        Text(
+            text = firstName,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.displaySmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 40.sp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            ),
+            modifier = Modifier.graphicsLayer(
+                alpha = greetingAlpha,
+                translationY = greetingOffset.value
+            )
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Sub-message
+        Text(
+            text = stringResource(R.string.msg_welcome_back_subtitle),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 15.sp,
+                lineHeight = 26.sp
+            ),
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .graphicsLayer(
+                    alpha = subAlpha,
+                    translationY = subOffset.value
+                )
+        )
+
+        if (userFinancialGoal.isNotBlank()) {
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Goal reminder card
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .graphicsLayer(
+                        alpha = cardAlpha,
+                        translationY = cardOffset.value
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "\uD83C\uDFAF",
+                    fontSize = 28.sp
+                )
+                Column {
+                    Text(
+                        text = stringResource(R.string.label_your_goal),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.8.sp
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = userFinancialGoal,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        if (onContinue != null) {
+            Box(modifier = Modifier.graphicsLayer(alpha = buttonAlpha)) {
+                PrimaryOnboardingButton(
+                    label = stringResource(R.string.label_continue),
+                    onClick = onContinue
+                )
+            }
+        }
     }
 }
 

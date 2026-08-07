@@ -55,4 +55,8 @@ class CategoryRepository @Inject constructor(
     override suspend fun deleteCustomCategory(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
     }
+
+    override suspend fun getFrequentlyUsedCategories(transactionTypeId: Int, limit: Int): List<CategoryType> = withContext(Dispatchers.IO) {
+        dao.getFrequentlyUsedCategories(transactionTypeId, limit).map { it.toDomain() }
+    }
 }

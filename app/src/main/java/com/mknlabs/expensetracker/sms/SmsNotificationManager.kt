@@ -10,10 +10,12 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import java.math.BigDecimal
+import androidx.core.app.RemoteInput
 
 /**
  * Builds and shows the Smart SMS Import notification (plan §8) and transports
@@ -44,7 +46,13 @@ object SmsNotificationManager {
     const val EXTRA_OPEN_AMOUNT = "sms.open_amount"
     const val EXTRA_OPEN_NOTE = "sms.open_note"
 
+    const val KEY_TEXT_REPLY = "extra_sms_note"
+
     const val ACTION_SMS_SAVE = "com.mknlabs.expensetracker.action.SMS_SAVE"
+
+    /** Convenience aliases used by SmsActionReceiver for confirmation notification. */
+    const val CHANNEL_ID = NotificationHelper.CHANNEL_SMS_IMPORT
+    const val CONFIRMATION_NOTIFICATION_ID = NotificationHelper.NOTIFICATION_ID_SMS_CONFIRMATION
 
     fun Intent.putParsedSms(parsed: ParsedSms): Intent = apply {
         putExtra(EXTRA_AMOUNT_MINOR, parsed.amountMinor)
@@ -73,7 +81,11 @@ object SmsNotificationManager {
         )
     }
 
-    fun showImportNotification(context: Context, parsed: ParsedSms) {
+    fun showImportNotification(
+        context: Context,
+        parsed: ParsedSms,
+        frequentCategories: List<CategoryType>
+    ) {
         // The parsed amount is in the SMS's own currency (₹/INR by parser design),
         // so we format with the app default rather than the user's display currency
         // — showing the display currency would be a misleading non-conversion.
@@ -95,7 +107,7 @@ object SmsNotificationManager {
             context.getString(R.string.sms_sender_unknown)
         }
 
-        // e.g. "₹520 Debited · HDFC Bank" + "Suggested: Food"
+        // e.g. "₹520 Debited · HDFC Bank"
         val contentText = context.getString(
             R.string.notification_format_sms_import_content,
             amountText,
@@ -112,27 +124,11 @@ object SmsNotificationManager {
             requestCode = REQUEST_CODE_OPEN,
             intent = openActivityIntent(context, parsed)
         )
-        val savePendingIntent = PendingIntent.getBroadcast(
-            context,
-            REQUEST_CODE_SAVE,
-            Intent(context, SmsActionReceiver::class.java).apply {
-                action = ACTION_SMS_SAVE
-                putParsedSms(parsed)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val changePendingIntent = activityPendingIntent(
-            context,
-            requestCode = REQUEST_CODE_CHANGE,
-            intent = Intent(context, MainActivity::class.java).apply {
-                // singleTop + SINGLE_TOP: reuse the existing MainActivity via
-                // onNewIntent when the app is alive in the background, instead of
-                // CLEAR_TASK which force-restarts the activity and replays the splash.
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_SMS_CHANGE)
-                putParsedSms(parsed)
-            }
-        )
+
+        // RemoteInput for adding a note inline in the notification shade
+        val remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
+            .setLabel(context.getString(R.string.label_add_note_optional))
+            .build()
 
         val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_SMS_IMPORT)
             .setSmallIcon(R.drawable.ic_notification_wallet)
@@ -145,21 +141,32 @@ object SmsNotificationManager {
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(openPendingIntent)
             .setAutoCancel(true)
-            .addAction(
+
+        // Show up to 3 action buttons for frequently chosen categories
+        // Tapping any of these opens the remote input to write a note and saves.
+        val categoriesToShow = frequentCategories.take(3)
+        categoriesToShow.forEachIndexed { index, category ->
+            val saveIntent = Intent(context, SmsActionReceiver::class.java).apply {
+                action = ACTION_SMS_SAVE
+                // Put parsed SMS data, but update the categoryId to this action's category
+                putParsedSms(parsed.copy(categoryId = category.id))
+            }
+            val savePendingIntent = PendingIntent.getBroadcast(
+                context,
+                REQUEST_CODE_SAVE + index,
+                saveIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+            val action = NotificationCompat.Action.Builder(
                 R.drawable.ic_notification_wallet,
-                context.getString(R.string.notification_action_save),
+                category.name,
                 savePendingIntent
             )
-            .addAction(
-                R.drawable.ic_notification_wallet,
-                context.getString(R.string.notification_action_change),
-                changePendingIntent
-            )
-            .addAction(
-                R.drawable.ic_notification_wallet,
-                context.getString(R.string.notification_action_open),
-                openPendingIntent
-            )
+            .addRemoteInput(remoteInput)
+            .build()
+
+            builder.addAction(action)
+        }
 
         with(NotificationManagerCompat.from(context)) {
             try {

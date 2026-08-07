@@ -242,6 +242,7 @@
     <string name="label_about_subtitle">App info and details</string>
     <string name="label_val_min">%1$d min</string>
 
+    <string name="label_add_note_optional">Add a note… (optional)</string>
     <!-- Errors -->
     <string name="toast_authentication_failed">Authentication failed.</string>
     <string name="error_auth_cloned_or_unauthorized">Google authentication failed. If you are using a cloned or parallel space app, please use the original app.</string>
@@ -1488,4 +1489,8 @@
     <string name="label_logged_in_as">Sending as: %1$s (ID: %2$s)</string>
     <string name="msg_feedback_empty">Feedback cannot be empty.</string>
     <string name="title_view_by">View by</string>
+    <string name="label_welcome_back_comma">Welcome back,</string>
+    <string name="msg_welcome_back_subtitle">You\'re ready to jump right back in!</string>
+    <string name="label_your_goal">YOUR FINANCIAL GOAL</string>
+    <string name="label_welcome_back_fallback">there</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.domain.repository
 
+import com.mknlabs.expensetracker.models.UserProfile
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -56,6 +57,15 @@ interface SyncRepository {
      * Triggers a full synchronization (Push local data to cloud, Pull cloud data to local).
      */
     suspend fun syncTransactions(): Result<Unit>
+
+    /**
+     * Reads the user's profile document from Firestore without writing anything.
+     * Returns null when the document does not exist or the read fails.
+     *
+     * Used by onboarding to decide which setup steps a returning user can skip
+     * (financial goal, name/gender) after signing in with Google or email/password.
+     */
+    suspend fun fetchUserProfileFromCloud(uid: String): UserProfile?
 
     /**
      * Force push local changes and pull cloud changes, ignoring the last sync time.

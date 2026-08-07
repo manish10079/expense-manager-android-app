@@ -80,6 +80,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -438,9 +441,6 @@ private fun TransactionScreenContent(
                 var isEmptyMessageVisible by remember { mutableStateOf(false) }
 
                 LaunchedEffect(emptyTransactionMessage) {
-                    // Trigger exit animation before showing new message
-                    isEmptyMessageVisible = false
-                    kotlinx.coroutines.delay(500) // wait for exit animation to complete
                     isEmptyMessageVisible = true
                 }
 
@@ -472,7 +472,7 @@ private fun TransactionScreenContent(
                                 targetOffsetY = { height -> height / 3 }
                             )
                     ) {
-                        Text(
+                        TypewriterText(
                             text = emptyTransactionMessage,
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -912,5 +912,51 @@ private fun TransactionSummaryCard(
         }
     }
 }
+
+@Composable
+private fun TypewriterText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
+    color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
+    textAlign: TextAlign? = null,
+    softWrap: Boolean = true,
+    charDelayMillis: Long = 25L
+) {
+    var visibleText by remember(text) { mutableStateOf("") }
+    var showCursor by remember(text) { mutableStateOf(true) }
+
+    LaunchedEffect(text) {
+        visibleText = ""
+        showCursor = true
+        for (i in 1..text.length) {
+            visibleText = text.substring(0, i)
+            kotlinx.coroutines.delay(charDelayMillis)
+        }
+        // Blink the cursor a few times then fade it out
+        for (j in 1..6) {
+            showCursor = !showCursor
+            kotlinx.coroutines.delay(350)
+        }
+        showCursor = false
+    }
+
+    Text(
+        text = buildAnnotatedString {
+            append(visibleText)
+            if (showCursor) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Light, color = color.copy(alpha = 0.5f))) {
+                    append(" |")
+                }
+            }
+        },
+        modifier = modifier,
+        style = style,
+        color = color,
+        textAlign = textAlign,
+        softWrap = softWrap
+    )
+}
+
 
 

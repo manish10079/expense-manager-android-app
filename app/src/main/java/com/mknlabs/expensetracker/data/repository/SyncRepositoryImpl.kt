@@ -246,6 +246,30 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun fetchUserProfileFromCloud(uid: String): UserProfile? = withContext(Dispatchers.IO) {
+        try {
+            val snapshot = firestore.collection("users").document(uid).get().await()
+            if (!snapshot.exists()) return@withContext null
+            UserProfile(
+                fullName = snapshot.getString("fullName").orEmpty(),
+                emailAddress = snapshot.getString("emailAddress").orEmpty(),
+                phoneNumber = snapshot.getString("phoneNumber").orEmpty(),
+                dateOfBirthMillis = null,
+                gender = snapshot.getString("gender").orEmpty(),
+                financialGoal = snapshot.getString("financialGoal").orEmpty(),
+                accountCreatedMillis = 0L,
+                accountTier = snapshot.getString("accountTier").orEmpty(),
+                photoUri = snapshot.getString("photoUri"),
+                proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: 0L,
+                isSubscription = snapshot.getBoolean("isSubscription") ?: false,
+                updatedAtMillis = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "fetchUserProfileFromCloud failed for uid: $uid", e)
+            null
+        }
+    }
+
     override suspend fun forceSyncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         try {

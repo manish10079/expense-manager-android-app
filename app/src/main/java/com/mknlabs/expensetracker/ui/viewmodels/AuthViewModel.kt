@@ -49,6 +49,50 @@ sealed class UpdatePasswordState {
     data class Error(@StringRes val messageRes: Int) : UpdatePasswordState()
 }
 
+/**
+ * Snapshot of a returning (existing) user's profile pulled from Firestore.
+ * Used by [OnboardingScreen] to decide which setup steps to skip on a fresh
+ * install when the user already has a cloud profile.
+ */
+data class ReturningUserProfile(
+    val fullName: String,
+    val gender: String,
+    val financialGoal: String
+) {
+    val hasName: Boolean get() = fullName.isNotBlank() && fullName != "Guest User"
+    val hasGender: Boolean get() = gender.isNotBlank()
+    val hasGoal: Boolean get() = financialGoal.isNotBlank()
+    val isComplete: Boolean get() = hasName && hasGender && hasGoal
+}
+
+/**
+ * The onboarding step a returning user should land on after signing in.
+ * Kept in the ViewModel layer so the routing decision is unit-testable and
+ * free of any UI (page-index) concerns.
+ */
+enum class ReturningUserStep {
+    /** Financial goal not set yet — show the goal page. */
+    FINANCIAL_GOAL,
+
+    /** Name/gender missing — show the setup (name/gender) page. */
+    SETUP_PROFILE,
+
+    /** Everything is already filled — show the "Welcome back" page. */
+    WELCOME_BACK
+}
+
+/**
+ * Maps a returning user's cloud profile to the onboarding step to show.
+ */
+fun resolveReturningUserStep(profile: ReturningUserProfile): ReturningUserStep = when {
+    profile.isComplete -> ReturningUserStep.WELCOME_BACK
+    !profile.hasGoal -> ReturningUserStep.FINANCIAL_GOAL
+    !profile.hasName || !profile.hasGender -> ReturningUserStep.SETUP_PROFILE
+    // Unreachable fallback (hasGoal && hasName && hasGender == isComplete) kept
+    // for safety — never show the auth page again for a signed-in returning user.
+    else -> ReturningUserStep.FINANCIAL_GOAL
+}
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -74,6 +118,38 @@ class AuthViewModel @Inject constructor(
 
     private val _verificationExpiry = MutableStateFlow<Long?>(null)
     val verificationExpiry: StateFlow<Long?> = _verificationExpiry.asStateFlow()
+
+    private val _returningUserProfile = MutableStateFlow<ReturningUserProfile?>(null)
+    /** Non-null when we successfully fetched an existing user's Firestore profile during onboarding. */
+    val returningUserProfile: StateFlow<ReturningUserProfile?> = _returningUserProfile.asStateFlow()
+
+    /**
+     * Fetches the user's existing profile from Firestore immediately after sign-in.
+     * Used by [OnboardingScreen] to skip already-completed setup steps on a fresh install.
+     *
+     * On failure the profile is set to an empty one (never null) so onboarding
+     * falls through to the normal goal/setup pages instead of getting stuck on
+     * the auth screen.
+     */
+    fun fetchReturningUserProfile(uid: String) {
+        viewModelScope.launch {
+            try {
+                val profile = syncRepository.fetchUserProfileFromCloud(uid)
+                _returningUserProfile.value = ReturningUserProfile(
+                    fullName = profile?.fullName.orEmpty(),
+                    gender = profile?.gender.orEmpty(),
+                    financialGoal = profile?.financialGoal.orEmpty()
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("AuthVM", "fetchReturningUserProfile failed", e)
+                _returningUserProfile.value = ReturningUserProfile("", "", "")
+            }
+        }
+    }
+
+    fun resetReturningUserProfile() {
+        _returningUserProfile.value = null
+    }
 
     fun loadVerificationExpiry() {
         val uid = authRepository.currentUser.value?.uid ?: return

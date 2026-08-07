@@ -41,4 +41,14 @@ interface CategoryDao {
 
     @Query("UPDATE categories SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<Int>, syncState: String)
+
+    @Query("""
+        SELECT c.* FROM categories c
+        LEFT JOIN transactions t ON t.category_id = c.id AND t.is_deleted = 0
+        WHERE c.is_deleted = 0 AND c.transaction_type_id = :transactionTypeId
+        GROUP BY c.id
+        ORDER BY COUNT(t.id) DESC, c.sort_order ASC, c.name ASC
+        LIMIT :limit
+    """)
+    suspend fun getFrequentlyUsedCategories(transactionTypeId: Int, limit: Int): List<CategoryEntity>
 }
