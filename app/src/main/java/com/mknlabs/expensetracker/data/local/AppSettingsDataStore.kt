@@ -48,6 +48,8 @@ object AppSettingsDataStore {
         val showOnboardingScreen = booleanPreferencesKey("show_onboarding_screen")
         val showSplashScreen = booleanPreferencesKey("show_splash_screen")
         val smartSmsPrompted = booleanPreferencesKey("smart_sms_prompted")
+        val smsPermissionCardDismissed = booleanPreferencesKey("sms_permission_card_dismissed")
+        val smsMiuiSetupAcknowledged = booleanPreferencesKey("sms_miui_setup_acknowledged")
         val themeMode = stringPreferencesKey("theme_mode")
         val transactionCardShowIncomeExpenseLabels = booleanPreferencesKey("transaction_card_show_income_expense_labels")
         val transactionCardShowTransactionDate = booleanPreferencesKey("transaction_card_show_transaction_date")
@@ -160,6 +162,8 @@ object AppSettingsDataStore {
             showOnboardingScreen = this[Keys.showOnboardingScreen] ?: defaultAppSettings.showOnboardingScreen,
             showSplashScreen = this[Keys.showSplashScreen] ?: defaultAppSettings.showSplashScreen,
             smartSmsPrompted = this[Keys.smartSmsPrompted] ?: defaultAppSettings.smartSmsPrompted,
+            smsPermissionCardDismissed = this[Keys.smsPermissionCardDismissed] ?: defaultAppSettings.smsPermissionCardDismissed,
+            smsMiuiSetupAcknowledged = this[Keys.smsMiuiSetupAcknowledged] ?: defaultAppSettings.smsMiuiSetupAcknowledged,
             themeMode = this[Keys.themeMode]?.let { AppThemeMode.valueOf(it) } ?: defaultAppSettings.themeMode,
             transactionCardShowIncomeExpenseLabels = this[Keys.transactionCardShowIncomeExpenseLabels] ?: defaultAppSettings.transactionCardShowIncomeExpenseLabels,
             transactionCardShowTransactionDate = this[Keys.transactionCardShowTransactionDate] ?: defaultAppSettings.transactionCardShowTransactionDate,
@@ -205,6 +209,8 @@ object AppSettingsDataStore {
         this[Keys.showOnboardingScreen] = settings.showOnboardingScreen
         this[Keys.showSplashScreen] = settings.showSplashScreen
         this[Keys.smartSmsPrompted] = settings.smartSmsPrompted
+        this[Keys.smsPermissionCardDismissed] = settings.smsPermissionCardDismissed
+        this[Keys.smsMiuiSetupAcknowledged] = settings.smsMiuiSetupAcknowledged
         this[Keys.themeMode] = settings.themeMode.name
         this[Keys.transactionCardShowIncomeExpenseLabels] = settings.transactionCardShowIncomeExpenseLabels
         this[Keys.transactionCardShowTransactionDate] = settings.transactionCardShowTransactionDate

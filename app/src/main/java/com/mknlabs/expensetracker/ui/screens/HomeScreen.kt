@@ -56,6 +56,9 @@ import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.HomeScreenUiState
+import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupUiState
+import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupViewModel
+import com.mknlabs.expensetracker.utils.DeviceVendorUtils
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,6 +85,11 @@ fun HomeScreen(
     onGoalsClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
+
+    // Bumped after the SMS permission dialog closes so the setup cards re-evaluate
+    // against the fresh permission state (denied → permission card deep link).
+    var smsPermissionCheckTrigger by remember { mutableIntStateOf(0) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { _ -> }
@@ -107,7 +115,15 @@ fun HomeScreen(
     // (no prompt needed); on API 34+ a denial is permanently blocked by the OS.
     val smsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { _ -> }
+    ) { _ -> smsPermissionCheckTrigger++ }
+
+    // Smart SMS setup cards (permission resilience + MIUI guidance): re-evaluated
+    // whenever the permission state changes (bump the trigger) or app settings
+    // (dismiss flags) change. BuildConfig.BUILD_TYPE is a compile-time constant, so
+    // R8 folds the benchmark gate away in release/debug.
+    val smsSetupViewModel: SmsSetupViewModel = hiltViewModel()
+    val smsSetupUiState by smsSetupViewModel.uiState.collectAsStateWithLifecycle()
+    val smsSetupScope = rememberCoroutineScope()
 
     androidx.compose.runtime.LaunchedEffect(appSettings?.smartSmsPrompted) {
         val shouldPrompt = appSettings != null &&
@@ -122,6 +138,56 @@ fun HomeScreen(
                 it.copy(smartSmsPrompted = true)
             }
             smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(
+        appSettings?.smartSmsPrompted,
+        appSettings?.smsPermissionCardDismissed,
+        appSettings?.smsMiuiSetupAcknowledged,
+        smsPermissionCheckTrigger
+    ) {
+        smsSetupViewModel.refresh(
+            smsPermissionGranted = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECEIVE_SMS
+            ) == PackageManager.PERMISSION_GRANTED,
+            smsPromptAlreadyShown = appSettings?.smartSmsPrompted ?: false,
+            smsPermissionCardDismissed = appSettings?.smsPermissionCardDismissed ?: false,
+            smsMiuiSetupAcknowledged = appSettings?.smsMiuiSetupAcknowledged ?: false,
+            isBenchmarkBuild = BuildConfig.BUILD_TYPE == "benchmark"
+        )
+    }
+
+    fun openAppDetailsSettings() {
+        try {
+            context.startActivity(DeviceVendorUtils.appDetailsSettingsIntent(context))
+        } catch (e: Exception) {
+            // Some OEMs block the details-settings deep link — nothing to fall back to.
+        }
+    }
+
+    fun requestBatteryExemption() {
+        try {
+            context.startActivity(DeviceVendorUtils.batteryOptimizationIntent(context))
+        } catch (e: Exception) {
+            // MIUI sometimes refuses the exemption request — the user can still use
+            // the app-settings path from the other card button.
+        }
+    }
+
+    fun dismissSmsPermissionCard() {
+        smsSetupScope.launch {
+            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
+                it.copy(smsPermissionCardDismissed = true)
+            }
+        }
+    }
+
+    fun dismissMiuiSetupCard() {
+        smsSetupScope.launch {
+            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
+                it.copy(smsMiuiSetupAcknowledged = true)
+            }
         }
     }
 
@@ -163,7 +229,13 @@ fun HomeScreen(
         onSettingsClick = onSettingsClick,
         onTodaySpendingClick = onTodaySpendingClick,
         onGoalsClick = onGoalsClick,
-        onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility
+        onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility,
+        smsSetupUiState = smsSetupUiState,
+        onSmsPermissionCardOpenSettings = { openAppDetailsSettings() },
+        onSmsPermissionCardDismiss = { dismissSmsPermissionCard() },
+        onMiuiSetupCardOpenAppSettings = { openAppDetailsSettings() },
+        onMiuiSetupCardBatterySettings = { requestBatteryExemption() },
+        onMiuiSetupCardDismiss = { dismissMiuiSetupCard() }
     )
 }
 
@@ -179,7 +251,13 @@ private fun HomeScreenContent(
     onSettingsClick: () -> Unit,
     onTodaySpendingClick: () -> Unit,
     onGoalsClick: () -> Unit,
-    onToggleBalanceVisibility: () -> Unit
+    onToggleBalanceVisibility: () -> Unit,
+    smsSetupUiState: SmsSetupUiState = SmsSetupUiState(),
+    onSmsPermissionCardOpenSettings: () -> Unit = {},
+    onSmsPermissionCardDismiss: () -> Unit = {},
+    onMiuiSetupCardOpenAppSettings: () -> Unit = {},
+    onMiuiSetupCardBatterySettings: () -> Unit = {},
+    onMiuiSetupCardDismiss: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -267,6 +345,24 @@ private fun HomeScreenContent(
                         }
                     },
                     onActionClick = onProfileClick
+                )
+            }
+
+            if (smsSetupUiState.showSmsPermissionCard) {
+                Spacer(modifier = Modifier.height(10.dp))
+                SmsPermissionCard(
+                    onOpenSettings = onSmsPermissionCardOpenSettings,
+                    onDismiss = onSmsPermissionCardDismiss
+                )
+            }
+
+            if (smsSetupUiState.showMiuiSetupCard) {
+                Spacer(modifier = Modifier.height(10.dp))
+                MiuiSmsSetupCard(
+                    autostartUnknown = smsSetupUiState.miuiAutostartAllowed == null,
+                    onOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+                    onBatterySettings = onMiuiSetupCardBatterySettings,
+                    onDismiss = onMiuiSetupCardDismiss
                 )
             }
 

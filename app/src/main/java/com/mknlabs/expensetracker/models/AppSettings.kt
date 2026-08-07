@@ -27,6 +27,8 @@ data class AppSettings(
     val showOnboardingScreen: Boolean,
     val showSplashScreen: Boolean,
     val smartSmsPrompted: Boolean,
+    val smsPermissionCardDismissed: Boolean = false,
+    val smsMiuiSetupAcknowledged: Boolean = false,
     val themeMode: AppThemeMode,
     val transactionCardShowIncomeExpenseLabels: Boolean,
     val transactionCardShowTransactionDate: Boolean,

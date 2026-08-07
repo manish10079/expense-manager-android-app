@@ -1,25 +1,31 @@
 package com.mknlabs.expensetracker.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Today
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,14 +35,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import com.mknlabs.expensetracker.R
+
 
 /**
  * A single selectable option for [DropdownModeSelector].
@@ -54,15 +63,11 @@ data class DropdownModeOption<T>(
 )
 
 /**
- * A pill-shaped dropdown style selector. Shows the selected option as a
- * compact chip with a leading icon and a chevron; tapping it opens a menu
- * listing every option with an icon and label. The currently selected option
- * is highlighted in the primary color.
+ * A pill-shaped selector chip. Tapping it opens a [ViewPickerDialog] — a
+ * centered half-screen popup with large date-picker-style option tiles.
+ * The expansion state is managed internally.
  *
- * The dropdown expansion state is managed internally.
- *
- * @param initialExpanded Whether to start with the dropdown menu expanded
- *                        (used by previews to show the open menu).
+ * @param initialExpanded Whether to start with the dialog open (used by previews).
  */
 @Composable
 fun <T> DropdownModeSelector(
@@ -71,23 +76,23 @@ fun <T> DropdownModeSelector(
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     menuMaxWidth: Dp = 120.dp,
-    containerBackground: Brush = standardCardGradient(),
     initialExpanded: Boolean = false
 ) {
-    var isDropdownExpanded by rememberSaveable { mutableStateOf(initialExpanded) }
+    var isDialogVisible by rememberSaveable { mutableStateOf(initialExpanded) }
     val selectedOption = options.firstOrNull { it.id == selectedId }
 
     Box(modifier = modifier) {
+        // Pill chip — tapping opens the centered dialog
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .background(containerBackground)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
                     shape = RoundedCornerShape(20.dp)
                 )
-                .clickable { isDropdownExpanded = true }
+                .clickable { isDialogVisible = true }
                 .padding(horizontal = 10.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -108,83 +113,174 @@ fun <T> DropdownModeSelector(
                 )
             )
             Icon(
-                imageVector = Icons.Filled.ArrowDropDown,
+                imageVector = Icons.Filled.CalendarMonth,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(14.dp)
             )
         }
 
-        DropdownMenu(
-            expanded = isDropdownExpanded,
-            onDismissRequest = { isDropdownExpanded = false },
-            modifier = Modifier.widthIn(max = menuMaxWidth),
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            option.icon?.let { icon ->
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = null,
-                                    tint = option.iconTint ?: MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Text(
-                                text = option.label,
-                                color = if (option.id == selectedId) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = if (option.id == selectedId) {
-                                        FontWeight.Bold
-                                    } else {
-                                        FontWeight.Normal
-                                    }
-                                )
-                            )
-                        }
-                    },
-                    onClick = {
-                        isDropdownExpanded = false
-                        onOptionSelected(option.id)
-                    }
-                )
-            }
+        // Centered half-screen picker dialog
+        if (isDialogVisible) {
+            ViewPickerDialog(
+                options = options,
+                selectedId = selectedId,
+                onOptionSelected = { id ->
+                    isDialogVisible = false
+                    onOptionSelected(id)
+                },
+                onDismiss = { isDialogVisible = false }
+            )
         }
     }
 }
 
+/**
+ * A centered dialog occupying the bottom half of the screen vertically and full
+ * width horizontally. Each option is rendered as a large tappable tile arranged
+ * in a 2-column grid — icon + label — with the selected tile highlighted in
+ * the primary color, similar to a date-picker style.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DropdownModeSelectorPreviewContent() {
-    var selectedFilter by rememberSaveable { mutableStateOf(TransactionPeriodFilter.MONTHLY) }
+fun <T> ViewPickerDialog(
+    options: List<DropdownModeOption<T>>,
+    selectedId: T,
+    onOptionSelected: (T) -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Surface(
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+                shadowElevation = 12.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 24.dp)
+                ) {
+                    // Title
+                    Text(
+                        text = stringResource(R.string.title_view_by),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        textAlign = TextAlign.Center
+                    )
 
-    DropdownModeSelector(
-        options = TransactionPeriodFilter.entries.map { filter ->
-            DropdownModeOption(
-                id = filter,
-                label = stringResource(filter.labelRes),
-                icon = when (filter) {
-                    TransactionPeriodFilter.ALL -> Icons.AutoMirrored.Filled.List
-                    TransactionPeriodFilter.DAILY -> Icons.Filled.Today
-                    TransactionPeriodFilter.MONTHLY -> Icons.Filled.DateRange
-                    TransactionPeriodFilter.YEARLY -> Icons.Filled.CalendarMonth
-                },
-                iconTint = MaterialTheme.colorScheme.primary
-            )
-        },
-        selectedId = selectedFilter,
-        onOptionSelected = { selectedFilter = it },
-        initialExpanded = true
-    )
+                    // Options in a 2-column grid
+                    val chunkedOptions = options.chunked(2)
+                    chunkedOptions.forEachIndexed { rowIndex, rowOptions ->
+                        if (rowIndex > 0) Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            rowOptions.forEach { option ->
+                                val isSelected = option.id == selectedId
+                                val bgColor by animateColorAsState(
+                                    targetValue = if (isSelected)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                    animationSpec = tween(200),
+                                    label = "tileBg_${option.label}"
+                                )
+                                val contentColor by animateColorAsState(
+                                    targetValue = if (isSelected)
+                                        MaterialTheme.colorScheme.onPrimary
+                                    else
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
+                                    animationSpec = tween(200),
+                                    label = "tileContent_${option.label}"
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(80.dp)
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .background(bgColor)
+                                        .then(
+                                            if (!isSelected) Modifier.border(
+                                                width = 1.dp,
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                                shape = RoundedCornerShape(18.dp)
+                                            ) else Modifier
+                                        )
+                                        .clickable { onOptionSelected(option.id) }
+                                        .padding(vertical = 14.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        option.icon?.let { icon ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        if (isSelected)
+                                                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
+                                                        else
+                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = icon,
+                                                    contentDescription = null,
+                                                    tint = if (isSelected)
+                                                        MaterialTheme.colorScheme.onPrimary
+                                                    else
+                                                        MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = option.label,
+                                            style = MaterialTheme.typography.labelLarge.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                fontSize = 13.sp
+                                            ),
+                                            color = contentColor
+                                        )
+                                    }
+                                }
+                            }
+                            // Fill empty slot if odd number of options in last row
+                            if (rowOptions.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
-
