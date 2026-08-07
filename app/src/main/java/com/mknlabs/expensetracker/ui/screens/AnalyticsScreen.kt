@@ -48,8 +48,8 @@ import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
-import com.mknlabs.expensetracker.ui.components.DropdownModeOption
-import com.mknlabs.expensetracker.ui.components.DropdownModeSelector
+import com.mknlabs.expensetracker.ui.components.DialogModeOption
+import com.mknlabs.expensetracker.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.ui.models.TabItem
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
@@ -563,9 +563,9 @@ private fun HeroAnalyticsSection(
                 )
             )
             
-            DropdownModeSelector(
+            DialogModeSelector(
                 options = HeroDisplayMode.entries.map { mode ->
-                    DropdownModeOption(
+                    DialogModeOption(
                         id = mode,
                         label = stringResource(id = mode.labelRes),
                         icon = when (mode) {
@@ -582,7 +582,6 @@ private fun HeroAnalyticsSection(
                 },
                 selectedId = displayMode,
                 onOptionSelected = onDisplayModeChange,
-                menuMaxWidth = 120.dp
             )
         }
         Spacer(modifier = Modifier.height(6.dp))

@@ -48,14 +48,14 @@ import com.mknlabs.expensetracker.R
 
 
 /**
- * A single selectable option for [DropdownModeSelector].
+ * A single selectable option for [DialogModeSelector].
  *
  * @param id       Unique identifier used to track the selected option.
  * @param label    Display text shown in the pill and the menu.
  * @param icon     Optional leading icon shown both in the pill and menu.
  * @param iconTint Optional tint for [icon].
  */
-data class DropdownModeOption<T>(
+data class DialogModeOption<T>(
     val id: T,
     val label: String,
     val icon: ImageVector? = null,
@@ -70,8 +70,8 @@ data class DropdownModeOption<T>(
  * @param initialExpanded Whether to start with the dialog open (used by previews).
  */
 @Composable
-fun <T> DropdownModeSelector(
-    options: List<DropdownModeOption<T>>,
+fun <T> DialogModeSelector(
+    options: List<DialogModeOption<T>>,
     selectedId: T,
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -144,7 +144,7 @@ fun <T> DropdownModeSelector(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> ViewPickerDialog(
-    options: List<DropdownModeOption<T>>,
+    options: List<DialogModeOption<T>>,
     selectedId: T,
     onOptionSelected: (T) -> Unit,
     onDismiss: () -> Unit

@@ -147,9 +147,9 @@ fun TransactionPeriodNavigator(
             }
         }
 
-        DropdownModeSelector(
+        DialogModeSelector(
             options = TransactionPeriodFilter.entries.map { filter ->
-                DropdownModeOption(
+                DialogModeOption(
                     id = filter,
                     label = stringResource(filter.labelRes),
                     icon = when (filter) {
