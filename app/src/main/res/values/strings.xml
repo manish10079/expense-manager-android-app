@@ -1435,7 +1435,7 @@
 
     <!-- Force Cloud Sync -->
     <string name="title_force_sync">Trouble Syncing?</string>
-    <string name="desc_force_sync">If changes are not syncing automatically, you can force a full sync (push and pull all data) between this device and the cloud.</string>
+    <string name="desc_force_sync">If changes are not syncing automatically, you can force a full sync.</string>
     <string name="btn_sync_now">Sync Now</string>
     <string name="toast_force_sync_success">Sync completed successfully!</string>
     <string name="toast_force_sync_failed">Sync failed: %1$s</string>
