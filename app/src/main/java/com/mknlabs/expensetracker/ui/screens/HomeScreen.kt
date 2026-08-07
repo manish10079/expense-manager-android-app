@@ -90,9 +90,17 @@ fun HomeScreen(
     // against the fresh permission state (denied → permission card deep link).
     var smsPermissionCheckTrigger by remember { mutableIntStateOf(0) }
 
+    // Flips to true once the notification permission dialog (if any) is resolved,
+    // so the SMS prompt never stacks on top of it — it fires right after instead.
+    var notificationPromptResolved by remember { mutableStateOf(false) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { _ -> }
+    ) { _ ->
+        // Notification dialog dismissed (Allow / Deny / back) — it is now safe to
+        // show the SMS prompt (the SMS LaunchedEffect waits on this flag).
+        notificationPromptResolved = true
+    }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
         // Benchmark builds must never pop the runtime permission dialog — it would
@@ -100,10 +108,17 @@ fun HomeScreen(
         // an unobstructed Home screen). BuildConfig.BUILD_TYPE is a compile-time
         // constant, so R8 folds this gate away in release/debug.
         val isBenchmarkBuild = BuildConfig.BUILD_TYPE == "benchmark"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isBenchmarkBuild) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+        val notificationGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isBenchmarkBuild && !notificationGranted) {
+            // Show the notification prompt FIRST; the SMS prompt waits for its
+            // dismissal (see permissionLauncher callback above).
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            // Notification already granted, or no prompt on this API level / in
+            // benchmark builds — nothing to wait for, so the SMS prompt may fire.
+            notificationPromptResolved = true
         }
     }
 
@@ -125,18 +140,27 @@ fun HomeScreen(
     val smsSetupUiState by smsSetupViewModel.uiState.collectAsStateWithLifecycle()
     val smsSetupScope = rememberCoroutineScope()
 
-    androidx.compose.runtime.LaunchedEffect(appSettings?.smartSmsPrompted) {
-        val shouldPrompt = appSettings != null &&
+    androidx.compose.runtime.LaunchedEffect(appSettings?.smartSmsPrompted, notificationPromptResolved) {
+        val shouldPrompt = notificationPromptResolved &&
+            appSettings != null &&
             !appSettings.smartSmsPrompted &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) !=
             PackageManager.PERMISSION_GRANTED
         if (shouldPrompt) {
-            // Persist the flag first so the decision is honored even if the
-            // user immediately leaves or the app is killed during the dialog.
+            // Small delay so the SMS dialog never races the notification dialog's
+            // dismiss animation (some OEMs swallow a request launched too early).
+            // NOTE: must come BEFORE persisting the flag — once smartSmsPrompted
+            // flips to true the effect's key changes and this coroutine is
+            // cancelled, which would silently drop the launch below.
+            delay(250)
+            // Persist the flag before showing the dialog so the decision is honored
+            // even if the user immediately leaves or the app is killed during it.
             com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
                 it.copy(smartSmsPrompted = true)
             }
+            // No suspension point between the persist and the launch, so the launch
+            // runs synchronously before any recomposition can cancel this effect.
             smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
         }
     }
