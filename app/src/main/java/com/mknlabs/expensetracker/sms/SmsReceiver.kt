@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 /**
@@ -48,32 +49,47 @@ class SmsReceiver : BroadcastReceiver() {
                 // One read per broadcast: learning overrides (plan §10) shape
                 // the category suggestion before the static rules kick in.
                 val userOverrides = smsLearningStore.observeOverrides().first()
-                for (message in messages) {
-                    val body = message.displayMessageBody?.trim().orEmpty()
-                    if (body.isBlank()) continue
 
-                    val parsed = SmsParser.parse(
-                        body = body,
-                        sender = message.displayOriginatingAddress.orEmpty(),
-                        smsTimestamp = message.timestampMillis,
-                        userOverrides = userOverrides
-                    ) ?: continue
-
-                    if (smsRepository.isDuplicate(parsed)) continue
-
-                    // Fetch top-3 frequently used categories for the detected type.
-                    // Falls back to sort_order-ranked defaults if user has no history yet.
-                    val frequentCategories = categoryRepository.getFrequentlyUsedCategories(
-                        transactionTypeId = parsed.transactionTypeId,
-                        limit = 3
-                    )
-
-                    SmsNotificationManager.showImportNotification(
-                        context.applicationContext,
-                        parsed,
-                        frequentCategories
-                    )
+                // A multipart SMS arrives as one broadcast with several PDUs —
+                // concatenate them so a split message is parsed exactly once
+                // (never N notifications / N transactions for a single SMS).
+                val sender = messages.firstOrNull()?.displayOriginatingAddress.orEmpty()
+                val smsTimestamp = messages.firstOrNull()?.timestampMillis ?: 0L
+                val fullBody = messages.joinToString("") {
+                    it.displayMessageBody?.trim().orEmpty()
                 }
+                if (fullBody.isBlank()) return@launch
+
+                // Carriers/OEMs can deliver SMS_RECEIVED_ACTION more than once for
+                // the same PDU — never show a second notification for one SMS event.
+                // Sweep stale keys (excluding the one just added) keeps the set bounded.
+                if (smsTimestamp > 0) {
+                    if (!notifiedKeys.add(smsTimestamp)) return@launch
+                    val cutoff = System.currentTimeMillis() - NOTIFY_WINDOW_MS
+                    notifiedKeys.removeIf { it != smsTimestamp && it < cutoff }
+                }
+
+                val parsed = SmsParser.parse(
+                    body = fullBody,
+                    sender = sender,
+                    smsTimestamp = smsTimestamp,
+                    userOverrides = userOverrides
+                ) ?: return@launch
+
+                if (smsRepository.isDuplicate(parsed)) return@launch
+
+                // Fetch top-3 frequently used categories for the detected type.
+                // Falls back to sort_order-ranked defaults if user has no history yet.
+                val frequentCategories = categoryRepository.getFrequentlyUsedCategories(
+                    transactionTypeId = parsed.transactionTypeId,
+                    limit = 3
+                )
+
+                SmsNotificationManager.showImportNotification(
+                    context.applicationContext,
+                    parsed,
+                    frequentCategories
+                )
             } catch (e: Exception) {
                 android.util.Log.w("SmsReceiver", "Failed to process SMS broadcast", e)
             } finally {
@@ -87,5 +103,13 @@ class SmsReceiver : BroadcastReceiver() {
             context,
             Manifest.permission.RECEIVE_SMS
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object {
+        /** Re-notify window for one SMS event; entries older than this are pruned. */
+        private const val NOTIFY_WINDOW_MS = 10L * 60L * 1000L
+
+        /** SMS timestamps already notified in this process — duplicate deliveries are dropped. */
+        private val notifiedKeys = ConcurrentHashMap.newKeySet<Long>()
     }
 }

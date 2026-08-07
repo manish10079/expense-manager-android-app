@@ -42,9 +42,13 @@ class SmsActionReceiver : BroadcastReceiver() {
         val parsed = intent.toParsedSms() ?: return
 
         // Use the SMS timestamp as a unique key for this transaction event.
-        // If another broadcast for the same SMS arrives concurrently, drop it.
+        // Drop any broadcast that is already handled, then opportunistically sweep
+        // stale keys (excluding the one just added, so a concurrent add for the
+        // same SMS can never be undone) to keep the set bounded.
         val key = parsed.smsTimestamp
         if (!processingKeys.add(key)) return   // already being handled — drop duplicate
+        val cutoff = System.currentTimeMillis() - DEDUP_WINDOW_MS
+        processingKeys.removeIf { it != key && it < cutoff }
 
         // ── Cancel the notification IMMEDIATELY so the user cannot tap again ──
         // This is the primary guard: the action buttons become unavailable the
@@ -53,6 +57,7 @@ class SmsActionReceiver : BroadcastReceiver() {
 
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            var failed = false
             try {
                 // Secondary guard: skip if an identical amount+timestamp is already in DB.
                 if (smsRepository.isDuplicate(parsed)) return@launch
@@ -72,16 +77,25 @@ class SmsActionReceiver : BroadcastReceiver() {
 
                 smsRepository.saveFromSms(parsed, note = note, paymentTypeId = paymentTypeId)
             } catch (e: Exception) {
+                failed = true
                 android.util.Log.w("SmsActionReceiver", "Failed to save SMS transaction", e)
             } finally {
-                processingKeys.remove(key)
+                // The key is KEPT on success (and on the isDuplicate skip): the SMS is
+                // handled, so any re-delivered broadcast — including the system's
+                // RemoteInput "completion" re-fire observed ~20s after the send tap —
+                // is dropped at the door. It is released only after a genuine failure
+                // so the user can retry the save.
+                if (failed) processingKeys.remove(key)
                 pendingResult.finish()
             }
         }
     }
 
     companion object {
-        /** Tracks SMS timestamps currently being processed to prevent duplicate saves. */
+        /** How long one SMS event stays deduplicated; older keys are pruned. */
+        private const val DEDUP_WINDOW_MS = 24L * 60L * 60L * 1000L
+
+        /** Tracks SMS timestamps already handled to prevent duplicate saves. */
         private val processingKeys = ConcurrentHashMap.newKeySet<Long>()
     }
 }
