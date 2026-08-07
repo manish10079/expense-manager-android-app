@@ -1,12 +1,9 @@
 package com.mknlabs.expensetracker.sms
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
-import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +24,9 @@ import javax.inject.Inject
  *
  * The notification is cancelled IMMEDIATELY on receipt (before the async save)
  * so that repeated taps / RemoteInput re-submissions cannot add duplicate
- * transactions. An in-memory atomic set guards concurrent broadcast deliveries.
+ * transactions, and the user gets instant feedback that the send worked —
+ * nothing is re-shown afterwards. An in-memory atomic set guards concurrent
+ * broadcast deliveries.
  */
 @AndroidEntryPoint
 class SmsActionReceiver : BroadcastReceiver() {
@@ -72,34 +71,13 @@ class SmsActionReceiver : BroadcastReceiver() {
                     .trim()
 
                 smsRepository.saveFromSms(parsed, note = note, paymentTypeId = paymentTypeId)
-
-                // Show a brief "Saved ✓" confirmation notification
-                showSavedConfirmation(context, parsed)
-
             } catch (e: Exception) {
                 android.util.Log.w("SmsActionReceiver", "Failed to save SMS transaction", e)
-                // Re-show the action notification so the user can retry
-                // (only if the notification wasn't already re-created by SmsReceiver)
             } finally {
                 processingKeys.remove(key)
                 pendingResult.finish()
             }
         }
-    }
-
-    // ── Private helpers ──────────────────────────────────────────────────────
-
-    private fun showSavedConfirmation(context: Context, parsed: ParsedSms) {
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val amountText = "₹%.2f".format(parsed.amountMinor / 100.0)
-        val notification = NotificationCompat.Builder(context, SmsNotificationManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Transaction saved ✓")
-            .setContentText("$amountText from ${parsed.sender} saved successfully")
-            .setAutoCancel(true)
-            .setTimeoutAfter(4_000L)   // auto-dismiss after 4 s
-            .build()
-        nm.notify(SmsNotificationManager.CONFIRMATION_NOTIFICATION_ID, notification)
     }
 
     companion object {

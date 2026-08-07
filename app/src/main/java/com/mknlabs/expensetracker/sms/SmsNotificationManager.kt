@@ -50,10 +50,6 @@ object SmsNotificationManager {
 
     const val ACTION_SMS_SAVE = "com.mknlabs.expensetracker.action.SMS_SAVE"
 
-    /** Convenience aliases used by SmsActionReceiver for confirmation notification. */
-    const val CHANNEL_ID = NotificationHelper.CHANNEL_SMS_IMPORT
-    const val CONFIRMATION_NOTIFICATION_ID = NotificationHelper.NOTIFICATION_ID_SMS_CONFIRMATION
-
     fun Intent.putParsedSms(parsed: ParsedSms): Intent = apply {
         putExtra(EXTRA_AMOUNT_MINOR, parsed.amountMinor)
         putExtra(EXTRA_SENDER, parsed.sender)

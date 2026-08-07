@@ -25,9 +25,6 @@ object NotificationHelper {
     /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8). */
     const val NOTIFICATION_ID_SMS_IMPORT = 5
 
-    /** Brief "Saved ✓" confirmation after a successful one-tap or inline-note save. */
-    const val NOTIFICATION_ID_SMS_CONFIRMATION = 6
-
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
