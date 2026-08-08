@@ -31,13 +31,10 @@ import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
@@ -49,11 +46,9 @@ fun NotificationSettingsScreen(
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isAdsEnabled: Boolean = false
 ) {
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
-
     NotificationSettingsContent(
         isDailyReminderEnabled = isDailyReminderEnabled,
         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,

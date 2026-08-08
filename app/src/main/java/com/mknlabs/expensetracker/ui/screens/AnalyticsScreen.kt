@@ -81,7 +81,6 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.ui.components.TransactionCard
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -105,11 +104,9 @@ fun AnalyticsScreen(
     categories: List<CategoryType> = emptyList(),
     paymentMethods: List<PaymentType> = emptyList(),
     onBackClick: () -> Unit = {},
-    analyticsViewModel: AnalyticsViewModel = hiltViewModel()
+    analyticsViewModel: AnalyticsViewModel = hiltViewModel(),
+    isAdsEnabled: Boolean = false
 ) {
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
-
     LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
             transactions = transactions,

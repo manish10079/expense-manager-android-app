@@ -58,11 +58,11 @@ fun DataManagementScreen(
     onLegacyImportFileSelected: (Uri) -> Unit,
     onDeleteAllTransactionsClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
     val isAnonymous = currentUser?.isAnonymous ?: true
 

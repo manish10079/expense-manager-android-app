@@ -75,10 +75,10 @@ fun ProfileScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     onBackClick: () -> Unit = {},
     onSaveClick: (UserProfile) -> Unit = {},
-    onPrepareForExternalActivity: () -> Unit = {}
+    onPrepareForExternalActivity: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
 
     val profileViewModel: ProfileViewModel = hiltViewModel()

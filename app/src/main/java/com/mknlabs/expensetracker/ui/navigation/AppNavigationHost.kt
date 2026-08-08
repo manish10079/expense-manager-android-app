@@ -79,6 +79,7 @@ fun AppNavigationHost(
     autoBackupFrequencyDays: Int,
     isCloudSyncEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
+    isAdsEnabled: Boolean,
     onRouteChange: (AppRoute) -> Unit,
     onProfileOriginRouteChange: (AppRoute) -> Unit,
     onBottomBarVisibilityChange: (Boolean) -> Unit,
@@ -146,6 +147,7 @@ fun AppNavigationHost(
                 when (route) {
                 AppRoute.Home -> {
                     HomeScreen(
+                        isAdsEnabled = isAdsEnabled,
                         userProfile = userProfile,
                         appSettings = appSettings,
                         currencyId = selectedCurrencyId,
@@ -185,6 +187,7 @@ fun AppNavigationHost(
 
                 AppRoute.Analytics -> {
                     AnalyticsScreen(
+                        isAdsEnabled = isAdsEnabled,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -200,6 +203,7 @@ fun AppNavigationHost(
 
                 AppRoute.Budget -> {
                     BudgetAndRecurringScreen(
+                        isAdsEnabled = isAdsEnabled,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,
@@ -217,6 +221,7 @@ fun AppNavigationHost(
 
                 AppRoute.Calendar -> {
                     CalendarScreen(
+                        isAdsEnabled = isAdsEnabled,
                         transactions = transactions,
                         categories = categories,
                         currencyId = selectedCurrencyId,
@@ -238,6 +243,7 @@ fun AppNavigationHost(
 
                 AppRoute.Transactions -> {
                     TransactionScreen(
+                        isAdsEnabled = isAdsEnabled,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -263,6 +269,7 @@ fun AppNavigationHost(
 
                 AppRoute.Settings -> {
                     SettingsScreen(
+                        isAdsEnabled = isAdsEnabled,
                         userProfile = userProfile,
                         userTier = userTier,
                         isDailyReminderEnabled = isDailyReminderEnabled,
@@ -344,6 +351,7 @@ fun AppNavigationHost(
 
                 AppRoute.About -> {
                     AboutScreen(
+                        isAdsEnabled = isAdsEnabled,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
@@ -366,6 +374,7 @@ fun AppNavigationHost(
 
                 AppRoute.NotificationSettings -> {
                     NotificationSettingsScreen(
+                        isAdsEnabled = isAdsEnabled,
                         isDailyReminderEnabled = isDailyReminderEnabled,
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
@@ -381,6 +390,7 @@ fun AppNavigationHost(
 
                 AppRoute.Preferences -> {
                     PreferencesScreen(
+                        isAdsEnabled = isAdsEnabled,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
@@ -390,6 +400,7 @@ fun AppNavigationHost(
 
                 AppRoute.SecurityPrivacy -> {
                     SecurityPrivacyScreen(
+                        isAdsEnabled = isAdsEnabled,
                         isAppLockEnabled = isAppLockEnabled,
                         hasAppLockPin = hasAppLockPin,
                         isBiometricEnabled = isBiometricEnabled,
@@ -412,6 +423,7 @@ fun AppNavigationHost(
 
                 AppRoute.DataManagement -> {
                     DataManagementScreen(
+                        isAdsEnabled = isAdsEnabled,
                         transactionCount = transactionCount,
                         onDatabaseBackupFileSelected = onDatabaseBackupFileSelected,
                         onDatabaseRestoreFileSelected = onDatabaseRestoreFileSelected,
@@ -433,6 +445,7 @@ fun AppNavigationHost(
 
                 AppRoute.CategoryManagement -> {
                     CategoryManagementScreen(
+                        isAdsEnabled = isAdsEnabled,
                         customCategories = categories.filter { !it.isSystem },
                         customPaymentTypes = paymentMethods.filter { !it.isSystem },
                         onCreateCustomCategory = onCreateCustomCategory,
@@ -473,6 +486,7 @@ fun AppNavigationHost(
 
                 AppRoute.TransactionCardCustomize -> {
                     TransactionCardCustomizeScreen(
+                        isAdsEnabled = isAdsEnabled,
                         settings = transactionCardCustomizationSettings,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
@@ -488,6 +502,7 @@ fun AppNavigationHost(
 
                 AppRoute.Profile -> {
                     ProfileScreen(
+                        isAdsEnabled = isAdsEnabled,
                         userProfile = userProfile,
                         dateFormatPattern = selectedDateFormatPattern,
                         onSaveClick = { updatedProfile ->

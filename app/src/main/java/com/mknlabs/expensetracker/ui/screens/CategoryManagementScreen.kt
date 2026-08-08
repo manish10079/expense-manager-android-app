@@ -75,7 +75,6 @@ import com.mknlabs.expensetracker.data.constants.categoryFallbackDescriptions
 import com.mknlabs.expensetracker.data.constants.paymentFallbackDescriptions
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -96,11 +95,10 @@ fun CategoryManagementScreen(
     onCreateCustomPaymentType: (String, String) -> Unit = { _, _ -> },
     onDeleteCustomCategory: (Int) -> Unit = {},
     onDeleteCustomPaymentType: (Int) -> Unit = {},
-    onAddCategoryClick: (CategoryManagementTab) -> Unit = {}
+    onAddCategoryClick: (CategoryManagementTab) -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val categoryManagementViewModel: CategoryManagementViewModel = hiltViewModel()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     androidx.compose.runtime.LaunchedEffect(customCategories, customPaymentTypes) {
         categoryManagementViewModel.updateInputs(

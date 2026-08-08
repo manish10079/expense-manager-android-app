@@ -116,7 +116,6 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.IncomeGreen
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.utils.UiText
@@ -135,11 +134,10 @@ fun TransactionScreen(
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
-    onTransactionClick: (Transaction) -> Unit = {}
+    onTransactionClick: (Transaction) -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     LaunchedEffect(
         transactions,

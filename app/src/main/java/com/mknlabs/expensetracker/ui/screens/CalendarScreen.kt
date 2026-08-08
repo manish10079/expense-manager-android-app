@@ -94,7 +94,6 @@ import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePicker
 import com.mknlabs.expensetracker.ui.models.TabItem
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -114,11 +113,10 @@ fun CalendarScreen(
     categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
-    onTransactionClick: (Transaction) -> Unit = {}
+    onTransactionClick: (Transaction) -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val calendarViewModel: CalendarViewModel = hiltViewModel()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     androidx.compose.runtime.LaunchedEffect(
         transactions,

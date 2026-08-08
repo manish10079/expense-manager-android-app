@@ -64,7 +64,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.AdPlacement
 
 @Composable
@@ -82,7 +81,8 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {},
-    onGoalsClick: () -> Unit = {}
+    onGoalsClick: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -216,8 +216,6 @@ fun HomeScreen(
     }
 
     val homeViewModel: HomeViewModel = hiltViewModel()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     androidx.compose.runtime.LaunchedEffect(
         userProfile,

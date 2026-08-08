@@ -60,23 +60,19 @@ import com.mknlabs.expensetracker.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
 
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
     onFeedbackClick: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit = {}
+    onPrepareForExternalActivity: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     val openUrl: (String) -> Unit = { url ->
         try {

@@ -116,7 +116,6 @@ import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -131,11 +130,10 @@ fun BudgetAndRecurringScreen(
     onDeleteRecurring: (String) -> Unit = {},
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules) {
         budgetViewModel.updateInputs(

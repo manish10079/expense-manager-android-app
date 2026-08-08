@@ -99,10 +99,10 @@ fun TransactionCardCustomizeScreen(
     timeFormat: String = DEFAULT_TIME_FORMAT,
     previewTransactions: List<Transaction> = transactionList.take(2),
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val proTimeStatus by monetizationViewModel
         .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionTime")
         .collectAsStateWithLifecycle()

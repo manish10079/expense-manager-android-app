@@ -34,7 +34,6 @@ import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -46,11 +45,10 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 fun PreferencesScreen(
     onManageCategoryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    preferencesViewModel: PreferencesViewModel = hiltViewModel()
+    preferencesViewModel: PreferencesViewModel = hiltViewModel(),
+    isAdsEnabled: Boolean = false
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
 
     PreferencesScreenContent(
         uiState = uiState,

@@ -94,10 +94,10 @@ fun SettingsScreen(
     onShowUpgradeSheet: () -> Unit = {},
     onMembershipClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val effectiveUserTier = userTier

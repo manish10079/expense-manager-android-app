@@ -179,6 +179,7 @@ fun MainScaffold(
 
         AppNavigationHost(
             saveableStateHolder = saveableStateHolder,
+            isAdsEnabled = isAdsEnabled,
             currentRoute = currentRoute,
             previousRoute = previousRoute,
             profileOriginRoute = profileOriginRoute,

@@ -46,7 +46,6 @@ import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
@@ -75,11 +74,9 @@ fun SecurityPrivacyScreen(
     onBlurInRecentsChange: (Boolean) -> Unit = {},
     onScreenshotProtectionChange: (Boolean) -> Unit = {},
     onAutoLockDurationChange: (Int) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    isAdsEnabled: Boolean = false
 ) {
-    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
-
     val authViewModel: AuthViewModel = hiltViewModel()
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
     val isEmailPasswordUser = remember(currentUser) {
