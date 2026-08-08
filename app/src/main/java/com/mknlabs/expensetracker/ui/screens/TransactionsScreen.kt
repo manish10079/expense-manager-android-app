@@ -568,12 +568,18 @@ private fun TransactionScreenContent(
                                 // injected by the ViewModel after every 5th transaction row, so it
                                 // never recomposes with transaction cards and its AndroidView is
                                 // recycled across scroll entries (ADS_UI_JANK_FIX_PLAN §5).
+                                //
+                                // Gated entirely on isAdsEnabled: for ad-free (Pro) users the
+                                // item renders nothing — no spacers, no reserved height — so no
+                                // phantom gap every 5th row.
                                 is TransactionListItemUi.Ad -> {
-                                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
-                                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                                        NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
+                                    if (isAdsEnabled) {
+                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                        AdContainer(isAdsEnabled = true) {
+                                            NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
+                                        }
+                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }
-                                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                 }
                             }
                         }

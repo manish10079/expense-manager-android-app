@@ -26,7 +26,10 @@ private val AdSlotMinHeight = 80.dp
  *
  * Phase 3 (ADS_UI_JANK_FIX_PLAN §6): size-animating `expandVertically`/`shrinkVertically` were
  * removed — they shifted surrounding content when the slot toggled. Transitions are **fade-only**
- * and the slot reserves a stable minimum height, so the column/list never re-flows.
+ * and the visible slot reserves a stable minimum height, so the column/list never re-flows.
+ *
+ * The minimum height is applied to the inner Box (NOT the AnimatedVisibility), so a hidden
+ * slot (ads disabled, e.g. Pro/ad-free users) collapses to **zero** height and leaves no gap.
  *
  * @param isAdsEnabled Whether ads should be shown for the current user.
  * @param modifier Modifier for the container.
@@ -50,10 +53,12 @@ fun AdContainer(
         visible = isAdsEnabled,
         enter = fadeIn(),
         exit = fadeOut(),
-        modifier = modifier.heightIn(min = AdSlotMinHeight)
+        modifier = modifier
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = AdSlotMinHeight)
         ) {
             content()
         }
