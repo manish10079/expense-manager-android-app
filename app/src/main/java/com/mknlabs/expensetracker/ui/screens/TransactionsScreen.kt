@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -55,6 +56,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +69,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
@@ -476,6 +479,7 @@ private fun TransactionScreenContent(
                             text = emptyTransactionMessage,
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            emphasisColor = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
                             softWrap = true,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -919,20 +923,65 @@ private fun TypewriterText(
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
+    emphasisColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     textAlign: TextAlign? = null,
     softWrap: Boolean = true,
-    charDelayMillis: Long = 25L
+    charDelayMillis: Long = 25L,
+    pauseAtFraction: Float = 0.4f,
+    morphDurationMillis: Int = 500
 ) {
     var visibleText by remember(text) { mutableStateOf("") }
     var showCursor by remember(text) { mutableStateOf(true) }
+    // 0 = typing phase 1 (base color), 1 = pause + color morph, 2 = typing phase 2 (emphasis color)
+    var morphPhase by remember(text) { mutableStateOf(0) }
+
+    // Interpolates the whole typed string from the base color to the brand color
+    // while morphPhase == 1 (the pause), then stays at the emphasis color.
+    // Keyed by text so the progress snaps back to grey instantly when a new
+    // empty-state message starts typing (no brand -> grey reverse animation).
+    val colorProgress by key(text) {
+        animateFloatAsState(
+            targetValue = if (morphPhase >= 1) 1f else 0f,
+            animationSpec = tween(durationMillis = morphDurationMillis),
+            label = "typewriterColorMorph"
+        )
+    }
+    val renderedColor = lerp(color, emphasisColor, colorProgress)
 
     LaunchedEffect(text) {
+        if (text.isEmpty()) return@LaunchedEffect
         visibleText = ""
         showCursor = true
-        for (i in 1..text.length) {
+        morphPhase = 0
+
+        // Pause point: a fixed 40% of the message has been typed.
+        val pauseIndex = (text.length * pauseAtFraction).toInt().coerceIn(1, text.length)
+
+        // Phase 1 — type the first 40% in the base (grey/white) color
+        for (i in 1..pauseIndex) {
             visibleText = text.substring(0, i)
             kotlinx.coroutines.delay(charDelayMillis)
         }
+
+        // Phase 2 — pause: the whole typed string animates to the brand color
+        // while the cursor keeps blinking.
+        morphPhase = 1
+        val pauseUntil = System.currentTimeMillis() + morphDurationMillis + 400L
+        var blink = false
+        while (System.currentTimeMillis() < pauseUntil) {
+            blink = !blink
+            showCursor = blink
+            kotlinx.coroutines.delay(300L)
+        }
+        showCursor = true
+
+        // Phase 3 — resume typing the rest, now in the brand color
+        morphPhase = 2
+        for (i in (pauseIndex + 1)..text.length) {
+            visibleText = text.substring(0, i)
+            kotlinx.coroutines.delay(charDelayMillis)
+        }
+
         // Blink the cursor a few times then fade it out
         for (j in 1..6) {
             showCursor = !showCursor
@@ -945,14 +994,14 @@ private fun TypewriterText(
         text = buildAnnotatedString {
             append(visibleText)
             if (showCursor) {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Light, color = color.copy(alpha = 0.5f))) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Light, color = renderedColor.copy(alpha = 0.5f))) {
                     append(" |")
                 }
             }
         },
         modifier = modifier,
         style = style,
-        color = color,
+        color = renderedColor,
         textAlign = textAlign,
         softWrap = softWrap
     )
