@@ -318,8 +318,54 @@ class SyncRepositoryImpl @Inject constructor(
             }
         }
 
+        // Login/sync hydration: fill any blank name/gender/phone/DOB fields from
+        // Firestore so a fresh install or re-login restores the cloud profile into
+        // DataStore (and therefore the Edit Profile screen). Runs BEFORE the push
+        // so a freshly-hydrated local profile can never overwrite cloud values with
+        // blanks. Cloud values only fill gaps — local edits are never clobbered.
+        hydrateProfileFromCloud(uid)
+
         pushUserProfile(uid, isNewUser)
         pullUserProfile(uid)
+    }
+
+    /**
+     * Fill-blank profile hydration from Firestore. Cloud values are used ONLY to
+     * fill local blank fields (name, gender, phone number, date of birth) — never
+     * to override local edits. No-op when the local profile is already complete or
+     * the cloud document is missing/unreadable.
+     */
+    private suspend fun hydrateProfileFromCloud(uid: String) {
+        val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
+        val needsName = localProfile.fullName.isBlank() || localProfile.fullName == defaultUserProfile.fullName
+        val needsGender = localProfile.gender.isBlank()
+        val needsPhone = localProfile.phoneNumber.isBlank()
+        val needsDob = localProfile.dateOfBirthMillis == null || localProfile.dateOfBirthMillis == 0L
+        if (!needsName && !needsGender && !needsPhone && !needsDob) return
+
+        val snapshot = try {
+            firestore.collection("users").document(uid).get().await()
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "hydrateProfileFromCloud failed for uid: $uid", e)
+            return
+        }
+        if (!snapshot.exists()) return
+
+        val cloudName = snapshot.getString("fullName").orEmpty()
+        val cloudGender = snapshot.getString("gender").orEmpty()
+        val cloudPhone = snapshot.getString("phoneNumber").orEmpty()
+        val cloudDob = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn"))
+            ?.let { parseDate(it, "dd MMMM yyyy") }
+
+        val hydrated = localProfile.copy(
+            fullName = if (needsName && cloudName.isNotBlank()) cloudName else localProfile.fullName,
+            gender = if (needsGender && cloudGender.isNotBlank()) cloudGender else localProfile.gender,
+            phoneNumber = if (needsPhone && cloudPhone.isNotBlank()) cloudPhone else localProfile.phoneNumber,
+            dateOfBirthMillis = if (needsDob && cloudDob != null) cloudDob else localProfile.dateOfBirthMillis
+        )
+        if (hydrated != localProfile) {
+            UserProfileDataStore.setUserProfile(context, hydrated)
+        }
     }
 
     private suspend fun pushUserProfile(uid: String, isNewUser: Boolean) {
@@ -333,6 +379,10 @@ class SyncRepositoryImpl @Inject constructor(
         var remoteAccountCreatedOn: String? = null
         var docExists = false
         var remoteProExpiryTimestamp = 0L
+        var remoteFullName = ""
+        var remoteGender = ""
+        var remotePhoneNumber = ""
+        var remoteDateOfBirthOn = ""
 
         if (!isNewUser) {
             try {
@@ -343,6 +393,11 @@ class SyncRepositoryImpl @Inject constructor(
                     remoteAccountTier = snapshot.getString("accountTier") ?: ""
                     remoteAccountCreatedOn = snapshot.getString("accountCreatedOn") ?: snapshot.getString("AccountCreatedOn")
                     remoteProExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: 0L
+                    // Capture cloud profile values so blank local fields never overwrite them.
+                    remoteFullName = snapshot.getString("fullName").orEmpty()
+                    remoteGender = snapshot.getString("gender").orEmpty()
+                    remotePhoneNumber = snapshot.getString("phoneNumber").orEmpty()
+                    remoteDateOfBirthOn = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn")).orEmpty()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("Sync", "Failed to fetch remote profile for uid: $uid", e)
@@ -374,8 +429,8 @@ class SyncRepositoryImpl @Inject constructor(
             UserProfileDataStore.setUserProfile(context, localProfile)
         }
 
-        val finalFullName = if (localProfile.fullName == defaultUserProfile.fullName) {
-            currentUser?.displayName ?: localProfile.fullName
+        val finalFullName = if (localProfile.fullName.isBlank() || localProfile.fullName == defaultUserProfile.fullName) {
+            remoteFullName.ifBlank { currentUser?.displayName ?: localProfile.fullName }
         } else localProfile.fullName
 
         val finalPhotoUri = if (localProfile.photoUri?.startsWith("file") == true) {
@@ -388,9 +443,11 @@ class SyncRepositoryImpl @Inject constructor(
             "uid" to uid,
             "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
-            "phoneNumber" to localProfile.phoneNumber,
-            "dateOfBirthOn" to localProfile.dateOfBirthMillis?.takeIf { it != 0L }?.let { formatDate(it, "dd MMMM yyyy") }.orEmpty(),
-            "gender" to localProfile.gender,
+            // Blank local fields fall back to existing cloud values so a fresh
+            // install / re-login can never wipe the stored profile.
+            "phoneNumber" to localProfile.phoneNumber.ifBlank { remotePhoneNumber },
+            "dateOfBirthOn" to localProfile.dateOfBirthMillis?.takeIf { it != 0L }?.let { formatDate(it, "dd MMMM yyyy") }?.ifBlank { remoteDateOfBirthOn }.orEmpty(),
+            "gender" to localProfile.gender.ifBlank { remoteGender },
             "financialGoal" to localProfile.financialGoal,
             "accountTier" to if (localProfile.accountTier == "PREMIUM") "PREMIUM" else "FREE",
             "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
