@@ -70,9 +70,12 @@ enum class InterstitialPlacement {
  * - **Background construction** — `AdLoader` is built on [Dispatchers.IO] per AdMob
  *   guidance; GMA callbacks arrive on the main thread and are the only place the maps
  *   are mutated by the SDK.
- * - **Destroy-on-unused** — screens `retain` a placement while visible and `release`
- *   when they leave; when the last holder releases, the cached `NativeAd` is destroyed
- *   (native ads have a large memory footprint — finding #6). The coordinator is the
+ * - **Retain/release (Phase 2)** — screens `retain` a placement while visible and
+ *   `release` when they leave. Release never destroys the cached `NativeAd`: the freshly
+ *   shown ad is the "cached next ad" and must stay warm so an ad card scrolling back into
+ *   a LazyColumn renders instantly (Phase 1 *measured* destroy-on-scroll-out regressing
+ *   scrollTransactions_free P90 17.1 → 31.4 ms). Stale/unused ads are destroyed by the
+ *   hourly refresh sweep instead (bounded memory — finding #6). The coordinator is the
  *   source of truth; screens are holders.
  * - **Multi-holder callbacks** — every caller of [loadNativeAd] is notified when the ad
  *   arrives, so two cards for the same placement (e.g. Analytics, finding #7) both
@@ -428,20 +431,24 @@ class AdsCoordinator @Inject constructor(
     }
 
     /**
-     * Marks a holder as done with this placement. When the last holder releases, the
-     * cached [NativeAd] is destroyed to free its large memory footprint (finding #6);
-     * the next [loadNativeAd] / screen entry fetches a fresh one.
+     * Marks a holder as done with this placement.
      *
-     * The count update and the destroy decision are atomic under [nativeAdLock], so a
-     * concurrent retain (or the background refresh sweep) can never destroy an ad that
-     * is still being shown.
+     * Phase 2 semantics: the cached [NativeAd] is **not** destroyed when the last holder
+     * releases — it is the "cached next ad" and stays warm so the next card composition
+     * (e.g. an ad item scrolling back into a LazyColumn viewport) renders instantly with
+     * zero network cost. Phase 1 measured that destroy-on-scroll-out re-triggered a load
+     * mid-scroll and regressed `scrollTransactions_free` P90 17.1 → 31.4 ms. Memory is
+     * still bounded: the hourly refresh sweep ([scheduleNativeAdRefresh]) destroys
+     * stale/unused cached ads.
+     *
+     * The count update is atomic under [nativeAdLock], so a concurrent retain can never
+     * race a release (the coordinator's cache is the source of truth; screens are holders).
      */
     fun releaseNativeAd(placement: AdPlacement) {
         synchronized(nativeAdLock) {
             val remaining = (nativeAdUseCounts[placement] ?: 1) - 1
             if (remaining <= 0) {
                 nativeAdUseCounts.remove(placement)
-                destroyNativeAd(placement)
             } else {
                 nativeAdUseCounts[placement] = remaining
             }
@@ -450,7 +457,8 @@ class AdsCoordinator @Inject constructor(
 
     /**
      * Destroys the cached ad for a placement and cancels its pending refresh. Safe to
-     * call from any thread. Used by [releaseNativeAd] and the hourly-refresh sweep.
+     * call from any thread. Used by the hourly-refresh sweep and any explicit teardown
+     * (e.g. the Pro transition); release keeps the ad cached as the "next ad" (Phase 2).
      */
     fun destroyNativeAd(placement: AdPlacement) {
         nativeAdRefreshJobs.remove(placement)?.cancel()
@@ -461,12 +469,15 @@ class AdsCoordinator @Inject constructor(
     }
 
     /**
-     * Refreshes the cache before AdMob's 1-hour expiry. If the ad is currently visible
-     * (use-count > 0) the cycle is skipped — a visible ad must not be destroyed
-     * mid-view; it is destroyed by [releaseNativeAd] when the last holder leaves, and
-     * the next visit reloads a fresh ad, so no shown ad ever exceeds the expiry. If the
-     * cached ad is unused (e.g. preloaded but never displayed in a Pro session) it is
-     * destroyed to bound memory instead of being re-loaded.
+     * Refreshes the cache before AdMob's 1-hour expiry.
+     *
+     * - If the cached ad is unused (use-count == 0) it is destroyed to bound memory
+     *   (finding #6), instead of being re-loaded.
+     * - If the ad is still visible (use-count > 0) the cycle is **re-armed** so it is
+     *   checked again later — a visible ad must not be destroyed mid-view (Phase 1
+     *   measured destroy-on-scroll-out regressing scrolls). Since Phase 2's
+     *   [releaseNativeAd] never destroys, this re-arm is what eventually destroys an
+     *   ad once the last holder leaves, so no shown ad lives for the whole session.
      */
     private fun scheduleNativeAdRefresh(placement: AdPlacement) {
         nativeAdRefreshJobs.remove(placement)?.cancel()
@@ -474,15 +485,27 @@ class AdsCoordinator @Inject constructor(
             delay(NATIVE_AD_REFRESH_MILLIS)
             // Check + destroy are atomic under nativeAdLock, so a retain that lands
             // concurrently is never clobbered.
-            synchronized(nativeAdLock) {
-                if (nativeAds[placement] == null) return@launch
-                val inUse = (nativeAdUseCounts[placement] ?: 0) > 0
-                if (inUse) return@launch
-                Log.d("AdsCoordinator", "Native ad ($placement) expired unused; destroying cache entry.")
-                nativeAds.remove(placement)?.destroy()
-                isNativeAdLoading[placement] = false
+            val destroyNow = synchronized(nativeAdLock) {
+                if (nativeAds[placement] == null) {
+                    false
+                } else {
+                    val inUse = (nativeAdUseCounts[placement] ?: 0) > 0
+                    if (inUse) {
+                        false
+                    } else {
+                        Log.d("AdsCoordinator", "Native ad ($placement) expired unused; destroying cache entry.")
+                        nativeAds.remove(placement)?.destroy()
+                        isNativeAdLoading[placement] = false
+                        true
+                    }
+                }
             }
-            nativeAdRefreshJobs.remove(placement)
+            if (destroyNow) {
+                nativeAdRefreshJobs.remove(placement)
+            } else if (nativeAds.containsKey(placement)) {
+                // Still cached but in use (or race): re-arm so the next check can destroy it.
+                scheduleNativeAdRefresh(placement)
+            }
         }
     }
 

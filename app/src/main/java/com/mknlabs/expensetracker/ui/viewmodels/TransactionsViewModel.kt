@@ -73,8 +73,6 @@ data class TransactionsScreenUiState(
     val paymentModes: List<PaymentType> = emptyList(),
     val transactionItems: List<TransactionListItemUi> = emptyList(),
     val pinnedSummary: TransactionListItemUi.SummaryCard? = null,
-    /** Precomputed ordinal (1-based) of each transaction row within the list, keyed by card id. */
-    val transactionCardOrdinals: Map<String, Int> = emptyMap(),
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isSelectionMode: Boolean = false,
     val selectedTransactionIds: Set<String> = emptySet(),
@@ -479,11 +477,6 @@ class TransactionsViewModel @Inject constructor(
         val transactionItems = mutableListOf<TransactionListItemUi>()
         var pinnedSummary: TransactionListItemUi.SummaryCard? = null
 
-        // Precompute each transaction row's ordinal position here (runs on Dispatchers.Default),
-        // so the UI never has to scan the list on the main thread for ad placement.
-        val transactionCardOrdinals = HashMap<String, Int>()
-        var transactionOrdinal = 0
-
         if (isFilteredOrSearchApplied) {
             val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
             val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
@@ -635,10 +628,20 @@ class TransactionsViewModel @Inject constructor(
             }
         }
 
+        // Phase 2 (ADS_UI_JANK_FIX_PLAN §5): inject the list ad as its own dedicated item after
+        // every 5th transaction row. Each ad gets a stable key ("ad_5", "ad_10", ...) so its
+        // composition is independent of transaction-card recompositions and Compose recycles the
+        // ad's AndroidView across scroll entries instead of re-inflating it. Runs on
+        // Dispatchers.Default, so no list scanning happens on the main thread.
+        val itemsWithAds = ArrayList<TransactionListItemUi>(transactionItems.size + transactionItems.size / 5 + 1)
+        var rowIndex = 0
         transactionItems.forEach { item ->
+            itemsWithAds.add(item)
             if (item is TransactionListItemUi.TransactionRow) {
-                transactionOrdinal++
-                transactionCardOrdinals[item.card.id] = transactionOrdinal
+                rowIndex++
+                if (rowIndex % 5 == 0) {
+                    itemsWithAds.add(TransactionListItemUi.Ad(id = "ad_$rowIndex"))
+                }
             }
         }
 
@@ -675,9 +678,8 @@ class TransactionsViewModel @Inject constructor(
             ),
             availableCategories = availableCategories,
             paymentModes = paymentTypeMap.values.toList(),
-            transactionItems = transactionItems,
+            transactionItems = itemsWithAds,
             pinnedSummary = pinnedSummary,
-            transactionCardOrdinals = transactionCardOrdinals,
             customizationSettings = currentCustomizationSettings
         )
     }

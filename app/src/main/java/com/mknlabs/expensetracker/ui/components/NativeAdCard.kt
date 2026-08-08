@@ -28,11 +28,24 @@ import dagger.hilt.EntryPoints
 
 import com.mknlabs.expensetracker.di.MonetizationEntryPoint
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
 /**
  * A real implementation of the Native Ad component that integrates with AdMob.
  * Blends seamlessly into the UI with the "Fintech Premium" aesthetic.
+ *
+ * Phase 2 (ADS_UI_JANK_FIX_PLAN §5):
+ * - Renders through the `AndroidView(factory, update, onReset, onRelease)` recycle overload
+ *   (Compose UI 1.4.0+, this app is on 1.11.x), so inside a LazyColumn the inflated
+ *   [NativeAdView] is **pooled and re-bound** on scroll entries instead of re-inflated —
+ *   eliminating the main-thread `LayoutInflater` cost on every scroll (finding #1).
+ * - Asset views are found **once** in [factory] and cached in [NativeAdViewHolder]; `update`
+ *   only refreshes theme colors (no findViewById, no re-populate) per the plan.
+ * - Ad lifecycle is owned by the coordinator via retain/release: a composed card retains the
+ *   placement, and release never destroys the cached ad (it is the "cached next ad" — Phase 1
+ *   measured destroy-on-scroll-out regressing scrollTransactions_free P90 17.1 → 31.4 ms);
+ *   unused ads are destroyed by the coordinator's hourly refresh sweep instead.
  */
 @Composable
 fun NativeAdCard(
@@ -50,13 +63,15 @@ fun NativeAdCard(
         EntryPoints.get(context.applicationContext, MonetizationEntryPoint::class.java).adsCoordinator()
     }
 
-    // NOTE (Phase 1 measurement feedback): retain/release (destroy-on-unused) is intentionally
-    // NOT wired here yet. Measured against the Phase 0 baseline, destroying the cached NativeAd
-    // when ad cards scroll out of a LazyColumn (Transactions/Analytics lists) forced a network
-    // reload for the next card mid-scroll → scrollTransactions_free P90 regressed 17.1 → 31.4 ms.
-    // Phase 2 will re-introduce the wiring alongside the single keyed ad item + reuse semantics
-    // (ADS_UI_JANK_FIX_PLAN §5). The coordinator API (AdsCoordinator.retain/release/destroyNativeAd)
-    // is ready and unused for now.
+    // Phase 2: retain while any card holds this placement; release when it leaves composition.
+    // Release never destroys — the freshly-shown ad stays cached for instant re-entry, and the
+    // coordinator's hourly refresh sweep destroys unused ads to bound memory (finding #6).
+    DisposableEffect(placement) {
+        adsCoordinator.retainNativeAd(placement)
+        onDispose {
+            adsCoordinator.releaseNativeAd(placement)
+        }
+    }
 
     var nativeAd by remember(placement) { mutableStateOf<NativeAd?>(adsCoordinator.getNativeAd(placement)) }
     var isLoading by remember(placement) { mutableStateOf(nativeAd == null) }
@@ -95,24 +110,32 @@ fun NativeAdCard(
             ) {
                 AndroidView(
                     factory = { ctx ->
+                        // Inflate once per view instance (recycled afterwards by the LazyColumn).
                         val adView = LayoutInflater.from(ctx)
                             .inflate(R.layout.native_ad_banner_layout, null) as NativeAdView
-                        
-                        // Apply theme colors to the views
-                        adView.findViewById<TextView>(R.id.ad_headline)?.setTextColor(headlineColor.toArgb())
-                        adView.findViewById<TextView>(R.id.ad_body)?.setTextColor(bodyColor.toArgb())
-                        adView.findViewById<Button>(R.id.ad_call_to_action)?.setTextColor(primaryColor.toArgb())
-                        
-                        populateNativeAdView(ad, adView)
+                        val holder = NativeAdViewHolder(adView)
+                        adView.tag = holder
+                        holder.applyColors(headlineColor, bodyColor, primaryColor)
+                        holder.bind(ad)
                         adView
                     },
                     update = { adView ->
-                        // Ensure colors stay updated during theme changes
-                        adView.findViewById<TextView>(R.id.ad_headline)?.setTextColor(headlineColor.toArgb())
-                        adView.findViewById<TextView>(R.id.ad_body)?.setTextColor(bodyColor.toArgb())
-                        adView.findViewById<Button>(R.id.ad_call_to_action)?.setTextColor(primaryColor.toArgb())
-                        
-                        populateNativeAdView(ad, adView)
+                        // Phase 2: no findViewById, no re-populate. Only refresh theme colors and
+                        // re-bind if the coordinator replaced the underlying ad instance.
+                        val holder = adView.tag as? NativeAdViewHolder ?: return@AndroidView
+                        holder.applyColors(headlineColor, bodyColor, primaryColor)
+                        if (holder.boundAd !== ad) holder.bind(ad)
+                    },
+                    onReset = { adView ->
+                        // Recycled view is about to be re-attached to the same placement.
+                        // Re-apply colors; `update` follows immediately with the (same) ad.
+                        (adView.tag as? NativeAdViewHolder)?.applyColors(headlineColor, bodyColor, primaryColor)
+                    },
+                    onRelease = { adView ->
+                        // View permanently leaving composition: drop the reference so it never
+                        // renders a coordinator-destroyed ad. The ad itself stays owned by the
+                        // coordinator (retain/release + hourly sweep manage its lifetime).
+                        (adView.tag as? NativeAdViewHolder)?.clear()
                     }
                 )
             }
@@ -120,73 +143,108 @@ fun NativeAdCard(
     }
 }
 
-private fun populateNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
-    // Set other ad assets.
-    adView.headlineView = adView.findViewById(R.id.ad_headline)
-    adView.bodyView = adView.findViewById(R.id.ad_body)
-    adView.callToActionView = adView.findViewById(R.id.ad_call_to_action)
-    adView.iconView = adView.findViewById(R.id.ad_app_icon)
-    adView.priceView = adView.findViewById(R.id.ad_price)
-    adView.starRatingView = adView.findViewById(R.id.ad_stars)
-    adView.storeView = adView.findViewById(R.id.ad_store)
-    adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
+/**
+ * Cached references to the asset views of one inflated [NativeAdView].
+ *
+ * Phase 2 (ADS_UI_JANK_FIX_PLAN §5): the previous implementation ran 8× findViewById + full
+ * re-population inside the `AndroidView.update` lambda — i.e. on **every recomposition**. This
+ * holder looks the views up once at inflation time and keeps the currently-bound [NativeAd], so
+ * `update` only refreshes theme colors and re-binds when the coordinator swaps the ad instance.
+ */
+private class NativeAdViewHolder(private val adView: NativeAdView) {
+    private val headlineView: TextView = adView.findViewById(R.id.ad_headline)
+    private val bodyView: TextView = adView.findViewById(R.id.ad_body)
+    private val callToActionView: Button = adView.findViewById(R.id.ad_call_to_action)
+    private val iconView: ImageView = adView.findViewById(R.id.ad_app_icon)
+    private val priceView: TextView = adView.findViewById(R.id.ad_price)
+    private val starRatingView: RatingBar = adView.findViewById(R.id.ad_stars)
+    private val storeView: TextView = adView.findViewById(R.id.ad_store)
+    private val advertiserView: TextView = adView.findViewById(R.id.ad_advertiser)
 
-    // The headline is guaranteed to be in every NativeAd.
-    (adView.headlineView as TextView).text = nativeAd.headline
+    /** The ad currently bound to [adView]; null once [clear] has run. */
+    var boundAd: NativeAd? = null
+        private set
 
-    // These assets aren't guaranteed to be in every NativeAd, so it's important to check before trying to display them.
-    if (nativeAd.body == null) {
-        adView.bodyView?.visibility = View.INVISIBLE
-    } else {
-        adView.bodyView?.visibility = View.VISIBLE
-        (adView.bodyView as TextView).text = nativeAd.body
+    fun applyColors(headline: Color, body: Color, primary: Color) {
+        headlineView.setTextColor(headline.toArgb())
+        bodyView.setTextColor(body.toArgb())
+        callToActionView.setTextColor(primary.toArgb())
     }
 
-    if (nativeAd.callToAction == null) {
-        adView.callToActionView?.visibility = View.INVISIBLE
-    } else {
-        adView.callToActionView?.visibility = View.VISIBLE
-        (adView.callToActionView as Button).text = nativeAd.callToAction
-        // Apply some styling to the button if needed, but XML should handle it mostly.
+    fun bind(nativeAd: NativeAd) {
+        // Register the asset views with the SDK so clicks/impressions keep working (compliance).
+        adView.headlineView = headlineView
+        adView.bodyView = bodyView
+        adView.callToActionView = callToActionView
+        adView.iconView = iconView
+        adView.priceView = priceView
+        adView.starRatingView = starRatingView
+        adView.storeView = storeView
+        adView.advertiserView = advertiserView
+
+        // The headline is guaranteed to be in every NativeAd.
+        headlineView.text = nativeAd.headline
+
+        // These assets aren't guaranteed to be in every NativeAd, so it's important to check
+        // before trying to display them.
+        if (nativeAd.body == null) {
+            bodyView.visibility = View.INVISIBLE
+        } else {
+            bodyView.visibility = View.VISIBLE
+            bodyView.text = nativeAd.body
+        }
+
+        if (nativeAd.callToAction == null) {
+            callToActionView.visibility = View.INVISIBLE
+        } else {
+            callToActionView.visibility = View.VISIBLE
+            callToActionView.text = nativeAd.callToAction
+        }
+
+        if (nativeAd.icon == null) {
+            iconView.visibility = View.GONE
+        } else {
+            iconView.setImageDrawable(nativeAd.icon?.drawable)
+            iconView.visibility = View.VISIBLE
+        }
+
+        if (nativeAd.price == null) {
+            priceView.visibility = View.GONE
+        } else {
+            priceView.visibility = View.VISIBLE
+            priceView.text = nativeAd.price
+        }
+
+        if (nativeAd.store == null) {
+            storeView.visibility = View.GONE
+        } else {
+            storeView.visibility = View.VISIBLE
+            storeView.text = nativeAd.store
+        }
+
+        if (nativeAd.starRating == null) {
+            starRatingView.visibility = View.GONE
+        } else {
+            starRatingView.rating = nativeAd.starRating!!.toFloat()
+            starRatingView.visibility = View.VISIBLE
+        }
+
+        if (nativeAd.advertiser == null) {
+            advertiserView.visibility = View.GONE
+        } else {
+            advertiserView.text = nativeAd.advertiser
+            advertiserView.visibility = View.VISIBLE
+        }
+
+        // This method tells the Google Mobile Ads SDK that you have finished populating your
+        // native ad view with this native ad.
+        adView.setNativeAd(nativeAd)
+        boundAd = nativeAd
     }
 
-    if (nativeAd.icon == null) {
-        adView.iconView?.visibility = View.GONE
-    } else {
-        (adView.iconView as ImageView).setImageDrawable(nativeAd.icon?.drawable)
-        adView.iconView?.visibility = View.VISIBLE
+    /** Drops the bound-ad reference (called when the view permanently leaves composition). */
+    fun clear() {
+        boundAd = null
     }
-
-    if (nativeAd.price == null) {
-        adView.priceView?.visibility = View.GONE
-    } else {
-        adView.priceView?.visibility = View.VISIBLE
-        (adView.priceView as TextView).text = nativeAd.price
-    }
-
-    if (nativeAd.store == null) {
-        adView.storeView?.visibility = View.GONE
-    } else {
-        adView.storeView?.visibility = View.VISIBLE
-        (adView.storeView as TextView).text = nativeAd.store
-    }
-
-    if (nativeAd.starRating == null) {
-        adView.starRatingView?.visibility = View.GONE
-    } else {
-        (adView.starRatingView as RatingBar).rating = nativeAd.starRating!!.toFloat()
-        adView.starRatingView?.visibility = View.VISIBLE
-    }
-
-    if (nativeAd.advertiser == null) {
-        adView.advertiserView?.visibility = View.GONE
-    } else {
-        (adView.advertiserView as TextView).text = nativeAd.advertiser
-        adView.advertiserView?.visibility = View.VISIBLE
-    }
-
-    // This method tells the Google Mobile Ads SDK that you have finished populating your
-    // native ad view with this native ad.
-    adView.setNativeAd(nativeAd)
 }
 

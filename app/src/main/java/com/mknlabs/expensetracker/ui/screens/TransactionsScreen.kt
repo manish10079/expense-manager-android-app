@@ -490,11 +490,6 @@ private fun TransactionScreenContent(
                     }
                 }
             } else {
-                // Ordinals are precomputed in the ViewModel (on Dispatchers.Default) and exposed
-                // via uiState.transactionCardOrdinals, so no list scanning happens on the main
-                // thread for ad placement.
-                val transactionRowOrdinals = uiState.transactionCardOrdinals
-
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier
@@ -509,6 +504,7 @@ private fun TransactionScreenContent(
                                     is TransactionListItemUi.Header -> item.id
                                     is TransactionListItemUi.TransactionRow -> item.card.id
                                     is TransactionListItemUi.SummaryCard -> item.id
+                                    is TransactionListItemUi.Ad -> item.id
                                 }
                             },
                             contentType = { item ->
@@ -516,6 +512,7 @@ private fun TransactionScreenContent(
                                     is TransactionListItemUi.Header -> "header"
                                     is TransactionListItemUi.TransactionRow -> "transaction"
                                     is TransactionListItemUi.SummaryCard -> "summary"
+                                    is TransactionListItemUi.Ad -> "ad"
                                 }
                             }
                         ) { item ->
@@ -568,12 +565,12 @@ private fun TransactionScreenContent(
                                         }
                                     )
                                 }
-                            }
 
-                            // Inject Native Ad after every 5th transaction card (O(1) lookup)
-                            if (item is TransactionListItemUi.TransactionRow) {
-                                val transactionCardIndex = transactionRowOrdinals[item.card.id] ?: 0
-                                if (transactionCardIndex > 0 && transactionCardIndex % 5 == 0) {
+                                // Phase 2: the ad is its own dedicated list item (keyed "ad_N")
+                                // injected by the ViewModel after every 5th transaction row, so it
+                                // never recomposes with transaction cards and its AndroidView is
+                                // recycled across scroll entries (ADS_UI_JANK_FIX_PLAN §5).
+                                is TransactionListItemUi.Ad -> {
                                     Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     AdContainer(isAdsEnabled = isAdsEnabled) {
                                         NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)

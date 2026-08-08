@@ -234,12 +234,12 @@ class TransactionsViewModelTest {
     }
 
     @Test
-    fun `transaction card ordinals are precomputed for ad placement`() {
-        // Arrange: enough transactions to span multiple ad slots, in different months
+    fun `ad items are injected after every 5th transaction row with stable keys`() {
+        // Arrange: 12 transactions spanning multiple months -> ad slots after rows 5 and 10
         val now = System.currentTimeMillis()
         val previousMonth = previousMonthInCurrentYear()
         updateInputsWithSummaries(
-            transactions = (1..6).map { i ->
+            transactions = (1..12).map { i ->
                 transaction(
                     id = "t_$i",
                     createdAt = if (i % 2 == 0) previousMonth else now,
@@ -251,17 +251,23 @@ class TransactionsViewModelTest {
         viewModel.updatePeriodFilter(TransactionPeriodFilter.YEARLY)
 
         // Act
-        awaitUiState { it.transactionCardOrdinals.isNotEmpty() }
+        awaitUiState { it.transactionItems.any { item -> item is TransactionListItemUi.Ad } }
 
-        // Assert: every transaction row has a 1-based ordinal, in list order
+        // Assert: Ad items are own list entries with stable keys, placed after every 5th row
         val state = viewModel.uiState.value
-        val rowIds = state.transactionItems
-            .filterIsInstance<TransactionListItemUi.TransactionRow>()
-            .map { it.card.id }
-        assertEquals(6, rowIds.size)
-        assertEquals(6, state.transactionCardOrdinals.size)
-        rowIds.forEachIndexed { index, id ->
-            assertEquals(index + 1, state.transactionCardOrdinals[id])
+        val items = state.transactionItems
+        val adSlots = items.filterIsInstance<TransactionListItemUi.Ad>()
+        assertEquals(listOf("ad_5", "ad_10"), adSlots.map { it.id })
+        assertEquals(12, items.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
+
+        // The list order interleaves ads after the 5th and 10th transaction rows
+        var rowCount = 0
+        items.forEach { item ->
+            when (item) {
+                is TransactionListItemUi.TransactionRow -> rowCount++
+                is TransactionListItemUi.Ad -> assertTrue(rowCount == 5 || rowCount == 10)
+                else -> Unit
+            }
         }
     }
 

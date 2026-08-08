@@ -40,4 +40,15 @@ sealed interface TransactionListItemUi {
         val totalExpense: String,
         val periodLabel: String? = null
     ) : TransactionListItemUi
+
+    /**
+     * A dedicated ad slot in the list (Phase 2, ADS_UI_JANK_FIX_PLAN §5).
+     * Emitted as its own list entry with a stable key (e.g. "ad_5") so the ad's
+     * composition is independent of transaction-card recompositions and Compose
+     * recycles its AndroidView across scroll entries instead of re-inflating it.
+     */
+    @Immutable
+    data class Ad(
+        val id: String
+    ) : TransactionListItemUi
 }
