@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
@@ -35,7 +36,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -169,7 +169,7 @@ fun MainScreen(
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
-    val firebaseUser by authViewModel.currentUser.collectAsState()
+    val firebaseUser by authViewModel.currentUser.collectAsStateWithLifecycle()
     
     var showAuthSheet by remember { mutableStateOf(false) }
     var showPremiumSheet by remember { mutableStateOf(false) }
@@ -701,10 +701,10 @@ fun MainScreen(
                             mainViewModel.backupDatabase(
                                 uri = uri,
                                 onComplete = {
-                                    showToast("Database backup saved.")
+                                    showToast(rawContext.getString(R.string.toast_database_backup_saved))
                                 },
                                 onError = {
-                                    showToast("Unable to save the database backup. Please try again.")
+                                    showToast(rawContext.getString(R.string.toast_database_backup_save_failed))
                                 }
                             )
                         },
@@ -713,11 +713,11 @@ fun MainScreen(
                                 uri = uri,
                                 onComplete = {
                                     navigationState.clearTransactionDraftContext()
-                                    showToast("Database restored. Reloading app.")
+                                    showToast(rawContext.getString(R.string.toast_database_restored_reloading_ap))
                                     AppRestartUtils.restartApp(rawContext)
                                 },
                                 onError = {
-                                    showToast("Unable to restore the database backup. Please try again.")
+                                    showToast(rawContext.getString(R.string.toast_database_restore_failed))
                                 }
                             )
                         },
@@ -726,13 +726,16 @@ fun MainScreen(
                                 uri = uri,
                                 onComplete = { result ->
                                     showToast(
-                                        "JSON exported: ${result.exportedTransactions} transactions, " +
-                                            "${result.exportedBudgets} budgets, " +
-                                            "${result.exportedGoals} goals."
+                                        rawContext.getString(
+                                            R.string.toast_json_exported,
+                                            result.exportedTransactions,
+                                            result.exportedBudgets,
+                                            result.exportedGoals
+                                        )
                                     )
                                 },
                                 onError = {
-                                    showToast("Unable to export JSON. Please try again.")
+                                    showToast(rawContext.getString(R.string.toast_json_export_failed))
                                 }
                             )
                         },
@@ -740,10 +743,10 @@ fun MainScreen(
                             mainViewModel.importJson(
                                 uri = uri,
                                 onComplete = { result ->
-                                    showToast(result.toJsonImportMessage())
+                                    showToast(result.toJsonImportMessage(rawContext))
                                 },
                                 onError = {
-                                    showToast("Unable to import JSON. Check the file and try again.")
+                                    showToast(rawContext.getString(R.string.toast_json_import_failed))
                                 }
                             )
                         },
@@ -752,15 +755,18 @@ fun MainScreen(
                                 uri = uri,
                                 onComplete = { result ->
                                     showToast(
-                                        "Imported ${result.importedTransactions} legacy transactions. " +
-                                            "Skipped ${result.skippedTransactions} existing."
+                                        rawContext.getString(
+                                            R.string.toast_legacy_imported,
+                                            result.importedTransactions,
+                                            result.skippedTransactions
+                                        )
                                     )
                                     if (isAdsEnabled && activity != null) {
                                         monetizationViewModel.showInterstitial(activity, InterstitialPlacement.DATA_ACTION)
                                     }
                                 },
                                 onError = {
-                                    showToast("Legacy import failed. Check the backup file and try again.")
+                                    showToast(rawContext.getString(R.string.toast_legacy_import_failed_check_the))
                                 }
                             )
                         },
@@ -768,10 +774,10 @@ fun MainScreen(
                             mainViewModel.deleteAllTransactions(
                                 onComplete = {
                                     navigationState.clearTransactionDraftContext()
-                                    showToast("All transactions deleted.")
+                                    showToast(rawContext.getString(R.string.toast_all_transactions_deleted))
                                 },
                                 onError = {
-                                    showToast("Unable to delete transactions. Please try again.")
+                                    showToast(rawContext.getString(R.string.toast_delete_transactions_failed))
                                 }
                             )
                         },
@@ -873,8 +879,7 @@ fun MainScreen(
             financialGoal = userProfile.financialGoal,
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                // monetizationViewModel.onPurchaseSimulated() // Disabled until Google Play Billing is implemented
-                showToast("Pro billing coming soon!")
+                // monetizationViewModel.onPurchaseSimulated() // Disabled until Google Play Billing is implemented                                showToast(rawContext.getString(R.string.toast_pro_billing_coming_soon))
                 showPremiumSheet = false
             },
             onRedeemClick = if (isProPassEnabled) {
@@ -1143,7 +1148,13 @@ fun MainScreen(
     }
 }
 
-private fun JsonImportResult.toJsonImportMessage(): String {
-    return "Imported $importedTransactions tx, $importedBudgets budgets, " +
-        "$importedRecurringRules rules, $importedGoals goals. Skipped $skippedTransactions tx duplicates."
+private fun JsonImportResult.toJsonImportMessage(context: Context): String {
+    return context.getString(
+        R.string.toast_json_import_message,
+        importedTransactions,
+        importedBudgets,
+        importedRecurringRules,
+        importedGoals,
+        skippedTransactions
+    )
 }

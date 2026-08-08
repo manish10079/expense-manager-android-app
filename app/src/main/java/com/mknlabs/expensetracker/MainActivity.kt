@@ -23,8 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.appcompat.app.AppCompatActivity
@@ -170,18 +170,18 @@ class MainActivity : AppCompatActivity() {
         appLockViewModel: AppLockViewModel,
         intent: Intent?
     ) {
-        val isReady by splashViewModel.isReady.collectAsState()
-        val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsState()
-        val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsState()
-        val appLockState by appLockViewModel.state.collectAsState()
-        val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsState()
+        val isReady by splashViewModel.isReady.collectAsStateWithLifecycle()
+        val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsStateWithLifecycle()
+        val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsStateWithLifecycle()
+        val appLockState by appLockViewModel.state.collectAsStateWithLifecycle()
+        val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsStateWithLifecycle()
         val context = LocalContext.current
         val activity = context.findFragmentActivity()
         
         // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
         val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
         val monetizationViewModel: MonetizationViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-        val effectiveUserTier by monetizationViewModel.userTier.collectAsState()
+        val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
@@ -206,10 +206,10 @@ class MainActivity : AppCompatActivity() {
 
         val appSettings by AppSettingsDataStore
             .getAppSettingsFlow(context)
-            .collectAsState(initial = null)
+            .collectAsStateWithLifecycle(initialValue = null)
         val userProfile by UserProfileDataStore
             .getUserProfileFlow(context)
-            .collectAsState(initial = defaultUserProfile)
+            .collectAsStateWithLifecycle(initialValue = defaultUserProfile)
             
         val systemDarkTheme = isSystemInDarkTheme()
         val syncTheme = remember { ThemePreferenceSync.getTheme(context) }

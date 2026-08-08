@@ -73,8 +73,12 @@ class RecurringTransactionWorker @AssistedInject constructor(
                 Log.d("RecurringWorker", "doWork: Successfully added $transactionsAddedCount total transactions")
                 NotificationHelper.showGenericNotification(
                     context = appContext,
-                    title = "Recurring Transactions Updated",
-                    message = "Successfully added $transactionsAddedCount recurring transaction${if (transactionsAddedCount > 1) "s" else ""}."
+                    title = appContext.getString(com.mknlabs.expensetracker.R.string.notification_title_recurring_updated),
+                    message = appContext.resources.getQuantityString(
+                        com.mknlabs.expensetracker.R.plurals.notification_format_recurring_updated,
+                        transactionsAddedCount,
+                        transactionsAddedCount
+                    )
                 )
             } else {
                 Log.d("RecurringWorker", "doWork: No transactions were due for addition")

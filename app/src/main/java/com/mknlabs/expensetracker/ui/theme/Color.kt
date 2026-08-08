@@ -72,6 +72,14 @@ val LightGradientEnd = Color(0xFF9480EE)
 val IconColor = Color(0xFFCDBDFF)
 val FeatureGateLockGold = Color(0xFFFFC857)
 
+// Premium Membership Palette
+val PremiumGradientStart = Color(0xFF7C4DFF) // Deep Violet
+val PremiumGradientEnd = Color(0xFF651FFF) // Vibrant Purple
+val PremiumBorder = Color(0xFFB388FF)
+val PremiumGold = Color(0xFFFFD700)
+val PremiumOnGradient = Color(0xFFFFFFFF)
+val PremiumShadowNeutral = Color(0xFF000000)
+
 private val DarkOnPrimary = Color(0xFF24114C)
 private val DarkPrimaryContainer = Color(0xFF2D243F)
 private val DarkOnPrimaryContainer = Color(0xFFF0E9FF)

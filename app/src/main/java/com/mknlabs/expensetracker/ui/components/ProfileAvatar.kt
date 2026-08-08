@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.ui.theme.PurplePrimary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
@@ -127,7 +128,7 @@ fun ProfileAvatar(
 
         // Premium Sync Ring
         if (isPremium) {
-            val ringColor = Color(0xFF7B61FF)
+            val ringColor = PurplePrimary
             if (isSyncing) {
                 Canvas(
                     modifier = Modifier

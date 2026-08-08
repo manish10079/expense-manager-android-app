@@ -382,7 +382,7 @@ fun GoalItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     GoalCardAction(
                         icon = Icons.Default.Add,
-                        contentDescription = "Add Funds",
+                        contentDescription = stringResource(R.string.cd_add_funds),
                         accent = MaterialTheme.colorScheme.primary,
                         onClick = onFund
                     )

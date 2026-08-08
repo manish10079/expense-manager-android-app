@@ -247,6 +247,15 @@
     <string name="error_auth_cloned_or_unauthorized">Google authentication failed. If you are using a cloned or parallel space app, please use the original app.</string>
     <string name="error_enter_email">Please enter your email address.</string>
     <string name="toast_legacy_import_failed_check_the">Legacy import failed. Check the backup file and try again.</string>
+    <string name="toast_database_backup_save_failed">Unable to save the database backup. Please try again.</string>
+    <string name="toast_database_restore_failed">Unable to restore the database backup. Please try again.</string>
+    <string name="toast_json_exported">JSON exported: %1$d transactions, %2$d budgets, %3$d goals.</string>
+    <string name="toast_json_export_failed">Unable to export JSON. Please try again.</string>
+    <string name="toast_json_import_failed">Unable to import JSON. Check the file and try again.</string>
+    <string name="toast_json_import_message">Imported %1$d tx, %2$d budgets, %3$d rules, %4$d goals. Skipped %5$d tx duplicates.</string>
+    <string name="toast_legacy_imported">Imported %1$d legacy transactions. Skipped %2$d existing.</string>
+    <string name="toast_delete_transactions_failed">Unable to delete transactions. Please try again.</string>
+    <string name="toast_pro_billing_coming_soon">Pro billing coming soon!</string>
     <string name="toast_unable_to_export_json_please_t">Unable to export JSON. Please try again.</string>
     <string name="toast_unable_to_import_json_check_th">Unable to import JSON. Check the file and try again.</string>
     <string name="toast_unable_to_restore_the_database">Unable to restore the database backup. Please try again.</string>
@@ -1391,6 +1400,7 @@
     <string name="label_goal_name_hint">e.g. New Car, Vacation</string>
     <string name="msg_no_goals">No goals yet. Tap + to start saving!</string>
     <string name="cd_add_goal">Add Goal</string>
+    <string name="cd_add_funds">Add Funds</string>
     <string name="cd_delete_goal">Delete Goal</string>
     <string name="format_goal_progress">%1$d%% complete</string>
     <string name="format_goal_amount_status">%1$s / %2$s</string>
@@ -1453,6 +1463,12 @@
     <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
     <string name="label_pro">Pro</string>
     <string name="label_pro_active">Pro Member</string>
+    <string name="label_membership_benefits">MEMBERSHIP BENEFITS</string>
+    <string name="label_pro_subscription_active">Pro Active</string>
+    <string name="msg_going_pro_benefits">Unlock custom transaction styles, advanced budgeting tools, and 4 device sync by going pro.</string>
+    <string name="label_na">N/A</string>
+    <string name="btn_sign_in_register">Sign In / Register</string>
+    <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
     <string name="label_free_tier">Free Tier</string>
     <string name="label_pro_benefit_adfree">Ad-Free Experience</string>
     <string name="label_pro_benefit_devices">4 Device Sync</string>

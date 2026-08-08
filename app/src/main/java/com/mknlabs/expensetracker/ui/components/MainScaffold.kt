@@ -32,8 +32,8 @@ import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 
 @Composable
@@ -113,7 +113,7 @@ fun MainScaffold(
     onPrepareForExternalActivity: () -> Unit
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
-    val transactionsUiState by transactionsViewModel.uiState.collectAsState()
+    val transactionsUiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
     val isSelectionMode = currentRoute == AppRoute.Transactions && transactionsUiState.isSelectionMode
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 

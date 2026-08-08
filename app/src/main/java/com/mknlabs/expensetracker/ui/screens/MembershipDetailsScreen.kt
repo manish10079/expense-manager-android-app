@@ -44,7 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +57,12 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.ui.theme.PremiumBorder
+import com.mknlabs.expensetracker.ui.theme.PremiumGradientEnd
+import com.mknlabs.expensetracker.ui.theme.PremiumGradientStart
+import com.mknlabs.expensetracker.ui.theme.PremiumGold
+import com.mknlabs.expensetracker.ui.theme.PremiumOnGradient
+import com.mknlabs.expensetracker.ui.theme.PremiumShadowNeutral
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 
 @Composable
@@ -132,7 +138,7 @@ internal fun MembershipDetailsContent(
                 // Features Checklist Section
                 item {
                     Text(
-                        text = "MEMBERSHIP BENEFITS",
+                        text = stringResource(R.string.label_membership_benefits),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp
@@ -279,20 +285,23 @@ private fun MembershipHeroCard(
     onUpgradeClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     val proGradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF7C4DFF), // Deep Violet
-            Color(0xFF651FFF)  // Vibrant Purple
+            PremiumGradientStart,
+            PremiumGradientEnd
         )
     )
 
     val formattedDate = remember(proExpiryTimestamp, isSubscription) {
-        val pattern = if (isSubscription) "dd MMM yyyy" else "dd MMM yyyy h:mm a"
+        val pattern = context.getString(
+            if (isSubscription) R.string.date_pattern_full_short else R.string.date_pattern_pro_expiry
+        )
         try {
             java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
                 .format(java.util.Date(proExpiryTimestamp))
         } catch (e: Exception) {
-            "N/A"
+            context.getString(R.string.label_na)
         }
     }
 
@@ -302,8 +311,8 @@ private fun MembershipHeroCard(
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(32.dp),
-                ambientColor = if (isPremium) Color(0xFF7C4DFF).copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.1f),
-                spotColor = if (isPremium) Color(0xFF651FFF).copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.1f)
+                ambientColor = if (isPremium) PremiumGradientStart.copy(alpha = 0.4f) else PremiumShadowNeutral.copy(alpha = 0.1f),
+                spotColor = if (isPremium) PremiumGradientEnd.copy(alpha = 0.4f) else PremiumShadowNeutral.copy(alpha = 0.1f)
             )
             .clip(RoundedCornerShape(32.dp))
             .background(
@@ -316,7 +325,7 @@ private fun MembershipHeroCard(
             )
             .border(
                 width = if (isPremium) 1.5.dp else 1.dp,
-                color = if (isPremium) Color(0xFFB388FF).copy(alpha = 0.7f) else colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = if (isPremium) PremiumBorder.copy(alpha = 0.7f) else colorScheme.outlineVariant.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(32.dp)
             )
     ) {
@@ -332,7 +341,7 @@ private fun MembershipHeroCard(
             ) {
                 Text(
                     text = if (isPremium) {
-                        if (isSubscription) "Pro Active" else "Pro Member"
+                        if (isSubscription) stringResource(R.string.label_pro_subscription_active) else stringResource(R.string.label_pro_active)
                     } else if (isAnonymous) {
                         stringResource(R.string.label_unlimited_offline)
                     } else {
@@ -342,14 +351,14 @@ private fun MembershipHeroCard(
                         fontWeight = FontWeight.Black,
                         fontSize = 24.sp
                     ),
-                    color = if (isPremium) Color.White else colorScheme.onSurface
+                    color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
                 )
 
                 Box(
                     modifier = Modifier
                         .size(44.dp)
                         .background(
-                            color = if (isPremium) Color.White.copy(alpha = 0.2f) else colorScheme.primary.copy(alpha = 0.1f),
+                            color = if (isPremium) PremiumOnGradient.copy(alpha = 0.2f) else colorScheme.primary.copy(alpha = 0.1f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -357,7 +366,7 @@ private fun MembershipHeroCard(
                     Icon(
                         painter = painterResource(com.mknlabs.expensetracker.R.drawable.ic_crown),
                         contentDescription = stringResource(R.string.label_pro),
-                        tint = if (isPremium) Color(0xFFFFD700) else colorScheme.primary,
+                        tint = if (isPremium) PremiumGold else colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -375,10 +384,10 @@ private fun MembershipHeroCard(
                 } else if (isAnonymous) {
                     stringResource(R.string.label_offline_warning_desc)
                 } else {
-                    "Unlock custom transaction styles, advanced budgeting tools, and 4 device sync by going pro."
+                    stringResource(R.string.msg_going_pro_benefits)
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                color = if (isPremium) Color.White.copy(alpha = 0.9f) else colorScheme.onSurfaceVariant
+                color = if (isPremium) PremiumOnGradient.copy(alpha = 0.9f) else colorScheme.onSurfaceVariant
             )
 
             if (!isPremium) {
@@ -393,7 +402,7 @@ private fun MembershipHeroCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = if (isAnonymous) "Sign In / Register" else stringResource(R.string.btn_upgrade_now),
+                        text = if (isAnonymous) stringResource(R.string.btn_sign_in_register) else stringResource(R.string.btn_upgrade_now),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyLarge
                     )

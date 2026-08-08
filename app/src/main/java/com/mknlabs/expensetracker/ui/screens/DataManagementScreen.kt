@@ -448,7 +448,7 @@ private fun DataManagementContent(
     if (isFrequencyPickerVisible) {
         val frequencyItems = presetAutoBackupFrequencies.map { days ->
             val optionId = if (days == 0) "custom" else days.toString()
-            val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).collectAsState(AccessStatus.Granted).value
+            val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).value
             val accessLevel = FeatureRegistry.getAccessLevel(Feature.AUTO_BACKUP, optionId)
             
             SelectionItem(
