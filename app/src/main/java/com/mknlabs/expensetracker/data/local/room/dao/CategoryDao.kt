@@ -45,10 +45,15 @@ interface CategoryDao {
     @Query("""
         SELECT c.* FROM categories c
         LEFT JOIN transactions t ON t.category_id = c.id AND t.is_deleted = 0
+            AND t.created_at >= :sinceMillis
         WHERE c.is_deleted = 0 AND c.transaction_type_id = :transactionTypeId
         GROUP BY c.id
         ORDER BY COUNT(t.id) DESC, c.sort_order ASC, c.name ASC
         LIMIT :limit
     """)
-    suspend fun getFrequentlyUsedCategories(transactionTypeId: Int, limit: Int): List<CategoryEntity>
+    suspend fun getFrequentlyUsedCategories(
+        transactionTypeId: Int,
+        limit: Int,
+        sinceMillis: Long
+    ): List<CategoryEntity>
 }

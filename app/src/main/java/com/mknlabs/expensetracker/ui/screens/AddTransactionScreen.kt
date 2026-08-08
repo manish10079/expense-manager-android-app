@@ -126,8 +126,10 @@ import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.models.TabItem
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getRankedCategories
+import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
 import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import java.math.BigDecimal
@@ -184,7 +186,16 @@ fun AddTransactionScreen(
     ) {
         val compact = maxHeight < 780.dp
         val dense = maxHeight < 700.dp
-        val paymentMethods = remember(availablePaymentMethods) { availablePaymentMethods.sortedBy { it.id } }
+        // Usage ranking only counts transactions from the last 60 days, so the
+        // "most used" pickers reflect recent behaviour rather than all-time.
+        val rankingSinceMillis = remember { System.currentTimeMillis() - USAGE_RANKING_WINDOW_MS }
+        val paymentMethods = remember(availablePaymentMethods, transactions, rankingSinceMillis) {
+            getRankedPaymentMethods(
+                paymentMethods = availablePaymentMethods,
+                transactions = transactions,
+                sinceMillis = rankingSinceMillis
+            )
+        }
         val isEditMode = existingTransaction != null
 
         var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id) {
@@ -243,11 +254,12 @@ fun AddTransactionScreen(
 
         val colorScheme = MaterialTheme.colorScheme
 
-        val categoriesForType = remember(transactions, availableCategories, selectedTransactionTypeId) {
+        val categoriesForType = remember(transactions, availableCategories, selectedTransactionTypeId, rankingSinceMillis) {
             getRankedCategories(
                 categories = availableCategories,
                 transactions = transactions,
-                transactionTypeId = selectedTransactionTypeId
+                transactionTypeId = selectedTransactionTypeId,
+                sinceMillis = rankingSinceMillis
             )
         }
 

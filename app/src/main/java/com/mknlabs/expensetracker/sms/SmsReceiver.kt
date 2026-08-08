@@ -9,6 +9,7 @@ import android.provider.Telephony
 import androidx.core.content.ContextCompat
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository
+import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,11 +79,14 @@ class SmsReceiver : BroadcastReceiver() {
 
                 if (smsRepository.isDuplicate(parsed)) return@launch
 
-                // Fetch top-3 frequently used categories for the detected type.
-                // Falls back to sort_order-ranked defaults if user has no history yet.
+                // Fetch top-3 frequently used categories for the detected type,
+                // ranked by usage in the LAST 60 DAYS (matches the Add
+                // Transaction pickers). Falls back to sort_order-ranked defaults
+                // if the user has no recent history.
                 val frequentCategories = categoryRepository.getFrequentlyUsedCategories(
                     transactionTypeId = parsed.transactionTypeId,
-                    limit = 3
+                    limit = 3,
+                    sinceMillis = System.currentTimeMillis() - USAGE_RANKING_WINDOW_MS
                 )
 
                 SmsNotificationManager.showImportNotification(

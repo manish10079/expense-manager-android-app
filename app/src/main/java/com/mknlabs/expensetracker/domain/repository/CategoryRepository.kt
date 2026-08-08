@@ -16,5 +16,9 @@ interface CategoryRepository {
 
     suspend fun deleteCustomCategory(id: Int)
 
-    suspend fun getFrequentlyUsedCategories(transactionTypeId: Int, limit: Int): List<CategoryType>
+    suspend fun getFrequentlyUsedCategories(
+        transactionTypeId: Int,
+        limit: Int,
+        sinceMillis: Long
+    ): List<CategoryType>
 }
