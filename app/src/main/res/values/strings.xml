@@ -177,7 +177,6 @@
     <string name="title_add_new_budget">ADD NEW BUDGET</string>
     <string name="title_amount">Amount</string>
     <string name="title_amount_range">Amount Range</string>
-    <string name="title_budget_insight">Budget Insight</string>
     <string name="title_budget_recurring">Budget &amp; Recurring</string>
     <string name="title_category">Category</string>
     <string name="title_category_1">CATEGORY</string>
@@ -666,7 +665,6 @@
     <string name="msg_no_recurring_items">No recurring items added yet.</string>
     <string name="label_tab_budgets">Budgets</string>
     <string name="label_tab_recurring">Recurring</string>
-    <string name="label_budget_insights">Budget Insights</string>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">CUSTOM MONTH</string>
     <string name="label_remaining">REMAINING</string>
@@ -1060,29 +1058,17 @@
     <!-- Budget Status & Labels -->
     <string name="label_no_budget">NO BUDGET</string>
     <string name="label_add_a_budget">ADD A BUDGET</string>
-    <string name="label_over_budget_status">OVER BUDGET</string>
-    <string name="label_recurring_watch">RECURRING WATCH</string>
-    <string name="label_watch_your_runway">WATCH YOUR RUNWAY</string>
-    <string name="label_budget_on_track">BUDGET ON TRACK</string>
-    <string name="label_waiting_for_budgets">WAITING FOR BUDGETS</string>
     <string name="label_near_limit">NEAR LIMIT</string>
     <string name="label_safe">SAFE</string>
     <string name="label_spent_limit">SPENT / LIMIT</string>
     <string name="label_exceeded">EXCEEDED</string>
     <string name="label_budget_status_label">BUDGET</string>
 
-    <!-- Budget Insights & Messages -->
-    <string name="msg_insight_start_tracking">Start tracking how your spending is pacing against your monthly limits.</string>
+    <!-- Budget Messages -->
     <string name="msg_no_budgets_locked">No budgets were set for %1$s. History is now locked.</string>
     <string name="msg_no_budgets_limit_reached">No more budgets can be added for %1$s (edit limit reached).</string>
     <string name="msg_no_budgets_start_tracking">No budgets added for %1$s yet. Tap ADD NEW BUDGET to start tracking this month.</string>
     <string name="msg_no_recurring_start_tracking">No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction.</string>
-    <string name="msg_insight_empty">You have not added any budgets or recurring expenses yet. Start with a monthly budget or mark one transaction as weekly, monthly, or yearly.</string>
-    <string name="msg_insight_over_budget">%1$s is over budget by %2$s. Tightening that category first will give you the quickest recovery.</string>
-    <string name="msg_insight_recurring_single">You have %1$d recurring expense tracked. %2$s is %3$s, and your recurring expenses average about %4$s per month.</string>
-    <string name="msg_insight_recurring_plural">You have %1$d recurring expenses tracked. %2$s is %3$s, and your recurring expenses average about %4$s per month.</string>
-    <string name="msg_insight_warning">You have used %1$s for %2$s. %3$s is carrying the most spend, so trimming there will protect your remaining %4$s.</string>
-    <string name="msg_insight_steady">Your budget pacing looks steady for %1$s. You still have %2$s available, with %3$s leading spend so far.</string>
 
     <!-- Budget Formatting -->
     <string name="format_over_amount">Over %1$s</string>

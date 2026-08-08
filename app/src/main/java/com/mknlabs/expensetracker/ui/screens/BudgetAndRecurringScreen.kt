@@ -58,7 +58,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -92,7 +91,6 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.FeatureLockedOverlay
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
@@ -112,7 +110,6 @@ import com.mknlabs.expensetracker.ui.viewmodels.BudgetAccent
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetInsightUi
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -363,28 +360,6 @@ private fun BudgetAndRecurringContent(
                                         pendingDeleteRecurringId = expense.id
                                     }
                                 )
-                            }
-                        }
-
-                        item {
-                            GatedAction(
-                                feature = Feature.BUDGET_INSIGHTS,
-                                displayName = stringResource(id = R.string.label_budget_insights),
-                                onAction = {}
-                            ) { status, onClick ->
-                                val isLocked = status !is AccessStatus.Granted
-                                Box {
-                                    InsightCard(
-                                        insight = uiState.insight,
-                                        modifier = if (isLocked) Modifier.blur(16.dp) else Modifier
-                                    )
-                                    if (isLocked) {
-                                        FeatureLockedOverlay(
-                                            displayText = stringResource(id = R.string.label_unlock_insights),
-                                            onClick = onClick
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
@@ -1695,74 +1670,6 @@ private fun RecurringMetaChip(
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 0.7.sp
-            )
-        )
-    }
-}
-
-@Composable
-private fun InsightCard(
-    insight: BudgetInsightUi,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = budgetAccentColor(insight.accent).copy(alpha = 0.24f),
-                shape = RoundedCornerShape(22.dp)
-            )
-            .padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(budgetAccentColor(insight.accent).copy(alpha = 0.14f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AutoAwesome,
-                    contentDescription = insight.title.asString(),
-                    tint = budgetAccentColor(insight.accent),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column {
-                Text(
-                    text = insight.title.asString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = insight.supportingLabel.asString(),
-                    color = budgetAccentColor(insight.accent),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                        letterSpacing = 0.8.sp
-                    )
-                )
-            }
-        }
-
-        Text(
-            text = insight.body.asString(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                lineHeight = 20.sp
             )
         )
     }

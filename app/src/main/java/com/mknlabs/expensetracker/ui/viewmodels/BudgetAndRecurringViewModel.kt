@@ -106,26 +106,12 @@ data class BudgetRecurringExpenseUi(
 )
 
 @Immutable
-data class BudgetInsightUi(
-    val title: UiText,
-    val body: UiText,
-    val supportingLabel: UiText,
-    val accent: BudgetAccent
-)
-
-@Immutable
 data class BudgetAndRecurringScreenUiState(
     val selectedTab: BudgetTab = BudgetTab.Budgets,
     val selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth,
     val summary: BudgetSummaryUi = BudgetSummaryUi(),
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
     val recurringExpenses: List<BudgetRecurringExpenseUi> = emptyList(),
-    val insight: BudgetInsightUi = BudgetInsightUi(
-        title = UiText.res(R.string.title_budget_insight),
-        body = UiText.res(R.string.msg_insight_start_tracking),
-        supportingLabel = UiText.res(R.string.label_waiting_for_budgets),
-        accent = BudgetAccent.Primary
-    ),
     val emptyCategoryMessage: UiText? = null,
     val emptyRecurringMessage: UiText? = null,
     val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
@@ -354,21 +340,12 @@ class BudgetAndRecurringViewModel @Inject constructor(
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
-        val insight = buildInsight(
-            summary = summary,
-            categoryBudgets = categoryBudgets,
-            recurringExpenses = activeRecurring.filter { it.isEnabled },
-            currencyId = currentCurrencyId,
-            amountFormatPreferences = currentAmountFormatPreferences
-        )
-
         _uiState.update {
             it.copy(
                 selectedPeriod = selectedPeriod,
                 summary = summary,
                 categoryBudgets = categoryBudgets,
                 recurringExpenses = activeRecurring,
-                insight = insight,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
                     when {
@@ -583,99 +560,7 @@ private fun buildRecurringExpenses(
                 .thenBy { it.nextDueAt }
                 .thenBy { it.title.lowercase(Locale.getDefault()) }
         )
-}
-
-private fun buildInsight(
-    summary: BudgetSummaryUi,
-    categoryBudgets: List<BudgetCategoryBudgetUi>,
-    recurringExpenses: List<BudgetRecurringExpenseUi>,
-    currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
-): BudgetInsightUi {
-    if (categoryBudgets.isEmpty() && recurringExpenses.isEmpty()) {
-        return BudgetInsightUi(
-            title = UiText.res(R.string.title_budget_insight),
-            body = UiText.res(R.string.msg_insight_empty),
-            supportingLabel = UiText.dynamic(""),
-            accent = BudgetAccent.Primary
-        )
-    }
-
-    val overspentCategory = categoryBudgets.firstOrNull { it.spentAmount > it.limitAmount }
-    val highestSpendCategory = categoryBudgets.maxByOrNull { it.spentAmount }
-    val nextRecurring = recurringExpenses.minByOrNull { it.nextDueAt }
-    val recurringMonthlyEquivalent = recurringExpenses.sumOf { recurring ->
-        val recurringAmount = parseAmountValue(
-            recurring.dueAmountLabel,
-            currencyId,
-            amountFormatPreferences
-        )
-        when (recurring.frequency) {
-            RecurringFrequency.Daily -> recurringAmount * 30.0
-            RecurringFrequency.Weekly -> recurringAmount * 4.0
-            RecurringFrequency.Monthly -> recurringAmount
-            RecurringFrequency.Yearly -> recurringAmount / 12.0
-        }
-    }
-
-    return when {
-        overspentCategory != null -> {
-            BudgetInsightUi(
-                title = UiText.res(R.string.title_budget_insight),
-                body = UiText.res(R.string.msg_insight_over_budget, overspentCategory.title, formatCurrencyValue(overspentCategory.spentAmount - overspentCategory.limitAmount, currencyId, amountFormatPreferences)),
-                supportingLabel = UiText.res(R.string.label_over_budget_status),
-                accent = BudgetAccent.Overspent
-            )
-        }
-
-        recurringExpenses.isNotEmpty() && nextRecurring != null -> {
-            val resId = if (recurringExpenses.size == 1) R.string.msg_insight_recurring_single else R.string.msg_insight_recurring_plural
-            BudgetInsightUi(
-                title = UiText.res(R.string.title_budget_insight),
-                body = UiText.res(
-                    resId,
-                    recurringExpenses.size,
-                    nextRecurring.title,
-                    "upcoming", // Simplified as we can't easily resolve nextRecurring.dueLabel here
-                    formatCurrencyValue(recurringMonthlyEquivalent, currencyId, amountFormatPreferences)
-                ),
-                supportingLabel = UiText.res(R.string.label_recurring_watch),
-                accent = nextRecurring.accent
-            )
-        }
-
-        summary.totalBudgetAmount > 0.0 && summary.usageFraction >= 0.85f -> {
-            BudgetInsightUi(
-                title = UiText.res(R.string.title_budget_insight),
-                body = UiText.res(
-                    R.string.msg_insight_warning,
-                    "high usage", 
-                    summary.monthLabel,
-                    highestSpendCategory?.title ?: "Your top category",
-                    formatCurrencyValue(abs(summary.remainingAmount), currencyId, amountFormatPreferences)
-                ),
-                supportingLabel = UiText.res(R.string.label_watch_your_runway),
-                accent = BudgetAccent.Warning
-            )
-        }
-
-        else -> {
-            BudgetInsightUi(
-                title = UiText.res(R.string.title_budget_insight),
-                body = UiText.res(
-                    R.string.msg_insight_steady,
-                    summary.monthLabel,
-                    formatCurrencyValue(summary.remainingAmount, currencyId, amountFormatPreferences),
-                    highestSpendCategory?.title ?: "your biggest category"
-                ),
-                supportingLabel = UiText.res(R.string.label_budget_on_track),
-                accent = BudgetAccent.Primary
-            )
-        }
-    }
-}
-
-private fun recurringAccent(
+}private fun recurringAccent(
     isEnabled: Boolean,
     frequency: RecurringFrequency,
     nextDueAt: Long,
@@ -701,23 +586,6 @@ private fun categoryAccent(progress: Float): BudgetAccent {
         progress >= 0.85f -> BudgetAccent.Warning
         else -> BudgetAccent.Primary
     }
-}
-
-private fun parseAmountValue(
-    formattedValue: String,
-    currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
-): Double {
-    val currencySymbol = formatCurrencyValue(0.0, currencyId, amountFormatPreferences)
-        .replace("0", "")
-        .trim()
-    return formattedValue
-        .replace(currencySymbol, "")
-        .replace(",", "")
-        .replace("Over", "")
-        .trim()
-        .toDoubleOrNull()
-        ?: 0.0
 }
 
 private fun resolveAnchorMonthStart(transactions: List<Transaction>): Long {
