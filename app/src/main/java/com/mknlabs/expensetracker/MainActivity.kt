@@ -341,9 +341,9 @@ class MainActivity : AppCompatActivity() {
                                             autoTriggerBiometricOnShow = true,
                                             onBiometricClick = {
                                                 biometricAuthenticator?.authenticate(
-                                                    title = "Unlock Expense Tracker",
-                                                    subtitle = "Verify your biometric to continue.",
-                                                    negativeButtonText = "Use PIN",
+                                                    title = context.getString(R.string.title_unlock_expense_tracker),
+                                                    subtitle = context.getString(R.string.title_verify_your_biometric_to_conti),
+                                                    negativeButtonText = context.getString(R.string.btn_use_pin),
                                                     onSuccess = { appLockViewModel.unlock() }
                                                 )
                                             },

@@ -94,7 +94,7 @@
     <string name="title_block_screenshots">Block Screenshots</string>
     <string name="title_lock_as_soon_as_the_app_moves">Lock as soon as the app moves to the background.</string>
     <string name="title_require_the_pin_again_after_va">Require the PIN again after %1$s minutes away from the app.</string>
-    <string name="title_unlock_expense_tracker">Unlock Budget &amp; Spend</string>
+    <string name="title_unlock_expense_tracker">Unlock Expense Tracker</string>
     <string name="title_verify_biometric_to_enable_bio">Verify biometric to enable biometric lock.</string>
     <string name="title_verify_your_biometric_to_conti">Verify your biometric to continue.</string>
     <string name="toast_biometric_authentication_is_un">Biometric authentication is unavailable on this screen.</string>
