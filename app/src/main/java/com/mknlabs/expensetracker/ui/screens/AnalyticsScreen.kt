@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -240,12 +239,6 @@ fun AnalyticsScreenContent(
                     onDisplayModeChange = { heroDisplayMode = it }
                 ) 
             }
-            item {
-                // Native Ad Placement below Hero Section
-                AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
-                }
-            }
             item { StatsRow(snapshot) }
             item { CashFlowCard(snapshot) }
             item {
@@ -257,7 +250,7 @@ fun AnalyticsScreenContent(
                     val isLocked = status !is AccessStatus.Granted
                     Box {
                         CategoryCard(
-                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            modifier = Modifier,
                             snapshot = snapshot,
                             onViewAllClick = { isCategorySheetVisible = true },
                             onShowTransactions = { id, label ->
@@ -285,7 +278,7 @@ fun AnalyticsScreenContent(
                     val isLocked = status !is AccessStatus.Granted
                     Box {
                         PaymentTypeCard(
-                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            modifier = Modifier,
                             snapshot = snapshot,
                             onViewAllClick = { isPaymentSheetVisible = true },
                             onShowTransactions = { id, label ->
@@ -319,7 +312,7 @@ fun AnalyticsScreenContent(
                     Box {
                         val isLocked = status !is AccessStatus.Granted
                         TopSpendingCard(
-                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            modifier = Modifier,
                             topTransactions = snapshot.topTransactions,
                             dateFormatPattern = dateFormatPattern,
                             onViewAllClick = { isTopSpendingSheetVisible = true }
@@ -342,7 +335,7 @@ fun AnalyticsScreenContent(
                     Box {
                         val isLocked = status !is AccessStatus.Granted
                         SmartTipCard(
-                            modifier = if (isLocked) Modifier.blur(16.dp) else Modifier,
+                            modifier = Modifier,
                             tip = snapshot.smartTip
                         )
                         if (isLocked) {
