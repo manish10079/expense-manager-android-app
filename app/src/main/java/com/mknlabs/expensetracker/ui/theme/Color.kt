@@ -36,10 +36,6 @@ val GoalProgressHigh = PurplePrimary
 // Default Goal Color Hex (Brand Purple)
 const val DEFAULT_GOAL_COLOR_HEX = "#7B61FF"
 
-// Shimmer Effect Colors
-val ShimmerBase = Color(0xFFB8B5B5)
-val ShimmerHighlight = Color(0xFF8F8B8B)
-
 // Ad Loading Screen Colors
 val AdLoadingScrim = Color(0x99000000) // Black with 60% alpha
 val AdLoadingText = Color(0xFFFFFFFF)

@@ -11,12 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.mknlabs.expensetracker.ui.shimmerEffect
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 
 /**
- * A shimmer placeholder for Native Ads that mimics the layout of a TransactionCard.
- * Ensures UI stability while ads are loading and maintains the "Fintech Premium" look.
+ * A **static** skeleton placeholder for Native Ads that mimics the layout of a TransactionCard.
+ * Ensures UI stability while the (Phase 1 preloaded) ad is attached.
+ *
+ * Phase 3 (ADS_UI_JANK_FIX_PLAN §6): the animated shimmer (rememberInfiniteTransition) was
+ * removed — with all placements preloaded, the placeholder renders for ~0 frames, and a
+ * per-frame animating subtree competing for the 16 ms budget was a P0 jank source. Same
+ * geometry as before (80.dp tall — matches the inflated NativeAdView), so the shimmer ↔ ad
+ * swap never re-measures the slot.
  */
 @Composable
 fun NativeAdShimmer() {
@@ -38,7 +43,7 @@ fun NativeAdShimmer() {
             modifier = Modifier
                 .size(52.dp)
                 .clip(CircleShape)
-                .shimmerEffect()
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
         )
 
         Spacer(modifier = Modifier.width(14.dp))
@@ -52,7 +57,7 @@ fun NativeAdShimmer() {
                     .fillMaxWidth(0.7f)
                     .height(16.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .shimmerEffect()
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -63,7 +68,7 @@ fun NativeAdShimmer() {
                     .fillMaxWidth(0.9f)
                     .height(12.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .shimmerEffect()
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
             )
         }
 
@@ -75,7 +80,7 @@ fun NativeAdShimmer() {
                 .width(80.dp)
                 .height(34.dp)
                 .clip(RoundedCornerShape(17.dp))
-                .shimmerEffect()
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
         )
     }
 }
