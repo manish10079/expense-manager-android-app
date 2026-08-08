@@ -69,7 +69,7 @@ object NotificationHelper {
         }
     }
 
-    fun showReminderNotification(context: Context, message: String) {
+    fun showReminderNotification(context: Context, message: String, userName: String? = null) {
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -83,9 +83,15 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val title = if (userName.isNullOrBlank()) {
+            context.getString(R.string.notification_title_daily_reminder)
+        } else {
+            context.getString(R.string.notification_title_daily_reminder_personalized, userName.trim())
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
-            .setContentTitle(context.getString(R.string.app_name))
+            .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -3,6 +3,9 @@ package com.mknlabs.expensetracker.notifications
 import android.content.Context
 import androidx.work.*
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
+import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.models.firstName
 import kotlinx.coroutines.flow.first
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -18,6 +21,16 @@ class NotificationWorker(
         
         if (!appSettings.notificationsEnabled) {
             return Result.success()
+        }
+
+        // Personalize the reminder title with the user's first name — but only when
+        // they have actually set a name. Guests (default "Guest User") keep the
+        // generic title instead of an odd "Time to log an expense, Guest?".
+        val profile = UserProfileDataStore.getUserProfileFlow(applicationContext).first()
+        val firstName = if (profile.fullName.isNotBlank() && profile.fullName != defaultUserProfile.fullName) {
+            profile.firstName()
+        } else {
+            null
         }
 
         // Determine phase
@@ -41,10 +54,10 @@ class NotificationWorker(
                 finalMessage = DynamicNotificationEngine.generateMissedEntryMessage(applicationContext)
                 NotificationHelper.showMissedEntryNotification(applicationContext, finalMessage)
             } else {
-                NotificationHelper.showReminderNotification(applicationContext, finalMessage)
+                NotificationHelper.showReminderNotification(applicationContext, finalMessage, firstName)
             }
         } else {
-            NotificationHelper.showReminderNotification(applicationContext, finalMessage)
+            NotificationHelper.showReminderNotification(applicationContext, finalMessage, firstName)
         }
 
         // Schedule next random notification

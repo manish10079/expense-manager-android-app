@@ -1156,6 +1156,13 @@
     <string name="notification_channel_recurring">Recurring Transactions</string>
     <string name="notification_channel_recurring_desc">Notifications when recurring transactions are automatically added.</string>
     <string name="notification_title_budget_alert">Budget Alert!</string>
+    <string name="notification_title_daily_reminder">Time to log an expense?</string>
+    <string name="notification_title_recurring_updated">Recurring Transactions Updated</string>
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">Successfully added %1$d recurring transaction.</item>
+        <item quantity="other">Successfully added %1$d recurring transactions.</item>
+    </plurals>
+    <string name="notification_title_daily_reminder_personalized">Time to log an expense, %1$s?</string>
     <string name="notification_title_missed_today">Missed Today?</string>
 
     <!-- Smart SMS Import -->
