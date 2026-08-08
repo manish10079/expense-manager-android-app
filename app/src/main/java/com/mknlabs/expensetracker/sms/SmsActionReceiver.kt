@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
+import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -22,11 +23,18 @@ import javax.inject.Inject
  *  - note typed via RemoteInput (plan §14 Q2),
  *  - payment method = the user's configured default (plan §14 Q1).
  *
- * The notification is cancelled IMMEDIATELY on receipt (before the async save)
- * so that repeated taps / RemoteInput re-submissions cannot add duplicate
- * transactions, and the user gets instant feedback that the send worked —
- * nothing is re-shown afterwards. An in-memory atomic set guards concurrent
- * broadcast deliveries.
+ * Dismissal strategy (per the RemoteInput dismissal spec):
+ *  §3: The notification is cancelled SYNCHRONOUSLY at the top of onReceive,
+ *      on the main thread, BEFORE any database/network work — using the
+ *      notification ID passed in the action intent (§2). This is the
+ *      documented pattern messaging apps rely on.
+ *  §4A: After the async save completes, an OEM fallback (forceDismiss)
+ *      re-posts a min-priority, non-ongoing update that auto-dismisses after
+ *      500 ms — giving SystemUI time to reset the RemoteInputView "sending"
+ *      ghost card on ROMs where a plain cancel() is ignored while a reply is
+ *      in flight.
+ *  Dedup: an in-memory atomic set keyed on the SMS timestamp blocks repeated
+ *      taps / RemoteInput re-submissions, so one tap = one transaction.
  */
 @AndroidEntryPoint
 class SmsActionReceiver : BroadcastReceiver() {
@@ -41,6 +49,23 @@ class SmsActionReceiver : BroadcastReceiver() {
         if (intent.action != SmsNotificationManager.ACTION_SMS_SAVE) return
         val parsed = intent.toParsedSms() ?: return
 
+        // ── §3: dismiss IMMEDIATELY, synchronously, before any async work ──
+        // The notification ID rides in the action intent (§2). Cancelling on the
+        // main thread right now makes the card leave the shade instantly on every
+        // ROM — never wait for the DB write or a network call.
+        val notificationId = intent.getIntExtra(
+            SmsNotificationManager.EXTRA_NOTIFICATION_ID,
+            NotificationHelper.NOTIFICATION_ID_SMS_IMPORT
+        )
+        SmsNotificationManager.cancelImmediately(context, notificationId)
+
+        // Extract the inline note BEFORE the async work (spec §3 step 2).
+        val note = RemoteInput.getResultsFromIntent(intent)
+            ?.getCharSequence(SmsNotificationManager.KEY_TEXT_REPLY)
+            ?.toString()
+            .orEmpty()
+            .trim()
+
         // Use the SMS timestamp as a unique key for this transaction event.
         // Drop any broadcast that is already handled, then opportunistically sweep
         // stale keys (excluding the one just added, so a concurrent add for the
@@ -49,11 +74,6 @@ class SmsActionReceiver : BroadcastReceiver() {
         if (!processingKeys.add(key)) return   // already being handled — drop duplicate
         val cutoff = System.currentTimeMillis() - DEDUP_WINDOW_MS
         processingKeys.removeIf { it != key && it < cutoff }
-
-        // ── Cancel the notification IMMEDIATELY so the user cannot tap again ──
-        // This is the primary guard: the action buttons become unavailable the
-        // moment the first broadcast is received, long before the DB write completes.
-        SmsNotificationManager.cancel(context)
 
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
@@ -67,26 +87,22 @@ class SmsActionReceiver : BroadcastReceiver() {
                     .first()
                     .defaultPaymentTypeId
 
-                // Extract inline note typed by the user via RemoteInput
-                val remoteInputResults = RemoteInput.getResultsFromIntent(intent)
-                val note = remoteInputResults
-                    ?.getCharSequence(SmsNotificationManager.KEY_TEXT_REPLY)
-                    ?.toString()
-                    .orEmpty()
-                    .trim()
-
                 smsRepository.saveFromSms(parsed, note = note, paymentTypeId = paymentTypeId)
             } catch (e: Exception) {
                 failed = true
                 android.util.Log.w("SmsActionReceiver", "Failed to save SMS transaction", e)
             } finally {
-                // The key is KEPT on success (and on the isDuplicate skip): the SMS is
-                // handled, so any re-delivered broadcast — including the system's
-                // RemoteInput "completion" re-fire observed ~20s after the send tap —
-                // is dropped at the door. It is released only after a genuine failure
-                // so the user can retry the save.
-                if (failed) processingKeys.remove(key)
                 pendingResult.finish()
+                if (!failed) {
+                    // §4A OEM fallback: re-post a 1 ms-timeout, min-priority,
+                    // non-ongoing update and cancel it. If the synchronous cancel
+                    // above was honored, this is a no-op; if a ROM ignored it
+                    // (RemoteInput "sending" ghost), the update resets the stuck
+                    // row and the timeout removes it.
+                    SmsNotificationManager.forceDismiss(context, notificationId)
+                } else {
+                    processingKeys.remove(key)
+                }
             }
         }
     }

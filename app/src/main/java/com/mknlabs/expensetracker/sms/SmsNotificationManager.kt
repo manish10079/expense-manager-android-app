@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.sms
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.mknlabs.expensetracker.MainActivity
@@ -49,6 +50,13 @@ object SmsNotificationManager {
     const val KEY_TEXT_REPLY = "extra_sms_note"
 
     const val ACTION_SMS_SAVE = "com.mknlabs.expensetracker.action.SMS_SAVE"
+
+    /** Notification ID rides in the action intent so the receiver can cancel it directly. */
+    const val EXTRA_NOTIFICATION_ID = "sms.notification_id"
+
+    fun Intent.putNotificationId(notificationId: Int): Intent = apply {
+        putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+    }
 
     fun Intent.putParsedSms(parsed: ParsedSms): Intent = apply {
         putExtra(EXTRA_AMOUNT_MINOR, parsed.amountMinor)
@@ -146,6 +154,8 @@ object SmsNotificationManager {
                 action = ACTION_SMS_SAVE
                 // Put parsed SMS data, but update the categoryId to this action's category
                 putParsedSms(parsed.copy(categoryId = category.id))
+                // §2: pass the notification ID so the receiver can dismiss it directly
+                putNotificationId(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
             }
             val savePendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -175,6 +185,56 @@ object SmsNotificationManager {
 
     fun cancel(context: Context) {
         NotificationManagerCompat.from(context).cancel(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
+    }
+
+    /**
+     * §3 — Synchronous, immediate dismissal. Invoked on the main thread in the
+     * receiver's [SmsActionReceiver.onReceive] BEFORE any database/network
+     * work, using the notification ID carried in the action intent (§2). This
+     * is the documented pattern every messaging app relies on.
+     */
+    fun cancelImmediately(context: Context, notificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
+    }
+
+    /**
+     * §4A — OEM fallback for the heads-up / RemoteInput "ghost card" bug.
+     *
+     * On some Android versions and OEM skins (Samsung One UI, Xiaomi
+     * HyperOS/MIUI, OPPO ColorOS, Vivo FuntouchOS) a plain [cancelImmediately]
+     * is ignored while the RemoteInput is still in its "sending" state —
+     * SystemUI only resets that stuck view via [onNotificationUpdateOrReset],
+     * i.e. when the notification is UPDATED, not cancelled.
+     *
+     * So we re-post the SAME ID with a lowered-priority, explicitly
+     * non-ongoing, RemoteInput-free notification. Verified empirically on API
+     * 34: a 1 ms auto-timeout is TOO fast (the removal races the update
+     * propagation to SystemUI, leaving the ghost), and a back-to-back
+     * notify()+cancel() has the same race — but a re-post that SystemUI gets
+     * time to render clears the stuck row cleanly (a new SMS re-posting the
+     * same ID was confirmed to clear it instantly).
+     *
+     * So we re-notify and let a longer [setTimeoutAfter] auto-remove the row
+     * AFTER SystemUI has processed the update and reset the stuck view. On
+     * API < 26 (no timeout support) we fall back to a direct cancel. When the
+     * immediate cancel already succeeded this is effectively a no-op.
+     */
+    fun forceDismiss(context: Context, notificationId: Int) {
+        val nm = NotificationManagerCompat.from(context)
+        val reset = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_SMS_IMPORT)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_sms_import))
+            .setPriority(NotificationCompat.PRIORITY_MIN) // heads-up override: drop to min
+            .setOngoing(false)                            // §4B: never ongoing → cancel honored
+            .setAutoCancel(true)
+            .setTimeoutAfter(FORCE_DISMISS_TIMEOUT_MS)    // §4A: update, then auto-remove
+            .build()
+        nm.notify(notificationId, reset)
+        // Do NOT cancel immediately — the timeout removes the row after SystemUI
+        // has processed the update. Below API 26 (no timeout support) cancel now.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            nm.cancel(notificationId)
+        }
     }
 
     private fun openActivityIntent(context: Context, parsed: ParsedSms): Intent {
@@ -218,4 +278,11 @@ object SmsNotificationManager {
     private const val REQUEST_CODE_SAVE = 100
     private const val REQUEST_CODE_CHANGE = 101
     private const val REQUEST_CODE_OPEN = 102
+
+    /**
+     * How long the §4A reset notification stays before auto-dismissing. Long
+     * enough for SystemUI to process the update and reset the stuck
+     * RemoteInputView, short enough to be imperceptible to the user.
+     */
+    private const val FORCE_DISMISS_TIMEOUT_MS = 500L
 }
