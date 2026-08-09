@@ -54,10 +54,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -98,6 +100,9 @@ import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Spa
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -417,6 +422,30 @@ private fun AppLockScreenContent(
     recoveryAnswer: String,
     onRecoveryAnswerChange: (String) -> Unit
 ) {
+    // Hoisted so the card can be scrolled to the answer field when the keyboard opens.
+    val cardScrollState = rememberScrollState()
+
+    // Tracks whether the answer field itself is focused. This is the deterministic trigger
+    // for the keyboard layout (WindowInsets.isImeVisible can report false even with the IME
+    // fully shown on some devices), and it also covers short content like the recovery card.
+    var answerFieldFocused by remember { mutableStateOf(false) }
+
+    // When the user focuses the answer field (security-question setup / recovery content),
+    // scroll the card to its bottom: the answer field is the last child in both
+    // [SetupSecurityQuestionContent] and [RecoveryQuestionContent], so it lands directly
+    // above the keyboard instead of leaving a large empty gap between the field and the IME.
+    // maxValue is followed (instead of read once) because the IME animates in over ~200ms
+    // and the viewport keeps shrinking while it does; this tracks the growing max until it
+    // stabilizes, then stops (no feedback loop - maxValue doesn't depend on scroll position).
+    LaunchedEffect(answerFieldFocused) {
+        if (answerFieldFocused) {
+            snapshotFlow { cardScrollState.maxValue }
+                .filter { it > 0 }
+                .distinctUntilChanged()
+                .collect { cardScrollState.scrollTo(it) }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -483,14 +512,11 @@ private fun AppLockScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(horizontal = 20.dp)
-                ,
-                contentAlignment = if (isPinEntryVisible) {
-                    Alignment.Center
-                } else if (isKeyboardOpen) {
-                    Alignment.BottomCenter
-                } else {
-                    Alignment.TopCenter
+                    .padding(horizontal = 20.dp),
+                contentAlignment = when {
+                    isPinEntryVisible -> Alignment.Center
+                    answerFieldFocused || isKeyboardOpen -> Alignment.BottomCenter
+                    else -> Alignment.TopCenter
                 }
             ) {
                 if (!isRecoveryMode) {
@@ -526,7 +552,7 @@ private fun AppLockScreenContent(
                             if (isPinEntryVisible) {
                                 Modifier
                             } else {
-                                Modifier.verticalScroll(rememberScrollState())
+                                Modifier.verticalScroll(cardScrollState)
                             }
                         ),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -584,7 +610,8 @@ private fun AppLockScreenContent(
                                 questionPrompt = securityQuestionPromptText,
                                 answer = recoveryAnswer,
                                 onAnswerChange = onRecoveryAnswerChange,
-                                onDone = onPrimaryActionClick
+                                onDone = onPrimaryActionClick,
+                                onFocusChanged = { answerFieldFocused = it }
                             )
                         }
 
@@ -594,7 +621,8 @@ private fun AppLockScreenContent(
                                 answer = securityAnswer,
                                 onQuestionSelected = onQuestionSelected,
                                 onAnswerChange = onSecurityAnswerChange,
-                                onDone = onPrimaryActionClick
+                                onDone = onPrimaryActionClick,
+                                onFocusChanged = { answerFieldFocused = it }
                             )
                         }
 
@@ -710,7 +738,8 @@ private fun SetupSecurityQuestionContent(
     answer: String,
     onQuestionSelected: (String) -> Unit,
     onAnswerChange: (String) -> Unit,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    onFocusChanged: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -731,7 +760,8 @@ private fun SetupSecurityQuestionContent(
             label = stringResource(R.string.label_your_answer),
             placeholder = stringResource(R.string.placeholder_type_recovery_answer),
             onValueChange = onAnswerChange,
-            onDone = onDone
+            onDone = onDone,
+            onFocusChanged = onFocusChanged
         )
     }
 }
@@ -741,7 +771,8 @@ private fun RecoveryQuestionContent(
     questionPrompt: String?,
     answer: String,
     onAnswerChange: (String) -> Unit,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    onFocusChanged: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -768,7 +799,8 @@ private fun RecoveryQuestionContent(
             label = stringResource(R.string.label_security_answer),
             placeholder = stringResource(R.string.placeholder_enter_your_answer),
             onValueChange = onAnswerChange,
-            onDone = onDone
+            onDone = onDone,
+            onFocusChanged = onFocusChanged
         )
     }
 }
@@ -809,13 +841,16 @@ private fun AppLockAnswerField(
     label: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    onDone: (() -> Unit)? = null
+    onDone: (() -> Unit)? = null,
+    onFocusChanged: (Boolean) -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { onFocusChanged(it.isFocused) },
         singleLine = true,
         shape = RoundedCornerShape(22.dp),
         label = {
