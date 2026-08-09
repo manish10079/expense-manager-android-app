@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PriceCheck
+import androidx.compose.material.icons.rounded.Savings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,9 +44,11 @@ fun NotificationSettingsScreen(
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
+    isGoalRemindersEnabled: Boolean,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
+    onGoalRemindersChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     isAdsEnabled: Boolean = false
 ) {
@@ -53,10 +56,12 @@ fun NotificationSettingsScreen(
         isDailyReminderEnabled = isDailyReminderEnabled,
         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+        isGoalRemindersEnabled = isGoalRemindersEnabled,
         isAdsEnabled = isAdsEnabled,
         onDailyReminderChange = onDailyReminderChange,
         onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
         onMissedEntryReminderChange = onMissedEntryReminderChange,
+        onGoalRemindersChange = onGoalRemindersChange,
         onBackClick = onBackClick
     )
 }
@@ -66,10 +71,12 @@ private fun NotificationSettingsContent(
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
+    isGoalRemindersEnabled: Boolean,
     isAdsEnabled: Boolean,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
+    onGoalRemindersChange: (Boolean) -> Unit,
     onBackClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -124,6 +131,16 @@ private fun NotificationSettingsContent(
                     isChecked = isMissedEntryReminderEnabled,
                     onCheckedChange = onMissedEntryReminderChange
                 )
+                SettingsGroupDivider()
+                SettingsItemCard(
+                    icon = Icons.Rounded.Savings,
+                    title = stringResource(id = R.string.title_goal_reminders),
+                    subtitle = stringResource(id = R.string.desc_goal_reminders),
+                    type = SettingsItemType.Toggle,
+                    standalone = false,
+                    isChecked = isGoalRemindersEnabled,
+                    onCheckedChange = onGoalRemindersChange
+                )
             }
 
             // Inline Native Ad after Group
@@ -144,10 +161,12 @@ private fun NotificationSettingsScreenPreview() {
             isDailyReminderEnabled = true,
             isBudgetLimitAlertsEnabled = false,
             isMissedEntryReminderEnabled = true,
+            isGoalRemindersEnabled = true,
             isAdsEnabled = false,
             onDailyReminderChange = {},
             onBudgetLimitAlertsChange = {},
             onMissedEntryReminderChange = {},
+            onGoalRemindersChange = {},
             onBackClick = {}
         )
     }

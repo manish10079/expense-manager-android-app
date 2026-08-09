@@ -5,13 +5,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,9 +33,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.ui.theme.GoalProgressMedium
@@ -38,10 +49,16 @@ import com.mknlabs.expensetracker.ui.viewmodels.GoalsViewModel
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
+import com.mknlabs.expensetracker.utils.daysUntilTimestamp
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.formatDate
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import java.util.Locale
+
+private const val DAY_MILLIS = 86_400_000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +66,7 @@ fun GoalsScreen(
     onBackClick: () -> Unit,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     viewModel: GoalsViewModel = hiltViewModel()
 ) {
     val goals by viewModel.goals.collectAsStateWithLifecycle()
@@ -57,9 +75,13 @@ fun GoalsScreen(
         goals = goals,
         currencyId = currencyId,
         amountFormatPreferences = amountFormatPreferences,
+        dateFormatPattern = dateFormatPattern,
         onBackClick = onBackClick,
-        onAddGoal = { name, amount -> viewModel.addGoal(name, amount) },
+        onAddGoal = { name, amount, deadline, iconKey -> viewModel.addGoal(name, amount, deadline, iconKey) },
         onFundGoal = { id, amount -> viewModel.fundGoal(id, amount) },
+        onEditGoal = { id, name, amount, deadline, iconKey ->
+            viewModel.updateGoal(id, name, amount, deadline, iconKey)
+        },
         onDeleteGoal = { viewModel.deleteGoal(it.id) }
     )
 }
@@ -70,14 +92,20 @@ private fun GoalsScreenContent(
     goals: List<Goal>,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
     onBackClick: () -> Unit,
-    onAddGoal: (String, Double) -> Unit,
+    onAddGoal: (String, Double, Long?, String) -> Unit,
     onFundGoal: (String, Double) -> Unit,
+    onEditGoal: (String, String, Double, Long?, String) -> Unit,
     onDeleteGoal: (Goal) -> Unit
 ) {
     var isAddGoalDialogVisible by rememberSaveable { mutableStateOf(false) }
     var fundingGoalId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editingGoalId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteGoal by remember { mutableStateOf<Goal?>(null) }
+
+    val activeGoals = goals.filter { !it.isCompleted }
+    val completedGoals = goals.filter { it.isCompleted }
 
     Scaffold(
         floatingActionButton = {
@@ -131,16 +159,38 @@ private fun GoalsScreenContent(
                             .weight(1f)
                             .fillMaxWidth(),
                         contentPadding = PaddingValues(bottom = 80.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(goals, key = { it.id }) { goal ->
-                            GoalItem(
-                                goal = goal,
-                                currencyId = currencyId,
-                                amountFormatPreferences = amountFormatPreferences,
-                                onFund = { fundingGoalId = goal.id },
-                                onDelete = { pendingDeleteGoal = goal }
-                            )
+                        if (activeGoals.isNotEmpty()) {
+                            item(key = "active_header") {
+                                GoalsSectionHeader(stringResource(R.string.title_active_goals))
+                            }
+                            items(activeGoals, key = { it.id }) { goal ->
+                                GoalItem(
+                                    goal = goal,
+                                    currencyId = currencyId,
+                                    amountFormatPreferences = amountFormatPreferences,
+                                    onFund = { fundingGoalId = goal.id },
+                                    onEdit = { editingGoalId = goal.id },
+                                    onDelete = { pendingDeleteGoal = goal }
+                                )
+                            }
+                        }
+
+                        if (completedGoals.isNotEmpty()) {
+                            item(key = "completed_header") {
+                                GoalsSectionHeader(stringResource(R.string.title_completed_goals))
+                            }
+                            items(completedGoals, key = { "completed_${it.id}" }) { goal ->
+                                GoalItem(
+                                    goal = goal,
+                                    currencyId = currencyId,
+                                    amountFormatPreferences = amountFormatPreferences,
+                                    onFund = { fundingGoalId = goal.id },
+                                    onEdit = { editingGoalId = goal.id },
+                                    onDelete = { pendingDeleteGoal = goal }
+                                )
+                            }
                         }
                     }
                 }
@@ -152,9 +202,10 @@ private fun GoalsScreenContent(
         AddGoalDialog(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = dateFormatPattern,
             onDismiss = { isAddGoalDialogVisible = false },
-            onSave = { name, amount ->
-                onAddGoal(name, amount)
+            onSave = { name, amount, deadline, iconKey ->
+                onAddGoal(name, amount, deadline, iconKey)
                 isAddGoalDialogVisible = false
             }
         )
@@ -172,6 +223,23 @@ private fun GoalsScreenContent(
         )
     }
 
+    editingGoalId?.let { id ->
+        val editingGoal = goals.firstOrNull { it.id == id }
+        if (editingGoal != null) {
+            EditGoalDialog(
+                goal = editingGoal,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences,
+                dateFormatPattern = dateFormatPattern,
+                onDismiss = { editingGoalId = null },
+                onSave = { name, amount, deadline, iconKey ->
+                    onEditGoal(id, name, amount, deadline, iconKey)
+                    editingGoalId = null
+                }
+            )
+        }
+    }
+
     pendingDeleteGoal?.let { goal ->
         DeleteGoalDialog(
             goalName = goal.name,
@@ -182,6 +250,20 @@ private fun GoalsScreenContent(
             }
         )
     }
+}
+
+@Composable
+private fun GoalsSectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp,
+            fontSize = 13.sp
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+    )
 }
 
 @Composable
@@ -278,12 +360,17 @@ fun FundGoalDialog(
 fun AddGoalDialog(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
     onDismiss: () -> Unit,
-    onSave: (String, Double) -> Unit
+    onSave: (String, Double, Long?, String) -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var amountInput by rememberSaveable { mutableStateOf("") }
-    
+    var deadlineAt by rememberSaveable { mutableStateOf<Long?>(null) }
+    var iconKey by rememberSaveable { mutableStateOf("savings") }
+    var isDeadlinePickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isIconPickerVisible by rememberSaveable { mutableStateOf(false) }
+
     val targetAmount = amountInput.toDoubleOrNull() ?: 0.0
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
 
@@ -324,11 +411,23 @@ fun AddGoalDialog(
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
+
+                DeadlinePickerRow(
+                    deadlineAt = deadlineAt,
+                    dateFormatPattern = dateFormatPattern,
+                    onPick = { isDeadlinePickerVisible = true },
+                    onClear = { deadlineAt = null }
+                )
+
+                GoalIconPickerRow(
+                    iconKey = iconKey,
+                    onPick = { isIconPickerVisible = true }
+                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onSave(name, targetAmount) },
+                onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
                 enabled = isSaveEnabled
             ) {
                 Text(stringResource(R.string.label_save_1))
@@ -340,6 +439,332 @@ fun AddGoalDialog(
             }
         }
     )
+
+    if (isDeadlinePickerVisible) {
+        DeadlinePickerModal(
+            initialDeadlineMillis = deadlineAt,
+            onDismiss = { isDeadlinePickerVisible = false },
+            onConfirm = {
+                deadlineAt = it
+                isDeadlinePickerVisible = false
+            }
+        )
+    }
+
+    if (isIconPickerVisible) {
+        GoalIconPickerModal(
+            selectedIconKey = iconKey,
+            onDismiss = { isIconPickerVisible = false },
+            onConfirm = {
+                iconKey = it
+                isIconPickerVisible = false
+            }
+        )
+    }
+}
+
+@Composable
+fun EditGoalDialog(
+    goal: Goal,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    onDismiss: () -> Unit,
+    onSave: (String, Double, Long?, String) -> Unit
+) {
+    var name by rememberSaveable(goal.id) { mutableStateOf(goal.name) }
+    var amountInput by rememberSaveable(goal.id) { mutableStateOf(formatAmountForInput(goal.targetAmountMinor)) }
+    var deadlineAt by rememberSaveable(goal.id) { mutableStateOf(goal.deadlineAt) }
+    var iconKey by rememberSaveable(goal.id) { mutableStateOf(goal.iconKey) }
+    var isDeadlinePickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isIconPickerVisible by rememberSaveable { mutableStateOf(false) }
+
+    val targetAmount = amountInput.toDoubleOrNull() ?: 0.0
+    val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.title_edit_goal),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.label_goal_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    )
+                )
+
+                OutlinedTextField(
+                    value = amountInput,
+                    onValueChange = { updatedValue ->
+                        amountInput = updatedValue.filter { it.isDigit() || it == '.' }
+                    },
+                    label = { Text(stringResource(R.string.label_target_amount)) },
+                    supportingText = {
+                        Text(
+                            text = stringResource(
+                                R.string.label_saved_amount,
+                                formatCurrencyValue(goal.currentAmountMinor / 100.0, currencyId, amountFormatPreferences)
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    )
+                )
+
+                DeadlinePickerRow(
+                    deadlineAt = deadlineAt,
+                    dateFormatPattern = dateFormatPattern,
+                    onPick = { isDeadlinePickerVisible = true },
+                    onClear = { deadlineAt = null }
+                )
+
+                GoalIconPickerRow(
+                    iconKey = iconKey,
+                    onPick = { isIconPickerVisible = true }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
+                enabled = isSaveEnabled
+            ) {
+                Text(stringResource(R.string.label_save_1))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.label_cancel_1))
+            }
+        }
+    )
+
+    if (isDeadlinePickerVisible) {
+        DeadlinePickerModal(
+            initialDeadlineMillis = deadlineAt,
+            onDismiss = { isDeadlinePickerVisible = false },
+            onConfirm = {
+                deadlineAt = it
+                isDeadlinePickerVisible = false
+            }
+        )
+    }
+
+    if (isIconPickerVisible) {
+        GoalIconPickerModal(
+            selectedIconKey = iconKey,
+            onDismiss = { isIconPickerVisible = false },
+            onConfirm = {
+                iconKey = it
+                isIconPickerVisible = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun DeadlinePickerRow(
+    deadlineAt: Long?,
+    dateFormatPattern: String,
+    onPick: () -> Unit,
+    onClear: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.label_deadline),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        if (deadlineAt != null) {
+            Text(
+                text = formatDate(deadlineAt, dateFormatPattern),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = colorScheme.primary,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable(onClick = onPick)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+            )
+            TextButton(onClick = onClear) {
+                Text(
+                    text = stringResource(R.string.label_clear),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = colorScheme.error
+                )
+            }
+        } else {
+            TextButton(onClick = onPick) {
+                Text(
+                    text = stringResource(R.string.label_set_deadline),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeadlinePickerModal(
+    initialDeadlineMillis: Long?,
+    onDismiss: () -> Unit,
+    onConfirm: (Long) -> Unit
+) {
+    WheelDateTimePickerModal(
+        mode = WheelPickerMode.SINGLE_DATE,
+        initialStartMillis = initialDeadlineMillis ?: System.currentTimeMillis(),
+        onDismissRequest = onDismiss,
+        onConfirm = { pickedDateMillis, _ ->
+            onConfirm(
+                datePickerSelectionToLocalDateTimestamp(
+                    selectedDateMillis = pickedDateMillis,
+                    isInputUtc = false
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun GoalIconPickerRow(
+    iconKey: String,
+    onPick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val selectedOption = remember(iconKey) {
+        categoryIconOptions.firstOrNull { it.id == iconKey }
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .clickable(onClick = onPick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(brush = brandGradient()),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = selectedOption?.icon ?: Icons.Filled.Savings,
+                contentDescription = stringResource(R.string.cd_goal_icon),
+                tint = colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = stringResource(R.string.label_goal_icon),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = stringResource(R.string.title_choose_icon),
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun GoalIconPickerModal(
+    selectedIconKey: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.title_choose_icon),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+            )
+        },
+        text = {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(64.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 360.dp)
+            ) {
+                items(categoryIconOptions, key = { it.id }) { option ->
+                    GoalIconSelectionItem(
+                        option = option,
+                        selected = option.id == selectedIconKey,
+                        onClick = { onConfirm(option.id) }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.label_cancel_1))
+            }
+        }
+    )
+}
+
+@Composable
+private fun GoalIconSelectionItem(
+    option: CategoryIconOption,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(64.dp)
+            .clip(CircleShape)
+            .background(
+                brush = if (selected) brandGradient() else androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                    )
+                )
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = option.icon,
+            contentDescription = stringResource(option.labelRes),
+            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(28.dp)
+        )
+    }
 }
 
 @Composable
@@ -348,8 +773,15 @@ fun GoalItem(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     onFund: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // Resolve the picked icon from the same catalog the picker uses; fall back to
+    // the registry-resolved icon for legacy keys not in the catalog.
+    val goalIcon = remember(goal.iconKey) {
+        categoryIconOptions.firstOrNull { it.id == goal.iconKey }?.icon ?: goal.icon
+    }
+
     val progressColor = when {
         goal.progress < 0.34f -> GoalProgressLow
         goal.progress < 0.67f -> GoalProgressMedium
@@ -373,20 +805,49 @@ fun GoalItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = goal.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = goalIcon,
+                            contentDescription = stringResource(R.string.cd_goal_icon),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = goal.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    GoalCardAction(
+                        icon = Icons.Outlined.Edit,
+                        contentDescription = stringResource(R.string.cd_edit_goal),
+                        accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                        onClick = onEdit
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     GoalCardAction(
                         icon = Icons.Default.Add,
                         contentDescription = stringResource(R.string.cd_add_funds),
                         accent = MaterialTheme.colorScheme.primary,
                         onClick = onFund
                     )
-                    
+
                     Spacer(modifier = Modifier.width(8.dp))
 
                     GoalCardAction(
@@ -397,9 +858,9 @@ fun GoalItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(14.dp))
-            
+
             LinearProgressIndicator(
                 progress = { goal.progress },
                 modifier = Modifier
@@ -409,17 +870,27 @@ fun GoalItem(
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.format_goal_progress, (goal.progress * 100).toInt()),
+                    text = if (goal.isCompleted) {
+                        stringResource(R.string.label_goal_completed)
+                    } else {
+                        stringResource(R.string.format_goal_progress, (goal.progress * 100).toInt())
+                    },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (goal.isCompleted) {
+                        GoalProgressHigh
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    fontWeight = if (goal.isCompleted) FontWeight.Bold else FontWeight.Normal
                 )
                 Text(
                     text = stringResource(
@@ -432,7 +903,39 @@ fun GoalItem(
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            goal.deadlineAt?.let { deadline ->
+                if (!goal.isCompleted) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val daysLeft = daysUntilTimestamp(deadline)
+                    val (deadlineText, deadlineColor) = when {
+                        daysLeft < 0 -> stringResource(
+                            R.string.format_days_overdue, -daysLeft
+                        ) to MaterialTheme.colorScheme.error
+
+                        daysLeft == 0L -> stringResource(R.string.label_goal_due_today) to MaterialTheme.colorScheme.error
+                        daysLeft == 1L -> stringResource(R.string.label_one_day_left) to MaterialTheme.colorScheme.error
+                        else -> stringResource(R.string.format_days_left, daysLeft) to MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                    Text(
+                        text = deadlineText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = deadlineColor,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
+    }
+}
+
+/** Formats a minor-unit amount as plain input text (e.g. 250000 -> "2500", 250050 -> "2500.50"). */
+private fun formatAmountForInput(amountMinor: Long): String {
+    val value = amountMinor / 100.0
+    return if (value == value.toLong().toDouble()) {
+        value.toLong().toString()
+    } else {
+        String.format(Locale.US, "%.2f", value)
     }
 }
 
@@ -476,7 +979,7 @@ private fun GoalsScreenPreview() {
                     name = "New Car",
                     targetAmountMinor = 2500000,
                     currentAmountMinor = 500000,
-                    deadlineAt = null,
+                    deadlineAt = System.currentTimeMillis() + 30L * DAY_MILLIS,
                     iconKey = "savings",
                     colorHex = "#7B61FF",
                     isCompleted = false,
@@ -488,19 +991,33 @@ private fun GoalsScreenPreview() {
                     name = "Emergency Fund",
                     targetAmountMinor = 1000000,
                     currentAmountMinor = 800000,
-                    deadlineAt = null,
+                    deadlineAt = System.currentTimeMillis() + 2L * DAY_MILLIS,
                     iconKey = "savings",
                     colorHex = "#7B61FF",
                     isCompleted = false,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                ),
+                Goal(
+                    id = "3",
+                    name = "Trip",
+                    targetAmountMinor = 1000000,
+                    currentAmountMinor = 1200000,
+                    deadlineAt = null,
+                    iconKey = "savings",
+                    colorHex = "#7B61FF",
+                    isCompleted = true,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
             ),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             onBackClick = {},
-            onAddGoal = { _, _ -> },
+            onAddGoal = { _, _, _, _ -> },
             onFundGoal = { _, _ -> },
+            onEditGoal = { _, _, _, _, _ -> },
             onDeleteGoal = {}
         )
     }

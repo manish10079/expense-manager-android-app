@@ -46,5 +46,6 @@ data class AppSettings(
     val isCloudSyncEnabled: Boolean,
     val pendingAuthEmail: String?,
     val setupDismissedUntilMillis: Long,
-    val userTier: UserTier
+    val userTier: UserTier,
+    val goalRemindersEnabled: Boolean = true
 )

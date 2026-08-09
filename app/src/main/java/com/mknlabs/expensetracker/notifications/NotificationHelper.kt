@@ -21,9 +21,11 @@ object NotificationHelper {
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
     const val DESTINATION_SMS_CHANGE = "sms_change"
+    const val DESTINATION_GOALS = "goals"
 
-    /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8). */
+    /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8); goals take 6. */
     const val NOTIFICATION_ID_SMS_IMPORT = 5
+    const val NOTIFICATION_ID_GOAL_REMINDER = 6
 
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -166,6 +168,38 @@ object NotificationHelper {
             try {
                 notify(3, builder.build())
             } catch (e: SecurityException) { }
+        }
+    }
+
+    fun showGoalReminderNotification(context: Context, message: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
+            // when the app is alive in the background, instead of CLEAR_TASK which
+            // force-restarts the activity and replays the splash screen.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_GOALS)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, 6, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.title_goal_reminder))
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(NOTIFICATION_ID_GOAL_REMINDER, builder.build())
+            } catch (e: SecurityException) {
+                // Handle missing permission
+            }
         }
     }
 

@@ -39,6 +39,7 @@ object AppSettingsDataStore {
         val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
         val budgetLimitAlertsEnabled = booleanPreferencesKey("budget_limit_alerts_enabled")
         val missedEntryReminderEnabled = booleanPreferencesKey("missed_entry_reminder_enabled")
+        val goalRemindersEnabled = booleanPreferencesKey("goal_reminders_enabled")
         val appLockEnabled = booleanPreferencesKey("app_lock_enabled")
         val biometricLockEnabled = booleanPreferencesKey("biometric_lock_enabled")
         val scrambledPinKeypadEnabled = booleanPreferencesKey("scrambled_pin_keypad_enabled")
@@ -153,6 +154,7 @@ object AppSettingsDataStore {
             notificationsEnabled = this[Keys.notificationsEnabled] ?: defaultAppSettings.notificationsEnabled,
             budgetLimitAlertsEnabled = this[Keys.budgetLimitAlertsEnabled] ?: defaultAppSettings.budgetLimitAlertsEnabled,
             missedEntryReminderEnabled = this[Keys.missedEntryReminderEnabled] ?: defaultAppSettings.missedEntryReminderEnabled,
+            goalRemindersEnabled = this[Keys.goalRemindersEnabled] ?: defaultAppSettings.goalRemindersEnabled,
             appLockEnabled = this[Keys.appLockEnabled] ?: defaultAppSettings.appLockEnabled,
             biometricLockEnabled = this[Keys.biometricLockEnabled] ?: defaultAppSettings.biometricLockEnabled,
             scrambledPinKeypadEnabled = this[Keys.scrambledPinKeypadEnabled] ?: defaultAppSettings.scrambledPinKeypadEnabled,
@@ -200,6 +202,7 @@ object AppSettingsDataStore {
         this[Keys.notificationsEnabled] = settings.notificationsEnabled
         this[Keys.budgetLimitAlertsEnabled] = settings.budgetLimitAlertsEnabled
         this[Keys.missedEntryReminderEnabled] = settings.missedEntryReminderEnabled
+        this[Keys.goalRemindersEnabled] = settings.goalRemindersEnabled
         this[Keys.appLockEnabled] = settings.appLockEnabled
         this[Keys.biometricLockEnabled] = settings.biometricLockEnabled
         this[Keys.scrambledPinKeypadEnabled] = settings.scrambledPinKeypadEnabled

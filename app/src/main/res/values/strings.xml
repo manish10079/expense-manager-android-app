@@ -744,6 +744,8 @@
     <string name="title_budget_limit_alerts">Budget Limit Alerts</string>
     <string name="desc_budget_limit_alerts">Get notified when you exceed your monthly budget.</string>
     <string name="desc_missed_entry_reminder">Get notified if you forget to add a transaction for 2 days.</string>
+    <string name="title_goal_reminders">Savings Goal Reminders</string>
+    <string name="desc_goal_reminders">Get a weekly nudge on your savings goals.</string>
     <!-- Splash Screen Tasks -->
     <string name="msg_preparing_dashboard">Preparing your dashboard</string>
     <string name="msg_syncing_transactions">Syncing your transactions</string>
@@ -1405,6 +1407,27 @@
     <string name="format_goal_progress">%1$d%% complete</string>
     <string name="format_goal_amount_status">%1$s / %2$s</string>
     <string name="format_goal_target">Target: %1$s</string>
+    <string name="title_edit_goal">Edit Goal</string>
+    <string name="cd_edit_goal">Edit Goal</string>
+    <string name="title_active_goals">Active Goals</string>
+    <string name="title_completed_goals">Completed</string>
+    <string name="label_goal_completed">Completed \uD83C\uDF89</string>
+    <string name="label_deadline">Deadline</string>
+    <string name="label_deadline_not_set">Not set</string>
+    <string name="label_set_deadline">Set deadline</string>
+    <string name="format_days_left">%1$d days left</string>
+    <string name="label_one_day_left">1 day left</string>
+    <string name="label_goal_due_today">Due today</string>
+    <string name="format_days_overdue">%1$d days overdue</string>
+    <string name="label_saved_amount">Saved: %1$s</string>
+    <string name="label_goal_icon">Icon</string>
+    <string name="title_choose_icon">Choose an icon</string>
+    <string name="cd_goal_icon">Goal icon</string>
+    <string name="title_goal_reminder">Savings goal update</string>
+    <string name="msg_goal_reminder_due_soon">Only %1$d days left for \"%2$s\" — you\'re %3$d%% there!</string>
+    <string name="msg_goal_reminder_due_soon_1">Only 1 day left for \"%1$s\" — you\'re %2$d%% there!</string>
+    <string name="msg_goal_reminder_due_today">Due today — \"%1$s\"! You\'re %2$d%% there.</string>
+    <string name="msg_goal_reminder_progress">You\'re %1$d%% toward \"%2$s\". Keep going!</string>
     <string name="label_test_goal">Test Goal </string>
 
     <!-- Recurring Notifications -->

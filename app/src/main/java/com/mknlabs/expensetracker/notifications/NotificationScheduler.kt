@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.notifications
 
 import android.content.Context
 import androidx.work.*
+import com.mknlabs.expensetracker.workers.GoalReminderWorker
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -31,5 +32,23 @@ object NotificationScheduler {
 
     fun stopDailyReminders(context: Context) {
         WorkManager.getInstance(context).cancelUniqueWork("DailyReminderWork")
+    }
+
+    fun startGoalReminders(context: Context) {
+        // Weekly savings-goal nudge, first run after 1 day so new goals get noticed soon.
+        val workRequest = PeriodicWorkRequestBuilder<GoalReminderWorker>(7, TimeUnit.DAYS)
+            .setInitialDelay(1, TimeUnit.DAYS)
+            .addTag("goal_reminder")
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "GoalReminderWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
+
+    fun stopGoalReminders(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork("GoalReminderWork")
     }
 }

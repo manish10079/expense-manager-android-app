@@ -212,6 +212,18 @@ fun localDateTimestampToDatePickerSelection(timestamp: Long): Long {
     }.timeInMillis
 }
 
+/**
+ * Whole calendar days from [fromMillis] until [targetMillis], ignoring time-of-day:
+ * a target later today is 0, tomorrow is 1, and a past target is negative.
+ */
+fun daysUntilTimestamp(targetMillis: Long, fromMillis: Long = System.currentTimeMillis()): Long {
+    val target = Calendar.getInstance().apply { timeInMillis = targetMillis }
+    val from = Calendar.getInstance().apply { timeInMillis = fromMillis }
+    val targetDay = target.get(Calendar.YEAR) * 366L + target.get(Calendar.DAY_OF_YEAR)
+    val fromDay = from.get(Calendar.YEAR) * 366L + from.get(Calendar.DAY_OF_YEAR)
+    return targetDay - fromDay
+}
+
 fun calculateAge(dobMillis: Long): Int {
     val dob = Calendar.getInstance().apply { timeInMillis = dobMillis }
     val today = Calendar.getInstance()

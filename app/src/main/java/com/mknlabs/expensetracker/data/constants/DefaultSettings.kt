@@ -18,8 +18,11 @@ const val DEFAULT_TRANSACTION_TYPE_FILTER_ID = 2
 const val DEFAULT_PAYMENT_TYPE_ID = 1
 const val DEFAULT_LANGUAGE_CODE = "en"
 const val DEFAULT_NOTIFICATIONS_ENABLED = true
-const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = false
-const val DEFAULT_MISSED_ENTRY_REMINDER_ENABLED = false
+// All notification toggles default ON for every tier (free + pro) so users opt OUT,
+// not in. The per-user saved choice still wins once a user touches a toggle.
+const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true
+const val DEFAULT_MISSED_ENTRY_REMINDER_ENABLED = true
+const val DEFAULT_GOAL_REMINDERS_ENABLED = true
 const val DEFAULT_APP_LOCK_ENABLED = false
 const val DEFAULT_BIOMETRIC_LOCK_ENABLED = false
 const val DEFAULT_SCRAMBLED_PIN_KEYPAD_ENABLED = false
@@ -93,5 +96,6 @@ val defaultAppSettings = AppSettings(
     isCloudSyncEnabled = DEFAULT_CLOUD_SYNC_ENABLED,
     pendingAuthEmail = DEFAULT_PENDING_AUTH_EMAIL,
     setupDismissedUntilMillis = DEFAULT_SETUP_DISMISSED_UNTIL_MILLIS,
-    userTier = DEFAULT_USER_TIER
+    userTier = DEFAULT_USER_TIER,
+    goalRemindersEnabled = DEFAULT_GOAL_REMINDERS_ENABLED
 )

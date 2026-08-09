@@ -74,6 +74,7 @@ fun AppNavigationHost(
     isDailyReminderEnabled: Boolean,
     isBudgetLimitAlertsEnabled: Boolean,
     isMissedEntryReminderEnabled: Boolean,
+    isGoalRemindersEnabled: Boolean,
     autoLockDurationMinutes: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
@@ -101,6 +102,7 @@ fun AppNavigationHost(
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
+    onGoalRemindersChange: (Boolean) -> Unit,
     onDatabaseBackupFileSelected: (Uri) -> Unit,
     onDatabaseRestoreFileSelected: (Uri) -> Unit,
     onJsonExportFileSelected: (Uri) -> Unit,
@@ -378,9 +380,11 @@ fun AppNavigationHost(
                         isDailyReminderEnabled = isDailyReminderEnabled,
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        isGoalRemindersEnabled = isGoalRemindersEnabled,
                         onDailyReminderChange = onDailyReminderChange,
                         onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
                         onMissedEntryReminderChange = onMissedEntryReminderChange,
+                        onGoalRemindersChange = onGoalRemindersChange,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)

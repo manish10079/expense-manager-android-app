@@ -84,6 +84,7 @@ object BenchmarkHooks {
                     showOnboardingScreen = false,
                     smartSmsPrompted = true,
                     notificationsEnabled = false,
+                    goalRemindersEnabled = false,
                     isAutoBackupEnabled = false,
                     isCloudSyncEnabled = false,
                     appLockEnabled = false

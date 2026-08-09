@@ -206,6 +206,7 @@ fun MainScreen(
     val isDailyReminderEnabled = appSettings.notificationsEnabled
     val isBudgetLimitAlertsEnabled = appSettings.budgetLimitAlertsEnabled
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
+    val isGoalRemindersEnabled = appSettings.goalRemindersEnabled
     val isAutoBackupEnabled = appSettings.isAutoBackupEnabled
     val autoBackupFrequencyDays = appSettings.autoBackupFrequencyDays
     val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
@@ -464,6 +465,12 @@ fun MainScreen(
                         navigationState.navigateTo(AppRoute.Home)
                         navigationState.updateBottomBarVisibility(false)
                     }
+
+                    NotificationHelper.DESTINATION_GOALS -> {
+                        // Savings-goal reminder: land on the Goals screen.
+                        navigationState.navigateTo(AppRoute.Goals)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
                 }
             }
 
@@ -480,6 +487,16 @@ fun MainScreen(
                     NotificationScheduler.startDailyReminders(context)
                 } else {
                     NotificationScheduler.stopDailyReminders(context)
+                }
+            }
+
+            LaunchedEffect(isGoalRemindersEnabled) {
+                // Savings-goal reminders have their own dedicated toggle, independent
+                // from the daily-reminder master toggle (plan §Goals).
+                if (isGoalRemindersEnabled) {
+                    NotificationScheduler.startGoalReminders(context)
+                } else {
+                    NotificationScheduler.stopGoalReminders(context)
                 }
             }
 
@@ -637,6 +654,7 @@ fun MainScreen(
                         isDailyReminderEnabled = isDailyReminderEnabled,
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                        isGoalRemindersEnabled = isGoalRemindersEnabled,
                         isAdsEnabled = isAdsEnabled,
                         autoLockDurationMinutes = autoLockDurationMinutes,
                         isAutoBackupEnabled = isAutoBackupEnabled,
@@ -694,6 +712,13 @@ fun MainScreen(
                             coroutineScope.launch {
                                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                                     settings.copy(missedEntryReminderEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onGoalRemindersChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(goalRemindersEnabled = isEnabled)
                                 }
                             }
                         },

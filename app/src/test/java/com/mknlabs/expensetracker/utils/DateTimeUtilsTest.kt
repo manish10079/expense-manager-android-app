@@ -58,6 +58,74 @@ class DateTimeUtilsTest {
         }
     }
 
+    @Test
+    fun daysUntilTimestamp_laterToday_isZero() {
+        // A deadline later today (even after midnight) counts as 0 whole days -> "Due today".
+        val now = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val laterToday = Calendar.getInstance().apply {
+            timeInMillis = now
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+        }.timeInMillis
+
+        assertEquals(0L, daysUntilTimestamp(laterToday, now))
+    }
+
+    @Test
+    fun daysUntilTimestamp_tomorrow_isOne() {
+        val now = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val tomorrow = Calendar.getInstance().apply {
+            timeInMillis = now
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.HOUR_OF_DAY, 1)
+            set(Calendar.MINUTE, 0)
+        }.timeInMillis
+
+        assertEquals(1L, daysUntilTimestamp(tomorrow, now))
+    }
+
+    @Test
+    fun daysUntilTimestamp_pastDeadline_isNegative() {
+        val now = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val yesterday = Calendar.getInstance().apply {
+            timeInMillis = now
+            add(Calendar.DAY_OF_YEAR, -1)
+        }.timeInMillis
+
+        assertEquals(-1L, daysUntilTimestamp(yesterday, now))
+    }
+
+    @Test
+    fun daysUntilTimestamp_weekAway_isSeven() {
+        val now = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val inAWeek = Calendar.getInstance().apply {
+            timeInMillis = now
+            add(Calendar.DAY_OF_YEAR, 7)
+        }.timeInMillis
+
+        assertEquals(7L, daysUntilTimestamp(inAWeek, now))
+    }
+
     private fun utcDateMillis(
         year: Int,
         month: Int,
