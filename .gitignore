@@ -64,3 +64,6 @@ Thumbs.db
 
 # Benchmark screen captures (large transient artifacts)
 /benchmark_screen.png
+
+# Internal implementation plans (kept local only, not in git)
+implementation_plans/
