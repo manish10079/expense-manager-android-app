@@ -186,7 +186,6 @@ fun AppLockScreen(
     }
 
     val confirmPinMsg = stringResource(R.string.msg_enter_the_same_pin_once_more_t)
-    val chooseQuestionMsg = stringResource(R.string.msg_choose_one_security_question_f)
     val pinMismatchMsg = stringResource(R.string.msg_pins_did_not_match_start_again)
     val incorrectPinMsg = stringResource(R.string.msg_incorrect_pin_try_again)
 
@@ -204,7 +203,11 @@ fun AppLockScreen(
                 } else if (enteredPin == firstPin) {
                     enteredPin = ""
                     setupStage = PinSetupStage.SecurityQuestion
-                    message = chooseQuestionMsg
+                    // Stage instructions are shown via supportText, not as a message:
+                    // setting a message here rendered them in the error color AND made
+                    // the first keystroke flip message -> null, which shifted the slot
+                    // table (see supportText below) and recreated the content.
+                    message = null
                 } else {
                     firstPin = ""
                     enteredPin = ""
@@ -285,20 +288,30 @@ fun AppLockScreen(
         setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_pin)
         else -> stringResource(R.string.label_security_question)
     }
+    // IMPORTANT: these strings are resolved UNCONDITIONALLY. A composable call
+    // (stringResource) inside a conditional expression like `message ?: when {...}`
+    // makes a group appear/disappear in the slot table when `message` flips to null.
+    // That shifted the slots of every following group (AppLockScreenContent etc.), so
+    // Compose disposed + recreated the content on the first keystroke — dropping the
+    // answer field's focus and hiding the IME. All conditionals below are pure string
+    // logic with no composable calls.
+    val savedQuestionMsg = stringResource(R.string.msg_answer_saved_security_question)
+    val noRecoveryQuestionMsg = stringResource(R.string.msg_recovery_question_is_not_confi)
+    val biometricContinueMsg = stringResource(R.string.msg_biometric_or_pin_to_continue)
+    val enterPinMsg = stringResource(R.string.msg_enter_pin_to_continue)
+    val chooseQuestionRememberMsg = stringResource(R.string.msg_choose_question_remember)
     val supportText = message ?: when {
-        isRecoveryMode -> securityQuestionPrompt?.let {
-            stringResource(R.string.msg_answer_saved_security_question)
-        } ?: stringResource(R.string.msg_recovery_question_is_not_confi)
+        isRecoveryMode -> if (securityQuestionPrompt != null) savedQuestionMsg else noRecoveryQuestionMsg
 
         mode == AppLockScreenMode.Unlock -> if (biometricEnabled && isBiometricAvailable) {
-            stringResource(R.string.msg_biometric_or_pin_to_continue)
+            biometricContinueMsg
         } else {
-            stringResource(R.string.msg_enter_pin_to_continue)
+            enterPinMsg
         }
 
         setupStage == PinSetupStage.Create -> ""
         setupStage == PinSetupStage.Confirm -> repeatDigitsMsg
-        else -> stringResource(R.string.msg_choose_question_remember)
+        else -> chooseQuestionRememberMsg
     }
     val primaryActionLabel = if (isRecoveryMode) stringResource(R.string.label_disable_app_lock) else stringResource(R.string.label_save)
     val isDarkPalette = MaterialTheme.colorScheme.background.luminance() < 0.5f
