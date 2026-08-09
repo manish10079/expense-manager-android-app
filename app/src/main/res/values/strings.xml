@@ -1323,7 +1323,7 @@
     <string name="msg_account_created_successfully">Account created successfully.</string>
     <string name="msg_auth_cooldown_wait">Please wait %1$d seconds before requesting another link.</string>
     <string name="title_cloud_sync_devices">Cloud Sync &amp; Devices</string>
-    <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Premium)</string>
+    <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Pro)</string>
     <string name="desc_sync_active_subtitle">Automatic cloud backup is active</string>
     <string name="desc_sync_disabled_subtitle">Automatic cloud backup is disabled</string>
     <string name="title_connected_devices">Connected Devices</string>

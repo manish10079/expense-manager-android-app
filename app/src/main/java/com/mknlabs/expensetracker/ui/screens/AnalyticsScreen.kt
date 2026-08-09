@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -247,7 +248,7 @@ fun AnalyticsScreenContent(
                     val isLocked = status !is AccessStatus.Granted
                     Box {
                         CategoryCard(
-                            modifier = Modifier,
+                            modifier = Modifier.lockedBlur(isLocked),
                             snapshot = snapshot,
                             onViewAllClick = { isCategorySheetVisible = true },
                             onShowTransactions = { id, label ->
@@ -275,7 +276,7 @@ fun AnalyticsScreenContent(
                     val isLocked = status !is AccessStatus.Granted
                     Box {
                         PaymentTypeCard(
-                            modifier = Modifier,
+                            modifier = Modifier.lockedBlur(isLocked),
                             snapshot = snapshot,
                             onViewAllClick = { isPaymentSheetVisible = true },
                             onShowTransactions = { id, label ->
@@ -309,7 +310,7 @@ fun AnalyticsScreenContent(
                     Box {
                         val isLocked = status !is AccessStatus.Granted
                         TopSpendingCard(
-                            modifier = Modifier,
+                            modifier = Modifier.lockedBlur(isLocked),
                             topTransactions = snapshot.topTransactions,
                             dateFormatPattern = dateFormatPattern,
                             onViewAllClick = { isTopSpendingSheetVisible = true }
@@ -332,7 +333,7 @@ fun AnalyticsScreenContent(
                     Box {
                         val isLocked = status !is AccessStatus.Granted
                         SmartTipCard(
-                            modifier = Modifier,
+                            modifier = Modifier.lockedBlur(isLocked),
                             tip = snapshot.smartTip
                         )
                         if (isLocked) {
@@ -2123,6 +2124,10 @@ private fun resolveSummaryLabel(label: SummaryLabelUi): String {
 }
 
 @Composable
+private fun Modifier.lockedBlur(isLocked: Boolean): Modifier =
+    if (isLocked) blur(6.dp) else this
+
+@Composable
 private fun resolveSmartTip(tip: SmartTipUi): String {
     return if (tip.resId == R.string.msg_spending_trend) {
         stringResource(
@@ -2307,44 +2312,98 @@ private fun buildPreviewAnalyticsUiState(): com.mknlabs.expensetracker.ui.viewmo
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//private fun AnalyticsScreenPreviewDark() {
+//    ExpenseTrackerTheme(darkTheme = true) {
+//        AnalyticsScreenContent(
+//            uiState = buildPreviewAnalyticsUiState(),
+//            isAdsEnabled = true,
+//            transactions = transactionList,
+//            categories = categoryMap.values.toList(),
+//            paymentMethods = paymentTypeMap.values.toList(),
+//            currencyId = DEFAULT_CURRENCY_ID,
+//            amountFormatPreferences = defaultAmountFormatPreferences,
+//            dateFormatPattern = "dd MMM yyyy",
+//            onBackClick = {},
+//            onDateRangeSelected = {},
+//            onCustomRangeApplied = { _, _ -> },
+//            onClearCustomRange = {}
+//        )
+//    }
+//}
+//
+//@Preview(showBackground = true, showSystemUi = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO)
+//@Composable
+//private fun AnalyticsScreenPreviewLight() {
+//    ExpenseTrackerTheme(darkTheme = false) {
+//        AnalyticsScreenContent(
+//            uiState = buildPreviewAnalyticsUiState(),
+//            isAdsEnabled = true,
+//            transactions = transactionList,
+//            categories = categoryMap.values.toList(),
+//            paymentMethods = paymentTypeMap.values.toList(),
+//            currencyId = DEFAULT_CURRENCY_ID,
+//            amountFormatPreferences = defaultAmountFormatPreferences,
+//            dateFormatPattern = "dd MMM yyyy",
+//            onBackClick = {},
+//            onDateRangeSelected = {},
+//            onCustomRangeApplied = { _, _ -> },
+//            onClearCustomRange = {}
+//        )
+//    }
+//}
+
+// ──────────────────────────────────────────────
+// Smart AI Tip card preview (locked state)
+// ──────────────────────────────────────────────
+
+private fun buildPreviewSmartTip(): SmartTipUi {
+    val currencyId = DEFAULT_CURRENCY_ID
+    val fmtPrefs = defaultAmountFormatPreferences
+    return SmartTipUi(
+        resId = R.string.msg_spending_trend,
+        flowChange = UiText.dynamic("+12.5%"),
+        directionResId = R.string.label_up,
+        topCategory = categoryMap.values.firstOrNull()?.name ?: "",
+        savingAmount = formatCurrencyValue(420.0 * 4, currencyId, fmtPrefs),
+        hasSpendingData = true
+    )
+}
+
 @Composable
-private fun AnalyticsScreenPreviewDark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        AnalyticsScreenContent(
-            uiState = buildPreviewAnalyticsUiState(),
-            isAdsEnabled = true,
-            transactions = transactionList,
-            categories = categoryMap.values.toList(),
-            paymentMethods = paymentTypeMap.values.toList(),
-            currencyId = DEFAULT_CURRENCY_ID,
-            amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = "dd MMM yyyy",
-            onBackClick = {},
-            onDateRangeSelected = {},
-            onCustomRangeApplied = { _, _ -> },
-            onClearCustomRange = {}
+private fun SmartTipCardLockedPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
+    ) {
+        SmartTipCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .blur(5.dp),
+            tip = buildPreviewSmartTip()
+        )
+        PremiumLockedOverlay(
+            displayText = stringResource(id = R.string.label_unlock_insights),
+            icon = Icons.Filled.AutoAwesome,
+            onClick = {}
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true,  name = "Smart AI Tip Card - Locked (Dark)")
 @Composable
-private fun AnalyticsScreenPreviewLight() {
+private fun SmartTipCardLockedPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        SmartTipCardLockedPreview()
+    }
+}
+
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO, name = "Smart AI Tip Card - Locked (Light)")
+@Composable
+private fun SmartTipCardLockedPreviewLight() {
     ExpenseTrackerTheme(darkTheme = false) {
-        AnalyticsScreenContent(
-            uiState = buildPreviewAnalyticsUiState(),
-            isAdsEnabled = true,
-            transactions = transactionList,
-            categories = categoryMap.values.toList(),
-            paymentMethods = paymentTypeMap.values.toList(),
-            currencyId = DEFAULT_CURRENCY_ID,
-            amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = "dd MMM yyyy",
-            onBackClick = {},
-            onDateRangeSelected = {},
-            onCustomRangeApplied = { _, _ -> },
-            onClearCustomRange = {}
-        )
+        SmartTipCardLockedPreview()
     }
 }

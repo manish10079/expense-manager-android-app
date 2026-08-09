@@ -197,7 +197,9 @@ Run them with:
 
 ## 📄 License
 
-**All rights reserved.** This project is not licensed for redistribution or commercial use. Add a `LICENSE` file if you intend to make it open source.
+Copyright © 2026 **Manish Nayak**. **All rights reserved.**
+
+This project is proprietary and is **not** licensed for redistribution, modification, or commercial use. See the [LICENSE](LICENSE) file for the full terms.
 
 ---
 

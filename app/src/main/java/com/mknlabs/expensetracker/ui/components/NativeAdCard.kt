@@ -93,7 +93,8 @@ fun NativeAdCard(
     }
 
     if (isLoading) {
-        NativeAdShimmer()
+        // Bounded shimmer: animated sweep for the first 1 s, then static skeleton.
+        AdLoadingShimmer()
     } else {
         nativeAd?.let { ad ->
             Box(
