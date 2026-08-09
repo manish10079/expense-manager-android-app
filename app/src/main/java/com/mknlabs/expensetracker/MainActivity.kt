@@ -53,6 +53,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.AppLockViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AppLockState
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.ui.theme.AppLockLoadingBackground
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 import androidx.activity.SystemBarStyle
@@ -179,8 +180,8 @@ class MainActivity : AppCompatActivity() {
         val activity = context.findFragmentActivity()
         
         // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
-        val authViewModel: AuthViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-        val monetizationViewModel: MonetizationViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+        val authViewModel: AuthViewModel = hiltViewModel()
+        val monetizationViewModel: MonetizationViewModel = hiltViewModel()
         val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
