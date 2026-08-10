@@ -29,6 +29,7 @@ val supportedDateFormats = listOf(
     DateFormatOption(pattern = "MM-dd-yyyy", previewLabel = "12-31-2026"),
     DateFormatOption(pattern = "dd MMM", previewLabel = "31 Dec"),
     DateFormatOption(pattern = "dd MMM yyyy", previewLabel = "31 Dec 2026"),
+    DateFormatOption(pattern = "dd MMM yy", previewLabel = "31 Dec 26"),
     DateFormatOption(pattern = "dd MMM, yyyy", previewLabel = "31 Dec, 2026"),
     DateFormatOption(pattern = "MMM dd, yyyy", previewLabel = "Dec 31, 2026"),
     DateFormatOption(pattern = "MMMM dd, yyyy", previewLabel = "December 31, 2026"),

@@ -415,7 +415,8 @@ private fun HomeScreenContent(
                 
                 SmallHomeCard(
                     title = stringResource(R.string.title_savings_goals),
-                    value = uiState.activeGoal?.let { "${(it.progress * 100).toInt()}%" } ?: "0%",
+                    // Total saved across all active goals (the badge carries the count).
+                    value = uiState.activeGoalsSaved,
                     icon = Icons.Default.Savings,
                     badgeCount = uiState.goalCount,
                     modifier = Modifier.weight(1f),

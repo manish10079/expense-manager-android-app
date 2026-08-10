@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.ui.viewmodels
 
 import android.app.Activity
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.usecase.BecomePremiumUseCase
@@ -14,7 +15,9 @@ import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.workers.SyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -35,6 +38,7 @@ sealed class RedemptionState {
 
 @HiltViewModel
 class MonetizationViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val monetizationRepository: MonetizationRepository,
     private val proPassRepository: ProPassRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
@@ -82,6 +86,9 @@ class MonetizationViewModel @Inject constructor(
             proPassRepository.redeemCode(code)
                 .onSuccess { days ->
                     _redemptionState.value = RedemptionState.Success(days)
+                    // ProPass activated: push local data to Firestore and pull cloud
+                    // changes so premium access and transactions are in sync immediately.
+                    SyncWorker.startImmediate(appContext)
                 }
                 .onFailure { error ->
                     _redemptionState.value = RedemptionState.Error(error.message ?: "Unknown error")

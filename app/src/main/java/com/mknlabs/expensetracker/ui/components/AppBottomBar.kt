@@ -1,7 +1,14 @@
 package com.mknlabs.expensetracker.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -192,22 +199,34 @@ private fun VaultNavItem(
                 .clip(CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = stringResource(item.titleRes),
-                tint = iconTint,
-                modifier = Modifier
-                    .size(38.dp)
-                    .graphicsLayer(alpha = 0.99f)
-                    .drawWithCache {
-                        onDrawWithContent {
-                            drawContent()
-                            if (selected) {
-                                drawRect(gradientBrush, blendMode = BlendMode.SrcAtop)
+            AnimatedContent(
+                targetState = selected,
+                transitionSpec = {
+                    val enter = fadeIn(tween(220)) +
+                        scaleIn(initialScale = 0.82f, animationSpec = tween(220))
+                    val exit = fadeOut(tween(120)) +
+                        scaleOut(targetScale = 0.82f, animationSpec = tween(120))
+                    enter.togetherWith(exit)
+                },
+                label = "bottom_bar_icon_fill"
+            ) { isSelected ->
+                Icon(
+                    imageVector = if (isSelected) item.selectedIcon else item.icon,
+                    contentDescription = stringResource(item.titleRes),
+                    tint = iconTint,
+                    modifier = Modifier
+                        .size(38.dp)
+                        .graphicsLayer(alpha = 0.99f)
+                        .drawWithCache {
+                            onDrawWithContent {
+                                drawContent()
+                                if (isSelected) {
+                                    drawRect(gradientBrush, blendMode = BlendMode.SrcAtop)
+                                }
                             }
                         }
-                    }
-            )
+                )
+            }
         }
 
         Text(

@@ -6,5 +6,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class BottomNavBarItem(
     val route: AppRoute,
     val icon: ImageVector,
+    val selectedIcon: ImageVector,
     @StringRes val titleRes: Int
 )

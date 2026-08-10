@@ -103,6 +103,9 @@ class SmsActionReceiver : BroadcastReceiver() {
                 } else {
                     processingKeys.remove(key)
                 }
+                // Keep the collapsible group summary in sync with the remaining
+                // pending SMS imports now that this child is gone.
+                SmsNotificationManager.refreshGroupSummary(context)
             }
         }
     }

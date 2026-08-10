@@ -1168,6 +1168,7 @@
     <string name="notification_title_sms_import">💳 Transaction Detected</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
+    <string name="notification_format_sms_import_summary">%1$d transactions · %2$s</string>
     <string name="notification_action_save">Save</string>
     <string name="notification_action_change">Change</string>
     <string name="notification_action_open">Open</string>

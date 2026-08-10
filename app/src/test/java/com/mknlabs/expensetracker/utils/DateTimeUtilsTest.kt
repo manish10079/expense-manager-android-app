@@ -59,6 +59,27 @@ class DateTimeUtilsTest {
     }
 
     @Test
+    fun formatDate_twoDigitYearPattern_rendersLastTwoDigits() {
+        // "MMM" renders localized output, so pin both locale and timezone.
+        withDefaultLocale(java.util.Locale.US) {
+            withDefaultTimeZone("Asia/Karachi") {
+                val timestamp = Calendar.getInstance().apply {
+                    set(Calendar.YEAR, 2026)
+                    set(Calendar.MONTH, Calendar.APRIL)
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 12)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+
+                // "12 Dec 26" style: day + short month + last two digits of the year.
+                assertEquals("01 Apr 26", formatDate(timestamp, "dd MMM yy"))
+            }
+        }
+    }
+
+    @Test
     fun daysUntilTimestamp_laterToday_isZero() {
         // A deadline later today (even after midnight) counts as 0 whole days -> "Due today".
         val now = Calendar.getInstance().apply {
@@ -140,6 +161,19 @@ class DateTimeUtilsTest {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
+    }
+
+    private fun withDefaultLocale(
+        locale: java.util.Locale,
+        block: () -> Unit
+    ) {
+        val originalLocale = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(locale)
+        try {
+            block()
+        } finally {
+            java.util.Locale.setDefault(originalLocale)
+        }
     }
 
     private fun withDefaultTimeZone(

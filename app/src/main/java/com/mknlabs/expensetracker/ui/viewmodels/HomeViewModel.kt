@@ -43,7 +43,7 @@ data class HomeScreenUiState(
     val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
-    val activeGoal: Goal? = null,
+    val activeGoalsSaved: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val goalCount: Int = 0,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isBalanceHidden: Boolean = true,
@@ -63,6 +63,15 @@ private data class HomeInputState(
 )
 
 private const val HOME_RECENT_TRANSACTION_LIMIT = 10
+
+/**
+ * Sum of the saved minor units across all non-completed goals — the hero number
+ * on the home Savings Goals card (total saved toward active goals). Completed
+ * goals are excluded so the number only reflects what the user is still working
+ * towards. Pure function, unit-tested in HomeViewModelTest.
+ */
+internal fun activeGoalsSavedMinor(allGoals: List<Goal>): Long =
+    allGoals.filter { !it.isCompleted }.sumOf { it.currentAmountMinor }
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -130,7 +139,11 @@ class HomeViewModel @Inject constructor(
                             fallbackCategoryName = application.getString(R.string.label_other)
                         )
                     },
-                    activeGoal = allGoals.firstOrNull { !it.isCompleted },
+                    activeGoalsSaved = formatCurrencyValue(
+                        activeGoalsSavedMinor(allGoals).toMajorUnits(),
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
+                    ),
                     goalCount = allGoals.count { !it.isCompleted },
                     customizationSettings = inputs.customizationSettings,
                     isBalanceHidden = _uiState.value.isBalanceHidden,

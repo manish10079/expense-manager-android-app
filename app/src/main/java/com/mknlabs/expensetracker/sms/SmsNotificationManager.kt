@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.sms
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import java.math.BigDecimal
+import java.util.concurrent.atomic.AtomicInteger
 import androidx.core.app.RemoteInput
 
 /**
@@ -23,8 +25,11 @@ import androidx.core.app.RemoteInput
  * the [ParsedSms] payload between the receivers and the app via PendingIntent
  * extras — the payload is ephemeral and NEVER persisted (plan D2).
  *
- * Notification ID 5 on the high-importance `sms_import` channel, with three
- * actions:
+ * Notifications post to a UNIQUE per-SMS ID (derived from the SMS timestamp)
+ * on the high-importance `sms_import` channel, so consecutive detections
+ * STACK in the shade instead of overwriting the previous one — and they all
+ * join one [GROUP_KEY_SMS_IMPORT] group under a single collapsible summary
+ * ("N transactions · total") at the fixed summary ID. With three actions:
  *  - [Save]   → [SmsActionReceiver] (one-tap save, app never opens)
  *  - [Change] → app opens targeting [NotificationHelper.DESTINATION_SMS_CHANGE]
  *               (the lightweight category sheet, Phase 4)
@@ -53,6 +58,14 @@ object SmsNotificationManager {
 
     /** Notification ID rides in the action intent so the receiver can cancel it directly. */
     const val EXTRA_NOTIFICATION_ID = "sms.notification_id"
+
+    /**
+     * Groups every pending SMS import notification under one collapsible shade
+     * entry. Children keep unique per-SMS IDs; a single summary notification at
+     * the fixed [NotificationHelper.NOTIFICATION_ID_SMS_IMPORT] ID carries the
+     * group. Grouping requires every child to set this key too.
+     */
+    const val GROUP_KEY_SMS_IMPORT = "sms_import_group"
 
     fun Intent.putNotificationId(notificationId: Int): Intent = apply {
         putExtra(EXTRA_NOTIFICATION_ID, notificationId)
@@ -90,6 +103,13 @@ object SmsNotificationManager {
         parsed: ParsedSms,
         frequentCategories: List<CategoryType>
     ) {
+        // One unique ID per SMS event (stable across process restarts via the
+        // SMS timestamp) so a second detection never replaces the first in the
+        // shade. The same ID rides in every action intent so the receivers can
+        // cancel/update exactly the notification that belongs to this SMS.
+        val notificationId = notificationIdFor(parsed.smsTimestamp)
+        val requestBase = requestBaseFor(notificationId)
+
         // The parsed amount is in the SMS's own currency (₹/INR by parser design),
         // so we format with the app default rather than the user's display currency
         // — showing the display currency would be a misleading non-conversion.
@@ -125,7 +145,7 @@ object SmsNotificationManager {
 
         val openPendingIntent = activityPendingIntent(
             context,
-            requestCode = REQUEST_CODE_OPEN,
+            requestCode = requestBase + SLOT_OPEN,
             intent = openActivityIntent(context, parsed)
         )
 
@@ -145,6 +165,11 @@ object SmsNotificationManager {
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(openPendingIntent)
             .setAutoCancel(true)
+            // Grouping: all pending SMS imports collapse under one summary entry
+            // (children alert normally so every new detection still heads-up).
+            .setGroup(GROUP_KEY_SMS_IMPORT)
+            .setGroupSummary(false)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
 
         // Show up to 3 action buttons for frequently chosen categories
         // Tapping any of these opens the remote input to write a note and saves.
@@ -155,11 +180,11 @@ object SmsNotificationManager {
                 // Put parsed SMS data, but update the categoryId to this action's category
                 putParsedSms(parsed.copy(categoryId = category.id))
                 // §2: pass the notification ID so the receiver can dismiss it directly
-                putNotificationId(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
+                putNotificationId(notificationId)
             }
             val savePendingIntent = PendingIntent.getBroadcast(
                 context,
-                REQUEST_CODE_SAVE + index,
+                requestBase + index,
                 saveIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
@@ -176,15 +201,99 @@ object SmsNotificationManager {
 
         with(NotificationManagerCompat.from(context)) {
             try {
-                notify(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT, builder.build())
+                notify(notificationId, builder.build())
+                // Keep the group summary's count and total in sync with the
+                // newly stacked child.
+                refreshGroupSummary(context)
             } catch (e: SecurityException) {
                 // POST_NOTIFICATIONS not granted — the SMS import silently skips.
             }
         }
     }
 
-    fun cancel(context: Context) {
-        NotificationManagerCompat.from(context).cancel(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
+    /**
+     * Rebuilds the group summary for the pending SMS imports. The summary lives
+     * at the fixed [NotificationHelper.NOTIFICATION_ID_SMS_IMPORT] ID while
+     * every child keeps its unique per-SMS ID, so the shade shows ONE
+     * collapsible entry for the whole batch. Called whenever a child is posted
+     * or dismissed; cancels itself when the last child is gone.
+     */
+    fun refreshGroupSummary(context: Context) {
+        val nm = NotificationManagerCompat.from(context)
+        val children = runCatching {
+            nm.activeNotifications.filter { child ->
+                // Children carry the group key AND the parsed amount extra;
+                // the summary notification has neither.
+                child.notification.group == GROUP_KEY_SMS_IMPORT &&
+                    child.notification.extras?.containsKey(EXTRA_AMOUNT_MINOR) == true
+            }
+        }.getOrDefault(emptyList())
+
+        if (children.isEmpty()) {
+            nm.cancel(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
+            return
+        }
+
+        val totalMinor = children.sumOf {
+            it.notification.extras?.getLong(EXTRA_AMOUNT_MINOR) ?: 0L
+        }
+        val totalText = formatCurrencyValue(
+            amount = totalMinor.toMajorUnits(),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences
+        )
+        val summaryText = context.getString(
+            R.string.notification_format_sms_import_summary,
+            children.size,
+            totalText
+        )
+
+        // Tapping the summary opens the app without any SMS prefill payload.
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_CODE_SUMMARY,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // The summary expands to a per-transaction list (InboxStyle) mirroring
+        // the BigText lines of each child notification.
+        val inboxStyle = NotificationCompat.InboxStyle()
+        for (child in children) {
+            val line = child.notification.extras
+                ?.getString(Notification.EXTRA_TEXT)
+                ?.takeIf { it.isNotBlank() }
+            if (line != null) inboxStyle.addLine(line)
+        }
+
+        val summary = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_SMS_IMPORT)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_sms_import))
+            .setContentText(summaryText)
+            .setStyle(inboxStyle)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .setContentIntent(contentIntent)
+            .setAutoCancel(true)
+            .setGroup(GROUP_KEY_SMS_IMPORT)
+            .setGroupSummary(true)
+            .setOnlyAlertOnce(true)
+            .build()
+
+        runCatching {
+            nm.notify(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT, summary)
+        }
+    }
+
+    /**
+     * Cancels the SMS import notification for [notificationId]. Defaults to the
+     * legacy fixed ID for callers that don't carry a per-SMS ID (the Change-sheet
+     * save path); live notifications always pass their unique ID instead.
+     */
+    fun cancel(context: Context, notificationId: Int = NotificationHelper.NOTIFICATION_ID_SMS_IMPORT) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
     }
 
     /**
@@ -228,6 +337,9 @@ object SmsNotificationManager {
             .setOngoing(false)                            // §4B: never ongoing → cancel honored
             .setAutoCancel(true)
             .setTimeoutAfter(FORCE_DISMISS_TIMEOUT_MS)    // §4A: update, then auto-remove
+            // Stay inside the group while the ghost-card reset is in flight.
+            .setGroup(GROUP_KEY_SMS_IMPORT)
+            .setGroupSummary(false)
             .build()
         nm.notify(notificationId, reset)
         // Do NOT cancel immediately — the timeout removes the row after SystemUI
@@ -275,9 +387,43 @@ object SmsNotificationManager {
 
     private const val INCOME_TYPE_ID = 1
     private const val EXPENSE_TYPE_ID = 2
-    private const val REQUEST_CODE_SAVE = 100
-    private const val REQUEST_CODE_CHANGE = 101
-    private const val REQUEST_CODE_OPEN = 102
+    /** Slot index for the notification's content (Open) intent. */
+    private const val SLOT_OPEN = 3
+
+    /**
+     * Request code for the group summary's Open intent. Children always use
+     * codes >= 4, and the reminder notifications use {0, 2, 3, 4, 6}, so 1 is
+     * unique across every MainActivity PendingIntent in the app.
+     */
+    private const val REQUEST_CODE_SUMMARY = 1
+
+    /** Offset above the fixed IDs (1-6) used by the other channels. */
+    private const val FALLBACK_BASE_ID = 1000
+
+    /** Monotonic fallback when an SMS carries no usable timestamp. */
+    private val fallbackCounter = AtomicInteger(0)
+
+    /**
+     * Stable, unique notification ID for one SMS event. The SMS timestamp is
+     * the same key used for duplicate suppression, so the ID survives process
+     * restarts and the Save/Open actions always resolve the right notification.
+     */
+    private fun notificationIdFor(smsTimestamp: Long): Int {
+        if (smsTimestamp > 0) return (smsTimestamp and 0x7FFFFFFFL).toInt()
+        return FALLBACK_BASE_ID + fallbackCounter.incrementAndGet()
+    }
+
+    /**
+     * PendingIntent request-code block for one notification. Request codes must
+     * differ between stacked notifications, otherwise FLAG_UPDATE_CURRENT would
+     * make every notification's Save/Open actions collapse onto the most recent
+     * SMS's extras. The 28-bit fold keeps the code positive with 2 bits of
+     * headroom for the action slots; the +1 offset guarantees the block starts
+     * at >= 4 so it can never collide with the fixed codes (0, 2, 3, 4, 6) the
+     * daily/missed-entry reminders use for their MainActivity PendingIntents.
+     */
+    private fun requestBaseFor(notificationId: Int): Int =
+        ((notificationId and 0x0FFFFFFF) + 1) * 4
 
     /**
      * How long the §4A reset notification stays before auto-dismissing. Long

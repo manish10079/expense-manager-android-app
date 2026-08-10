@@ -108,16 +108,40 @@ fun CategoryManagementScreen(
     }
     val uiState by categoryManagementViewModel.uiState.collectAsStateWithLifecycle()
 
+    // The pager is the SINGLE source of truth for the visible tab.
+    //
+    // Previously the ViewModel ALSO drove the pager back (a second
+    // `LaunchedEffect(activeTab) { animateScrollToPage(...) }`). That created a
+    // feedback loop: for multi-page jumps (e.g. Income -> Payment) the
+    // one-directional collector below reported the intermediate page while the
+    // animation was crossing it, the ViewModel flipped to that intermediate tab,
+    // the other effect restarted and CANCELLED the in-flight scroll, and the
+    // screen got stranded on the wrong (Expense) tab. Tab clicks now animate the
+    // pager directly and the collector below only ever follows the pager, so the
+    // two can no longer fight.
+    //
+    // Route-owned (GEMINI.md Route/Content split): state initialization and
+    // LaunchedEffect wiring live in the Route, not the previewable Content.
+    val pagerState = rememberPagerState(initialPage = uiState.selectedTab.ordinal) {
+        CategoryManagementTab.entries.size
+    }
+
+    // Follow the pager (swipes AND tab-click animations) into the ViewModel so
+    // the tab highlight and the Add FAB stay in sync.
+    androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
+        categoryManagementViewModel.selectTab(CategoryManagementTab.entries[pagerState.currentPage])
+    }
+
     CategoryManagementContent(
         uiState = uiState,
+        pagerState = pagerState,
         isAdsEnabled = isAdsEnabled,
         customCategories = customCategories,
         customPaymentTypes = customPaymentTypes,
         onBackClick = onBackClick,
         onDeleteCustomCategory = onDeleteCustomCategory,
         onDeleteCustomPaymentType = onDeleteCustomPaymentType,
-        onAddCategoryClick = onAddCategoryClick,
-        onSelectTab = { categoryManagementViewModel.selectTab(it) }
+        onAddCategoryClick = onAddCategoryClick
     )
 }
 
@@ -125,30 +149,17 @@ fun CategoryManagementScreen(
 @Composable
 private fun CategoryManagementContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState,
+    pagerState: androidx.compose.foundation.pager.PagerState,
     isAdsEnabled: Boolean,
     customCategories: List<CategoryType>,
     customPaymentTypes: List<PaymentType>,
     onBackClick: () -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
     onDeleteCustomPaymentType: (Int) -> Unit,
-    onAddCategoryClick: (CategoryManagementTab) -> Unit,
-    onSelectTab: (CategoryManagementTab) -> Unit
+    onAddCategoryClick: (CategoryManagementTab) -> Unit
 ) {
     val activeTab = uiState.selectedTab
-    val pagerState = rememberPagerState(initialPage = activeTab.ordinal) { CategoryManagementTab.entries.size }
     val coroutineScope = rememberCoroutineScope()
-
-    // Sync pager with ViewModel state (when tab is clicked)
-    androidx.compose.runtime.LaunchedEffect(activeTab) {
-        if (pagerState.currentPage != activeTab.ordinal) {
-            pagerState.animateScrollToPage(activeTab.ordinal)
-        }
-    }
-
-    // Sync ViewModel with pager state (when user swipes)
-    androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
-        onSelectTab(CategoryManagementTab.entries[pagerState.currentPage])
-    }
 
     Box(
         modifier = Modifier
@@ -177,7 +188,11 @@ private fun CategoryManagementContent(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,
                 onItemSelected = { tab ->
-                    onSelectTab(tab)
+                    // Animate the pager directly — it is the single source of
+                    // truth for the visible tab (see note in CategoryManagementContent).
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(tab.ordinal)
+                    }
                 }
             )
 
@@ -504,14 +519,14 @@ private fun CategoryManagementScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         CategoryManagementContent(
             uiState = com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState(),
+            pagerState = rememberPagerState(initialPage = 0) { CategoryManagementTab.entries.size },
             isAdsEnabled = true,
             customCategories = emptyList(),
             customPaymentTypes = emptyList(),
             onBackClick = {},
             onDeleteCustomCategory = {},
             onDeleteCustomPaymentType = {},
-            onAddCategoryClick = {},
-            onSelectTab = {}
+            onAddCategoryClick = {}
         )
     }
 }
