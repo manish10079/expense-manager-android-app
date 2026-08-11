@@ -33,6 +33,13 @@ private const val HASH_VERSION_LEGACY_SHA256 = "legacy_sha256"
 private const val HASH_VERSION_FAST_SHA256_V1 = "fast_sha256_v1"
 private const val SALT_LENGTH_BYTES = 16
 
+// In-memory only: the window during which an external activity (photo/file picker,
+// browser, system settings screen) is expected to background the app. A pending
+// suppression is consumed on the next foreground return and is only honored if that
+// return happens within this TTL — so a genuine long background (e.g. the user
+// detours to the launcher instead of returning to the app) still triggers the lock.
+private const val LOCK_SUPPRESSION_TTL_MS = 5 * 60_000L
+
 data class AppLockCachedState(
     val isAppLockEnabled: Boolean = false,
     val isBiometricEnabled: Boolean = DEFAULT_BIOMETRIC_LOCK_ENABLED,
@@ -51,6 +58,8 @@ object AppLockPreferences {
     private var cachedState = AppLockCachedState()
     @Volatile
     private var cachedFastPinVerifier: FastPinVerifier? = null
+    @Volatile
+    private var lockSuppressionSetAtMillis = 0L
     private val encryptedPreferencesLock = Any()
     private val secureRandom = SecureRandom()
 
@@ -272,6 +281,44 @@ object AppLockPreferences {
             .edit()
             .putLong(KEY_LAST_UNLOCKED_AT_MILLIS, unlockedAtMillis)
             .apply()
+    }
+
+    /**
+     * Marks (or clears) the in-memory "external activity" lock-suppression window.
+     * Call right before launching an external activity (photo/file picker, browser,
+     * system settings screen) so the app doesn't lock when the user returns.
+     *
+     * The window is only honored for LOCK_SUPPRESSION_TTL_MS (5 minutes); a stale
+     * window is ignored and cleared on the next foreground check. Note: if the launch itself
+     * fails (e.g. an ActivityNotFoundException swallowed by the caller), the flag
+     * stays armed until the TTL — a genuine background + quick return inside that
+     * window would then skip the lock once. Arm the flag immediately before the
+     * launch, never earlier.
+     */
+    fun setLockSuppressed(active: Boolean) {
+        lockSuppressionSetAtMillis = if (active) System.currentTimeMillis() else 0L
+    }
+
+    /**
+     * True while a lock-suppression window is active and still within its validity
+     * period. A stale window (the user never returned in time) expires and no longer
+     * suppresses the lock. [currentTimeMillis] is injectable for tests.
+     */
+    fun isLockSuppressionActive(currentTimeMillis: Long = System.currentTimeMillis()): Boolean {
+        val setAt = lockSuppressionSetAtMillis
+        return setAt > 0L && currentTimeMillis - setAt < LOCK_SUPPRESSION_TTL_MS
+    }
+
+    /**
+     * Reads and clears the suppression window in one step. Returns true only if the
+     * window was active (and unexpired); the caller is then expected to skip the
+     * auto-lock check for this foreground cycle. [currentTimeMillis] is injectable
+     * for tests.
+     */
+    fun consumeLockSuppression(currentTimeMillis: Long = System.currentTimeMillis()): Boolean {
+        val wasActive = isLockSuppressionActive(currentTimeMillis)
+        lockSuppressionSetAtMillis = 0L
+        return wasActive
     }
 
     private fun updateCachedState(update: (AppLockCachedState) -> AppLockCachedState) {

@@ -123,7 +123,8 @@ fun AppNavigationHost(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onShowUpgradeSheet: () -> Unit
+    onShowUpgradeSheet: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
     
@@ -185,7 +186,8 @@ fun AppNavigationHost(
                         onGoalsClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Goals)
-                        }
+                        },
+                        onPrepareForExternalActivity = onPrepareForExternalActivity
                     )
                 }
 
@@ -367,7 +369,8 @@ fun AppNavigationHost(
                         onFeedbackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Feedback)
-                        }
+                        },
+                        onPrepareForExternalActivity = onPrepareForExternalActivity
                     )
                 }
 
@@ -445,6 +448,7 @@ fun AppNavigationHost(
                         autoBackupFrequencyDays = autoBackupFrequencyDays,
                         onAutoBackupEnabledChange = onAutoBackupEnabledChange,
                         onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
+                        onPrepareForExternalActivity = onPrepareForExternalActivity,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
@@ -519,6 +523,7 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)
                         },
+                        onPrepareForExternalActivity = onPrepareForExternalActivity,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)

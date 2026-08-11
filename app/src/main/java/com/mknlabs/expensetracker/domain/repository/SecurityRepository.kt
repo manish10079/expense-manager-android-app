@@ -31,6 +31,14 @@ interface SecurityRepository {
     fun shouldRequireUnlock(): Boolean
 
     /**
+     * Reads and clears the pending external-activity lock suppression window
+     * (armed by the UI right before launching a photo/file picker, browser, or
+     * system settings screen). Returns true when the app should skip the auto-lock
+     * check for this foreground cycle.
+     */
+    fun consumeLockSuppression(): Boolean
+
+    /**
      * Validates a PIN attempt.
      */
     fun validatePin(pin: String): Boolean

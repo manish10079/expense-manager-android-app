@@ -114,7 +114,8 @@ fun MainScaffold(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onShowUpgradeSheet: () -> Unit
+    onShowUpgradeSheet: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val transactionsUiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
@@ -259,7 +260,8 @@ fun MainScaffold(
             onCloudSyncEnabledChange = onCloudSyncEnabledChange,
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
-            onShowUpgradeSheet = onShowUpgradeSheet
+            onShowUpgradeSheet = onShowUpgradeSheet,
+            onPrepareForExternalActivity = onPrepareForExternalActivity
         )
 
         if (showFixedBottomNavBar) {

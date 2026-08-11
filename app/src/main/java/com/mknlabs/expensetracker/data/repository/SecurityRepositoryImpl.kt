@@ -38,6 +38,10 @@ class SecurityRepositoryImpl @Inject constructor(
         )
     }
 
+    override fun consumeLockSuppression(): Boolean {
+        return AppLockPreferences.consumeLockSuppression()
+    }
+
     override fun validatePin(pin: String): Boolean {
         val isValid = AppLockPreferences.validatePin(context, pin)
         if (isValid) {

@@ -82,6 +82,7 @@ fun HomeScreen(
     onSettingsClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {},
     onGoalsClick: () -> Unit = {},
+    onPrepareForExternalActivity: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
@@ -184,6 +185,7 @@ fun HomeScreen(
 
     fun openAppDetailsSettings() {
         try {
+            onPrepareForExternalActivity()
             context.startActivity(DeviceVendorUtils.appDetailsSettingsIntent(context))
         } catch (e: Exception) {
             // Some OEMs block the details-settings deep link — nothing to fall back to.
@@ -192,6 +194,7 @@ fun HomeScreen(
 
     fun requestBatteryExemption() {
         try {
+            onPrepareForExternalActivity()
             context.startActivity(DeviceVendorUtils.batteryOptimizationIntent(context))
         } catch (e: Exception) {
             // MIUI sometimes refuses the exemption request — the user can still use

@@ -906,7 +906,11 @@ fun MainScreen(
                         showAuthSheet = true 
                     },
                         onLogoutClick = { showLogoutDialog = true },
-                        onShowUpgradeSheet = { showPremiumSheet = true }
+                        onShowUpgradeSheet = { showPremiumSheet = true },
+                        // External activities (photo/file pickers, browser, system
+                        // settings) background the app; arm the lock suppression so
+                        // returning from them doesn't trigger the auto-lock.
+                        onPrepareForExternalActivity = { AppLockPreferences.setLockSuppressed(true) }
                     )
                 }
             }
@@ -1096,7 +1100,9 @@ fun MainScreen(
                             showAuthSheet = false
                             showAccountCreatedPopup = true
                             handleSuccessfulAuth()
-                        }
+                        },
+                        // Add-Account flow launches the system settings screen.
+                        onPrepareForExternalActivity = { AppLockPreferences.setLockSuppressed(true) }
                     )
                 }
             }

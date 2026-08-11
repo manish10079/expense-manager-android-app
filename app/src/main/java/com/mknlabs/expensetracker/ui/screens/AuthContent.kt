@@ -40,7 +40,10 @@ fun AuthRoute(
     viewModel: AuthViewModel,
     onAuthSuccess: () -> Unit,
     onGuestContinue: () -> Unit = onAuthSuccess,
-    onSignUpSuccess: (() -> Unit)? = null
+    onSignUpSuccess: (() -> Unit)? = null,
+    // Arm app-lock suppression before launching an external activity (e.g. the
+    // Add-Account settings screen) so returning doesn't trigger the auto-lock.
+    onPrepareForExternalActivity: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
@@ -68,6 +71,7 @@ fun AuthRoute(
     LaunchedEffect(authState) {
         if (authState is AuthState.NoGoogleAccounts) {
             viewModel.shouldAttemptAutoSignInAfterReturn = true
+            onPrepareForExternalActivity()
             val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
                 putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
             }

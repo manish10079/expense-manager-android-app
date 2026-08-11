@@ -69,12 +69,14 @@ import androidx.compose.runtime.getValue
 fun AboutScreen(
     onBackClick: () -> Unit,
     onFeedbackClick: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
 
     val openUrl: (String) -> Unit = { url ->
         try {
+            onPrepareForExternalActivity()
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             context.startActivity(intent)
         } catch (e: Exception) {
@@ -84,6 +86,7 @@ fun AboutScreen(
 
     val sendEmail: (String) -> Unit = { email ->
         try {
+            onPrepareForExternalActivity()
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:$email")
             }

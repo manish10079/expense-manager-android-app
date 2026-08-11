@@ -41,7 +41,7 @@ class AppLockViewModel @Inject constructor(
     private fun observeForegroundEvents() {
         viewModelScope.launch {
             securityRepository.appForegroundEvents.collectLatest {
-                checkLockState()
+                checkLockState(consumeSuppression = true)
             }
         }
     }
@@ -49,18 +49,30 @@ class AppLockViewModel @Inject constructor(
     private fun observeBackgroundEvents() {
         viewModelScope.launch {
             securityRepository.appBackgroundEvents.collectLatest {
-                checkLockState()
+                // Suppression is deliberately NOT consumed on the background check:
+                // consuming it there would let a "external activity -> launcher detour"
+                // (returning much later) bypass the lock entirely. It is only consumed
+                // on the foreground (return) check, where the TTL guards staleness.
+                checkLockState(consumeSuppression = false)
             }
         }
     }
 
-    fun checkLockState() {
+    fun checkLockState(consumeSuppression: Boolean = false) {
         viewModelScope.launch {
+            // A pending external-activity suppression is consumed here on the
+            // foreground (return) check. No baseline reset is needed: the next genuine
+            // background calls markBackgrounded(), which overwrites the timestamp, so
+            // the time spent in the picker/browser never counts toward the auto-lock
+            // timeout. (Resetting here would instead create a backgroundedAt <
+            // unlockedAt state that trips shouldRequireUnlock's fail-secure crash
+            // heuristic on later checks.)
+            val lockSuppressed = consumeSuppression && securityRepository.consumeLockSuppression()
             val isEnabled = securityRepository.isLockEnabled()
             val hasPin = securityRepository.hasPin()
             val shouldLock = securityRepository.shouldRequireUnlock()
 
-            _state.value = if (isEnabled && hasPin && shouldLock) {
+            _state.value = if (isEnabled && hasPin && shouldLock && !lockSuppressed) {
                 AppLockState.Locked
             } else {
                 AppLockState.Unlocked

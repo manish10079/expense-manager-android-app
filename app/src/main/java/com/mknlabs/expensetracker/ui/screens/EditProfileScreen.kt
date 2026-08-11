@@ -75,6 +75,7 @@ fun ProfileScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     onBackClick: () -> Unit = {},
     onSaveClick: (UserProfile) -> Unit = {},
+    onPrepareForExternalActivity: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
@@ -90,7 +91,8 @@ fun ProfileScreen(
         userTier = userTier,
         dbCountryCodes = dbCountryCodes,
         onBackClick = onBackClick,
-        onSaveClick = onSaveClick
+        onSaveClick = onSaveClick,
+        onPrepareForExternalActivity = onPrepareForExternalActivity
     )
 }
 
@@ -103,7 +105,8 @@ private fun ProfileScreenContent(
     userTier: UserTier,
     dbCountryCodes: List<com.mknlabs.expensetracker.models.CountryCode>,
     onBackClick: () -> Unit,
-    onSaveClick: (UserProfile) -> Unit
+    onSaveClick: (UserProfile) -> Unit,
+    onPrepareForExternalActivity: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -231,6 +234,7 @@ private fun ProfileScreenContent(
                         ?.let(ProfilePhotoManager::deleteManagedPhoto)
                     photoUri = null
                 },
+                onPrepareForExternalActivity = onPrepareForExternalActivity,
                 userTier = userTier,
                 isAnonymous = userProfile.authProvider == "anonymous"
             )
@@ -459,6 +463,7 @@ private fun ProfilePhotoSection(
     isPhotoProcessing: Boolean,
     onSelectPhoto: () -> Unit,
     onRemovePhoto: () -> Unit,
+    onPrepareForExternalActivity: () -> Unit = {},
     userTier: UserTier = UserTier.FREE,
     isAnonymous: Boolean = false
 ) {
@@ -483,6 +488,7 @@ private fun ProfilePhotoSection(
     ) {
         IconButton(
             onClick = {
+                onPrepareForExternalActivity()
                 onSelectPhoto()
             },
             enabled = !isPhotoProcessing,
@@ -559,7 +565,8 @@ private fun ProfileScreenPreview() {
             userTier = UserTier.PREMIUM,
             dbCountryCodes = emptyList(),
             onBackClick = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPrepareForExternalActivity = {}
         )
     }
 }
