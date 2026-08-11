@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 
 import com.mknlabs.expensetracker.utils.UiText
@@ -633,14 +634,24 @@ class TransactionsViewModel @Inject constructor(
         // composition is independent of transaction-card recompositions and Compose recycles the
         // ad's AndroidView across scroll entries instead of re-inflating it. Runs on
         // Dispatchers.Default, so no list scanning happens on the main thread.
+        //
+        // The two list placements alternate so both AdMob units serve equally: the 1st, 3rd, ...
+        // slot uses TRANSACTIONS_LIST, the 2nd, 4th, ... use TRANSACTIONS_LIST_2.
         val itemsWithAds = ArrayList<TransactionListItemUi>(transactionItems.size + transactionItems.size / 5 + 1)
         var rowIndex = 0
+        var adCount = 0
         transactionItems.forEach { item ->
             itemsWithAds.add(item)
             if (item is TransactionListItemUi.TransactionRow) {
                 rowIndex++
                 if (rowIndex % 5 == 0) {
-                    itemsWithAds.add(TransactionListItemUi.Ad(id = "ad_$rowIndex"))
+                    adCount++
+                    val placement = if (adCount % 2 == 1) {
+                        AdPlacement.TRANSACTIONS_LIST
+                    } else {
+                        AdPlacement.TRANSACTIONS_LIST_2
+                    }
+                    itemsWithAds.add(TransactionListItemUi.Ad(id = "ad_$rowIndex", placement = placement))
                 }
             }
         }

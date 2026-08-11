@@ -9,6 +9,7 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
 import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
@@ -234,12 +235,12 @@ class TransactionsViewModelTest {
     }
 
     @Test
-    fun `ad items are injected after every 5th transaction row with stable keys`() {
-        // Arrange: 12 transactions spanning multiple months -> ad slots after rows 5 and 10
+    fun `ad items are injected after every 5th transaction row with stable keys and alternating placements`() {
+        // Arrange: 25 transactions spanning multiple months -> ad slots after rows 5..25
         val now = System.currentTimeMillis()
         val previousMonth = previousMonthInCurrentYear()
         updateInputsWithSummaries(
-            transactions = (1..12).map { i ->
+            transactions = (1..25).map { i ->
                 transaction(
                     id = "t_$i",
                     createdAt = if (i % 2 == 0) previousMonth else now,
@@ -257,15 +258,26 @@ class TransactionsViewModelTest {
         val state = viewModel.uiState.value
         val items = state.transactionItems
         val adSlots = items.filterIsInstance<TransactionListItemUi.Ad>()
-        assertEquals(listOf("ad_5", "ad_10"), adSlots.map { it.id })
-        assertEquals(12, items.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
+        assertEquals(listOf("ad_5", "ad_10", "ad_15", "ad_20", "ad_25"), adSlots.map { it.id })
+        // The two list placements alternate (list1, list2, list1, ...) so both AdMob units serve equally
+        assertEquals(
+            listOf(
+                AdPlacement.TRANSACTIONS_LIST,
+                AdPlacement.TRANSACTIONS_LIST_2,
+                AdPlacement.TRANSACTIONS_LIST,
+                AdPlacement.TRANSACTIONS_LIST_2,
+                AdPlacement.TRANSACTIONS_LIST
+            ),
+            adSlots.map { it.placement }
+        )
+        assertEquals(25, items.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
 
-        // The list order interleaves ads after the 5th and 10th transaction rows
+        // The list order interleaves ads after every 5th transaction row
         var rowCount = 0
         items.forEach { item ->
             when (item) {
                 is TransactionListItemUi.TransactionRow -> rowCount++
-                is TransactionListItemUi.Ad -> assertTrue(rowCount == 5 || rowCount == 10)
+                is TransactionListItemUi.Ad -> assertTrue(rowCount in listOf(5, 10, 15, 20, 25))
                 else -> Unit
             }
         }

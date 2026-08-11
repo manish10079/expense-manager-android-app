@@ -38,6 +38,7 @@ enum class AdPlacement {
     HOME_DASHBOARD,
     HOME_BANNER,
     TRANSACTIONS_LIST,
+    TRANSACTIONS_LIST_2,
     ANALYTICS_INSIGHTS,
     BUDGET_CALENDAR,
     SETTINGS_GENERAL
@@ -118,6 +119,7 @@ class AdsCoordinator @Inject constructor(
     private val PRELOAD_NATIVE_PLACEMENTS = listOf(
         AdPlacement.HOME_DASHBOARD,
         AdPlacement.TRANSACTIONS_LIST,
+        AdPlacement.TRANSACTIONS_LIST_2,
         AdPlacement.ANALYTICS_INSIGHTS,
         AdPlacement.BUDGET_CALENDAR,
         AdPlacement.SETTINGS_GENERAL
@@ -137,6 +139,7 @@ class AdsCoordinator @Inject constructor(
     // Real Native Ad Unit IDs
     private val NATIVE_HOME_ID = "ca-app-pub-3052232912913226/1140149865"
     private val NATIVE_TRANSACTIONS_ID = "ca-app-pub-3052232912913226/4486018419"
+    private val NATIVE_TRANSACTIONS_2_ID = "ca-app-pub-3052232912913226/5599898304"
     private val NATIVE_BUDGET_CALENDAR_ID = "ca-app-pub-3052232912913226/6920610063"
     private val NATIVE_SETTINGS_ID = "ca-app-pub-3052232912913226/2261659841"
     private val NATIVE_ANALYTICS_ID = "ca-app-pub-3052232912913226/9786446554"
@@ -158,6 +161,7 @@ class AdsCoordinator @Inject constructor(
             AdPlacement.HOME_DASHBOARD -> NATIVE_HOME_ID
             AdPlacement.HOME_BANNER -> NATIVE_HOME_ID // Using Home ID for test
             AdPlacement.TRANSACTIONS_LIST -> NATIVE_TRANSACTIONS_ID
+            AdPlacement.TRANSACTIONS_LIST_2 -> NATIVE_TRANSACTIONS_2_ID
             AdPlacement.ANALYTICS_INSIGHTS -> NATIVE_ANALYTICS_ID
             AdPlacement.BUDGET_CALENDAR -> NATIVE_BUDGET_CALENDAR_ID
             AdPlacement.SETTINGS_GENERAL -> NATIVE_SETTINGS_ID
@@ -184,6 +188,13 @@ class AdsCoordinator @Inject constructor(
     /**
      * Initializes the privacy consent flow (UMP).
      * Should be called from the Activity.
+     *
+     * Consent handling: `requestConsentInfoUpdate` can fail (e.g. the AdMob account's
+     * Privacy & messaging configuration is missing, or a transient network error). A
+     * failed/unknown consent state must NOT block ad serving entirely, so the SDK is
+     * always initialized regardless and ad requests still reach Google. Trade-off: in
+     * the EU/EEA, requests made while consent is unknown carry no consent signals until
+     * the console's UMP form is configured (then the form gates personalized ads).
      */
     fun initPrivacyFlow(activity: Activity, onComplete: () -> Unit) {
         val params = ConsentRequestParameters.Builder()
@@ -197,39 +208,39 @@ class AdsCoordinator @Inject constructor(
             {
                 UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
                     if (formError != null) {
-                        Log.w("AdsCoordinator", "${formError.errorCode}: ${formError.message}")
+                        Log.w("AdsCoordinator", "Consent form error: code=${formError.errorCode}, message=${formError.message}")
                     }
-
-                    if (consentInformation.canRequestAds()) {
-                        initializeMobileAdsSdk(onComplete)
-                    } else {
-                        onComplete()
-                    }
+                    // Form shown/dismissed (or failed to load) — initialize regardless.
+                    initializeMobileAdsSdk(onComplete)
                 }
             },
             { requestConsentError ->
-                Log.w("AdsCoordinator", "${requestConsentError.errorCode}: ${requestConsentError.message}")
-                if (consentInformation.canRequestAds()) {
-                    initializeMobileAdsSdk(onComplete)
-                } else {
-                    onComplete()
-                }
+                Log.w("AdsCoordinator", "Consent info update failed: code=${requestConsentError.errorCode}, message=${requestConsentError.message}")
+                // Consent state unknown — still initialize the SDK so ad requests can
+                // proceed; EEA consent enforcement is handled server-side by the SDK.
+                initializeMobileAdsSdk(onComplete)
             }
         )
 
-        // Check if SDK can be initialized immediately
+        // Fast path: consent already known (e.g. stored from a previous session).
         if (consentInformation.canRequestAds()) {
             initializeMobileAdsSdk(onComplete)
         }
     }
 
     private fun initializeMobileAdsSdk(onComplete: () -> Unit) {
+        // Atomic gate: exactly one caller proceeds to MobileAds.initialize(). Note that
+        // onComplete may fire more than once (here, the trailing canRequestAds() fast
+        // path, and the init callback) — the current caller's lambda is a no-op, and
+        // preloading only happens inside the init callback, so this is safe.
         if (isMobileAdsSdkInitialized.getAndSet(true)) {
             onComplete()
             return
         }
 
+        Log.d("AdsCoordinator", "Initializing Google Mobile Ads SDK...")
         MobileAds.initialize(context) {
+            Log.d("AdsCoordinator", "Google Mobile Ads SDK initialized.")
             // Phase 1: preload the rewarded ad plus every native placement up front, so
             // screen composition never triggers a first-visit network ad request.
             loadRewardedAd(RewardedPlacement.FEATURE_UNLOCK)
@@ -243,15 +254,21 @@ class AdsCoordinator @Inject constructor(
      */
     fun loadInterstitialAd(placement: InterstitialPlacement, onAdLoaded: (() -> Unit)? = null) {
         if (interstitialAds[placement] != null || isInterstitialAdLoading[placement] == true) return
-        if (!isMobileAdsSdkInitialized.get()) return
+        if (!isMobileAdsSdkInitialized.get()) {
+            Log.w("AdsCoordinator", "Interstitial ad ($placement) load skipped: Mobile Ads SDK not initialized yet.")
+            return
+        }
 
         isInterstitialAdLoading[placement] = true
         val adUnitId = getInterstitialAdUnitId(placement)
+        // Plain request: consent decisions are owned by [initPrivacyFlow] (which keeps the
+        // SDK initialized so requests always reach Google; UMP consent signals ride along
+        // once the console form is configured).
         val adRequest = AdRequest.Builder().build()
 
         InterstitialAd.load(context, adUnitId, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d("AdsCoordinator", "Interstitial ad ($placement) failed to load: ${adError.message}")
+                Log.e("AdsCoordinator", "Interstitial ad ($placement) failed to load: code=${adError.code}, domain=${adError.domain}, message=${adError.message}")
                 interstitialAds[placement] = null
                 isInterstitialAdLoading[placement] = false
             }
@@ -293,7 +310,7 @@ class AdsCoordinator @Inject constructor(
                     }
 
                     override fun onAdFailedToShowFullScreenContent(adError: com.google.android.gms.ads.AdError) {
-                        Log.d("AdsCoordinator", "Interstitial ad ($placement) failed to show: ${adError.message}")
+                        Log.e("AdsCoordinator", "Interstitial ad ($placement) failed to show: code=${adError.code}, domain=${adError.domain}, message=${adError.message}")
                         interstitialAds[placement] = null
                         onAdDismissed()
                     }
@@ -309,15 +326,19 @@ class AdsCoordinator @Inject constructor(
 
     fun loadRewardedAd(placement: RewardedPlacement, onAdLoaded: (() -> Unit)? = null) {
         if (rewardedAds[placement] != null || isRewardedAdLoading[placement] == true) return
-        if (!isMobileAdsSdkInitialized.get()) return
+        if (!isMobileAdsSdkInitialized.get()) {
+            Log.w("AdsCoordinator", "Rewarded ad ($placement) load skipped: Mobile Ads SDK not initialized yet.")
+            return
+        }
 
         isRewardedAdLoading[placement] = true
         val adUnitId = getRewardedAdUnitId(placement)
+        // See note in [loadInterstitialAd]: plain request; EEA consent is handled by the SDK.
         val adRequest = AdRequest.Builder().build()
         
         RewardedAd.load(context, adUnitId, adRequest, object : RewardedAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d("AdsCoordinator", "Rewarded ad ($placement) failed to load: ${adError.message}")
+                Log.e("AdsCoordinator", "Rewarded ad ($placement) failed to load: code=${adError.code}, domain=${adError.domain}, message=${adError.message}")
                 rewardedAds[placement] = null
                 isRewardedAdLoading[placement] = false
             }
@@ -366,7 +387,10 @@ class AdsCoordinator @Inject constructor(
             deliverNativeAdCallbacks(placement, ad)
             return
         }
-        if (!isMobileAdsSdkInitialized.get()) return
+        if (!isMobileAdsSdkInitialized.get()) {
+            Log.w("AdsCoordinator", "Native ad ($placement) load skipped: Mobile Ads SDK not initialized yet.")
+            return
+        }
 
         synchronized(nativeAdLock) {
             if (isNativeAdLoading[placement] == true) return
@@ -380,7 +404,7 @@ class AdsCoordinator @Inject constructor(
                     .forNativeAd { ad -> onNativeAdLoaded(placement, ad) }
                     .withAdListener(object : com.google.android.gms.ads.AdListener() {
                         override fun onAdFailedToLoad(adError: LoadAdError) {
-                            Log.w("AdsCoordinator", "Native ad ($placement) failed to load: ${adError.message}")
+                            Log.e("AdsCoordinator", "Native ad ($placement) failed to load: code=${adError.code}, domain=${adError.domain}, message=${adError.message}")
                             synchronized(nativeAdLock) {
                                 isNativeAdLoading[placement] = false
                             }
@@ -392,6 +416,7 @@ class AdsCoordinator @Inject constructor(
             }
             // AdLoader.Builder ran off-main per AdMob guidance; keep loadAd() itself on the
             // main thread (matches the pre-Phase-1 behavior; the SDK posts callbacks to main).
+            // Plain request — EEA consent enforcement is handled server-side by the SDK.
             withContext(Dispatchers.Main) {
                 adLoader.loadAd(AdRequest.Builder().build())
             }

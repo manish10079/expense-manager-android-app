@@ -113,7 +113,6 @@ import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.monetization.AccessStatus
-import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.AppHeader
@@ -657,11 +656,15 @@ private fun TransactionScreenContent(
                                 // Gated entirely on isAdsEnabled: for ad-free (Pro) users the
                                 // item renders nothing — no spacers, no reserved height — so no
                                 // phantom gap every 5th row.
+                                //
+                                // The ViewModel alternates the placement between
+                                // TRANSACTIONS_LIST and TRANSACTIONS_LIST_2 so both AdMob units
+                                // render (and are tracked separately in the console).
                                 is TransactionListItemUi.Ad -> {
                                     if (isAdsEnabled) {
                                         Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                         AdContainer(isAdsEnabled = true) {
-                                            NativeAdCard(placement = AdPlacement.TRANSACTIONS_LIST)
+                                            NativeAdCard(placement = item.placement)
                                         }
                                         Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }

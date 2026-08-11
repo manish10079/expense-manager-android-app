@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.ui.models
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.monetization.AdPlacement
 
 @Immutable
 data class TransactionCardItemUi(
@@ -46,9 +47,14 @@ sealed interface TransactionListItemUi {
      * Emitted as its own list entry with a stable key (e.g. "ad_5") so the ad's
      * composition is independent of transaction-card recompositions and Compose
      * recycles its AndroidView across scroll entries instead of re-inflating it.
+     *
+     * [placement] selects which AdMob unit renders in the slot: the list alternates
+     * between [AdPlacement.TRANSACTIONS_LIST] and [AdPlacement.TRANSACTIONS_LIST_2]
+     * so both units get equal exposure (and separate AdMob analytics).
      */
     @Immutable
     data class Ad(
-        val id: String
+        val id: String,
+        val placement: AdPlacement
     ) : TransactionListItemUi
 }
