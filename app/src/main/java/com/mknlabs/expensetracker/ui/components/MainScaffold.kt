@@ -80,6 +80,9 @@ fun MainScaffold(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
     onDeleteTransaction: (String) -> Unit,
+    onSwipeDeleteTransaction: (Transaction) -> Unit = {},
+    onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
+    onDuplicateTransaction: (Transaction) -> Unit = {},
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
@@ -111,8 +114,7 @@ fun MainScaffold(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onShowUpgradeSheet: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onShowUpgradeSheet: () -> Unit
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val transactionsUiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
@@ -223,6 +225,9 @@ fun MainScaffold(
             onAddTransactionDraftNoteChange = onAddTransactionDraftNoteChange,
             onSaveTransaction = onSaveTransaction,
             onDeleteTransaction = onDeleteTransaction,
+            onSwipeDeleteTransaction = onSwipeDeleteTransaction,
+            onRestoreTransaction = onRestoreTransaction,
+            onDuplicateTransaction = onDuplicateTransaction,
             onDeleteRecurring = onDeleteRecurring,
             onRecurringEnabledChange = onRecurringEnabledChange,
             onUpdateRecurringRule = onUpdateRecurringRule,
@@ -254,8 +259,7 @@ fun MainScaffold(
             onCloudSyncEnabledChange = onCloudSyncEnabledChange,
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
-            onShowUpgradeSheet = onShowUpgradeSheet,
-            onPrepareForExternalActivity = onPrepareForExternalActivity
+            onShowUpgradeSheet = onShowUpgradeSheet
         )
 
         if (showFixedBottomNavBar) {

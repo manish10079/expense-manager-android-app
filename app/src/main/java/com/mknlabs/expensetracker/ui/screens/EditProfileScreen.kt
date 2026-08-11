@@ -75,7 +75,6 @@ fun ProfileScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     onBackClick: () -> Unit = {},
     onSaveClick: (UserProfile) -> Unit = {},
-    onPrepareForExternalActivity: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
@@ -91,8 +90,7 @@ fun ProfileScreen(
         userTier = userTier,
         dbCountryCodes = dbCountryCodes,
         onBackClick = onBackClick,
-        onSaveClick = onSaveClick,
-        onPrepareForExternalActivity = onPrepareForExternalActivity
+        onSaveClick = onSaveClick
     )
 }
 
@@ -105,8 +103,7 @@ private fun ProfileScreenContent(
     userTier: UserTier,
     dbCountryCodes: List<com.mknlabs.expensetracker.models.CountryCode>,
     onBackClick: () -> Unit,
-    onSaveClick: (UserProfile) -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onSaveClick: (UserProfile) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -234,7 +231,6 @@ private fun ProfileScreenContent(
                         ?.let(ProfilePhotoManager::deleteManagedPhoto)
                     photoUri = null
                 },
-                onPrepareForExternalActivity = onPrepareForExternalActivity,
                 userTier = userTier,
                 isAnonymous = userProfile.authProvider == "anonymous"
             )
@@ -463,7 +459,6 @@ private fun ProfilePhotoSection(
     isPhotoProcessing: Boolean,
     onSelectPhoto: () -> Unit,
     onRemovePhoto: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit,
     userTier: UserTier = UserTier.FREE,
     isAnonymous: Boolean = false
 ) {
@@ -488,7 +483,6 @@ private fun ProfilePhotoSection(
     ) {
         IconButton(
             onClick = {
-                onPrepareForExternalActivity()
                 onSelectPhoto()
             },
             enabled = !isPhotoProcessing,
@@ -565,8 +559,7 @@ private fun ProfileScreenPreview() {
             userTier = UserTier.PREMIUM,
             dbCountryCodes = emptyList(),
             onBackClick = {},
-            onSaveClick = {},
-            onPrepareForExternalActivity = {}
+            onSaveClick = {}
         )
     }
 }

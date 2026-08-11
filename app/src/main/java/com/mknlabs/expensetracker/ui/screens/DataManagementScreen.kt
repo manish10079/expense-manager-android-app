@@ -57,7 +57,6 @@ fun DataManagementScreen(
     onJsonImportFileSelected: (Uri) -> Unit,
     onLegacyImportFileSelected: (Uri) -> Unit,
     onDeleteAllTransactionsClick: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit,
     onBackClick: () -> Unit,
     isAdsEnabled: Boolean = false
 ) {
@@ -80,7 +79,6 @@ fun DataManagementScreen(
         onJsonImportFileSelected = onJsonImportFileSelected,
         onLegacyImportFileSelected = onLegacyImportFileSelected,
         onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
-        onPrepareForExternalActivity = onPrepareForExternalActivity,
         onBackClick = onBackClick,
         getAccessStatus = { feature, optionId -> monetizationViewModel.getAccessStatus(feature, optionId) },
         onPurchaseSimulated = { monetizationViewModel.onPurchaseSimulated() }
@@ -103,7 +101,6 @@ private fun DataManagementContent(
     onJsonImportFileSelected: (Uri) -> Unit,
     onLegacyImportFileSelected: (Uri) -> Unit,
     onDeleteAllTransactionsClick: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit,
     onBackClick: () -> Unit,
     getAccessStatus: (Feature, String?) -> kotlinx.coroutines.flow.StateFlow<AccessStatus>,
     onPurchaseSimulated: () -> Unit
@@ -240,7 +237,6 @@ private fun DataManagementContent(
                         GatedAction(
                             feature = Feature.DATA_EXPORT,
                             onAction = {
-                                onPrepareForExternalActivity()
                                 jsonExportFileCreator.launch("expense_tracker_export_$todayLabel.json")
                             }
                         ) { status, onClick ->
@@ -266,7 +262,6 @@ private fun DataManagementContent(
                             valueText = stringResource(id = R.string.label_import),
                             onClick = {
                                 importJsonClickCount++
-                                onPrepareForExternalActivity()
                                 jsonImportFilePicker.launch(arrayOf("application/json", "*/*"))
                             },
                             standalone = false
@@ -275,7 +270,6 @@ private fun DataManagementContent(
                         GatedAction(
                             feature = Feature.AUTO_BACKUP, // Using auto backup as proxy for premium DB tools
                             onAction = {
-                                onPrepareForExternalActivity()
                                 databaseBackupFileCreator.launch("expense_tracker_backup_$todayLabel.db")
                             }
                         ) { status, onClick ->
@@ -311,7 +305,6 @@ private fun DataManagementContent(
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.label_migrate),
                                 onClick = {
-                                    onPrepareForExternalActivity()
                                     legacyImportFilePicker.launch(arrayOf("application/json", "*/*"))
                                 },
                                 standalone = false
@@ -567,7 +560,6 @@ private fun DataManagementContent(
                 isRestorePickerVisible = false
             },
             onManualSelectClick = {
-                onPrepareForExternalActivity()
                 databaseRestoreFilePicker.launch(arrayOf("*/*"))
             }
         )
@@ -609,7 +601,6 @@ private fun DataManagementScreenPreview() {
             onJsonImportFileSelected = {},
             onLegacyImportFileSelected = {},
             onDeleteAllTransactionsClick = {},
-            onPrepareForExternalActivity = {},
             onBackClick = {},
             getAccessStatus = { _, _ -> flow },
             onPurchaseSimulated = {}

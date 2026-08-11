@@ -126,6 +126,7 @@ import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.models.TabItem
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getRankedCategories
@@ -291,6 +292,23 @@ fun AddTransactionScreen(
                     end = Dimens.ScreenPadding,
                     top = Dimens.HeaderSpacing,
                     bottom = if (dense) 12.dp else 14.dp
+                )
+                // Swipe left → Expense (next tab), swipe right → Income (previous tab),
+                // matching the Calendar screen's month/year swipe conventions. Compose's
+                // gesture disambiguation (touch slop + Main pass bubbling) lets the vertical
+                // scroll and the horizontally-scrollable category/payment chip rows keep
+                // their gestures, so only deliberate horizontal swipes switch tabs.
+                .horizontalSwipe(
+                    onSwipeLeft = {
+                        if (selectedTransactionTypeId == incomeTypeId) {
+                            selectedTransactionTypeId = expenseTypeId
+                        }
+                    },
+                    onSwipeRight = {
+                        if (selectedTransactionTypeId == expenseTypeId) {
+                            selectedTransactionTypeId = incomeTypeId
+                        }
+                    }
                 )
         ) {
             AppHeader(

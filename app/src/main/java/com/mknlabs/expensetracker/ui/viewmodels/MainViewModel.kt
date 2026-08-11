@@ -275,6 +275,60 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Replicates [source] as a brand-new transaction: every field is copied
+     * except the identity/timestamp ones — the repository assigns a fresh id,
+     * the date/time becomes "now", and the recurring link is dropped so the
+     * copy is a standalone one-time transaction. Callers must gate this on the
+     * source not being part of a recurring series.
+     */
+    fun duplicateTransaction(source: Transaction) {
+        viewModelScope.launch {
+            // Recurring transactions (the main one or auto-created instances) are
+            // never duplicated. The UI gates this, but guard here as a backstop.
+            if (source.sourceRecurringRuleId != null) return@launch
+            val now = System.currentTimeMillis()
+            transactionRepository.upsertTransaction(
+                source.copy(
+                    id = "",
+                    createdAt = now,
+                    updatedAt = now,
+                    isDeleted = false,
+                    sourceRecurringRuleId = null
+                )
+            )
+            _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
+        }
+    }
+
+    /**
+     * Brings a soft-deleted transaction back (Undo for swipe-to-delete): the
+     * transaction is re-upserted with [Transaction.isDeleted] = false, and if it
+     * was a recurring template ([rule] captured before the delete), the rule is
+     * restored as well. The repository re-assigns a pending-upload sync state.
+     */
+    fun restoreTransaction(
+        transaction: Transaction,
+        rule: RecurringTransactionRule?
+    ) {
+        viewModelScope.launch {
+            transactionRepository.upsertTransaction(
+                transaction.copy(
+                    isDeleted = false,
+                    updatedAt = System.currentTimeMillis()
+                )
+            )
+            rule?.let {
+                recurringRuleRepository.upsertRule(
+                    it.copy(
+                        isDeleted = false,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                )
+            }
+        }
+    }
+
     fun deleteAllTransactions(
         onComplete: () -> Unit,
         onError: (Throwable) -> Unit

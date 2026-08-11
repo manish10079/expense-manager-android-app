@@ -3,7 +3,10 @@ package com.mknlabs.expensetracker.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +21,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,6 +41,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -51,6 +57,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -65,15 +75,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -93,6 +108,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -110,6 +126,7 @@ import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
 import com.mknlabs.expensetracker.ui.components.TransactionPeriodNavigator
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.ui.horizontalSwipe
 import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseRed
@@ -119,7 +136,10 @@ import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
 import com.mknlabs.expensetracker.utils.UiText
+import com.mknlabs.expensetracker.utils.TransactionSwipeAction
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.isRecurringTransaction
+import com.mknlabs.expensetracker.utils.transactionSwipeAction
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,9 +152,13 @@ fun TransactionScreen(
     transactions: List<Transaction> = emptyList(),
     categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    recurringRules: List<RecurringTransactionRule> = emptyList(),
     onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {},
+    onDuplicateTransaction: (Transaction) -> Unit = {},
+    onDeleteTransaction: (Transaction) -> Unit = {},
+    onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
     isAdsEnabled: Boolean = false
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
@@ -166,6 +190,10 @@ fun TransactionScreen(
         onBackClick = onBackClick,
         onAddTransactionClick = onAddTransactionClick,
         onTransactionClick = onTransactionClick,
+        recurringRules = recurringRules,
+        onDuplicateTransaction = onDuplicateTransaction,
+        onDeleteTransaction = onDeleteTransaction,
+        onRestoreTransaction = onRestoreTransaction,
         clearSelection = transactionsViewModel::clearSelection,
         selectAll = transactionsViewModel::selectAll,
         toggleSelection = transactionsViewModel::toggleSelection,
@@ -197,6 +225,10 @@ private fun TransactionScreenContent(
     onBackClick: () -> Unit,
     onAddTransactionClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
+    recurringRules: List<RecurringTransactionRule> = emptyList(),
+    onDuplicateTransaction: (Transaction) -> Unit = {},
+    onDeleteTransaction: (Transaction) -> Unit = {},
+    onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
     clearSelection: () -> Unit,
     selectAll: () -> Unit,
     toggleSelection: (String) -> Unit,
@@ -243,6 +275,44 @@ private fun TransactionScreenContent(
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showPeriodPicker by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showRecurringDuplicateDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val deletedMessage = stringResource(R.string.msg_transaction_deleted)
+    val undoLabel = stringResource(R.string.label_undo)
+
+    // Swiping left (right-to-left) on a transaction card replicates it, swiping
+    // right (left-to-right) soft-deletes it and offers Undo via a snackbar.
+    // Transactions that are part of a recurring series — the main recurring
+    // transaction or one auto-created by it — cannot be duplicated and show an
+    // explanatory dialog.
+    val onSwipeToDuplicate: (Transaction) -> Unit = { transaction ->
+        if (!uiState.isSelectionMode) {
+            if (isRecurringTransaction(transaction, recurringRules)) {
+                showRecurringDuplicateDialog = true
+            } else {
+                onDuplicateTransaction(transaction)
+            }
+        }
+    }
+
+    val onSwipeToDelete: (Transaction) -> Unit = { transaction ->
+        if (!uiState.isSelectionMode) {
+            // Soft-delete immediately; Undo re-upserts the transaction (and its
+            // recurring rule, if it was a template) with isDeleted = false.
+            val rule = recurringRules.firstOrNull { it.transactionId == transaction.id }
+            onDeleteTransaction(transaction)
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = deletedMessage,
+                    actionLabel = undoLabel,
+                    duration = SnackbarDuration.Long
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    onRestoreTransaction(transaction, rule)
+                }
+            }
+        }
+    }
 
     BackHandler(enabled = uiState.isSelectionMode) {
         clearSelection()
@@ -532,36 +602,51 @@ private fun TransactionScreenContent(
 
                                 is TransactionListItemUi.TransactionRow -> {
                                     val card = item.card
-                                    TransactionCard(
-                                        note = card.note,
-                                        transactionDate = card.transactionDate,
-                                        transactionTime = card.transactionTime,
-                                        amount = card.amount,
-                                        icon = card.icon,
-                                        transactionTypeId = card.transactionTypeId,
-                                        paymentType = card.paymentType,
-                                        categoryLabel = card.categoryLabel,
-                                        showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
-                                        showTransactionDate = uiState.customizationSettings.showTransactionDate,
-                                        showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
-                                        showTransactionTime = uiState.customizationSettings.showTransactionTime,
-                                        showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
-                                        showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
-                                        isSelected = uiState.selectedTransactionIds.contains(card.id),
-                                        selectionMode = uiState.isSelectionMode,
-                                        onClick = {
-                                            if (uiState.isSelectionMode) {
-                                                toggleSelection(card.id)
-                                            } else {
-                                                onTransactionClick(card.transaction)
-                                            }
-                                        },
-                                        onLongClick = {
-                                            if (!uiState.isSelectionMode) {
-                                                enterSelectionMode(card.id)
+                                    // Slides with the finger, reveals the "Duplicate"/
+                                    // "Delete" actions peeking from behind the card, and
+                                    // springs back on release.
+                                    SwipeableDuplicateCard(
+                                        enabled = !uiState.isSelectionMode,
+                                        onSwipe = { action ->
+                                            when (action) {
+                                                TransactionSwipeAction.Duplicate ->
+                                                    onSwipeToDuplicate(card.transaction)
+                                                TransactionSwipeAction.Delete ->
+                                                    onSwipeToDelete(card.transaction)
                                             }
                                         }
-                                    )
+                                    ) {
+                                        TransactionCard(
+                                            note = card.note,
+                                            transactionDate = card.transactionDate,
+                                            transactionTime = card.transactionTime,
+                                            amount = card.amount,
+                                            icon = card.icon,
+                                            transactionTypeId = card.transactionTypeId,
+                                            paymentType = card.paymentType,
+                                            categoryLabel = card.categoryLabel,
+                                            showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
+                                            showTransactionDate = uiState.customizationSettings.showTransactionDate,
+                                            showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
+                                            showTransactionTime = uiState.customizationSettings.showTransactionTime,
+                                            showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                                            showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                                            isSelected = uiState.selectedTransactionIds.contains(card.id),
+                                            selectionMode = uiState.isSelectionMode,
+                                            onClick = {
+                                                if (uiState.isSelectionMode) {
+                                                    toggleSelection(card.id)
+                                                } else {
+                                                    onTransactionClick(card.transaction)
+                                                }
+                                            },
+                                            onLongClick = {
+                                                if (!uiState.isSelectionMode) {
+                                                    enterSelectionMode(card.id)
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
 
                                 // Phase 2: the ad is its own dedicated list item (keyed "ad_N")
@@ -602,6 +687,14 @@ private fun TransactionScreenContent(
                 modifier = Modifier.padding(top = Dimens.PaddingSmall)
             )
         }
+
+        // Snackbar overlay for swipe-to-delete Undo (floats above the period navigator).
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+        )
     }
 
     // Period date-jump picker
@@ -713,6 +806,23 @@ private fun TransactionScreenContent(
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+
+    if (showRecurringDuplicateDialog) {
+        AlertDialog(
+            onDismissRequest = { showRecurringDuplicateDialog = false },
+            title = { Text(stringResource(R.string.title_cannot_duplicate_recurring)) },
+            text = { Text(stringResource(R.string.msg_cannot_duplicate_recurring)) },
+            confirmButton = {
+                TextButton(onClick = { showRecurringDuplicateDialog = false }) {
+                    Text(stringResource(R.string.label_ok), fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+
 }
 
 private fun closeSearchBar(
@@ -723,6 +833,183 @@ private fun closeSearchBar(
     focusManager.clearFocus(force = true)
     onSearchQueryChange("")
     onSearchExpandedChange(false)
+}
+
+// Swipe-to-duplicate constants (dp are converted to px via LocalDensity).
+private const val SWIPE_MAX_REVEAL_DP = 96f
+private const val SWIPE_MIN_REVEAL_DP = 24f
+// Finger distance (dp) that must be exceeded to trigger the duplicate. Kept
+// below SWIPE_MAX_REVEAL_DP so the trigger always lands inside the card's
+// 1:1 drag range regardless of screen density.
+private const val SWIPE_TRIGGER_THRESHOLD_DP = 56f
+// Release velocity (px/s) that triggers the duplicate even below the distance threshold.
+private const val SWIPE_FLING_VELOCITY_PX_PER_SECOND = 600f
+// Extra finger movement beyond the reveal point is resisted (rubber-band feel).
+private const val SWIPE_OVERSHOOT_RESISTANCE = 0.25f
+
+/**
+ * Wraps a transaction card so it slides horizontally with the finger, reveals
+ * the "Duplicate" / "Delete" actions peeking from behind either edge, and
+ * springs back to centre on release. A swipe past [SWIPE_TRIGGER_THRESHOLD_DP]
+ * — or a fast fling past [SWIPE_FLING_VELOCITY_PX_PER_SECOND] — resolves via
+ * [transactionSwipeAction] and fires [onSwipe]: a right-to-left swipe yields
+ * [TransactionSwipeAction.Duplicate], a left-to-right one yields
+ * [TransactionSwipeAction.Delete]. The card always springs back afterwards.
+ */
+@Composable
+private fun SwipeableDuplicateCard(
+    enabled: Boolean,
+    onSwipe: (TransactionSwipeAction) -> Unit,
+    cardContent: @Composable BoxScope.() -> Unit
+) {
+    val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
+    val maxRevealPx = with(density) { SWIPE_MAX_REVEAL_DP.dp.toPx() }
+    val minRevealPx = with(density) { SWIPE_MIN_REVEAL_DP.dp.toPx() }
+    val triggerThresholdPx = with(density) { SWIPE_TRIGGER_THRESHOLD_DP.dp.toPx() }
+    val swipeOffset = remember { Animatable(0f) }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Action labels behind the card — the one on the side the card slides
+        // away from peeks out as the card moves (alpha follows the card's
+        // actual position, so no recomposition per drag frame). Swiping right
+        // reveals Delete; swiping left reveals Duplicate.
+        SwipeActionLabel(
+            icon = Icons.Filled.Delete,
+            text = stringResource(R.string.label_delete_confirm),
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 20.dp)
+                .graphicsLayer {
+                    alpha = revealAlpha(
+                        offsetPx = swipeOffset.value,
+                        revealsWhenPositive = true,
+                        maxRevealPx = maxRevealPx,
+                        minRevealPx = minRevealPx
+                    )
+                }
+        )
+        SwipeActionLabel(
+            icon = Icons.Filled.ContentCopy,
+            text = stringResource(R.string.label_duplicate),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 20.dp)
+                .graphicsLayer {
+                    alpha = revealAlpha(
+                        offsetPx = swipeOffset.value,
+                        revealsWhenPositive = false,
+                        maxRevealPx = maxRevealPx,
+                        minRevealPx = minRevealPx
+                    )
+                }
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    translationX = dampedTranslation(swipeOffset.value, maxRevealPx)
+                }
+                .horizontalSwipe(
+                    threshold = triggerThresholdPx,
+                    flingVelocityThreshold = SWIPE_FLING_VELOCITY_PX_PER_SECOND,
+                    onDragOffset = { rawOffset ->
+                        // Don't slide the card while in multi-select mode — the
+                        // duplicate action is disabled there anyway.
+                        if (enabled) {
+                            scope.launch { swipeOffset.snapTo(rawOffset) }
+                        }
+                    },
+                    onSwipeLeft = { onSwipe(transactionSwipeAction(isLeftSwipe = true)) },
+                    onSwipeRight = { onSwipe(transactionSwipeAction(isLeftSwipe = false)) },
+                    onDragEnd = {
+                        scope.launch {
+                            swipeOffset.animateTo(
+                                targetValue = 0f,
+                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                            )
+                        }
+                    },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeOffset.animateTo(
+                                targetValue = 0f,
+                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                            )
+                        }
+                    }
+                )
+        ) {
+            cardContent()
+        }
+    }
+}
+
+@Composable
+private fun SwipeActionLabel(
+    icon: ImageVector,
+    text: String,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(tint.copy(alpha = 0.14f))
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = text,
+                color = tint,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
+            )
+        }
+    }
+}
+
+/**
+ * Card follows the finger 1:1 up to [maxRevealPx]; extra movement beyond it is
+ * resisted so the card doesn't fly off-screen.
+ */
+private fun dampedTranslation(rawOffsetPx: Float, maxRevealPx: Float): Float {
+    val clamped = rawOffsetPx.coerceIn(-maxRevealPx, maxRevealPx)
+    return clamped + (rawOffsetPx - clamped) * SWIPE_OVERSHOOT_RESISTANCE
+}
+
+/**
+ * Label opacity for the edge revealed as the card slides: [revealsWhenPositive]
+ * is true for the left label (shown when the card slides right) and false for
+ * the right label. Fades in after [minRevealPx] and is fully opaque at
+ * [maxRevealPx], following the card's damped position.
+ */
+private fun revealAlpha(
+    offsetPx: Float,
+    revealsWhenPositive: Boolean,
+    maxRevealPx: Float,
+    minRevealPx: Float
+): Float {
+    val rawReveal = if (revealsWhenPositive) offsetPx else -offsetPx
+    if (rawReveal <= 0f) return 0f
+    val clamped = rawReveal.coerceIn(0f, maxRevealPx)
+    val reveal = clamped + (rawReveal - clamped) * SWIPE_OVERSHOOT_RESISTANCE
+    if (reveal <= minRevealPx) return 0f
+    return ((reveal - minRevealPx) / (maxRevealPx - minRevealPx)).coerceIn(0f, 1f)
 }
 
 @Composable

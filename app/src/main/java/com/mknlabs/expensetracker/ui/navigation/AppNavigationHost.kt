@@ -89,6 +89,9 @@ fun AppNavigationHost(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
     onDeleteTransaction: (String) -> Unit,
+    onSwipeDeleteTransaction: (Transaction) -> Unit = {},
+    onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
+    onDuplicateTransaction: (Transaction) -> Unit,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
@@ -120,8 +123,7 @@ fun AppNavigationHost(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onShowUpgradeSheet: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onShowUpgradeSheet: () -> Unit
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
     
@@ -253,6 +255,10 @@ fun AppNavigationHost(
                         transactions = transactions,
                         categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        recurringRules = recurringRules,
+                        onDuplicateTransaction = onDuplicateTransaction,
+                        onDeleteTransaction = onSwipeDeleteTransaction,
+                        onRestoreTransaction = onRestoreTransaction,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
@@ -439,7 +445,6 @@ fun AppNavigationHost(
                         autoBackupFrequencyDays = autoBackupFrequencyDays,
                         onAutoBackupEnabledChange = onAutoBackupEnabledChange,
                         onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
-                        onPrepareForExternalActivity = onPrepareForExternalActivity,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
@@ -514,7 +519,6 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)
                         },
-                        onPrepareForExternalActivity = onPrepareForExternalActivity,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)

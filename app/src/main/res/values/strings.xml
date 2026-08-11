@@ -821,6 +821,13 @@
     <string name="msg_delete_transactions_confirm">Are you sure you want to delete %1$d transactions? This action cannot be undone.</string>
     <string name="label_delete_confirm">Delete</string>
     <string name="label_cancel_confirm">Cancel</string>
+    <string name="label_duplicate">Duplicate</string>
+    <string name="label_undo">Undo</string>
+    <string name="msg_transaction_deleted">Transaction deleted</string>
+    <string name="toast_transaction_deleted">Transaction deleted</string>
+    <string name="toast_transaction_duplicated">Transaction duplicated</string>
+    <string name="title_cannot_duplicate_recurring">Cannot Duplicate</string>
+    <string name="msg_cannot_duplicate_recurring">This transaction is a recurring transaction (either the main one or one created automatically by it), so it cannot be duplicated.</string>
 
     <!-- Analytics Periods -->
     <string name="label_week">Week</string>

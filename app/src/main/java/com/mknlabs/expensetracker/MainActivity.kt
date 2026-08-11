@@ -292,7 +292,11 @@ class MainActivity : AppCompatActivity() {
                                 initialParsedSms = initialParsedSms,
                                 notificationIntent = intent,
                                 isRecoveryPerformed = recoveryPerformed,
-                                onRecoveryConsumed = { appLockViewModel.consumeRecovery() }
+                                onRecoveryConsumed = { appLockViewModel.consumeRecovery() },
+                                // Suppress MainScreen's root-level bottom sheets/dialogs while
+                                // the cold-start/auto-lock overlay is active: any dialog window
+                                // created AFTER the lock's own window would cover the lock.
+                                isAppLockActive = appLockState !is AppLockState.Unlocked
                             )
 
                             // Layer 2: App Lock Overlay
@@ -338,6 +342,13 @@ class MainActivity : AppCompatActivity() {
                                         AppLockOverlay(
                                             isReady = true,
                                             appSettings = settings,
+                                            // Non-null onDismiss switches AppLockOverlay into its
+                                            // fullscreen Dialog mode: the lock renders in its OWN
+                                            // window, created after any open ModalBottomSheet /
+                                            // AlertDialog, so it always sits ABOVE them (an inline
+                                            // overlay inside the main window would be hidden behind
+                                            // bottom sheets, which live in separate dialog windows).
+                                            onDismiss = {},
                                             onUnlockSuccess = { appLockViewModel.unlock() },
                                             autoTriggerBiometricOnShow = true,
                                             onBiometricClick = {

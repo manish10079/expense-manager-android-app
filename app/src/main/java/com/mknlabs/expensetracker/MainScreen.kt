@@ -150,7 +150,11 @@ fun MainScreen(
     initialParsedSms: ParsedSms? = null,
     notificationIntent: Intent? = null,
     isRecoveryPerformed: Boolean = false,
-    onRecoveryConsumed: () -> Unit = {}
+    onRecoveryConsumed: () -> Unit = {},
+    // True while the cold-start / auto-lock overlay (hosted by MainActivity) is
+    // active. While set, MainScreen suppresses its root-level bottom sheets and
+    // dialogs so no window can ever be created on top of the lock.
+    isAppLockActive: Boolean = false
 ) {
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
@@ -227,12 +231,19 @@ fun MainScreen(
         AppLockPreferences.hasPin(context)
     }
     var appLockFlow by remember { mutableStateOf<AppLockFlow?>(null) }
-    var isAppLockSuppressed by remember { mutableStateOf(false) }
     var hasPromptedBiometricForCurrentUnlock by remember(appLockFlow) {
         mutableStateOf(false)
     }
 
     val shouldBlurForAppLock = appLockFlow != null
+
+    // While the app lock is active — the cold-start/auto-lock overlay from
+    // MainActivity (isAppLockActive) or the in-app Setup/Unlock flow
+    // (appLockFlow) — no bottom sheet or dialog may be on screen: each renders
+    // in its own window, and any window created after the lock's own window
+    // would cover it. Suppressing them here guarantees the lock always has the
+    // highest visual priority.
+    val isUiInteractive = !isAppLockActive && appLockFlow == null
 
 
 
@@ -667,7 +678,20 @@ fun MainScreen(
                         onAddTransactionDraftAmountChange = navigationState::updateAddTransactionDraftAmount,
                         onAddTransactionDraftNoteChange = navigationState::updateAddTransactionDraftNote,
                         onSaveTransaction = mainViewModel::saveTransaction,
-                        onDeleteTransaction = mainViewModel::deleteTransaction,
+                        onDeleteTransaction = { id ->
+                            mainViewModel.deleteTransaction(id)
+                            showToast(rawContext.getString(R.string.toast_transaction_deleted))
+                        },
+                        // Swipe-delete path: no toast — the Transactions list shows an
+                        // Undo snackbar instead, so the two never double up.
+                        onSwipeDeleteTransaction = { transaction ->
+                            mainViewModel.deleteTransaction(transaction.id)
+                        },
+                        onRestoreTransaction = mainViewModel::restoreTransaction,
+                        onDuplicateTransaction = { transaction ->
+                            mainViewModel.duplicateTransaction(transaction)
+                            showToast(rawContext.getString(R.string.toast_transaction_duplicated))
+                        },
                         onDeleteRecurring = mainViewModel::deleteRecurring,
                         onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
                         onUpdateRecurringRule = mainViewModel::updateRecurringRule,
@@ -882,8 +906,7 @@ fun MainScreen(
                         showAuthSheet = true 
                     },
                         onLogoutClick = { showLogoutDialog = true },
-                        onShowUpgradeSheet = { showPremiumSheet = true },
-                        onPrepareForExternalActivity = { isAppLockSuppressed = true }
+                        onShowUpgradeSheet = { showPremiumSheet = true }
                     )
                 }
             }
@@ -892,14 +915,14 @@ fun MainScreen(
 
     val isProPassEnabled by mainViewModel.isProPassEnabled.collectAsStateWithLifecycle()
 
-    if (showProPassRedeemDialog) {
+    if (showProPassRedeemDialog && isUiInteractive) {
         ProPassRedeemDialog(
             viewModel = monetizationViewModel,
             onDismiss = { showProPassRedeemDialog = false }
         )
     }
 
-    if (showPremiumSheet) {
+    if (showPremiumSheet && isUiInteractive) {
         PremiumGateSheet(
             financialGoal = userProfile.financialGoal,
             onDismiss = { showPremiumSheet = false },
@@ -916,7 +939,7 @@ fun MainScreen(
         )
     }
 
-    if (showAdExpiryWarningDialog) {
+    if (showAdExpiryWarningDialog && isUiInteractive) {
             AlertDialog(
                 onDismissRequest = { /* No-op to make persistent */ },
                 properties = androidx.compose.ui.window.DialogProperties(
@@ -959,7 +982,7 @@ fun MainScreen(
             )
         }
 
-        if (showLogoutDialog) {
+        if (showLogoutDialog && isUiInteractive) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -1035,7 +1058,7 @@ fun MainScreen(
             }
         }
 
-        if (showAuthSheet) {
+        if (showAuthSheet && isUiInteractive) {
             ModalBottomSheet(
                 onDismissRequest = { 
                     showAuthSheet = false
@@ -1082,7 +1105,7 @@ fun MainScreen(
         // Smart SMS Import "Change" bottom sheet (plan §8 / Phase 4): shown when
         // the app was opened via the notification's Change action. On save, the
         // notification is dismissed and Room flows refresh everything.
-        smsChangeRequest?.let { parsed ->
+        smsChangeRequest?.takeIf { isUiInteractive }?.let { parsed ->
             SmsChangeRoute(
                 parsedSms = parsed,
                 categories = mainUiState.categories,
@@ -1101,6 +1124,14 @@ fun MainScreen(
                 appSettings = effectiveAppSettings,
                 initialFlow = appLockFlow!!,
                 isAppUnlocked = true, // MainScreen only exists in Unlocked state
+                // Non-null onDismiss switches AppLockOverlay into its fullscreen
+                // Dialog mode so the Setup/Unlock flow renders in its own window
+                // ABOVE any open ModalBottomSheet / AlertDialog (bottom sheets and
+                // dialogs live in separate windows and would otherwise cover an
+                // inline overlay). The flow itself still only closes via its own
+                // back button (onBackClick); the dialog is not dismissible by back
+                // press or outside tap.
+                onDismiss = { appLockFlow = null },
                 biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
                 scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
                 isBiometricAvailable = biometricAvailability.isAvailable,
