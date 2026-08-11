@@ -199,4 +199,12 @@ class MonetizationViewModel @Inject constructor(
     fun onWatchAdFreeClicked(activity: Activity) {
         onAdWatched(activity, Feature.AD_FREE_GLOBAL)
     }
+
+    /**
+     * Re-opens the UMP privacy options form so the user can update their consent
+     * choices (GDPR / US state privacy regulations). Delegates to the AdsCoordinator.
+     */
+    fun showPrivacyOptionsForm(activity: Activity) {
+        adsCoordinator.showPrivacyOptionsForm(activity)
+    }
 }

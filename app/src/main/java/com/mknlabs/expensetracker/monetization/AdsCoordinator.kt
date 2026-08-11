@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.monetization
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
@@ -14,6 +15,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.AdLoader
 import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentInformation.PrivacyOptionsRequirementStatus
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +29,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -131,6 +136,17 @@ class AdsCoordinator @Inject constructor(
     private val isMobileAdsSdkInitialized = AtomicBoolean(false)
     private lateinit var consentInformation: ConsentInformation
 
+    /**
+     * Whether the UMP privacy options form must be surfaced to the user (GDPR / US state
+     * privacy regulations, e.g. CCPA/CPRA). Set after the consent info update completes.
+     * The Settings screen shows the "Privacy Options" entry point only when this is
+     * [PrivacyOptionsRequirementStatus.REQUIRED].
+     */
+    private val _privacyOptionsRequirementStatus =
+        MutableStateFlow(PrivacyOptionsRequirementStatus.UNKNOWN)
+    val privacyOptionsRequirementStatus: StateFlow<PrivacyOptionsRequirementStatus> =
+        _privacyOptionsRequirementStatus.asStateFlow()
+
     // Google Test Ad IDs
     private val REWARDED_TEST_ID = "ca-app-pub-3940256099942544/5224354917"
     private val INTERSTITIAL_TEST_ID = "ca-app-pub-3940256099942544/1033173712"
@@ -206,6 +222,10 @@ class AdsCoordinator @Inject constructor(
             activity,
             params,
             {
+                // Consent info is now available: read whether the privacy options form is
+                // required so the Settings entry point can toggle its visibility.
+                refreshPrivacyOptionsStatus()
+
                 UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
                     if (formError != null) {
                         Log.w("AdsCoordinator", "Consent form error: code=${formError.errorCode}, message=${formError.message}")
@@ -218,6 +238,8 @@ class AdsCoordinator @Inject constructor(
                 Log.w("AdsCoordinator", "Consent info update failed: code=${requestConsentError.errorCode}, message=${requestConsentError.message}")
                 // Consent state unknown — still initialize the SDK so ad requests can
                 // proceed; EEA consent enforcement is handled server-side by the SDK.
+                // The privacy-options requirement can't be determined, so leave it UNKNOWN
+                // (the Settings entry point stays hidden).
                 initializeMobileAdsSdk(onComplete)
             }
         )
@@ -225,6 +247,52 @@ class AdsCoordinator @Inject constructor(
         // Fast path: consent already known (e.g. stored from a previous session).
         if (consentInformation.canRequestAds()) {
             initializeMobileAdsSdk(onComplete)
+        }
+    }
+
+    /**
+     * Reads the current UMP privacy-options requirement status and publishes it so the
+     * Settings screen can conditionally show the "Privacy Options" entry point. Runs on
+     * the main thread (called from [initPrivacyFlow]); [MutableStateFlow] is thread-safe.
+     */
+    private fun refreshPrivacyOptionsStatus() {
+        val status = try {
+            consentInformation.getPrivacyOptionsRequirementStatus()
+        } catch (e: Exception) {
+            Log.w("AdsCoordinator", "Failed to read privacy options requirement status: ${e.message}")
+            PrivacyOptionsRequirementStatus.UNKNOWN
+        }
+        _privacyOptionsRequirementStatus.value = status
+        Log.d("AdsCoordinator", "Privacy options requirement status: $status")
+    }
+
+    /**
+     * Re-opens the UMP privacy options form (required under GDPR / US state privacy
+     * regulations, e.g. CCPA/CPRA) so the user can change their consent choices at any
+     * time. Must be called on the main thread with an Activity in the RESUMED state.
+     *
+     * The caller should only surface the entry point when [privacyOptionsRequirementStatus]
+     * is [PrivacyOptionsRequirementStatus.REQUIRED]; this method is safe to call regardless
+     * (the form simply won't be available when it isn't required).
+     */
+    /**
+     * Test seam: publishes a privacy-options requirement status without going through the
+     * UMP SDK so ViewModel tests can drive the Settings entry-point visibility. Unit tests
+     * only — production code paths publish via [refreshPrivacyOptionsStatus].
+     */
+    @VisibleForTesting
+    internal fun publishPrivacyOptionsRequirementStatusForTesting(status: PrivacyOptionsRequirementStatus) {
+        _privacyOptionsRequirementStatus.value = status
+    }
+
+    fun showPrivacyOptionsForm(activity: Activity, onDismiss: () -> Unit = {}) {
+        try {
+            UserMessagingPlatform.showPrivacyOptionsForm(activity) {
+                Log.d("AdsCoordinator", "Privacy options form dismissed.")
+                onDismiss()
+            }
+        } catch (e: Exception) {
+            Log.e("AdsCoordinator", "Failed to show privacy options form: ${e.message}")
         }
     }
 

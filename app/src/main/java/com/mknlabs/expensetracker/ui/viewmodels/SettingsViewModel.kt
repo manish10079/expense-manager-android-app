@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationAdd
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.Savings
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsSuggest
@@ -27,6 +28,8 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
+import com.mknlabs.expensetracker.monetization.AdsCoordinator
+import com.google.android.ump.ConsentInformation.PrivacyOptionsRequirementStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -67,6 +70,7 @@ enum class SettingsActionId {
     AppPreferences,
     EditProfile,
     SecurityPrivacy,
+    PrivacyOptions,
     TransactionCardCustomize,
     DataManagement,
     About,
@@ -91,7 +95,8 @@ class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,
     private val configurationRepository: ConfigurationRepository,
-    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository
+    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository,
+    private val adsCoordinator: AdsCoordinator
 ) : ViewModel() {
 
     private var transactionCount: Int = 0
@@ -101,6 +106,7 @@ class SettingsViewModel @Inject constructor(
     private var userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
     private var isCloudSyncEnabled: Boolean = true
     private var adFreeRemainingTime: String? = null
+    private var isPrivacyOptionsRequired: Boolean = false
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
@@ -116,6 +122,15 @@ class SettingsViewModel @Inject constructor(
         configurationRepository.isProPassEnabled
             .onEach { enabled ->
                 isProPassEnabled = enabled
+                rebuildUiState()
+            }
+            .launchIn(viewModelScope)
+
+        // GDPR / US state privacy: surface the "Privacy Options" entry point only when
+        // the UMP SDK reports that the privacy options form is REQUIRED.
+        adsCoordinator.privacyOptionsRequirementStatus
+            .onEach { status ->
+                isPrivacyOptionsRequired = status == PrivacyOptionsRequirementStatus.REQUIRED
                 rebuildUiState()
             }
             .launchIn(viewModelScope)
@@ -172,7 +187,8 @@ class SettingsViewModel @Inject constructor(
                     isProPassEnabled = isProPassEnabled,
                     userTier = userTier,
                     isCloudSyncEnabled = isCloudSyncEnabled,
-                    adFreeRemainingTime = adFreeRemainingTime
+                    adFreeRemainingTime = adFreeRemainingTime,
+                    privacyOptionsRequired = isPrivacyOptionsRequired
                 )
             )
         }
@@ -186,7 +202,8 @@ private fun buildSettingsSections(
     isProPassEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
     isCloudSyncEnabled: Boolean,
-    adFreeRemainingTime: String?
+    adFreeRemainingTime: String?,
+    privacyOptionsRequired: Boolean
 ): List<SettingsSectionUi> {
     val settingsSections = mutableListOf<SettingsSectionUi>()
 
@@ -278,17 +295,31 @@ private fun buildSettingsSections(
     }
 
     // 3. Security Section
+    val securityItems = mutableListOf<SettingsItemUi>()
+    securityItems.add(
+        SettingsItemUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy,
+            subtitleRes = com.mknlabs.expensetracker.R.string.label_security_privacy_subtitle,
+            icon = Icons.Rounded.Security,
+            actionId = SettingsActionId.SecurityPrivacy
+        )
+    )
+    // GDPR / US state privacy compliance: only show the "Privacy Options" entry point
+    // when the UMP SDK requires it (so it's hidden for users/regions that don't need it).
+    if (privacyOptionsRequired) {
+        securityItems.add(
+            SettingsItemUi(
+                titleRes = com.mknlabs.expensetracker.R.string.title_privacy_options,
+                subtitleRes = com.mknlabs.expensetracker.R.string.label_privacy_options_subtitle,
+                icon = Icons.Rounded.PrivacyTip,
+                actionId = SettingsActionId.PrivacyOptions
+            )
+        )
+    }
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy_1,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_security_privacy_subtitle,
-                    icon = Icons.Rounded.Security,
-                    actionId = SettingsActionId.SecurityPrivacy
-                )
-            )
+            items = securityItems
         )
     )
 

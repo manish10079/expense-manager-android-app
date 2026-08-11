@@ -500,6 +500,8 @@
     <string name="title_secure_private">Secure &amp; Private</string>
     <string name="title_security_privacy">Security &amp; Privacy</string>
     <string name="title_security_privacy_1">SECURITY &amp; PRIVACY</string>
+    <string name="title_privacy_options">Privacy Options</string>
+    <string name="label_privacy_options_subtitle">Manage your consent and data choices</string>
     <string name="title_send_feedback">Send Feedback</string>
     <string name="title_show_date_separators">Show Date Separators</string>
     <string name="title_show_list_summaries">Show Period Summaries</string>

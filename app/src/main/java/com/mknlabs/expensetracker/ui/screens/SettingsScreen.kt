@@ -82,6 +82,7 @@ fun SettingsScreen(
     onProfileClick: () -> Unit = {},
     onPreferencesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
+    onPrivacyOptionsClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
@@ -154,6 +155,12 @@ fun SettingsScreen(
                 monetizationViewModel.onWatchAdFreeClicked(activity)
             }
         },
+        onPrivacyOptionsClick = {
+            val activity = context as? android.app.Activity
+            if (activity != null) {
+                monetizationViewModel.showPrivacyOptionsForm(activity)
+            }
+        },
         onBackClick = onBackClick
     )
 }
@@ -174,6 +181,7 @@ private fun SettingsScreenContent(
     onMembershipClick: () -> Unit,
     onPreferencesClick: () -> Unit,
     onSecurityPrivacyClick: () -> Unit,
+    onPrivacyOptionsClick: () -> Unit,
     onTransactionCardCustomizeClick: () -> Unit,
     onDataManagementClick: () -> Unit,
     onAboutClick: () -> Unit,
@@ -244,6 +252,7 @@ private fun SettingsScreenContent(
                                     SettingsActionId.MyMembership -> onMembershipClick()
                                     SettingsActionId.AppPreferences -> onPreferencesClick()
                                     SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
+                                    SettingsActionId.PrivacyOptions -> onPrivacyOptionsClick()
                                     SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
                                     SettingsActionId.DataManagement -> onDataManagementClick()
                                     SettingsActionId.About -> onAboutClick()
@@ -530,6 +539,7 @@ private fun SettingsScreenPreview() {
             onMembershipClick = {},
             onPreferencesClick = {},
             onSecurityPrivacyClick = {},
+            onPrivacyOptionsClick = {},
             onTransactionCardCustomizeClick = {},
             onDataManagementClick = {},
             onAboutClick = {},
