@@ -57,6 +57,7 @@ import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -229,15 +230,16 @@ fun TransactionCard(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Info,
+                                imageVector = Icons.Outlined.Info,
                                 contentDescription = stringResource(
                                     if (noteTooltipState.isVisible) {
                                         R.string.desc_hide_full_note
+
                                     } else {
                                         R.string.desc_view_full_note
                                     }
                                 ),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -377,7 +379,7 @@ fun TransactionCardDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface {
             TransactionCard(
-                note = "Groceries",
+                note = "Groceries\nchips",
                 transactionDate = "31 Dec",
                 transactionTime = formatTime(1738368000000, "24-hour"),
                 amount = "-₹2,500",
