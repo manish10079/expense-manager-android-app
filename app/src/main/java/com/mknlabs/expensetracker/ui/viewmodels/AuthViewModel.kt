@@ -233,7 +233,6 @@ class AuthViewModel @Inject constructor(
                 .onSuccess { idToken ->
                     android.util.Log.d("AUTH", "Credential received, ID Token exists: ${idToken != null}")
                     if (idToken != null) {
-                        android.util.Log.d("AUTH", "Google ID Token = $idToken")
                         authRepository.signInWithGoogle(idToken)
                             .onSuccess { isNewUser -> 
                                 android.util.Log.d("AUTH", "Firebase sign in success, isNewUser = $isNewUser")
