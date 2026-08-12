@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -15,6 +16,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -65,12 +67,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -84,11 +88,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -139,6 +146,7 @@ import com.mknlabs.expensetracker.utils.TransactionSwipeAction
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.isRecurringTransaction
 import com.mknlabs.expensetracker.utils.transactionSwipeAction
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -216,7 +224,7 @@ fun TransactionScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun TransactionScreenContent(
     uiState: TransactionsScreenUiState,
@@ -295,20 +303,27 @@ private fun TransactionScreenContent(
     }
 
     val onSwipeToDelete: (Transaction) -> Unit = { transaction ->
-        if (!uiState.isSelectionMode) {
-            // Soft-delete immediately; Undo re-upserts the transaction (and its
-            // recurring rule, if it was a template) with isDeleted = false.
-            val rule = recurringRules.firstOrNull { it.transactionId == transaction.id }
-            onDeleteTransaction(transaction)
-            scope.launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = deletedMessage,
-                    actionLabel = undoLabel,
-                    duration = SnackbarDuration.Long
-                )
-                if (result == SnackbarResult.ActionPerformed) {
-                    onRestoreTransaction(transaction, rule)
-                }
+        // NOTE: no isSelectionMode gate here on purpose. The swipe gesture is
+        // already disabled while in multi-select mode (SwipeableDuplicateCard
+        // receives enabled = !isSelectionMode), so any delete reaching this
+        // callback was committed before selection mode could interfere — it must
+        // always land. Re-checking the flag at fire time (which happens ~300 ms
+        // after release, once the exit animation has played) would silently drop
+        // the delete if the user entered selection mode meanwhile, leaving an
+        // invisible card stuck in the list.
+        //
+        // Soft-delete; Undo re-upserts the transaction (and its recurring rule,
+        // if it was a template) with isDeleted = false.
+        val rule = recurringRules.firstOrNull { it.transactionId == transaction.id }
+        onDeleteTransaction(transaction)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = deletedMessage,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Long
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onRestoreTransaction(transaction, rule)
             }
         }
     }
@@ -583,6 +598,15 @@ private fun TransactionScreenContent(
                                 }
                             }
                         ) { item ->
+                            // Modifier.animateItem() keeps every item keyed stably
+                            // (transaction id), so when one is removed the remaining
+                            // cards animate upward to close the gap instead of
+                            // jumping, and duplicated cards fade/place into position.
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItem()
+                            ) {
                             when (item) {
                                 is TransactionListItemUi.SummaryCard -> {
                                     TransactionSummaryCard(
@@ -668,6 +692,7 @@ private fun TransactionScreenContent(
                                         }
                                         Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }
+                                }
                                 }
                             }
                         }
@@ -849,6 +874,18 @@ private const val SWIPE_TRIGGER_THRESHOLD_DP = 56f
 private const val SWIPE_FLING_VELOCITY_PX_PER_SECOND = 600f
 // Extra finger movement beyond the reveal point is resisted (rubber-band feel).
 private const val SWIPE_OVERSHOOT_RESISTANCE = 0.25f
+// Premium swipe exit & gap-collapse animation (DELETE only): on commit the card
+// keeps flying toward the screen edge for SWIPE_EXIT_DURATION_MS while still
+// occupying its layout slot (so a clearly visible gap is left behind), the gap
+// is held for SWIPE_GAP_HOLD_MS, and only then is the real delete fired — the
+// remaining cards collapse the gap via the list's Modifier.animateItem().
+private const val SWIPE_EXIT_DURATION_MS = 180
+private const val SWIPE_GAP_HOLD_MS = 120
+// Extra distance beyond the card's own width so it fully clears the screen edge.
+private const val SWIPE_EXIT_MARGIN_DP = 48f
+// Subtle scale-down during the exit (1.0 -> ~0.98) so the card feels physically
+// dismissed without looking like it shrinks dramatically.
+private const val SWIPE_EXIT_SCALE = 0.98f
 
 /**
  * Wraps a transaction card so it slides horizontally with the finger, reveals
@@ -857,7 +894,18 @@ private const val SWIPE_OVERSHOOT_RESISTANCE = 0.25f
  * — or a fast fling past [SWIPE_FLING_VELOCITY_PX_PER_SECOND] — resolves via
  * [transactionSwipeAction] and fires [onSwipe]: a right-to-left swipe yields
  * [TransactionSwipeAction.Duplicate], a left-to-right one yields
- * [TransactionSwipeAction.Delete]. The card always springs back afterwards.
+ * [TransactionSwipeAction.Delete].
+ *
+ * Premium swipe exit & gap-collapse (DELETE only): when the delete commits the
+ * card does NOT vanish — it keeps flying in the swipe direction toward the
+ * screen edge while fading out and shrinking imperceptibly ([SWIPE_EXIT_SCALE]),
+ * still occupying its layout slot so a clearly visible temporary gap is left
+ * behind. After a short hold ([SWIPE_GAP_HOLD_MS]) the real delete is fired;
+ * the remaining cards then close the gap smoothly via the parent list's
+ * [androidx.compose.foundation.lazy.animateItem] placement animation. Gesture
+ * state (this composable) stays separate from data state (the ViewModel): the
+ * item remains in the list until the delete lands, and the [isRemoving] guard
+ * makes a double-delete impossible.
  */
 @Composable
 private fun SwipeableDuplicateCard(
@@ -867,16 +915,59 @@ private fun SwipeableDuplicateCard(
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    val hapticFeedback = LocalHapticFeedback.current
     val maxRevealPx = with(density) { SWIPE_MAX_REVEAL_DP.dp.toPx() }
     val minRevealPx = with(density) { SWIPE_MIN_REVEAL_DP.dp.toPx() }
     val triggerThresholdPx = with(density) { SWIPE_TRIGGER_THRESHOLD_DP.dp.toPx() }
+    val exitMarginPx = with(density) { SWIPE_EXIT_MARGIN_DP.dp.toPx() }
     val swipeOffset = remember { Animatable(0f) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    // Premium exit state — kept here (gesture/UI state), NOT in the data layer.
+    // While dismissProgress runs 0 -> 1 the card keeps its layout slot and its
+    // translation continues toward the screen edge, alpha fades out and scale
+    // shrinks imperceptibly. The flags below guard against double-delete /
+    // double-duplicate from repeated callbacks, recomposition or rapid gestures.
+    val dismissProgress = remember { Animatable(0f) }
+    var dismissStartX by remember { mutableStateOf(0f) }
+    var dismissTargetX by remember { mutableStateOf(0f) }
+    var isRemoving by remember { mutableStateOf(false) }
+    var isDuplicateCommitting by remember { mutableStateOf(false) }
+    // True only once the real delete has been fired — lets the DisposableEffect
+    // safety net below re-fire it if the card is disposed mid-exit without
+    // ever double-deleting.
+    var deleteFired by remember { mutableStateOf(false) }
+    var cardWidthPx by remember { mutableStateOf(0f) }
+
+    // Swipes are ignored while a removal/duplicate commit is in flight. Keying
+    // the gesture modifier on this flag keeps its callbacks fresh whenever it
+    // flips (avoids stale closures across recompositions).
+    val gesturesEnabled = enabled && !isRemoving && !isDuplicateCommitting
+
+    // Keep the safety net below on the latest callback (avoids capturing a stale
+    // first-composition closure that could carry outdated transaction data).
+    val currentOnSwipe by rememberUpdatedState(onSwipe)
+
+    DisposableEffect(Unit) {
+        onDispose {
+            // Safety net: the card can leave composition mid-exit (scrolled out
+            // of view, filters changed, screen changed). A committed delete must
+            // still land exactly once.
+            if (isRemoving && !deleteFired) {
+                currentOnSwipe(transactionSwipeAction(isLeftSwipe = false))
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { cardWidthPx = it.width.toFloat() }
+    ) {
         // Action labels behind the card — the one on the side the card slides
         // away from peeks out as the card moves (alpha follows the card's
         // actual position, so no recomposition per drag frame). Swiping right
-        // reveals Delete; swiping left reveals Duplicate.
+        // reveals Delete; swiping left reveals Duplicate. Hidden entirely once
+        // a delete starts flying out (they must not linger in the gap).
         SwipeActionLabel(
             icon = Icons.Filled.Delete,
             text = stringResource(R.string.label_delete_confirm),
@@ -885,7 +976,7 @@ private fun SwipeableDuplicateCard(
                 .align(Alignment.CenterStart)
                 .padding(start = 20.dp)
                 .graphicsLayer {
-                    alpha = revealAlpha(
+                    alpha = if (isRemoving) 0f else revealAlpha(
                         offsetPx = swipeOffset.value,
                         revealsWhenPositive = true,
                         maxRevealPx = maxRevealPx,
@@ -901,7 +992,7 @@ private fun SwipeableDuplicateCard(
                 .align(Alignment.CenterEnd)
                 .padding(end = 20.dp)
                 .graphicsLayer {
-                    alpha = revealAlpha(
+                    alpha = if (isRemoving) 0f else revealAlpha(
                         offsetPx = swipeOffset.value,
                         revealsWhenPositive = false,
                         maxRevealPx = maxRevealPx,
@@ -914,34 +1005,100 @@ private fun SwipeableDuplicateCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    translationX = dampedTranslation(swipeOffset.value, maxRevealPx)
+                    if (isRemoving) {
+                        // Card is flying out: continue from where the finger left
+                        // it toward the screen edge, fading to 0 and shrinking to
+                        // SWIPE_EXIT_SCALE. All values are driven off one
+                        // Animatable inside graphicsLayer — no recomposition per
+                        // frame, no per-frame object allocation.
+                        val progress = dismissProgress.value
+                        translationX = dismissStartX + (dismissTargetX - dismissStartX) * progress
+                        alpha = 1f - progress
+                        scaleX = 1f - (1f - SWIPE_EXIT_SCALE) * progress
+                        scaleY = 1f - (1f - SWIPE_EXIT_SCALE) * progress
+                    } else {
+                        translationX = dampedTranslation(swipeOffset.value, maxRevealPx)
+                        alpha = 1f
+                        scaleX = 1f
+                        scaleY = 1f
+                    }
                 }
                 .horizontalSwipe(
+                    key = gesturesEnabled,
                     threshold = triggerThresholdPx,
                     flingVelocityThreshold = SWIPE_FLING_VELOCITY_PX_PER_SECOND,
                     onDragOffset = { rawOffset ->
-                        // Don't slide the card while in multi-select mode — the
-                        // duplicate action is disabled there anyway.
-                        if (enabled) {
+                        // Don't slide the card while in multi-select mode or after
+                        // an action has been committed.
+                        if (gesturesEnabled) {
                             scope.launch { swipeOffset.snapTo(rawOffset) }
                         }
                     },
-                    onSwipeLeft = { onSwipe(transactionSwipeAction(isLeftSwipe = true)) },
-                    onSwipeRight = { onSwipe(transactionSwipeAction(isLeftSwipe = false)) },
+                    onThresholdCrossed = {
+                        // Subtle confirmation the moment the commit threshold is
+                        // crossed — horizontalSwipe fires it once per gesture, so
+                        // no repeated haptics while dragging.
+                        if (gesturesEnabled) {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                    },
+                    onSwipeLeft = {
+                        if (gesturesEnabled) {
+                            // Duplicate: fire the data operation immediately; the
+                            // original card settles back naturally below and the
+                            // new card fades/places in via the list's animateItem.
+                            isDuplicateCommitting = true
+                            onSwipe(transactionSwipeAction(isLeftSwipe = true))
+                        }
+                    },
+                    onSwipeRight = {
+                        if (gesturesEnabled) {
+                            // Delete: animate the exit FIRST while the card still
+                            // occupies its layout space (visible temporary gap) and
+                            // only fire the real delete after the card is gone and
+                            // the gap has been held.
+                            isRemoving = true
+                            deleteFired = false
+                            dismissStartX = swipeOffset.value
+                            dismissTargetX = cardWidthPx + exitMarginPx
+                            scope.launch {
+                                dismissProgress.snapTo(0f)
+                                dismissProgress.animateTo(
+                                    targetValue = 1f,
+                                    animationSpec = tween(
+                                        durationMillis = SWIPE_EXIT_DURATION_MS,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                                delay(SWIPE_GAP_HOLD_MS.toLong())
+                                deleteFired = true
+                                onSwipe(transactionSwipeAction(isLeftSwipe = false))
+                            }
+                        }
+                    },
                     onDragEnd = {
-                        scope.launch {
-                            swipeOffset.animateTo(
-                                targetValue = 0f,
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                            )
+                        // Below-threshold release (or a duplicate commit): spring
+                        // the card back to centre. Skipped while a delete is flying
+                        // out — the exit coroutine owns the card then.
+                        if (!isRemoving) {
+                            scope.launch {
+                                swipeOffset.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                                )
+                                isDuplicateCommitting = false
+                            }
                         }
                     },
                     onDragCancel = {
-                        scope.launch {
-                            swipeOffset.animateTo(
-                                targetValue = 0f,
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                            )
+                        if (!isRemoving) {
+                            scope.launch {
+                                swipeOffset.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                                )
+                                isDuplicateCommitting = false
+                            }
                         }
                     }
                 )

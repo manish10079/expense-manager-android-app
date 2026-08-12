@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import kotlin.math.abs
 
 /**
  * Reusable modifier for handling horizontal swipe gestures across the UI layer.
@@ -14,6 +15,8 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
  *   the drag distance is below [threshold]. 0f (default) disables velocity-based triggering.
  * @param onDragOffset Called with the current accumulated horizontal drag in px while the
  *   finger moves — useful to visually translate the target (e.g. a card following the swipe).
+ * @param onThresholdCrossed Called exactly once per gesture, the first time the accumulated drag
+ *   crosses [threshold] — useful for a subtle haptic confirmation at the commit point.
  * @param onSwipeLeft Callback triggered when a left swipe (negative horizontal drag) exceeds the threshold or fling velocity.
  * @param onSwipeRight Callback triggered when a right swipe (positive horizontal drag) exceeds the threshold or fling velocity.
  * @param onDragEnd Called when the pointer lifts after a drag, after any swipe callbacks fired.
@@ -24,17 +27,23 @@ fun Modifier.horizontalSwipe(
     threshold: Float = 80f,
     flingVelocityThreshold: Float = 0f,
     onDragOffset: (Float) -> Unit = {},
+    onThresholdCrossed: () -> Unit = {},
     onSwipeLeft: () -> Unit = {},
     onSwipeRight: () -> Unit = {},
     onDragEnd: () -> Unit = {},
     onDragCancel: () -> Unit = {}
 ): Modifier = this.pointerInput(key) {
     var totalDrag = 0f
+    var thresholdCrossedFired = false
     val velocityTracker = VelocityTracker()
     detectHorizontalDragGestures(
         onHorizontalDrag = { change, dragAmount ->
             velocityTracker.addPosition(change.uptimeMillis, change.position)
             totalDrag += dragAmount
+            if (!thresholdCrossedFired && abs(totalDrag) >= threshold) {
+                thresholdCrossedFired = true
+                onThresholdCrossed()
+            }
             onDragOffset(totalDrag)
         },
         onDragEnd = {
@@ -47,11 +56,13 @@ fun Modifier.horizontalSwipe(
             }
             onDragEnd()
             totalDrag = 0f
+            thresholdCrossedFired = false
             velocityTracker.resetTracking()
         },
         onDragCancel = {
             onDragCancel()
             totalDrag = 0f
+            thresholdCrossedFired = false
             velocityTracker.resetTracking()
         }
     )
