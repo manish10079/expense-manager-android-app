@@ -63,7 +63,7 @@ class AutoBackupWorker(
             // on-device safety net (corruption / accidental deletes), not a
             // cross-device restore path — that's the manual .db export or Firestore.
             val plaintext = dbFile.inputStream().use { it.readBytes() }
-            val encrypted = BackupEncryption.encrypt(context, plaintext)
+            val encrypted = BackupEncryption.encrypt(plaintext)
             newBackupFile.outputStream().use { it.write(encrypted) }
 
             // Update last backup time

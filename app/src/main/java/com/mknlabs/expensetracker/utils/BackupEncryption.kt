@@ -1,12 +1,7 @@
 package com.mknlabs.expensetracker.utils
 
-import android.content.Context
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import java.io.File
-import java.security.KeyStore
 import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
@@ -91,49 +86,16 @@ object BackupEncryption {
 
     private const val KEY_ALIAS = "expense_tracker_backup_key"
 
-    @Volatile
-    private var cachedKey: SecretKey? = null
-
-    private val keyLock = Any()
-
-    fun ensureKey(context: Context): SecretKey {
-        cachedKey?.let { return it }
-        return synchronized(keyLock) {
-            cachedKey ?: loadOrCreateKey(context).also { cachedKey = it }
-        }
-    }
-
-    private fun loadOrCreateKey(context: Context): SecretKey {
-        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-        (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
-
-        val generator = KeyGenerator.getInstance(
-            KeyProperties.KEY_ALGORITHM_AES,
-            "AndroidKeyStore"
-        )
-        generator.init(
-            KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(256)
-                .build()
-        )
-        return generator.generateKey()
-    }
-
     /**
      * Encrypts [plaintext] for an auto-backup file. Failures propagate — the
      * auto-backup worker catches broadly and retries.
      */
-    fun encrypt(context: Context, plaintext: ByteArray): ByteArray =
-        BackupCipher.encrypt(ensureKey(context), plaintext)
+    fun encrypt(plaintext: ByteArray): ByteArray =
+        BackupCipher.encrypt(AndroidKeystoreKeys.getOrCreateAesGcmKey(KEY_ALIAS), plaintext)
 
-    fun decrypt(context: Context, payload: ByteArray): ByteArray {
+    fun decrypt(payload: ByteArray): ByteArray {
         return try {
-            BackupCipher.decrypt(ensureKey(context), payload)
+            BackupCipher.decrypt(AndroidKeystoreKeys.getOrCreateAesGcmKey(KEY_ALIAS), payload)
         } catch (e: Exception) {
             throw BackupDecryptionException("Failed to decrypt database backup on this device.", e)
         }

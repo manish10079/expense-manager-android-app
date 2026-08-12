@@ -102,7 +102,7 @@ class DataManagementRepository @Inject constructor(
             // including legacy plaintext auto-backups created before encryption.
             val payload = tempBackupFile.readBytes()
             val restored = if (BackupEncryption.isEncrypted(payload)) {
-                BackupEncryption.decrypt(appContext, payload)
+                BackupEncryption.decrypt(payload)
             } else {
                 payload
             }
