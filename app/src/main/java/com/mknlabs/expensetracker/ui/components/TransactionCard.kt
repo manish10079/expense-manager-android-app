@@ -3,21 +3,26 @@ package com.mknlabs.expensetracker.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -27,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
@@ -56,6 +63,7 @@ import androidx.compose.ui.text.withStyle
 import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.income
 import com.mknlabs.expensetracker.ui.theme.transparent
+import kotlinx.coroutines.launch
 
 private val SeparatorSpanStyle = SpanStyle(letterSpacing = 0.8.sp)
 
@@ -146,27 +154,18 @@ fun TransactionCard(
             val isNoteEmpty = note.isBlank()
             val displayNote = if (isNoteEmpty) noNoteLabel else note
             // True only while the note is actually truncated (single line +
-            // ellipsis) — the full-note tooltip is offered only in that case.
+            // ellipsis) — the full-note info icon is offered only in that case.
             var noteTruncated by remember(displayNote) { mutableStateOf(false) }
             val noteTooltipState = rememberTooltipState()
+            val noteTooltipScope = rememberCoroutineScope()
 
-            // Long-pressing a truncated note reveals the complete text in a
-            // themed tooltip popup. When the note fits on one line (or is empty)
-            // the tooltip input stays disabled, so the long-press falls through
-            // to the card's own long-press (multi-select). Tap is unaffected.
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(
-                            text = note,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.widthIn(max = 280.dp)
-                        )
-                    }
-                },
-                state = noteTooltipState,
-                enableUserInput = noteTruncated && !isNoteEmpty
+            // Truncated notes get a small info icon that reveals the complete
+            // text in a themed tooltip popup when tapped (tapping again dismisses
+            // it; tapping anywhere else dismisses too). The note text itself
+            // keeps its default behavior — tap opens the transaction, long-press
+            // enters multi-select — only the icon carries the tooltip.
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = displayNote,
@@ -183,8 +182,61 @@ fun TransactionCard(
                         fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
                         fontSize = 15.sp
                     ),
+                    modifier = Modifier.weight(1f, fill = false),
                     onTextLayout = { result -> noteTruncated = result.didOverflowWidth }
                 )
+
+                if (noteTruncated && !isNoteEmpty) {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(
+                                    text = note,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.widthIn(max = 280.dp)
+                                )
+                            }
+                        },
+                        state = noteTooltipState,
+                        onDismissRequest = { noteTooltipState.dismiss() },
+                        enableUserInput = false
+                    ) {
+                        // 24.dp Box keeps the interactive area comfortable to hit while the
+                        // 16.dp glyph stays visually light inside the compact card row.
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .size(24.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable {
+                                    noteTooltipScope.launch {
+                                        if (noteTooltipState.isVisible) {
+                                            noteTooltipState.dismiss()
+                                        } else {
+                                            noteTooltipState.show()
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Info,
+                                contentDescription = stringResource(
+                                    if (noteTooltipState.isVisible) {
+                                        R.string.desc_hide_full_note
+                                    } else {
+                                        R.string.desc_view_full_note
+                                    }
+                                ),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             if (showTransactionDate || showTransactionTime) {

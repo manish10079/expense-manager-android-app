@@ -105,6 +105,8 @@
     <string name="title_edit_transaction">Edit Transaction</string>
     <string name="label_add_note">Add note</string>
     <string name="label_no_note">No Notes</string>
+    <string name="desc_view_full_note">View full note</string>
+    <string name="desc_hide_full_note">Hide full note</string>
     <string name="label_off">Off</string>
     <string name="label_weekly">Weekly</string>
     <string name="label_recurring">RECURRING</string>
