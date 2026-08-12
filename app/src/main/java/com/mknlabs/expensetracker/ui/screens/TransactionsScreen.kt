@@ -163,7 +163,7 @@ fun TransactionScreen(
     onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {},
-    onDuplicateTransaction: (Transaction) -> Unit = {},
+    onDuplicateTransaction: (Transaction, (Transaction) -> Unit) -> Unit = { _, _ -> },
     onDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
     isAdsEnabled: Boolean = false
@@ -233,7 +233,7 @@ private fun TransactionScreenContent(
     onAddTransactionClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
     recurringRules: List<RecurringTransactionRule> = emptyList(),
-    onDuplicateTransaction: (Transaction) -> Unit = {},
+    onDuplicateTransaction: (Transaction, (Transaction) -> Unit) -> Unit = { _, _ -> },
     onDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
     clearSelection: () -> Unit,
@@ -285,6 +285,7 @@ private fun TransactionScreenContent(
     var showRecurringDuplicateDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val deletedMessage = stringResource(R.string.msg_transaction_deleted)
+    val duplicatedMessage = stringResource(R.string.msg_transaction_duplicated)
     val undoLabel = stringResource(R.string.label_undo)
 
     // Swiping left (right-to-left) on a transaction card replicates it, swiping
@@ -297,7 +298,21 @@ private fun TransactionScreenContent(
             if (isRecurringTransaction(transaction, recurringRules)) {
                 showRecurringDuplicateDialog = true
             } else {
-                onDuplicateTransaction(transaction)
+                // Duplicate now, then offer Undo: the callback delivers the exact
+                // copy that was persisted (with its fresh id) so Undo can
+                // soft-delete precisely that transaction.
+                onDuplicateTransaction(transaction) { created ->
+                    scope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = duplicatedMessage,
+                            actionLabel = undoLabel,
+                            duration = SnackbarDuration.Long
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            onDeleteTransaction(created)
+                        }
+                    }
+                }
             }
         }
     }

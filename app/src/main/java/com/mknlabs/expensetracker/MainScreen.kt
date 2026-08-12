@@ -688,9 +688,12 @@ fun MainScreen(
                             mainViewModel.deleteTransaction(transaction.id)
                         },
                         onRestoreTransaction = mainViewModel::restoreTransaction,
-                        onDuplicateTransaction = { transaction ->
-                            mainViewModel.duplicateTransaction(transaction)
-                            showToast(rawContext.getString(R.string.toast_transaction_duplicated))
+                        // Swipe-duplicate path: no toast — the Transactions list
+                        // shows a "Transaction duplicated" Undo snackbar instead,
+                        // so the two never double up (same convention as
+                        // swipe-to-delete).
+                        onDuplicateTransaction = { transaction, onDuplicated ->
+                            mainViewModel.duplicateTransaction(transaction, onDuplicated)
                         },
                         onDeleteRecurring = mainViewModel::deleteRecurring,
                         onRecurringEnabledChange = mainViewModel::setRecurringEnabled,

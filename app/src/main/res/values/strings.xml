@@ -826,8 +826,8 @@
     <string name="label_duplicate">Duplicate</string>
     <string name="label_undo">Undo</string>
     <string name="msg_transaction_deleted">Transaction deleted</string>
+    <string name="msg_transaction_duplicated">Transaction duplicated</string>
     <string name="toast_transaction_deleted">Transaction deleted</string>
-    <string name="toast_transaction_duplicated">Transaction duplicated</string>
     <string name="title_cannot_duplicate_recurring">Cannot Duplicate</string>
     <string name="msg_cannot_duplicate_recurring">This transaction is a recurring transaction (either the main one or one created automatically by it), so it cannot be duplicated.</string>
 

@@ -91,7 +91,7 @@ fun AppNavigationHost(
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
-    onDuplicateTransaction: (Transaction) -> Unit,
+    onDuplicateTransaction: (Transaction, (Transaction) -> Unit) -> Unit,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,

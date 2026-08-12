@@ -281,14 +281,21 @@ class MainViewModel @Inject constructor(
      * the date/time becomes "now", and the recurring link is dropped so the
      * copy is a standalone one-time transaction. Callers must gate this on the
      * source not being part of a recurring series.
+     *
+     * @param onDuplicated Invoked once the copy has been persisted, with the
+     *   created transaction (carrying its fresh id) — lets the UI offer an
+     *   Undo action that can soft-delete exactly that copy.
      */
-    fun duplicateTransaction(source: Transaction) {
+    fun duplicateTransaction(
+        source: Transaction,
+        onDuplicated: (Transaction) -> Unit = {}
+    ) {
         viewModelScope.launch {
             // Recurring transactions (the main one or auto-created instances) are
             // never duplicated. The UI gates this, but guard here as a backstop.
             if (source.sourceRecurringRuleId != null) return@launch
             val now = System.currentTimeMillis()
-            transactionRepository.upsertTransaction(
+            val created = transactionRepository.upsertTransaction(
                 source.copy(
                     id = "",
                     createdAt = now,
@@ -298,6 +305,7 @@ class MainViewModel @Inject constructor(
                 )
             )
             _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
+            onDuplicated(created)
         }
     }
 
