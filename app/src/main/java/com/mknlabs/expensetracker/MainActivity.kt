@@ -43,6 +43,7 @@ import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
 import android.net.Uri
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
+import com.mknlabs.expensetracker.utils.DeepLinkUtils
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
@@ -198,7 +199,13 @@ class MainActivity : AppCompatActivity() {
         LaunchedEffect(intent) {
             intent?.data?.let { data ->
                 val link = data.toString()
-                if (authRepository.isSignInWithEmailLink(link)) {
+                // Security plan Item 20: gate 1 is the manifest intent-filter,
+                // gate 2 is Firebase's own action-code validation — this explicit
+                // host + pathPrefix check is gate 3, so a lookalike link can never
+                // reach completeMagicLinkSignIn with attacker-shaped input.
+                if (DeepLinkUtils.isValidMagicLink(link) &&
+                    authRepository.isSignInWithEmailLink(link)
+                ) {
                     authViewModel.completeMagicLinkSignIn(link)
                 }
             }
