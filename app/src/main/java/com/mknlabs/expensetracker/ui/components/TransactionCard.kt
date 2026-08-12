@@ -155,6 +155,10 @@ fun TransactionCard(
             val displayNote = if (isNoteEmpty) noNoteLabel else note
             // True only while the note is actually truncated (single line +
             // ellipsis) — the full-note info icon is offered only in that case.
+            // Line count matters: a multi-line note whose first line fits the
+            // width is still truncated, so we also compare the note's real line
+            // count against what the single-line Text actually rendered.
+            val noteLineCount = remember(displayNote) { displayNote.count { it == '\n' } + 1 }
             var noteTruncated by remember(displayNote) { mutableStateOf(false) }
             val noteTooltipState = rememberTooltipState()
             val noteTooltipScope = rememberCoroutineScope()
@@ -183,7 +187,9 @@ fun TransactionCard(
                         fontSize = 15.sp
                     ),
                     modifier = Modifier.weight(1f, fill = false),
-                    onTextLayout = { result -> noteTruncated = result.didOverflowWidth }
+                    onTextLayout = { result ->
+                        noteTruncated = result.didOverflowWidth || result.lineCount < noteLineCount
+                    }
                 )
 
                 if (noteTruncated && !isNoteEmpty) {
