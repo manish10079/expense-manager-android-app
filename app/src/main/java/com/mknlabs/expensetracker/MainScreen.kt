@@ -93,6 +93,7 @@ import kotlinx.coroutines.flow.first
 import com.mknlabs.expensetracker.workers.AutoBackupScheduler
 import com.mknlabs.expensetracker.utils.DeviceIntegrityUtils
 import com.mknlabs.expensetracker.utils.AppRestartUtils
+import com.mknlabs.expensetracker.utils.BackupDecryptionException
 import com.mknlabs.expensetracker.ui.theme.AdLoadingScrim
 import com.mknlabs.expensetracker.ui.theme.AdLoadingText
 
@@ -800,8 +801,13 @@ fun MainScreen(
                                     showToast(rawContext.getString(R.string.toast_database_restored_reloading_ap))
                                     AppRestartUtils.restartApp(rawContext)
                                 },
-                                onError = {
-                                    showToast(rawContext.getString(R.string.toast_database_restore_failed))
+                                onError = { error ->
+                                    val message = if (error is BackupDecryptionException) {
+                                        rawContext.getString(R.string.toast_backup_restore_key_mismatch)
+                                    } else {
+                                        rawContext.getString(R.string.toast_database_restore_failed)
+                                    }
+                                    showToast(message)
                                 }
                             )
                         },

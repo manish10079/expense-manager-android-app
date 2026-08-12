@@ -21,6 +21,7 @@ import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.domain.repository.DataManagementRepository as DomainDataManagementRepository
 import com.mknlabs.expensetracker.domain.repository.JsonExportResult
 import com.mknlabs.expensetracker.domain.repository.JsonImportResult
+import com.mknlabs.expensetracker.utils.BackupEncryption
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.SyncState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -94,14 +95,25 @@ class DataManagementRepository @Inject constructor(
         ExpenseTrackerDatabase.closeInstance()
         deleteDatabaseSidecars()
 
-        tempBackupFile.inputStream().use { input ->
-            databaseFile.outputStream().use { output ->
-                input.copyTo(output)
+        try {
+            // Auto-backups written by AutoBackupWorker are encrypted at rest (the
+            // "ETBK" envelope). Manual .db exports stay plaintext SQLite. Sniff the
+            // magic header and decrypt only when needed so both restore paths work,
+            // including legacy plaintext auto-backups created before encryption.
+            val payload = tempBackupFile.readBytes()
+            val restored = if (BackupEncryption.isEncrypted(payload)) {
+                BackupEncryption.decrypt(appContext, payload)
+            } else {
+                payload
             }
+            databaseFile.writeBytes(restored)
+        } finally {
+            // Never leak the temp copy — even on decrypt failure. On failure the
+            // old database file is still intact (it is only overwritten above),
+            // so the user's data survives a bad/foreign backup.
+            tempBackupFile.delete()
+            deleteDatabaseSidecars()
         }
-
-        deleteDatabaseSidecars()
-        tempBackupFile.delete()
     }
 
     override suspend fun exportJson(uri: Uri): JsonExportResult = withContext(Dispatchers.IO) {

@@ -11,5 +11,6 @@ data class BackupInfo(
     val uri: Uri,
     val sizeBytes: Long,
     val lastModifiedMillis: Long,
-    val isAutoBackup: Boolean
+    val isAutoBackup: Boolean,
+    val isEncrypted: Boolean = false
 )

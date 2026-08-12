@@ -776,6 +776,8 @@
     <string name="label_no_results_found">No results found.</string>
     <string name="label_select_a_backup_file">Select a backup file to restore your data. This will overwrite current data.</string>
     <string name="label_select_file_manually">Select file manually...</string>
+    <string name="label_encrypted">Encrypted</string>
+    <string name="toast_backup_restore_key_mismatch">This backup was created on another device and can\'t be restored here.</string>
     <string name="label_advanced_analytics_trends">Total Clarity on your Financial Life using Advanced Analytics</string>
     <string name="label_automatic_cloud_backups">Bulletproof Data Security using Cloud Sync</string>
     <string name="label_unlimited_recurring_rules">Automate Your Freedom using Recurring Rules</string>

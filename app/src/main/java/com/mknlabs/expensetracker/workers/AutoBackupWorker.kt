@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
+import com.mknlabs.expensetracker.utils.BackupEncryption
 import kotlinx.coroutines.flow.first
 import java.io.File
 import java.text.SimpleDateFormat
@@ -56,12 +57,14 @@ class AutoBackupWorker(
             database.query(androidx.sqlite.db.SimpleSQLiteQuery("PRAGMA wal_checkpoint(TRUNCATE)")).close()
             
             val dbFile = ExpenseTrackerDatabase.databaseFile(context)
-            
-            dbFile.inputStream().use { input ->
-                newBackupFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
+
+            // Copy the live DB and encrypt it at rest (AES-256-GCM, Keystore key).
+            // The Keystore key is device-bound, so these rolling backups are an
+            // on-device safety net (corruption / accidental deletes), not a
+            // cross-device restore path — that's the manual .db export or Firestore.
+            val plaintext = dbFile.inputStream().use { it.readBytes() }
+            val encrypted = BackupEncryption.encrypt(context, plaintext)
+            newBackupFile.outputStream().use { it.write(encrypted) }
 
             // Update last backup time
             AppSettingsDataStore.updateAppSettings(context) { settings ->

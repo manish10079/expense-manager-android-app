@@ -36,12 +36,21 @@ fun BackupRestoreSheet(
     val datePattern = stringResource(id = R.string.date_pattern_full_short)
     val timeSeparator = stringResource(id = R.string.separator_bullet)
 
-    val selectionItems = remember(backups, datePattern, timeSeparator) {
+    val encryptedLabel = context.getString(R.string.label_encrypted)
+    val selectionItems = remember(backups, datePattern, timeSeparator, encryptedLabel) {
         backups.map { backup ->
             SelectionItem(
                 id = backup,
                 title = backup.fileName,
-                subtitle = "${formatDate(backup.lastModifiedMillis, datePattern)} $timeSeparator ${BackupFileManager.formatFileSize(context, backup.sizeBytes)}",
+                subtitle = buildString {
+                    append(formatDate(backup.lastModifiedMillis, datePattern))
+                    append(" $timeSeparator ")
+                    append(BackupFileManager.formatFileSize(context, backup.sizeBytes))
+                    if (backup.isEncrypted) {
+                        append(" $timeSeparator ")
+                        append(encryptedLabel)
+                    }
+                },
                 leadingIcon = if (backup.isAutoBackup) Icons.Rounded.History else Icons.Rounded.Storage
             )
         }

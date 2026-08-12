@@ -25,7 +25,8 @@ object BackupFileManager {
                     uri = Uri.fromFile(file),
                     sizeBytes = file.length(),
                     lastModifiedMillis = file.lastModified(),
-                    isAutoBackup = file.name.startsWith("expense_tracker_backup_")
+                    isAutoBackup = file.name.startsWith("expense_tracker_backup_"),
+                    isEncrypted = BackupEncryption.isEncryptedFile(file)
                 )
             }
             ?.sortedByDescending { it.lastModifiedMillis }

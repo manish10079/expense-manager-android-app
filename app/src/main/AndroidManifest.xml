@@ -8,12 +8,14 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Item 21 (Option B): OS backup is disabled entirely so the plaintext
+         Room DB, DataStores and encrypted PIN store can never be pulled off the
+         device via adb backup / cloud restore. Restore paths that remain:
+         in-app manual .db export, Firestore sync, and encrypted auto-backups. -->
     <application
         android:name=".ExpenseTrackerApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:usesCleartextTraffic="false"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
