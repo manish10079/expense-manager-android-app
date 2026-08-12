@@ -69,6 +69,7 @@ object AppSettingsDataStore {
         val pendingAuthEmail = stringPreferencesKey("pending_auth_email")
         val setupDismissedUntilMillis = longPreferencesKey("setup_dismissed_until_millis")
         val userTier = stringPreferencesKey("user_tier")
+        val deviceIntegrityNoticeAcknowledged = booleanPreferencesKey("device_integrity_notice_acknowledged")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -183,7 +184,9 @@ object AppSettingsDataStore {
             isCloudSyncEnabled = this[Keys.isCloudSyncEnabled] ?: defaultAppSettings.isCloudSyncEnabled,
             pendingAuthEmail = this[Keys.pendingAuthEmail],
             setupDismissedUntilMillis = this[Keys.setupDismissedUntilMillis] ?: 0L,
-            userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier
+            userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier,
+            deviceIntegrityNoticeAcknowledged = this[Keys.deviceIntegrityNoticeAcknowledged]
+                ?: defaultAppSettings.deviceIntegrityNoticeAcknowledged
         )
     }
 
@@ -236,6 +239,7 @@ object AppSettingsDataStore {
         }
         this[Keys.setupDismissedUntilMillis] = settings.setupDismissedUntilMillis
         this[Keys.userTier] = settings.userTier.name
+        this[Keys.deviceIntegrityNoticeAcknowledged] = settings.deviceIntegrityNoticeAcknowledged
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

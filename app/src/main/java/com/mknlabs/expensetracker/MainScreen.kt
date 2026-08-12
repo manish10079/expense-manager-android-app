@@ -88,8 +88,10 @@ import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
 import com.mknlabs.expensetracker.workers.AutoBackupScheduler
+import com.mknlabs.expensetracker.utils.DeviceIntegrityUtils
 import com.mknlabs.expensetracker.utils.AppRestartUtils
 import com.mknlabs.expensetracker.ui.theme.AdLoadingScrim
 import com.mknlabs.expensetracker.ui.theme.AdLoadingText
@@ -182,6 +184,9 @@ fun MainScreen(
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
     var showProPassRedeemDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
+    // One-time, non-blocking notice when the device is rooted or an emulator
+    // (security plan Phase 2, Items 7 & 8).
+    var showDeviceIntegrityNotice by remember { mutableStateOf(false) }
     // Smart SMS Import "Change" sheet request — set when the app is opened via
     // the notification's Change action (DESTINATION_SMS_CHANGE, plan §8/Phase 4).
     var smsChangeRequest by remember { mutableStateOf<ParsedSms?>(null) }
@@ -528,6 +533,30 @@ fun MainScreen(
                 mainViewModel.setTransactionObservationEnabled(
                     navigationState.currentRoute in routesKeepingTransactionsWarm
                 )
+            }
+
+            LaunchedEffect(Unit) {
+                // Skip detection entirely once acknowledged or in benchmark builds
+                // (baseline-profile capture runs on an emulator — the notice would
+                // otherwise pollute the profile).
+                if (appSettings.deviceIntegrityNoticeAcknowledged ||
+                    BuildConfig.BUILD_TYPE == "benchmark"
+                ) {
+                    return@LaunchedEffect
+                }
+                val isRooted = withContext(Dispatchers.IO) {
+                    DeviceIntegrityUtils.isRooted(context)
+                }
+                val isEmulator = DeviceIntegrityUtils.isEmulator()
+                if (DeviceIntegrityUtils.shouldShowIntegrityNotice(
+                        isRooted = isRooted,
+                        isEmulator = isEmulator,
+                        acknowledged = false,
+                        benchmarkBuild = false
+                    )
+                ) {
+                    showDeviceIntegrityNotice = true
+                }
             }
 
             LaunchedEffect(Unit) {
@@ -987,6 +1016,40 @@ fun MainScreen(
                 dismissButton = {
                     TextButton(onClick = { showAdExpiryWarningDialog = false }) {
                         Text(stringResource(id = R.string.btn_maybe_later))
+                    }
+                }
+            )
+        }
+
+        if (showDeviceIntegrityNotice && isUiInteractive) {
+            val acknowledgeIntegrityNotice: () -> Unit = {
+                showDeviceIntegrityNotice = false
+                coroutineScope.launch {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(deviceIntegrityNoticeAcknowledged = true)
+                    }
+                }
+            }
+            AlertDialog(
+                onDismissRequest = acknowledgeIntegrityNotice,
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.title_device_integrity_notice),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.msg_device_integrity_notice),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = acknowledgeIntegrityNotice) {
+                        Text(stringResource(id = R.string.btn_got_it))
                     }
                 }
             )

@@ -30,3 +30,6 @@
 
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.lang.model.element.Modifier
+
+# RootBeer (root detection) uses JNI + reflection — keep the whole library under R8.
+-keep class com.scottyab.rootbeer.** { *; }

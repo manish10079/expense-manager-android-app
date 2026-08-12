@@ -47,5 +47,6 @@ data class AppSettings(
     val pendingAuthEmail: String?,
     val setupDismissedUntilMillis: Long,
     val userTier: UserTier,
-    val goalRemindersEnabled: Boolean = true
+    val goalRemindersEnabled: Boolean = true,
+    val deviceIntegrityNoticeAcknowledged: Boolean = false
 )

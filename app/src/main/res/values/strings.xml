@@ -42,6 +42,8 @@
     <string name="msg_enter_the_same_pin_once_more_t">Enter the same PIN once more to confirm.</string>
     <string name="msg_error_unable_to_start_biometric_auth">Unable to start biometric authentication on this device.</string>
     <string name="msg_incorrect_pin_try_again">Incorrect PIN. Try again.</string>
+    <string name="title_device_integrity_notice">Security Notice</string>
+    <string name="msg_device_integrity_notice">This device appears to be rooted or running an emulator. App lock and other security features may be less effective on modified devices.</string>
     <string name="msg_pin_locked_out">Too many attempts. Try again in %1$d s.</string>
     <string name="msg_pins_did_not_match_start_again">PINs did not match. Start again.</string>
     <string name="title_app_lock">App Lock</string>
