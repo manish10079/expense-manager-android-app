@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseAuthException
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,17 @@ class AuthRepositoryImpl @Inject constructor(
     private val _currentUser = MutableStateFlow<FirebaseUser?>(firebaseAuth.currentUser)
     override val currentUser: StateFlow<FirebaseUser?> = _currentUser.asStateFlow()
 
+    /**
+     * Produces a safe, identifier-free description of an auth failure.
+     * `FirebaseAuthException` messages can embed the user's email (e.g. "The email
+     * address is badly formatted. [foo@bar.com]"), so only the error code or the
+     * exception class name is logged — never the raw message or its stack trace.
+     */
+    private fun authErrorSummary(e: Exception): String {
+        val code = (e as? FirebaseAuthException)?.errorCode
+        return if (code != null) "code=$code" else "type=${e.javaClass.simpleName}"
+    }
+
     init {
         // Listen for auth state changes
         firebaseAuth.addAuthStateListener { auth ->
@@ -34,7 +46,7 @@ class AuthRepositoryImpl @Inject constructor(
             val currentUser = firebaseAuth.currentUser
             
             val result = if (currentUser != null && currentUser.isAnonymous) {
-                android.util.Log.i("AuthRepo", "Linking anonymous user ${currentUser.uid} with Google credential")
+                android.util.Log.i("AuthRepo", "Linking anonymous user with Google credential")
                 currentUser.linkWithCredential(credential).await()
             } else {
                 android.util.Log.i("AuthRepo", "Signing in with Google credential (no anonymous user to link)")
@@ -43,7 +55,7 @@ class AuthRepositoryImpl @Inject constructor(
             
             Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Firebase Google Sign-In/Link failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Firebase Google Sign-In/Link failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -54,7 +66,7 @@ class AuthRepositoryImpl @Inject constructor(
             val currentUser = firebaseAuth.currentUser
 
             val result = if (currentUser != null && currentUser.isAnonymous) {
-                android.util.Log.i("AuthRepo", "Attempting to link anonymous user ${currentUser.uid} with existing Email account")
+                android.util.Log.i("AuthRepo", "Attempting to link anonymous user with existing Email account")
                 try {
                     currentUser.linkWithCredential(credential).await()
                 } catch (e: Exception) {
@@ -67,7 +79,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
             Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Email Sign-In failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Email Sign-In failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -78,7 +90,7 @@ class AuthRepositoryImpl @Inject constructor(
             val currentUser = firebaseAuth.currentUser
 
             val result = if (currentUser != null && currentUser.isAnonymous) {
-                android.util.Log.i("AuthRepo", "Upgrading anonymous user ${currentUser.uid} to Email account")
+                android.util.Log.i("AuthRepo", "Upgrading anonymous user to Email account")
                 currentUser.linkWithCredential(credential).await()
             } else {
                 firebaseAuth.createUserWithEmailAndPassword(email, password).await()
@@ -89,7 +101,7 @@ class AuthRepositoryImpl @Inject constructor(
             
             Result.success(true) 
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Email Sign-Up failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Email Sign-Up failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -107,10 +119,10 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val result = firebaseAuth.signInAnonymously().await()
             val isNewUser = result.additionalUserInfo?.isNewUser == true
-            android.util.Log.i("AuthRepo", "Anonymous Sign-In successful. isNewUser: $isNewUser, uid: ${result.user?.uid}")
+            android.util.Log.i("AuthRepo", "Anonymous Sign-In successful. isNewUser: $isNewUser")
             Result.success(isNewUser)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Anonymous Sign-In failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Anonymous Sign-In failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -149,7 +161,7 @@ class AuthRepositoryImpl @Inject constructor(
             val currentUser = firebaseAuth.currentUser
 
             val result = if (currentUser != null && currentUser.isAnonymous) {
-                android.util.Log.i("AuthRepo", "Linking anonymous user ${currentUser.uid} with Email Link credential")
+                android.util.Log.i("AuthRepo", "Linking anonymous user with Email Link credential")
                 currentUser.linkWithCredential(credential).await()
             } else {
                 android.util.Log.i("AuthRepo", "Signing in with Email Link credential (no anonymous user to link)")
@@ -157,7 +169,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
             Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Firebase Email Link Sign-In/Link failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Firebase Email Link Sign-In/Link failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -179,7 +191,7 @@ class AuthRepositoryImpl @Inject constructor(
             firebaseAuth.currentUser?.sendEmailVerification()?.await()
             Result.success(Unit)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Send verification email failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Send verification email failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -190,7 +202,7 @@ class AuthRepositoryImpl @Inject constructor(
             _currentUser.value = firebaseAuth.currentUser
             Result.success(Unit)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Reload user failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Reload user failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }
@@ -204,7 +216,7 @@ class AuthRepositoryImpl @Inject constructor(
             user.updatePassword(newPassword).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Update password failed: ${e.message}", e)
+            android.util.Log.e("AuthRepo", "Update password failed: ${authErrorSummary(e)}")
             Result.failure(e)
         }
     }

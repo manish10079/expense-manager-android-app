@@ -355,7 +355,7 @@ fun MainScreen(
                 }
 
                 // Trigger Sync immediately
-                android.util.Log.d("Sync", "Triggering sync post-auth for user: ${user.uid}")
+                android.util.Log.d("Sync", "Triggering sync post-auth")
                 SyncWorker.startImmediate(context)
             }
         }
@@ -623,7 +623,7 @@ fun MainScreen(
                         }
 
                         if (!showOnboarding) {
-                            android.util.Log.d("Sync", "Triggering sync for ${if (user.isAnonymous) "Guest" else "Auth"} user: ${user.uid}")
+                            android.util.Log.d("Sync", "Triggering sync for ${if (user.isAnonymous) "Guest" else "Auth"} user")
                             SyncWorker.startImmediate(context)
                         }
                     }

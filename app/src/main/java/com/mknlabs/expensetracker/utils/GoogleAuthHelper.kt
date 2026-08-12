@@ -60,7 +60,8 @@ class GoogleAuthHelper @Inject constructor(
             Log.e("GoogleAuth", "No Google accounts found on device")
             Result.failure(e)
         } catch (e: Exception) {
-            Log.e("GoogleAuth", "Google Sign-In failed with exception", e)
+            // Log only the class name — the raw message may embed the user's email
+            Log.e("GoogleAuth", "Google Sign-In failed: ${e.javaClass.simpleName}")
             Result.failure(e)
         }
     }

@@ -163,7 +163,7 @@ class SyncRepositoryImpl @Inject constructor(
             
             // Stabilization: For anonymous users, wait a moment for the session to "settle" before Firestore ops
             if (currentUser.isAnonymous) {
-                android.util.Log.d("Sync", "Stabilizing anonymous session for uid: $uid...")
+                android.util.Log.d("Sync", "Stabilizing anonymous session...")
                 kotlinx.coroutines.delay(500)
             }
             
@@ -174,7 +174,7 @@ class SyncRepositoryImpl @Inject constructor(
             syncUserProfileInternal(uid, isNewUser)
             Result.success(Unit)
         } catch (e: Exception) {
-            android.util.Log.e("Sync", "Sync User Profile failed for uid: $uid", e)
+            android.util.Log.e("Sync", "Sync User Profile failed", e)
             Result.failure(e)
         } finally {
             decrementSync()
@@ -265,7 +265,7 @@ class SyncRepositoryImpl @Inject constructor(
                 updatedAtMillis = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
             )
         } catch (e: Exception) {
-            android.util.Log.e("Sync", "fetchUserProfileFromCloud failed for uid: $uid", e)
+            android.util.Log.e("Sync", "fetchUserProfileFromCloud failed", e)
             null
         }
     }
@@ -346,7 +346,7 @@ class SyncRepositoryImpl @Inject constructor(
         val snapshot = try {
             firestore.collection("users").document(uid).get().await()
         } catch (e: Exception) {
-            android.util.Log.e("Sync", "hydrateProfileFromCloud failed for uid: $uid", e)
+            android.util.Log.e("Sync", "hydrateProfileFromCloud failed", e)
             return
         }
         if (!snapshot.exists()) return
@@ -400,7 +400,7 @@ class SyncRepositoryImpl @Inject constructor(
                     remoteDateOfBirthOn = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn")).orEmpty()
                 }
             } catch (e: Exception) {
-                android.util.Log.e("Sync", "Failed to fetch remote profile for uid: $uid", e)
+                android.util.Log.e("Sync", "Failed to fetch remote profile", e)
                 // Continue with local data if fetch fails
             }
         }
@@ -408,7 +408,7 @@ class SyncRepositoryImpl @Inject constructor(
         // Robust Detection: Treat as new if flag is true OR doc doesn't exist OR critical field missing
         val isFirstTimeInitialization = isNewUser || !docExists || remoteAccountCreatedOn == null
 
-        android.util.Log.d("Sync", "Push Decision - uid: $uid, isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
+        android.util.Log.d("Sync", "Push Decision - isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
 
         val now = System.currentTimeMillis()
         val isRemotePremiumExpired = remoteAccountTier == "PREMIUM" && remoteProExpiryTimestamp in 1..<now
@@ -469,9 +469,9 @@ class SyncRepositoryImpl @Inject constructor(
 
         try {
             userDoc.set(profileData, SetOptions.merge()).await()
-            android.util.Log.i("Sync", "Successfully pushed profile for uid: $uid (isNewUser: $isNewUser)")
+            android.util.Log.i("Sync", "Successfully pushed profile (isNewUser: $isNewUser)")
         } catch (e: Exception) {
-            android.util.Log.e("Sync", "Failed to push profile for uid: $uid", e)
+            android.util.Log.e("Sync", "Failed to push profile", e)
             throw e // Re-throw to trigger worker retry
         }
     }

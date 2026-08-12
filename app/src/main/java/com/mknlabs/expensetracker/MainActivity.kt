@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
 
         // Monitor Firebase Auth State
         com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
-            android.util.Log.d("AUTH", "Firebase Auth State Change: Current user = ${auth.currentUser?.uid}")
+            android.util.Log.d("AUTH", "Firebase Auth State Change")
         }
 
         // Initialize AdMob with Privacy Flow (UMP)
@@ -147,8 +147,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-        android.util.Log.d("AUTH", "MainActivity: onStart, user = ${user?.uid}")
+        android.util.Log.d("AUTH", "MainActivity: onStart")
     }
 
     override fun onResume() {

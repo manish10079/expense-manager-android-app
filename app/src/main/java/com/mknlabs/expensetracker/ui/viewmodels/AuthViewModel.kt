@@ -239,7 +239,8 @@ class AuthViewModel @Inject constructor(
                                 _authState.value = AuthState.Success(isNewUser) 
                             }
                             .onFailure { error ->
-                                android.util.Log.e("AUTH", "Firebase sign in failed", error)
+                                // Log only the class name — the raw message may embed the user's email
+                                android.util.Log.e("AUTH", "Firebase sign in failed: ${error.javaClass.simpleName}")
                                 if (!silent) {
                                     _authState.value = AuthState.Error(mapFirebaseError(error))
                                 }
@@ -252,7 +253,8 @@ class AuthViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
-                    android.util.Log.e("AUTH", "Google Auth Helper failed", error)
+                    // Log only the class name — the raw message may embed the user's email
+                    android.util.Log.e("AUTH", "Google Auth Helper failed: ${error.javaClass.simpleName}")
                     if (!silent) {
                         if (error is NoCredentialException) {
                             android.util.Log.d("AUTH", "No Google accounts found on device")
@@ -462,7 +464,7 @@ class AuthViewModel @Inject constructor(
     private fun mapFirebaseError(error: Throwable): Int {
         if (error is FirebaseAuthException) {
             val errorCode = error.errorCode
-            android.util.Log.w("AuthVM", "Mapping Firebase Auth Exception: $errorCode - ${error.message}")
+            android.util.Log.w("AuthVM", "Mapping Firebase Auth Exception: $errorCode")
             return when (errorCode) {
                 "ERROR_USER_NOT_FOUND" -> R.string.error_auth_user_not_found
                 "ERROR_WRONG_PASSWORD" -> R.string.error_auth_wrong_password

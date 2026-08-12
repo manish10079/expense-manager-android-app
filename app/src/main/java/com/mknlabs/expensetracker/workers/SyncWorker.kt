@@ -29,7 +29,7 @@ class SyncWorker @AssistedInject constructor(
         kotlinx.coroutines.delay(1000)
 
         var currentUser = firebaseAuth.currentUser
-        android.util.Log.d("SyncWorker", "Starting sync work. isNewUser: $isNewUser, user: ${currentUser?.uid}, isAnon: ${currentUser?.isAnonymous}")
+        android.util.Log.d("SyncWorker", "Starting sync work. isNewUser: $isNewUser, isAnon: ${currentUser?.isAnonymous}")
 
         var isPendingNewUser = isNewUser
         if (currentUser == null) {
@@ -40,7 +40,7 @@ class SyncWorker @AssistedInject constructor(
                 if (signInResult.isSuccess) {
                     currentUser = firebaseAuth.currentUser
                     isPendingNewUser = true
-                    android.util.Log.i("SyncWorker", "Catch-up anonymous sign-in successful: ${currentUser?.uid}")
+                    android.util.Log.i("SyncWorker", "Catch-up anonymous sign-in successful")
                 } else {
                     android.util.Log.e("SyncWorker", "Failed catch-up anonymous sign-in", signInResult.exceptionOrNull())
                     // Re-enroll the periodic chain before retrying so WorkManager
