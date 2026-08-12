@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.util.Base64
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
@@ -9,6 +10,8 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTE
 import com.mknlabs.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import java.security.MessageDigest
 import java.security.SecureRandom
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 
 private const val LEGACY_APP_LOCK_PREFS_NAME = "app_lock_prefs"
 private const val ENCRYPTED_APP_LOCK_PREFS_NAME = "app_lock_secure_prefs"
@@ -27,11 +30,27 @@ private const val KEY_SECURITY_ANSWER_SALT = "security_answer_salt"
 private const val KEY_SECURITY_ANSWER_HASH_VERSION = "security_answer_hash_version"
 private const val KEY_LAST_BACKGROUND_AT_MILLIS = "last_background_at_millis"
 private const val KEY_LAST_UNLOCKED_AT_MILLIS = "last_unlocked_at_millis"
+private const val KEY_APP_LOCK_PIN_ITERATIONS = "app_lock_pin_iterations"
+private const val KEY_SECURITY_ANSWER_ITERATIONS = "security_answer_iterations"
+private const val KEY_FAILED_ATTEMPT_COUNT = "failed_attempt_count"
+private const val KEY_LOCKOUT_BLOCK_INDEX = "lockout_block_index"
+private const val KEY_LOCKOUT_UNTIL_MILLIS = "lockout_until_millis"
 private const val KEY_STORAGE_MIGRATION_COMPLETE = "storage_migration_complete"
 
 private const val HASH_VERSION_LEGACY_SHA256 = "legacy_sha256"
 private const val HASH_VERSION_FAST_SHA256_V1 = "fast_sha256_v1"
+private const val HASH_VERSION_PBKDF2_SHA256_V1 = "pbkdf2_sha256_v1"
+private const val HASH_VERSION_PBKDF2_SHA1_V1 = "pbkdf2_sha1_v1"
+private const val PBKDF2_ALGORITHM_SHA256 = "PBKDF2WithHmacSHA256"
+private const val PBKDF2_ALGORITHM_SHA1 = "PBKDF2WithHmacSHA1"
 private const val SALT_LENGTH_BYTES = 16
+private const val PBKDF2_ITERATIONS = 120_000
+private const val PBKDF2_KEY_LENGTH_BITS = 256
+
+// Brute-force lockout: 5 failures -> 30s, doubling per subsequent 5-failure block, capped at 15 min.
+private const val MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT = 5
+private const val LOCKOUT_INITIAL_MILLIS = 30_000L
+private const val LOCKOUT_MAX_MILLIS = 15 * 60_000L
 
 // In-memory only: the window during which an external activity (photo/file picker,
 // browser, system settings screen) is expected to background the app. A pending
@@ -94,6 +113,7 @@ object AppLockPreferences {
                 hashKey = KEY_APP_LOCK_PIN_HASH,
                 saltKey = KEY_APP_LOCK_PIN_SALT,
                 versionKey = KEY_APP_LOCK_PIN_HASH_VERSION,
+                iterationsKey = KEY_APP_LOCK_PIN_ITERATIONS,
                 normalizedSecret = normalizedPin
             )
             .putBoolean(KEY_APP_LOCK_ENABLED, true)
@@ -134,11 +154,6 @@ object AppLockPreferences {
     }
 
     fun validatePinForUnlock(context: Context, pin: String): Boolean {
-        val hasFastVerifier = cachedState.hasFastPinVerifier || cachedFastPinVerifier != null
-        if (hasFastVerifier) {
-            return validatePinFromMemory(pin)
-        }
-
         return validatePin(context, pin)
     }
 
@@ -159,6 +174,20 @@ object AppLockPreferences {
     }
 
     fun validatePin(context: Context, pin: String): Boolean {
+        if (isLockedOut(context)) {
+            return false
+        }
+
+        val isValid = validatePinInternal(context, pin)
+        if (isValid) {
+            resetFailedAttempts(context)
+        } else {
+            registerFailedAttempt(context)
+        }
+        return isValid
+    }
+
+    private fun validatePinInternal(context: Context, pin: String): Boolean {
         // 1. Memory Fast-Path
         if (validatePinFromMemory(pin)) {
             return true
@@ -168,17 +197,36 @@ object AppLockPreferences {
         val normalizedPin = normalizePin(pin)
         val savedHash = preferences.getString(KEY_APP_LOCK_PIN_HASH, null) ?: return false
         val salt = preferences.getString(KEY_APP_LOCK_PIN_SALT, null) ?: return false
+        val version = preferences.getString(KEY_APP_LOCK_PIN_HASH_VERSION, HASH_VERSION_FAST_SHA256_V1)
 
-        // 2. Direct SHA-256 with Salt (Instant)
-        val candidateHash = fastPinHash(normalizedPin, salt)
-        val isValid = MessageDigest.isEqual(
-            savedHash.toByteArray(),
-            candidateHash.toByteArray()
-        )
+        // 2. Verify according to the stored hash version
+        val isValid = when (version) {
+            HASH_VERSION_PBKDF2_SHA256_V1, HASH_VERSION_PBKDF2_SHA1_V1 -> {
+                val iterations = preferences.getInt(KEY_APP_LOCK_PIN_ITERATIONS, PBKDF2_ITERATIONS)
+                val algorithm = if (version == HASH_VERSION_PBKDF2_SHA256_V1) PBKDF2_ALGORITHM_SHA256 else PBKDF2_ALGORITHM_SHA1
+                MessageDigest.isEqual(
+                    savedHash.toByteArray(),
+                    pbkdf2Hash(normalizedPin, salt, iterations, algorithm).toByteArray()
+                )
+            }
+
+            else -> {
+                // Legacy fast/plain SHA-256 — verify, then upgrade to PBKDF2 in place.
+                val legacyValid = MessageDigest.isEqual(
+                    savedHash.toByteArray(),
+                    fastPinHash(normalizedPin, salt).toByteArray()
+                )
+                if (legacyValid) {
+                    upgradePinHashToPbkdf2(preferences, normalizedPin)
+                }
+                legacyValid
+            }
+        }
 
         if (isValid) {
+            // Refresh the in-memory fast verifier (verification-only; not persisted).
             val verifier = FastPinVerifier(
-                hash = candidateHash,
+                hash = fastPinHash(normalizedPin, salt),
                 salt = salt,
                 version = HASH_VERSION_FAST_SHA256_V1
             )
@@ -383,6 +431,7 @@ object AppLockPreferences {
                 hashKey = KEY_SECURITY_ANSWER_HASH,
                 saltKey = KEY_SECURITY_ANSWER_SALT,
                 versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
+                iterationsKey = KEY_SECURITY_ANSWER_ITERATIONS,
                 normalizedSecret = normalizeAnswer(answer)
             )
             .apply()
@@ -399,16 +448,45 @@ object AppLockPreferences {
     }
 
     fun validateSecurityAnswer(context: Context, answer: String): Boolean {
+        if (isLockedOut(context)) {
+            return false
+        }
+
         val preferences = prefs(context)
         val normalizedAnswer = normalizeAnswer(answer)
         val savedHash = preferences.getString(KEY_SECURITY_ANSWER_HASH, null) ?: return false
         val salt = preferences.getString(KEY_SECURITY_ANSWER_SALT, null) ?: return false
+        val version = preferences.getString(KEY_SECURITY_ANSWER_HASH_VERSION, HASH_VERSION_FAST_SHA256_V1)
 
-        val candidateHash = fastPinHash(normalizedAnswer, salt)
-        return MessageDigest.isEqual(
-            savedHash.toByteArray(),
-            candidateHash.toByteArray()
-        )
+        val isValid = when (version) {
+            HASH_VERSION_PBKDF2_SHA256_V1, HASH_VERSION_PBKDF2_SHA1_V1 -> {
+                val iterations = preferences.getInt(KEY_SECURITY_ANSWER_ITERATIONS, PBKDF2_ITERATIONS)
+                val algorithm = if (version == HASH_VERSION_PBKDF2_SHA256_V1) PBKDF2_ALGORITHM_SHA256 else PBKDF2_ALGORITHM_SHA1
+                MessageDigest.isEqual(
+                    savedHash.toByteArray(),
+                    pbkdf2Hash(normalizedAnswer, salt, iterations, algorithm).toByteArray()
+                )
+            }
+
+            else -> {
+                // Legacy fast/plain SHA-256 — verify, then upgrade to PBKDF2 in place.
+                val legacyValid = MessageDigest.isEqual(
+                    savedHash.toByteArray(),
+                    fastPinHash(normalizedAnswer, salt).toByteArray()
+                )
+                if (legacyValid) {
+                    upgradeAnswerHashToPbkdf2(preferences, normalizedAnswer)
+                }
+                legacyValid
+            }
+        }
+
+        if (isValid) {
+            resetFailedAttempts(context)
+        } else {
+            registerFailedAttempt(context)
+        }
+        return isValid
     }
 
     fun markBackgrounded(
@@ -425,6 +503,102 @@ object AppLockPreferences {
     ) {
         markUnlockedInMemory(unlockedAtMillis)
         persistUnlocked(context, unlockedAtMillis)
+        // A successful unlock (PIN or biometric) clears the brute-force counter.
+        resetFailedAttempts(context)
+    }
+
+    /**
+     * True while the app lock is in a brute-force lockout window (persisted, so it
+     * survives app restarts). [currentTimeMillis] is injectable for tests.
+     */
+    fun isLockedOut(
+        context: Context,
+        currentTimeMillis: Long = System.currentTimeMillis()
+    ): Boolean {
+        return getLockoutRemainingMillis(context, currentTimeMillis) > 0L
+    }
+
+    /**
+     * Milliseconds remaining in the current lockout window (0 when not locked out).
+     * [currentTimeMillis] is injectable for tests.
+     */
+    fun getLockoutRemainingMillis(
+        context: Context,
+        currentTimeMillis: Long = System.currentTimeMillis()
+    ): Long {
+        val until = prefs(context).getLong(KEY_LOCKOUT_UNTIL_MILLIS, 0L)
+        return (until - currentTimeMillis).coerceAtLeast(0L)
+    }
+
+    /**
+     * Records one failed PIN/answer attempt. Every [MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT]
+     * consecutive failures arms the next lockout window: block 0 -> 30s, block 1 -> 60s,
+     * block 2 -> 120s, ... capped at 15 min. The counter + block index are persisted so
+     * the escalation survives app restarts, and attempts made DURING a lockout window are
+     * ignored (they neither extend it nor advance the counter).
+     */
+    fun registerFailedAttempt(
+        context: Context,
+        currentTimeMillis: Long = System.currentTimeMillis()
+    ) {
+        val preferences = prefs(context)
+        if (isLockedOut(context, currentTimeMillis)) {
+            return
+        }
+
+        val newCount = preferences.getInt(KEY_FAILED_ATTEMPT_COUNT, 0) + 1
+        val editor = preferences.edit().putInt(KEY_FAILED_ATTEMPT_COUNT, newCount)
+        if (newCount >= MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT) {
+            val blockIndex = preferences.getInt(KEY_LOCKOUT_BLOCK_INDEX, 0)
+            editor
+                .putLong(
+                    KEY_LOCKOUT_UNTIL_MILLIS,
+                    currentTimeMillis + computeLockoutDurationMillis(blockIndex)
+                )
+                .putInt(KEY_FAILED_ATTEMPT_COUNT, 0)
+                .putInt(KEY_LOCKOUT_BLOCK_INDEX, blockIndex + 1)
+        }
+        // commit() (not apply()): the lockout is the "persist across restarts"
+        // enforcement — an async write could be lost to a process kill right after
+        // the 5th failure, silently clearing the lockout.
+        editor.commit()
+    }
+
+    /**
+     * Clears the failed-attempt counter, the lockout escalation block, and any
+     * active lockout window.
+     */
+    fun resetFailedAttempts(context: Context) {
+        prefs(context)
+            .edit()
+            .remove(KEY_FAILED_ATTEMPT_COUNT)
+            .remove(KEY_LOCKOUT_BLOCK_INDEX)
+            .remove(KEY_LOCKOUT_UNTIL_MILLIS)
+            // commit(): clearing the counter is also security-relevant (it re-arms
+            // the escalation from block 0), so it must survive a process kill.
+            .commit()
+    }
+
+    /**
+     * Number of consecutive failed attempts recorded since the last successful
+     * unlock or since the last lockout window was armed (0 when clean).
+     */
+    fun getFailedAttemptCount(context: Context): Int {
+        return prefs(context).getInt(KEY_FAILED_ATTEMPT_COUNT, 0)
+    }
+
+    /**
+     * Lockout duration for a given lockout block index: block 0 -> 30s, block 1 -> 60s,
+     * block 2 -> 120s, ... capped at [LOCKOUT_MAX_MILLIS] (15 min).
+     */
+    internal fun computeLockoutDurationMillis(
+        lockoutBlockIndex: Int,
+        initialLockoutMillis: Long = LOCKOUT_INITIAL_MILLIS,
+        maxLockoutMillis: Long = LOCKOUT_MAX_MILLIS
+    ): Long {
+        if (lockoutBlockIndex < 0) return 0L
+        val duration = initialLockoutMillis shl lockoutBlockIndex.coerceAtMost(10)
+        return duration.coerceAtMost(maxLockoutMillis)
     }
 
     fun shouldRequireUnlock(
@@ -470,6 +644,11 @@ object AppLockPreferences {
             .remove(KEY_SECURITY_ANSWER_HASH)
             .remove(KEY_SECURITY_ANSWER_SALT)
             .remove(KEY_SECURITY_ANSWER_HASH_VERSION)
+            .remove(KEY_APP_LOCK_PIN_ITERATIONS)
+            .remove(KEY_SECURITY_ANSWER_ITERATIONS)
+            .remove(KEY_FAILED_ATTEMPT_COUNT)
+            .remove(KEY_LOCKOUT_BLOCK_INDEX)
+            .remove(KEY_LOCKOUT_UNTIL_MILLIS)
             .remove(KEY_LAST_BACKGROUND_AT_MILLIS)
             .remove(KEY_LAST_UNLOCKED_AT_MILLIS)
             .putBoolean(KEY_APP_LOCK_ENABLED, false)
@@ -602,12 +781,15 @@ object AppLockPreferences {
         hashKey: String,
         saltKey: String,
         versionKey: String,
+        iterationsKey: String,
         normalizedSecret: String
     ): SharedPreferences.Editor {
         val salt = generateSalt()
-        return putString(hashKey, fastPinHash(normalizedSecret, salt))
+        val algorithm = defaultPbkdf2Algorithm()
+        return putString(hashKey, pbkdf2Hash(normalizedSecret, salt, PBKDF2_ITERATIONS, algorithm))
             .putString(saltKey, salt)
-            .putString(versionKey, HASH_VERSION_FAST_SHA256_V1)
+            .putString(versionKey, hashVersionFor(algorithm))
+            .putInt(iterationsKey, PBKDF2_ITERATIONS)
     }
 
 
@@ -624,6 +806,104 @@ object AppLockPreferences {
         val digest = MessageDigest.getInstance("SHA-256")
         val hashBytes = digest.digest(value.toByteArray())
         return hashBytes.joinToString(separator = "") { byte -> "%02x".format(byte) }
+    }
+
+    /**
+     * PBKDF2 (slow KDF) — the stored hash format for all new PINs/answers.
+     * Uses HMAC-SHA-256 on API 26+ (PBKDF2WithHmacSHA256 requires O), falling
+     * back to HMAC-SHA-1 on older devices. Iterations + algorithm are persisted
+     * so verification always uses the same derivation the hash was created with.
+     */
+    internal fun pbkdf2Hash(
+        normalizedSecret: String,
+        salt: String,
+        iterations: Int,
+        algorithm: String = defaultPbkdf2Algorithm()
+    ): String {
+        return pbkdf2Hash(
+            normalizedSecret = normalizedSecret,
+            saltBytes = Base64.decode(salt, Base64.NO_WRAP),
+            iterations = iterations,
+            algorithm = algorithm
+        )
+    }
+
+    /**
+     * Pure PBKDF2 core (no android.util.Base64, so it is JVM unit-testable).
+     */
+    internal fun pbkdf2Hash(
+        normalizedSecret: String,
+        saltBytes: ByteArray,
+        iterations: Int,
+        algorithm: String = defaultPbkdf2Algorithm()
+    ): String {
+        val spec = PBEKeySpec(
+            normalizedSecret.toCharArray(),
+            saltBytes,
+            iterations,
+            PBKDF2_KEY_LENGTH_BITS
+        )
+        val factory = SecretKeyFactory.getInstance(algorithm)
+        val hashBytes = factory.generateSecret(spec).encoded
+        return hashBytes.joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xFF) }
+    }
+
+    private fun upgradePinHashToPbkdf2(preferences: SharedPreferences, normalizedPin: String) {
+        upgradeSecretToPbkdf2(
+            preferences = preferences,
+            hashKey = KEY_APP_LOCK_PIN_HASH,
+            saltKey = KEY_APP_LOCK_PIN_SALT,
+            versionKey = KEY_APP_LOCK_PIN_HASH_VERSION,
+            iterationsKey = KEY_APP_LOCK_PIN_ITERATIONS,
+            normalizedSecret = normalizedPin
+        )
+    }
+
+    private fun upgradeAnswerHashToPbkdf2(preferences: SharedPreferences, normalizedAnswer: String) {
+        upgradeSecretToPbkdf2(
+            preferences = preferences,
+            hashKey = KEY_SECURITY_ANSWER_HASH,
+            saltKey = KEY_SECURITY_ANSWER_SALT,
+            versionKey = KEY_SECURITY_ANSWER_HASH_VERSION,
+            iterationsKey = KEY_SECURITY_ANSWER_ITERATIONS,
+            normalizedSecret = normalizedAnswer
+        )
+    }
+
+    private fun upgradeSecretToPbkdf2(
+        preferences: SharedPreferences,
+        hashKey: String,
+        saltKey: String,
+        versionKey: String,
+        iterationsKey: String,
+        normalizedSecret: String
+    ) {
+        try {
+            val salt = generateSalt()
+            val algorithm = defaultPbkdf2Algorithm()
+            preferences.edit()
+                .putString(hashKey, pbkdf2Hash(normalizedSecret, salt, PBKDF2_ITERATIONS, algorithm))
+                .putString(saltKey, salt)
+                .putString(versionKey, hashVersionFor(algorithm))
+                .putInt(iterationsKey, PBKDF2_ITERATIONS)
+                .apply()
+        } catch (t: Throwable) {
+            // Best-effort in-place upgrade: the legacy hash is left untouched, so a
+            // storage failure here must never fail the unlock that triggered it —
+            // the next successful unlock simply retries the upgrade.
+        }
+    }
+
+    private fun defaultPbkdf2Algorithm(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PBKDF2_ALGORITHM_SHA256
+        } else {
+            PBKDF2_ALGORITHM_SHA1
+        }
+    }
+
+    private fun hashVersionFor(algorithm: String): String {
+        return if (algorithm == PBKDF2_ALGORITHM_SHA256) HASH_VERSION_PBKDF2_SHA256_V1 else HASH_VERSION_PBKDF2_SHA1_V1
     }
 
     private fun normalizePin(pin: String): String {

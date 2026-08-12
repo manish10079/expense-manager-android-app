@@ -53,6 +53,8 @@ fun AppLockOverlay(
     validateUnlockPin: ((String) -> Boolean)? = null,
     onForgotPinRecovery: (() -> Unit)? = null,
     validateSecurityAnswer: ((String) -> Boolean)? = null,
+    getLockoutRemainingMillis: (() -> Long)? = null,
+    getFailedAttemptCount: (() -> Int)? = null,
     pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
 ) {
     val context = LocalContext.current
@@ -117,6 +119,12 @@ fun AppLockOverlay(
                 onForgotPinRecovery = onForgotPinRecovery ?: {},
                 validateSecurityAnswer = validateSecurityAnswer ?: { answer ->
                     AppLockPreferences.validateSecurityAnswer(context, answer)
+                },
+                getLockoutRemainingMillis = getLockoutRemainingMillis ?: {
+                    AppLockPreferences.getLockoutRemainingMillis(context)
+                },
+                getFailedAttemptCount = getFailedAttemptCount ?: {
+                    AppLockPreferences.getFailedAttemptCount(context)
                 },
                 pinVisualMode = pinVisualMode
             )

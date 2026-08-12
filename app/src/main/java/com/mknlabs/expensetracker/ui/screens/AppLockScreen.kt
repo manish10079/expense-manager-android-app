@@ -132,13 +132,19 @@ fun AppLockScreen(
     onForgotPinRecovery: () -> Unit = {},
     validateUnlockPin: (String) -> Boolean = { false },
     validateSecurityAnswer: (String) -> Boolean = { false },
+    getLockoutRemainingMillis: () -> Long = { 0L },
+    getFailedAttemptCount: () -> Int = { 0 },
     pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
 ) {
     var enteredPin by rememberSaveable(mode) { mutableStateOf("") }
     var firstPin by rememberSaveable(mode) { mutableStateOf("") }
     var setupStage by rememberSaveable(mode) { mutableStateOf(PinSetupStage.Create) }
     var message by rememberSaveable(mode) { mutableStateOf<String?>(null) }
-    var failedUnlockAttempts by rememberSaveable(mode) { mutableStateOf(0) }
+    // Mirrors the persisted failed-attempt counter (seeded from it) so the
+    // forgot-PIN heuristic stays consistent after activity recreation.
+    var failedUnlockAttempts by rememberSaveable(mode) {
+        mutableStateOf(getFailedAttemptCount())
+    }
     var selectedSecurityQuestionId by rememberSaveable(mode) {
         mutableStateOf(appLockSecurityQuestions.first().id)
     }
@@ -158,6 +164,33 @@ fun AppLockScreen(
     val keypadShakeOffsetPx = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Brute-force lockout countdown (seconds remaining, 0 = not locked out).
+    // Polled from AppLockPreferences every second so the UI stays in sync even
+    // after a failed attempt arms a new window mid-flow.
+    var lockoutSecondsRemaining by remember {
+        mutableIntStateOf(((getLockoutRemainingMillis() + 999L) / 1000L).toInt().coerceAtLeast(0))
+    }
+    fun refreshLockoutSeconds() {
+        lockoutSecondsRemaining = ((getLockoutRemainingMillis() + 999L) / 1000L).toInt().coerceAtLeast(0)
+    }
+    // Ticks the countdown every second while a lockout is active. Keyed on the
+    // locked-out state so the loop only runs during a lockout window (a failure
+    // that arms a lockout triggers recomposition, which restarts this effect).
+    LaunchedEffect(mode, lockoutSecondsRemaining > 0) {
+        if (lockoutSecondsRemaining > 0) {
+            while (lockoutSecondsRemaining > 0) {
+                delay(1000L)
+                refreshLockoutSeconds()
+            }
+        }
+    }
+    val isLockedOut = lockoutSecondsRemaining > 0
+    // Resolved UNCONDITIONALLY: a stringResource call inside a conditional would
+    // make a group appear/disappear in the slot table and recreate the content
+    // (same pitfall documented below for the other supportText strings).
+    val lockedOutMessageText = stringResource(R.string.msg_pin_locked_out, lockoutSecondsRemaining)
+    val lockoutMessage = if (isLockedOut) lockedOutMessageText else null
+
     val isPinEntryVisible = !isRecoveryMode && !(mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion)
     fun refreshKeypadLayout() {
         keypadLayout = buildAppLockKeypadLayout(
@@ -169,14 +202,21 @@ fun AppLockScreen(
     }
     val recoveryQuestionNotFoundMsg = stringResource(R.string.msg_recovery_question_is_not_confi)
     val triggerForgotRecovery: () -> Unit = {
-        failedUnlockAttempts = 0
-        enteredPin = ""
-        if (mode == AppLockScreenMode.Unlock && securityQuestionPrompt != null) {
-            isRecoveryMode = true
-            recoveryAnswer = ""
-            message = null
-        } else if (mode == AppLockScreenMode.Unlock) {
-            message = recoveryQuestionNotFoundMsg
+        if (isLockedOut) {
+            // While locked out the security question is rate-limited by the same
+            // lockout, so entering recovery would only fail. Stay on the keypad
+            // and let the countdown message speak instead.
+            message = lockoutMessage
+        } else {
+            failedUnlockAttempts = 0
+            enteredPin = ""
+            if (mode == AppLockScreenMode.Unlock && securityQuestionPrompt != null) {
+                isRecoveryMode = true
+                recoveryAnswer = ""
+                message = null
+            } else if (mode == AppLockScreenMode.Unlock) {
+                message = recoveryQuestionNotFoundMsg
+            }
         }
     }
 
@@ -224,9 +264,18 @@ fun AppLockScreen(
                     failedUnlockAttempts = 0
                     onUnlockSuccess()
                 } else {
-                    val nextFailedAttemptCount = failedUnlockAttempts + 1
-                    failedUnlockAttempts = nextFailedAttemptCount
-                    if (nextFailedAttemptCount >= 3) {
+                    // validateUnlockPin already recorded this failure in the
+                    // persisted counter; mirror the persisted truth locally so a
+                    // recreated screen can't drift from the source of truth.
+                    failedUnlockAttempts = getFailedAttemptCount()
+                    // Pick up a freshly-armed lockout immediately so the countdown
+                    // shows without waiting for the next 1s poll tick.
+                    refreshLockoutSeconds()
+                    if (isLockedOut) {
+                        // Lockout active: don't chain into forgot-recovery or the
+                        // "try again" message — the countdown message already shows.
+                        enteredPin = ""
+                    } else if (failedUnlockAttempts >= 3) {
                         triggerForgotRecovery()
                     } else {
                         enteredPin = ""
@@ -300,7 +349,7 @@ fun AppLockScreen(
     val biometricContinueMsg = stringResource(R.string.msg_biometric_or_pin_to_continue)
     val enterPinMsg = stringResource(R.string.msg_enter_pin_to_continue)
     val chooseQuestionRememberMsg = stringResource(R.string.msg_choose_question_remember)
-    val supportText = message ?: when {
+    val supportText = lockoutMessage ?: message ?: when {
         isRecoveryMode -> if (securityQuestionPrompt != null) savedQuestionMsg else noRecoveryQuestionMsg
 
         mode == AppLockScreenMode.Unlock -> if (biometricEnabled && isBiometricAvailable) {
@@ -326,11 +375,23 @@ fun AppLockScreen(
                 message = recoveryQuestionNotFoundMsg
             } else if (recoveryAnswer.isBlank()) {
                 message = enterAnswerToDisableMsg
-            } else if (validateSecurityAnswer(recoveryAnswer)) {
-                onForgotPinRecovery()
             } else {
-                recoveryAnswer = ""
-                message = incorrectAnswerMsg
+                coroutineScope.launch {
+                    // PBKDF2 verification is ~50-150ms: keep it off the main thread.
+                    val isValid = withContext(Dispatchers.Default) {
+                        validateSecurityAnswer(recoveryAnswer)
+                    }
+                    if (isValid) {
+                        onForgotPinRecovery()
+                    } else {
+                        recoveryAnswer = ""
+                        // A wrong answer also advances the persisted lockout
+                        // counter — refresh the countdown so a freshly-armed
+                        // window is shown instead of the plain error message.
+                        refreshLockoutSeconds()
+                        message = if (isLockedOut) null else incorrectAnswerMsg
+                    }
+                }
             }
         } else {
             if (securityAnswer.isBlank()) {
@@ -352,7 +413,7 @@ fun AppLockScreen(
         eyebrow = eyebrow,
         headline = headline,
         supportText = supportText,
-        supportTextIsError = message != null,
+        supportTextIsError = lockoutMessage != null || message != null,
         isPinEntryVisible = isPinEntryVisible,
         isSetupSecurityQuestion = mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion,
         isRecoveryMode = isRecoveryMode,
@@ -361,12 +422,13 @@ fun AppLockScreen(
         primaryActionLabel = primaryActionLabel,
         onPrimaryActionClick = onPrimaryActionClick,
         enteredPin = enteredPin,
-        keypadLayout = keypadLayout,
-        keypadLayoutVersion = keypadLayoutVersion,
-        keypadShakeOffsetPx = if (scrambledPinKeypadEnabled) keypadShakeOffsetPx.value else 0f,
-        pinVisualMode = pinVisualMode,
+    keypadLayout = keypadLayout,
+    keypadLayoutVersion = keypadLayoutVersion,
+    keypadShakeOffsetPx = if (scrambledPinKeypadEnabled) keypadShakeOffsetPx.value else 0f,
+    keypadEnabled = !isLockedOut,
+    pinVisualMode = pinVisualMode,
         onDigitClick = { digit ->
-            if (enteredPin.length < 4) {
+            if (!isLockedOut && enteredPin.length < 4) {
                 enteredPin += digit
             }
         },
@@ -420,6 +482,7 @@ private fun AppLockScreenContent(
     keypadLayout: List<List<String>>,
     keypadLayoutVersion: Int,
     keypadShakeOffsetPx: Float,
+    keypadEnabled: Boolean,
     pinVisualMode: PinVisualMode,
     onDigitClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
@@ -646,6 +709,7 @@ private fun AppLockScreenContent(
                                 keypadLayoutVersion = keypadLayoutVersion,
                                 keypadShakeOffsetPx = keypadShakeOffsetPx,
                                 mode = mode,
+                                keypadEnabled = keypadEnabled,
                                 onDigitClick = onDigitClick,
                                 onDeleteClick = onDeleteClick,
                                 onForgotClick = onForgotClick,
@@ -689,6 +753,7 @@ private fun PinEntryContent(
     keypadLayoutVersion: Int,
     keypadShakeOffsetPx: Float,
     mode: AppLockScreenMode,
+    keypadEnabled: Boolean = true,
     onDigitClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
     onForgotClick: () -> Unit,
@@ -728,7 +793,7 @@ private fun PinEntryContent(
                         row.forEach { key ->
                             AppLockKey(
                                 key = key,
-                                enabled = key != APP_LOCK_FORGOT_KEY || mode == AppLockScreenMode.Unlock,
+                                enabled = keypadEnabled && (key != APP_LOCK_FORGOT_KEY || mode == AppLockScreenMode.Unlock),
                                 onClick = {
                                     when (key) {
                                         APP_LOCK_DELETE_KEY -> onDeleteClick()

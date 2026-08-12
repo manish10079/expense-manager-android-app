@@ -297,6 +297,9 @@ fun MainScreen(
         appLockFlow = null
         navigationState.updateBottomBarVisibility(false)
         val unlockedAtMillis = AppLockPreferences.markUnlockedInMemory()
+        // A successful unlock (PIN, biometric, or setup completion) clears the
+        // persisted brute-force counter/lockout window.
+        AppLockPreferences.resetFailedAttempts(context)
         appLockState = AppLockPreferences.getCachedState()
         coroutineScope.launch(Dispatchers.IO) {
             AppLockPreferences.persistUnlocked(context, unlockedAtMillis)
