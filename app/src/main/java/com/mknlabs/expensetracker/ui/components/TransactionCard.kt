@@ -13,13 +13,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +49,7 @@ import com.mknlabs.expensetracker.utils.getAmountColor
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -50,6 +59,7 @@ import com.mknlabs.expensetracker.ui.theme.transparent
 
 private val SeparatorSpanStyle = SpanStyle(letterSpacing = 0.8.sp)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionCard(
     note: String,
@@ -135,23 +145,47 @@ fun TransactionCard(
         ) {
             val isNoteEmpty = note.isBlank()
             val displayNote = if (isNoteEmpty) noNoteLabel else note
+            // True only while the note is actually truncated (single line +
+            // ellipsis) — the full-note tooltip is offered only in that case.
+            var noteTruncated by remember(displayNote) { mutableStateOf(false) }
+            val noteTooltipState = rememberTooltipState()
 
-            Text(
-                text = displayNote,
-                color = if (isNoteEmpty) {
-                    NeutralGray
-                } else {
-                    MaterialTheme.colorScheme.onSurface
+            // Long-pressing a truncated note reveals the complete text in a
+            // themed tooltip popup. When the note fits on one line (or is empty)
+            // the tooltip input stays disabled, so the long-press falls through
+            // to the card's own long-press (multi-select). Tap is unaffected.
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(
+                            text = note,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.widthIn(max = 280.dp)
+                        )
+                    }
                 },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                softWrap = false,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
-                    fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
-                    fontSize = 15.sp
+                state = noteTooltipState,
+                enableUserInput = noteTruncated && !isNoteEmpty
+            ) {
+                Text(
+                    text = displayNote,
+                    color = if (isNoteEmpty) {
+                        NeutralGray
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
+                        fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
+                        fontSize = 15.sp
+                    ),
+                    onTextLayout = { result -> noteTruncated = result.didOverflowWidth }
                 )
-            )
+            }
 
             if (showTransactionDate || showTransactionTime) {
                 Spacer(modifier = Modifier.height(4.dp))
