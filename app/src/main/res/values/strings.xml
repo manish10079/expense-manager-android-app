@@ -1179,6 +1179,17 @@
         <item quantity="one">%1$d category near or over budget</item>
         <item quantity="other">%1$d categories near or over budget</item>
     </plurals>
+    <string name="title_reminder_times">Reminder times</string>
+    <string name="title_morning_window">Morning window</string>
+    <string name="title_evening_window">Evening window</string>
+    <string name="notification_window_format">%1$s – %2$s</string>
+    <string name="title_select_reminder_window">Set window</string>
+    <string name="label_starts_at">Starts at</string>
+    <string name="label_ends_at">Ends at</string>
+    <string name="title_test_notification">Test notification</string>
+    <string name="desc_test_notification">Show a sample reminder right now</string>
+    <string name="btn_send_test_notification">Send test</string>
+    <string name="error_reminder_window_invalid">Start time must be before end time</string>
     <string name="notification_title_daily_reminder_personalized">Time to log an expense, %1$s?</string>
     <string name="notification_title_missed_today">Missed Today?</string>
 

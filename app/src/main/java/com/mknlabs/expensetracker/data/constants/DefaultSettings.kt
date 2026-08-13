@@ -23,6 +23,12 @@ const val DEFAULT_NOTIFICATIONS_ENABLED = true
 const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true
 const val DEFAULT_MISSED_ENTRY_REMINDER_ENABLED = true
 const val DEFAULT_GOAL_REMINDERS_ENABLED = true
+// Daily-reminder windows (hour-of-day, 0-23). Morning 8-13, evening 17-22
+// match the pre-existing hardcoded behavior.
+const val DEFAULT_REMINDER_MORNING_START_HOUR = 8
+const val DEFAULT_REMINDER_MORNING_END_HOUR = 13
+const val DEFAULT_REMINDER_EVENING_START_HOUR = 17
+const val DEFAULT_REMINDER_EVENING_END_HOUR = 22
 const val DEFAULT_APP_LOCK_ENABLED = false
 const val DEFAULT_BIOMETRIC_LOCK_ENABLED = false
 const val DEFAULT_SCRAMBLED_PIN_KEYPAD_ENABLED = false
@@ -99,5 +105,9 @@ val defaultAppSettings = AppSettings(
     setupDismissedUntilMillis = DEFAULT_SETUP_DISMISSED_UNTIL_MILLIS,
     userTier = DEFAULT_USER_TIER,
     goalRemindersEnabled = DEFAULT_GOAL_REMINDERS_ENABLED,
+    reminderMorningStartHour = DEFAULT_REMINDER_MORNING_START_HOUR,
+    reminderMorningEndHour = DEFAULT_REMINDER_MORNING_END_HOUR,
+    reminderEveningStartHour = DEFAULT_REMINDER_EVENING_START_HOUR,
+    reminderEveningEndHour = DEFAULT_REMINDER_EVENING_END_HOUR,
     deviceIntegrityNoticeAcknowledged = DEFAULT_DEVICE_INTEGRITY_NOTICE_ACKNOWLEDGED
 )

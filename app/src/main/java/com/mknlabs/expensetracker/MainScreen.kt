@@ -217,6 +217,10 @@ fun MainScreen(
     val isBudgetLimitAlertsEnabled = appSettings.budgetLimitAlertsEnabled
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
     val isGoalRemindersEnabled = appSettings.goalRemindersEnabled
+    val reminderMorningStartHour = appSettings.reminderMorningStartHour
+    val reminderMorningEndHour = appSettings.reminderMorningEndHour
+    val reminderEveningStartHour = appSettings.reminderEveningStartHour
+    val reminderEveningEndHour = appSettings.reminderEveningEndHour
     val isAutoBackupEnabled = appSettings.isAutoBackupEnabled
     val autoBackupFrequencyDays = appSettings.autoBackupFrequencyDays
     val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
@@ -706,6 +710,10 @@ fun MainScreen(
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
                         isGoalRemindersEnabled = isGoalRemindersEnabled,
+                        reminderMorningStartHour = reminderMorningStartHour,
+                        reminderMorningEndHour = reminderMorningEndHour,
+                        reminderEveningStartHour = reminderEveningStartHour,
+                        reminderEveningEndHour = reminderEveningEndHour,
                         isAdsEnabled = isAdsEnabled,
                         autoLockDurationMinutes = autoLockDurationMinutes,
                         isAutoBackupEnabled = isAutoBackupEnabled,
@@ -788,6 +796,25 @@ fun MainScreen(
                                     settings.copy(goalRemindersEnabled = isEnabled)
                                 }
                             }
+                        },
+                        onReminderWindowChange = { window, startHour, endHour ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    when (window) {
+                                        com.mknlabs.expensetracker.models.ReminderWindow.MORNING -> settings.copy(
+                                            reminderMorningStartHour = startHour,
+                                            reminderMorningEndHour = endHour
+                                        )
+                                        com.mknlabs.expensetracker.models.ReminderWindow.EVENING -> settings.copy(
+                                            reminderEveningStartHour = startHour,
+                                            reminderEveningEndHour = endHour
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        onTestNotification = {
+                            com.mknlabs.expensetracker.notifications.NotificationWorker.enqueueTest(context)
                         },
                         onDatabaseBackupFileSelected = { uri ->
                             mainViewModel.backupDatabase(

@@ -48,5 +48,9 @@ data class AppSettings(
     val setupDismissedUntilMillis: Long,
     val userTier: UserTier,
     val goalRemindersEnabled: Boolean = true,
+    val reminderMorningStartHour: Int = 8,
+    val reminderMorningEndHour: Int = 13,
+    val reminderEveningStartHour: Int = 17,
+    val reminderEveningEndHour: Int = 22,
     val deviceIntegrityNoticeAcknowledged: Boolean = false
 )

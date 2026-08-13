@@ -40,6 +40,10 @@ object AppSettingsDataStore {
         val budgetLimitAlertsEnabled = booleanPreferencesKey("budget_limit_alerts_enabled")
         val missedEntryReminderEnabled = booleanPreferencesKey("missed_entry_reminder_enabled")
         val goalRemindersEnabled = booleanPreferencesKey("goal_reminders_enabled")
+        val reminderMorningStartHour = intPreferencesKey("reminder_morning_start_hour")
+        val reminderMorningEndHour = intPreferencesKey("reminder_morning_end_hour")
+        val reminderEveningStartHour = intPreferencesKey("reminder_evening_start_hour")
+        val reminderEveningEndHour = intPreferencesKey("reminder_evening_end_hour")
         val appLockEnabled = booleanPreferencesKey("app_lock_enabled")
         val biometricLockEnabled = booleanPreferencesKey("biometric_lock_enabled")
         val scrambledPinKeypadEnabled = booleanPreferencesKey("scrambled_pin_keypad_enabled")
@@ -156,6 +160,10 @@ object AppSettingsDataStore {
             budgetLimitAlertsEnabled = this[Keys.budgetLimitAlertsEnabled] ?: defaultAppSettings.budgetLimitAlertsEnabled,
             missedEntryReminderEnabled = this[Keys.missedEntryReminderEnabled] ?: defaultAppSettings.missedEntryReminderEnabled,
             goalRemindersEnabled = this[Keys.goalRemindersEnabled] ?: defaultAppSettings.goalRemindersEnabled,
+            reminderMorningStartHour = this[Keys.reminderMorningStartHour] ?: defaultAppSettings.reminderMorningStartHour,
+            reminderMorningEndHour = this[Keys.reminderMorningEndHour] ?: defaultAppSettings.reminderMorningEndHour,
+            reminderEveningStartHour = this[Keys.reminderEveningStartHour] ?: defaultAppSettings.reminderEveningStartHour,
+            reminderEveningEndHour = this[Keys.reminderEveningEndHour] ?: defaultAppSettings.reminderEveningEndHour,
             appLockEnabled = this[Keys.appLockEnabled] ?: defaultAppSettings.appLockEnabled,
             biometricLockEnabled = this[Keys.biometricLockEnabled] ?: defaultAppSettings.biometricLockEnabled,
             scrambledPinKeypadEnabled = this[Keys.scrambledPinKeypadEnabled] ?: defaultAppSettings.scrambledPinKeypadEnabled,
@@ -206,6 +214,10 @@ object AppSettingsDataStore {
         this[Keys.budgetLimitAlertsEnabled] = settings.budgetLimitAlertsEnabled
         this[Keys.missedEntryReminderEnabled] = settings.missedEntryReminderEnabled
         this[Keys.goalRemindersEnabled] = settings.goalRemindersEnabled
+        this[Keys.reminderMorningStartHour] = settings.reminderMorningStartHour
+        this[Keys.reminderMorningEndHour] = settings.reminderMorningEndHour
+        this[Keys.reminderEveningStartHour] = settings.reminderEveningStartHour
+        this[Keys.reminderEveningEndHour] = settings.reminderEveningEndHour
         this[Keys.appLockEnabled] = settings.appLockEnabled
         this[Keys.biometricLockEnabled] = settings.biometricLockEnabled
         this[Keys.scrambledPinKeypadEnabled] = settings.scrambledPinKeypadEnabled
