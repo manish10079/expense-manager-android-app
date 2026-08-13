@@ -1175,6 +1175,10 @@
         <item quantity="one">Successfully added %1$d recurring transaction:\n%2$s</item>
         <item quantity="other">Successfully added %1$d recurring transactions:\n%2$s</item>
     </plurals>
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d category near or over budget</item>
+        <item quantity="other">%1$d categories near or over budget</item>
+    </plurals>
     <string name="notification_title_daily_reminder_personalized">Time to log an expense, %1$s?</string>
     <string name="notification_title_missed_today">Missed Today?</string>
 

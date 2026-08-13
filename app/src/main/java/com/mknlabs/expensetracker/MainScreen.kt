@@ -491,6 +491,13 @@ fun MainScreen(
                         navigationState.navigateTo(AppRoute.Goals)
                         navigationState.updateBottomBarVisibility(false)
                     }
+
+                    NotificationHelper.DESTINATION_BUDGET -> {
+                        // Budget alert: land on the Budget screen so the user can
+                        // see and act on the category that triggered the alert.
+                        navigationState.navigateTo(AppRoute.Budget)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
                 }
             }
 
