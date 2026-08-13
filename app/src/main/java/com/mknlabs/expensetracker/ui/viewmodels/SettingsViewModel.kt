@@ -31,6 +31,7 @@ import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.google.android.ump.ConsentInformation.PrivacyOptionsRequirementStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
@@ -91,6 +92,7 @@ data class SettingsScreenUiState(
 )
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,

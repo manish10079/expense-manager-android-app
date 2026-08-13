@@ -1,6 +1,7 @@
 ﻿package com.mknlabs.expensetracker.data.constants
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.rounded.*
 import com.mknlabs.expensetracker.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.R
@@ -44,7 +45,7 @@ val categoryIconOptions = listOf(
     CategoryIconOption("directions_boat", R.string.icon_label_directions_boat, Icons.Rounded.DirectionsBoat),
     CategoryIconOption("build", R.string.icon_label_build, Icons.Rounded.Build),
     CategoryIconOption("subscriptions", R.string.icon_label_subscriptions, Icons.Rounded.Subscriptions),
-    CategoryIconOption("receipt_long", R.string.icon_label_receipt_long, Icons.Rounded.ReceiptLong),
+    CategoryIconOption("receipt_long", R.string.icon_label_receipt_long, Icons.AutoMirrored.Rounded.ReceiptLong),
     CategoryIconOption("account_balance", R.string.icon_label_account_balance, Icons.Rounded.AccountBalance),
     CategoryIconOption("credit_card", R.string.icon_label_credit_card, Icons.Rounded.CreditCard),
     CategoryIconOption("payments", R.string.icon_label_payments, Icons.Rounded.Payments),
@@ -76,7 +77,7 @@ val categoryIconOptions = listOf(
     CategoryIconOption("sports_golf", R.string.icon_label_sports_golf, Icons.Rounded.SportsGolf),
     CategoryIconOption("kayaking", R.string.icon_label_kayaking, Icons.Rounded.Rowing),
     CategoryIconOption("surfing", R.string.icon_label_surfing, Icons.Rounded.Waves),
-    CategoryIconOption("directions_run", R.string.icon_label_directions_run, Icons.Rounded.DirectionsRun),
+    CategoryIconOption("directions_run", R.string.icon_label_directions_run, Icons.AutoMirrored.Rounded.DirectionsRun),
     CategoryIconOption("pedal_bike", R.string.icon_label_pedal_bike, Icons.Rounded.PedalBike),
     CategoryIconOption("sailing", R.string.icon_label_sailing, Icons.Rounded.Sailing),
     CategoryIconOption("theater_comedy", R.string.icon_label_theater_comedy, Icons.Rounded.TheaterComedy),
@@ -86,7 +87,7 @@ val categoryIconOptions = listOf(
     CategoryIconOption("brush", R.string.icon_label_brush, Icons.Rounded.Brush),
     CategoryIconOption("palette", R.string.icon_label_palette, Icons.Rounded.Palette),
     CategoryIconOption("auto_stories", R.string.icon_label_auto_stories, Icons.Rounded.AutoStories),
-    CategoryIconOption("menu_book", R.string.icon_label_menu_book, Icons.Rounded.MenuBook),
+    CategoryIconOption("menu_book", R.string.icon_label_menu_book, Icons.AutoMirrored.Rounded.MenuBook),
     CategoryIconOption("computer", R.string.icon_label_computer, Icons.Rounded.Computer),
     CategoryIconOption("memory", R.string.icon_label_memory, Icons.Rounded.Memory),
     CategoryIconOption("mouse", R.string.icon_label_mouse, Icons.Rounded.Mouse),

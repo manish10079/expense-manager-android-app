@@ -91,6 +91,16 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+kotlin {
+    compilerOptions {
+        // KT-73255: apply use-site-less annotations to both the value parameter
+        // and the property (Kotlin's future default), silencing the warning for
+        // the 22 @ApplicationContext constructor parameters. Dagger still reads
+        // the annotation from the constructor parameter, so behavior is unchanged.
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

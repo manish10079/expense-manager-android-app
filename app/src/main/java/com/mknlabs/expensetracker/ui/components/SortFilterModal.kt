@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -820,8 +822,8 @@ private fun OrderOption(
                 imageVector = when (value) {
                     SortType.NEWEST -> Icons.Default.VerticalAlignTop
                     SortType.OLDEST -> Icons.Default.VerticalAlignBottom
-                    SortType.HIGHEST -> Icons.Default.TrendingUp
-                    SortType.LOWEST -> Icons.Default.TrendingDown
+                    SortType.HIGHEST -> Icons.AutoMirrored.Filled.TrendingUp
+                    SortType.LOWEST -> Icons.AutoMirrored.Filled.TrendingDown
                     SortType.INCOME_FIRST -> Icons.Default.ArrowUpward
                     SortType.EXPENSE_FIRST -> Icons.Default.ArrowDownward
                 },

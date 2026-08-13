@@ -11,26 +11,35 @@ object BackupFileManager {
      * Scans the internal backup directory for .db files.
      */
     fun getAvailableBackups(context: Context): List<BackupInfo> {
-        val mediaDirs = context.getExternalMediaDirs()
-        if (mediaDirs.isEmpty()) return emptyList()
-        
-        val backupDir = File(mediaDirs[0], "backup")
-        if (!backupDir.exists() || !backupDir.isDirectory) return emptyList()
+        // Primary location: app-specific external files dir
+        // (Android/data/<pkg>/files/backup) — getExternalMediaDirs() is deprecated
+        // (API 34) and unsuitable for non-media app files.
+        val primaryBackupDir = context.getExternalFilesDir("backup")
+        // Legacy location: older builds wrote to Android/media/<pkg>/backup via
+        // getExternalMediaDirs(). Keep scanning it so existing backups stay visible
+        // until they are overwritten/migrated.
+        @Suppress("DEPRECATION")
+        val legacyBackupDir = context.getExternalMediaDirs().firstOrNull()?.let { File(it, "backup") }
 
-        return backupDir.listFiles { _, name -> name.endsWith(".db") }
-            ?.map { file ->
-                BackupInfo(
-                    fileName = file.name,
-                    filePath = file.absolutePath,
-                    uri = Uri.fromFile(file),
-                    sizeBytes = file.length(),
-                    lastModifiedMillis = file.lastModified(),
-                    isAutoBackup = file.name.startsWith("expense_tracker_backup_"),
-                    isEncrypted = BackupEncryption.isEncryptedFile(file)
-                )
-            }
-            ?.sortedByDescending { it.lastModifiedMillis }
-            ?: emptyList()
+        val backupDirs = listOfNotNull(primaryBackupDir, legacyBackupDir)
+            .filter { it.exists() && it.isDirectory }
+        if (backupDirs.isEmpty()) return emptyList()
+
+        return backupDirs.flatMap { backupDir ->
+            backupDir.listFiles { _, name -> name.endsWith(".db") }
+                ?.map { file ->
+                    BackupInfo(
+                        fileName = file.name,
+                        filePath = file.absolutePath,
+                        uri = Uri.fromFile(file),
+                        sizeBytes = file.length(),
+                        lastModifiedMillis = file.lastModified(),
+                        isAutoBackup = file.name.startsWith("expense_tracker_backup_"),
+                        isEncrypted = BackupEncryption.isEncryptedFile(file)
+                    )
+                }
+                ?: emptyList()
+        }.sortedByDescending { it.lastModifiedMillis }
     }
 
     /**

@@ -26,13 +26,13 @@ class AutoBackupWorker(
                 return Result.success()
             }
 
-            val mediaDirs = context.getExternalMediaDirs()
-            if (mediaDirs.isEmpty()) {
-                Log.e("AutoBackupWorker", "No external media directories available")
+            // App-specific external files dir (getExternalMediaDirs() is deprecated
+            // in API 34 and not meant for non-media app files).
+            val backupDir = context.getExternalFilesDir("backup")
+            if (backupDir == null) {
+                Log.e("AutoBackupWorker", "No external files directory available")
                 return Result.failure()
             }
-            val primaryMediaDir = mediaDirs[0]
-            val backupDir = File(primaryMediaDir, "backup")
             if (!backupDir.exists()) {
                 backupDir.mkdirs()
             }
