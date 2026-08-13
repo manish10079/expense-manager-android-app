@@ -115,12 +115,19 @@ object UserProfileDataStore {
         this[Keys.emailAddress] = encrypt(profile.emailAddress)
         this[Keys.phoneNumber] = encrypt(profile.phoneNumber)
 
-        profile.dateOfBirthMillis?.let {
-            this[Keys.dateOfBirthMillisEnc] = encrypt(it.toString())
+        // `remove(...)` returns the previously stored value (Long? = null when
+        // absent), so it must NEVER be the last expression of a block — Kotlin
+        // then unboxes that nullable result and NPEs on fresh installs (regression
+        // from commit cb0e852). Terminate each branch with `Unit` so the `if`
+        // expression is Unit and the `remove` results stay plain statements.
+        if (profile.dateOfBirthMillis != null) {
+            this[Keys.dateOfBirthMillisEnc] = encrypt(profile.dateOfBirthMillis.toString())
             remove(Keys.dateOfBirthMillis)
-        } ?: run {
+            Unit
+        } else {
             remove(Keys.dateOfBirthMillisEnc)
             remove(Keys.dateOfBirthMillis)
+            Unit
         }
 
         this[Keys.gender] = profile.gender

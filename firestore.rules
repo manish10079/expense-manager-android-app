@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /******************************************************************
+     * COUPONS COLLECTION
+     ******************************************************************/
+    match /coupons/{code} {
+
+      // No client reads. Redemption goes through the redeemProPass Cloud
+      // Function (Admin SDK bypasses these rules), so phones never need to
+      // read coupon docs. This keeps repeatAllowedUids / maxUses / currentUses
+      // / expiry hidden from everyone, authenticated or not.
+      allow get: if false;
+
+      // Prevent listing all coupons
+      allow list: if false;
+
+      // Only allow incrementing currentUses by exactly +1
+      // No other fields can be modified
+      allow update: if request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasOnly(['currentUses'])
+                    && request.resource.data.currentUses
+                       == resource.data.currentUses + 1;
+
+      // Coupons can only be created/deleted by backend/admin
+      allow create, delete: if false;
+
+      /**************************************************************
+       * COUPON REDEMPTION TRACKING
+       * Path:
+       * coupons/{couponCode}/redemptions/{uid}
+       **************************************************************/
+      match /redemptions/{uid} {
+
+        // User can check only their own redemption record
+        allow get: if request.auth != null
+                   && request.auth.uid == uid;
+
+        // User can create or update only their own redemption record
+        allow create, update: if request.auth != null
+                              && request.auth.uid == uid;
+
+        // No deletes or listing
+        allow list, delete: if false;
+      }
+    }
+
+    /******************************************************************
+     * USER PROFILE DOCUMENT
+     * Path:
+     * users/{uid}
+     ******************************************************************/
+    match /users/{uid} {
+
+      // Read own profile
+      allow get: if request.auth != null
+                 && request.auth.uid == uid;
+
+      // Prevent fetching all user profiles
+      allow list: if false;
+
+      // Create own profile document
+      // Ensures stored uid matches authenticated uid.
+      // Pro fields (accountTier / proExpiryTimestamp / isSubscription) are
+      // server-authoritative: a client may not create a doc as PREMIUM or with
+      // a proExpiryTimestamp / subscription flag (only the redeemProPass Cloud
+      // Function writes them, bypassing rules via the Admin SDK).
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.uid == uid
+                    && (!('accountTier' in request.resource.data)
+                        || request.resource.data.accountTier == 'FREE')
+                    && (!('proExpiryTimestamp' in request.resource.data)
+                        || request.resource.data.proExpiryTimestamp == 0)
+                    && (!('isSubscription' in request.resource.data)
+                        || request.resource.data.isSubscription == false);
+
+      // Update own profile document
+      // Prevents changing uid field. Pro fields may not be modified by clients;
+      // the sole exception is pushing accountTier=FREE (expired-premium
+      // downgrade) so the cloud never re-grants Pro on the next pull.
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.uid == uid
+                    && resource.data.uid == uid
+                    && !request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasAny(['proExpiryTimestamp', 'isSubscription'])
+                    && (!request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasAny(['accountTier'])
+                        || request.resource.data.accountTier == 'FREE');
+
+      // Allow user to delete their own profile
+      allow delete: if request.auth != null
+                    && request.auth.uid == uid;
+    }
+
+    /******************************************************************
+     * USER SUBCOLLECTIONS
+     ******************************************************************/
+    match /users/{uid}/{document=**} {
+
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+
+    /******************************************************************
+     * FEEDBACKS COLLECTION
+     *
+     * Allows any signed-in user (including anonymous/guest users) to
+     * submit feedback. Only readable from the Firebase Admin console.
+     ******************************************************************/
+    match /feedbacks/{document} {
+      // Any signed-in user (including anonymous/guest) may submit feedback,
+      // but only under their own uid — no impersonating another user.
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    /******************************************************************
+     * DENY EVERYTHING ELSE
+     ******************************************************************/
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

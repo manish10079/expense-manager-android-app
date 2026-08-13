@@ -449,9 +449,6 @@ class SyncRepositoryImpl @Inject constructor(
             "dateOfBirthOn" to localProfile.dateOfBirthMillis?.takeIf { it != 0L }?.let { formatDate(it, "dd MMMM yyyy") }?.ifBlank { remoteDateOfBirthOn }.orEmpty(),
             "gender" to localProfile.gender.ifBlank { remoteGender },
             "financialGoal" to localProfile.financialGoal,
-            "accountTier" to if (localProfile.accountTier == "PREMIUM") "PREMIUM" else "FREE",
-            "proExpiryTimestamp" to localProfile.proExpiryTimestamp,
-            "isSubscription" to localProfile.isSubscription,
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "authProvider" to if (localProfile.authProvider.isNotBlank()) localProfile.authProvider else {
@@ -465,6 +462,16 @@ class SyncRepositoryImpl @Inject constructor(
         // Always push creation date if it's a first-time init or missing in cloud
         if (isFirstTimeInitialization) {
             profileData["accountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
+        }
+
+        // Security: accountTier / proExpiryTimestamp / isSubscription are
+        // server-authoritative — only the redeemProPass Cloud Function writes
+        // them (see implementation_plans/security_implementation_plan.md, Items
+        // 14/22). The single client write the Firestore rules allow is pushing
+        // accountTier=FREE when the local premium has expired, so the cloud
+        // stops re-granting Pro on the next pull.
+        if (localProfile.accountTier != "PREMIUM") {
+            profileData["accountTier"] = "FREE"
         }
 
         try {

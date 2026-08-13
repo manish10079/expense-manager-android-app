@@ -4,7 +4,7 @@
 
 **An elegant, offline-first personal finance app for Android — built with Jetpack Compose & Material 3.**
 
-![Version](https://img.shields.io/badge/version-2.49.0-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
+![Version](https://img.shields.io/badge/version-2.49.1-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
 
 <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="App icon" />
 
@@ -21,7 +21,7 @@
 | | |
 |---|---|
 | **Application ID** | `com.mknlabs.expensetracker` |
-| **Version** | 2.49.0 (139) |
+| **Version** | 2.49.1 (140) |
 | **Min SDK / Target SDK** | 24 / 36 |
 | **Language** | 100% Kotlin |
 | **UI** | Jetpack Compose (Material 3) |
@@ -66,6 +66,7 @@
 - **App lock**: 4-digit PIN, biometric (fingerprint/face), scrambled keypad, security-question recovery
 - **Block screenshots**, **blur in recents**, configurable auto-lock duration
 - Data stored locally (Room + encrypted DataStore); never uploaded unless you sign in
+- **Server-verified Pro**: ProPass redemption runs through a trusted Cloud Function — Pro status can only be granted server-side, never tampered with on-device
 
 ### ☁️ Cloud Sync & Data Management
 - Sign in with **Google, email/password, or magic link** (deep-link support)
@@ -83,7 +84,7 @@
 
 ### 👑 Monetization
 - **AdMob** (native, interstitial, rewarded) with **UMP** consent management
-- **Pro membership** (Pro Pass redemption) unlocking: ad-free UI, advanced analytics, recurring rules, cloud sync & auto backup
+- **Pro membership** (server-verified Pro Pass redemption) unlocking: ad-free UI, advanced analytics, recurring rules, cloud sync & auto backup
 - Watch-a-rewarded-ad to unlock 1-hour ad-free Pro access
 
 ---
@@ -96,10 +97,10 @@
 | **UI** | Jetpack Compose, Material 3, Material Icons Extended, Splash Screen API |
 | **DI** | Hilt (with Hilt-ViewModel & Hilt-Worker) |
 | **Local DB** | Room 2.8.4 (KSP), DataStore Preferences |
-| **Backend** | Firebase Auth, Firestore, Remote Config, Analytics, Google Sign-In |
+| **Backend** | Firebase Auth, Firestore, Remote Config, Analytics, Cloud Functions (ProPass redemption), Google Sign-In |
 | **Background** | WorkManager (sync, recurring rules, auto-backup, notifications) |
 | **Ads** | Google AdMob + User Messaging Platform (UMP) |
-| **Security** | Android Biometric, Security Crypto (EncryptedSharedPreferences), Fast-Hash PIN storage |
+| **Security** | Android Biometric, Security Crypto (EncryptedSharedPreferences), PBKDF2 PIN hashing with lockout, Keystore AES-256-GCM encrypted DataStore & backups, root/emulator detection, server-authoritative Pro (Cloud Function) |
 | **Performance** | Baseline Profiles (separate `:baselineprofile` module) |
 | **Build** | Gradle 9.5 · AGP 9.3.1 · Version Catalog (`gradle/libs.versions.toml`) |
 
@@ -165,7 +166,17 @@ The repository **does not include** `app/google-services.json` (it contains your
 3. Download the generated `google-services.json` into the `app/` folder
 4. Enable **Firebase Authentication** (Email/Password, Google, and Dynamic Links/Magic Link) and **Cloud Firestore**
 
-### 3. AdMob (optional)
+### 3. Deploy Cloud Functions & Firestore rules (required for Pro Pass)
+
+```bash
+cd functions && npm install
+firebase login
+firebase deploy --only functions,firestore:rules
+```
+
+> ⚠️ Cloud Functions requires the Firebase **Blaze** (pay-as-you-go) plan — it is not available on the free Spark plan. The `redeemProPass` function and the hardened Firestore rules must be deployed before Pro Pass redemption works in a build.
+
+### 4. AdMob (optional)
 
 Add your own **AdMob App ID** and ad-unit IDs. Ad unit IDs currently live in:
 
