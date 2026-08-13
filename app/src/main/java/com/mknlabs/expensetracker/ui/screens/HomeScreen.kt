@@ -287,6 +287,9 @@ private fun HomeScreenContent(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Pro-gated transaction-card note tooltip (effective tier from app settings).
+    val isProUser = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -513,6 +516,7 @@ private fun HomeScreenContent(
                         showTransactionTime = uiState.customizationSettings.showTransactionTime,
                         showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                         showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                        showNoteTooltip = isProUser,
                         onClick = { onTransactionClick(card.transaction) }
                     )
                 }

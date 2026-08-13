@@ -85,6 +85,8 @@ fun TransactionCard(
     showTransactionTime: Boolean = true,
     showCategoryIcon: Boolean = true,
     showCategoryLabel: Boolean = true,
+    // Pro-gated: the full-note tooltip (info icon) only renders for Pro users.
+    showNoteTooltip: Boolean = true,
     isSelected: Boolean = false,
     selectionMode: Boolean = false,
     onClick: () -> Unit = {},
@@ -193,7 +195,7 @@ fun TransactionCard(
                     }
                 )
 
-                if (noteTruncated && !isNoteEmpty) {
+                if (showNoteTooltip && noteTruncated && !isNoteEmpty) {
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above

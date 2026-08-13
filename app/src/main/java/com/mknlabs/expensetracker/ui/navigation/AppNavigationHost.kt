@@ -135,6 +135,9 @@ fun AppNavigationHost(
     val selectedRecurringRule = selectedTransaction?.let { transaction ->
         recurringRules.firstOrNull { it.transactionId == transaction.id }
     }
+    // Canonical Pro check (effective tier already accounts for expiry / passes).
+    // Gates the transaction-card note tooltip (a Pro feature).
+    val isProUser = userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
 
     AnimatedContent(
         targetState = currentRoute,
@@ -194,6 +197,7 @@ fun AppNavigationHost(
                 AppRoute.Analytics -> {
                     AnalyticsScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isProUser = isProUser,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -228,6 +232,7 @@ fun AppNavigationHost(
                 AppRoute.Calendar -> {
                     CalendarScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isProUser = isProUser,
                         transactions = transactions,
                         categories = categories,
                         currencyId = selectedCurrencyId,
@@ -250,6 +255,7 @@ fun AppNavigationHost(
                 AppRoute.Transactions -> {
                     TransactionScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isProUser = isProUser,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -500,6 +506,7 @@ fun AppNavigationHost(
                 AppRoute.TransactionCardCustomize -> {
                     TransactionCardCustomizeScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isProUser = isProUser,
                         settings = transactionCardCustomizationSettings,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,

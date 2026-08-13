@@ -1526,7 +1526,8 @@ private fun RecurringExpenseCard(
                     Text(
                         text = expense.title,
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall
+                            .copy(
                            fontWeight = FontWeight.Medium
                         )
                     )

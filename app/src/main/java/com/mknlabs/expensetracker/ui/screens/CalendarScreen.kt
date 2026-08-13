@@ -114,7 +114,8 @@ fun CalendarScreen(
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {},
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
 ) {
     val calendarViewModel: CalendarViewModel = hiltViewModel()
 
@@ -142,6 +143,7 @@ fun CalendarScreen(
     CalendarScreenContent(
         uiState = uiState,
         isAdsEnabled = isAdsEnabled,
+        isProUser = isProUser,
         onBackClick = onBackClick,
         onTransactionClick = onTransactionClick,
         onSetYearView = { calendarViewModel.setYearView(it) },
@@ -160,6 +162,7 @@ fun CalendarScreen(
 private fun CalendarScreenContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.CalendarScreenUiState,
     isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
     onBackClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
     onSetYearView: (Boolean) -> Unit,
@@ -368,6 +371,7 @@ private fun CalendarScreenContent(
                                                 CalendarTransactionCard(
                                                     transaction = transaction,
                                                     transactionCardCustomizationSettings = uiState.customizationSettings,
+                                                    isProUser = isProUser,
                                                     onClick = { onTransactionClick(transaction.transaction) }
                                                 )
                                             }
@@ -644,6 +648,7 @@ private fun TransactionSectionHeader(
 private fun CalendarTransactionCard(
     transaction: TransactionCardItemUi,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
+    isProUser: Boolean = false,
     onClick: () -> Unit
 ) {
     TransactionCard(
@@ -661,6 +666,7 @@ private fun CalendarTransactionCard(
         showTransactionTime = transactionCardCustomizationSettings.showTransactionTime,
         showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
         showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
+        showNoteTooltip = isProUser,
         onClick = onClick
     )
 }

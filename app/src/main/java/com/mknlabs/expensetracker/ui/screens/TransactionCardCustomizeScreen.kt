@@ -100,7 +100,8 @@ fun TransactionCardCustomizeScreen(
     previewTransactions: List<Transaction> = transactionList.take(2),
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit = {},
     onBackClick: () -> Unit = {},
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val proTimeStatus by monetizationViewModel
@@ -124,6 +125,7 @@ fun TransactionCardCustomizeScreen(
         timeFormat = timeFormat,
         previewTransactions = previewTransactions,
         isAdsEnabled = isAdsEnabled,
+        isProUser = isProUser,
         isTransactionTimeProGranted = proTimeStatus is AccessStatus.Granted,
         isDateSeparatorsProGranted = proDateSeparatorsStatus is AccessStatus.Granted,
         isPaymentMethodProGranted = proPaymentMethodStatus is AccessStatus.Granted,
@@ -142,6 +144,7 @@ private fun TransactionCardCustomizeContent(
     timeFormat: String,
     previewTransactions: List<Transaction>,
     isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
     isTransactionTimeProGranted: Boolean,
     isDateSeparatorsProGranted: Boolean,
     isPaymentMethodProGranted: Boolean,
@@ -325,7 +328,8 @@ private fun TransactionCardCustomizeContent(
                                 currencyId = currencyId,
                                 amountFormatPreferences = amountFormatPreferences,
                                 dateFormatPattern = dateFormatPattern,
-                                timeFormat = timeFormat
+                                timeFormat = timeFormat,
+                                isProUser = isProUser
                             )
                         }
                     }
@@ -339,7 +343,8 @@ private fun TransactionCardCustomizeContent(
                             currencyId = currencyId,
                             amountFormatPreferences = amountFormatPreferences,
                             dateFormatPattern = dateFormatPattern,
-                            timeFormat = timeFormat
+                            timeFormat = timeFormat,
+                            isProUser = isProUser
                         )
                     }
                 }
@@ -485,7 +490,8 @@ private fun PreviewTransactionCard(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
-    timeFormat: String
+    timeFormat: String,
+    isProUser: Boolean = false
 ) {
     TransactionCard(
         note = transaction.note,
@@ -506,7 +512,8 @@ private fun PreviewTransactionCard(
         showPaymentMethod = settings.showPaymentMethod,
         showTransactionTime = settings.showTransactionTime,
         showCategoryIcon = settings.showCategoryIcon,
-        showCategoryLabel = settings.showCategoryLabel
+        showCategoryLabel = settings.showCategoryLabel,
+        showNoteTooltip = isProUser
     )
 }
 
@@ -527,6 +534,7 @@ private fun TransactionCardCustomizeScreenPreview() {
             timeFormat = DEFAULT_TIME_FORMAT,
             previewTransactions = transactionList.take(2),
             isAdsEnabled = false,
+            isProUser = true,
             isTransactionTimeProGranted = true,
             isDateSeparatorsProGranted = true,
             isPaymentMethodProGranted = true,

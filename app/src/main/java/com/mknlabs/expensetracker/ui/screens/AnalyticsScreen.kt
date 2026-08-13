@@ -106,7 +106,8 @@ fun AnalyticsScreen(
     paymentMethods: List<PaymentType> = emptyList(),
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = hiltViewModel(),
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
 ) {
     LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
         analyticsViewModel.updateInputs(
@@ -122,6 +123,7 @@ fun AnalyticsScreen(
     AnalyticsScreenContent(
         uiState = uiState,
         isAdsEnabled = isAdsEnabled,
+        isProUser = isProUser,
         transactions = transactions,
         categories = categories,
         paymentMethods = paymentMethods,
@@ -139,6 +141,7 @@ fun AnalyticsScreen(
 fun AnalyticsScreenContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState,
     isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
     transactions: List<Transaction>,
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
@@ -423,6 +426,7 @@ fun AnalyticsScreenContent(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
+            isProUser = isProUser,
             onDismiss = {
                 isTransactionSheetVisible = false
                 selectedFilterId = null
@@ -1951,6 +1955,7 @@ private fun FilteredTransactionsBottomSheet(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
+    isProUser: Boolean = false,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -1999,7 +2004,8 @@ private fun FilteredTransactionsBottomSheet(
                             transactionTypeId = transaction.transactionTypeId,
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
                             paymentType = (payment?.name ?: stringResource(id = R.string.label_unknown)).uppercase(),
-                            categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase()
+                            categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase(),
+                            showNoteTooltip = isProUser
                         )
                     }
                 }

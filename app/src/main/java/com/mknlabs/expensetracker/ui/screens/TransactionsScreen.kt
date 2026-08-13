@@ -166,7 +166,8 @@ fun TransactionScreen(
     onDuplicateTransaction: (Transaction, (Transaction) -> Unit) -> Unit = { _, _ -> },
     onDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
 
@@ -194,6 +195,7 @@ fun TransactionScreen(
     TransactionScreenContent(
         uiState = uiState,
         isAdsEnabled = isAdsEnabled,
+        isProUser = isProUser,
         onBackClick = onBackClick,
         onAddTransactionClick = onAddTransactionClick,
         onTransactionClick = onTransactionClick,
@@ -229,6 +231,7 @@ fun TransactionScreen(
 private fun TransactionScreenContent(
     uiState: TransactionsScreenUiState,
     isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
     onBackClick: () -> Unit,
     onAddTransactionClick: () -> Unit,
     onTransactionClick: (Transaction) -> Unit,
@@ -669,6 +672,7 @@ private fun TransactionScreenContent(
                                             showTransactionTime = uiState.customizationSettings.showTransactionTime,
                                             showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                                             showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                                            showNoteTooltip = isProUser,
                                             isSelected = uiState.selectedTransactionIds.contains(card.id),
                                             selectionMode = uiState.isSelectionMode,
                                             onClick = {
