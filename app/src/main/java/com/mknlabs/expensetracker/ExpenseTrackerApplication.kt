@@ -34,8 +34,9 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Initialize Notification Channels
         NotificationHelper.createNotificationChannels(this)
 
-        // Schedule Recurring Transactions processing
-        RecurringTransactionWorker.scheduleNext(this)
+        // Schedule Recurring Transactions processing (periodic heartbeat;
+        // KEEP makes this a no-op if it is already armed)
+        RecurringTransactionWorker.schedulePeriodic(this)
 
         // Enroll the 15-minute periodic cloud sync (KEEP: no-op if already running)
         com.mknlabs.expensetracker.workers.SyncWorker.schedulePeriodic(this)

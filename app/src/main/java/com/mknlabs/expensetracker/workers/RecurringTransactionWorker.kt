@@ -4,7 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
@@ -62,6 +65,13 @@ class RecurringTransactionWorker @AssistedInject constructor(
                     }
                 }
 
+                // 1.5 Re-create occurrences that were scheduled but never
+                //     materialized (missed backfills from interrupted runs / restores)
+                backfillMissedOccurrences(rule, now) {
+                    transactionsAddedCount++
+                    Log.d("RecurringWorker", "doWork: Backfilled a missed occurrence for rule ${rule.id}. Total so far: $transactionsAddedCount")
+                }
+
                 // 2. Process due transactions
                 processRule(rule, now) {
                     transactionsAddedCount++
@@ -78,16 +88,24 @@ class RecurringTransactionWorker @AssistedInject constructor(
                         com.mknlabs.expensetracker.R.plurals.notification_format_recurring_updated,
                         transactionsAddedCount,
                         transactionsAddedCount
-                    )
+                    ),
+                    notificationId = NotificationHelper.NOTIFICATION_ID_RECURRING_UPDATED
                 )
             } else {
                 Log.d("RecurringWorker", "doWork: No transactions were due for addition")
             }
 
-            // Schedule next check
-            scheduleNext(appContext)
+            // Keep the periodic heartbeat armed (KEEP makes this a no-op if it
+            // is already scheduled — e.g. by Application.onCreate).
+            schedulePeriodic(appContext)
 
             Result.success()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // The worker was stopped (e.g. an immediate run replaced it, or the
+            // app/OS cancelled it). Never swallow cancellation: returning retry()
+            // here makes WorkManager retry a cancelled worker forever. The
+            // periodic heartbeat re-arms processing.
+            throw e
         } catch (e: Exception) {
             Log.e("RecurringWorker", "Error processing recurring rules", e)
             Result.retry()
@@ -107,15 +125,24 @@ class RecurringTransactionWorker @AssistedInject constructor(
             
             // 1. Create the new transaction
             val newTransactionDate = currentRule.nextRunAt
-            val newTransaction = originalTransaction.copy(
-                id = "${currentRule.id}_${newTransactionDate}", // Deterministic ID to avoid duplication across devices
-                createdAt = newTransactionDate,
-                updatedAt = System.currentTimeMillis(),
-                sourceRecurringRuleId = currentRule.id
-            )
-            
-            val savedTransaction = transactionRepository.upsertTransaction(newTransaction)
-            onTransactionAdded()
+            // Deterministic ID to avoid duplication across devices/runs
+            val newTransactionId = "${currentRule.id}_${newTransactionDate}"
+
+            // The id is deterministic, so an existing row means a previous run
+            // already inserted it (crash after insert, or a concurrent run). Skip
+            // the insert — but still advance the rule below so we never stall —
+            // and only count/notify genuinely new transactions.
+            if (transactionRepository.getTransactionById(newTransactionId) == null) {
+                val newTransaction = originalTransaction.copy(
+                    id = newTransactionId,
+                    createdAt = newTransactionDate,
+                    updatedAt = System.currentTimeMillis(),
+                    sourceRecurringRuleId = currentRule.id
+                )
+                
+                transactionRepository.upsertTransaction(newTransaction)
+                onTransactionAdded()
+            }
 
             // 2. Update the rule for the next occurrence
             val nextInfo = calculateNextRun(currentRule.nextRunAt, currentRule.frequency, originalTransaction.createdAt)
@@ -135,6 +162,85 @@ class RecurringTransactionWorker @AssistedInject constructor(
                 break
             }
         }
+    }
+
+    /**
+     * Re-creates an occurrence that was scheduled but never materialized as a
+     * transaction. When a previous run was interrupted (or rules were restored
+     * from a stale backup/sync), the rule can advance past a due date without the
+     * corresponding transaction surviving — e.g. nextRunAt = Sep 13 with no
+     * Aug 13 transaction. Walks back from nextRunAt and materializes any
+     * past-due slot whose deterministic id is missing, stopping at the first
+     * slot that already exists (everything before it was processed normally), at
+     * the series anchor (the first occurrence), or after [MAX_BACKFILL_SLOTS].
+     *
+     * The rule itself is untouched: the missed slot was already counted when
+     * nextRunAt was advanced, so re-creating the transaction only fills a data
+     * gap. Idempotent — once a slot's transaction exists, later runs stop
+     * immediately. Soft-deleted transactions count as existing, so a deletion by
+     * the user is never resurrected.
+     */
+    private suspend fun backfillMissedOccurrences(
+        rule: RecurringTransactionRule,
+        now: Long,
+        onTransactionAdded: () -> Unit
+    ) {
+        val originalTransaction = transactionRepository.getTransactionById(rule.transactionId) ?: return
+        val anchor = originalTransaction.createdAt
+        var candidateDate = rule.nextRunAt
+
+        repeat(MAX_BACKFILL_SLOTS) {
+            candidateDate = onePeriodBefore(candidateDate, rule.frequency, anchor)
+
+            // Not due yet, or before the series' first occurrence — nothing to backfill.
+            if (candidateDate > now || candidateDate <= anchor) return
+
+            val candidateId = "${rule.id}_${candidateDate}"
+            // Slot already exists — earlier slots were processed normally. Stop.
+            if (transactionRepository.getTransactionById(candidateId) != null) return
+
+            transactionRepository.upsertTransaction(
+                originalTransaction.copy(
+                    id = candidateId,
+                    createdAt = candidateDate,
+                    updatedAt = System.currentTimeMillis(),
+                    sourceRecurringRuleId = rule.id
+                )
+            )
+            onTransactionAdded()
+            Log.d("RecurringWorker", "backfill: re-created missing occurrence $candidateDate for rule ${rule.id}")
+        }
+    }
+
+    /**
+     * Inverse of [calculateNextRun]: the occurrence date one period before
+     * [currentRunAt], anchored to the same preferred day as [baseAnchor].
+     */
+    private fun onePeriodBefore(
+        currentRunAt: Long,
+        frequency: RecurringFrequency,
+        baseAnchor: Long
+    ): Long {
+        val baseCalendar = Calendar.getInstance().apply { timeInMillis = baseAnchor }
+        val prevCalendar = Calendar.getInstance().apply { timeInMillis = currentRunAt }
+
+        when (frequency) {
+            RecurringFrequency.Daily -> prevCalendar.add(Calendar.DAY_OF_YEAR, -1)
+            RecurringFrequency.Weekly -> prevCalendar.add(Calendar.WEEK_OF_YEAR, -1)
+            RecurringFrequency.Monthly -> {
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                prevCalendar.add(Calendar.MONTH, -1)
+                val maxDay = prevCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                prevCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+            RecurringFrequency.Yearly -> {
+                prevCalendar.add(Calendar.YEAR, -1)
+                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
+                val maxDay = prevCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                prevCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
+            }
+        }
+        return prevCalendar.timeInMillis
     }
 
     private fun calculateNextRun(
@@ -165,19 +271,34 @@ class RecurringTransactionWorker @AssistedInject constructor(
     }
 
     companion object {
-        fun scheduleNext(context: Context) {
-            val workRequest = OneTimeWorkRequestBuilder<RecurringTransactionWorker>()
-                .setInitialDelay(1, TimeUnit.HOURS) // Check every hour
+        /** Upper bound on how many missed slots a single backfill pass may re-create. */
+        private const val MAX_BACKFILL_SLOTS = 3
+
+        /**
+         * Durable heartbeat for recurring-rule processing.
+         *
+         * The previous implementation chained one-time work by re-enqueuing itself
+         * every hour. That chain silently died whenever a run was cancelled (every
+         * app launch and every transaction save REPLACE-cancels an in-flight run),
+         * force-stopped, or crashed — leaving rules unprocessed until the next time
+         * the user opened the app, which is why occurrences got skipped.
+         * WorkManager keeps periodic work armed across process death, force-stops
+         * and device reboots, so rules are always processed. Processing is
+         * idempotent (deterministic transaction ids), so more frequent runs are safe.
+         */
+        fun schedulePeriodic(context: Context) {
+            val periodicRequest = PeriodicWorkRequestBuilder<RecurringTransactionWorker>(15, TimeUnit.MINUTES)
                 .addTag("RecurringTransactionWork")
                 .build()
 
-            WorkManager.getInstance(context).enqueueUniqueWork(
-                "RecurringTransactionWork",
-                androidx.work.ExistingWorkPolicy.REPLACE,
-                workRequest
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "RecurringTransactionPeriodicWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                periodicRequest
             )
         }
 
+        /** Fire-and-forget immediate run, used right after a rule is saved. */
         fun enqueueImmediate(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<RecurringTransactionWorker>()
                 .addTag("RecurringTransactionWork")
@@ -185,7 +306,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
             WorkManager.getInstance(context).enqueueUniqueWork(
                 "RecurringTransactionWork",
-                androidx.work.ExistingWorkPolicy.REPLACE,
+                ExistingWorkPolicy.REPLACE,
                 workRequest
             )
         }

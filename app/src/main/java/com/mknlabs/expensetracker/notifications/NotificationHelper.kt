@@ -26,6 +26,7 @@ object NotificationHelper {
     /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8); goals take 6. */
     const val NOTIFICATION_ID_SMS_IMPORT = 5
     const val NOTIFICATION_ID_GOAL_REMINDER = 6
+    const val NOTIFICATION_ID_RECURRING_UPDATED = 7
 
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -47,10 +48,13 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_budget_desc)
             }
 
+            // DEFAULT (not LOW) so auto-added recurring transactions are actually
+            // noticed by the user. Note: importance is user-settable on existing
+            // installs; this only affects channels created from now on.
             val recurringChannel = NotificationChannel(
                 CHANNEL_RECURRING,
                 context.getString(R.string.notification_channel_recurring),
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = context.getString(R.string.notification_channel_recurring_desc)
             }
@@ -203,7 +207,7 @@ object NotificationHelper {
         }
     }
 
-    fun showGenericNotification(context: Context, title: String, message: String) {
+    fun showGenericNotification(context: Context, title: String, message: String, notificationId: Int = 4) {
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -213,7 +217,7 @@ object NotificationHelper {
         }
 
         val pendingIntent = PendingIntent.getActivity(
-            context, 4, intent,
+            context, notificationId, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -221,13 +225,13 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
             try {
-                notify(4, builder.build())
+                notify(notificationId, builder.build())
             } catch (e: SecurityException) { }
         }
     }
