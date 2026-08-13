@@ -133,7 +133,8 @@ private data class RecurringEntry(
     val transactionId: String,
     val frequency: RecurringFrequency,
     val repeatCount: Int,
-    val isEnabled: Boolean
+    val isEnabled: Boolean,
+    val nextRunAt: Long = 0L
 )
 
 @HiltViewModel
@@ -181,7 +182,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 transactionId = rule.transactionId,
                 frequency = rule.frequency,
                 repeatCount = rule.repeatCount,
-                isEnabled = rule.isEnabled
+                isEnabled = rule.isEnabled,
+                nextRunAt = rule.nextRunAt
             )
         }
         anchorMonthStart = resolveAnchorMonthStart(transactions)
@@ -522,11 +524,18 @@ private fun buildRecurringExpenses(
                 it.id == recurringEntry.transactionId && it.transactionTypeId != 1
             } ?: return@mapNotNull null
             val category = categories[transaction.categoryId] ?: return@mapNotNull null
-            val (nextDueAt, nextIndex) = calculateNextInstallmentInfo(
+            // Prefer the rule's real schedule over re-deriving it from the anchor:
+            // the tab then shows an occurrence as due until the worker has actually
+            // added it, and only advances to the next date after the add. This keeps
+            // the screen in sync with the background worker (and the backfill) so a
+            // missed/overdue occurrence is visible instead of showing a future date.
+            val anchorDerived = calculateNextInstallmentInfo(
                 baseTimestamp = transaction.createdAt,
                 frequency = recurringEntry.frequency,
                 referenceTime = referenceTime
             )
+            val nextDueAt = recurringEntry.nextRunAt.takeIf { it > 0L } ?: anchorDerived.first
+            val nextIndex = anchorDerived.second
             val accent = recurringAccent(
                 isEnabled = recurringEntry.isEnabled,
                 frequency = recurringEntry.frequency,
