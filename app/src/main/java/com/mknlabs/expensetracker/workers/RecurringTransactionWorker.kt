@@ -39,6 +39,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
             
             val now = System.currentTimeMillis()
             var transactionsAddedCount = 0
+            val addedTransactionNotes = mutableListOf<String>()
             val advanceNotificationWindow = now + TimeUnit.HOURS.toMillis(48)
 
             activeRules.forEach { rule ->
@@ -67,27 +68,35 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
                 // 1.5 Re-create occurrences that were scheduled but never
                 //     materialized (missed backfills from interrupted runs / restores)
-                backfillMissedOccurrences(rule, now) {
+                backfillMissedOccurrences(rule, now) { note ->
                     transactionsAddedCount++
-                    Log.d("RecurringWorker", "doWork: Backfilled a missed occurrence for rule ${rule.id}. Total so far: $transactionsAddedCount")
+                    addedTransactionNotes += note
+                    Log.d("RecurringWorker", "doWork: Backfilled a missed occurrence for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
                 }
 
                 // 2. Process due transactions
-                processRule(rule, now) {
+                processRule(rule, now) { note ->
                     transactionsAddedCount++
-                    Log.d("RecurringWorker", "doWork: Added a transaction for rule ${rule.id}. Total so far: $transactionsAddedCount")
+                    addedTransactionNotes += note
+                    Log.d("RecurringWorker", "doWork: Added a transaction for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
                 }
             }
 
             if (transactionsAddedCount > 0) {
                 Log.d("RecurringWorker", "doWork: Successfully added $transactionsAddedCount total transactions")
+                // Name the added transaction(s) so the user knows what was added.
+                val notes = addedTransactionNotes.filter { it.isNotBlank() }.distinct()
+                val notesLabel = notes.joinToString(separator = "\n") { note ->
+                    if (notes.size > 1) "\u2022 $note" else note
+                }
                 NotificationHelper.showGenericNotification(
                     context = appContext,
                     title = appContext.getString(com.mknlabs.expensetracker.R.string.notification_title_recurring_updated),
                     message = appContext.resources.getQuantityString(
                         com.mknlabs.expensetracker.R.plurals.notification_format_recurring_updated,
                         transactionsAddedCount,
-                        transactionsAddedCount
+                        transactionsAddedCount,
+                        notesLabel
                     ),
                     notificationId = NotificationHelper.NOTIFICATION_ID_RECURRING_UPDATED
                 )
@@ -115,7 +124,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
     private suspend fun processRule(
         rule: RecurringTransactionRule,
         referenceTime: Long,
-        onTransactionAdded: () -> Unit
+        onTransactionAdded: (note: String) -> Unit
     ) {
         var currentRule = rule
         val originalTransaction = transactionRepository.getTransactionById(rule.transactionId) ?: return
@@ -141,7 +150,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
                 )
                 
                 transactionRepository.upsertTransaction(newTransaction)
-                onTransactionAdded()
+                onTransactionAdded(originalTransaction.note)
             }
 
             // 2. Update the rule for the next occurrence
@@ -183,7 +192,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
     private suspend fun backfillMissedOccurrences(
         rule: RecurringTransactionRule,
         now: Long,
-        onTransactionAdded: () -> Unit
+        onTransactionAdded: (note: String) -> Unit
     ) {
         val originalTransaction = transactionRepository.getTransactionById(rule.transactionId) ?: return
         val anchor = originalTransaction.createdAt
@@ -207,7 +216,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
                     sourceRecurringRuleId = rule.id
                 )
             )
-            onTransactionAdded()
+            onTransactionAdded(originalTransaction.note)
             Log.d("RecurringWorker", "backfill: re-created missing occurrence $candidateDate for rule ${rule.id}")
         }
     }

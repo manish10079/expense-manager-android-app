@@ -225,6 +225,7 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(title)
             .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

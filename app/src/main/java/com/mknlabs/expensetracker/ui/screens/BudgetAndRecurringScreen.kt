@@ -1527,7 +1527,7 @@ private fun RecurringExpenseCard(
                         text = expense.title,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                           fontWeight = FontWeight.Medium
                         )
                     )
                     
