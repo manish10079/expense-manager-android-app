@@ -150,6 +150,12 @@ private fun PreferencesScreenContent(
                     }
                 }
 
+                item {
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                    }
+                }
+
                 // Group 2: Date & Time
                 item {
                     SettingsGroup {

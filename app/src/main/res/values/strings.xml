@@ -217,7 +217,7 @@
     <string name="title_app_preferences">App Preferences</string>
     <string name="title_data_management">Data Management</string>
     <string name="title_data_management_1">DATA MANAGEMENT</string>
-    <string name="title_notification_settings">Notification Settings</string>
+    <string name="title_notification_settings">Notifications</string>
     <string name="title_notifications">NOTIFICATIONS</string>
     <string name="title_notifications_1">Notifications</string>
     <string name="title_preference">PREFERENCE</string>
@@ -1194,6 +1194,12 @@
     <string name="notification_title_missed_today">Missed Today?</string>
 
     <!-- Smart SMS Import -->
+    <string name="notification_channel_goal_reminders">Savings Goal Reminders</string>
+    <string name="notification_channel_goal_reminders_desc">Weekly nudges toward your savings goals.</string>
+    <string name="notification_permission_banner_title">Notifications are blocked</string>
+    <string name="notification_permission_banner_desc">Allow notifications to receive reminders and alerts.</string>
+    <string name="btn_allow_notifications">Allow</string>
+    <string name="btn_open_notification_settings">Open settings</string>
     <string name="notification_channel_sms_import">Smart SMS Import</string>
     <string name="notification_channel_sms_import_desc">Detected bank transaction SMS ready to save.</string>
     <string name="notification_title_sms_import">💳 Transaction Detected</string>

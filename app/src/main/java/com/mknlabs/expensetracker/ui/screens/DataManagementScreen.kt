@@ -293,15 +293,23 @@ private fun DataManagementContent(
                             )
                         }
                         SettingsGroupDivider()
-                        SettingsItemCard(
-                            title = stringResource(id = R.string.label_restore_database_db),
-                            subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
-                            icon = Icons.Rounded.SettingsBackupRestore,
-                            type = SettingsItemType.Button,
-                            valueText = stringResource(id = R.string.title_restore),
-                            onClick = { isRestorePickerVisible = true },
-                            standalone = false
-                        )
+                        GatedAction(
+                            feature = Feature.DATABASE_RESTORE,
+                            onAction = { isRestorePickerVisible = true }
+                        ) { status, onClick ->
+                            val accessLevel = FeatureRegistry.getAccessLevel(Feature.DATABASE_RESTORE)
+                            SettingsItemCard(
+                                title = stringResource(id = R.string.label_restore_database_db),
+                                subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
+                                icon = Icons.Rounded.SettingsBackupRestore,
+                                type = SettingsItemType.Button,
+                                valueText = stringResource(id = R.string.title_restore),
+                                accessLevel = accessLevel,
+                                isLocked = status !is AccessStatus.Granted,
+                                onClick = onClick,
+                                standalone = false
+                            )
+                        }
                         if (isLegacyImportVisible) {
                             SettingsGroupDivider()
                             SettingsItemCard(

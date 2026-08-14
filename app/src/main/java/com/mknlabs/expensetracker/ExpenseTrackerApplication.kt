@@ -31,8 +31,10 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Initialize security preferences early
         com.mknlabs.expensetracker.data.local.AppLockPreferences.initialize(this)
 
-        // Initialize Notification Channels
+        // Initialize Notification Channels (and re-create them once per app
+        // update so importance changes reach existing installs, plan §Reminders)
         NotificationHelper.createNotificationChannels(this)
+        NotificationHelper.resetChannelsIfVersionChanged(this)
 
         // Schedule Recurring Transactions processing (periodic heartbeat;
         // KEEP makes this a no-op if it is already armed)

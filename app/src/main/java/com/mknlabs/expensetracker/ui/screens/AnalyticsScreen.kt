@@ -240,6 +240,11 @@ fun AnalyticsScreenContent(
                     onDisplayModeChange = { heroDisplayMode = it }
                 ) 
             }
+            item {
+                AdContainer(isAdsEnabled = isAdsEnabled) {
+                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                }
+            }
             item { StatsRow(snapshot) }
             item { CashFlowCard(snapshot) }
             item {

@@ -1,5 +1,9 @@
 package com.mknlabs.expensetracker.ui.screens
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,24 +15,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PriceCheck
 import androidx.compose.material.icons.rounded.Savings
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,9 +50,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.ReminderWindow
 import com.mknlabs.expensetracker.models.SettingsItemType
+import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
@@ -80,6 +94,47 @@ fun NotificationSettingsScreen(
     onBackClick: () -> Unit,
     isAdsEnabled: Boolean = false
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Live permission state so the blocked-banner and the test button react to
+    // grants/denials and to returning from the system notification settings.
+    var notificationsPermissionGranted by remember {
+        mutableStateOf(NotificationHelper.areNotificationsEnabled(context))
+    }
+    var hasRequestedPermission by remember {
+        mutableStateOf(NotificationPermissionPrefs.hasRequested(context))
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        NotificationPermissionPrefs.markRequested(context)
+        hasRequestedPermission = true
+        notificationsPermissionGranted = NotificationHelper.areNotificationsEnabled(context)
+    }
+
+    // Re-check when returning from the system notification settings.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                notificationsPermissionGranted = NotificationHelper.areNotificationsEnabled(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    // First time: show the system permission dialog. After a denial the dialog
+    // won't reappear, so jump straight to the app's notification settings.
+    val requestOrOpenSettings: () -> Unit = {
+        if (!hasRequestedPermission) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            NotificationHelper.openAppNotificationSettings(context)
+        }
+    }
+
     NotificationSettingsContent(
         isDailyReminderEnabled = isDailyReminderEnabled,
         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
@@ -90,13 +145,22 @@ fun NotificationSettingsScreen(
         reminderEveningStartHour = reminderEveningStartHour,
         reminderEveningEndHour = reminderEveningEndHour,
         timeFormat = timeFormat,
+        isNotificationsPermissionGranted = notificationsPermissionGranted,
+        hasRequestedPermission = hasRequestedPermission,
         isAdsEnabled = isAdsEnabled,
         onDailyReminderChange = onDailyReminderChange,
         onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
         onMissedEntryReminderChange = onMissedEntryReminderChange,
         onGoalRemindersChange = onGoalRemindersChange,
         onReminderWindowChange = onReminderWindowChange,
-        onTestNotification = onTestNotification,
+        onEnableNotificationsClick = requestOrOpenSettings,
+        onTestNotification = {
+            if (notificationsPermissionGranted) {
+                onTestNotification()
+            } else {
+                requestOrOpenSettings()
+            }
+        },
         onBackClick = onBackClick
     )
 }
@@ -112,12 +176,15 @@ private fun NotificationSettingsContent(
     reminderEveningStartHour: Int,
     reminderEveningEndHour: Int,
     timeFormat: String,
+    isNotificationsPermissionGranted: Boolean,
+    hasRequestedPermission: Boolean,
     isAdsEnabled: Boolean,
     onDailyReminderChange: (Boolean) -> Unit,
     onBudgetLimitAlertsChange: (Boolean) -> Unit,
     onMissedEntryReminderChange: (Boolean) -> Unit,
     onGoalRemindersChange: (Boolean) -> Unit,
     onReminderWindowChange: (ReminderWindow, Int, Int) -> Unit,
+    onEnableNotificationsClick: () -> Unit,
     onTestNotification: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -145,6 +212,13 @@ private fun NotificationSettingsContent(
                 .padding(horizontal = Dimens.ScreenPadding),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            if (!isNotificationsPermissionGranted) {
+                NotificationPermissionBanner(
+                    hasRequestedPermission = hasRequestedPermission,
+                    onEnableClick = onEnableNotificationsClick
+                )
+            }
+
             SettingsGroup {
                 SettingsItemCard(
                     icon = Icons.Rounded.NotificationsActive,
@@ -185,6 +259,10 @@ private fun NotificationSettingsContent(
                     isChecked = isGoalRemindersEnabled,
                     onCheckedChange = onGoalRemindersChange
                 )
+            }
+
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
             // Reminder time windows + test notification (plan §Reminders/Phase 2).
@@ -458,14 +536,74 @@ private fun NotificationSettingsScreenPreview() {
             reminderEveningStartHour = 17,
             reminderEveningEndHour = 22,
             timeFormat = "12-hour",
+            isNotificationsPermissionGranted = true,
+            hasRequestedPermission = true,
             isAdsEnabled = false,
             onDailyReminderChange = {},
             onBudgetLimitAlertsChange = {},
             onMissedEntryReminderChange = {},
             onGoalRemindersChange = {},
             onReminderWindowChange = { _, _, _ -> },
+            onEnableNotificationsClick = {},
             onTestNotification = {},
             onBackClick = {}
         )
+    }
+}
+
+/**
+ * Shown when the app can't post notifications (denied permission on Android
+ * 13+, or notifications disabled below). Leads the user to either the system
+ * permission dialog (first time) or the app's notification settings.
+ */
+@Composable
+private fun NotificationPermissionBanner(
+    hasRequestedPermission: Boolean,
+    onEnableClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = colorScheme.errorContainer.copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, colorScheme.error.copy(alpha = 0.4f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Info,
+                contentDescription = null,
+                tint = colorScheme.error
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(id = R.string.notification_permission_banner_title),
+                    color = colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(id = R.string.notification_permission_banner_desc),
+                    color = colorScheme.onErrorContainer.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            TextButton(onClick = onEnableClick) {
+                Text(
+                    text = stringResource(
+                        id = if (hasRequestedPermission) {
+                            R.string.btn_open_notification_settings
+                        } else {
+                            R.string.btn_allow_notifications
+                        }
+                    ),
+                    color = colorScheme.error,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }

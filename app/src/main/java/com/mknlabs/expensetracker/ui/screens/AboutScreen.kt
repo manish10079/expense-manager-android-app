@@ -65,6 +65,8 @@ import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
 
+import androidx.activity.compose.BackHandler
+
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
@@ -73,6 +75,10 @@ fun AboutScreen(
     isAdsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
+
+    BackHandler {
+        onBackClick()
+    }
 
     val openUrl: (String) -> Unit = { url ->
         try {

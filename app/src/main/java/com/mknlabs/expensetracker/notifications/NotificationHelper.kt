@@ -1,15 +1,20 @@
 package com.mknlabs.expensetracker.notifications
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.MainActivity
 import com.mknlabs.expensetracker.R
 
@@ -19,6 +24,7 @@ object NotificationHelper {
     const val CHANNEL_BUDGET_ALERTS = "budget_alerts"
     const val CHANNEL_RECURRING = "recurring_transactions"
     const val CHANNEL_SMS_IMPORT = "sms_import"
+    const val CHANNEL_GOAL_REMINDERS = "goal_reminders"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
@@ -86,11 +92,66 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_sms_import_desc)
             }
 
+            // Dedicated channel so Savings Goal nudges are independent from the
+            // daily-reminder channel — muting one never mutes the other.
+            val goalChannel = NotificationChannel(
+                CHANNEL_GOAL_REMINDERS,
+                context.getString(R.string.notification_channel_goal_reminders),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.notification_channel_goal_reminders_desc)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
             notificationManager.createNotificationChannel(recurringChannel)
             notificationManager.createNotificationChannel(smsImportChannel)
+            notificationManager.createNotificationChannel(goalChannel)
         }
+    }
+
+    /** Whether the app can currently post notifications (API 33+: the POST_NOTIFICATIONS permission). */
+    fun areNotificationsEnabled(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+        } else {
+            NotificationManagerCompat.from(context).areNotificationsEnabled()
+        }
+    }
+
+    /** Opens the system settings page for this app's notifications. */
+    fun openAppNotificationSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        }
+        context.startActivity(intent)
+    }
+
+    /**
+     * Android only applies channel importance when the channel is first created,
+     * so settings changes never reach users who installed the app earlier. On
+     * every versionCode change this deletes and re-creates the channels so the
+     * current settings apply to everyone (one-time per update).
+     */
+    fun resetChannelsIfVersionChanged(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val prefs = context.getSharedPreferences(CHANNEL_PREFS_NAME, Context.MODE_PRIVATE)
+        val lastVersion = prefs.getInt(KEY_LAST_CHANNEL_RESET_VERSION, -1)
+        val currentVersion = BuildConfig.VERSION_CODE
+        if (lastVersion == currentVersion) return
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        listOf(
+            CHANNEL_DAILY_REMINDERS,
+            CHANNEL_BUDGET_ALERTS,
+            CHANNEL_RECURRING,
+            CHANNEL_SMS_IMPORT,
+            CHANNEL_GOAL_REMINDERS
+        ).forEach { notificationManager.deleteNotificationChannel(it) }
+        createNotificationChannels(context)
+
+        prefs.edit().putInt(KEY_LAST_CHANNEL_RESET_VERSION, currentVersion).apply()
     }
 
     fun showReminderNotification(context: Context, message: String, userName: String? = null) {
@@ -305,7 +366,7 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_DAILY_REMINDERS)
+        val builder = NotificationCompat.Builder(context, CHANNEL_GOAL_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.title_goal_reminder))
             .setContentText(message)
@@ -352,4 +413,7 @@ object NotificationHelper {
             } catch (e: SecurityException) { }
         }
     }
+
+    private const val CHANNEL_PREFS_NAME = "notification_channel_settings"
+    private const val KEY_LAST_CHANNEL_RESET_VERSION = "last_channel_reset_version_code"
 }

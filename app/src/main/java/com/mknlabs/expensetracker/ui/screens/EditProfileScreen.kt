@@ -241,6 +241,12 @@ private fun ProfileScreenContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            AdContainer(isAdsEnabled = isAdsEnabled) {
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
             if (userProfile.emailAddress.isNotBlank()) {
                 InputFieldCard(
                     title = stringResource(id = R.string.label_email_address_caps),
@@ -305,12 +311,6 @@ private fun ProfileScreenContent(
                     )
                 }
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            AdContainer(isAdsEnabled = isAdsEnabled) {
-                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
-            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }

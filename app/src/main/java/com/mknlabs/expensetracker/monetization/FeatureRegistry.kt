@@ -30,7 +30,8 @@ enum class Feature(val id: String, val displayName: String) {
     ANALYTICS_TOP_SPENDING("analytics_top_spending", "Top Spending Insights"),
     ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips"),
     TRANSACTION_COUNT("transaction_count", "Transaction Statistics"),
-    AD_FREE_GLOBAL("ad_free_global", "Ad-Free Experience")
+    AD_FREE_GLOBAL("ad_free_global", "Ad-Free Experience"),
+    DATABASE_RESTORE("database_restore", "Restore Database")
 }
 
 /**
@@ -104,7 +105,8 @@ object FeatureRegistry {
         ),
         
         Feature.PRIVACY_PROTECTION to AccessLevel.PREMIUM,
-        Feature.BIOMETRIC_LOCK to AccessLevel.FREE
+        Feature.BIOMETRIC_LOCK to AccessLevel.FREE,
+        Feature.DATABASE_RESTORE to AccessLevel.AD_SUPPORTED
     )
 
     /**

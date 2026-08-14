@@ -232,9 +232,14 @@ private fun SettingsScreenContent(
                     )
                 }
 
+                if (isAdsEnabled) {
+                    item {
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                    }
+                }
+
                 settingsSections.forEach { section ->
-                    // Inline Native Ad before the "Workspace / Configuration" section
-                    if (section.titleRes == R.string.title_preference && isAdsEnabled) {
+                    if (section.titleRes == R.string.title_database && isAdsEnabled) {
                         item {
                             NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                         }

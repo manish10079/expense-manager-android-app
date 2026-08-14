@@ -291,6 +291,12 @@ private fun BudgetAndRecurringContent(
 
                         item { BudgetSummaryCard(summary = uiState.summary) }
                         
+                        item {
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                            }
+                        }
+
                         item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
 
                         if (uiState.categoryBudgets.isEmpty()) {
@@ -346,18 +352,30 @@ private fun BudgetAndRecurringContent(
                                         ?: stringResource(id = R.string.msg_no_recurring_items)
                                 )
                             }
+                            item {
+                                AdContainer(isAdsEnabled = isAdsEnabled) {
+                                    NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                }
+                            }
                         } else {
-                            items(uiState.recurringExpenses, key = { it.id }) { expense ->
-                                RecurringExpenseCard(
-                                    expense = expense,
-                                    onEnabledChange = { enabled ->
-                                        onRecurringEnabledChange(expense.id, enabled)
-                                    },
-                                    onEditClick = { editingRecurringRule = expense },
-                                    onDeleteClick = {
-                                        pendingDeleteRecurringId = expense.id
+                            uiState.recurringExpenses.forEach { expense ->
+                                item(key = expense.id) {
+                                    RecurringExpenseCard(
+                                        expense = expense,
+                                        onEnabledChange = { enabled ->
+                                            onRecurringEnabledChange(expense.id, enabled)
+                                        },
+                                        onEditClick = { editingRecurringRule = expense },
+                                        onDeleteClick = {
+                                            pendingDeleteRecurringId = expense.id
+                                        }
+                                    )
+                                }
+                                item(key = "ad_${expense.id}") {
+                                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
                                     }
-                                )
+                                }
                             }
                         }
                     }

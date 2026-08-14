@@ -160,6 +160,12 @@ private fun SecurityPrivacyContent(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item {
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                    }
+                }
+
+                item {
                     SettingsGroup {
                         SettingsItemCard(
                             title = stringResource(R.string.title_app_lock),
