@@ -588,7 +588,7 @@ private fun reminderWindowLabel(
 
 @Composable
 private fun weeklyTimeLabel(timeMillis: Long, timeFormat: String): String {
-    val time = remember(timeMillis, timeFormat) { formatTime(timeMillis, timeFormat) }
+    val time = remember(timeMillis, timeFormat) { formatTime(timeOfDayToEpochMillis(timeMillis), timeFormat) }
     return stringResource(id = R.string.notification_weekly_time_format, time)
 }
 
@@ -596,6 +596,22 @@ private fun hourToMillis(hour: Int): Long {
     return Calendar.getInstance().apply {
         set(Calendar.HOUR_OF_DAY, hour.coerceIn(0, 23))
         set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}
+
+/**
+ * Local epoch timestamp for a millis-of-day time (e.g. 72_000_000 = 8 PM), so
+ * it can be passed to epoch-based formatters/pickers. Keeps the weekly-summary
+ * millis-of-day storage semantics intact while rendering in the local timezone.
+ */
+private fun timeOfDayToEpochMillis(timeMillis: Long): Long {
+    val hour = (timeMillis / 3_600_000L).toInt().coerceIn(0, 23)
+    val minute = ((timeMillis % 3_600_000L) / 60_000L).toInt().coerceIn(0, 59)
+    return Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
     }.timeInMillis
@@ -941,13 +957,17 @@ private fun WeeklySummaryTimeModal(
     val labelAm = stringResource(R.string.label_am)
     val labelPm = stringResource(R.string.label_pm)
 
-    val cal = remember(initialTimeMillis) { Calendar.getInstance().apply { timeInMillis = initialTimeMillis } }
+    // initialTimeMillis is millis-of-day (e.g. 72_000_000 = 8 PM), NOT an epoch
+    // timestamp — derive the 12-hour wheel state from it directly so the picker
+    // opens showing the actual stored time in any timezone.
+    val initialHour24 = (initialTimeMillis / 3_600_000L).toInt().coerceIn(0, 23)
+    val initialMinute = ((initialTimeMillis % 3_600_000L) / 60_000L).toInt().coerceIn(0, 59)
     var hour12 by remember(initialTimeMillis) {
-        mutableIntStateOf(cal.get(Calendar.HOUR_OF_DAY).let { if (it % 12 == 0) 12 else it % 12 })
+        mutableIntStateOf(if (initialHour24 % 12 == 0) 12 else initialHour24 % 12)
     }
-    var minute by remember(initialTimeMillis) { mutableIntStateOf(cal.get(Calendar.MINUTE)) }
+    var minute by remember(initialTimeMillis) { mutableIntStateOf(initialMinute) }
     var amPm by remember(initialTimeMillis) {
-        mutableStateOf(if (cal.get(Calendar.HOUR_OF_DAY) < 12) labelAm else labelPm)
+        mutableStateOf(if (initialHour24 < 12) labelAm else labelPm)
     }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -982,7 +1002,7 @@ private fun WeeklySummaryTimeModal(
             Spacer(modifier = Modifier.height(16.dp))
 
             WheelDateTimePicker(
-                initialDateMillis = initialTimeMillis,
+                initialDateMillis = timeOfDayToEpochMillis(initialTimeMillis),
                 showDay = false,
                 showMonth = false,
                 showDate = false,
