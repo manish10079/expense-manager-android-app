@@ -302,7 +302,9 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "RecurringTransactionPeriodicWork",
-                ExistingPeriodicWorkPolicy.KEEP,
+                // UPDATE per the notification spec's WorkManager requirement
+                // (updates the stored spec in place, never cancels a run).
+                ExistingPeriodicWorkPolicy.UPDATE,
                 periodicRequest
             )
         }

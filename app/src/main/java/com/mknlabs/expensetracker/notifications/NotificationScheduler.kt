@@ -11,11 +11,12 @@ object NotificationScheduler {
     /**
      * Arms daily reminders with TWO layers:
      *
-     * 1. A periodic heartbeat ([ReminderHeartbeatWorker], every hour, KEEP) that
-     *    acts as a safety net: whenever the one-time reminder chain dies (crash,
-     *    cancellation, force-stop), the next heartbeat re-arms the next window's
-     *    reminder. Periodic work is re-scheduled by WorkManager on app launch,
-     *    so reminders recover automatically without the user opening settings.
+     * 1. A periodic heartbeat ([ReminderHeartbeatWorker], every hour, UPDATE)
+     *    that acts as a safety net: whenever the one-time reminder chain dies
+     *    (crash, cancellation, force-stop), the next heartbeat re-arms the next
+     *    window's reminder. Periodic work is re-scheduled by WorkManager on app
+     *    launch, so reminders recover automatically without the user opening
+     *    settings.
      *
      * 2. An immediate schedule-only arm of [NotificationWorker] so the very
      *    first reminder lands in the next configured window right after the
@@ -29,7 +30,10 @@ object NotificationScheduler {
             .build()
         workManager.enqueueUniquePeriodicWork(
             "ReminderHeartbeatWork",
-            ExistingPeriodicWorkPolicy.KEEP,
+            // UPDATE (notification spec WorkManager requirement): keeps the
+            // period's spec current; unlike CANCEL_AND_REENQUEUE it never
+            // cancels an in-flight run.
+            ExistingPeriodicWorkPolicy.UPDATE,
             heartbeatRequest
         )
 
@@ -59,7 +63,8 @@ object NotificationScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             "GoalReminderWork",
-            ExistingPeriodicWorkPolicy.KEEP,
+            // UPDATE per the notification spec's WorkManager requirement.
+            ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
     }

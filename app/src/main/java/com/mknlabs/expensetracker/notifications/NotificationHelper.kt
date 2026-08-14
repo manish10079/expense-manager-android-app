@@ -40,14 +40,29 @@ object NotificationHelper {
 
     /**
      * Every budget alert groups under one collapsible shade entry. Children get
-     * a per-category ID (base + categoryId) so multiple categories never
-     * overwrite each other; a single summary notification at
+     * a per-category ID (base + categoryId + tier offset) so multiple categories
+     * never overwrite each other; a single summary notification at
      * [NOTIFICATION_ID_BUDGET_SUMMARY] carries the group.
      */
     const val GROUP_KEY_BUDGET_ALERTS = "budget_alerts_group"
 
     /** Marker extra riding on every budget-alert child (not the summary). */
     const val EXTRA_BUDGET_CATEGORY_ID = "budget.category_id"
+
+    /**
+     * Threshold tiers for budget alerts (notification spec §2): warn at 75%,
+     * warn again at 90%, then reached at 100% and exceeded over the limit.
+     * Each tier posts to its own ID so crossing a threshold heads-ups the user
+     * instead of silently updating the previous warning; [idOffset] spaces the
+     * IDs apart per tier (REACHED and EXCEEDED share the top slot — the user is
+     * already aware once they hit 100%, so going over only refreshes the alert).
+     */
+    enum class BudgetAlertTier(val idOffset: Int) {
+        WARNING_75(0),
+        WARNING_90(100),
+        REACHED(200),
+        EXCEEDED(200)
+    }
 
     /** Offset above every fixed ID (1-8) for per-category budget alert IDs. */
     private const val BUDGET_NOTIFICATION_ID_BASE = 100
@@ -194,15 +209,17 @@ object NotificationHelper {
 
     /**
      * Shows a budget alert for one category. Each category posts to its own
-     * stable ID ([BUDGET_NOTIFICATION_ID_BASE] + categoryId), so alerts for
-     * different categories STACK instead of overwriting each other — and they
-     * all join [GROUP_KEY_BUDGET_ALERTS] under one collapsible summary.
-     * Updating an existing category (e.g. spending grew from 85% to 95%)
-     * refreshes that same notification in place without re-heads-upping.
-     * Tapping opens the Budget screen.
+     * stable ID ([BUDGET_NOTIFICATION_ID_BASE] + categoryId + tier offset), so
+     * alerts for different categories STACK instead of overwriting each other
+     * — and they all join [GROUP_KEY_BUDGET_ALERTS] under one collapsible
+     * summary. Posting a higher [tier] cancels the lower-tier alert for the
+     * same category (one budget notification per category in the shade), so
+     * each threshold crossing (75% → 90% → 100%/exceeded) heads-up is fresh
+     * while repeated saves within a tier stay silent. Tapping opens the
+     * Budget screen.
      */
-    fun showBudgetAlert(context: Context, message: String, categoryId: Int) {
-        val notificationId = budgetAlertIdFor(categoryId)
+    fun showBudgetAlert(context: Context, message: String, categoryId: Int, tier: BudgetAlertTier) {
+        val notificationId = budgetAlertIdFor(categoryId, tier)
 
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
@@ -239,11 +256,24 @@ object NotificationHelper {
 
         with(NotificationManagerCompat.from(context)) {
             try {
+                // Replacing a lower tier (e.g. the 75% warning when 90% is
+                // crossed) removes the stale one so the shade never holds two
+                // budget alerts for the same category.
+                cancelLowerBudgetTiers(this, categoryId, tier)
                 notify(notificationId, builder.build())
                 // Keep the group summary's category list in sync with the newly
                 // posted/updated child.
                 refreshBudgetGroupSummary(context)
             } catch (e: SecurityException) { }
+        }
+    }
+
+    /** Removes any lower-tier alert still posted for the same category. */
+    private fun cancelLowerBudgetTiers(nm: NotificationManagerCompat, categoryId: Int, tier: BudgetAlertTier) {
+        for (lowerTier in BudgetAlertTier.entries) {
+            if (lowerTier.idOffset < tier.idOffset) {
+                nm.cancel(budgetAlertIdFor(categoryId, lowerTier))
+            }
         }
     }
 
@@ -263,6 +293,12 @@ object NotificationHelper {
                 child.notification.group == GROUP_KEY_BUDGET_ALERTS &&
                     child.notification.extras?.containsKey(EXTRA_BUDGET_CATEGORY_ID) == true
             }
+            // One alert per category: if a stale lower-tier child is still
+            // visible while its replacement posts, keep only the highest tier
+            // (larger notification id = higher tier offset).
+            .groupBy { child -> child.notification.extras?.getInt(EXTRA_BUDGET_CATEGORY_ID, -1) ?: -1 }
+            .values
+            .mapNotNull { group -> group.maxByOrNull { it.id } }
         }.getOrDefault(emptyList())
 
         if (children.isEmpty()) {
@@ -315,9 +351,13 @@ object NotificationHelper {
         }
     }
 
-    /** Stable, unique notification ID per budget category (never collides with the fixed IDs 1-8). */
-    private fun budgetAlertIdFor(categoryId: Int): Int =
-        BUDGET_NOTIFICATION_ID_BASE + (categoryId and 0x00FFFFFF)
+    /**
+     * Stable, unique notification ID per budget category + tier (never collides
+     * with the fixed IDs 1-8). The tier offset makes each threshold crossing a
+     * distinct alert while keeping all tiers of one category close together.
+     */
+    private fun budgetAlertIdFor(categoryId: Int, tier: BudgetAlertTier): Int =
+        BUDGET_NOTIFICATION_ID_BASE + (categoryId and 0x00FFFFFF) + tier.idOffset
 
     /** PendingIntent request code for the budget group summary's Open intent. */
     private const val REQUEST_CODE_BUDGET_SUMMARY = 9

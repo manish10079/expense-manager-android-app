@@ -49,8 +49,9 @@ class CheckBudgetUseCase @Inject constructor(
 
         val usageRatio = currentSpending.toDouble() / limitMinor
 
-        // No alert below 80% of the limit.
-        if (usageRatio < 0.8) return
+        // Spec §2: warn at 75% of the limit, warn again at 90%, then reached at
+        // 100% and exceeded beyond it. No alert below 75%.
+        if (usageRatio < 0.75) return
 
         val categoryName = categoryDao.getById(transaction.categoryId)?.name
             ?: context.getString(R.string.label_unknown)
@@ -60,33 +61,48 @@ class CheckBudgetUseCase @Inject constructor(
         val amountFormat = settings.toAmountFormatPreferences()
         val currencyId = settings.currencyId
 
-        val message = when {
+        val messageAndTier = when {
             usageRatio > 1.0 -> {
                 val overMinor = currentSpending - limitMinor
                 val overText = formatCurrencyValue(overMinor.toMajorUnits(), currencyId, amountFormat)
-                DynamicNotificationEngine.generateBudgetOverspentMessage(context, categoryName, overText)
+                DynamicNotificationEngine.generateBudgetOverspentMessage(context, categoryName, overText) to
+                    NotificationHelper.BudgetAlertTier.EXCEEDED
             }
 
             usageRatio == 1.0 -> {
                 val limitText = formatCurrencyValue(limitMinor.toMajorUnits(), currencyId, amountFormat)
-                DynamicNotificationEngine.generateBudgetReachedMessage(context, categoryName, limitText)
+                DynamicNotificationEngine.generateBudgetReachedMessage(context, categoryName, limitText) to
+                    NotificationHelper.BudgetAlertTier.REACHED
             }
 
             else -> {
-                // 80%..100% used — show the live percentage and what's left.
+                // 75%..100% used — show the live percentage and what's left. The
+                // tier (75% vs 90%) decides whether this is a fresh heads-up or
+                // a quiet in-place refresh of the previous warning.
                 val percentUsed = (usageRatio * 100).toInt().coerceAtMost(99)
                 val remainingMinor = limitMinor - currentSpending
                 val remainingText = formatCurrencyValue(remainingMinor.toMajorUnits(), currencyId, amountFormat)
-                DynamicNotificationEngine.generateBudgetApproachingMessage(
+                val message = DynamicNotificationEngine.generateBudgetApproachingMessage(
                     context,
                     categoryName,
                     percentUsed,
                     remainingText
                 )
+                val tier = if (usageRatio >= 0.9) {
+                    NotificationHelper.BudgetAlertTier.WARNING_90
+                } else {
+                    NotificationHelper.BudgetAlertTier.WARNING_75
+                }
+                message to tier
             }
         }
 
-        NotificationHelper.showBudgetAlert(context, message, transaction.categoryId)
+        NotificationHelper.showBudgetAlert(
+            context,
+            messageAndTier.first,
+            transaction.categoryId,
+            messageAndTier.second
+        )
     }
 
     private fun getStartOfMonthTimestamp(timestamp: Long): Long {

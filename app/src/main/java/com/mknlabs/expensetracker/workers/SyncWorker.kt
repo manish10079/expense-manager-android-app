@@ -110,9 +110,12 @@ class SyncWorker @AssistedInject constructor(
 
         /**
          * Enrolls (or re-enrolls) the 15-minute periodic sync chain.
-         * Uses [ExistingPeriodicWorkPolicy.KEEP] so an already-running period is never
-         * reset by accident. This replaces the old chained OneTimeWorkRequest approach
-         * that accumulated exponential backoff after multi-day offline periods.
+         * Uses [ExistingPeriodicWorkPolicy.UPDATE] (notification spec WorkManager
+         * requirement) so the period's spec stays current; UPDATE updates the
+         * stored request in place and never cancels an in-flight run, so an
+         * already-running period is not reset by accident. This replaces the old
+         * chained OneTimeWorkRequest approach that accumulated exponential
+         * backoff after multi-day offline periods.
          */
         fun schedulePeriodic(context: Context) {
             val constraints = Constraints.Builder()
@@ -126,7 +129,7 @@ class SyncWorker @AssistedInject constructor(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 SYNC_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 periodicRequest
             )
         }
