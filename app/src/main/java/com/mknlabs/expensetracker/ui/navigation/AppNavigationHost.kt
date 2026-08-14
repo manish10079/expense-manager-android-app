@@ -537,7 +537,6 @@ fun AppNavigationHost(
                     ProfileScreen(
                         isAdsEnabled = isAdsEnabled,
                         userProfile = userProfile,
-                        dateFormatPattern = selectedDateFormatPattern,
                         onSaveClick = { updatedProfile ->
                             onUserProfileChange(updatedProfile)
                             onBottomBarVisibilityChange(false)

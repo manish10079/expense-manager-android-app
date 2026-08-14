@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DOB_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.avatarInitials
@@ -72,7 +72,6 @@ private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 @Composable
 fun ProfileScreen(
     userProfile: UserProfile,
-    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     onBackClick: () -> Unit = {},
     onSaveClick: (UserProfile) -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
@@ -86,7 +85,6 @@ fun ProfileScreen(
 
     ProfileScreenContent(
         userProfile = userProfile,
-        dateFormatPattern = dateFormatPattern,
         isAdsEnabled = isAdsEnabled,
         userTier = userTier,
         dbCountryCodes = dbCountryCodes,
@@ -100,7 +98,6 @@ fun ProfileScreen(
 @Composable
 private fun ProfileScreenContent(
     userProfile: UserProfile,
-    dateFormatPattern: String,
     isAdsEnabled: Boolean,
     userTier: UserTier,
     dbCountryCodes: List<com.mknlabs.expensetracker.models.CountryCode>,
@@ -285,7 +282,7 @@ private fun ProfileScreenContent(
 
             InputFieldCard(
                 title = stringResource(id = R.string.label_date_of_birth_caps),
-                value = dateOfBirthMillis?.let { formatDate(it, dateFormatPattern) }.orEmpty(),
+                value = dateOfBirthMillis?.let { formatDate(it, DOB_DATE_FORMAT_PATTERN) }.orEmpty(),
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = Icons.Rounded.CalendarMonth,
@@ -560,7 +557,6 @@ private fun ProfileScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         ProfileScreenContent(
             userProfile = defaultUserProfile,
-            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             isAdsEnabled = true,
             userTier = UserTier.PREMIUM,
             dbCountryCodes = emptyList(),
