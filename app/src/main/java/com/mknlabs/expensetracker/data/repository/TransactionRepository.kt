@@ -10,6 +10,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository as DomainTransactionRepository
+import com.mknlabs.expensetracker.domain.usecase.CheckLargeTransactionUseCase
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class TransactionRepository @Inject constructor(
     private val database: ExpenseTrackerDatabase,
     private val dao: TransactionDao,
-    private val recurringRuleDao: RecurringRuleDao
+    private val recurringRuleDao: RecurringRuleDao,
+    private val checkLargeTransactionUseCase: CheckLargeTransactionUseCase
 ) : DomainTransactionRepository {
 
     override fun observeActiveTransactions(): Flow<List<Transaction>> {
@@ -68,6 +70,11 @@ class TransactionRepository @Inject constructor(
             updatedAt = now
         )
         dao.upsert(resolved.toEntity())
+        // Repo-level hook (spec category 3): fires for every write path — manual
+        // save, duplicate, undo-restore, SMS import, and recurring auto-add /
+        // backfill. Batch imports (backup restore, cloud pull, legacy import)
+        // bypass the repository deliberately, so they stay silent.
+        checkLargeTransactionUseCase(resolved)
         resolved
     }
 

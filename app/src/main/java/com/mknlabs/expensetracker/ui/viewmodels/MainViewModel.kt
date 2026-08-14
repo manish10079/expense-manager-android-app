@@ -75,8 +75,7 @@ class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,
     private val configurationRepository: com.mknlabs.expensetracker.domain.repository.ConfigurationRepository,
-    private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase,
-    private val checkLargeTransactionUseCase: com.mknlabs.expensetracker.domain.usecase.CheckLargeTransactionUseCase
+    private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -257,9 +256,9 @@ class MainViewModel @Inject constructor(
             
             // Check budget and notify if needed
             checkBudgetUseCase(savedTransaction)
-
-            // Large-expense heads-up (spec category 3, Free tier)
-            checkLargeTransactionUseCase(savedTransaction)
+            // Large-expense heads-up (spec category 3, Free tier) now fires inside
+            // TransactionRepository.upsertTransaction so SMS imports and recurring
+            // auto-adds get it too — no double-fire here.
 
             // If a recurring rule was added/updated, trigger immediate processing
             if (recurringDraft != null) {
