@@ -821,6 +821,7 @@ class SyncRepositoryImpl @Inject constructor(
                             val lastRunAt = doc.getLong("lastRunAt")
                             val lastNotifiedOccurrenceAt = doc.getLong("lastNotifiedOccurrenceAt")
                             val isEnabled = doc.getBoolean("isEnabled") ?: true
+                            val notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true
                             val createdAt = doc.getLong("createdAt") ?: 0L
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
@@ -829,6 +830,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 intervalCount = intervalCount, repeatCount = repeatCount, remainingCount = remainingCount,
                                 anchorAt = anchorAt, nextRunAt = nextRunAt, lastRunAt = lastRunAt,
                                 lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt, isEnabled = isEnabled,
+                                notificationsEnabled = notificationsEnabled,
                                 createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
                             ) as T
                         }

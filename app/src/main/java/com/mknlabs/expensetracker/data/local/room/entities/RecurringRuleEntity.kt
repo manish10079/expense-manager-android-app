@@ -49,6 +49,10 @@ data class RecurringRuleEntity(
     @field:PropertyName("isEnabled")
     @ColumnInfo(name = "is_enabled")
     val isEnabled: Boolean = true,
+    @get:PropertyName("notificationsEnabled")
+    @field:PropertyName("notificationsEnabled")
+    @ColumnInfo(name = "notifications_enabled")
+    val notificationsEnabled: Boolean = true,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")

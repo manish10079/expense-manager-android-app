@@ -24,6 +24,19 @@ const val DEFAULT_NOTIFICATIONS_ENABLED = true
 const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true
 const val DEFAULT_MISSED_ENTRY_REMINDER_ENABLED = true
 const val DEFAULT_GOAL_REMINDERS_ENABLED = true
+// Notification spec categories (default ON for every tier so users opt OUT,
+// not in — same philosophy as the other toggles above).
+const val DEFAULT_LARGE_TRANSACTION_ALERTS_ENABLED = true
+const val DEFAULT_WEEKLY_SUMMARY_ENABLED = true
+const val DEFAULT_FINANCIAL_INSIGHTS_ENABLED = true
+const val DEFAULT_SAVINGS_GOALS_ENABLED = true
+const val DEFAULT_BILL_REMINDERS_ENABLED = true
+const val DEFAULT_CLOUD_SECURITY_ENABLED = true
+// "Large" expense threshold in minor units — spec default ₹5,000 (= 500000).
+const val DEFAULT_LARGE_TRANSACTION_THRESHOLD_MINOR = 500000L
+// Weekly summary delivery time as millis-of-day — spec default 8:00 PM
+// (= 20 * 60 * 60 * 1000). Delivery day is always Sunday.
+const val DEFAULT_WEEKLY_SUMMARY_TIME_MILLIS = 20L * 60L * 60L * 1000L
 // Daily-reminder windows (hour-of-day, 0-23). Morning 8-13, evening 17-22
 // match the pre-existing hardcoded behavior.
 const val DEFAULT_REMINDER_MORNING_START_HOUR = 8
@@ -110,5 +123,13 @@ val defaultAppSettings = AppSettings(
     reminderMorningEndHour = DEFAULT_REMINDER_MORNING_END_HOUR,
     reminderEveningStartHour = DEFAULT_REMINDER_EVENING_START_HOUR,
     reminderEveningEndHour = DEFAULT_REMINDER_EVENING_END_HOUR,
+    largeTransactionAlertsEnabled = DEFAULT_LARGE_TRANSACTION_ALERTS_ENABLED,
+    weeklySummaryEnabled = DEFAULT_WEEKLY_SUMMARY_ENABLED,
+    financialInsightsEnabled = DEFAULT_FINANCIAL_INSIGHTS_ENABLED,
+    savingsGoalsEnabled = DEFAULT_SAVINGS_GOALS_ENABLED,
+    billRemindersEnabled = DEFAULT_BILL_REMINDERS_ENABLED,
+    cloudSecurityEnabled = DEFAULT_CLOUD_SECURITY_ENABLED,
+    largeTransactionThresholdMinor = DEFAULT_LARGE_TRANSACTION_THRESHOLD_MINOR,
+    weeklySummaryTimeMillis = DEFAULT_WEEKLY_SUMMARY_TIME_MILLIS,
     deviceIntegrityNoticeAcknowledged = DEFAULT_DEVICE_INTEGRITY_NOTICE_ACKNOWLEDGED
 )

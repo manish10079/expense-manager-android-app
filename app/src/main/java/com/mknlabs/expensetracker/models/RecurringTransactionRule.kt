@@ -22,6 +22,8 @@ data class RecurringTransactionRule(
     val nextRunAt: Long = anchorAt,
     val lastRunAt: Long? = null,
     val lastNotifiedOccurrenceAt: Long? = null,
+    /** Per-rule notification mute (spec): reminder only fires when this is true AND the category toggle is on. */
+    val notificationsEnabled: Boolean = true,
     val createdAt: Long = anchorAt,
     val updatedAt: Long = createdAt,
     val syncState: SyncState = SyncState.PENDING_UPLOAD,

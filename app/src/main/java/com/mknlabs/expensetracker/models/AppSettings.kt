@@ -52,5 +52,23 @@ data class AppSettings(
     val reminderMorningEndHour: Int = 13,
     val reminderEveningStartHour: Int = 17,
     val reminderEveningEndHour: Int = 22,
+    // Notification spec categories (default ON for every tier so users opt OUT):
+    // 3. Large Transaction Alerts (Free)
+    val largeTransactionAlertsEnabled: Boolean = true,
+    // 4. Weekly Summary (Free)
+    val weeklySummaryEnabled: Boolean = true,
+    // 5. Financial Insights (Premium)
+    val financialInsightsEnabled: Boolean = true,
+    // 6. Savings Goals (Premium)
+    val savingsGoalsEnabled: Boolean = true,
+    // 7. Bill & Subscription Reminders (Premium)
+    val billRemindersEnabled: Boolean = true,
+    // 8. Cloud & Security Alerts (Premium)
+    val cloudSecurityEnabled: Boolean = true,
+    // "Large" expense threshold in minor units (spec default ₹5,000 = 500000).
+    val largeTransactionThresholdMinor: Long = 500000L,
+    // Weekly summary delivery time as millis-of-day (spec default 8:00 PM =
+    // 20h * 60m * 60s * 1000ms). Always Sunday, per the spec.
+    val weeklySummaryTimeMillis: Long = 72000000L,
     val deviceIntegrityNoticeAcknowledged: Boolean = false
 )
