@@ -1165,7 +1165,9 @@
     <string name="notification_channel_reminders">Daily Reminders</string>
     <string name="notification_channel_reminders_desc">Periodic reminders to log your expenses.</string>
     <string name="notification_channel_budget">Budget Alerts</string>
-    <string name="notification_channel_budget_desc">Alerts when you exceed your monthly budget.</string>
+    <string name="notification_channel_budget_desc">Warnings as you approach or reach your monthly budget.</string>
+    <string name="notification_channel_budget_exceeded">Budget Exceeded</string>
+    <string name="notification_channel_budget_exceeded_desc">Alerts when you exceed your monthly budget.</string>
     <string name="notification_channel_recurring">Recurring Transactions</string>
     <string name="notification_channel_recurring_desc">Notifications when recurring transactions are automatically added.</string>
     <string name="notification_title_budget_alert">Budget Alert!</string>

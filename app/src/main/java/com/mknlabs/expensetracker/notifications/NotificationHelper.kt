@@ -22,6 +22,7 @@ object NotificationHelper {
 
     const val CHANNEL_DAILY_REMINDERS = "daily_reminders"
     const val CHANNEL_BUDGET_ALERTS = "budget_alerts"
+    const val CHANNEL_BUDGET_EXCEEDED = "budget_exceeded"
     const val CHANNEL_RECURRING = "recurring_transactions"
     const val CHANNEL_SMS_IMPORT = "sms_import"
     const val CHANNEL_GOAL_REMINDERS = "goal_reminders"
@@ -89,12 +90,26 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_reminders_desc)
             }
 
+            // DEFAULT: 75%/90%/100% warnings are informative, not urgent.
+            // The spec reserves HIGH importance for Budget Exceeded alone, which
+            // posts to its own channel (CHANNEL_BUDGET_EXCEEDED) so only it
+            // heads-ups the user.
             val budgetChannel = NotificationChannel(
                 CHANNEL_BUDGET_ALERTS,
                 context.getString(R.string.notification_channel_budget),
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = context.getString(R.string.notification_channel_budget_desc)
+            }
+
+            // HIGH: the spec marks only Budget Exceeded as urgent (heads-up +
+            // sound), so it gets its own channel separate from the warnings.
+            val budgetExceededChannel = NotificationChannel(
+                CHANNEL_BUDGET_EXCEEDED,
+                context.getString(R.string.notification_channel_budget_exceeded),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = context.getString(R.string.notification_channel_budget_exceeded_desc)
             }
 
             // DEFAULT (not LOW) so auto-added recurring transactions are actually
@@ -139,6 +154,7 @@ object NotificationHelper {
 
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
+            notificationManager.createNotificationChannel(budgetExceededChannel)
             notificationManager.createNotificationChannel(recurringChannel)
             notificationManager.createNotificationChannel(smsImportChannel)
             notificationManager.createNotificationChannel(goalChannel)
@@ -181,6 +197,7 @@ object NotificationHelper {
         listOf(
             CHANNEL_DAILY_REMINDERS,
             CHANNEL_BUDGET_ALERTS,
+            CHANNEL_BUDGET_EXCEEDED,
             CHANNEL_RECURRING,
             CHANNEL_SMS_IMPORT,
             CHANNEL_GOAL_REMINDERS,
@@ -239,6 +256,12 @@ object NotificationHelper {
     fun showBudgetAlert(context: Context, message: String, categoryId: Int, tier: BudgetAlertTier) {
         val notificationId = budgetAlertIdFor(categoryId, tier)
 
+        // Spec importance tiers: only Budget Exceeded is High (heads-up on its
+        // own channel); 75%/90%/100% warnings post to the DEFAULT budget channel.
+        val isExceeded = tier == BudgetAlertTier.EXCEEDED
+        val channelId = if (isExceeded) CHANNEL_BUDGET_EXCEEDED else CHANNEL_BUDGET_ALERTS
+        val priority = if (isExceeded) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT
+
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -258,12 +281,12 @@ object NotificationHelper {
             putInt(EXTRA_BUDGET_CATEGORY_ID, categoryId)
         }
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_BUDGET_ALERTS)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_budget_alert))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(priority)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .addExtras(markerExtras)
@@ -498,7 +521,7 @@ object NotificationHelper {
             .setContentTitle(context.getString(R.string.notification_title_large_transaction))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_LARGE_TRANSACTION, NotificationAnalytics.TYPE_LARGE_TRANSACTION))
