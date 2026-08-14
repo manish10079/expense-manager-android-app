@@ -81,6 +81,17 @@
             android:name=".notifications.NotificationDismissReceiver"
             android:exported="false" />
 
+        <!-- FCM push (notification plan §5.4): token registration + data-only
+             message handling. Messages are rendered by NotificationHelper so
+             channels/format stay consistent with local alerts. -->
+        <service
+            android:name=".notifications.ExpenseTrackerMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

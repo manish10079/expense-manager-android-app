@@ -27,6 +27,8 @@ object NotificationHelper {
     const val CHANNEL_SMS_IMPORT = "sms_import"
     const val CHANNEL_GOAL_REMINDERS = "goal_reminders"
     const val CHANNEL_WEEKLY_REPORTS = "weekly_reports"
+    const val CHANNEL_CLOUD_SECURITY = "cloud_security"
+    const val CHANNEL_FINANCIAL_INSIGHTS = "financial_insights"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
@@ -42,6 +44,9 @@ object NotificationHelper {
     const val NOTIFICATION_ID_BUDGET_SUMMARY = 8
     const val NOTIFICATION_ID_LARGE_TRANSACTION = 9
     const val NOTIFICATION_ID_WEEKLY_SUMMARY = 10
+    const val NOTIFICATION_ID_CLOUD_SECURITY = 11
+    const val NOTIFICATION_ID_FINANCIAL_INSIGHT = 12
+    const val NOTIFICATION_ID_FCM_GENERIC = 13
 
     /** Offset above every fixed ID for per-goal milestone alerts (goal id hash + base). */
     private const val GOAL_MILESTONE_ID_BASE = 2000
@@ -152,6 +157,26 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_weekly_reports_desc)
             }
 
+            // High importance: security events (new-device login, password/
+            // email change, recovery attempt) must grab attention (spec: High).
+            val cloudSecurityChannel = NotificationChannel(
+                CHANNEL_CLOUD_SECURITY,
+                context.getString(R.string.notification_channel_cloud_security),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = context.getString(R.string.notification_channel_cloud_security_desc)
+            }
+
+            // Low importance: Financial Insights are advisory, not urgent
+            // (spec: Insights = Low).
+            val financialInsightsChannel = NotificationChannel(
+                CHANNEL_FINANCIAL_INSIGHTS,
+                context.getString(R.string.notification_channel_financial_insights),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.notification_channel_financial_insights_desc)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
             notificationManager.createNotificationChannel(budgetExceededChannel)
@@ -159,6 +184,8 @@ object NotificationHelper {
             notificationManager.createNotificationChannel(smsImportChannel)
             notificationManager.createNotificationChannel(goalChannel)
             notificationManager.createNotificationChannel(weeklyChannel)
+            notificationManager.createNotificationChannel(cloudSecurityChannel)
+            notificationManager.createNotificationChannel(financialInsightsChannel)
         }
     }
 
@@ -201,7 +228,9 @@ object NotificationHelper {
             CHANNEL_RECURRING,
             CHANNEL_SMS_IMPORT,
             CHANNEL_GOAL_REMINDERS,
-            CHANNEL_WEEKLY_REPORTS
+            CHANNEL_WEEKLY_REPORTS,
+            CHANNEL_CLOUD_SECURITY,
+            CHANNEL_FINANCIAL_INSIGHTS
         ).forEach { notificationManager.deleteNotificationChannel(it) }
         createNotificationChannels(context)
 
@@ -678,6 +707,77 @@ object NotificationHelper {
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+    /**
+     * FCM push handler (Phase A, notification plan §5.4). Server payloads are
+     * data-only; `type` selects the channel/importance, title+body are
+     * pre-formatted by the Cloud Function (local formatting stays in the
+     * Worker-driven show* methods). Unknown types fall back to the generic
+     * FCM channel so a misconfigured payload still surfaces.
+     */
+    fun showFcmNotification(context: Context, type: String?, title: String?, body: String?) {
+        if (title.isNullOrBlank() && body.isNullOrBlank()) return
+
+        val fcmType = when (type) {
+            "cloud_security" -> FcmType.CloudSecurity
+            "financial_insight" -> FcmType.FinancialInsight
+            else -> FcmType.Generic
+        }
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, fcmType.destination)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, fcmType.analyticsType)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, fcmType.notificationId, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, fcmType.channelId)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(title ?: context.getString(R.string.app_name))
+            .setContentText(body ?: "")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body ?: ""))
+            .setPriority(fcmType.priority)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, fcmType.notificationId, fcmType.analyticsType))
+
+        postNotification(context, fcmType.notificationId, builder, fcmType.analyticsType)
+    }
+
+    /** Per-type routing for FCM pushes (channel, fixed ID, deep-link, analytics label, priority). */
+    private enum class FcmType(
+        val channelId: String,
+        val notificationId: Int,
+        val destination: String,
+        val analyticsType: String,
+        val priority: Int
+    ) {
+        CloudSecurity(
+            CHANNEL_CLOUD_SECURITY,
+            NOTIFICATION_ID_CLOUD_SECURITY,
+            DESTINATION_HOME,
+            NotificationAnalytics.TYPE_CLOUD_SECURITY,
+            NotificationCompat.PRIORITY_HIGH
+        ),
+        FinancialInsight(
+            CHANNEL_FINANCIAL_INSIGHTS,
+            NOTIFICATION_ID_FINANCIAL_INSIGHT,
+            DESTINATION_ANALYTICS,
+            NotificationAnalytics.TYPE_FINANCIAL_INSIGHT,
+            NotificationCompat.PRIORITY_LOW
+        ),
+        Generic(
+            CHANNEL_DAILY_REMINDERS,
+            NOTIFICATION_ID_FCM_GENERIC,
+            DESTINATION_HOME,
+            NotificationAnalytics.TYPE_GENERIC,
+            NotificationCompat.PRIORITY_DEFAULT
+        )
+    }
 
     private const val DESTINATION_HOME = "home"
 

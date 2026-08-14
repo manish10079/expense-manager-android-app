@@ -1168,6 +1168,10 @@
     <string name="notification_channel_budget_desc">Warnings as you approach or reach your monthly budget.</string>
     <string name="notification_channel_budget_exceeded">Budget Exceeded</string>
     <string name="notification_channel_budget_exceeded_desc">Alerts when you exceed your monthly budget.</string>
+    <string name="notification_channel_cloud_security">Cloud &amp; Security</string>
+    <string name="notification_channel_cloud_security_desc">Security alerts for your account and cloud sync.</string>
+    <string name="notification_channel_financial_insights">Financial Insights</string>
+    <string name="notification_channel_financial_insights_desc">Personalized insights and forecasts for your spending.</string>
     <string name="notification_channel_recurring">Recurring Transactions</string>
     <string name="notification_channel_recurring_desc">Notifications when recurring transactions are automatically added.</string>
     <string name="notification_title_budget_alert">Budget Alert!</string>
@@ -1237,7 +1241,7 @@
 
     <!-- Category info sheets (spec: one ⓘ per category) -->
     <string name="info_expense_reminders">Includes a daily reminder to log your expenses and a nudge when you have not logged anything that day. You can pick the reminder windows below.</string>
-    <string name="info_budget_alerts">Warns you when a category is approaching its budget: at 75%, 90%, 100% and when exceeded.</string>
+    <string name="info_budget_alerts" formatted="false">Warns you when a category is approaching its budget: at 75%, 90%, 100% and when exceeded.</string>
     <string name="info_large_transaction">Notifies you the moment you log a single expense larger than your chosen threshold.</string>
     <string name="info_weekly_summary">A Sunday recap of the last 7 days of spending compared with the week before.</string>
     <string name="info_financial_insights">Upcoming smart insights: spending trends, spending spikes, forecasts and personalized suggestions.</string>

@@ -3,11 +3,20 @@ package com.mknlabs.expensetracker
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.messaging.FirebaseMessaging
+import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.domain.repository.FcmTokenRepository
 import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.workers.RecurringTransactionWorker
 import com.mknlabs.expensetracker.notifications.AppLifecycleObserver
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -18,6 +27,14 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var appLifecycleObserver: AppLifecycleObserver
+
+    @Inject
+    lateinit var authRepository: AuthRepository
+
+    @Inject
+    lateinit var fcmTokenRepository: FcmTokenRepository
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -45,5 +62,29 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
 
         // Register App Lifecycle Observer for security lock
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+
+        // FCM token registration (notification plan §5.4/§5.6): keeps the
+        // device's Firestore token doc in sync with auth state. On any
+        // signed-in state (app start with restored session, or a fresh
+        // sign-in) the current token is upserted; on sign-out the device's
+        // doc is deleted so no stale token lingers for the previous user.
+        // Token refreshes are handled separately by onNewToken.
+        applicationScope.launch {
+            authRepository.currentUser.collect { user ->
+                    if (user != null) {
+                        runCatching {
+                            val token = FirebaseMessaging.getInstance().token.await()
+                            fcmTokenRepository.registerCurrentDeviceToken(token)
+                        }
+                    } else {
+                        fcmTokenRepository.removeCurrentDeviceToken()
+                    }
+                }
+        }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        applicationScope.cancel()
     }
 }
