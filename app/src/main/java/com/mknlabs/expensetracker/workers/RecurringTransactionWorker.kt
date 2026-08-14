@@ -10,17 +10,25 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.toMajorUnits
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 import kotlin.math.min
 
 @HiltWorker
@@ -28,7 +36,8 @@ class RecurringTransactionWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val transactionRepository: TransactionRepository,
-    private val recurringRuleRepository: RecurringRuleRepository
+    private val recurringRuleRepository: RecurringRuleRepository,
+    private val appPreferencesRepository: AppPreferencesRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -40,30 +49,19 @@ class RecurringTransactionWorker @AssistedInject constructor(
             val now = System.currentTimeMillis()
             var transactionsAddedCount = 0
             val addedTransactionNotes = mutableListOf<String>()
-            val advanceNotificationWindow = now + TimeUnit.HOURS.toMillis(48)
+
+            val appSettings = appPreferencesRepository.observeAppSettings().first()
+            val billAlertsEnabled = appSettings.billRemindersEnabled
 
             activeRules.forEach { rule ->
                 Log.d("RecurringWorker", "doWork: Processing rule ${rule.id} for transaction ${rule.transactionId}")
                 
-                // 1. Check for 48-hour alerts
-                if (rule.nextRunAt in (now + 1)..advanceNotificationWindow && 
-                    rule.lastNotifiedOccurrenceAt != rule.nextRunAt) {
-                    
-                    val originalTransaction = transactionRepository.getTransactionById(rule.transactionId)
-                    if (originalTransaction != null) {
-                        val amountStr = String.format("%.2f", originalTransaction.amountMinor / 100.0)
-                        NotificationHelper.showGenericNotification(
-                            context = appContext,
-                            title = appContext.getString(com.mknlabs.expensetracker.R.string.notification_title_upcoming_bill),
-                            message = appContext.getString(
-                                com.mknlabs.expensetracker.R.string.notification_format_upcoming_bill,
-                                amountStr,
-                                originalTransaction.note
-                            )
-                        )
-                        // Mark as notified for this specific occurrence
-                        recurringRuleRepository.upsertRule(rule.copy(lastNotifiedOccurrenceAt = rule.nextRunAt))
-                    }
+                // 1. Advance alerts at 7 / 3 / 1 days before and on the due date
+                //    (notification spec category 7) — gated by the global
+                //    bill-reminders toggle AND the per-rule notificationsEnabled
+                //    mute (spec: both must be true for generation).
+                if (billAlertsEnabled && rule.notificationsEnabled) {
+                    maybeFireAdvanceAlert(rule, now, appSettings)
                 }
 
                 // 1.5 Re-create occurrences that were scheduled but never
@@ -121,6 +119,68 @@ class RecurringTransactionWorker @AssistedInject constructor(
         }
     }
 
+    /**
+     * Fires the upcoming-bill alert for the first not-yet-notified advance
+     * window (7 / 3 / 1 days before, then the due date).
+     * [RecurringTransactionRule.lastNotifiedWindowDays] remembers which window
+     * already fired for the current occurrence, so each window heads-up exactly
+     * once per billing cycle; [processRule] resets it when the occurrence
+     * advances. Once the due moment passes, only the due-date alert may fire.
+     */
+    private suspend fun maybeFireAdvanceAlert(
+        rule: RecurringTransactionRule,
+        now: Long,
+        appSettings: AppSettings
+    ) {
+        val remainingMillis = rule.nextRunAt - now
+        val lastNotified = rule.lastNotifiedWindowDays ?: Int.MAX_VALUE
+
+        val windowDays = when {
+            // At/over the due moment: only the due-date alert, exactly once.
+            remainingMillis <= 0L -> if (lastNotified <= 0) null else 0
+
+            else -> ADVANCE_WINDOW_DAYS.firstOrNull { days ->
+                days < lastNotified && remainingMillis <= TimeUnit.DAYS.toMillis(days.toLong())
+            }
+        } ?: return
+
+        val originalTransaction = transactionRepository.getTransactionById(rule.transactionId) ?: return
+        val amountFormat = appSettings.toAmountFormatPreferences()
+        val currencyId = appSettings.currencyId
+        val amountStr = formatCurrencyValue(
+            originalTransaction.amountMinor.toMajorUnits(),
+            currencyId,
+            amountFormat
+        )
+
+        // Message always shows the accurate countdown, even when a skipped run
+        // falls back to a larger trigger window.
+        val daysLeft = ceil(remainingMillis.toDouble() / TimeUnit.DAYS.toMillis(1)).toLong()
+        val message = when {
+            daysLeft <= 0 -> appContext.getString(
+                R.string.notification_format_upcoming_bill_due_today,
+                amountStr,
+                originalTransaction.note
+            )
+
+            daysLeft == 1L -> appContext.getString(
+                R.string.notification_format_upcoming_bill_tomorrow,
+                amountStr,
+                originalTransaction.note
+            )
+
+            else -> appContext.getString(
+                R.string.notification_format_upcoming_bill_days,
+                amountStr,
+                originalTransaction.note,
+                daysLeft
+            )
+        }
+
+        NotificationHelper.showUpcomingBillNotification(appContext, message, rule.id, windowDays)
+        recurringRuleRepository.upsertRule(rule.copy(lastNotifiedWindowDays = windowDays))
+    }
+
     private suspend fun processRule(
         rule: RecurringTransactionRule,
         referenceTime: Long,
@@ -160,6 +220,9 @@ class RecurringTransactionWorker @AssistedInject constructor(
                 lastRunAt = currentRule.nextRunAt,
                 nextRunAt = nextInfo,
                 remainingCount = currentRule.remainingCount?.minus(1),
+                // The advance-window marker belongs to the old occurrence — the
+                // new occurrence starts un-notified.
+                lastNotifiedWindowDays = null,
                 updatedAt = System.currentTimeMillis()
             )
             
@@ -282,6 +345,9 @@ class RecurringTransactionWorker @AssistedInject constructor(
     companion object {
         /** Upper bound on how many missed slots a single backfill pass may re-create. */
         private const val MAX_BACKFILL_SLOTS = 3
+
+        /** Advance-alert windows (days before the due date), furthest-out first. */
+        private val ADVANCE_WINDOW_DAYS = listOf(7, 3, 1, 0)
 
         /**
          * Durable heartbeat for recurring-rule processing.

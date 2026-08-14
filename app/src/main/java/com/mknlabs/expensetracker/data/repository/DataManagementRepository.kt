@@ -612,6 +612,7 @@ private fun RecurringRuleEntity.toJson(): JSONObject {
         putNullable("lastRunAt", lastRunAt)
         put("isEnabled", isEnabled)
         put("notificationsEnabled", notificationsEnabled)
+        putNullable("lastNotifiedWindowDays", lastNotifiedWindowDays)
         put("createdAt", createdAt)
         put("updatedAt", updatedAt)
         put("syncState", syncState.name)
@@ -713,6 +714,7 @@ private fun JSONObject.toRecurringRuleEntity(): RecurringRuleEntity {
         lastRunAt = optNullableLong("lastRunAt"),
         isEnabled = optBoolean("isEnabled", true),
         notificationsEnabled = optBoolean("notificationsEnabled", true),
+        lastNotifiedWindowDays = optNullableInt("lastNotifiedWindowDays"),
         createdAt = createdAt,
         updatedAt = optLong("updatedAt", createdAt),
         syncState = optString("syncState").toSyncState(),

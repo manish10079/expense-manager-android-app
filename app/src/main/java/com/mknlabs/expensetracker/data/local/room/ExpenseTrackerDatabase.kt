@@ -33,7 +33,7 @@ import java.io.File
         GoalEntity::class,
         CountryCodeEntity::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -60,7 +60,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                     .build().also { INSTANCE = it }
             }
         }
@@ -70,6 +70,14 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 // Per-rule notification mute (notification spec): each recurring
                 // rule decides independently whether it posts reminders.
                 db.execSQL("ALTER TABLE recurring_rules ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1")
+            }
+        }
+
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Which multi-window advance alert (7/3/1/due) has fired for the
+                // current occurrence of each recurring rule.
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN last_notified_window_days INTEGER")
             }
         }
 

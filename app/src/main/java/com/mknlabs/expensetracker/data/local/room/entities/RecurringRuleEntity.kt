@@ -53,6 +53,13 @@ data class RecurringRuleEntity(
     @field:PropertyName("notificationsEnabled")
     @ColumnInfo(name = "notifications_enabled")
     val notificationsEnabled: Boolean = true,
+    // Which advance-alert window (7 / 3 / 1 / 0 days-before) already fired for
+    // the CURRENT occurrence; null = nothing notified yet. Reset whenever the
+    // occurrence advances so the next cycle alerts again.
+    @get:PropertyName("lastNotifiedWindowDays")
+    @field:PropertyName("lastNotifiedWindowDays")
+    @ColumnInfo(name = "last_notified_window_days")
+    val lastNotifiedWindowDays: Int? = null,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = 0L,
     @ColumnInfo(name = "updated_at")

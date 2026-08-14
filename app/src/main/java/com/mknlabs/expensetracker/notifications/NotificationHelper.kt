@@ -45,6 +45,9 @@ object NotificationHelper {
     /** Offset above every fixed ID for per-goal milestone alerts (goal id hash + base). */
     private const val GOAL_MILESTONE_ID_BASE = 2000
 
+    /** Offset above every fixed ID for per-rule upcoming-bill alerts (rule id hash + window offset). */
+    private const val RECURRING_BILL_NOTIFICATION_ID_BASE = 3000
+
     /**
      * Every budget alert groups under one collapsible shade entry. Children get
      * a per-category ID (base + categoryId + tier offset) so multiple categories
@@ -578,6 +581,55 @@ object NotificationHelper {
             } catch (e: SecurityException) { }
         }
     }
+
+    /**
+     * Upcoming-bill advance alert (notification spec category 7). Each rule
+     * posts to its own stable ID so different bills stack; the per-window
+     * offset means the 7→3→1→due transitions each heads-up fresh, and posting a
+     * closer window cancels the earlier one for that bill (one alert per bill
+     * in the shade, mirroring the budget-tier pattern).
+     */
+    fun showUpcomingBillNotification(context: Context, message: String, ruleId: String, windowDays: Int) {
+        val windowOffset = when (windowDays) {
+            7 -> 0
+            3 -> 1
+            1 -> 2
+            else -> 3 // due date
+        }
+        val notificationId = recurringBillIdFor(ruleId, windowOffset)
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, notificationId, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_RECURRING)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_upcoming_bill))
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                // A closer window replaces the earlier one for the same bill.
+                for (offset in 0 until windowOffset) {
+                    cancel(recurringBillIdFor(ruleId, offset))
+                }
+                notify(notificationId, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    private fun recurringBillIdFor(ruleId: String, windowOffset: Int): Int =
+        RECURRING_BILL_NOTIFICATION_ID_BASE + (ruleId.hashCode() and 0x00FFFFFF) + windowOffset
 
     private const val DESTINATION_HOME = "home"
 

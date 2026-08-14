@@ -1485,7 +1485,9 @@
 
     <!-- Recurring Notifications -->
     <string name="notification_title_upcoming_bill">Upcoming Transaction</string>
-    <string name="notification_format_upcoming_bill">%1$s for \"%2$s\" will be deducted in 48 hours.</string>
+    <string name="notification_format_upcoming_bill_days">%1$s for \"%2$s\" will be deducted in %3$d days.</string>
+    <string name="notification_format_upcoming_bill_tomorrow">%1$s for \"%2$s\" will be deducted tomorrow.</string>
+    <string name="notification_format_upcoming_bill_due_today">%1$s for \"%2$s\" is due today.</string>
     <!-- ProPass / Redemption -->
     <string name="title_redeem_pro_pass">Pro Access Code</string>
     <string name="label_redeem_pro_pass_subtitle">Enter code to unlock Pro features</string>
