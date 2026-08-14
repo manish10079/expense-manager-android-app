@@ -20,7 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Security
@@ -173,7 +173,7 @@ fun SettingsItemCard(
                     if (onInfoClick != null) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
-                            imageVector = Icons.Rounded.Info,
+                            imageVector = Icons.Outlined.Info,
                             contentDescription = stringResource(R.string.desc_info),
                             tint = onSurfaceVariant.copy(alpha = 0.7f),
                             modifier = Modifier
