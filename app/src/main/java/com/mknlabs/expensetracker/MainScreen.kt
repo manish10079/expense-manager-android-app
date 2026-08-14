@@ -217,7 +217,13 @@ fun MainScreen(
     val isBudgetLimitAlertsEnabled = appSettings.budgetLimitAlertsEnabled
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
     val isGoalRemindersEnabled = appSettings.goalRemindersEnabled
+    val isLargeTransactionAlertsEnabled = appSettings.largeTransactionAlertsEnabled
     val isWeeklySummaryEnabled = appSettings.weeklySummaryEnabled
+    val isBillRemindersEnabled = appSettings.billRemindersEnabled
+    val isFinancialInsightsEnabled = appSettings.financialInsightsEnabled
+    val isCloudSecurityEnabled = appSettings.cloudSecurityEnabled
+    val largeTransactionThresholdMinor = appSettings.largeTransactionThresholdMinor
+    val weeklySummaryTimeMillis = appSettings.weeklySummaryTimeMillis
     val reminderMorningStartHour = appSettings.reminderMorningStartHour
     val reminderMorningEndHour = appSettings.reminderMorningEndHour
     val reminderEveningStartHour = appSettings.reminderEveningStartHour
@@ -726,6 +732,13 @@ fun MainScreen(
                         isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
                         isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
                         isGoalRemindersEnabled = isGoalRemindersEnabled,
+                        isLargeTransactionAlertsEnabled = isLargeTransactionAlertsEnabled,
+                        isWeeklySummaryEnabled = isWeeklySummaryEnabled,
+                        isBillRemindersEnabled = isBillRemindersEnabled,
+                        isFinancialInsightsEnabled = isFinancialInsightsEnabled,
+                        isCloudSecurityEnabled = isCloudSecurityEnabled,
+                        largeTransactionThresholdMinor = largeTransactionThresholdMinor,
+                        weeklySummaryTimeMillis = weeklySummaryTimeMillis,
                         reminderMorningStartHour = reminderMorningStartHour,
                         reminderMorningEndHour = reminderMorningEndHour,
                         reminderEveningStartHour = reminderEveningStartHour,
@@ -785,17 +798,12 @@ fun MainScreen(
                                 SyncWorker.startImmediate(context)
                             }
                         },
+                        // Legacy individual toggles — still used by quick toggles
+                        // on the Settings list screen.
                         onDailyReminderChange = { isEnabled ->
                             coroutineScope.launch {
                                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                                     settings.copy(notificationsEnabled = isEnabled)
-                                }
-                            }
-                        },
-                        onBudgetLimitAlertsChange = { isEnabled ->
-                            coroutineScope.launch {
-                                AppSettingsDataStore.updateAppSettings(context) { settings ->
-                                    settings.copy(budgetLimitAlertsEnabled = isEnabled)
                                 }
                             }
                         },
@@ -806,11 +814,81 @@ fun MainScreen(
                                 }
                             }
                         },
+                        // Merged Expense Reminders parent toggle: drives both the
+                        // daily reminder and the missed-entry reminder.
+                        onExpenseRemindersChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(
+                                        notificationsEnabled = isEnabled,
+                                        missedEntryReminderEnabled = isEnabled
+                                    )
+                                }
+                            }
+                        },
+                        onBudgetLimitAlertsChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(budgetLimitAlertsEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onLargeTransactionAlertsChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(largeTransactionAlertsEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onWeeklySummaryChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(weeklySummaryEnabled = isEnabled)
+                                }
+                            }
+                        },
                         onGoalRemindersChange = { isEnabled ->
                             coroutineScope.launch {
                                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                                     settings.copy(goalRemindersEnabled = isEnabled)
                                 }
+                            }
+                        },
+                        onBillRemindersChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(billRemindersEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onFinancialInsightsChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(financialInsightsEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onCloudSecurityChange = { isEnabled ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(cloudSecurityEnabled = isEnabled)
+                                }
+                            }
+                        },
+                        onLargeTransactionThresholdChange = { thresholdMinor ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(largeTransactionThresholdMinor = thresholdMinor)
+                                }
+                            }
+                        },
+                        onWeeklySummaryTimeChange = { timeMillis ->
+                            coroutineScope.launch {
+                                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                                    settings.copy(weeklySummaryTimeMillis = timeMillis)
+                                }
+                                // Re-arm the periodic work to the new day/time.
+                                com.mknlabs.expensetracker.notifications.NotificationScheduler.startWeeklySummary(context)
                             }
                         },
                         onReminderWindowChange = { window, startHour, endHour ->
@@ -829,6 +907,7 @@ fun MainScreen(
                                 }
                             }
                         },
+                        onPremiumCardClick = { showPremiumSheet = true },
                         onTestNotification = {
                             com.mknlabs.expensetracker.notifications.NotificationWorker.enqueueTest(context)
                         },

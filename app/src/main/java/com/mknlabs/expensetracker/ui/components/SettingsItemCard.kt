@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Security
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -73,6 +75,8 @@ fun SettingsItemCard(
     isChecked: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     onClick: (() -> Unit)? = null,
+    /** When set, renders an info (ⓘ) icon next to the title that triggers this callback. */
+    onInfoClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -165,6 +169,20 @@ fun SettingsItemCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+
+                    if (onInfoClick != null) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Rounded.Info,
+                            contentDescription = stringResource(R.string.desc_info),
+                            tint = onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { onInfoClick() }
+                                .padding(2.dp)
+                        )
+                    }
 
                     if (isLocked && !isGated) {
                         Spacer(modifier = Modifier.width(6.dp))

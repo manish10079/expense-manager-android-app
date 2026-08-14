@@ -1211,6 +1211,37 @@
     <string name="notification_format_weekly_summary_down">You spent %1$s this week — %2$d%% less than last week.</string>
     <string name="notification_format_weekly_summary_flat">You spent %1$s this week — about the same as last week.</string>
     <string name="notification_format_weekly_summary_top_category">Top category: %1$s.</string>
+    <!-- Notification category cards (spec: 8 parent categories) -->
+    <string name="title_expense_reminders">Expense Reminders</string>
+    <string name="desc_expense_reminders">Daily reminders to log your expenses.</string>
+    <string name="title_large_transaction_alerts">Large Transaction Alerts</string>
+    <string name="desc_large_transaction_alerts">Alert when a single expense crosses your threshold.</string>
+    <string name="title_large_transaction_threshold">Large expense threshold</string>
+    <string name="desc_large_transaction_threshold">Choose when a single expense counts as large.</string>
+    <string name="placeholder_custom_threshold">Enter amount</string>
+    <string name="error_invalid_threshold">Enter a valid amount above zero.</string>
+    <string name="title_weekly_summary">Weekly Summary</string>
+    <string name="desc_weekly_summary">Sunday recap of your weekly spending.</string>
+    <string name="title_weekly_summary_time">Summary time</string>
+    <string name="desc_weekly_summary_time">Delivered every Sunday at this time.</string>
+    <string name="notification_weekly_time_format">Every Sunday at %1$s</string>
+    <string name="title_financial_insights">Financial Insights</string>
+    <string name="desc_financial_insights">Smart spending trends and forecasts.</string>
+    <string name="title_recurring_alerts">Recurring Alerts</string>
+    <string name="desc_recurring_alerts">Reminders for your recurring bills and payments.</string>
+    <string name="title_cloud_security_alerts">Cloud &amp; Security Alerts</string>
+    <string name="desc_cloud_security_alerts">Alerts about sync, backups and account security.</string>
+    <string name="desc_info">Info</string>
+
+    <!-- Category info sheets (spec: one ⓘ per category) -->
+    <string name="info_expense_reminders">Includes a daily reminder to log your expenses and a nudge when you have not logged anything that day. You can pick the reminder windows below.</string>
+    <string name="info_budget_alerts">Warns you when a category is approaching its budget: at 75%, 90%, 100% and when exceeded.</string>
+    <string name="info_large_transaction">Notifies you the moment you log a single expense larger than your chosen threshold.</string>
+    <string name="info_weekly_summary">A Sunday recap of the last 7 days of spending compared with the week before.</string>
+    <string name="info_financial_insights">Upcoming smart insights: spending trends, spending spikes, forecasts and personalized suggestions.</string>
+    <string name="info_savings_goals" formatted="false">Progress alerts at 25%, 50% and 75% of a savings goal, a celebration when you achieve it, and a warning when you are behind schedule.</string>
+    <string name="info_recurring_alerts">Reminds you about your recurring bills and payments 7 days, 3 days and 1 day before they are due, and on the due date. Each recurring rule can be muted individually.</string>
+    <string name="info_cloud_security">Alerts when cloud sync or backups fail, and when your account is accessed from a new device or changed.</string>
     <string name="notification_title_sms_import">💳 Transaction Detected</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
