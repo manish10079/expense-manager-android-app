@@ -5,6 +5,8 @@ import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
 import com.mknlabs.expensetracker.data.local.room.query.HomeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.TopCategoryRow
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
@@ -111,6 +113,8 @@ class SmsRepositoryTest {
         override suspend fun countAll(): Int = error("unexpected")
         override suspend fun getMonthlyCategorySpending(categoryId: Int, monthStr: String): Long = error("unexpected")
         override suspend fun getTodayTransactionCount(dayStr: String): Int = error("unexpected")
+        override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): RangeSummaryRow = error("unexpected")
+        override suspend fun getTopExpenseCategory(startMillis: Long, endMillis: Long): TopCategoryRow? = error("unexpected")
         override suspend fun upsert(transaction: TransactionEntity) = error("unexpected")
         override suspend fun upsertAll(transactions: List<TransactionEntity>) = error("unexpected")
         override suspend fun softDelete(id: String, syncState: String, updatedAt: Long) = error("unexpected")

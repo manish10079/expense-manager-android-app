@@ -6,6 +6,8 @@ import androidx.room.Upsert
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
 import com.mknlabs.expensetracker.data.local.room.query.HomeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.TopCategoryRow
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -168,6 +170,36 @@ interface TransactionDao {
         """
     )
     suspend fun getTodayTransactionCount(dayStr: String): Int
+
+    /** Income + expense totals for a timestamp range (weekly summary). */
+    @Query(
+        """
+        SELECT
+            COALESCE(SUM(CASE WHEN transaction_type_id = 1 THEN amount_minor ELSE 0 END), 0) AS income_minor,
+            COALESCE(SUM(CASE WHEN transaction_type_id != 1 THEN amount_minor ELSE 0 END), 0) AS expense_minor
+        FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :startMillis
+          AND occurred_at < :endMillis
+        """
+    )
+    suspend fun getRangeSummary(startMillis: Long, endMillis: Long): RangeSummaryRow
+
+    /** Highest-spending expense category in a timestamp range (weekly summary). */
+    @Query(
+        """
+        SELECT category_id, SUM(amount_minor) AS total_minor
+        FROM transactions
+        WHERE is_deleted = 0
+          AND transaction_type_id != 1
+          AND occurred_at >= :startMillis
+          AND occurred_at < :endMillis
+        GROUP BY category_id
+        ORDER BY total_minor DESC
+        LIMIT 1
+        """
+    )
+    suspend fun getTopExpenseCategory(startMillis: Long, endMillis: Long): TopCategoryRow?
 
     @Upsert
     suspend fun upsert(transaction: TransactionEntity)

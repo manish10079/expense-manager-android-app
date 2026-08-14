@@ -217,6 +217,7 @@ fun MainScreen(
     val isBudgetLimitAlertsEnabled = appSettings.budgetLimitAlertsEnabled
     val isMissedEntryReminderEnabled = appSettings.missedEntryReminderEnabled
     val isGoalRemindersEnabled = appSettings.goalRemindersEnabled
+    val isWeeklySummaryEnabled = appSettings.weeklySummaryEnabled
     val reminderMorningStartHour = appSettings.reminderMorningStartHour
     val reminderMorningEndHour = appSettings.reminderMorningEndHour
     val reminderEveningStartHour = appSettings.reminderEveningStartHour
@@ -502,6 +503,12 @@ fun MainScreen(
                         navigationState.navigateTo(AppRoute.Budget)
                         navigationState.updateBottomBarVisibility(false)
                     }
+
+                    NotificationHelper.DESTINATION_ANALYTICS -> {
+                        // Weekly summary: land on the Analytics screen.
+                        navigationState.navigateTo(AppRoute.Analytics)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
                 }
             }
 
@@ -528,6 +535,15 @@ fun MainScreen(
                     NotificationScheduler.startGoalReminders(context)
                 } else {
                     NotificationScheduler.stopGoalReminders(context)
+                }
+            }
+
+            LaunchedEffect(isWeeklySummaryEnabled) {
+                // Sunday weekly summary — own toggle (spec category 4, Free tier).
+                if (isWeeklySummaryEnabled) {
+                    NotificationScheduler.startWeeklySummary(context)
+                } else {
+                    NotificationScheduler.stopWeeklySummary(context)
                 }
             }
 

@@ -25,18 +25,25 @@ object NotificationHelper {
     const val CHANNEL_RECURRING = "recurring_transactions"
     const val CHANNEL_SMS_IMPORT = "sms_import"
     const val CHANNEL_GOAL_REMINDERS = "goal_reminders"
+    const val CHANNEL_WEEKLY_REPORTS = "weekly_reports"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
     const val DESTINATION_SMS_CHANGE = "sms_change"
     const val DESTINATION_GOALS = "goals"
     const val DESTINATION_BUDGET = "budget"
+    const val DESTINATION_ANALYTICS = "analytics"
 
     /** Notification IDs 1-4 are in use; Smart SMS Import takes 5 (plan §8); goals take 6; recurring take 7; budget group summary takes 8. */
     const val NOTIFICATION_ID_SMS_IMPORT = 5
     const val NOTIFICATION_ID_GOAL_REMINDER = 6
     const val NOTIFICATION_ID_RECURRING_UPDATED = 7
     const val NOTIFICATION_ID_BUDGET_SUMMARY = 8
+    const val NOTIFICATION_ID_LARGE_TRANSACTION = 9
+    const val NOTIFICATION_ID_WEEKLY_SUMMARY = 10
+
+    /** Offset above every fixed ID for per-goal milestone alerts (goal id hash + base). */
+    private const val GOAL_MILESTONE_ID_BASE = 2000
 
     /**
      * Every budget alert groups under one collapsible shade entry. Children get
@@ -117,11 +124,22 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_goal_reminders_desc)
             }
 
+            // Default importance: weekly reports are informative, not urgent
+            // (notification spec: Default for Weekly Reports).
+            val weeklyChannel = NotificationChannel(
+                CHANNEL_WEEKLY_REPORTS,
+                context.getString(R.string.notification_channel_weekly_reports),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.notification_channel_weekly_reports_desc)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
             notificationManager.createNotificationChannel(recurringChannel)
             notificationManager.createNotificationChannel(smsImportChannel)
             notificationManager.createNotificationChannel(goalChannel)
+            notificationManager.createNotificationChannel(weeklyChannel)
         }
     }
 
@@ -162,7 +180,8 @@ object NotificationHelper {
             CHANNEL_BUDGET_ALERTS,
             CHANNEL_RECURRING,
             CHANNEL_SMS_IMPORT,
-            CHANNEL_GOAL_REMINDERS
+            CHANNEL_GOAL_REMINDERS,
+            CHANNEL_WEEKLY_REPORTS
         ).forEach { notificationManager.deleteNotificationChannel(it) }
         createNotificationChannels(context)
 
@@ -430,7 +449,7 @@ object NotificationHelper {
             // when the app is alive in the background, instead of CLEAR_TASK which
             // force-restarts the activity and replays the splash screen.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(EXTRA_NAV_DESTINATION, "home")
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -453,6 +472,114 @@ object NotificationHelper {
             } catch (e: SecurityException) { }
         }
     }
+
+    /**
+     * Large-expense heads-up (notification spec category 3). Fires at save-time
+     * when a single expense crosses the user's configured threshold. Posts to
+     * the budget channel (financial alert); a fixed ID means consecutive large
+     * transactions replace each other rather than stacking.
+     */
+    fun showLargeTransactionNotification(context: Context, categoryName: String, amountText: String, thresholdText: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_LARGE_TRANSACTION, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val message = context.getString(
+            R.string.notification_format_large_transaction,
+            amountText,
+            categoryName,
+            thresholdText
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_BUDGET_ALERTS)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_large_transaction))
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(NOTIFICATION_ID_LARGE_TRANSACTION, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    /**
+     * Weekly spending summary (notification spec category 4). Posts to the
+     * dedicated Weekly Reports channel; tapping opens the Analytics screen.
+     */
+    fun showWeeklySummaryNotification(context: Context, message: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ANALYTICS)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_WEEKLY_SUMMARY, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_WEEKLY_REPORTS)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_weekly_summary))
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(NOTIFICATION_ID_WEEKLY_SUMMARY, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    /**
+     * Savings-goal milestone / achieved / behind-schedule alert (notification
+     * spec category 6). Each goal posts to its own stable ID so alerts from
+     * different goals stack; tapping opens the Goals screen.
+     */
+    fun showGoalMilestoneNotification(context: Context, title: String, message: String, goalId: String) {
+        val notificationId = GOAL_MILESTONE_ID_BASE + (goalId.hashCode() and 0x00FFFFFF)
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_GOALS)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, notificationId, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_GOAL_REMINDERS)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(notificationId, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    private const val DESTINATION_HOME = "home"
 
     private const val CHANNEL_PREFS_NAME = "notification_channel_settings"
     private const val KEY_LAST_CHANNEL_RESET_VERSION = "last_channel_reset_version_code"

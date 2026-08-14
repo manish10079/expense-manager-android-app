@@ -1202,6 +1202,15 @@
     <string name="btn_open_notification_settings">Open settings</string>
     <string name="notification_channel_sms_import">Smart SMS Import</string>
     <string name="notification_channel_sms_import_desc">Detected bank transaction SMS ready to save.</string>
+    <string name="notification_channel_weekly_reports">Weekly Reports</string>
+    <string name="notification_channel_weekly_reports_desc">Sunday summaries of your weekly spending.</string>
+    <string name="notification_title_large_transaction">Large transaction detected</string>
+    <string name="notification_format_large_transaction">You logged a %1$s expense in %2$s — above your %3$s large-expense threshold.</string>
+    <string name="notification_title_weekly_summary">Weekly spending summary</string>
+    <string name="notification_format_weekly_summary_up">You spent %1$s this week — %2$d%% more than last week.</string>
+    <string name="notification_format_weekly_summary_down">You spent %1$s this week — %2$d%% less than last week.</string>
+    <string name="notification_format_weekly_summary_flat">You spent %1$s this week — about the same as last week.</string>
+    <string name="notification_format_weekly_summary_top_category">Top category: %1$s.</string>
     <string name="notification_title_sms_import">💳 Transaction Detected</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
@@ -1466,6 +1475,12 @@
     <string name="msg_goal_reminder_due_soon_1">Only 1 day left for \"%1$s\" — you\'re %2$d%% there!</string>
     <string name="msg_goal_reminder_due_today">Due today — \"%1$s\"! You\'re %2$d%% there.</string>
     <string name="msg_goal_reminder_progress">You\'re %1$d%% toward \"%2$s\". Keep going!</string>
+    <string name="title_goal_milestone">Goal milestone reached</string>
+    <string name="msg_goal_milestone">You\'re %1$d%% toward \"%2$s\" — keep going!</string>
+    <string name="title_goal_achieved">Goal achieved</string>
+    <string name="msg_goal_achieved">Congratulations! You reached your \"%1$s\" goal.</string>
+    <string name="title_goal_behind_schedule">Goal behind schedule</string>
+    <string name="msg_goal_behind_schedule">You may miss \"%1$s\" — %2$d days left at this pace.</string>
     <string name="label_test_goal">Test Goal </string>
 
     <!-- Recurring Notifications -->

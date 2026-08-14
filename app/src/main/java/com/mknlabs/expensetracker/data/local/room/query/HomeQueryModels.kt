@@ -16,6 +16,20 @@ data class HomeSummaryRow(
     val previousMonthExpenseMinor: Long
 )
 
+data class RangeSummaryRow(
+    @ColumnInfo(name = "income_minor")
+    val incomeMinor: Long,
+    @ColumnInfo(name = "expense_minor")
+    val expenseMinor: Long
+)
+
+data class TopCategoryRow(
+    @ColumnInfo(name = "category_id")
+    val categoryId: Int,
+    @ColumnInfo(name = "total_minor")
+    val totalMinor: Long
+)
+
 data class HomeRecentTransactionRow(
     val id: String,
     val note: String,
