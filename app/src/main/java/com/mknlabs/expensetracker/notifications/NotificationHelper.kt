@@ -198,6 +198,7 @@ object NotificationHelper {
             // force-restarts the activity and replays the splash screen.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ADD_TRANSACTION)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_DAILY_REMINDER)
         }
         
         val pendingIntent = PendingIntent.getActivity(
@@ -219,14 +220,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, 1, NotificationAnalytics.TYPE_DAILY_REMINDER))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(1, builder.build())
-            } catch (e: SecurityException) {
-                // Handle missing permission
-            }
-        }
+        postNotification(context, 1, builder, NotificationAnalytics.TYPE_DAILY_REMINDER)
     }
 
     /**
@@ -246,9 +242,9 @@ object NotificationHelper {
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
-            // force-restarts the activity and replays the splash screen.
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            // force-restarts the activity and replays the splash screen.            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_BUDGET)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_BUDGET_ALERT)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -275,14 +271,17 @@ object NotificationHelper {
             .setGroup(GROUP_KEY_BUDGET_ALERTS)
             .setGroupSummary(false)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
+            .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_BUDGET_ALERT))
 
         with(NotificationManagerCompat.from(context)) {
             try {
                 // Replacing a lower tier (e.g. the 75% warning when 90% is
                 // crossed) removes the stale one so the shade never holds two
                 // budget alerts for the same category.
+
                 cancelLowerBudgetTiers(this, categoryId, tier)
                 notify(notificationId, builder.build())
+                NotificationAnalytics.logShown(context, NotificationAnalytics.TYPE_BUDGET_ALERT, notificationId)
                 // Keep the group summary's category list in sync with the newly
                 // posted/updated child.
                 refreshBudgetGroupSummary(context)
@@ -370,6 +369,7 @@ object NotificationHelper {
 
         runCatching {
             nm.notify(NOTIFICATION_ID_BUDGET_SUMMARY, summary)
+            NotificationAnalytics.logShown(context, NotificationAnalytics.TYPE_BUDGET_SUMMARY, NOTIFICATION_ID_BUDGET_SUMMARY)
         }
     }
 
@@ -391,6 +391,7 @@ object NotificationHelper {
             // force-restarts the activity and replays the splash screen.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ADD_TRANSACTION)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_MISSED_ENTRY)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -406,12 +407,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, 3, NotificationAnalytics.TYPE_MISSED_ENTRY))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(3, builder.build())
-            } catch (e: SecurityException) { }
-        }
+        postNotification(context, 3, builder, NotificationAnalytics.TYPE_MISSED_ENTRY)
     }
 
     fun showGoalReminderNotification(context: Context, message: String) {
@@ -421,6 +419,7 @@ object NotificationHelper {
             // force-restarts the activity and replays the splash screen.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_GOALS)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_GOAL_REMINDER)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -436,14 +435,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_GOAL_REMINDER, NotificationAnalytics.TYPE_GOAL_REMINDER))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(NOTIFICATION_ID_GOAL_REMINDER, builder.build())
-            } catch (e: SecurityException) {
-                // Handle missing permission
-            }
-        }
+        postNotification(context, NOTIFICATION_ID_GOAL_REMINDER, builder, NotificationAnalytics.TYPE_GOAL_REMINDER)
     }
 
     fun showGenericNotification(context: Context, title: String, message: String, notificationId: Int = 4) {
@@ -453,6 +447,7 @@ object NotificationHelper {
             // force-restarts the activity and replays the splash screen.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_GENERIC)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -468,12 +463,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_GENERIC))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(notificationId, builder.build())
-            } catch (e: SecurityException) { }
-        }
+        postNotification(context, notificationId, builder, NotificationAnalytics.TYPE_GENERIC)
     }
 
     /**
@@ -486,6 +478,7 @@ object NotificationHelper {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_LARGE_TRANSACTION)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -508,12 +501,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_LARGE_TRANSACTION, NotificationAnalytics.TYPE_LARGE_TRANSACTION))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(NOTIFICATION_ID_LARGE_TRANSACTION, builder.build())
-            } catch (e: SecurityException) { }
-        }
+        postNotification(context, NOTIFICATION_ID_LARGE_TRANSACTION, builder, NotificationAnalytics.TYPE_LARGE_TRANSACTION)
     }
 
     /**
@@ -524,6 +514,7 @@ object NotificationHelper {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ANALYTICS)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_WEEKLY_SUMMARY)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -539,12 +530,9 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_WEEKLY_SUMMARY, NotificationAnalytics.TYPE_WEEKLY_SUMMARY))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(NOTIFICATION_ID_WEEKLY_SUMMARY, builder.build())
-            } catch (e: SecurityException) { }
-        }
+        postNotification(context, NOTIFICATION_ID_WEEKLY_SUMMARY, builder, NotificationAnalytics.TYPE_WEEKLY_SUMMARY)
     }
 
     /**
@@ -558,6 +546,7 @@ object NotificationHelper {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_GOALS)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_GOAL_MILESTONE)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -574,12 +563,9 @@ object NotificationHelper {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
+            .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_GOAL_MILESTONE))
 
-        with(NotificationManagerCompat.from(context)) {
-            try {
-                notify(notificationId, builder.build())
-            } catch (e: SecurityException) { }
-        }
+        postNotification(context, notificationId, builder, NotificationAnalytics.TYPE_GOAL_MILESTONE)
     }
 
     /**
@@ -601,6 +587,7 @@ object NotificationHelper {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_RECURRING_BILL)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -616,6 +603,7 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_RECURRING_BILL))
 
         with(NotificationManagerCompat.from(context)) {
             try {
@@ -624,12 +612,49 @@ object NotificationHelper {
                     cancel(recurringBillIdFor(ruleId, offset))
                 }
                 notify(notificationId, builder.build())
+                NotificationAnalytics.logShown(context, NotificationAnalytics.TYPE_RECURRING_BILL, notificationId)
             } catch (e: SecurityException) { }
         }
     }
 
     private fun recurringBillIdFor(ruleId: String, windowOffset: Int): Int =
         RECURRING_BILL_NOTIFICATION_ID_BASE + (ruleId.hashCode() and 0x00FFFFFF) + windowOffset
+
+    /**
+     * Posts [builder] and logs an analytics "shown" event, keeping the
+     * permission-safe pattern used by every show* method in one place.
+     */
+    private fun postNotification(
+        context: Context,
+        notificationId: Int,
+        builder: NotificationCompat.Builder,
+        analyticsType: String
+    ) {
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(notificationId, builder.build())
+                NotificationAnalytics.logShown(context, analyticsType, notificationId)
+            } catch (e: SecurityException) {
+                // Handle missing permission
+            }
+        }
+    }
+
+    /**
+     * Delete intent for the dismiss receiver — lets analytics know when the
+     * user swiped the alert away. Only fires on genuine user dismissal.
+     */
+    private fun dismissPendingIntent(context: Context, notificationId: Int, analyticsType: String): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            notificationId,
+            Intent(context, NotificationDismissReceiver::class.java).apply {
+                action = NotificationDismissReceiver.ACTION_NOTIFICATION_DISMISSED
+                putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, analyticsType)
+                putExtra(NotificationAnalytics.PARAM_ID, notificationId)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
     private const val DESTINATION_HOME = "home"
 

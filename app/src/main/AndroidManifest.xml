@@ -76,6 +76,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- Notification analytics: fires when the user dismisses a local notification -->
+        <receiver
+            android:name=".notifications.NotificationDismissReceiver"
+            android:exported="false" />
+
         <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

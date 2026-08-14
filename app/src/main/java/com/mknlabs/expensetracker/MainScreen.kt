@@ -479,6 +479,15 @@ fun MainScreen(
             // Change sheet and tapping Change again — re-triggers this block even
             // when the ParsedSms extras are value-equal to the previous one.
             LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialParsedSms) {
+                // Notification analytics: the type extra is present only when
+                // the app was opened by tapping a local notification, so this
+                // fires once per tap (cold start or onNewIntent).
+                val openedNotificationType = notificationIntent?.getStringExtra(
+                    com.mknlabs.expensetracker.notifications.NotificationAnalytics.EXTRA_NOTIFICATION_TYPE
+                )
+                if (openedNotificationType != null) {
+                    com.mknlabs.expensetracker.notifications.NotificationAnalytics.logOpened(rawContext, openedNotificationType)
+                }
                 when (initialNavDestination) {
                     NotificationHelper.DESTINATION_ADD_TRANSACTION -> {
                         // Smart SMS Import "Open" action: prefill the Add Transaction draft
