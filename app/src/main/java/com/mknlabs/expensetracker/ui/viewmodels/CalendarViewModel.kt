@@ -489,7 +489,6 @@ private fun formatConfiguredCurrency(
 
 
 fun calendarMonthTitle(monthStart: Long): String {
-    return SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        .format(Date(monthStart))
-        .uppercase(Locale.getDefault())
+    val formatted = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(Date(monthStart))
+    return formatted.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }

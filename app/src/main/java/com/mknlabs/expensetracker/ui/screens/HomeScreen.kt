@@ -323,17 +323,27 @@ private fun HomeScreenContent(
                 Column(modifier = Modifier.weight(1f)) {
                     val greetingName = uiState.greetingName
 
-                    // Entrance animation (hand wave + settings-icon spin): plays when the home
-                    // screen is actually VISIBLE — i.e. the activity is resumed AND no app-lock
-                    // overlay is covering it. ON_RESUME alone fires while the lock overlay is
-                    // still up, so the wave used to finish behind the lock before the user saw it.
-                    var entrancePending by remember { mutableStateOf(false) }
+                    // Entrance animation (hand wave + settings-icon spin): plays whenever the
+                    // home screen is actually VISIBLE — i.e. the activity is resumed AND no
+                    // app-lock overlay is covering it. ON_RESUME alone fires while the lock
+                    // overlay is still up, so the wave used to finish behind the lock before the
+                    // user saw it.
+                    //
+                    // lifecycleResumed is written ONLY by the lifecycle observer below; the
+                    // LaunchedEffect only reads its keys. (The earlier version flipped a pending
+                    // flag inside the effect's own body, which cancelled/restarted the effect
+                    // mid-animation and made the wave + spin fail on background -> foreground.)
                     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                    var lifecycleResumed by remember {
+                        mutableStateOf(
+                            lifecycleOwner.lifecycle.currentState.isAtLeast(
+                                androidx.lifecycle.Lifecycle.State.RESUMED
+                            )
+                        )
+                    }
                     DisposableEffect(lifecycleOwner) {
                         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                                entrancePending = true
-                            }
+                            lifecycleResumed = event == androidx.lifecycle.Lifecycle.Event.ON_RESUME
                         }
                         lifecycleOwner.lifecycle.addObserver(observer)
                         onDispose {
@@ -341,9 +351,8 @@ private fun HomeScreenContent(
                         }
                     }
 
-                    LaunchedEffect(entrancePending, isLockOverlayActive) {
-                        if (entrancePending && !isLockOverlayActive) {
-                            entrancePending = false
+                    LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
+                        if (lifecycleResumed && !isLockOverlayActive) {
                             // Hand wave — ~2.5s total.
                             waveRotation.snapTo(0f)
                             waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
