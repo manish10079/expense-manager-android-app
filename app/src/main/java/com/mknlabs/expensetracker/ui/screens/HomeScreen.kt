@@ -6,10 +6,14 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -309,15 +313,52 @@ private fun HomeScreenContent(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     val greetingName = uiState.greetingName
-                    Text(
-                        text = stringResource(id = R.string.label_hi_val, greetingName),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Normal
+
+                    // Hand waving animation trigger on initial load + app returning from background (ON_RESUME)
+                    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                    val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+
+                    DisposableEffect(lifecycleOwner) {
+                        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                                scope.launch {
+                                    waveRotation.snapTo(0f)
+                                    waveRotation.animateTo(20f, tween(150, easing = LinearOutSlowInEasing))
+                                    waveRotation.animateTo(-15f, tween(150, easing = FastOutSlowInEasing))
+                                    waveRotation.animateTo(15f, tween(120, easing = FastOutSlowInEasing))
+                                    waveRotation.animateTo(-10f, tween(100, easing = FastOutSlowInEasing))
+                                    waveRotation.animateTo(0f, tween(120, easing = FastOutLinearInEasing))
+                                }
+                            }
+                        }
+                        lifecycleOwner.lifecycle.addObserver(observer)
+                        onDispose {
+                            lifecycleOwner.lifecycle.removeObserver(observer)
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.label_hi_val, greetingName),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.Normal
+                            )
                         )
-                    )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "👋",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.graphicsLayer {
+                                rotationZ = waveRotation.value
+                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.7f, 0.9f)
+                            }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -697,16 +738,21 @@ fun AccountSetupCard(
 
 @Composable
 fun SettingsButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
-        colors = IconButtonDefaults.iconButtonColors(
-            containerColor = Color.White,
-            contentColor = MaterialTheme.colorScheme.primary
-        )
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = Icons.Outlined.Settings,
             contentDescription = stringResource(id = R.string.desc_settings),
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(28.dp)
         )
     }

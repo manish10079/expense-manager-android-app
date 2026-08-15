@@ -9,10 +9,20 @@ package com.mknlabs.expensetracker.sms
 object SmsDetector {
 
     /**
-     * Returns `true` when the [body] looks like a real financial transaction SMS.
+     * Returns `true` when the [body] and [sender] look like a real financial transaction SMS.
      */
-    fun isFinancialTransaction(body: String): Boolean {
+    fun isFinancialTransaction(body: String, sender: String = ""): Boolean {
         if (body.isBlank()) return false
+
+        // TRAI Guidelines: Reject sender headers ending with -P (Promotional)
+        // e.g. AD-DMIFNC-P, VK-CREDIT-P
+        if (sender.isNotBlank()) {
+            val trimmedSender = sender.trim()
+            if (trimmedSender.endsWith("-P", ignoreCase = true) || 
+                SmsRegex.PROMOTIONAL_SENDER_HEADER.matches(trimmedSender)) {
+                return false
+            }
+        }
 
         // Defense-in-depth: rejection patterns win even if an amount + verb appear.
         if (SmsRegex.REJECTION_PATTERNS.any { it.containsMatchIn(body) }) return false

@@ -30,7 +30,7 @@ object SmsParser {
         smsTimestamp: Long,
         userOverrides: Map<String, Int> = emptyMap()
     ): ParsedSms? {
-        if (!SmsDetector.isFinancialTransaction(body)) return null
+        if (!SmsDetector.isFinancialTransaction(body, sender)) return null
 
         val amountMinor = extractAmountMinor(body) ?: return null
 

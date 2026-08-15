@@ -114,4 +114,16 @@ class SmsParserTest {
         val body = "Your debit card transaction was successful."
         assertNull(SmsParser.parse(body, sender = "HDFCBK", smsTimestamp = 0L))
     }
+
+    @Test
+    fun returns_null_for_trai_promotional_header_suffix() {
+        val body = "Dear Customer, pre-approved personal loan of Rs 5,00,000 is ready for instant disbursal. Apply now!"
+        assertNull(SmsParser.parse(body, sender = "AD-DMIFNC-P", smsTimestamp = 0L))
+    }
+
+    @Test
+    fun returns_null_for_loan_marketing_keywords() {
+        val body = "Rs 2,50,000 personal loan approved. Click here to avail loan now."
+        assertNull(SmsParser.parse(body, sender = "AD-BAJAJ", smsTimestamp = 0L))
+    }
 }

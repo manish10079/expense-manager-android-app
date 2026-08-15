@@ -39,9 +39,24 @@ object SmsRegex {
     )
 
     /**
+     * TRAI (Telecom Regulatory Authority of India) commercial sender header suffix check:
+     * Headers end with a 1-letter suffix after a hyphen denoting message category:
+     * - P = Promotional (marketing, sales, loan offers, discounts)
+     * - T = Transactional (OTPs, bank debit/credit alerts)
+     * - S = Service (account updates, delivery notices)
+     * - G = Government
+     *
+     * Example: `AD-DMIFNC-P` -> ends with `-P`, meaning promotional.
+     */
+    val PROMOTIONAL_SENDER_HEADER: Regex = Regex(
+        pattern = """^[A-Z]{2}-[A-Z0-9]+-P$""",
+        option = RegexOption.IGNORE_CASE
+    )
+
+    /**
      * Patterns that mark a message as NOT a financial transaction:
      * OTP / verification / login alerts, promotional & marketing content,
-     * spam, and recharge offers. Any match rejects the message.
+     * loan/credit card offers, spam, and recharge offers. Any match rejects the message.
      */
     val REJECTION_PATTERNS: List<Regex> = listOf(
         Regex("""\botp\b""", RegexOption.IGNORE_CASE),
@@ -60,6 +75,22 @@ object SmsRegex {
         Regex("""\bunsubscribe\b""", RegexOption.IGNORE_CASE),
         Regex("""recharge offer""", RegexOption.IGNORE_CASE),
         Regex("""cashback offer""", RegexOption.IGNORE_CASE),
-        Regex("""top[- ]?up offer""", RegexOption.IGNORE_CASE)
+        Regex("""top[- ]?up offer""", RegexOption.IGNORE_CASE),
+        Regex("""\bloan(?:s)?\b""", RegexOption.IGNORE_CASE),
+        Regex("""pre[- ]?approved""", RegexOption.IGNORE_CASE),
+        Regex("""avail\s+(?:a\s+)?loan""", RegexOption.IGNORE_CASE),
+        Regex("""apply\s+(?:now|today|online)""", RegexOption.IGNORE_CASE),
+        Regex("""loan\s+(?:approved|disbursed|offer|limit|amount|sanctioned)""", RegexOption.IGNORE_CASE),
+        Regex("""instant\s+(?:loan|credit|cash)""", RegexOption.IGNORE_CASE),
+        Regex("""personal\s+loan""", RegexOption.IGNORE_CASE),
+        Regex("""home\s+loan""", RegexOption.IGNORE_CASE),
+        Regex("""car\s+loan""", RegexOption.IGNORE_CASE),
+        Regex("""gold\s+loan""", RegexOption.IGNORE_CASE),
+        Regex("""business\s+loan""", RegexOption.IGNORE_CASE),
+        Regex("""credit\s+limit\s+increase""", RegexOption.IGNORE_CASE),
+        Regex("""zero\s+interest""", RegexOption.IGNORE_CASE),
+        Regex("""low\s+interest\s+rate""", RegexOption.IGNORE_CASE),
+        Regex("""easy\s+emi""", RegexOption.IGNORE_CASE),
+        Regex("""no\s+cost\s+emi""", RegexOption.IGNORE_CASE)
     )
 }
