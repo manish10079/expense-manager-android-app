@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -306,19 +307,42 @@ private fun HomeScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    val greetingName = uiState.greetingName
+                    Text(
+                        text = stringResource(id = R.string.label_hi_val, greetingName),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Normal
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = stringResource(id = R.string.label_track_every_move_with_confiden),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    SettingsButton(onClick = onSettingsClick)
+
                     val isAnonymous = userProfile.authProvider == "anonymous"
                     val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
                         !isAnonymous
 
-                    // ProfileAvatar clips its own avatar content to a circle; an outer
-                    // clip(CircleShape) here would cut off the corner badge, so none is applied.
                     ProfileAvatar(
                         gender = userProfile.gender,
-                        size = 60.dp,
+                        size = 50.dp,
                         photoUri = userProfile.photoUri,
                         userTier = uiState.userTier,
                         isSyncing = uiState.isSyncing,
@@ -328,33 +352,7 @@ private fun HomeScreenContent(
                         badgeIconRes = R.drawable.ic_crown,
                         badgeContentDescription = stringResource(R.string.label_pro)
                     )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(id = R.string.label_hi_val, uiState.greetingName),
-                            color = MaterialTheme.colorScheme.onBackground,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text(
-                            text = stringResource(id = R.string.label_track_every_move_with_confiden),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
                 }
-
-                SettingsButton(onClick = onSettingsClick)
             }
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -699,34 +697,17 @@ fun AccountSetupCard(
 
 @Composable
 fun SettingsButton(onClick: () -> Unit) {
-    var isPressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.88f else 1f,
-        animationSpec = tween(150)
-    )
-    val scope = rememberCoroutineScope()
-
-    Box(
-        modifier = Modifier
-            .size(52.dp)
-            .scale(scale)
-            .clip(CircleShape)
-            .background(brandGradient())
-            .clickable {
-                isPressed = true
-                onClick()
-                scope.launch {
-                    delay(150)
-                    isPressed = false
-                }
-            },
-        contentAlignment = Alignment.Center
+    IconButton(
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = Color.White,
+            contentColor = MaterialTheme.colorScheme.primary
+        )
     ) {
         Icon(
             imageVector = Icons.Outlined.Settings,
             contentDescription = stringResource(id = R.string.desc_settings),
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier.size(28.dp)
         )
     }
 }

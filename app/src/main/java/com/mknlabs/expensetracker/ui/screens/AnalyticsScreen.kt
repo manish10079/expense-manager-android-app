@@ -1550,65 +1550,44 @@ private fun SmartTipCard(
             .clip(RoundedCornerShape(30.dp))
             .background(standardCardGradient())
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(brandGradient()),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.AutoAwesome,
-                    contentDescription = stringResource(id = R.string.desc_ai_tip),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(brandGradient()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AutoAwesome,
+                        contentDescription = stringResource(id = R.string.desc_ai_tip),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
                 Text(
                     text = stringResource(id = R.string.label_smart_ai_tip),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = resolveSmartTip(tip),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 23.sp)
-                )
             }
-            SparkleCluster()
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = resolveSmartTip(tip),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 23.sp),
+                textAlign = TextAlign.Justify
+            )
         }
-    }
-}
-
-@Composable
-private fun SparkleCluster() {
-    val sparkleColor = MaterialTheme.colorScheme.outlineVariant
-
-    Canvas(
-        modifier = Modifier
-            .size(34.dp)
-            .aspectRatio(1f)
-    ) {
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val outerRadius = min(size.width, size.height) / 2.5f
-        val innerRadius = outerRadius / 2.2f
-        val path = Path()
-        for (index in 0 until 8) {
-            val angle = (PI / 4 * index) - PI / 2
-            val radius = if (index % 2 == 0) outerRadius else innerRadius
-            val x = center.x + (cos(angle) * radius).toFloat()
-            val y = center.y + (sin(angle) * radius).toFloat()
-            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-        }
-        path.close()
-        drawPath(path, color = sparkleColor)
     }
 }
 
@@ -2366,7 +2345,7 @@ private fun buildPreviewAnalyticsUiState(): com.mknlabs.expensetracker.ui.viewmo
 //}
 
 // ──────────────────────────────────────────────
-// Smart AI Tip card preview (locked state)
+// Smart AI Tip card preview (unlocked state)
 // ──────────────────────────────────────────────
 
 private fun buildPreviewSmartTip(): SmartTipUi {
@@ -2383,38 +2362,31 @@ private fun buildPreviewSmartTip(): SmartTipUi {
 }
 
 @Composable
-private fun SmartTipCardLockedPreview() {
+private fun SmartTipCardUnlockedPreview() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
     ) {
         SmartTipCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .blur(5.dp),
+            modifier = Modifier.fillMaxWidth(),
             tip = buildPreviewSmartTip()
         )
-        PremiumLockedOverlay(
-            displayText = stringResource(id = R.string.label_unlock_insights),
-            icon = Icons.Filled.AutoAwesome,
-            onClick = {}
-        )
     }
 }
 
-@Preview(showBackground = true,  name = "Smart AI Tip Card - Locked (Dark)")
+@Preview(showBackground = true, name = "Smart AI Tip Card - Unlocked (Dark)")
 @Composable
-private fun SmartTipCardLockedPreviewDark() {
+private fun SmartTipCardUnlockedPreviewDark() {
     ExpenseTrackerTheme(darkTheme = true) {
-        SmartTipCardLockedPreview()
+        SmartTipCardUnlockedPreview()
     }
 }
 
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO, name = "Smart AI Tip Card - Locked (Light)")
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO, name = "Smart AI Tip Card - Unlocked (Light)")
 @Composable
-private fun SmartTipCardLockedPreviewLight() {
+private fun SmartTipCardUnlockedPreviewLight() {
     ExpenseTrackerTheme(darkTheme = false) {
-        SmartTipCardLockedPreview()
+        SmartTipCardUnlockedPreview()
     }
 }
