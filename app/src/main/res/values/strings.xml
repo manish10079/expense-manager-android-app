@@ -1217,6 +1217,15 @@
     <string name="notification_format_weekly_summary_down">You spent %1$s this week — %2$d%% less than last week.</string>
     <string name="notification_format_weekly_summary_flat">You spent %1$s this week — about the same as last week.</string>
     <string name="notification_format_weekly_summary_top_category">Top category: %1$s.</string>
+    <!-- Cloud & Security Local Alerts -->
+    <string name="notification_title_auto_backup_failed">Auto-Backup Failed</string>
+    <string name="notification_desc_auto_backup_failed">Could not create automated local database backup. Tap to check app storage.</string>
+    <string name="notification_title_syncing_in_progress">Syncing Cloud Data…</string>
+    <string name="notification_desc_syncing_in_progress">Updating your transactions and profile across devices.</string>
+    <string name="notification_title_sync_failed">Cloud Sync Failed</string>
+    <string name="notification_desc_sync_failed">Unable to complete cloud data sync. We will retry automatically.</string>
+    <string name="notification_title_sync_pending">Cloud Sync Pending</string>
+    <string name="notification_desc_sync_pending">Your changes are waiting to sync. Connect to network to finish sync.</string>
     <!-- Notification category cards (spec: 8 parent categories) -->
     <string name="title_expense_reminders">Expense Reminders</string>
     <string name="desc_expense_reminders">Daily reminders to log your expenses.</string>

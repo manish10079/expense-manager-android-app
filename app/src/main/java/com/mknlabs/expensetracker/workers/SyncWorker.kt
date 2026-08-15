@@ -73,12 +73,20 @@ class SyncWorker @AssistedInject constructor(
             return Result.success()
         }
 
+        val showNotifications = settings.isCloudSecurityEnabled
+        if (showNotifications) {
+            com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncInProgressNotification(applicationContext)
+        }
+
         // 3. Handshake (Register/Check Device Limit)
         val handshakeResult = syncRepository.registerCurrentDevice()
 
         if (handshakeResult.isFailure) {
             val error = handshakeResult.exceptionOrNull()
             android.util.Log.e("SyncWorker", "Device registration failed", error)
+            if (showNotifications) {
+                com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncFailedNotification(applicationContext)
+            }
             // If the failure is due to device limit, we stop trying
             return if (error?.message?.contains("limit reached") == true) {
                 Result.failure()
@@ -94,12 +102,20 @@ class SyncWorker @AssistedInject constructor(
         val success = syncResult.isSuccess
         if (!success) {
             android.util.Log.e("SyncWorker", "Transaction sync failed", syncResult.exceptionOrNull())
+            if (showNotifications) {
+                val isNetworkError = syncResult.exceptionOrNull() is java.io.IOException ||
+                        syncResult.exceptionOrNull()?.message?.contains("network", ignoreCase = true) == true
+                if (isNetworkError) {
+                    com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncPendingNotification(applicationContext)
+                } else {
+                    com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncFailedNotification(applicationContext)
+                }
+            }
+        } else {
+            com.mknlabs.expensetracker.notifications.NotificationHelper.cancelSyncInProgressNotification(applicationContext)
         }
 
         // Always re-enroll the periodic chain at the end of doWork().
-        // - If this was an immediate one-shot (startImmediate used REPLACE, cancelling the
-        //   periodic), this call re-enrolls it so future 15-min syncs keep firing.
-        // - If this was already the periodic worker, KEEP policy means this is a no-op.
         schedulePeriodic(applicationContext)
 
         return if (success) Result.success() else Result.retry()

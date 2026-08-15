@@ -74,6 +74,10 @@ class AutoBackupWorker(
             Result.success()
         } catch (e: Exception) {
             Log.e("AutoBackupWorker", "Error during backup", e)
+            val settings = try { AppSettingsDataStore.getAppSettingsFlow(context).first() } catch (_: Exception) { null }
+            if (settings?.isCloudSecurityEnabled != false) {
+                com.mknlabs.expensetracker.notifications.NotificationHelper.showAutoBackupFailedNotification(context)
+            }
             Result.retry() // Retry if failed due to transient issues
         }
     }

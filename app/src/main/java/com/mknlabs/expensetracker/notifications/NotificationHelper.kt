@@ -47,6 +47,10 @@ object NotificationHelper {
     const val NOTIFICATION_ID_CLOUD_SECURITY = 11
     const val NOTIFICATION_ID_FINANCIAL_INSIGHT = 12
     const val NOTIFICATION_ID_FCM_GENERIC = 13
+    const val NOTIFICATION_ID_AUTO_BACKUP_FAILED = 14
+    const val NOTIFICATION_ID_SYNC_IN_PROGRESS = 15
+    const val NOTIFICATION_ID_SYNC_FAILED = 16
+    const val NOTIFICATION_ID_SYNC_PENDING = 17
 
     /** Offset above every fixed ID for per-goal milestone alerts (goal id hash + base). */
     private const val GOAL_MILESTONE_ID_BASE = 2000
@@ -707,6 +711,110 @@ object NotificationHelper {
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+    fun showAutoBackupFailedNotification(context: Context) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_AUTO_BACKUP_FAILED, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_auto_backup_failed))
+            .setContentText(context.getString(R.string.notification_desc_auto_backup_failed))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_desc_auto_backup_failed)))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_AUTO_BACKUP_FAILED, NotificationAnalytics.TYPE_CLOUD_SECURITY))
+
+        postNotification(context, NOTIFICATION_ID_AUTO_BACKUP_FAILED, builder, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+    }
+
+    fun showSyncInProgressNotification(context: Context) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_SYNC_IN_PROGRESS, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_syncing_in_progress))
+            .setContentText(context.getString(R.string.notification_desc_syncing_in_progress))
+            .setProgress(0, 0, true)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentIntent(pendingIntent)
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(NOTIFICATION_ID_SYNC_IN_PROGRESS, builder.build())
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    fun cancelSyncInProgressNotification(context: Context) {
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                cancel(NOTIFICATION_ID_SYNC_IN_PROGRESS)
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    fun showSyncFailedNotification(context: Context) {
+        cancelSyncInProgressNotification(context)
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_SYNC_FAILED, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_sync_failed))
+            .setContentText(context.getString(R.string.notification_desc_sync_failed))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_desc_sync_failed)))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_SYNC_FAILED, NotificationAnalytics.TYPE_CLOUD_SECURITY))
+
+        postNotification(context, NOTIFICATION_ID_SYNC_FAILED, builder, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+    }
+
+    fun showSyncPendingNotification(context: Context) {
+        cancelSyncInProgressNotification(context)
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            putExtra(NotificationAnalytics.EXTRA_NOTIFICATION_TYPE, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, NOTIFICATION_ID_SYNC_PENDING, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_sync_pending))
+            .setContentText(context.getString(R.string.notification_desc_sync_pending))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_desc_sync_pending)))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_SYNC_PENDING, NotificationAnalytics.TYPE_CLOUD_SECURITY))
+
+        postNotification(context, NOTIFICATION_ID_SYNC_PENDING, builder, NotificationAnalytics.TYPE_CLOUD_SECURITY)
+    }
 
     /**
      * FCM push handler (Phase A, notification plan §5.4). Server payloads are
