@@ -66,6 +66,7 @@ fun AppNavigationHost(
     selectedDateFormatPattern: String,
     selectedTimeFormat: String,
     isAppLockEnabled: Boolean,
+    isLockOverlayActive: Boolean = false,
     hasAppLockPin: Boolean,
     isBiometricEnabled: Boolean,
     isScrambledPinKeypadEnabled: Boolean,
@@ -178,6 +179,7 @@ fun AppNavigationHost(
                 AppRoute.Home -> {
                     HomeScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isLockOverlayActive = isLockOverlayActive,
                         userProfile = userProfile,
                         appSettings = appSettings,
                         currencyId = selectedCurrencyId,

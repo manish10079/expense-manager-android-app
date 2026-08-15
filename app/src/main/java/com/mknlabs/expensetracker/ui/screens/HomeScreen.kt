@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -88,7 +89,8 @@ fun HomeScreen(
     onTodaySpendingClick: () -> Unit = {},
     onGoalsClick: () -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isLockOverlayActive: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -265,7 +267,8 @@ fun HomeScreen(
         onSmsPermissionCardDismiss = { dismissSmsPermissionCard() },
         onMiuiSetupCardOpenAppSettings = { openAppDetailsSettings() },
         onMiuiSetupCardBatterySettings = { requestBatteryExemption() },
-        onMiuiSetupCardDismiss = { dismissMiuiSetupCard() }
+        onMiuiSetupCardDismiss = { dismissMiuiSetupCard() },
+        isLockOverlayActive = isLockOverlayActive
     )
 }
 
@@ -287,7 +290,8 @@ private fun HomeScreenContent(
     onSmsPermissionCardDismiss: () -> Unit = {},
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
-    onMiuiSetupCardDismiss: () -> Unit = {}
+    onMiuiSetupCardDismiss: () -> Unit = {},
+    isLockOverlayActive: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -307,6 +311,11 @@ private fun HomeScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            // Shared by the hand wave (inside the greeting Column) and the settings-icon
+            // spin (in the sibling Row) below — hence hoisted to this common scope.
+            val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+            val settingsRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -314,26 +323,39 @@ private fun HomeScreenContent(
                 Column(modifier = Modifier.weight(1f)) {
                     val greetingName = uiState.greetingName
 
-                    // Hand waving animation trigger on initial load + app returning from background (ON_RESUME)
+                    // Entrance animation (hand wave + settings-icon spin): plays when the home
+                    // screen is actually VISIBLE — i.e. the activity is resumed AND no app-lock
+                    // overlay is covering it. ON_RESUME alone fires while the lock overlay is
+                    // still up, so the wave used to finish behind the lock before the user saw it.
+                    var entrancePending by remember { mutableStateOf(false) }
                     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                    val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
-
                     DisposableEffect(lifecycleOwner) {
                         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
                             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                                scope.launch {
-                                    waveRotation.snapTo(0f)
-                                    waveRotation.animateTo(20f, tween(150, easing = LinearOutSlowInEasing))
-                                    waveRotation.animateTo(-15f, tween(150, easing = FastOutSlowInEasing))
-                                    waveRotation.animateTo(15f, tween(120, easing = FastOutSlowInEasing))
-                                    waveRotation.animateTo(-10f, tween(100, easing = FastOutSlowInEasing))
-                                    waveRotation.animateTo(0f, tween(120, easing = FastOutLinearInEasing))
-                                }
+                                entrancePending = true
                             }
                         }
                         lifecycleOwner.lifecycle.addObserver(observer)
                         onDispose {
                             lifecycleOwner.lifecycle.removeObserver(observer)
+                        }
+                    }
+
+                    LaunchedEffect(entrancePending, isLockOverlayActive) {
+                        if (entrancePending && !isLockOverlayActive) {
+                            entrancePending = false
+                            // Hand wave — ~2.5s total.
+                            waveRotation.snapTo(0f)
+                            waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
+                            waveRotation.animateTo(-20f, tween(450, easing = FastOutSlowInEasing))
+                            waveRotation.animateTo(18f, tween(400, easing = FastOutSlowInEasing))
+                            waveRotation.animateTo(-14f, tween(350, easing = FastOutSlowInEasing))
+                            waveRotation.animateTo(10f, tween(300, easing = FastOutSlowInEasing))
+                            waveRotation.animateTo(-6f, tween(250, easing = FastOutSlowInEasing))
+                            waveRotation.animateTo(0f, tween(250, easing = FastOutLinearInEasing))
+                            // Settings icon — one full 360° spin in 1s.
+                            settingsRotation.snapTo(0f)
+                            settingsRotation.animateTo(360f, tween(1000, easing = LinearEasing))
                         }
                     }
 
@@ -375,7 +397,13 @@ private fun HomeScreenContent(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SettingsButton(onClick = onSettingsClick)
+                    Box(
+                        modifier = Modifier.graphicsLayer {
+                            rotationZ = settingsRotation.value
+                        }
+                    ) {
+                        SettingsButton(onClick = onSettingsClick)
+                    }
 
                     val isAnonymous = userProfile.authProvider == "anonymous"
                     val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&

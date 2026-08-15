@@ -732,6 +732,7 @@ fun MainScreen(
                         selectedDateFormatPattern = selectedDateFormatPattern,
                         selectedTimeFormat = selectedTimeFormat,
                         isAppLockEnabled = isAppLockEnabled,
+                        isLockOverlayActive = isAppLockActive || appLockFlow != null,
                         hasAppLockPin = hasAppLockPin,
                         isBiometricEnabled = isBiometricEnabled,
                         isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,

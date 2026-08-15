@@ -348,7 +348,7 @@
     <string name="label_growth_index">GROWTH INDEX</string>
     <string name="label_handcrafted_with_precision_and">HANDCRAFTED WITH PRECISION AND LOVE</string>
     <string name="label_headertransition">HeaderTransition</string>
-    <string name="label_hi_val">Hi, %1$s 👋</string>
+    <string name="label_hi_val">Hi, %1$s</string>
     <string name="label_high_fidelity">High Fidelity</string>
     <string name="label_iconkey">iconKey</string>
     <string name="label_id">id</string>
