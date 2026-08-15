@@ -73,7 +73,7 @@ class SyncWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        val showNotifications = settings.isCloudSecurityEnabled
+        val showNotifications = settings.cloudSecurityEnabled
         if (showNotifications) {
             com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncInProgressNotification(applicationContext)
         }
