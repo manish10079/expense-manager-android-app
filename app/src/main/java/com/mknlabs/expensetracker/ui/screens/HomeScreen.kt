@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Savings
@@ -317,48 +318,58 @@ private fun HomeScreenContent(
             .padding(horizontal = Dimens.ScreenPadding)
     ) {
         if (isTwoPane) {
-            Row(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .widthIn(max = 400.dp)
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
-                        .padding(end = 16.dp)
-                ) {
-                    HomeTopSection(
-                        userProfile = userProfile,
-                        uiState = uiState,
-                        appSettings = appSettings,
-                        isAdsEnabled = isAdsEnabled,
-                        onProfileClick = onProfileClick,
-                        onSettingsClick = onSettingsClick,
-                        onTodaySpendingClick = onTodaySpendingClick,
-                        onGoalsClick = onGoalsClick,
-                        onToggleBalanceVisibility = onToggleBalanceVisibility,
-                        smsSetupUiState = smsSetupUiState,
-                        onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
-                        onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
-                        onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
-                        onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
-                        onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
-                        isLockOverlayActive = isLockOverlayActive
-                    )
-                }
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Full-width greeting row: home icon (left) + greeting/settings/
+                // avatar (right); recent activities render below it in the right pane.
+                HomeHeaderRow(
+                    showHomeIcon = true,
+                    userProfile = userProfile,
+                    uiState = uiState,
+                    onProfileClick = onProfileClick,
+                    onSettingsClick = onSettingsClick,
+                    isLockOverlayActive = isLockOverlayActive
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 400.dp)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(end = 16.dp)
+                    ) {
+                        HomeStatsSection(
+                            userProfile = userProfile,
+                            appSettings = appSettings,
+                            uiState = uiState,
+                            isAdsEnabled = isAdsEnabled,
+                            onProfileClick = onProfileClick,
+                            onTodaySpendingClick = onTodaySpendingClick,
+                            onGoalsClick = onGoalsClick,
+                            onToggleBalanceVisibility = onToggleBalanceVisibility,
+                            smsSetupUiState = smsSetupUiState,
+                            onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+                            onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
+                            onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+                            onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
+                            onMiuiSetupCardDismiss = onMiuiSetupCardDismiss
+                        )
+                    }
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                ) {
-                    Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-                    RecentActivitiesHeader(onViewAllClick = onViewAllClick)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HomeTransactionsList(
-                        uiState = uiState,
-                        isProUser = isProUser,
-                        onTransactionClick = onTransactionClick,
-                        bottomPadding = 24.dp
-                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        RecentActivitiesHeader(onViewAllClick = onViewAllClick)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HomeTransactionsList(
+                            uiState = uiState,
+                            isProUser = isProUser,
+                            onTransactionClick = onTransactionClick,
+                            bottomPadding = 24.dp
+                        )
+                    }
                 }
             }
         } else {
@@ -420,9 +431,49 @@ private fun HomeTopSection(
     onMiuiSetupCardDismiss: () -> Unit = {},
     isLockOverlayActive: Boolean = false
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    HomeHeaderRow(
+        showHomeIcon = false,
+        userProfile = userProfile,
+        uiState = uiState,
+        onProfileClick = onProfileClick,
+        onSettingsClick = onSettingsClick,
+        isLockOverlayActive = isLockOverlayActive
+    )
+    Spacer(modifier = Modifier.height(14.dp))
+    HomeStatsSection(
+        userProfile = userProfile,
+        appSettings = appSettings,
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        onProfileClick = onProfileClick,
+        onTodaySpendingClick = onTodaySpendingClick,
+        onGoalsClick = onGoalsClick,
+        onToggleBalanceVisibility = onToggleBalanceVisibility,
+        smsSetupUiState = smsSetupUiState,
+        onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+        onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
+        onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+        onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
+        onMiuiSetupCardDismiss = onMiuiSetupCardDismiss
+    )
+}
 
+/**
+ * Full-width greeting row. Compact (portrait): left-aligned greeting with
+ * settings + avatar on the right. Two-pane (landscape/wide): the home icon
+ * button sits at the LEFT end next to the greeting (Hi user 👋), with settings
+ * + profile avatar on the far RIGHT and the recent-activities list rendering
+ * below the row.
+ */
+@Composable
+private fun HomeHeaderRow(
+    showHomeIcon: Boolean,
+    userProfile: UserProfile,
+    uiState: HomeScreenUiState,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    isLockOverlayActive: Boolean
+) {
     // Shared by the hand wave (inside the greeting Column) and the settings-icon
     // spin (in the sibling Row) below — hence hoisted to this common scope.
     val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -432,7 +483,14 @@ private fun HomeTopSection(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        if (showHomeIcon) {
+            HomeIconButton()
+            Spacer(modifier = Modifier.width(12.dp))
+        }
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             val greetingName = uiState.greetingName
 
             // Entrance animation (hand wave + settings-icon spin): plays whenever the
@@ -544,8 +602,59 @@ private fun HomeTopSection(
             )
         }
     }
+}
 
-    Spacer(modifier = Modifier.height(14.dp))
+/**
+ * Round home button shown at the LEFT end of the two-pane greeting row.
+ */
+@Composable
+private fun HomeIconButton() {
+    Box(
+        modifier = Modifier
+            // Visual 40dp; keeps the 48dp touch-target minimum.
+            .size(40.dp)
+            .minimumInteractiveComponentSize()
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Home,
+            contentDescription = stringResource(id = R.string.title_nav_home),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(28.dp)
+        )
+    }
+}
+
+/**
+ * Setup cards + stats + mini cards + native ad — the vertical stack below the
+ * greeting header. Shared by the Compact single column and the left pane of the
+ * two-pane layout (where it scrolls independently).
+ */
+@Composable
+private fun HomeStatsSection(
+    userProfile: UserProfile,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings?,
+    uiState: HomeScreenUiState,
+    isAdsEnabled: Boolean,
+    onProfileClick: () -> Unit,
+    onTodaySpendingClick: () -> Unit,
+    onGoalsClick: () -> Unit,
+    onToggleBalanceVisibility: () -> Unit,
+    smsSetupUiState: SmsSetupUiState,
+    onSmsPermissionCardOpenSettings: () -> Unit,
+    onSmsPermissionCardDismiss: () -> Unit,
+    onMiuiSetupCardOpenAppSettings: () -> Unit,
+    onMiuiSetupCardBatterySettings: () -> Unit,
+    onMiuiSetupCardDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     if (appSettings != null) {
         AccountSetupCard(

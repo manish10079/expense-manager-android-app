@@ -1,12 +1,16 @@
 package com.mknlabs.expensetracker
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
@@ -149,16 +153,42 @@ class MainActivity : AppCompatActivity() {
         setContent {
             AppRoot(splashViewModel, appLockViewModel, currentIntent)
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
-        android.util.Log.d("AUTH", "MainActivity: onStart")
+        // Hide the status bar in landscape (immersive), restore it in portrait.
+        applyImmersiveStatusBarForLandscape()
     }
 
     override fun onResume() {
         super.onResume()
         android.util.Log.d("AUTH", "MainActivity: onResume")
+        // System UI can be restored (e.g. after notification shade or returning
+        // from another app), so re-apply the landscape immersive state.
+        applyImmersiveStatusBarForLandscape()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // MainActivity handles config changes itself (android:configChanges), so
+        // rotation reaches us here instead of recreating the activity.
+        applyImmersiveStatusBarForLandscape()
+    }
+
+    private fun applyImmersiveStatusBarForLandscape() {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        val isLandscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (isLandscape) {
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.statusBars())
+        } else {
+            controller.show(WindowInsetsCompat.Type.statusBars())
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        android.util.Log.d("AUTH", "MainActivity: onStart")
     }
 
     override fun onNewIntent(intent: Intent) {
