@@ -1,7 +1,14 @@
 package com.mknlabs.expensetracker.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +34,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -99,16 +108,17 @@ private fun RailNavItem(
     modifier: Modifier = Modifier
 ) {
     val iconTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "rail_icon_tint"
     )
     val labelColor by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "rail_label_tint"
     )
-    val pillHeight by animateDpAsState(
-        targetValue = if (selected) 52.dp else 48.dp,
-        label = "rail_pill_height"
+    // Icon grows on selection, mirroring the bottom bar's expanding icon container.
+    val iconSize by animateDpAsState(
+        targetValue = if (selected) 26.dp else 22.dp,
+        label = "rail_icon_size"
     )
     val gradientBrush = brandGradient()
 
@@ -121,29 +131,53 @@ private fun RailNavItem(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()                .width(52.dp)
-                .height(pillHeight)
-                .clip(RoundedCornerShape(18.dp))
-                .then(
-                    if (selected) Modifier.background(gradientBrush)
-                    else Modifier.background(Color.Transparent)
-                ),
-                contentAlignment = Alignment.Center
+                .width(52.dp)
+                .height(52.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = if (selected) item.selectedIcon else item.icon,
-                contentDescription = stringResource(item.titleRes),
-                tint = iconTint,
-                modifier = Modifier.size(24.dp)
-            )
+            // Animated icon swap: outlined <-> filled with the same fade + scale
+            // pop the bottom bar uses.
+            AnimatedContent(
+                targetState = selected,
+                transitionSpec = {
+                    val enter = fadeIn(tween(220)) +
+                        scaleIn(initialScale = 0.82f, animationSpec = tween(220))
+                    val exit = fadeOut(tween(120)) +
+                        scaleOut(targetScale = 0.82f, animationSpec = tween(120))
+                    enter.togetherWith(exit)
+                },
+                label = "rail_icon_fill"
+            ) { isSelected ->
+                Icon(
+                    imageVector = if (isSelected) item.selectedIcon else item.icon,
+                    contentDescription = stringResource(item.titleRes),
+                    tint = iconTint,
+                    modifier = Modifier
+                        .size(iconSize)
+                        // Same gradient fill as the bottom bar: the icon itself is
+                        // painted with the brand gradient (SrcAtop) when selected.
+                        .graphicsLayer(alpha = 0.99f)
+                        .drawWithCache {
+                            onDrawWithContent {
+                                drawContent()
+                                if (isSelected) {
+                                    drawRect(gradientBrush, blendMode = BlendMode.SrcAtop)
+                                }
+                            }
+                        }
+                )
+            }
         }
+        // Label appears only when selected (gradient text), reserving its space
+        // when hidden — identical to the bottom bar behavior.
         Text(
-            text = stringResource(item.titleRes).uppercase(),
-            color = labelColor,
+            text = if (selected) stringResource(item.titleRes).uppercase() else " ",
+            color = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0f) else labelColor,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 8.sp,
-                letterSpacing = 0.6.sp
+                letterSpacing = 0.6.sp,
+                brush = if (selected) gradientBrush else null
             ),
             maxLines = 1
         )
