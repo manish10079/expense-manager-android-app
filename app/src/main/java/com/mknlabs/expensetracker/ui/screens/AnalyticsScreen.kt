@@ -681,7 +681,7 @@ private fun AnalyticsLineChart(
         val maxIncome = if (showIncome && incomePoints.isNotEmpty()) incomePoints.maxOrNull() ?: 0f else 0f
         val maxValue = maxOf(maxExpense, maxIncome).coerceAtLeast(1f)
 
-        Row(modifier = Modifier.fillMaxWidth().heightIn(min = 170.dp)) {
+        Row(modifier = Modifier.fillMaxWidth().height(170.dp)) {
             Column(
                 modifier = Modifier
                     .width(34.dp)
