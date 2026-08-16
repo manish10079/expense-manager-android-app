@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -96,6 +96,7 @@ import com.mknlabs.expensetracker.ui.models.TabItem
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import java.util.Calendar
 
@@ -177,6 +178,8 @@ private fun CalendarScreenContent(
 ) {
     var isMonthYearPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isYearPickerVisible by rememberSaveable { mutableStateOf(false) }
+    // Medium+ windows get the month grid and selected-day transactions side-by-side.
+    val isWide = LocalAppWindowInfo.current.isWide
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -304,78 +307,109 @@ private fun CalendarScreenContent(
                                         }
                                     }
                                 } else {
-                                    AnimatedContent(
-                                        targetState = uiState.displayedMonthStart,
-                                        transitionSpec = {
-                                            fadeIn(animationSpec = tween(300)) togetherWith
-                                                fadeOut(animationSpec = tween(300))
-                                        },
-                                        label = "month_navigation_transition"
-                                    ) { targetMonthStart ->
-                                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                                            GatedAction(
-                                                feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
-                                                displayName = stringResource(id = R.string.label_calendar_month_picker),
-                                                onAction = { isMonthYearPickerVisible = true }
-                                            ) { status, onClick ->
-                                                MonthHeading(
-                                                    monthStart = targetMonthStart,
-                                                    isPickerLocked = status !is AccessStatus.Granted,
-                                                    onPreviousMonth = onGoToPreviousMonth,
-                                                    onNextMonth = onGoToNextMonth,
-                                                    onTodayClick = onJumpToToday,
-                                                    onOpenPicker = {
-                                                        if (status is AccessStatus.Granted) {
-                                                            isMonthYearPickerVisible = true
-                                                        } else {
-                                                            onClick()
+                                    // Month view: calendar grid + selected-day details.
+                                    // Wide windows render them side-by-side (two panes);
+                                    // compact stays a single scroll column (unchanged).
+                                    val monthCalendarBlock: @Composable () -> Unit = {
+                                        AnimatedContent(
+                                            targetState = uiState.displayedMonthStart,
+                                            transitionSpec = {
+                                                fadeIn(animationSpec = tween(300)) togetherWith
+                                                    fadeOut(animationSpec = tween(300))
+                                            },
+                                            label = "month_navigation_transition"
+                                        ) { targetMonthStart ->
+                                            Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                                GatedAction(
+                                                    feature = Feature.CALENDAR_DIRECT_MONTH_PICKER,
+                                                    displayName = stringResource(id = R.string.label_calendar_month_picker),
+                                                    onAction = { isMonthYearPickerVisible = true }
+                                                ) { status, onClick ->
+                                                    MonthHeading(
+                                                        monthStart = targetMonthStart,
+                                                        isPickerLocked = status !is AccessStatus.Granted,
+                                                        onPreviousMonth = onGoToPreviousMonth,
+                                                        onNextMonth = onGoToNextMonth,
+                                                        onTodayClick = onJumpToToday,
+                                                        onOpenPicker = {
+                                                            if (status is AccessStatus.Granted) {
+                                                                isMonthYearPickerVisible = true
+                                                            } else {
+                                                                onClick()
+                                                            }
                                                         }
-                                                    }
+                                                    )
+                                                }
+
+                                                MonthCalendarCard(
+                                                    days = uiState.monthDays,
+                                                    selectedDate = uiState.selectedDate,
+                                                    onDaySelected = { day ->
+                                                        onSelectDay(day)
+                                                    },
+                                                    onSwipePrevious = onGoToPreviousMonth,
+                                                    onSwipeNext = onGoToNextMonth
                                                 )
                                             }
-
-                                            MonthCalendarCard(
-                                                days = uiState.monthDays,
-                                                selectedDate = uiState.selectedDate,
-                                                onDaySelected = { day ->
-                                                    onSelectDay(day)
-                                                },
-                                                onSwipePrevious = onGoToPreviousMonth,
-                                                onSwipeNext = onGoToNextMonth
-                                            )
                                         }
                                     }
 
-                                    DailyTotalsRow(
-                                        expenseLabel = uiState.selectedDayExpenseLabel.asString(),
-                                        incomeLabel = uiState.selectedDayIncomeLabel.asString()
-                                    )
-
-                                    AdContainer(
-                                        isAdsEnabled = isAdsEnabled,
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    ) {
-                                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
-                                    }
-
-                                    TransactionSectionHeader(
-                                        selectedDayTitle = uiState.selectedDayTitle
-                                    )
-                                    if (uiState.selectedDayTransactions.isEmpty()) {
-                                        EmptyTransactionsCard(
-                                            message = uiState.emptyTransactionsMessage.asString()
+                                    val dayDetailsBlock: @Composable () -> Unit = {
+                                        DailyTotalsRow(
+                                            expenseLabel = uiState.selectedDayExpenseLabel.asString(),
+                                            incomeLabel = uiState.selectedDayIncomeLabel.asString()
                                         )
-                                    } else {
-                                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                                            uiState.selectedDayTransactions.forEach { transaction ->
-                                                CalendarTransactionCard(
-                                                    transaction = transaction,
-                                                    transactionCardCustomizationSettings = uiState.customizationSettings,
-                                                    isProUser = isProUser,
-                                                    onClick = { onTransactionClick(transaction.transaction) }
-                                                )
+
+                                        AdContainer(
+                                            isAdsEnabled = isAdsEnabled,
+                                            modifier = Modifier.padding(vertical = 4.dp)
+                                        ) {
+                                            NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                        }
+
+                                        TransactionSectionHeader(
+                                            selectedDayTitle = uiState.selectedDayTitle
+                                        )
+                                        if (uiState.selectedDayTransactions.isEmpty()) {
+                                            EmptyTransactionsCard(
+                                                message = uiState.emptyTransactionsMessage.asString()
+                                            )
+                                        } else {
+                                            Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                                uiState.selectedDayTransactions.forEach { transaction ->
+                                                    CalendarTransactionCard(
+                                                        transaction = transaction,
+                                                        transactionCardCustomizationSettings = uiState.customizationSettings,
+                                                        isProUser = isProUser,
+                                                        onClick = { onTransactionClick(transaction.transaction) }
+                                                    )
+                                                }
                                             }
                                         }
+                                    }
+
+                                    if (isWide) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(18.dp),
+                                            verticalAlignment = Alignment.Top
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                verticalArrangement = Arrangement.spacedBy(18.dp)
+                                            ) {
+                                                monthCalendarBlock()
+                                            }
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                verticalArrangement = Arrangement.spacedBy(18.dp)
+                                            ) {
+                                                dayDetailsBlock()
+                                            }
+                                        }
+                                    } else {
+                                        monthCalendarBlock()
+                                        dayDetailsBlock()
                                     }
                                 }
                             }
@@ -557,7 +591,7 @@ private fun DayCell(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier.aspectRatio(0.82f).clip(RoundedCornerShape(18.dp))
+        modifier = modifier.heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick).padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top

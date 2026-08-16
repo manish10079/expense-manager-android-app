@@ -67,6 +67,7 @@ import com.mknlabs.expensetracker.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import androidx.compose.foundation.BorderStroke
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
 import com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementViewModel
@@ -253,6 +254,10 @@ private fun CategoryManagementContent(
 
                     Spacer(modifier = Modifier.height(22.dp))
 
+                    AdaptiveContent(
+                        maxWidth = 640.dp,
+                        modifier = Modifier.weight(1f)
+                    ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 120.dp),
@@ -279,6 +284,7 @@ private fun CategoryManagementContent(
                                 }
                             )
                         }
+                    }
                     }
                 }
             }

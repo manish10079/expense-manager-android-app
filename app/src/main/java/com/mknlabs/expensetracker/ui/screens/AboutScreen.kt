@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
@@ -135,9 +136,13 @@ private fun AboutScreenContent(
             modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
         )
 
+        AdaptiveContent(
+            maxWidth = 640.dp,
+            modifier = Modifier.fillMaxSize()
+        ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .verticalScroll(scrollState)
                 .padding(horizontal = Dimens.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -286,6 +291,7 @@ private fun AboutScreenContent(
             )
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
         }
     }
 }

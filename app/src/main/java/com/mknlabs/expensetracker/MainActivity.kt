@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +42,10 @@ import com.mknlabs.expensetracker.ui.screens.SplashOverlay
 import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
 import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
 import android.net.Uri
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.ui.adaptive.LocalFontScaleInfo
+import com.mknlabs.expensetracker.ui.adaptive.rememberAppWindowInfo
+import com.mknlabs.expensetracker.ui.adaptive.rememberFontScaleInfo
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.DeepLinkUtils
@@ -252,6 +257,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme) {
+            CompositionLocalProvider(
+                LocalAppWindowInfo provides rememberAppWindowInfo(),
+                LocalFontScaleInfo provides rememberFontScaleInfo()
+            ) {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
@@ -383,6 +392,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+            }
             }
         }
     }

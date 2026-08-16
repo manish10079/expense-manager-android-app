@@ -5,8 +5,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringFrequency
@@ -146,6 +152,11 @@ fun MainScaffold(
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 
     val showFixedBottomNavBar = currentRoute.showsFixedBottomBar && !isSelectionMode
+
+    // Adaptive shell: the branded rail replaces the floating bottom bar everywhere
+    // except the classic Compact portrait phone footprint (incl. phone landscape,
+    // where width is sufficient for a rail).
+    val useNavigationRail = showFixedBottomNavBar && !LocalAppWindowInfo.current.isCompactPortrait
     val backNavigationRoute = resolveBackNavigationRoute(
         currentRoute = currentRoute,
         profileOriginRoute = profileOriginRoute,
@@ -186,6 +197,10 @@ fun MainScaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(colorScheme.background)
+            // Foldable/notch safety: keep the rail and content out from under a
+            // hinge or display cutout in landscape (horizontal only — the status
+            // and navigation bars are already padded by each screen).
+            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
     ) {
         PreloadSecondaryScreenData(
             transactions = transactions,
@@ -205,7 +220,12 @@ fun MainScaffold(
             userTier = userTier
         )
 
-        AppNavigationHost(
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = if (useNavigationRail) AppNavigationRailWidth + 12.dp else 0.dp)
+        ) {
+            AppNavigationHost(
             saveableStateHolder = saveableStateHolder,
             isAdsEnabled = isAdsEnabled,
             currentRoute = currentRoute,
@@ -308,9 +328,23 @@ fun MainScaffold(
             onLogoutClick = onLogoutClick,
             onShowUpgradeSheet = onShowUpgradeSheet,
             onPrepareForExternalActivity = onPrepareForExternalActivity
-        )
+            )
+        }
 
-        if (showFixedBottomNavBar) {
+        if (useNavigationRail) {
+            AppNavigationRail(
+                modifier = Modifier.align(Alignment.CenterStart),
+                currentRoute = currentRoute,
+                onItemClick = { route ->
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(route)
+                },
+                onAddClick = {
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                }
+            )
+        } else if (showFixedBottomNavBar) {
             AppBottomBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

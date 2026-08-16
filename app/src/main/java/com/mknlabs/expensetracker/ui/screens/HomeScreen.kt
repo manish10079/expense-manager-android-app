@@ -14,6 +14,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,6 +42,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +60,7 @@ import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.hasPhoneNumber
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.ui.components.*
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
@@ -299,6 +304,11 @@ private fun HomeScreenContent(
     // Pro-gated transaction-card note tooltip (effective tier from app settings).
     val isProUser = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
 
+    // Adaptive Home: single column on Compact portrait; two-pane (left: header &
+    // cards + ad, right: scrollable recent transactions) everywhere else — phone
+    // landscape, tablets, foldables, and desktop.
+    val isTwoPane = !LocalAppWindowInfo.current.isCompactPortrait
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -306,297 +316,404 @@ private fun HomeScreenContent(
             .statusBarsPadding()
             .padding(horizontal = Dimens.ScreenPadding)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-
-            // Shared by the hand wave (inside the greeting Column) and the settings-icon
-            // spin (in the sibling Row) below — hence hoisted to this common scope.
-            val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
-            val settingsRotation = remember { androidx.compose.animation.core.Animatable(0f) }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    val greetingName = uiState.greetingName
-
-                    // Entrance animation (hand wave + settings-icon spin): plays whenever the
-                    // home screen is actually VISIBLE — i.e. the activity is resumed AND no
-                    // app-lock overlay is covering it. ON_RESUME alone fires while the lock
-                    // overlay is still up, so the wave used to finish behind the lock before the
-                    // user saw it.
-                    //
-                    // lifecycleResumed is written ONLY by the lifecycle observer below; the
-                    // LaunchedEffect only reads its keys. (The earlier version flipped a pending
-                    // flag inside the effect's own body, which cancelled/restarted the effect
-                    // mid-animation and made the wave + spin fail on background -> foreground.)
-                    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                    var lifecycleResumed by remember {
-                        mutableStateOf(
-                            lifecycleOwner.lifecycle.currentState.isAtLeast(
-                                androidx.lifecycle.Lifecycle.State.RESUMED
-                            )
-                        )
-                    }
-                    DisposableEffect(lifecycleOwner) {
-                        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                            lifecycleResumed = event == androidx.lifecycle.Lifecycle.Event.ON_RESUME
-                        }
-                        lifecycleOwner.lifecycle.addObserver(observer)
-                        onDispose {
-                            lifecycleOwner.lifecycle.removeObserver(observer)
-                        }
-                    }
-
-                    LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
-                        if (lifecycleResumed && !isLockOverlayActive) {
-                            // Hand wave — ~2.5s total.
-                            waveRotation.snapTo(0f)
-                            waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
-                            waveRotation.animateTo(-20f, tween(450, easing = FastOutSlowInEasing))
-                            waveRotation.animateTo(18f, tween(400, easing = FastOutSlowInEasing))
-                            waveRotation.animateTo(-14f, tween(350, easing = FastOutSlowInEasing))
-                            waveRotation.animateTo(10f, tween(300, easing = FastOutSlowInEasing))
-                            waveRotation.animateTo(-6f, tween(250, easing = FastOutSlowInEasing))
-                            waveRotation.animateTo(0f, tween(250, easing = FastOutLinearInEasing))
-                            // Settings icon — one full 360° spin in 1s.
-                            settingsRotation.snapTo(0f)
-                            settingsRotation.animateTo(360f, tween(1000, easing = LinearEasing))
-                        }
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.label_hi_val, greetingName),
-                            color = MaterialTheme.colorScheme.onBackground,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Normal
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "👋",
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.graphicsLayer {
-                                rotationZ = waveRotation.value
-                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.7f, 0.9f)
-                            }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = stringResource(id = R.string.label_track_every_move_with_confiden),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+        if (isTwoPane) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 400.dp)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(end = 16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.graphicsLayer {
-                            rotationZ = settingsRotation.value
-                        }
-                    ) {
-                        SettingsButton(onClick = onSettingsClick)
-                    }
+                    HomeTopSection(
+                        userProfile = userProfile,
+                        uiState = uiState,
+                        appSettings = appSettings,
+                        isAdsEnabled = isAdsEnabled,
+                        onProfileClick = onProfileClick,
+                        onSettingsClick = onSettingsClick,
+                        onTodaySpendingClick = onTodaySpendingClick,
+                        onGoalsClick = onGoalsClick,
+                        onToggleBalanceVisibility = onToggleBalanceVisibility,
+                        smsSetupUiState = smsSetupUiState,
+                        onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+                        onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
+                        onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+                        onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
+                        onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+                        isLockOverlayActive = isLockOverlayActive
+                    )
+                }
 
-                    val isAnonymous = userProfile.authProvider == "anonymous"
-                    val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
-                        !isAnonymous
-
-                    ProfileAvatar(
-                        gender = userProfile.gender,
-                        size = 50.dp,
-                        photoUri = userProfile.photoUri,
-                        userTier = uiState.userTier,
-                        isSyncing = uiState.isSyncing,
-                        isAnonymous = isAnonymous,
-                        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                        showBadge = isPremium,
-                        badgeIconRes = R.drawable.ic_crown,
-                        badgeContentDescription = stringResource(R.string.label_pro)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
+                    RecentActivitiesHeader(onViewAllClick = onViewAllClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HomeTransactionsList(
+                        uiState = uiState,
+                        isProUser = isProUser,
+                        onTransactionClick = onTransactionClick,
+                        bottomPadding = 24.dp
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            if (appSettings != null) {
-                AccountSetupCard(
+        } else {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
+                HomeTopSection(
                     userProfile = userProfile,
+                    uiState = uiState,
                     appSettings = appSettings,
-                    onDismiss = {
-                        scope.launch {
-                            val randomDays = (3..4).random()
-                            val nextShowTime = System.currentTimeMillis() + (randomDays * 24 * 60 * 60 * 1000L)
-                            com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
-                                it.copy(setupDismissedUntilMillis = nextShowTime)
-                            }
-                        }
-                    },
-                    onActionClick = onProfileClick
+                    isAdsEnabled = isAdsEnabled,
+                    onProfileClick = onProfileClick,
+                    onSettingsClick = onSettingsClick,
+                    onTodaySpendingClick = onTodaySpendingClick,
+                    onGoalsClick = onGoalsClick,
+                    onToggleBalanceVisibility = onToggleBalanceVisibility,
+                    smsSetupUiState = smsSetupUiState,
+                    onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+                    onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
+                    onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+                    onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
+                    onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+                    isLockOverlayActive = isLockOverlayActive
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                RecentActivitiesHeader(onViewAllClick = onViewAllClick)
+                Spacer(modifier = Modifier.height(16.dp))
+                HomeTransactionsList(
+                    uiState = uiState,
+                    isProUser = isProUser,
+                    onTransactionClick = onTransactionClick,
+                    bottomPadding = 88.dp
                 )
             }
+        }
+    }
+}
 
-            if (smsSetupUiState.showSmsPermissionCard) {
-                Spacer(modifier = Modifier.height(10.dp))
-                SmsPermissionCard(
-                    onOpenSettings = onSmsPermissionCardOpenSettings,
-                    onDismiss = onSmsPermissionCardDismiss
+/**
+ * Header + setup cards + stats + mini cards + native ad — the vertical stack
+ * above "Recent Activities". Shared by the Compact single column and the left
+ * pane of the two-pane layout (where it scrolls independently).
+ */
+@Composable
+private fun HomeTopSection(
+    userProfile: UserProfile,
+    uiState: HomeScreenUiState,
+    appSettings: com.mknlabs.expensetracker.models.AppSettings? = null,
+    isAdsEnabled: Boolean = false,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onTodaySpendingClick: () -> Unit,
+    onGoalsClick: () -> Unit,
+    onToggleBalanceVisibility: () -> Unit,
+    smsSetupUiState: SmsSetupUiState = SmsSetupUiState(),
+    onSmsPermissionCardOpenSettings: () -> Unit = {},
+    onSmsPermissionCardDismiss: () -> Unit = {},
+    onMiuiSetupCardOpenAppSettings: () -> Unit = {},
+    onMiuiSetupCardBatterySettings: () -> Unit = {},
+    onMiuiSetupCardDismiss: () -> Unit = {},
+    isLockOverlayActive: Boolean = false
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Shared by the hand wave (inside the greeting Column) and the settings-icon
+    // spin (in the sibling Row) below — hence hoisted to this common scope.
+    val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+    val settingsRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            val greetingName = uiState.greetingName
+
+            // Entrance animation (hand wave + settings-icon spin): plays whenever the
+            // home screen is actually VISIBLE — i.e. the activity is resumed AND no
+            // app-lock overlay is covering it. ON_RESUME alone fires while the lock
+            // overlay is still up, so the wave used to finish behind the lock before the
+            // user saw it.
+            //
+            // lifecycleResumed is written ONLY by the lifecycle observer below; the
+            // LaunchedEffect only reads its keys. (The earlier version flipped a pending
+            // flag inside the effect's own body, which cancelled/restarted the effect
+            // mid-animation and made the wave + spin fail on background -> foreground.)
+            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            var lifecycleResumed by remember {
+                mutableStateOf(
+                    lifecycleOwner.lifecycle.currentState.isAtLeast(
+                        androidx.lifecycle.Lifecycle.State.RESUMED
+                    )
                 )
             }
-
-            if (smsSetupUiState.showMiuiSetupCard) {
-                Spacer(modifier = Modifier.height(10.dp))
-                MiuiSmsSetupCard(
-                    autostartUnknown = smsSetupUiState.miuiAutostartAllowed == null,
-                    onOpenAppSettings = onMiuiSetupCardOpenAppSettings,
-                    onBatterySettings = onMiuiSetupCardBatterySettings,
-                    onDismiss = onMiuiSetupCardDismiss
-                )
+            DisposableEffect(lifecycleOwner) {
+                val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    lifecycleResumed = event == androidx.lifecycle.Lifecycle.Event.ON_RESUME
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            StatsCard(
-                totalBalance = uiState.totalBalance,
-                previousMonthBalance = uiState.previousMonthBalance,
-                income = uiState.totalIncome,
-                expense = uiState.totalExpense,
-                isBalanceHidden = uiState.isBalanceHidden,
-                onToggleVisibility = onToggleBalanceVisibility
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
+            LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
+                if (lifecycleResumed && !isLockOverlayActive) {
+                    // Hand wave — ~2.5s total.
+                    waveRotation.snapTo(0f)
+                    waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
+                    waveRotation.animateTo(-20f, tween(450, easing = FastOutSlowInEasing))
+                    waveRotation.animateTo(18f, tween(400, easing = FastOutSlowInEasing))
+                    waveRotation.animateTo(-14f, tween(350, easing = FastOutSlowInEasing))
+                    waveRotation.animateTo(10f, tween(300, easing = FastOutSlowInEasing))
+                    waveRotation.animateTo(-6f, tween(250, easing = FastOutSlowInEasing))
+                    waveRotation.animateTo(0f, tween(250, easing = FastOutLinearInEasing))
+                    // Settings icon — one full 360° spin in 1s.
+                    settingsRotation.snapTo(0f)
+                    settingsRotation.animateTo(360f, tween(1000, easing = LinearEasing))
+                }
+            }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                SmallHomeCard(
-                    title = stringResource(R.string.label_todays_spending),
-                    value = uiState.todaySpending,
-                    icon = Icons.Default.CalendarMonth,
-                    modifier = Modifier.weight(1f),
-                    onClick = onTodaySpendingClick
-                )
-                
-                SmallHomeCard(
-                    title = stringResource(R.string.title_savings_goals),
-                    // Total saved across all active goals (the badge carries the count).
-                    value = uiState.activeGoalsSaved,
-                    icon = Icons.Default.Savings,
-                    badgeCount = uiState.goalCount,
-                    modifier = Modifier.weight(1f),
-                    onClick = onGoalsClick
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Native Ad Placement
-            AdContainer(isAdsEnabled = isAdsEnabled) {
-                NativeAdCard(placement = AdPlacement.HOME_DASHBOARD)
-            }
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(id = R.string.label_recent_activities),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                var isPressed by remember { mutableStateOf(false) }
-                val scale by animateFloatAsState(
-                    targetValue = if (isPressed) 0.9f else 1f,
-                    animationSpec = tween(150)
-                )
-                val scope = rememberCoroutineScope()
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .scale(scale)
-                        .clickable {
-                            isPressed = true
-                            onViewAllClick()
-
-                            scope.launch {
-                                delay(150)
-                                isPressed = false
-                            }
-                        }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.label_view_all),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+                    text = stringResource(id = R.string.label_hi_val, greetingName),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Normal
                     )
-                    Icon(
-                        imageVector = Icons.Rounded.ChevronRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "👋",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.graphicsLayer {
+                        rotationZ = waveRotation.value
+                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.7f, 0.9f)
+                    }
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 88.dp)
+            Text(
+                text = stringResource(id = R.string.label_track_every_move_with_confiden),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    rotationZ = settingsRotation.value
+                }
             ) {
-                items(
-                    items = uiState.recentTransactions,
-                    key = { card -> card.transaction.id },
-                    contentType = { "transaction" }
-                ) { card ->
-                    TransactionCard(
-                        note = card.note,
-                        transactionDate = card.transactionDate,
-                        transactionTime = card.transactionTime,
-                        amount = card.amount,
-                        icon = card.icon,
-                        transactionTypeId = card.transactionTypeId,
-                        paymentType = card.paymentType,
-                        categoryLabel = card.categoryLabel,
-                        showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
-                        showTransactionDate = uiState.customizationSettings.showTransactionDate,
-                        showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
-                        showTransactionTime = uiState.customizationSettings.showTransactionTime,
-                        showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
-                        showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
-                        showNoteTooltip = isProUser,
-                        onClick = { onTransactionClick(card.transaction) }
-                    )
-                }
+                SettingsButton(onClick = onSettingsClick)
             }
+
+            val isAnonymous = userProfile.authProvider == "anonymous"
+            val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
+                !isAnonymous
+
+            ProfileAvatar(
+                gender = userProfile.gender,
+                size = 50.dp,
+                photoUri = userProfile.photoUri,
+                userTier = uiState.userTier,
+                isSyncing = uiState.isSyncing,
+                isAnonymous = isAnonymous,
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                showBadge = isPremium,
+                badgeIconRes = R.drawable.ic_crown,
+                badgeContentDescription = stringResource(R.string.label_pro)
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(14.dp))
+
+    if (appSettings != null) {
+        AccountSetupCard(
+            userProfile = userProfile,
+            appSettings = appSettings,
+            onDismiss = {
+                scope.launch {
+                    val randomDays = (3..4).random()
+                    val nextShowTime = System.currentTimeMillis() + (randomDays * 24 * 60 * 60 * 1000L)
+                    com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
+                        it.copy(setupDismissedUntilMillis = nextShowTime)
+                    }
+                }
+            },
+            onActionClick = onProfileClick
+        )
+    }
+
+    if (smsSetupUiState.showSmsPermissionCard) {
+        Spacer(modifier = Modifier.height(10.dp))
+        SmsPermissionCard(
+            onOpenSettings = onSmsPermissionCardOpenSettings,
+            onDismiss = onSmsPermissionCardDismiss
+        )
+    }
+
+    if (smsSetupUiState.showMiuiSetupCard) {
+        Spacer(modifier = Modifier.height(10.dp))
+        MiuiSmsSetupCard(
+            autostartUnknown = smsSetupUiState.miuiAutostartAllowed == null,
+            onOpenAppSettings = onMiuiSetupCardOpenAppSettings,
+            onBatterySettings = onMiuiSetupCardBatterySettings,
+            onDismiss = onMiuiSetupCardDismiss
+        )
+    }
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    StatsCard(
+        totalBalance = uiState.totalBalance,
+        previousMonthBalance = uiState.previousMonthBalance,
+        income = uiState.totalIncome,
+        expense = uiState.totalExpense,
+        isBalanceHidden = uiState.isBalanceHidden,
+        onToggleVisibility = onToggleBalanceVisibility
+    )
+
+    Spacer(modifier = Modifier.height(14.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        SmallHomeCard(
+            title = stringResource(R.string.label_todays_spending),
+            value = uiState.todaySpending,
+            icon = Icons.Default.CalendarMonth,
+            modifier = Modifier.weight(1f),
+            onClick = onTodaySpendingClick
+        )
+
+        SmallHomeCard(
+            title = stringResource(R.string.title_savings_goals),
+            // Total saved across all active goals (the badge carries the count).
+            value = uiState.activeGoalsSaved,
+            icon = Icons.Default.Savings,
+            badgeCount = uiState.goalCount,
+            modifier = Modifier.weight(1f),
+            onClick = onGoalsClick
+        )
+    }
+
+    Spacer(modifier = Modifier.height(14.dp))
+
+    // Native Ad Placement
+    AdContainer(isAdsEnabled = isAdsEnabled) {
+        NativeAdCard(placement = AdPlacement.HOME_DASHBOARD)
+    }
+}
+
+@Composable
+private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.label_recent_activities),
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        var isPressed by remember { mutableStateOf(false) }
+        val scale by animateFloatAsState(
+            targetValue = if (isPressed) 0.9f else 1f,
+            animationSpec = tween(150)
+        )
+        val scope = rememberCoroutineScope()
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .scale(scale)
+                .clickable {
+                    isPressed = true
+                    onViewAllClick()
+
+                    scope.launch {
+                        delay(150)
+                        isPressed = false
+                    }
+                }
+        ) {
+            Text(
+                text = stringResource(id = R.string.label_view_all),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                imageVector = Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.HomeTransactionsList(
+    uiState: HomeScreenUiState,
+    isProUser: Boolean,
+    onTransactionClick: (Transaction) -> Unit,
+    bottomPadding: androidx.compose.ui.unit.Dp
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = bottomPadding)
+    ) {
+        items(
+            items = uiState.recentTransactions,
+            key = { card -> card.transaction.id },
+            contentType = { "transaction" }
+        ) { card ->
+            TransactionCard(
+                note = card.note,
+                transactionDate = card.transactionDate,
+                transactionTime = card.transactionTime,
+                amount = card.amount,
+                icon = card.icon,
+                transactionTypeId = card.transactionTypeId,
+                paymentType = card.paymentType,
+                categoryLabel = card.categoryLabel,
+                showTypeLabel = uiState.customizationSettings.showIncomeExpenseLabels,
+                showTransactionDate = uiState.customizationSettings.showTransactionDate,
+                showPaymentMethod = uiState.customizationSettings.showPaymentMethod,
+                showTransactionTime = uiState.customizationSettings.showTransactionTime,
+                showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
+                showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                showNoteTooltip = isProUser,
+                onClick = { onTransactionClick(card.transaction) }
+            )
         }
     }
 }
@@ -777,7 +894,9 @@ fun AccountSetupCard(
 fun SettingsButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
+            // Visual 40dp; keeps the 48dp touch-target minimum.
             .size(40.dp)
+            .minimumInteractiveComponentSize()
             .clip(CircleShape)
             .clickable(
                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
@@ -819,6 +938,29 @@ fun HomeScreenDarkPreview() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        HomeScreenContent(
+            userProfile = defaultUserProfile,
+            uiState = HomeScreenUiState(),
+            onViewAllClick = {},
+            onTransactionClick = {},
+            onProfileClick = {},
+            onSettingsClick = {},
+            onTodaySpendingClick = {},
+            onGoalsClick = {},
+            onToggleBalanceVisibility = {}
+        )
+    }
+}
+
+// Multi-config adaptive previews (phone → desktop sizes × font scales) so the
+// two-pane branching, heightIn min-heights, and tier-aware maxLines are all
+// visually verifiable without a device (roadmap Milestone 5).
+@Preview(name = "Home - Multi-Config", showBackground = true)
+@PreviewScreenSizes
+@PreviewFontScale
+@Composable
+fun HomeScreenMultiConfigPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
         HomeScreenContent(
             userProfile = defaultUserProfile,

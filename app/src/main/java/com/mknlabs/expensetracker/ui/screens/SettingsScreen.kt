@@ -62,6 +62,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
+import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -214,10 +215,12 @@ private fun SettingsScreenContent(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            AdaptiveContent(
+                maxWidth = 640.dp,
+                modifier = Modifier.weight(1f)
+            ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
@@ -288,6 +291,7 @@ private fun SettingsScreenContent(
                 item {
                     Spacer(modifier = Modifier.height(40.dp))
                 }
+            }
             }
         }
     }

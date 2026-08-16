@@ -84,6 +84,7 @@ import com.mknlabs.expensetracker.ui.components.TransactionCard
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import kotlin.math.PI
 import kotlin.math.cos
@@ -176,6 +177,9 @@ fun AnalyticsScreenContent(
     }
     val customRange = uiState.customRange
     val snapshot = uiState.snapshot
+    // Two-column card grid on wide windows (tablets, foldables, desktop); the
+    // period navigator, hero chart, and stat row stay full-width.
+    val isWide = LocalAppWindowInfo.current.isWide
 
     Column(
         modifier = Modifier
@@ -246,113 +250,128 @@ fun AnalyticsScreenContent(
                 }
             }
             item { StatsRow(snapshot) }
-            item { CashFlowCard(snapshot) }
             item {
-                GatedAction(
-                    feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
-                    displayName = stringResource(id = R.string.title_full_category_breakdown),
-                    onAction = {}
-                ) { status, onClick ->
-                    val isLocked = status !is AccessStatus.Granted
-                    Box {
-                        CategoryCard(
-                            modifier = Modifier.lockedBlur(isLocked),
-                            snapshot = snapshot,
-                            onViewAllClick = { isCategorySheetVisible = true },
-                            onShowTransactions = { id, label ->
-                                selectedFilterId = id
-                                selectedFilterLabel = label
-                                filterByPayment = false
-                                isTransactionSheetVisible = true
-                            }
-                        )
-                        if (isLocked) {
-                            PremiumLockedOverlay(
-                                displayText = stringResource(id = R.string.label_unlock_breakdown),
-                                onClick = onClick
-                            )
-                        }
-                    }
-                }
-            }
-            item {
-                GatedAction(
-                    feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
-                    displayName = stringResource(id = R.string.title_payment_mode_breakdown),
-                    onAction = {}
-                ) { status, onClick ->
-                    val isLocked = status !is AccessStatus.Granted
-                    Box {
-                        PaymentTypeCard(
-                            modifier = Modifier.lockedBlur(isLocked),
-                            snapshot = snapshot,
-                            onViewAllClick = { isPaymentSheetVisible = true },
-                            onShowTransactions = { id, label ->
-                                selectedFilterId = id
-                                selectedFilterLabel = label
-                                filterByPayment = true
-                                isTransactionSheetVisible = true
-                            }
-                        )
-                        if (isLocked) {
-                            PremiumLockedOverlay(
-                                displayText = stringResource(id = R.string.label_unlock_breakdown),
-                                onClick = onClick
-                            )
-                        }
-                    }
-                }
-            }
-            item {
-                // Inline Native Ad after Payment Mode Breakdown
-                AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
-                }
-            }
-            item {
-                GatedAction(
-                    feature = Feature.ANALYTICS_TOP_SPENDING,
-                    displayName = stringResource(id = R.string.title_top_spending_details),
-                    onAction = {}
-                ) { status, onClick ->
-                    Box {
+                AnalyticsSectionRow(
+                    isWide = isWide,
+                    first = { CashFlowCard(snapshot) },
+                    second = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
+                        displayName = stringResource(id = R.string.title_full_category_breakdown),
+                        onAction = {}
+                    ) { status, onClick ->
                         val isLocked = status !is AccessStatus.Granted
-                        TopSpendingCard(
-                            modifier = Modifier.lockedBlur(isLocked),
-                            topTransactions = snapshot.topTransactions,
-                            dateFormatPattern = dateFormatPattern,
-                            onViewAllClick = { isTopSpendingSheetVisible = true }
-                        )
-                        if (isLocked) {
-                            PremiumLockedOverlay(
-                                displayText = stringResource(id = R.string.label_unlock_top_spending),
-                                onClick = onClick
+                        Box {
+                            CategoryCard(
+                                modifier = Modifier.lockedBlur(isLocked),
+                                snapshot = snapshot,
+                                onViewAllClick = { isCategorySheetVisible = true },
+                                onShowTransactions = { id, label ->
+                                    selectedFilterId = id
+                                    selectedFilterLabel = label
+                                    filterByPayment = false
+                                    isTransactionSheetVisible = true
+                                }
                             )
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_breakdown),
+                                    onClick = onClick
+                                )
+                            }
                         }
                     }
                 }
+                )
             }
             item {
-                GatedAction(
-                    feature = Feature.ANALYTICS_SMART_TIPS,
-                    displayName = stringResource(id = R.string.title_spending_insights),
-                    onAction = {}
-                ) { status, onClick ->
-                    Box {
+                AnalyticsSectionRow(
+                    isWide = isWide,
+                    first = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
+                        displayName = stringResource(id = R.string.title_payment_mode_breakdown),
+                        onAction = {}
+                    ) { status, onClick ->
                         val isLocked = status !is AccessStatus.Granted
-                        SmartTipCard(
-                            modifier = Modifier.lockedBlur(isLocked),
-                            tip = snapshot.smartTip
-                        )
-                        if (isLocked) {
-                            PremiumLockedOverlay(
-                                displayText = stringResource(id = R.string.label_unlock_insights),
-                                icon = Icons.Filled.AutoAwesome,
-                                onClick = onClick
+                        Box {
+                            PaymentTypeCard(
+                                modifier = Modifier.lockedBlur(isLocked),
+                                snapshot = snapshot,
+                                onViewAllClick = { isPaymentSheetVisible = true },
+                                onShowTransactions = { id, label ->
+                                    selectedFilterId = id
+                                    selectedFilterLabel = label
+                                    filterByPayment = true
+                                    isTransactionSheetVisible = true
+                                }
                             )
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_breakdown),
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                    },
+                    second = {
+                    // Inline Native Ad after Payment Mode Breakdown
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                    }
+                    }
+                )
+            }
+            item {
+                AnalyticsSectionRow(
+                    isWide = isWide,
+                    first = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_TOP_SPENDING,
+                        displayName = stringResource(id = R.string.title_top_spending_details),
+                        onAction = {}
+                    ) { status, onClick ->
+                        Box {
+                            val isLocked = status !is AccessStatus.Granted
+                            TopSpendingCard(
+                                modifier = Modifier.lockedBlur(isLocked),
+                                topTransactions = snapshot.topTransactions,
+                                dateFormatPattern = dateFormatPattern,
+                                onViewAllClick = { isTopSpendingSheetVisible = true }
+                            )
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_top_spending),
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                    },
+                    second = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_SMART_TIPS,
+                        displayName = stringResource(id = R.string.title_spending_insights),
+                        onAction = {}
+                    ) { status, onClick ->
+                        Box {
+                            val isLocked = status !is AccessStatus.Granted
+                            SmartTipCard(
+                                modifier = Modifier.lockedBlur(isLocked),
+                                tip = snapshot.smartTip
+                            )
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_insights),
+                                    icon = Icons.Filled.AutoAwesome,
+                                    onClick = onClick
+                                )
+                            }
                         }
                     }
                 }
+                )
             }
         }
     }
@@ -445,6 +464,29 @@ fun AnalyticsScreenContent(
             dateFormatPattern = dateFormatPattern,
             onDismiss = { isTopSpendingSheetVisible = false }
         )
+    }
+}
+
+@Composable
+private fun AnalyticsSectionRow(
+    isWide: Boolean,
+    first: @Composable () -> Unit,
+    second: @Composable () -> Unit
+) {
+    if (isWide) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            Box(modifier = Modifier.weight(1f)) { first() }
+            Box(modifier = Modifier.weight(1f)) { second() }
+        }
+    } else {
+        first()
+        Spacer(modifier = Modifier.height(18.dp))
+        second()
     }
 }
 
@@ -639,7 +681,7 @@ private fun AnalyticsLineChart(
         val maxIncome = if (showIncome && incomePoints.isNotEmpty()) incomePoints.maxOrNull() ?: 0f else 0f
         val maxValue = maxOf(maxExpense, maxIncome).coerceAtLeast(1f)
 
-        Row(modifier = Modifier.fillMaxWidth().height(170.dp)) {
+        Row(modifier = Modifier.fillMaxWidth().heightIn(min = 170.dp)) {
             Column(
                 modifier = Modifier
                     .width(34.dp)

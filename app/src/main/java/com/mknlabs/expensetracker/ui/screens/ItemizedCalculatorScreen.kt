@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -61,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CalculatorLineItem
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
@@ -77,7 +81,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 
@@ -299,146 +302,254 @@ private fun NormalCalculatorContent(
     expression: String?,
     onAction: (String) -> Unit
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        NormalCalculatorDisplay(
-            resultValue = previewResult,
-            expression = expression
-        )
+    // Landscape / short windows: stack display and keypad SIDE BY SIDE so the
+    // keypad keeps its full height instead of being pushed off-screen by the
+    // fixed-height keys (roadmap: phone-landscape support).
+    val isLandscape = LocalAppWindowInfo.current.isHeightCompact
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    if (isLandscape) {
+        Row(
+            modifier = modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(id = R.string.label_ac),
-                    onClick = { onAction("AC") }
-                )
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.AutoMirrored.Filled.Backspace,
-                    onClick = { onAction("BACKSPACE") }
-                )
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = "%",
-                    onClick = { onAction("%") }
-                )
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = "×",
-                    accent = true,
-                    onClick = { onAction("*") }
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                listOf("7", "8", "9").forEach { value ->
-                    CalculatorKeyButton(
-                        modifier = Modifier.weight(1f),
-                        label = value,
-                        onClick = { onAction(value) }
-                    )
-                }
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = "−",
-                    accent = true,
-                    onClick = { onAction("-") }
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                listOf("4", "5", "6").forEach { value ->
-                    CalculatorKeyButton(
-                        modifier = Modifier.weight(1f),
-                        label = value,
-                        onClick = { onAction(value) }
-                    )
-                }
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = "+",
-                    accent = true,
-                    onClick = { onAction("+") }
-                )
-            }
-
-            Row(
+            NormalCalculatorDisplay(
+                modifier = Modifier
+                    .weight(0.42f)
+                    .fillMaxHeight(),
+                resultValue = previewResult,
+                expression = expression,
+                compact = true
+            )
+            CalculatorKeypad(
+                modifier = Modifier
+                    .weight(0.58f)
+                    .fillMaxHeight(),
+                compact = true,
+                onAction = onAction
+            )
+        }
+    } else {
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            NormalCalculatorDisplay(
+                resultValue = previewResult,
+                expression = expression
+            )
+            CalculatorKeypad(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.weight(3f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        listOf("1", "2", "3").forEach { value ->
-                            CalculatorKeyButton(
-                                modifier = Modifier.weight(1f),
-                                label = value,
-                                onClick = { onAction(value) }
-                            )
-                        }
-                    }
+                onAction = onAction
+            )
+        }
+    }
+}
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        CalculatorKeyButton(
-                            modifier = Modifier.weight(2f),
-                            label = "0",
-                            pill = true,
-                            onClick = { onAction("0") }
-                        )
+/**
+ * The 4×4 calculator keypad.
+ *
+ * [compact] (phone landscape / short windows): the keypad renders SIDE BY SIDE
+ * with the display and its rows share the available height with small minimums
+ * so every key stays visible and tappable. Normal (tall) screens keep the
+ * classic fixed 72dp keys with the "=" column flexing.
+ */
+@Composable
+private fun CalculatorKeypad(
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+    onAction: (String) -> Unit
+) {
+    val rowSpacing = if (compact) 8.dp else 12.dp
+    val innerRowSpacing = if (compact) 8.dp else 12.dp
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(rowSpacing)
+    ) {
+        Row(
+            modifier = if (compact) {
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .heightIn(min = 32.dp)
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+            },
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.label_ac),
+                onClick = { onAction("AC") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                icon = Icons.AutoMirrored.Filled.Backspace,
+                onClick = { onAction("BACKSPACE") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "%",
+                onClick = { onAction("%") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "×",
+                accent = true,
+                onClick = { onAction("*") }
+            )
+        }
+
+        Row(
+            modifier = if (compact) {
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .heightIn(min = 32.dp)
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+            },
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            listOf("7", "8", "9").forEach { value ->
+                CalculatorKeyButton(
+                    modifier = Modifier.weight(1f),
+                    label = value,
+                    onClick = { onAction(value) }
+                )
+            }
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "−",
+                accent = true,
+                onClick = { onAction("-") }
+            )
+        }
+
+        Row(
+            modifier = if (compact) {
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .heightIn(min = 32.dp)
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+            },
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            listOf("4", "5", "6").forEach { value ->
+                CalculatorKeyButton(
+                    modifier = Modifier.weight(1f),
+                    label = value,
+                    onClick = { onAction(value) }
+                )
+            }
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "+",
+                accent = true,
+                onClick = { onAction("+") }
+            )
+        }
+
+        Row(
+            modifier = if (compact) {
+                Modifier
+                    .fillMaxWidth()
+                    .weight(2f)
+                    .heightIn(min = 64.dp)
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .heightIn(min = 148.dp)
+            },
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(3f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(innerRowSpacing)
+            ) {
+                Row(
+                    modifier = if (compact) {
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .heightIn(min = 24.dp)
+                    } else {
+                        Modifier
+                            .fillMaxWidth()
+                            .height(72.dp)
+                    },
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    listOf("1", "2", "3").forEach { value ->
                         CalculatorKeyButton(
                             modifier = Modifier.weight(1f),
-                            label = ".",
-                            onClick = { onAction(".") }
+                            label = value,
+                            onClick = { onAction(value) }
                         )
                     }
                 }
 
-                CalculatorKeyButton(
-                    modifier = Modifier.weight(1f),
-                    label = "=",
-                    primary = true,
-                    buttonHeight = 148.dp,
-                    onClick = { onAction("=") }
-                )
+                Row(
+                    modifier = if (compact) {
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .heightIn(min = 24.dp)
+                    } else {
+                        Modifier
+                            .fillMaxWidth()
+                            .height(72.dp)
+                    },
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CalculatorKeyButton(
+                        modifier = Modifier.weight(2f),
+                        label = "0",
+                        pill = true,
+                        onClick = { onAction("0") }
+                    )
+                    CalculatorKeyButton(
+                        modifier = Modifier.weight(1f),
+                        label = ".",
+                        onClick = { onAction(".") }
+                    )
+                }
             }
+
+            CalculatorKeyButton(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                label = "=",
+                primary = true,
+                onClick = { onAction("=") }
+            )
         }
     }
 }
 
 @Composable
 private fun NormalCalculatorDisplay(
+    modifier: Modifier = Modifier,
     resultValue: String,
-    expression: String?
+    expression: String?,
+    compact: Boolean = false
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(30.dp))
             .background(standardCardGradient())
@@ -447,7 +558,7 @@ private fun NormalCalculatorDisplay(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
                 shape = RoundedCornerShape(30.dp)
             )
-            .padding(horizontal = 22.dp, vertical = 28.dp),
+            .padding(horizontal = if (compact) 16.dp else 22.dp, vertical = if (compact) 16.dp else 28.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -459,12 +570,13 @@ private fun NormalCalculatorDisplay(
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.displayMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 40.sp
+                    fontSize = if (compact) 28.sp else 40.sp
                 ),
+                maxLines = 1,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(if (compact) 6.dp else 10.dp))
 
             Box(
                 modifier = Modifier
@@ -476,15 +588,17 @@ private fun NormalCalculatorDisplay(
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
                         shape = RoundedCornerShape(22.dp)
                     )
-                    .padding(horizontal = 18.dp, vertical = 18.dp),
+                    .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = expression ?: resultValue,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = if (compact) 18.sp else MaterialTheme.typography.headlineSmall.fontSize
                     ),
+                    maxLines = 1,
                     textAlign = TextAlign.Center
                 )
             }
@@ -500,7 +614,6 @@ private fun CalculatorKeyButton(
     accent: Boolean = false,
     primary: Boolean = false,
     pill: Boolean = false,
-    buttonHeight: Dp = if (primary) 168.dp else 72.dp,
     onClick: () -> Unit
 ) {
     val shape = when {
@@ -511,7 +624,7 @@ private fun CalculatorKeyButton(
 
     Box(
         modifier = modifier
-            .height(buttonHeight)
+            .fillMaxHeight()
             .shadow(
                 elevation = if (primary) 18.dp else if (accent) 10.dp else 0.dp,
                 shape = shape,

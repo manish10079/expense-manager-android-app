@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -60,7 +64,7 @@ fun StatsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp)
+            .heightIn(min = 190.dp)
             .shadow(
                 elevation = 20.dp,
                 shape = cardShape,
@@ -95,7 +99,11 @@ fun StatsCard(
                 
                 IconButton(
                     onClick = onToggleVisibility,
-                    modifier = Modifier.size(18.dp)
+                    // Visual 18dp; minimumInteractiveComponentSize keeps the
+                    // touch target at the 48dp accessibility minimum.
+                    modifier = Modifier
+                        .size(18.dp)
+                        .minimumInteractiveComponentSize()
                 ) {
                     Icon(
                         imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
@@ -329,6 +337,28 @@ fun TotalBalanceCardPreview() {
         ) {
             StatsCard(
                 totalBalance = "₹42,850.00",
+                income = "₹12,500.00",
+                expense = "₹5,320.00"
+            )
+        }
+    }
+}
+
+// Multi-config adaptive previews (screen sizes × font scales) so the heightIn
+// min-height and large-font layout are visually verifiable without a device
+// (roadmap Milestone 5).
+@Preview(name = "Stats Card - Multi-Config", showBackground = false)
+@PreviewScreenSizes
+@PreviewFontScale
+@Composable
+fun StatsCardMultiConfigPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            StatsCard(
+                totalBalance = "₹42,850.00",
+                previousMonthBalance = "₹38,200.00",
                 income = "₹12,500.00",
                 expense = "₹5,320.00"
             )

@@ -187,6 +187,10 @@ fun AddTransactionScreen(
     ) {
         val compact = maxHeight < 780.dp
         val dense = maxHeight < 700.dp
+        // Wide windows (tablets, foldables, desktop, phone landscape) get the
+        // two-pane layout; the height-based compact/dense flags still govern
+        // font sizes and paddings on phones.
+        val wide = maxWidth >= 720.dp
         // Usage ranking only counts transactions from the last 60 days, so the
         // "most used" pickers reflect recent behaviour rather than all-time.
         val rankingSinceMillis = remember { System.currentTimeMillis() - USAGE_RANKING_WINDOW_MS }
@@ -325,12 +329,9 @@ fun AddTransactionScreen(
                 modifier = Modifier
                     .weight(1f)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
-                ) {
+                // Shared form blocks, reused by both the single-column (phone)
+                // and two-pane (wide) layouts so behavior stays identical.
+                val tabAndAmountBlock: @Composable () -> Unit = {
                     AnimatedTabSwitcher(
                         items = transactionModes.map { TabItem(it.id, stringResource(it.label)) },
                         selectedItemId = selectedTransactionTypeId,
@@ -364,7 +365,9 @@ fun AddTransactionScreen(
                             }
                         )
                     }
+                }
 
+                val noteBlock: @Composable () -> Unit = {
                     SelectionInfoCard(
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = Icons.Filled.EditNote,
@@ -377,7 +380,9 @@ fun AddTransactionScreen(
                             isNoteSheetVisible = true
                         }
                     )
+                }
 
+                val categoryBlock: @Composable () -> Unit = {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
                     ) {
@@ -392,7 +397,9 @@ fun AddTransactionScreen(
                             onItemSelected = { selectedCategoryId = it }
                         )
                     }
+                }
 
+                val paymentBlock: @Composable () -> Unit = {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
                     ) {
@@ -407,7 +414,9 @@ fun AddTransactionScreen(
                             onItemSelected = { selectedPaymentId = it }
                         )
                     }
+                }
 
+                val dateRecurringBlock: @Composable () -> Unit = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
@@ -428,6 +437,53 @@ fun AddTransactionScreen(
                             compact = compact,
                             onClick = { isRecurringModalVisible = true }
                         )
+                    }
+                }
+
+                if (wide) {
+                    // Two-pane: left = tabs, amount, category + payment pickers;
+                    // right = note, date + recurring. Each pane scrolls on its own.
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                        ) {
+                            tabAndAmountBlock()
+                            categoryBlock()
+                            paymentBlock()
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                        ) {
+                            noteBlock()
+                            dateRecurringBlock()
+                        }
+                    }
+                } else {
+                    // Compact phone: unchanged single scroll column (order frozen).
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                    ) {
+                        tabAndAmountBlock()
+                        noteBlock()
+                        categoryBlock()
+                        paymentBlock()
+                        dateRecurringBlock()
                     }
                 }
 

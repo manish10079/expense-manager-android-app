@@ -134,7 +134,11 @@ fun <T> AnimatedTabSwitcher(
                             text = item.label,
                             color = animatedColor,
                             fontSize = fontSize,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            // Wrap instead of truncate at large font scales; the
+                            // pill/container grow via IntrinsicSize.Min.
+                            maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                         if (item.isLocked) {
                             Spacer(modifier = Modifier.width(6.dp))

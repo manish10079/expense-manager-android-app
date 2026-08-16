@@ -102,6 +102,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -1268,6 +1270,49 @@ private fun TransactionsScreenEmptyStatePreviewLight() {
 @Composable
 private fun TransactionsScreenEmptyStatePreviewDark() {
     ExpenseTrackerTheme(darkTheme = true) {
+        TransactionScreenContent(
+            uiState = TransactionsScreenUiState(
+                selectedPeriodLabel = UiText.dynamic("July 2026"),
+                canNavigateBackward = true,
+                canNavigateForward = true
+            ),
+            isAdsEnabled = true,
+            onBackClick = {},
+            onAddTransactionClick = {},
+            onTransactionClick = {},
+            clearSelection = {},
+            selectAll = {},
+            toggleSelection = {},
+            enterSelectionMode = {},
+            updateSearchQuery = {},
+            updatePeriodFilter = {},
+            navigatePeriod = {},
+            jumpToPeriod = {},
+            updateSort = {},
+            updateOrder = {},
+            updateDateRange = {},
+            updateCustomDateRange = { _, _ -> },
+            toggleTransactionTypeFilter = {},
+            toggleCategory = {},
+            togglePaymentMode = {},
+            updateMinAmount = {},
+            updateMaxAmount = {},
+            applyFilters = {},
+            resetFilters = {},
+            deleteSelectedTransactions = {}
+        )
+    }
+}
+
+// Multi-config adaptive previews (phone → desktop sizes × font scales) so the
+// list layout, search/filter bar, and empty state are visually verifiable
+// across configurations without a device (roadmap Milestone 5).
+@Preview(name = "Transactions - Multi-Config", showBackground = true)
+@PreviewScreenSizes
+@PreviewFontScale
+@Composable
+private fun TransactionsScreenMultiConfigPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
         TransactionScreenContent(
             uiState = TransactionsScreenUiState(
                 selectedPeriodLabel = UiText.dynamic("July 2026"),

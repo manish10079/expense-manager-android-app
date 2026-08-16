@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +28,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ui.adaptive.FontScaleTier
+import com.mknlabs.expensetracker.ui.adaptive.rememberFontScaleInfo
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 
 
@@ -45,9 +46,11 @@ fun AppHeader(
     contentTopOffset: Dp = 2.dp,
     actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {}
 ) {
-    val fontScale = LocalDensity.current.fontScale
-    val titleMaxLines = if (fontScale > 1.3f) 3 else 2
-    val effectiveTopOffset = if (fontScale > 1.5f) 0.dp else contentTopOffset
+    // Shared tier logic (see rememberFontScaleInfo / maxLinesForTier) — never
+    // multiply sizes by the raw fontScale (non-linear on Android 14+).
+    val fontScaleInfo = rememberFontScaleInfo()
+    val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
+    val effectiveTopOffset = if (fontScaleInfo.tier == FontScaleTier.Huge) 0.dp else contentTopOffset
 
     Row(
         modifier = modifier

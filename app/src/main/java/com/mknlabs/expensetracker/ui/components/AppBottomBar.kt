@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -118,6 +119,9 @@ fun AppBottomBar(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(BottomBarCenterActionSize)
+                    // Touch target stays at the 48dp accessibility minimum even
+                    // though the visual pill is only 40dp.
+                    .minimumInteractiveComponentSize()
                     .shadow(
                         elevation = 22.dp,
                         shape = CircleShape,

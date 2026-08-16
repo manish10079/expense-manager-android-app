@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppSelectionSheet
+import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
@@ -106,6 +107,10 @@ private fun PreferencesScreenContent(
             )
             Spacer(modifier = Modifier.height(18.dp))
 
+            AdaptiveContent(
+                maxWidth = 640.dp,
+                modifier = Modifier.weight(1f)
+            ) {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 24.dp),
@@ -201,6 +206,7 @@ private fun PreferencesScreenContent(
                         NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }
                 }
+            }
             }
         }
     }
