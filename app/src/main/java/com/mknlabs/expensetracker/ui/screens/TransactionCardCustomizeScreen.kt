@@ -4,12 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Paid
@@ -42,6 +46,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -54,6 +60,7 @@ import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
+import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.ui.components.TransactionCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -278,6 +285,10 @@ private fun TransactionCardCustomizeContent(
         previewTransactions.groupBy { formatDate(it.createdAt, dateFormatPattern) }.entries.toList()
     }
 
+    // Adaptive layout: stacked on compact portrait; two columns (preview left,
+    // toggles right) on landscape, tablets, and other wide screens.
+    val isTwoPane = !LocalAppWindowInfo.current.isCompactPortrait
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -285,58 +296,170 @@ private fun TransactionCardCustomizeContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        // Fixed Top Section: Header and Preview
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            AppHeader(
-                title = stringResource(id = R.string.title_transaction_card_settings),
-                onBackClick = onBackClick,
-                modifier = Modifier.padding(top = 10.dp)
-            )
+        if (isTwoPane) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 20.dp)
+            ) {
+                // LEFT: header + live preview
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(end = 16.dp)
+                ) {
+                    AppHeader(
+                        title = stringResource(id = R.string.title_transaction_card_settings),
+                        onBackClick = onBackClick,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TransactionCardPreviewSection(
+                        localSettings = localSettings,
+                        previewTransactions = previewTransactions,
+                        previewTotalIncome = previewTotalIncome,
+                        previewTotalExpense = previewTotalExpense,
+                        previewGroups = previewGroups,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = dateFormatPattern,
+                        timeFormat = timeFormat,
+                        isProUser = isProUser
+                    )
+                }
 
-            Text(
-                text = stringResource(id = R.string.label_preview),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.6.sp
+                // RIGHT: customize toggles + ad
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.title_customize_transaction_card),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
+                    )
+                    TransactionCardTogglesList(
+                        toggleItems = toggleItems,
+                        isInPreview = isInPreview,
+                        modifier = Modifier.weight(1f),
+                        horizontalPadding = 0.dp
+                    )
+                    AdContainer(
+                        isAdsEnabled = isAdsEnabled,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
+                    ) {
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                    }
+                }
+            }
+        } else {
+            // Fixed Top Section: Header and Preview
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                AppHeader(
+                    title = stringResource(id = R.string.title_transaction_card_settings),
+                    onBackClick = onBackClick,
+                    modifier = Modifier.padding(top = 10.dp)
                 )
-            )
 
-            if (localSettings.showTransactionListSummaries) {
-                PreviewTransactionSummaryCard(
-                    income = previewTotalIncome,
-                    expense = previewTotalExpense
+                TransactionCardPreviewSection(
+                    localSettings = localSettings,
+                    previewTransactions = previewTransactions,
+                    previewTotalIncome = previewTotalIncome,
+                    previewTotalExpense = previewTotalExpense,
+                    previewGroups = previewGroups,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences,
+                    dateFormatPattern = dateFormatPattern,
+                    timeFormat = timeFormat,
+                    isProUser = isProUser
+                )
+
+                Text(
+                    text = stringResource(id = R.string.title_customize_transaction_card),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
                 )
             }
 
-            if (localSettings.showDateSeparators) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    previewGroups.forEach { group ->
-                        PreviewDateHeader(
-                            dayLabel = if (previewGroups.indexOf(group) == 0) "Today" else "Yesterday",
-                            dateLabel = group.key
-                        )
-                        group.value.forEach { transaction ->
-                            PreviewTransactionCard(
-                                transaction = transaction,
-                                settings = localSettings,
-                                currencyId = currencyId,
-                                amountFormatPreferences = amountFormatPreferences,
-                                dateFormatPattern = dateFormatPattern,
-                                timeFormat = timeFormat,
-                                isProUser = isProUser
-                            )
-                        }
-                    }
-                }
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    previewTransactions.forEach { transaction ->
+            // Scrollable Bottom Section: Customization Toggles
+            TransactionCardTogglesList(
+                toggleItems = toggleItems,
+                isInPreview = isInPreview,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalPadding = 20.dp
+            )
+
+            // Fixed Native Ad at the bottom
+            AdContainer(
+                isAdsEnabled = isAdsEnabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
+            ) {
+                NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TransactionCardPreviewSection(
+    localSettings: TransactionCardCustomizationSettings,
+    previewTransactions: List<Transaction>,
+    previewTotalIncome: String,
+    previewTotalExpense: String,
+    previewGroups: List<Map.Entry<String, List<Transaction>>>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    timeFormat: String,
+    isProUser: Boolean
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            text = stringResource(id = R.string.label_preview),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.6.sp
+            )
+        )
+
+        if (localSettings.showTransactionListSummaries) {
+            PreviewTransactionSummaryCard(
+                income = previewTotalIncome,
+                expense = previewTotalExpense
+            )
+        }
+
+        if (localSettings.showDateSeparators) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                previewGroups.forEach { group ->
+                    PreviewDateHeader(
+                        dayLabel = if (previewGroups.indexOf(group) == 0) "Today" else "Yesterday",
+                        dateLabel = group.key
+                    )
+                    group.value.forEach { transaction ->
                         PreviewTransactionCard(
                             transaction = transaction,
                             settings = localSettings,
@@ -349,91 +472,90 @@ private fun TransactionCardCustomizeContent(
                     }
                 }
             }
-
-            Text(
-                text = stringResource(id = R.string.title_customize_transaction_card),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
-            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                previewTransactions.forEach { transaction ->
+                    PreviewTransactionCard(
+                        transaction = transaction,
+                        settings = localSettings,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = dateFormatPattern,
+                        timeFormat = timeFormat,
+                        isProUser = isProUser
+                    )
+                }
+            }
         }
+    }
+}
 
-        // Scrollable Bottom Section: Customization Toggles
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            // Group 1: Visual Style
-            item {
-                SettingsGroup {
-                    val groupItems = toggleItems.filter { it.optionId in listOf("showIncomeExpenseLabels", "showCategoryIcon") }
-                    groupItems.forEachIndexed { index, item ->
-                        false.ToggleSettingsItem(
-                            item = item,
-                            isInPreview = isInPreview
-                        )
-                        if (index < groupItems.size - 1) SettingsGroupDivider()
-                    }
-                }
-            }
-
-            // Group 2: Transaction Details
-            item {
-                SettingsGroup {
-                    val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryLabel", "showPaymentMethod", "showTransactionTime") }
-                    groupItems.forEachIndexed { index, item ->
-                        false.ToggleSettingsItem(
-                            item = item,
-                            isInPreview = isInPreview
-                        )
-                        if (index < groupItems.size - 1) SettingsGroupDivider()
-                    }
-                }
-            }
-
-            // Group 3: Time & Organization
-            item {
-                SettingsGroup {
-                    val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
-                    groupItems.forEachIndexed { index, item ->
-                        false.ToggleSettingsItem(
-                            item = item,
-                            isInPreview = isInPreview
-                        )
-                        if (index < groupItems.size - 1) SettingsGroupDivider()
-                    }
-                }
-            }
-
-            // Group 4: Transaction List Summaries
-            item {
-                SettingsGroup {
-                    val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionListSummaries") }
-                    groupItems.forEachIndexed { index, item ->
-                        false.ToggleSettingsItem(
-                            item = item,
-                            isInPreview = isInPreview
-                        )
-                        if (index < groupItems.size - 1) SettingsGroupDivider()
-                    }
+@Composable
+private fun TransactionCardTogglesList(
+    toggleItems: List<TransactionCardToggleItem>,
+    isInPreview: Boolean,
+    modifier: Modifier = Modifier,
+    horizontalPadding: Dp = 20.dp
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        // Group 1: Visual Style
+        item {
+            SettingsGroup {
+                val groupItems = toggleItems.filter { it.optionId in listOf("showIncomeExpenseLabels", "showCategoryIcon") }
+                groupItems.forEachIndexed { index, item ->
+                    false.ToggleSettingsItem(
+                        item = item,
+                        isInPreview = isInPreview
+                    )
+                    if (index < groupItems.size - 1) SettingsGroupDivider()
                 }
             }
         }
 
-        // Fixed Native Ad at the bottom
-        AdContainer(
-            isAdsEnabled = isAdsEnabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(top = Dimens.PaddingMedium, bottom = 8.dp)
-        ) {
-            NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+        // Group 2: Transaction Details
+        item {
+            SettingsGroup {
+                val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryLabel", "showPaymentMethod", "showTransactionTime") }
+                groupItems.forEachIndexed { index, item ->
+                    false.ToggleSettingsItem(
+                        item = item,
+                        isInPreview = isInPreview
+                    )
+                    if (index < groupItems.size - 1) SettingsGroupDivider()
+                }
+            }
+        }
+
+        // Group 3: Time & Organization
+        item {
+            SettingsGroup {
+                val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
+                groupItems.forEachIndexed { index, item ->
+                    false.ToggleSettingsItem(
+                        item = item,
+                        isInPreview = isInPreview
+                    )
+                    if (index < groupItems.size - 1) SettingsGroupDivider()
+                }
+            }
+        }
+
+        // Group 4: Transaction List Summaries
+        item {
+            SettingsGroup {
+                val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionListSummaries") }
+                groupItems.forEachIndexed { index, item ->
+                    false.ToggleSettingsItem(
+                        item = item,
+                        isInPreview = isInPreview
+                    )
+                    if (index < groupItems.size - 1) SettingsGroupDivider()
+                }
+            }
         }
     }
 }
@@ -525,6 +647,20 @@ private fun PreviewTransactionCard(
 )
 @Composable
 private fun TransactionCardCustomizeScreenPreview() {
+    TransactionCardCustomizePreviewContent()
+}
+
+// Multi-config adaptive preview: verifies the stacked (compact) vs two-column
+// (landscape/wide) layouts of the Card Settings screen (roadmap Milestone 5).
+@Preview(name = "Card Settings - Multi-Config", showBackground = true)
+@PreviewScreenSizes
+@Composable
+private fun TransactionCardCustomizeScreenMultiConfigPreview() {
+    TransactionCardCustomizePreviewContent()
+}
+
+@Composable
+private fun TransactionCardCustomizePreviewContent() {
     ExpenseTrackerTheme(darkTheme = true) {
         TransactionCardCustomizeContent(
             settings = TransactionCardCustomizationSettings(),

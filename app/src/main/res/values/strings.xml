@@ -718,7 +718,7 @@
     <string name="desc_display_category_label">Display category label on card</string>
     <string name="desc_display_wallet_or_card">Display wallet or card used</string>
     <string name="desc_group_transactions_by_day">Group transactions under sticky day headers (e.g., \"Today\", \"Yesterday\").</string>
-    <string name="title_transaction_card_settings">Transaction Card Settings</string>
+    <string name="title_transaction_card_settings">Transaction Card</string>
     <string name="label_visual_style">Visual Style</string>
     <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>
     <string name="label_transaction_details">Transaction Details</string>
