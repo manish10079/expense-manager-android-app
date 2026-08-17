@@ -26,7 +26,9 @@ object NotificationAnalytics {
     const val TYPE_LARGE_TRANSACTION = "large_transaction"
     const val TYPE_WEEKLY_SUMMARY = "weekly_summary"
     const val TYPE_GOAL_MILESTONE = "goal_milestone"
+    const val TYPE_GOAL_MILESTONE_SUMMARY = "goal_milestone_summary"
     const val TYPE_RECURRING_BILL = "recurring_bill"
+    const val TYPE_RECURRING_BILL_SUMMARY = "recurring_bill_summary"
     const val TYPE_CLOUD_SECURITY = "cloud_security"
     const val TYPE_FINANCIAL_INSIGHT = "financial_insight"
 

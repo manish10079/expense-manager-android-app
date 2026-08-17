@@ -1530,12 +1530,22 @@
     <string name="title_goal_behind_schedule">Goal behind schedule</string>
     <string name="msg_goal_behind_schedule">You may miss \"%1$s\" — %2$d days left at this pace.</string>
     <string name="label_test_goal">Test Goal </string>
+    <string name="notification_title_goal_milestone_summary">Goal milestones</string>
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d goal reached a milestone</item>
+        <item quantity="other">%1$d goals reached milestones</item>
+    </plurals>
 
     <!-- Recurring Notifications -->
     <string name="notification_title_upcoming_bill">Upcoming Transaction</string>
     <string name="notification_format_upcoming_bill_days">%1$s for \"%2$s\" will be deducted in %3$d days.</string>
     <string name="notification_format_upcoming_bill_tomorrow">%1$s for \"%2$s\" will be deducted tomorrow.</string>
     <string name="notification_format_upcoming_bill_due_today">%1$s for \"%2$s\" is due today.</string>
+    <string name="notification_title_upcoming_bill_summary">Upcoming Transactions</string>
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d upcoming transaction</item>
+        <item quantity="other">%1$d upcoming transactions</item>
+    </plurals>
     <!-- ProPass / Redemption -->
     <string name="title_redeem_pro_pass">Pro Access Code</string>
     <string name="label_redeem_pro_pass_subtitle">Enter code to unlock Pro features</string>

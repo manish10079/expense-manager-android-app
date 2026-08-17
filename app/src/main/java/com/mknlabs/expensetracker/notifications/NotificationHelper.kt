@@ -51,6 +51,8 @@ object NotificationHelper {
     const val NOTIFICATION_ID_SYNC_IN_PROGRESS = 15
     const val NOTIFICATION_ID_SYNC_FAILED = 16
     const val NOTIFICATION_ID_SYNC_PENDING = 17
+    const val NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY = 18
+    const val NOTIFICATION_ID_RECURRING_BILL_SUMMARY = 19
 
     /** Offset above every fixed ID for per-goal milestone alerts (goal id hash + base). */
     private const val GOAL_MILESTONE_ID_BASE = 2000
@@ -68,6 +70,28 @@ object NotificationHelper {
 
     /** Marker extra riding on every budget-alert child (not the summary). */
     const val EXTRA_BUDGET_CATEGORY_ID = "budget.category_id"
+
+    /**
+     * Every goal-milestone alert groups under one collapsible shade entry.
+     * Children get a per-goal ID (base + goal id hash) so different goals
+     * never overwrite each other; a single summary notification at
+     * [NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY] carries the group.
+     */
+    const val GROUP_KEY_GOAL_MILESTONES = "goal_milestones_group"
+
+    /** Marker extra riding on every goal-milestone child (not the summary). */
+    const val EXTRA_GOAL_MILESTONE_GOAL_ID = "goal_milestone.goal_id"
+
+    /**
+     * Every upcoming-bill alert groups under one collapsible shade entry.
+     * Children get a per-rule ID (base + rule id hash + window offset) so
+     * different bills never overwrite each other; a single summary
+     * notification at [NOTIFICATION_ID_RECURRING_BILL_SUMMARY] carries the group.
+     */
+    const val GROUP_KEY_RECURRING_BILLS = "recurring_bills_group"
+
+    /** Marker extra riding on every upcoming-bill child (not the summary). */
+    const val EXTRA_RECURRING_BILL_RULE_ID = "recurring_bill.rule_id"
 
     /**
      * Threshold tiers for budget alerts (notification spec §2): warn at 75%,
@@ -437,8 +461,19 @@ object NotificationHelper {
     private fun budgetAlertIdFor(categoryId: Int, tier: BudgetAlertTier): Int =
         BUDGET_NOTIFICATION_ID_BASE + (categoryId and 0x00FFFFFF) + tier.idOffset
 
-    /** PendingIntent request code for the budget group summary's Open intent. */
-    private const val REQUEST_CODE_BUDGET_SUMMARY = 9
+    /**
+     * PendingIntent request code for the budget group summary's Open intent.
+     * Equals the summary's notification ID (8); previously 9, which collided
+     * with the large-transaction notification's request code — two "equal"
+     * MainActivity intents (extras are ignored for PendingIntent equality)
+     * sharing a code made one PendingIntent overwrite the other's extras
+     * under FLAG_UPDATE_CURRENT.
+     */
+    private const val REQUEST_CODE_BUDGET_SUMMARY = 8
+
+    /** PendingIntent request codes for the goal-milestone / recurring-bill summaries. */
+    private const val REQUEST_CODE_GOAL_MILESTONE_SUMMARY = 18
+    private const val REQUEST_CODE_RECURRING_BILL_SUMMARY = 19
 
     fun showMissedEntryNotification(context: Context, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -610,6 +645,12 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Marker extra distinguishing children from the group summary (which
+        // carries neither the goal id nor a content line).
+        val markerExtras = Bundle().apply {
+            putString(EXTRA_GOAL_MILESTONE_GOAL_ID, goalId)
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_GOAL_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(title)
@@ -619,9 +660,101 @@ object NotificationHelper {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
+            .addExtras(markerExtras)
+            // Grouping: all pending goal alerts collapse under one summary entry
+            // (children alert normally so every new milestone still heads-up).
+            .setGroup(GROUP_KEY_GOAL_MILESTONES)
+            .setGroupSummary(false)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
             .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_GOAL_MILESTONE))
 
-        postNotification(context, notificationId, builder, NotificationAnalytics.TYPE_GOAL_MILESTONE)
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(notificationId, builder.build())
+                NotificationAnalytics.logShown(context, NotificationAnalytics.TYPE_GOAL_MILESTONE, notificationId)
+                // Keep the group summary's goal list in sync with the newly
+                // posted/updated child.
+                refreshGoalMilestoneGroupSummary(context)
+            } catch (e: SecurityException) { }
+        }
+    }
+
+    /**
+     * Rebuilds the collapsible summary for pending goal-milestone alerts. The
+     * summary lives at the fixed [NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY] ID
+     * while each child keeps its per-goal ID; the shade shows ONE entry per
+     * group that expands to the per-goal lines. Cancels itself when the last
+     * child is gone.
+     */
+    private fun refreshGoalMilestoneGroupSummary(context: Context) {
+        val nm = NotificationManagerCompat.from(context)
+        val children = runCatching {
+            nm.activeNotifications.filter { child ->
+                // Children carry the group key AND the goal-id marker; the
+                // summary notification has neither.
+                child.notification.group == GROUP_KEY_GOAL_MILESTONES &&
+                    child.notification.extras?.containsKey(EXTRA_GOAL_MILESTONE_GOAL_ID) == true
+            }
+            // One alert per goal: if a stale child is still visible while its
+            // replacement posts, keep only the newest (largest notification id).
+            .groupBy { child -> child.notification.extras?.getString(EXTRA_GOAL_MILESTONE_GOAL_ID) ?: "" }
+            .values
+            .mapNotNull { group -> group.maxByOrNull { it.id } }
+        }.getOrDefault(emptyList())
+
+        if (children.isEmpty()) {
+            nm.cancel(NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY)
+            return
+        }
+
+        val summaryText = context.resources.getQuantityString(
+            R.plurals.notification_format_goal_milestone_summary,
+            children.size,
+            children.size
+        )
+
+        // Tapping the summary opens the Goals screen.
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_CODE_GOAL_MILESTONE_SUMMARY,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(EXTRA_NAV_DESTINATION, DESTINATION_GOALS)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // The summary expands to a per-goal list (InboxStyle) mirroring the
+        // content lines of each child notification.
+        val inboxStyle = NotificationCompat.InboxStyle()
+        for (child in children) {
+            val line = child.notification.extras
+                ?.getString(Notification.EXTRA_TEXT)
+                ?.takeIf { it.isNotBlank() }
+            if (line != null) inboxStyle.addLine(line)
+        }
+
+        val summary = NotificationCompat.Builder(context, CHANNEL_GOAL_REMINDERS)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_goal_milestone_summary))
+            .setContentText(summaryText)
+            .setStyle(inboxStyle)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(contentIntent)
+            .setAutoCancel(true)
+            .setGroup(GROUP_KEY_GOAL_MILESTONES)
+            .setGroupSummary(true)
+            .setOnlyAlertOnce(true)
+            .build()
+
+        runCatching {
+            nm.notify(NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY, summary)
+            NotificationAnalytics.logShown(
+                context,
+                NotificationAnalytics.TYPE_GOAL_MILESTONE_SUMMARY,
+                NOTIFICATION_ID_GOAL_MILESTONE_SUMMARY
+            )
+        }
     }
 
     /**
@@ -651,6 +784,12 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Marker extra distinguishing children from the group summary (which
+        // carries neither the rule id nor a content line).
+        val markerExtras = Bundle().apply {
+            putString(EXTRA_RECURRING_BILL_RULE_ID, ruleId)
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_RECURRING)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_upcoming_bill))
@@ -659,6 +798,12 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .addExtras(markerExtras)
+            // Grouping: all pending bill alerts collapse under one summary entry
+            // (children alert normally so every new bill still heads-up).
+            .setGroup(GROUP_KEY_RECURRING_BILLS)
+            .setGroupSummary(false)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
             .setDeleteIntent(dismissPendingIntent(context, notificationId, NotificationAnalytics.TYPE_RECURRING_BILL))
 
         with(NotificationManagerCompat.from(context)) {
@@ -669,7 +814,88 @@ object NotificationHelper {
                 }
                 notify(notificationId, builder.build())
                 NotificationAnalytics.logShown(context, NotificationAnalytics.TYPE_RECURRING_BILL, notificationId)
+                // Keep the group summary's bill list in sync with the newly
+                // posted/updated child.
+                refreshRecurringBillGroupSummary(context)
             } catch (e: SecurityException) { }
+        }
+    }
+
+    /**
+     * Rebuilds the collapsible summary for pending upcoming-bill alerts. The
+     * summary lives at the fixed [NOTIFICATION_ID_RECURRING_BILL_SUMMARY] ID
+     * while each child keeps its per-rule ID; the shade shows ONE entry per
+     * group that expands to the per-bill lines. Cancels itself when the last
+     * child is gone.
+     */
+    private fun refreshRecurringBillGroupSummary(context: Context) {
+        val nm = NotificationManagerCompat.from(context)
+        val children = runCatching {
+            nm.activeNotifications.filter { child ->
+                // Children carry the group key AND the rule-id marker; the
+                // summary notification has neither.
+                child.notification.group == GROUP_KEY_RECURRING_BILLS &&
+                    child.notification.extras?.containsKey(EXTRA_RECURRING_BILL_RULE_ID) == true
+            }
+            // One alert per rule: if a stale child is still visible while its
+            // replacement posts, keep only the newest (largest notification id).
+            .groupBy { child -> child.notification.extras?.getString(EXTRA_RECURRING_BILL_RULE_ID) ?: "" }
+            .values
+            .mapNotNull { group -> group.maxByOrNull { it.id } }
+        }.getOrDefault(emptyList())
+
+        if (children.isEmpty()) {
+            nm.cancel(NOTIFICATION_ID_RECURRING_BILL_SUMMARY)
+            return
+        }
+
+        val summaryText = context.resources.getQuantityString(
+            R.plurals.notification_format_upcoming_bill_summary,
+            children.size,
+            children.size
+        )
+
+        // Tapping the summary opens Home.
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_CODE_RECURRING_BILL_SUMMARY,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // The summary expands to a per-bill list (InboxStyle) mirroring the
+        // content lines of each child notification.
+        val inboxStyle = NotificationCompat.InboxStyle()
+        for (child in children) {
+            val line = child.notification.extras
+                ?.getString(Notification.EXTRA_TEXT)
+                ?.takeIf { it.isNotBlank() }
+            if (line != null) inboxStyle.addLine(line)
+        }
+
+        val summary = NotificationCompat.Builder(context, CHANNEL_RECURRING)
+            .setSmallIcon(R.drawable.ic_notification_wallet)
+            .setContentTitle(context.getString(R.string.notification_title_upcoming_bill_summary))
+            .setContentText(summaryText)
+            .setStyle(inboxStyle)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(contentIntent)
+            .setAutoCancel(true)
+            .setGroup(GROUP_KEY_RECURRING_BILLS)
+            .setGroupSummary(true)
+            .setOnlyAlertOnce(true)
+            .build()
+
+        runCatching {
+            nm.notify(NOTIFICATION_ID_RECURRING_BILL_SUMMARY, summary)
+            NotificationAnalytics.logShown(
+                context,
+                NotificationAnalytics.TYPE_RECURRING_BILL_SUMMARY,
+                NOTIFICATION_ID_RECURRING_BILL_SUMMARY
+            )
         }
     }
 
