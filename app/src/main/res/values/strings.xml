@@ -1628,4 +1628,6 @@
     <string name="msg_welcome_back_subtitle">You\'re ready to jump right back in!</string>
     <string name="label_your_goal">YOUR FINANCIAL GOAL</string>
     <string name="label_welcome_back_fallback">there</string>
+    <string name="title_upcoming_recurring">Upcoming Recurring</string>
+    <string name="label_no_upcoming_recurring">No upcoming recurring transactions</string>
 </resources>

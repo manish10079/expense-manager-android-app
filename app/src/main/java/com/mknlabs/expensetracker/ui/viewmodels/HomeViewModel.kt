@@ -1,41 +1,68 @@
 package com.mknlabs.expensetracker.ui.viewmodels
 
 import android.app.Application
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
 import com.mknlabs.expensetracker.domain.repository.GoalRepository
+import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
+import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Goal
+import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.firstName
-import com.mknlabs.expensetracker.domain.repository.SyncRepository
-import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits
-import java.text.DecimalFormat
-import kotlin.math.abs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.abs
+
+// ──────────────────────────────────────────────────────────
+// Upcoming Recurring UI model (self-contained for HomeScreen)
+// ──────────────────────────────────────────────────────────
+
+@Immutable
+data class UpcomingRecurringUi(
+    val id: String,
+    val title: String,
+    val dueLabel: UiText,
+    val dueAmountLabel: String,
+    val icon: ImageVector,
+    val categoryLabel: String,
+    val nextDueAt: Long
+)
+
+// ──────────────────────────────────────────────────────────
+// Home UI State
+// ──────────────────────────────────────────────────────────
 
 @Immutable
 data class HomeScreenUiState(
@@ -56,7 +83,8 @@ data class HomeScreenUiState(
     val monthlyNetDisplay: String = "",
     val monthlyNetDeltaPercent: Float = 0f,
     val monthlyNetDeltaDisplay: UiText? = null,
-    val monthlyIncomeFraction: Float = 0.5f
+    val monthlyIncomeFraction: Float = 0.5f,
+    val upcomingRecurring: List<UpcomingRecurringUi> = emptyList()
 )
 
 private data class HomeInputState(
@@ -64,20 +92,14 @@ private data class HomeInputState(
     val userTier: UserTier = UserTier.FREE,
     val currencyId: Int = DEFAULT_CURRENCY_ID,
     val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
-    val dateFormatPattern: String = "dd MMM",
+    val dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     val timeFormat: String = DEFAULT_TIME_FORMAT,
-    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
-    val categories: List<CategoryType> = emptyList()
+    val categories: List<CategoryType> = emptyList(),
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
 )
 
 private const val HOME_RECENT_TRANSACTION_LIMIT = 10
 
-/**
- * Sum of the saved minor units across all non-completed goals — the hero number
- * on the home Savings Goals card (total saved toward active goals). Completed
- * goals are excluded so the number only reflects what the user is still working
- * towards. Pure function, unit-tested in HomeViewModelTest.
- */
 internal fun activeGoalsSavedMinor(allGoals: List<Goal>): Long =
     allGoals.filter { !it.isCompleted }.sumOf { it.currentAmountMinor }
 
@@ -126,11 +148,59 @@ private fun percentageChange(current: Double, previous: Double): Float {
     return (((current - previous) / previous) * 100.0).toFloat()
 }
 
+/**
+ * Builds a human-readable due label ("Today", "Tomorrow", "In X days") for a
+ * recurring transaction's next run timestamp.
+ */
+private fun dueLabelForHome(nextDueAt: Long): UiText {
+    val now = System.currentTimeMillis()
+    val daysUntil = TimeUnit.MILLISECONDS.toDays(nextDueAt - now)
+    return when {
+        daysUntil < 0L -> UiText.res(R.string.format_days_overdue, abs(daysUntil.toInt()))
+        daysUntil == 0L -> UiText.res(R.string.label_today)
+        daysUntil == 1L -> UiText.res(R.string.label_tomorrow)
+        else -> UiText.res(R.string.format_days_left, daysUntil.toInt())
+    }
+}
+
+/**
+ * Maps enabled recurring rules + their source transactions into a display-ready
+ * list of [UpcomingRecurringUi], sorted by soonest due first, limited to [limit].
+ */
+private fun buildUpcomingRecurring(
+    rules: List<RecurringTransactionRule>,
+    transactions: List<Transaction>,
+    categories: Map<Int, CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    limit: Int = 2
+): List<UpcomingRecurringUi> {
+    val txById = transactions.associateBy { it.id }
+    return rules
+        .filter { it.isEnabled && !it.isDeleted }
+        .mapNotNull { rule ->
+            val tx = txById[rule.transactionId] ?: return@mapNotNull null
+            val category = categories[tx.categoryId]
+            UpcomingRecurringUi(
+                id = rule.id,
+                title = tx.note.ifBlank { category?.name ?: "" },
+                dueLabel = dueLabelForHome(rule.nextRunAt),
+                dueAmountLabel = formatCurrencyValue(tx.amount, currencyId, amountFormatPreferences),
+                icon = category?.icon ?: Icons.Default.Repeat,
+                categoryLabel = category?.name ?: "",
+                nextDueAt = rule.nextRunAt
+            )
+        }
+        .sortedBy { it.nextDueAt }
+        .take(limit)
+}
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val application: Application,
     private val transactionRepository: TransactionRepository,
     private val goalRepository: GoalRepository,
+    private val recurringRuleRepository: RecurringRuleRepository,
     private val syncRepository: SyncRepository
 ) : ViewModel() {
 
@@ -151,9 +221,33 @@ class HomeViewModel @Inject constructor(
                 transactionRepository.observeHomeSummary(),
                 transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
                 goalRepository.observeAllGoals(),
+                recurringRuleRepository.observeActiveRecurringRules(),
+                transactionRepository.observeActiveTransactions(),
                 syncRepository.isSyncing,
                 inputState
-            ) { summary, recentTransactions, allGoals, isSyncing, inputs ->
+            ) { flows ->
+                @Suppress("UNCHECKED_CAST")
+                val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
+                @Suppress("UNCHECKED_CAST")
+                val recentTransactions = flows[1] as List<com.mknlabs.expensetracker.domain.repository.RecentTransaction>
+                @Suppress("UNCHECKED_CAST")
+                val allGoals = flows[2] as List<Goal>
+                @Suppress("UNCHECKED_CAST")
+                val recurringRules = flows[3] as List<RecurringTransactionRule>
+                @Suppress("UNCHECKED_CAST")
+                val allActiveTransactions = flows[4] as List<Transaction>
+                val isSyncing = flows[5] as Boolean
+                val inputs = flows[6] as HomeInputState
+
+                val categoriesMap = inputs.categories.associateBy { it.id }
+                val upcomingRecurring = buildUpcomingRecurring(
+                    rules = recurringRules,
+                    transactions = allActiveTransactions,
+                    categories = categoriesMap,
+                    currencyId = inputs.currencyId,
+                    amountFormatPreferences = inputs.amountFormatPreferences
+                )
+
                 val monthlySummary = buildMonthlySummary(
                     incomeMinor = summary.totalIncomeMinor,
                     expenseMinor = summary.totalExpenseMinor,
@@ -199,6 +293,7 @@ class HomeViewModel @Inject constructor(
                         null // No last-month baseline to compare against.
                     },
                     monthlyIncomeFraction = monthlySummary.incomeFraction,
+                    upcomingRecurring = upcomingRecurring,
                     recentTransactions = recentTransactions.map { recentTransaction ->
                         recentTransaction.transaction.toTransactionCardItemUi(
                             currencyId = inputs.currencyId,

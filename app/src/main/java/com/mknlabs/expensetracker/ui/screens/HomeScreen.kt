@@ -708,8 +708,8 @@ private fun HomeStatsSection(
     Spacer(modifier = Modifier.height(14.dp))
 
     // Ad slot: free users see the native ad (tall media-first card on wide windows,
-    // compact row on phones). Ad-free/premium users get the Monthly Summary card
-    // in its place.
+    // compact row on phones). Ad-free/premium users get the Upcoming Recurring card
+    // strictly on tablets and foldables (width >= 600dp / isWide).
     if (isAdsEnabled) {
         AdContainer(isAdsEnabled = true) {
             NativeAdCard(
@@ -717,31 +717,19 @@ private fun HomeStatsSection(
                 large = isWide
             )
         }
-    } else {
-        MonthlySummaryCard(
-            incomeDisplay = uiState.totalIncome,
-            expenseDisplay = uiState.totalExpense,
-            savingDisplay = uiState.monthlyNetDisplay,
-            prevClosingBalanceDisplay = uiState.previousMonthBalance,
-            netDeltaDisplay = uiState.monthlyNetDeltaDisplay,
-            netDeltaPercent = uiState.monthlyNetDeltaPercent
+    } else if (isWide) {
+        UpcomingRecurringCard(
+            upcomingExpenses = uiState.upcomingRecurring
         )
     }
 }
 
 /**
- * Premium (ad-free) replacement for the home ad slot: this month's income vs expense
- * breakdown, net savings, and the change vs last month. Mirrors the Cash Flow Ratio
- * card's look so it blends with the stats cards above it.
+ * Premium (ad-free) replacement for the home ad slot: shows the latest 2 upcoming active recurring transactions.
  */
 @Composable
-private fun MonthlySummaryCard(
-    incomeDisplay: String,
-    expenseDisplay: String,
-    savingDisplay: String,
-    prevClosingBalanceDisplay: String,
-    netDeltaDisplay: UiText?,
-    netDeltaPercent: Float
+private fun UpcomingRecurringCard(
+    upcomingExpenses: List<com.mknlabs.expensetracker.ui.viewmodels.UpcomingRecurringUi>
 ) {
     Box(
         modifier = Modifier
@@ -752,7 +740,7 @@ private fun MonthlySummaryCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .padding(22.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -760,114 +748,76 @@ private fun MonthlySummaryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(id = R.string.title_monthly_summary),
+                    text = stringResource(id = R.string.title_upcoming_recurring),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
                 )
-                netDeltaDisplay?.let { delta ->
-                    val deltaColor = if (netDeltaPercent >= 0f) {
-                        MaterialTheme.colorScheme.income
-                    } else {
-                        MaterialTheme.colorScheme.expense
-                    }
-                    Box(
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            if (upcomingExpenses.isEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.label_no_upcoming_recurring),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+            } else {
+                upcomingExpenses.forEachIndexed { index, expense ->
+                    Row(
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .background(deltaColor.copy(alpha = 0.15f))
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = expense.icon,
+                                    contentDescription = expense.categoryLabel,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = expense.title,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = expense.dueLabel.asString(),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         Text(
-                            text = delta.asString(),
-                            color = deltaColor,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                            text = expense.dueAmountLabel,
+                            color = MaterialTheme.colorScheme.expense,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                     }
+
+                    if (index < upcomingExpenses.lastIndex) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Line 1: Income
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(id = R.string.label_income),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-                )
-                Text(
-                    text = incomeDisplay,
-                    color = MaterialTheme.colorScheme.income,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Line 2: Expense
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(id = R.string.label_expense),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-                )
-                Text(
-                    text = expenseDisplay,
-                    color = MaterialTheme.colorScheme.expense,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Line 3: Saving (Net)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(id = R.string.label_net_savings),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-                )
-                Text(
-                    text = savingDisplay,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Prev Closing Balance
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(id = R.string.label_prev_closing_balance),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal)
-                )
-                Text(
-                    text = prevClosingBalanceDisplay,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                )
             }
         }
     }

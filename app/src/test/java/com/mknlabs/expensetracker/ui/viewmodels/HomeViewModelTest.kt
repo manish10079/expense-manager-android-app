@@ -52,79 +52,7 @@ class HomeViewModelTest {
         assertEquals(0L, activeGoalsSavedMinor(goals))
     }
 
-    @Test
-    fun `buildMonthlySummary nets income minus expense`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 100_000,
-            expenseMinor = 40_000,
-            previousIncomeMinor = 90_000,
-            previousExpenseMinor = 50_000
-        )
 
-        assertEquals(60_000L, summary.netMinor)
-    }
-
-    @Test
-    fun `buildMonthlySummary reports positive delta when net improved vs last month`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 100_000,
-            expenseMinor = 50_000, // net 50_000
-            previousIncomeMinor = 80_000,
-            previousExpenseMinor = 40_000 // previous net 40_000 -> +25%
-        )
-
-        assertEquals(25f, summary.deltaPercent)
-        assertEquals(true, summary.hasBaseline)
-    }
-
-    @Test
-    fun `buildMonthlySummary reports negative delta when net worsened vs last month`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 30_000,
-            expenseMinor = 50_000, // net -20_000
-            previousIncomeMinor = 20_000,
-            previousExpenseMinor = 10_000 // previous net 10_000 -> -300%
-        )
-
-        assertEquals(-300f, summary.deltaPercent)
-        assertEquals(true, summary.hasBaseline)
-    }
-
-    @Test
-    fun `buildMonthlySummary has no baseline when last month net was zero`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 100_000,
-            expenseMinor = 40_000,
-            previousIncomeMinor = 50_000,
-            previousExpenseMinor = 50_000 // previous net 0
-        )
-
-        assertEquals(false, summary.hasBaseline)
-    }
-
-    @Test
-    fun `buildMonthlySummary splits bar by income share of total flow`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 30_000,
-            expenseMinor = 10_000, // income share 0.75
-            previousIncomeMinor = 0,
-            previousExpenseMinor = 0
-        )
-
-        assertEquals(0.75f, summary.incomeFraction)
-    }
-
-    @Test
-    fun `buildMonthlySummary uses neutral split when there is no activity`() {
-        val summary = buildMonthlySummary(
-            incomeMinor = 0,
-            expenseMinor = 0,
-            previousIncomeMinor = 0,
-            previousExpenseMinor = 0
-        )
-
-        assertEquals(0.5f, summary.incomeFraction)
-    }
 
     private fun goal(
         id: String,
