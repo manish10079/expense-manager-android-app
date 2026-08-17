@@ -47,7 +47,14 @@ class AuthRepositoryImpl @Inject constructor(
             
             val result = if (currentUser != null && currentUser.isAnonymous) {
                 android.util.Log.i("AuthRepo", "Linking anonymous user with Google credential")
-                currentUser.linkWithCredential(credential).await()
+                try {
+                    currentUser.linkWithCredential(credential).await()
+                } catch (e: Exception) {
+                    // If linking fails (e.g. Google account already exists as a separate
+                    // Firebase user), fall back to a standard credential sign-in.
+                    android.util.Log.w("AuthRepo", "Linking failed (likely account exists), switching to standard sign-in: ${authErrorSummary(e)}")
+                    firebaseAuth.signInWithCredential(credential).await()
+                }
             } else {
                 android.util.Log.i("AuthRepo", "Signing in with Google credential (no anonymous user to link)")
                 firebaseAuth.signInWithCredential(credential).await()

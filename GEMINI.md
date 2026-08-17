@@ -48,7 +48,7 @@ com.mkn0079.expensetracker/
 - Use `StateFlow` in ViewModels to expose UI state.
 - Keep UI state immutable (use `data class` with `copy()`).
 - Use `collectAsStateWithLifecycle()` in Composables to observe state safely.
-- Follow the single-activity architecture; navigation is managed in `MainScreen.kt`.
+- **Adaptive & Responsive UI:** All UI implementations MUST be fully adaptive across screen orientations (portrait and landscape) and device form factors (phones, tablets, and foldable devices). Layouts must gracefully reframe or reflow (e.g., side-by-side / multi-column in landscape or wide screens). All text elements MUST support adaptive font scaling when the user increases/decreases font size in Android system settings (use scalable units `sp` for text and ensure containers wrap content without clipping).
 - **Route + Content Pattern:** Separate screen composables into a non-previewable Route (handles ViewModel injection, state collection, `LaunchedEffect` initialization, callbacks, and navigation) and a previewable Content composable (pure UI, no ViewModels, receives everything through parameters and callbacks, relies on realistic fake `PreviewData` for Compose Previews that compile without Hilt), for fake data to generate always ask user first to generate or not..
 
 ### 3. Data & Persistence

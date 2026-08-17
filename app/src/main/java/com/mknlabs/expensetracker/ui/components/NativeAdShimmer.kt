@@ -106,6 +106,90 @@ fun NativeAdShimmer() {
 }
 
 /**
+ * Static skeleton for the **large** (media-first) native ad layout: a tall media placeholder
+ * above the compact icon/headline/body/CTA row. Keeps the shimmer geometry close to the
+ * inflated [com.google.android.gms.ads.nativead.NativeAdView] (native_ad_large_layout.xml)
+ * so the shimmer → ad swap doesn't re-measure the slot.
+ */
+@Composable
+fun NativeAdLargeShimmer() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(standardCardGradient())
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(16.dp)
+    ) {
+        // Media placeholder — 16:9 like the inflated MediaView, so the shimmer → ad
+        // swap doesn't re-measure the slot.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.78f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon placeholder
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Headline placeholder
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Body placeholder
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // CTA Button placeholder
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(34.dp)
+                    .clip(RoundedCornerShape(17.dp))
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+            )
+        }
+    }
+}
+
+/**
  * Ad-loading placeholder with a **bounded** shimmer: a sweeping highlight runs for the first
  * [SHIMMER_ANIMATION_MS] (1 s), then the card falls back to the static [NativeAdShimmer]
  * skeleton so no per-frame animation keeps running while an ad is still pending.
@@ -113,11 +197,16 @@ fun NativeAdShimmer() {
  * This reconciles the product desire for a "loading" affordance with the Phase 3 jank finding
  * (P0 finding #2: an *unbounded* infinite shimmer was a P0 jank source). The animation budget
  * is strictly capped — at most ~1 s of an infinite-transition sweep, then a fully static subtree.
+ *
+ * @param skeleton The static skeleton the sweep runs over (defaults to the compact
+ * [NativeAdShimmer]; pass { NativeAdLargeShimmer() } for the large media-first layout).
  */
 private const val SHIMMER_ANIMATION_MS = 1_000L
 
 @Composable
-fun AdLoadingShimmer() {
+fun AdLoadingShimmer(
+    skeleton: @Composable () -> Unit = { NativeAdShimmer() }
+) {
     // After 1 s, drop the animated highlight and keep only the static skeleton.
     var animate by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
@@ -128,7 +217,7 @@ fun AdLoadingShimmer() {
     if (!animate) {
         // Static fallback — the infinite transition has left composition entirely, so no
         // per-frame animation keeps running (Phase 3 finding #2 stays bounded at ~1 s).
-        NativeAdShimmer()
+        skeleton()
         return
     }
 
@@ -159,7 +248,7 @@ fun AdLoadingShimmer() {
                 shape = RoundedCornerShape(20.dp)
             )
     ) {
-        NativeAdShimmer()
+        skeleton()
 
         // Sweeping highlight band drawn on top of the same geometry as the static skeleton.
         Canvas(modifier = Modifier.matchParentSize()) {

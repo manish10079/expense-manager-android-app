@@ -20,9 +20,12 @@ import com.mknlabs.expensetracker.models.firstName
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits
+import java.text.DecimalFormat
+import kotlin.math.abs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,7 +51,12 @@ data class HomeScreenUiState(
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isBalanceHidden: Boolean = true,
     val isSyncing: Boolean = false,
-    val userTier: UserTier = UserTier.FREE
+    val userTier: UserTier = UserTier.FREE,
+    // Monthly Summary (shown to ad-free/premium users in place of the home ad slot).
+    val monthlyNetDisplay: String = "",
+    val monthlyNetDeltaPercent: Float = 0f,
+    val monthlyNetDeltaDisplay: UiText? = null,
+    val monthlyIncomeFraction: Float = 0.5f
 )
 
 private data class HomeInputState(
@@ -72,6 +80,51 @@ private const val HOME_RECENT_TRANSACTION_LIMIT = 10
  */
 internal fun activeGoalsSavedMinor(allGoals: List<Goal>): Long =
     allGoals.filter { !it.isCompleted }.sumOf { it.currentAmountMinor }
+
+/**
+ * Computed values for the home Monthly Summary card (shown to ad-free users in
+ * place of the home ad slot). Pure function, unit-tested in HomeViewModelTest.
+ *
+ * @param incomeMinor this month's income in minor units
+ * @param expenseMinor this month's expense in minor units
+ * @param previousIncomeMinor last month's income in minor units
+ * @param previousExpenseMinor last month's expense in minor units
+ */
+internal data class MonthlySummaryUi(
+    val netMinor: Long,
+    val deltaPercent: Float,
+    val hasBaseline: Boolean,
+    val incomeFraction: Float
+)
+
+internal fun buildMonthlySummary(
+    incomeMinor: Long,
+    expenseMinor: Long,
+    previousIncomeMinor: Long,
+    previousExpenseMinor: Long
+): MonthlySummaryUi {
+    val netMinor = incomeMinor - expenseMinor
+    val previousNetMinor = previousIncomeMinor - previousExpenseMinor
+    return MonthlySummaryUi(
+        netMinor = netMinor,
+        deltaPercent = percentageChange(netMinor.toDouble(), previousNetMinor.toDouble()),
+        hasBaseline = previousNetMinor != 0L,
+        // Income share of the month's total flow; neutral split when there is no activity.
+        incomeFraction = if (incomeMinor + expenseMinor > 0L) {
+            incomeMinor.toFloat() / (incomeMinor + expenseMinor).toFloat()
+        } else {
+            0.5f
+        }
+    )
+}
+
+/** Percent change of [current] vs [previous]; 100% when there was no previous baseline. */
+private fun percentageChange(current: Double, previous: Double): Float {
+    if (previous == 0.0) {
+        return if (current == 0.0) 0f else 100f
+    }
+    return (((current - previous) / previous) * 100.0).toFloat()
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -101,6 +154,12 @@ class HomeViewModel @Inject constructor(
                 syncRepository.isSyncing,
                 inputState
             ) { summary, recentTransactions, allGoals, isSyncing, inputs ->
+                val monthlySummary = buildMonthlySummary(
+                    incomeMinor = summary.totalIncomeMinor,
+                    expenseMinor = summary.totalExpenseMinor,
+                    previousIncomeMinor = summary.previousMonthIncomeMinor,
+                    previousExpenseMinor = summary.previousMonthExpenseMinor
+                )
                 HomeScreenUiState(
                     greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
                     totalBalance = formatCurrencyValue(
@@ -128,6 +187,18 @@ class HomeViewModel @Inject constructor(
                         currencyId = inputs.currencyId,
                         amountFormatPreferences = inputs.amountFormatPreferences
                     ),
+                    monthlyNetDisplay = formatCurrencyValue(
+                        monthlySummary.netMinor.toMajorUnits(),
+                        currencyId = inputs.currencyId,
+                        amountFormatPreferences = inputs.amountFormatPreferences
+                    ),
+                    monthlyNetDeltaPercent = monthlySummary.deltaPercent,
+                    monthlyNetDeltaDisplay = if (monthlySummary.hasBaseline) {
+                        formatPercent(monthlySummary.deltaPercent)
+                    } else {
+                        null // No last-month baseline to compare against.
+                    },
+                    monthlyIncomeFraction = monthlySummary.incomeFraction,
                     recentTransactions = recentTransactions.map { recentTransaction ->
                         recentTransaction.transaction.toTransactionCardItemUi(
                             currencyId = inputs.currencyId,
@@ -178,6 +249,14 @@ class HomeViewModel @Inject constructor(
                 customizationSettings = customizationSettings
             )
         }
+    }
+
+    /** Signed percent display like "+12%" / "-8%" (mirrors the Analytics helper). */
+    private fun formatPercent(value: Float): UiText {
+        val formatter = DecimalFormat("0.#")
+        val absoluteValue = formatter.format(abs(value))
+        val prefixRes = if (value >= 0f) R.string.label_plus else R.string.label_minus
+        return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
     }
 
     fun toggleBalanceVisibility() {

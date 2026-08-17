@@ -250,11 +250,15 @@ fun AnalyticsScreenContent(
                 }
             }
             item { StatsRow(snapshot) }
+            // Cash Flow Ratio is always full-width: in the two-column layout it
+            // would otherwise be squeezed into half the row width.
+            item {
+                CashFlowCard(snapshot)
+            }
             item {
                 AnalyticsSectionRow(
                     isWide = isWide,
-                    first = { CashFlowCard(snapshot) },
-                    second = {
+                    first = {
                     GatedAction(
                         feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
                         displayName = stringResource(id = R.string.title_full_category_breakdown),
@@ -281,13 +285,8 @@ fun AnalyticsScreenContent(
                             }
                         }
                     }
-                }
-                )
-            }
-            item {
-                AnalyticsSectionRow(
-                    isWide = isWide,
-                    first = {
+                    },
+                    second = {
                     GatedAction(
                         feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
                         displayName = stringResource(id = R.string.title_payment_mode_breakdown),
@@ -314,14 +313,18 @@ fun AnalyticsScreenContent(
                             }
                         }
                     }
-                    },
-                    second = {
-                    // Inline Native Ad after Payment Mode Breakdown
+                    }
+                )
+            }
+            // Single-column: keep the native ad between the payment breakdown
+            // and top spending. In the two-column layout it becomes a full-width
+            // row at the bottom instead (see below).
+            if (!isWide) {
+                item {
                     AdContainer(isAdsEnabled = isAdsEnabled) {
                         NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                     }
-                    }
-                )
+                }
             }
             item {
                 AnalyticsSectionRow(
@@ -372,6 +375,14 @@ fun AnalyticsScreenContent(
                     }
                 }
                 )
+            }
+            // Two-column layout: native ad as a full-width row at the bottom.
+            if (isWide) {
+                item {
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                    }
+                }
             }
         }
     }

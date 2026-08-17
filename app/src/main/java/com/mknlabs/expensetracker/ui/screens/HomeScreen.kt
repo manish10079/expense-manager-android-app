@@ -21,11 +21,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Savings
@@ -66,6 +66,10 @@ import com.mknlabs.expensetracker.ui.components.*
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.ui.theme.expense
+import com.mknlabs.expensetracker.ui.theme.income
+import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.HomeScreenUiState
 import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupUiState
@@ -309,6 +313,8 @@ private fun HomeScreenContent(
     // cards + ad, right: scrollable recent transactions) everywhere else — phone
     // landscape, tablets, foldables, and desktop.
     val isTwoPane = !LocalAppWindowInfo.current.isCompactPortrait
+    // True on tablets/foldables/desktop (width ≥ 600dp); drives the large native-ad variant.
+    val isWide = LocalAppWindowInfo.current.isWide
 
     Box(
         modifier = Modifier
@@ -319,10 +325,10 @@ private fun HomeScreenContent(
     ) {
         if (isTwoPane) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Full-width greeting row: home icon (left) + greeting/settings/
-                // avatar (right); recent activities render below it in the right pane.
+                Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
+                // Full-width greeting row: greeting/settings/avatar on the right;
+                // recent activities render below it in the right pane.
                 HomeHeaderRow(
-                    showHomeIcon = true,
                     userProfile = userProfile,
                     uiState = uiState,
                     onProfileClick = onProfileClick,
@@ -333,7 +339,7 @@ private fun HomeScreenContent(
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     Column(
                         modifier = Modifier
-                            .widthIn(max = 400.dp)
+                            .weight(1f)
                             .fillMaxHeight()
                             .verticalScroll(rememberScrollState())
                             .padding(end = 16.dp)
@@ -352,7 +358,8 @@ private fun HomeScreenContent(
                             onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
                             onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                             onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
-                            onMiuiSetupCardDismiss = onMiuiSetupCardDismiss
+                            onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+                            isWide = isWide
                         )
                     }
 
@@ -391,7 +398,8 @@ private fun HomeScreenContent(
                     onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                     onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
                     onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
-                    isLockOverlayActive = isLockOverlayActive
+                    isLockOverlayActive = isLockOverlayActive,
+                    isWide = isWide
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 RecentActivitiesHeader(onViewAllClick = onViewAllClick)
@@ -429,10 +437,10 @@ private fun HomeTopSection(
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
     onMiuiSetupCardDismiss: () -> Unit = {},
-    isLockOverlayActive: Boolean = false
+    isLockOverlayActive: Boolean = false,
+    isWide: Boolean = false
 ) {
     HomeHeaderRow(
-        showHomeIcon = false,
         userProfile = userProfile,
         uiState = uiState,
         onProfileClick = onProfileClick,
@@ -454,20 +462,19 @@ private fun HomeTopSection(
         onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
         onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
         onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
-        onMiuiSetupCardDismiss = onMiuiSetupCardDismiss
+        onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+        isWide = isWide
     )
 }
 
 /**
  * Full-width greeting row. Compact (portrait): left-aligned greeting with
- * settings + avatar on the right. Two-pane (landscape/wide): the home icon
- * button sits at the LEFT end next to the greeting (Hi user 👋), with settings
- * + profile avatar on the far RIGHT and the recent-activities list rendering
- * below the row.
+ * settings + avatar on the right. Two-pane (landscape/wide): the greeting
+ * (Hi user 👋) with settings + profile avatar on the far RIGHT, and the
+ * recent-activities list rendering below the row.
  */
 @Composable
 private fun HomeHeaderRow(
-    showHomeIcon: Boolean,
     userProfile: UserProfile,
     uiState: HomeScreenUiState,
     onProfileClick: () -> Unit,
@@ -483,11 +490,6 @@ private fun HomeHeaderRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (showHomeIcon) {
-            HomeIconButton()
-            Spacer(modifier = Modifier.width(12.dp))
-        }
-
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -605,33 +607,6 @@ private fun HomeHeaderRow(
 }
 
 /**
- * Round home button shown at the LEFT end of the two-pane greeting row.
- */
-@Composable
-private fun HomeIconButton() {
-    Box(
-        modifier = Modifier
-            // Visual 40dp; keeps the 48dp touch-target minimum.
-            .size(40.dp)
-            .minimumInteractiveComponentSize()
-            .clip(CircleShape)
-            .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-                onClick = {}
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Home,
-            contentDescription = stringResource(id = R.string.title_nav_home),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(28.dp)
-        )
-    }
-}
-
-/**
  * Setup cards + stats + mini cards + native ad — the vertical stack below the
  * greeting header. Shared by the Compact single column and the left pane of the
  * two-pane layout (where it scrolls independently).
@@ -651,7 +626,10 @@ private fun HomeStatsSection(
     onSmsPermissionCardDismiss: () -> Unit,
     onMiuiSetupCardOpenAppSettings: () -> Unit,
     onMiuiSetupCardBatterySettings: () -> Unit,
-    onMiuiSetupCardDismiss: () -> Unit
+    onMiuiSetupCardDismiss: () -> Unit,
+    // Wide windows (tablets/foldables/desktop) render the tall media-first native ad;
+    // phones keep the compact banner row.
+    isWide: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -729,9 +707,169 @@ private fun HomeStatsSection(
 
     Spacer(modifier = Modifier.height(14.dp))
 
-    // Native Ad Placement
-    AdContainer(isAdsEnabled = isAdsEnabled) {
-        NativeAdCard(placement = AdPlacement.HOME_DASHBOARD)
+    // Ad slot: free users see the native ad (tall media-first card on wide windows,
+    // compact row on phones). Ad-free/premium users get the Monthly Summary card
+    // in its place.
+    if (isAdsEnabled) {
+        AdContainer(isAdsEnabled = true) {
+            NativeAdCard(
+                placement = AdPlacement.HOME_DASHBOARD,
+                large = isWide
+            )
+        }
+    } else {
+        MonthlySummaryCard(
+            incomeDisplay = uiState.totalIncome,
+            expenseDisplay = uiState.totalExpense,
+            savingDisplay = uiState.monthlyNetDisplay,
+            prevClosingBalanceDisplay = uiState.previousMonthBalance,
+            netDeltaDisplay = uiState.monthlyNetDeltaDisplay,
+            netDeltaPercent = uiState.monthlyNetDeltaPercent
+        )
+    }
+}
+
+/**
+ * Premium (ad-free) replacement for the home ad slot: this month's income vs expense
+ * breakdown, net savings, and the change vs last month. Mirrors the Cash Flow Ratio
+ * card's look so it blends with the stats cards above it.
+ */
+@Composable
+private fun MonthlySummaryCard(
+    incomeDisplay: String,
+    expenseDisplay: String,
+    savingDisplay: String,
+    prevClosingBalanceDisplay: String,
+    netDeltaDisplay: UiText?,
+    netDeltaPercent: Float
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.title_monthly_summary),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                )
+                netDeltaDisplay?.let { delta ->
+                    val deltaColor = if (netDeltaPercent >= 0f) {
+                        MaterialTheme.colorScheme.income
+                    } else {
+                        MaterialTheme.colorScheme.expense
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(deltaColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = delta.asString(),
+                            color = deltaColor,
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Line 1: Income
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.label_income),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+                Text(
+                    text = incomeDisplay,
+                    color = MaterialTheme.colorScheme.income,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Line 2: Expense
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.label_expense),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+                Text(
+                    text = expenseDisplay,
+                    color = MaterialTheme.colorScheme.expense,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Line 3: Saving (Net)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.label_net_savings),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+                Text(
+                    text = savingDisplay,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Prev Closing Balance
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.label_prev_closing_balance),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal)
+                )
+                Text(
+                    text = prevClosingBalanceDisplay,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                )
+            }
+        }
     }
 }
 

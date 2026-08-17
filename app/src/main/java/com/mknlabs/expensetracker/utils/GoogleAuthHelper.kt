@@ -27,43 +27,59 @@ class GoogleAuthHelper @Inject constructor(
     ): Result<String?> {
         val credentialManager = CredentialManager.create(context)
 
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(filterByAuthorized)
-            .setServerClientId(context.getString(R.string.default_web_client_id))
-            .setAutoSelectEnabled(autoSelect)
-            // Explicitly set this to false if filterByAuthorized is false to avoid the system quirk
-            // that prompts an "Add Account" intent on certain Android OS versions.
-            .build()
-
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
-
-        return try {
-            val result = credentialManager.getCredential(
-                context = context,
-                request = request
-            )
-            
-            android.util.Log.d("AUTH", "GoogleAuthHelper: Credential received from CredentialManager")
-            val credential = result.credential
-            
-            // Fix: Use the static factory method to create the object from data
-            // This is more robust than simple type checking 'is'
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            Result.success(googleIdTokenCredential.idToken)
-            
-        } catch (e: GetCredentialCancellationException) {
-            Log.d("GoogleAuth", "User cancelled the Google Sign-In request")
-            Result.success(null)
-        } catch (e: NoCredentialException) {
-            Log.e("GoogleAuth", "No Google accounts found on device")
-            Result.failure(e)
-        } catch (e: Exception) {
-            // Log only the class name — the raw message may embed the user's email
-            Log.e("GoogleAuth", "Google Sign-In failed: ${e.javaClass.simpleName}")
-            Result.failure(e)
+        // Two-step strategy to avoid the "Add Account" screen on first click:
+        // 1. First try with filterByAuthorizedAccounts=true (fast path for returning users).
+        // 2. If no authorized accounts exist yet, retry with false to show the full picker.
+        val filterSteps = if (filterByAuthorized) {
+            // Caller explicitly requested authorized-only; honour that.
+            listOf(true)
+        } else {
+            // Try authorized first, then fall back to all accounts.
+            listOf(true, false)
         }
+
+        for ((index, filterFlag) in filterSteps.withIndex()) {
+            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(filterFlag)
+                .setServerClientId(context.getString(R.string.default_web_client_id))
+                .setAutoSelectEnabled(autoSelect && filterFlag)
+                .build()
+
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
+
+            try {
+                val result = credentialManager.getCredential(
+                    context = context,
+                    request = request
+                )
+
+                Log.d("AUTH", "GoogleAuthHelper: Credential received (filterByAuthorized=$filterFlag)")
+                val credential = result.credential
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                return Result.success(googleIdTokenCredential.idToken)
+
+            } catch (e: GetCredentialCancellationException) {
+                Log.d("GoogleAuth", "User cancelled the Google Sign-In request")
+                return Result.success(null)
+            } catch (e: NoCredentialException) {
+                if (index < filterSteps.lastIndex) {
+                    // No authorized accounts yet — retry with the full picker.
+                    Log.d("GoogleAuth", "No authorized accounts, retrying with all accounts")
+                    continue
+                }
+                Log.e("GoogleAuth", "No Google accounts found on device")
+                return Result.failure(e)
+            } catch (e: Exception) {
+                // Log only the class name — the raw message may embed the user's email
+                Log.e("GoogleAuth", "Google Sign-In failed: ${e.javaClass.simpleName}")
+                return Result.failure(e)
+            }
+        }
+
+        // Should be unreachable, but satisfy the compiler.
+        return Result.failure(NoCredentialException())
     }
 
     suspend fun signOut() {

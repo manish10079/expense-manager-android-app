@@ -870,6 +870,8 @@
     <string name="format_date_short">dd MMM</string>
     <string name="label_total_spending">Total Spending</string>
     <string name="label_net_savings">Net Savings</string>
+    <string name="label_prev_closing_balance">Prev. Closing Balance</string>
+    <string name="title_monthly_summary">Monthly Summary</string>
     <string name="label_spending_by_payment_mode_breakdown">Breakdown of expenses based on the wallet or payment method used.</string>
 
     <string-array name="days_of_week_short">

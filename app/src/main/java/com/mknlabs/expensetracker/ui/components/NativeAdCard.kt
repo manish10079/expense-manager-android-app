@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.mknlabs.expensetracker.R
@@ -50,11 +51,14 @@ import androidx.compose.ui.graphics.toArgb
 @Composable
 fun NativeAdCard(
     placement: AdPlacement,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // When true, renders the tall media-first layout (native_ad_large_layout.xml)
+    // used on wide/tablet windows; otherwise the compact banner row.
+    large: Boolean = false
 ) {
     // In preview/design mode, show a shimmer placeholder
     if (LocalInspectionMode.current) {
-        NativeAdShimmer()
+        if (large) NativeAdLargeShimmer() else NativeAdShimmer()
         return
     }
 
@@ -94,7 +98,11 @@ fun NativeAdCard(
 
     if (isLoading) {
         // Bounded shimmer: animated sweep for the first 1 s, then static skeleton.
-        AdLoadingShimmer()
+        if (large) {
+            AdLoadingShimmer(skeleton = { NativeAdLargeShimmer() })
+        } else {
+            AdLoadingShimmer()
+        }
     } else {
         nativeAd?.let { ad ->
             Box(
@@ -113,7 +121,10 @@ fun NativeAdCard(
                     factory = { ctx ->
                         // Inflate once per view instance (recycled afterwards by the LazyColumn).
                         val adView = LayoutInflater.from(ctx)
-                            .inflate(R.layout.native_ad_banner_layout, null) as NativeAdView
+                            .inflate(
+                                if (large) R.layout.native_ad_large_layout else R.layout.native_ad_banner_layout,
+                                null
+                            ) as NativeAdView
                         val holder = NativeAdViewHolder(adView)
                         adView.tag = holder
                         holder.applyColors(headlineColor, bodyColor, primaryColor)
@@ -161,6 +172,8 @@ private class NativeAdViewHolder(private val adView: NativeAdView) {
     private val starRatingView: RatingBar = adView.findViewById(R.id.ad_stars)
     private val storeView: TextView = adView.findViewById(R.id.ad_store)
     private val advertiserView: TextView = adView.findViewById(R.id.ad_advertiser)
+    // Only present in the large (media-first) layout; null for the compact banner.
+    private val mediaView: MediaView? = adView.findViewById(R.id.ad_media)
 
     /** The ad currently bound to [adView]; null once [clear] has run. */
     var boundAd: NativeAd? = null
@@ -182,6 +195,22 @@ private class NativeAdViewHolder(private val adView: NativeAdView) {
         adView.starRatingView = starRatingView
         adView.storeView = storeView
         adView.advertiserView = advertiserView
+
+        // Large layout only: show the media (image/video) when the ad provides it.
+        // The media area itself is sized to a 16:9 ratio in the layout XML, so images
+        // and video ads fill it without letterboxing.
+        mediaView?.let { media ->
+            val mediaContent = nativeAd.mediaContent
+            if (mediaContent != null) {
+                media.setImageScaleType(ImageView.ScaleType.CENTER_CROP)
+                media.mediaContent = mediaContent
+                media.visibility = View.VISIBLE
+                adView.mediaView = media
+            } else {
+                media.visibility = View.GONE
+                adView.mediaView = null
+            }
+        }
 
         // The headline is guaranteed to be in every NativeAd.
         headlineView.text = nativeAd.headline

@@ -479,7 +479,14 @@ class AdsCoordinator @Inject constructor(
                             nativeAdCallbacks.remove(placement)
                         }
                     })
-                    .withNativeAdOptions(NativeAdOptions.Builder().build())
+                    // Custom mute: video native ads play sound-on by default, and the SDK
+                    // renders a mute/unmute toggle on the MediaView when this is enabled
+                    // (recommended by Google for sound-on video ads).
+                    .withNativeAdOptions(
+                        NativeAdOptions.Builder()
+                            .setRequestCustomMuteThisAd(true)
+                            .build()
+                    )
                     .build()
             }
             // AdLoader.Builder ran off-main per AdMob guidance; keep loadAd() itself on the
