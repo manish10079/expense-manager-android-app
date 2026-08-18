@@ -134,7 +134,7 @@ private fun GoalsScreenContent(
                 Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
                 AppHeader(
-                    title = stringResource(R.string.title_savings_goals),
+                    title = stringResource(R.string.title_my_goals),
                     onBackClick = onBackClick
                 )
 

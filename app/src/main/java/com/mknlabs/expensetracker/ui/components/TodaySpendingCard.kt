@@ -86,7 +86,7 @@ fun TodaySpendingCard(
 
                 Column {
                     Text(
-                        text = stringResource(R.string.label_todays_spending),
+                        text = stringResource(R.string.label_spent_today),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )

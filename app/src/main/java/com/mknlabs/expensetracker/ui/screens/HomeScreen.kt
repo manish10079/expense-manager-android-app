@@ -687,7 +687,7 @@ private fun HomeStatsSection(
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         SmallHomeCard(
-            title = stringResource(R.string.label_todays_spending),
+            title = stringResource(R.string.label_spent_today),
             value = uiState.todaySpending,
             icon = Icons.Default.CalendarMonth,
             modifier = Modifier.weight(1f),
@@ -695,7 +695,7 @@ private fun HomeStatsSection(
         )
 
         SmallHomeCard(
-            title = stringResource(R.string.title_savings_goals),
+            title = stringResource(R.string.title_my_goals),
             // Total saved across all active goals (the badge carries the count).
             value = uiState.activeGoalsSaved,
             icon = Icons.Default.Savings,

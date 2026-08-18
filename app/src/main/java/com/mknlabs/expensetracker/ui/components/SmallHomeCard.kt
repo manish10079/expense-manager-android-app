@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,11 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Savings
 
 @Composable
 fun SmallHomeCard(
@@ -45,7 +50,7 @@ fun SmallHomeCard(
                 color = colorScheme.outlineVariant.copy(alpha = 0.65f),
                 shape = shape
             )
-            .padding(14.dp)
+            .padding(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -99,17 +104,17 @@ fun SmallHomeCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 Column {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = colorScheme.onSurfaceVariant,
-                        maxLines = 1
+                        maxLines  = 1
                     )
 
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
 
                     Text(
                         text = value,
@@ -129,6 +134,94 @@ fun SmallHomeCard(
                 tint = colorScheme.primary.copy(alpha = 0.7f),
                 modifier = Modifier.size(16.dp)
             )
+        }
+    }
+}
+
+@Preview(name = "Today's Spending — Light", showBackground = true)
+@Composable
+private fun SmallHomeCardTodayLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            SmallHomeCard(
+                title = "Today's Spending",
+                value = "₹2,450",
+                icon = Icons.Filled.CalendarMonth,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(name = "Today's Spending — Dark", showBackground = true)
+@Composable
+private fun SmallHomeCardTodayDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            SmallHomeCard(
+                title = "Today's Spending",
+                value = "₹2,450",
+                icon = Icons.Filled.CalendarMonth,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(name = "Home Row — Light", showBackground = true)
+@Composable
+private fun SmallHomeCardRowLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                SmallHomeCard(
+                    title = "Today's Spending",
+                    value = "₹2,450",
+                    icon = Icons.Filled.CalendarMonth,
+                    modifier = Modifier.weight(1f)
+                )
+                SmallHomeCard(
+                    title = "Savings Goals",
+                    value = "₹12,000",
+                    icon = Icons.Filled.Savings,
+                    badgeCount = 3,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Preview(name = "Home Row — Dark", showBackground = true)
+@Composable
+private fun SmallHomeCardRowDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                SmallHomeCard(
+                    title = "Today's Spending",
+                    value = "₹2,450",
+                    icon = Icons.Filled.CalendarMonth,
+                    modifier = Modifier.weight(1f)
+                )
+                SmallHomeCard(
+                    title = "Savings Goals",
+                    value = "₹12,000",
+                    icon = Icons.Filled.Savings,
+                    badgeCount = 3,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

@@ -240,6 +240,11 @@ fun ProfileAvatar(
                         brush = Brush.verticalGradient(
                             colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                         )
+                    )
+                    .border(
+                        width = 0.5.dp,
+                        color = Color.Black,
+                        shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {

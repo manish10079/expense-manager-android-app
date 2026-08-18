@@ -74,7 +74,7 @@ fun SavingsGoalCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Savings,
-                        contentDescription = stringResource(R.string.title_savings_goals),
+                        contentDescription = stringResource(R.string.title_my_goals),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -83,7 +83,7 @@ fun SavingsGoalCard(
 
                 Column {
                     Text(
-                        text = stringResource(R.string.title_savings_goals),
+                        text = stringResource(R.string.title_my_goals),
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )

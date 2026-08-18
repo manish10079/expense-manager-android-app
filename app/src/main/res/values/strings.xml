@@ -168,7 +168,7 @@
     <string name="label_delete_account_and_data">Delete Account &amp; All Data</string>
     <string name="desc_delete_data_warning">This will permanently remove all your expenses and budgets. If you are signed in, your account and cloud backups will also be destroyed. This cannot be undone.</string>
     <string name="label_this_removes_only_transactions">This will remove all your data permanently. This action is irreversible.</string>
-    <string name="label_todays_spending">Today\'s Spending</string>
+    <string name="label_spent_today">Spent Today</string>
     <string name="label_top_spending">Top Spending</string>
     <string name="label_top_spending_by_category">Top Spending by\nCategory</string>
     <string name="label_top_spending_by_payment_mode">Top Spending by\nPayment Mode</string>
@@ -1487,7 +1487,7 @@
     <string name="btn_got_it">Got it</string>
 
     <!-- Goals Feature -->
-    <string name="title_savings_goals">Savings Goals</string>
+    <string name="title_my_goals">My Goals</string>
     <string name="title_add_goal">Add Savings Goal</string>
     <string name="title_fund_goal">Fund Goal</string>
     <string name="title_delete_goal">Delete Goal</string>
