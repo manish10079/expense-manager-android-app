@@ -73,6 +73,7 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
             authRepository.currentUser.collect { user ->
                     if (user != null) {
                         runCatching {
+                            @Suppress("DEPRECATION")
                             val token = FirebaseMessaging.getInstance().token.await()
                             fcmTokenRepository.registerCurrentDeviceToken(token)
                         }

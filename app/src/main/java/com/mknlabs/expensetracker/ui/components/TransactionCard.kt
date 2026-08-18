@@ -6,6 +6,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -280,11 +281,14 @@ fun TransactionCard(
                 )
             }
 
-            // Pills Section (single-line Row — cheaper than FlowRow for short labels)
+            // Pills Section — FlowRow: pills keep their natural content width and
+            // wrap onto a second line only when all three don't fit, so every
+            // label stays fully visible.
             Spacer(modifier = Modifier.height(6.dp))
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (showTypeLabel) {
                     TransactionPill(

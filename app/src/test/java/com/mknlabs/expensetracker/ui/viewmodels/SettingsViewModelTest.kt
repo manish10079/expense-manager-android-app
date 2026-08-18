@@ -141,6 +141,7 @@ class SettingsViewModelTest {
         override val registeredDevices: StateFlow<List<RegisteredDevice>> = MutableStateFlow(emptyList())
         override val isSyncEnabled: StateFlow<Boolean> = MutableStateFlow(false)
         override val isSyncing: StateFlow<Boolean> = MutableStateFlow(false)
+        override val lastSyncTimeMillis: StateFlow<Long> = MutableStateFlow(0L)
         override suspend fun registerCurrentDevice(): Result<Unit> = Result.success(Unit)
         override suspend fun unregisterDevice(deviceId: String): Result<Unit> = Result.success(Unit)
         override suspend fun refreshDevices(): Result<Unit> = Result.success(Unit)

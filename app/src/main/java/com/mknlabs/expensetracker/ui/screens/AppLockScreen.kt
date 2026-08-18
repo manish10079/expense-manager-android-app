@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.ui.screens
 
 import androidx.activity.compose.BackHandler
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -501,6 +503,10 @@ private fun AppLockScreenContent(
     // Hoisted so the card can be scrolled to the answer field when the keyboard opens.
     val cardScrollState = rememberScrollState()
 
+    // Landscape phones are short: compact the keypad/dimensions so the layout
+    // fits without much scrolling (the card stays scrollable as a safety net).
+    val compact = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     // Tracks whether the answer field itself is focused. This is the deterministic trigger
     // for the keyboard layout (WindowInsets.isImeVisible can report false even with the IME
     // fully shown on some devices), and it also covers short content like the recovery card.
@@ -623,14 +629,11 @@ private fun AppLockScreenContent(
                                 alpha = if (isDarkPalette) 0.42f else 0.72f
                             )
                         )
-                        .padding(horizontal = 20.dp, vertical = if (isKeyboardOpen) 16.dp else 28.dp)
-                        .then(
-                            if (isPinEntryVisible) {
-                                Modifier
-                            } else {
-                                Modifier.verticalScroll(cardScrollState)
-                            }
-                        ),
+                        .padding(
+                            horizontal = 20.dp,
+                            vertical = if (isKeyboardOpen) 12.dp else if (compact) 16.dp else 28.dp
+                        )
+                        .verticalScroll(cardScrollState),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (eyebrow.isNotBlank()) {
@@ -645,7 +648,7 @@ private fun AppLockScreenContent(
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(if (compact) 8.dp else 14.dp))
                     }
 
                     if (headline.isNotBlank()) {
@@ -654,12 +657,12 @@ private fun AppLockScreenContent(
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
-                                fontSize = 34.sp
+                                fontSize = if (compact) 28.sp else 34.sp
                             ),
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(if (compact) 6.dp else 8.dp))
                     }
 
                     if (supportText.isNotBlank()) {
@@ -675,9 +678,9 @@ private fun AppLockScreenContent(
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(if (compact) 12.dp else 24.dp))
                     } else {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(if (compact) 6.dp else 8.dp))
                     }
 
                     when {
@@ -713,20 +716,22 @@ private fun AppLockScreenContent(
                                 onDigitClick = onDigitClick,
                                 onDeleteClick = onDeleteClick,
                                 onForgotClick = onForgotClick,
-                                pinVisualMode = pinVisualMode
+                                pinVisualMode = pinVisualMode,
+                                compact = compact
                             )
 
                             if (mode == AppLockScreenMode.Unlock && biometricEnabled && isBiometricAvailable && onBiometricClick != null) {
-                                Spacer(modifier = Modifier.height(34.dp))
+                                Spacer(modifier = Modifier.height(if (compact) 20.dp else 34.dp))
 
                                 BiometricActionButton(
-                                    onClick = onBiometricClick
+                                    onClick = onBiometricClick,
+                                    compact = compact
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 0.dp else 22.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 0.dp else if (compact) 12.dp else 22.dp))
                 }
             }
 
@@ -757,7 +762,8 @@ private fun PinEntryContent(
     onDigitClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
     onForgotClick: () -> Unit,
-    pinVisualMode: PinVisualMode
+    pinVisualMode: PinVisualMode,
+    compact: Boolean = false
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -771,13 +777,13 @@ private fun PinEntryContent(
         }
     }
 
-    Spacer(modifier = Modifier.height(34.dp))
+    Spacer(modifier = Modifier.height(if (compact) 20.dp else 34.dp))
 
     Column(
         modifier = Modifier.graphicsLayer {
             translationX = keypadShakeOffsetPx
         },
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 14.dp)
     ) {
         AnimatedContent(
             targetState = keypadLayoutVersion,
@@ -787,13 +793,14 @@ private fun PinEntryContent(
             },
             label = "app_lock_keypad_layout"
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 14.dp)) {
                 keypadLayout.forEach { row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 14.dp)) {
                         row.forEach { key ->
                             AppLockKey(
                                 key = key,
                                 enabled = keypadEnabled && (key != APP_LOCK_FORGOT_KEY || mode == AppLockScreenMode.Unlock),
+                                compact = compact,
                                 onClick = {
                                     when (key) {
                                         APP_LOCK_DELETE_KEY -> onDeleteClick()
@@ -1005,11 +1012,12 @@ private fun PrimaryActionButton(
 
 @Composable
 private fun BiometricActionButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    compact: Boolean = false
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.size(90.dp),
+        modifier = Modifier.size(if (compact) 64.dp else 90.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -1019,7 +1027,7 @@ private fun BiometricActionButton(
         Icon(
             imageVector = Icons.Filled.Fingerprint,
             contentDescription = stringResource(R.string.desc_use_biometric),
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(if (compact) 70.dp else 100.dp)
         )
     }
 }
@@ -1028,16 +1036,18 @@ private fun BiometricActionButton(
 private fun AppLockKey(
     key: String,
     enabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    compact: Boolean = false
 ) {
     val isForgot = key == APP_LOCK_FORGOT_KEY
     val isDelete = key == APP_LOCK_DELETE_KEY
-    val shape = RoundedCornerShape(38.dp)
+    val shape = RoundedCornerShape(if (compact) 28.dp else 38.dp)
     val interactionSource = remember { MutableInteractionSource() }
+    val keySize = if (compact) 62.dp else 84.dp
 
     Box(
         modifier = Modifier
-            .size(width = 84.dp, height = 84.dp)
+            .size(width = keySize, height = keySize)
             .clip(shape)
             .background(surfaceGradient())
             .then(
@@ -1059,7 +1069,7 @@ private fun AppLockKey(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = stringResource(R.string.desc_delete_pin_digit),
                     tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    modifier = Modifier.size(34.dp)
+                    modifier = Modifier.size(if (compact) 26.dp else 34.dp)
                 )
             }
 
@@ -1081,7 +1091,7 @@ private fun AppLockKey(
                     color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        fontSize = 28.sp
+                        fontSize = if (compact) 22.sp else 28.sp
                     )
                 )
             }

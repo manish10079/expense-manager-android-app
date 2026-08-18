@@ -68,8 +68,8 @@ class CalendarViewModel @Inject constructor(
     private var isYearView: Boolean = false
     private var displayedMonthStart: Long = 0L
     private var selectedDate: Long = 0L
-    private val todayDate: Long = startOfDay(System.currentTimeMillis())
-    private val todayMonthStart: Long = startOfMonth(todayDate)
+    private var todayDate: Long = startOfDay(System.currentTimeMillis())
+    private var todayMonthStart: Long = startOfMonth(todayDate)
 
     private val _uiState = MutableStateFlow(CalendarScreenUiState())
     val uiState: StateFlow<CalendarScreenUiState> = _uiState.asStateFlow()
@@ -140,9 +140,31 @@ class CalendarViewModel @Inject constructor(
     }
 
     fun jumpToToday() {
+        refreshToday()
         isYearView = false
         displayedMonthStart = todayMonthStart
         selectedDate = todayDate
+        rebuildUiState()
+    }
+
+    /**
+     * Recomputes "today" from the system clock. Called when the screen resumes
+     * and when the user taps Today, so the calendar's current-day anchor follows
+     * a date change that happened while the app was in the background.
+     */
+    fun refreshToday() {
+        val result = computeTodayRefresh(
+            currentTodayDate = todayDate,
+            currentTodayMonthStart = todayMonthStart,
+            selectedDate = selectedDate,
+            displayedMonthStart = displayedMonthStart,
+            newToday = startOfDay(System.currentTimeMillis())
+        )
+        if (!result.changed) return
+        todayDate = result.todayDate
+        todayMonthStart = result.todayMonthStart
+        displayedMonthStart = result.displayedMonthStart
+        selectedDate = result.selectedDate
         rebuildUiState()
     }
 
@@ -227,6 +249,57 @@ class CalendarViewModel @Inject constructor(
                 customizationSettings = currentCustomizationSettings
             )
         }
+    }
+}
+
+/**
+ * Pure decision logic behind [CalendarViewModel.refreshToday] — extracted so it
+ * can be unit-tested without an Android Application (project convention).
+ * Re-anchors the selection to the new today only when the user was sitting on
+ * the previous today; otherwise the chosen day/month is preserved.
+ */
+internal data class TodayRefreshResult(
+    val todayDate: Long,
+    val todayMonthStart: Long,
+    val displayedMonthStart: Long,
+    val selectedDate: Long,
+    val changed: Boolean
+)
+
+internal fun computeTodayRefresh(
+    currentTodayDate: Long,
+    currentTodayMonthStart: Long,
+    selectedDate: Long,
+    displayedMonthStart: Long,
+    newToday: Long
+): TodayRefreshResult {
+    if (newToday == currentTodayDate) {
+        return TodayRefreshResult(
+            todayDate = currentTodayDate,
+            todayMonthStart = currentTodayMonthStart,
+            displayedMonthStart = displayedMonthStart,
+            selectedDate = selectedDate,
+            changed = false
+        )
+    }
+    val newTodayMonthStart = startOfMonth(newToday)
+    val wasOnToday = selectedDate == currentTodayDate
+    return if (wasOnToday) {
+        TodayRefreshResult(
+            todayDate = newToday,
+            todayMonthStart = newTodayMonthStart,
+            displayedMonthStart = newTodayMonthStart,
+            selectedDate = newToday,
+            changed = true
+        )
+    } else {
+        TodayRefreshResult(
+            todayDate = newToday,
+            todayMonthStart = newTodayMonthStart,
+            displayedMonthStart = displayedMonthStart,
+            selectedDate = selectedDate,
+            changed = true
+        )
     }
 }
 

@@ -46,6 +46,7 @@ class ConnectedDevicesViewModel @Inject constructor(
         }
 
     val isSyncing: StateFlow<Boolean> = syncRepository.isSyncing
+    val lastSyncTimeMillis: StateFlow<Long> = syncRepository.lastSyncTimeMillis
 
     fun unregisterDevice(deviceId: String) {
         viewModelScope.launch {

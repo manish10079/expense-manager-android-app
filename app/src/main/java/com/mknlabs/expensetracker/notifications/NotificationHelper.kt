@@ -29,6 +29,7 @@ object NotificationHelper {
     const val CHANNEL_WEEKLY_REPORTS = "weekly_reports"
     const val CHANNEL_CLOUD_SECURITY = "cloud_security"
     const val CHANNEL_FINANCIAL_INSIGHTS = "financial_insights"
+    const val CHANNEL_SYNC_STATUS = "sync_status"
     
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
@@ -205,6 +206,16 @@ object NotificationHelper {
                 description = context.getString(R.string.notification_channel_financial_insights_desc)
             }
 
+            // Low importance: sync status (in progress / pending / failed) is
+            // informational — it must never buzz or heads-up on every app open.
+            val syncStatusChannel = NotificationChannel(
+                CHANNEL_SYNC_STATUS,
+                context.getString(R.string.notification_channel_sync_status),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.notification_channel_sync_status_desc)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(budgetChannel)
             notificationManager.createNotificationChannel(budgetExceededChannel)
@@ -214,6 +225,7 @@ object NotificationHelper {
             notificationManager.createNotificationChannel(weeklyChannel)
             notificationManager.createNotificationChannel(cloudSecurityChannel)
             notificationManager.createNotificationChannel(financialInsightsChannel)
+            notificationManager.createNotificationChannel(syncStatusChannel)
         }
     }
 
@@ -258,7 +270,8 @@ object NotificationHelper {
             CHANNEL_GOAL_REMINDERS,
             CHANNEL_WEEKLY_REPORTS,
             CHANNEL_CLOUD_SECURITY,
-            CHANNEL_FINANCIAL_INSIGHTS
+            CHANNEL_FINANCIAL_INSIGHTS,
+            CHANNEL_SYNC_STATUS
         ).forEach { notificationManager.deleteNotificationChannel(it) }
         createNotificationChannels(context)
 
@@ -970,7 +983,7 @@ object NotificationHelper {
             context, NOTIFICATION_ID_SYNC_IN_PROGRESS, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+        val builder = NotificationCompat.Builder(context, CHANNEL_SYNC_STATUS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_syncing_in_progress))
             .setContentText(context.getString(R.string.notification_desc_syncing_in_progress))
@@ -1005,12 +1018,12 @@ object NotificationHelper {
             context, NOTIFICATION_ID_SYNC_FAILED, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+        val builder = NotificationCompat.Builder(context, CHANNEL_SYNC_STATUS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_sync_failed))
             .setContentText(context.getString(R.string.notification_desc_sync_failed))
             .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_desc_sync_failed)))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_SYNC_FAILED, NotificationAnalytics.TYPE_CLOUD_SECURITY))
@@ -1029,12 +1042,12 @@ object NotificationHelper {
             context, NOTIFICATION_ID_SYNC_PENDING, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val builder = NotificationCompat.Builder(context, CHANNEL_CLOUD_SECURITY)
+        val builder = NotificationCompat.Builder(context, CHANNEL_SYNC_STATUS)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_sync_pending))
             .setContentText(context.getString(R.string.notification_desc_sync_pending))
             .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_desc_sync_pending)))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setDeleteIntent(dismissPendingIntent(context, NOTIFICATION_ID_SYNC_PENDING, NotificationAnalytics.TYPE_CLOUD_SECURITY))

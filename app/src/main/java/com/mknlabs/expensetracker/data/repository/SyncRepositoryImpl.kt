@@ -31,7 +31,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -58,6 +61,19 @@ class SyncRepositoryImpl @Inject constructor(
 
     private val _isSyncing = MutableStateFlow(false)
     override val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
+    private val _lastSyncTimeMillis = MutableStateFlow(0L)
+    override val lastSyncTimeMillis: StateFlow<Long> = _lastSyncTimeMillis.asStateFlow()
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    init {
+        scope.launch {
+            AppSettingsDataStore.getAppSettingsFlow(context).collect { settings ->
+                _lastSyncTimeMillis.value = settings.lastSyncTimeMillis
+            }
+        }
+    }
 
     private val syncCount = java.util.concurrent.atomic.AtomicInteger(0)
 

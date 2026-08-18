@@ -1172,6 +1172,8 @@
     <string name="notification_channel_budget_exceeded_desc">Alerts when you exceed your monthly budget.</string>
     <string name="notification_channel_cloud_security">Cloud &amp; Security</string>
     <string name="notification_channel_cloud_security_desc">Security alerts for your account and cloud sync.</string>
+    <string name="notification_channel_sync_status">Sync Status</string>
+    <string name="notification_channel_sync_status_desc">Quiet updates while your data syncs in the background.</string>
     <string name="notification_channel_financial_insights">Financial Insights</string>
     <string name="notification_channel_financial_insights_desc">Personalized insights and forecasts for your spending.</string>
     <string name="notification_channel_recurring">Recurring Transactions</string>
@@ -1423,7 +1425,6 @@
     <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Pro)</string>
     <string name="desc_sync_active_subtitle">Automatic cloud backup is active</string>
     <string name="desc_sync_disabled_subtitle">Automatic cloud backup is disabled</string>
-    <string name="title_connected_devices">Connected Devices</string>
     <string name="desc_connected_devices">Manage up to 4 devices for automatic cloud sync.</string>
     <string name="label_active_now">Active Now</string>
     <string name="label_last_active">Last active: %1$s</string>
@@ -1578,6 +1579,8 @@
     <string name="btn_sync_now">Sync Now</string>
     <string name="toast_force_sync_success">Sync completed successfully!</string>
     <string name="toast_force_sync_failed">Sync failed: %1$s</string>
+    <string name="label_last_synced">Last synced: %1$s</string>
+    <string name="label_never_synced">Never synced</string>
 
     <!-- Change Password Feature -->
     <string name="title_change_password">Change Password</string>

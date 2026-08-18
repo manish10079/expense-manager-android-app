@@ -209,7 +209,7 @@ private fun buildSettingsSections(
 ): List<SettingsSectionUi> {
     val settingsSections = mutableListOf<SettingsSectionUi>()
 
-    // 1. Account Section (Profile, Link Account, Cloud Sync)
+    // 1. Account Section (Profile, Link Account, Cloud Sync, Logout)
     val accountItems = mutableListOf<SettingsItemUi>()
     if (isAnonymous) {
         accountItems.add(
@@ -251,6 +251,15 @@ private fun buildSettingsSections(
                 isLocked = userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM
             )
         )
+        accountItems.add(
+            SettingsItemUi(
+                titleRes = com.mknlabs.expensetracker.R.string.label_logout,
+                subtitleRes = com.mknlabs.expensetracker.R.string.desc_logout_subtitle,
+                icon = Icons.AutoMirrored.Rounded.Logout,
+                actionId = SettingsActionId.Logout,
+                showChevron = false
+            )
+        )
     }
     settingsSections.add(
         SettingsSectionUi(
@@ -259,7 +268,84 @@ private fun buildSettingsSections(
         )
     )
 
-    // 2. Monetization Section (Only for Free) - MOVED TO TOP (2nd Position)
+    // 2. Security Section
+    val securityItems = mutableListOf<SettingsItemUi>()
+    securityItems.add(
+        SettingsItemUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy,
+            subtitleRes = com.mknlabs.expensetracker.R.string.label_security_privacy_subtitle,
+            icon = Icons.Rounded.Security,
+            actionId = SettingsActionId.SecurityPrivacy
+        )
+    )
+    // GDPR / US state privacy compliance: only show the "Privacy Options" entry point
+    // when the UMP SDK requires it (so it's hidden for users/regions that don't need it).
+    if (privacyOptionsRequired) {
+        securityItems.add(
+            SettingsItemUi(
+                titleRes = com.mknlabs.expensetracker.R.string.title_privacy_options,
+                subtitleRes = com.mknlabs.expensetracker.R.string.label_privacy_options_subtitle,
+                icon = Icons.Rounded.PrivacyTip,
+                actionId = SettingsActionId.PrivacyOptions
+            )
+        )
+    }
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy_1,
+            items = securityItems
+        )
+    )
+
+    // 3. Workspace / Configuration Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_preference,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_manage_category,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_manage_category_subtitle,
+                    icon = Icons.Rounded.Category,
+                    actionId = SettingsActionId.ManageCategories
+                ),
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_app_preferences,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_app_preferences_subtitle,
+                    icon = Icons.Rounded.SettingsSuggest,
+                    actionId = SettingsActionId.AppPreferences
+                ),
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_notifications_1,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_notifications_subtitle,
+                    icon = Icons.Rounded.NotificationAdd,
+                    actionId = SettingsActionId.Notifications
+                ),
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_transaction_card,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_transaction_card_subtitle,
+                    icon = Icons.Rounded.Tune,
+                    actionId = SettingsActionId.TransactionCardCustomize
+                )
+            )
+        )
+    )
+
+    // 4. Data Section
+    settingsSections.add(
+        SettingsSectionUi(
+            titleRes = com.mknlabs.expensetracker.R.string.title_database,
+            items = listOf(
+                SettingsItemUi(
+                    titleRes = com.mknlabs.expensetracker.R.string.title_data_management,
+                    subtitleRes = com.mknlabs.expensetracker.R.string.label_data_management_subtitle,
+                    icon = Icons.Rounded.Dns,
+                    actionId = SettingsActionId.DataManagement
+                )
+            )
+        )
+    )
+
+    // 5. Monetization Section (Only for Free users)
     if (userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
         val monetizationItems = mutableListOf<SettingsItemUi>()
         val adPassActive = !isAdsEnabled && adFreeRemainingTime != null
@@ -296,102 +382,7 @@ private fun buildSettingsSections(
         )
     }
 
-    // 3. Security Section
-    val securityItems = mutableListOf<SettingsItemUi>()
-    securityItems.add(
-        SettingsItemUi(
-            titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy,
-            subtitleRes = com.mknlabs.expensetracker.R.string.label_security_privacy_subtitle,
-            icon = Icons.Rounded.Security,
-            actionId = SettingsActionId.SecurityPrivacy
-        )
-    )
-    // GDPR / US state privacy compliance: only show the "Privacy Options" entry point
-    // when the UMP SDK requires it (so it's hidden for users/regions that don't need it).
-    if (privacyOptionsRequired) {
-        securityItems.add(
-            SettingsItemUi(
-                titleRes = com.mknlabs.expensetracker.R.string.title_privacy_options,
-                subtitleRes = com.mknlabs.expensetracker.R.string.label_privacy_options_subtitle,
-                icon = Icons.Rounded.PrivacyTip,
-                actionId = SettingsActionId.PrivacyOptions
-            )
-        )
-    }
-    settingsSections.add(
-        SettingsSectionUi(
-            titleRes = com.mknlabs.expensetracker.R.string.title_security_privacy_1,
-            items = securityItems
-        )
-    )
-
-    // 4. Workspace / Configuration Section
-    settingsSections.add(
-        SettingsSectionUi(
-            titleRes = com.mknlabs.expensetracker.R.string.title_preference,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_manage_category,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_manage_category_subtitle,
-                    icon = Icons.Rounded.Category,
-                    actionId = SettingsActionId.ManageCategories
-                ),
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_app_preferences,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_app_preferences_subtitle,
-                    icon = Icons.Rounded.SettingsSuggest,
-                    actionId = SettingsActionId.AppPreferences
-                ),
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_notifications_1,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_notifications_subtitle,
-                    icon = Icons.Rounded.NotificationAdd,
-                    actionId = SettingsActionId.Notifications
-                ),
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_transaction_card,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_transaction_card_subtitle,
-                    icon = Icons.Rounded.Tune,
-                    actionId = SettingsActionId.TransactionCardCustomize
-                )
-            )
-        )
-    )
-
-    // 5. Data Section
-    settingsSections.add(
-        SettingsSectionUi(
-            titleRes = com.mknlabs.expensetracker.R.string.title_database,
-            items = listOf(
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_data_management,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_data_management_subtitle,
-                    icon = Icons.Rounded.Dns,
-                    actionId = SettingsActionId.DataManagement
-                )
-            )
-        )
-    )
-
-    // 6. Session Section (Logout - Above About)
-    if (!isAnonymous) {
-        settingsSections.add(
-            SettingsSectionUi(
-                titleRes = com.mknlabs.expensetracker.R.string.title_session,
-                items = listOf(
-                    SettingsItemUi(
-                        titleRes = com.mknlabs.expensetracker.R.string.label_logout,
-                        subtitleRes = com.mknlabs.expensetracker.R.string.desc_logout_subtitle,
-                        icon = Icons.AutoMirrored.Rounded.Logout,
-                        actionId = SettingsActionId.Logout,
-                        showChevron = false
-                    )
-                )
-            )
-        )
-    }
-
-    // 7. About Section
+    // 6. About Section
     settingsSections.add(
         SettingsSectionUi(
             titleRes = com.mknlabs.expensetracker.R.string.title_about_caps,

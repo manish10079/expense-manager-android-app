@@ -62,6 +62,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -119,6 +120,13 @@ fun CalendarScreen(
     isProUser: Boolean = false
 ) {
     val calendarViewModel: CalendarViewModel = hiltViewModel()
+
+    // Re-anchor the calendar to the current date whenever the screen resumes
+    // (e.g. the date changed while the app was in the background).
+    LifecycleResumeEffect(Unit) {
+        calendarViewModel.refreshToday()
+        onPauseOrDispose { }
+    }
 
     androidx.compose.runtime.LaunchedEffect(
         transactions,

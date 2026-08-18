@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -227,10 +228,12 @@ fun ProfileAvatar(
 
         if (showBadge) {
             // Drawable badges (e.g. crown) have finer detail, so use a larger chip for them.
-            val badgeChipSize = if (badgeIconRes != null) size * 0.28f else size * 0.24f
+            val badgeChipSize = if (badgeIconRes != null) size * 0.432f else size * 0.216f
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    // Nudge the badge slightly down & right (past the avatar corner).
+                    .offset(x = size * 0.04f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
                     .background(
@@ -246,14 +249,14 @@ fun ProfileAvatar(
                         painter = painterResource(id = badgeIconRes),
                         contentDescription = badgeContentDescription,
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(size * 0.24f)
+                        modifier = Modifier.size(size * 0.27f)
                     )
                 } else {
                     Icon(
                         imageVector = badgeIcon,
                         contentDescription = badgeContentDescription,
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(size * 0.12f)
+                        modifier = Modifier.size(size * 0.135f)
                     )
                 }
             }

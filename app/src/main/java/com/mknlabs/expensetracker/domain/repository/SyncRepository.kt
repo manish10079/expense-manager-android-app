@@ -33,6 +33,14 @@ interface SyncRepository {
     val isSyncing: StateFlow<Boolean>
 
     /**
+     * Emits the sync watermark in millis: the newest record-modified timestamp
+     * observed by the last sync run that transferred data (0 until then). It
+     * reflects when the newest synced record last changed, not the wall-clock
+     * time the sync itself completed.
+     */
+    val lastSyncTimeMillis: StateFlow<Long>
+
+    /**
      * Registers the current device in the cloud.
      * Returns a [Result] indicating success or failure (e.g., limit reached).
      */

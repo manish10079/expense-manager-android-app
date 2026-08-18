@@ -11,7 +11,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.Devices
 import androidx.compose.material.icons.rounded.PhonelinkErase
-import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,12 +47,14 @@ fun ConnectedDevicesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+    val lastSyncTimeMillis by viewModel.lastSyncTimeMillis.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     ConnectedDevicesContent(
         userTier = userTier,
         uiState = uiState,
         isSyncing = isSyncing,
+        lastSyncTimeMillis = lastSyncTimeMillis,
         isSyncEnabled = isSyncEnabled,
         onSyncEnabledChange = onSyncEnabledChange,
         onBackClick = onBackClick,
@@ -84,6 +86,7 @@ private fun ConnectedDevicesContent(
     userTier: UserTier,
     uiState: ConnectedDevicesUiState,
     isSyncing: Boolean,
+    lastSyncTimeMillis: Long,
     isSyncEnabled: Boolean,
     onSyncEnabledChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
@@ -99,7 +102,7 @@ private fun ConnectedDevicesContent(
             .navigationBarsPadding()
     ) {
         AppHeader(
-            title = stringResource(R.string.title_connected_devices),
+            title = stringResource(R.string.title_cloud_sync),
             onBackClick = onBackClick,
             modifier = Modifier.padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp)
         )
@@ -120,6 +123,7 @@ private fun ConnectedDevicesContent(
                         isSyncEnabled = isSyncEnabled,
                         onSyncEnabledChange = onSyncEnabledChange,
                         isSyncing = isSyncing,
+                        lastSyncTimeMillis = lastSyncTimeMillis,
                         onForceSyncClick = onForceSyncClick,
                         onUnlink = onUnlink
                     )
@@ -199,6 +203,7 @@ private fun DeviceListContent(
     isSyncEnabled: Boolean,
     onSyncEnabledChange: (Boolean) -> Unit,
     isSyncing: Boolean,
+    lastSyncTimeMillis: Long,
     onForceSyncClick: () -> Unit,
     onUnlink: (String) -> Unit
 ) {
@@ -271,13 +276,23 @@ private fun DeviceListContent(
                                 modifier = Modifier.size(24.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Info,
+                                    imageVector = Icons.Outlined.Info,
                                     contentDescription = stringResource(R.string.desc_force_sync),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
+                        val lastSyncText = if (lastSyncTimeMillis > 0L) {
+                            stringResource(R.string.label_last_synced, formatDate(lastSyncTimeMillis, "MMM dd, yyyy · hh:mm a"))
+                        } else {
+                            stringResource(R.string.label_never_synced)
+                        }
+                        Text(
+                            text = lastSyncText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     if (isSyncing) {
@@ -532,6 +547,7 @@ private fun ConnectedDevicesScreenPreview() {
             userTier = UserTier.PREMIUM,
             uiState = ConnectedDevicesUiState.Success(devices = emptyList(), maxDevices = 5),
             isSyncing = false,
+            lastSyncTimeMillis = 0L,
             isSyncEnabled = true,
             onSyncEnabledChange = {},
             onBackClick = {},
