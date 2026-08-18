@@ -33,6 +33,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardOptions
@@ -66,9 +68,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -701,7 +705,8 @@ private fun AppLockScreenContent(
                                 onQuestionSelected = onQuestionSelected,
                                 onAnswerChange = onSecurityAnswerChange,
                                 onDone = onPrimaryActionClick,
-                                onFocusChanged = { answerFieldFocused = it }
+                                onFocusChanged = { answerFieldFocused = it },
+                                compact = compact
                             )
                         }
 
@@ -824,21 +829,47 @@ private fun SetupSecurityQuestionContent(
     onQuestionSelected: (String) -> Unit,
     onAnswerChange: (String) -> Unit,
     onDone: () -> Unit,
-    onFocusChanged: (Boolean) -> Unit = {}
+    onFocusChanged: (Boolean) -> Unit = {},
+    compact: Boolean = false
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)
     ) {
-        appLockSecurityQuestions.forEach { question ->
-            SecurityQuestionCard(
-                prompt = stringResource(question.promptResId),
-                isSelected = question.id == selectedQuestionId,
-                onClick = { onQuestionSelected(question.id) }
-            )
+        if (compact) {
+            // Landscape/short heights: stack the questions in two columns and
+            // let each prompt's font auto-shrink so every card stays readable.
+            appLockSecurityQuestions.chunked(2).forEach { rowQuestions ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    rowQuestions.forEach { question ->
+                        SecurityQuestionCard(
+                            modifier = Modifier.weight(1f),
+                            prompt = stringResource(question.promptResId),
+                            isSelected = question.id == selectedQuestionId,
+                            onClick = { onQuestionSelected(question.id) },
+                            compact = true
+                        )
+                    }
+                    // Keep the columns even when the last row has one question.
+                    if (rowQuestions.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        } else {
+            appLockSecurityQuestions.forEach { question ->
+                SecurityQuestionCard(
+                    prompt = stringResource(question.promptResId),
+                    isSelected = question.id == selectedQuestionId,
+                    onClick = { onQuestionSelected(question.id) }
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(if (compact) 2.dp else 6.dp))
 
         AppLockAnswerField(
             value = answer,
@@ -890,16 +921,19 @@ private fun RecoveryQuestionContent(
     }
 }
 
+@OptIn(ExperimentalTextApi::class)
 @Composable
 private fun SecurityQuestionCard(
     prompt: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(if (compact) 18.dp else 24.dp))
             .background(
                 if (isSelected) {
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
@@ -908,15 +942,43 @@ private fun SecurityQuestionCard(
                 }
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 16.dp)
-    ) {
-        Text(
-            text = prompt,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold
+            .padding(
+                horizontal = if (compact) 12.dp else 18.dp,
+                vertical = if (compact) 10.dp else 16.dp
             )
-        )
+    ) {
+        // Resolved in composable context (the ColorProducer lambda below may
+        // not read CompositionLocals directly).
+        val promptColor = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        if (compact) {
+            // Auto-shrink the prompt (down to 9sp) so it fits the narrower
+            // column on up to two lines instead of clipping.
+            BasicText(
+                text = prompt,
+                color = { promptColor },
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 9.sp,
+                    maxFontSize = 16.sp
+                )
+            )
+        } else {
+            Text(
+                text = prompt,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
     }
 }
 
