@@ -1135,6 +1135,18 @@ button {
   margin-top: 4px;
 }
 
+.premium-card-save {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
 .premium-features {
   flex: 1;
   margin-bottom: var(--space-xl);

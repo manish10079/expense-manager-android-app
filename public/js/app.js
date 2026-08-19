@@ -283,15 +283,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const monthly = price.getAttribute('data-monthly');
       const semiannual = price.getAttribute('data-semiannual');
       const semiannualTotal = price.getAttribute('data-semiannual-total');
+      const semiannualSave = price.getAttribute('data-semiannual-save');
       const yearly = price.getAttribute('data-yearly');
       const yearlyTotal = price.getAttribute('data-yearly-total');
+      const yearlySave = price.getAttribute('data-yearly-save');
       const originalPrice = price.getAttribute('data-actual-monthly');
       const original = price.querySelector('.premium-card-original');
+      const save = price.querySelector('.premium-card-save');
 
       if (plan === 'monthly') {
         price.querySelector('.amount').textContent = originalPrice || monthly;
         price.querySelector('.period').textContent = '/month';
         if (original) original.style.display = 'none';
+        if (save) save.style.display = 'none';
       } else if (plan === 'semiannual') {
         price.querySelector('.amount').textContent = semiannual || monthly;
         price.querySelector('.period').textContent = '/mo';
@@ -299,12 +303,20 @@ document.addEventListener('DOMContentLoaded', () => {
           original.style.display = 'block';
           original.textContent = `${semiannualTotal || '₹474'} for 6 months`;
         }
+        if (save) {
+          save.style.display = 'inline-block';
+          save.textContent = `Save ${semiannualSave || '₹120'} (20% off)`;
+        }
       } else if (plan === 'yearly') {
         price.querySelector('.amount').textContent = yearly || monthly;
         price.querySelector('.period').textContent = '/mo';
         if (original) {
           original.style.display = 'block';
           original.textContent = `${yearlyTotal || '₹708'} for 12 months`;
+        }
+        if (save) {
+          save.style.display = 'inline-block';
+          save.textContent = `Save ${yearlySave || '₹480'} (40% off)`;
         }
       }
     });
