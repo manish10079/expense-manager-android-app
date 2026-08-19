@@ -272,75 +272,101 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================
-  // 8. Premium Plan Toggle
+  // 8. Pricing Carousel (horizontal scroll + arrows + swipe)
   // ==========================================================
-  const planBtns = document.querySelectorAll('.premium-toggle-btn');
+  const pricingScroll = document.getElementById('pricing-scroll');
+  const pricingPrev = document.getElementById('pricing-prev');
+  const pricingNext = document.getElementById('pricing-next');
+  const pricingDots = document.querySelectorAll('.pricing-dot');
+  let currentPricingIndex = 0;
+  const totalCards = 4;
 
-  function updatePricing(plan) {
-    const prices = document.querySelectorAll('.premium-card-price');
+  function scrollToCard(index) {
+    if (!pricingScroll) return;
+    const cards = pricingScroll.querySelectorAll('.pricing-card');
+    if (index < 0 || index >= cards.length) return;
+    currentPricingIndex = index;
+    const card = cards[index];
+    const scrollLeft = card.offsetLeft - (pricingScroll.offsetWidth / 2) + (card.offsetWidth / 2);
+    pricingScroll.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    updatePricingDots();
+    updateArrowState();
+  }
 
-    prices.forEach(price => {
-      const monthly = price.getAttribute('data-monthly');
-      const semiannual = price.getAttribute('data-semiannual');
-      const semiannualTotal = price.getAttribute('data-semiannual-total');
-      const semiannualSave = price.getAttribute('data-semiannual-save');
-      const semiannualPerMonth = price.getAttribute('data-semiannual-permonth');
-      const yearly = price.getAttribute('data-yearly');
-      const yearlyTotal = price.getAttribute('data-yearly-total');
-      const yearlySave = price.getAttribute('data-yearly-save');
-      const yearlyPerMonth = price.getAttribute('data-yearly-permonth');
-      const originalPrice = price.getAttribute('data-actual-monthly');
-      const original = price.querySelector('.premium-card-original');
-      const save = price.querySelector('.premium-card-save');
-      const permonth = price.querySelector('.premium-card-permonth');
-
-      if (plan === 'monthly') {
-        price.querySelector('.amount').textContent = originalPrice || monthly;
-        price.querySelector('.period').textContent = '/month';
-        if (original) original.style.display = 'none';
-        if (save) save.style.display = 'none';
-        if (permonth) permonth.style.display = 'none';
-      } else if (plan === 'semiannual') {
-        price.querySelector('.amount').textContent = semiannual || monthly;
-        price.querySelector('.period').textContent = '/mo';
-        if (original) {
-          original.style.display = 'block';
-          original.textContent = `${semiannualTotal || '₹474'} for 6 months`;
-        }
-        if (save) {
-          save.style.display = 'inline-block';
-          save.textContent = `Save ${semiannualSave || '₹120'} (20% off)`;
-        }
-        if (permonth) {
-          permonth.style.display = 'block';
-          permonth.innerHTML = `That's just <strong>${semiannualPerMonth || '₹20'}/mo less</strong> than the monthly plan — smart savings!`;
-        }
-      } else if (plan === 'yearly') {
-        price.querySelector('.amount').textContent = yearly || monthly;
-        price.querySelector('.period').textContent = '/mo';
-        if (original) {
-          original.style.display = 'block';
-          original.textContent = `${yearlyTotal || '₹708'} for 12 months`;
-        }
-        if (save) {
-          save.style.display = 'inline-block';
-          save.textContent = `Save ${yearlySave || '₹480'} (40% off)`;
-        }
-        if (permonth) {
-          permonth.style.display = 'block';
-          permonth.innerHTML = `That's just <strong>${yearlyPerMonth || '₹40'}/mo less</strong> than the monthly plan — best value deal!`;
-        }
-      }
+  function updatePricingDots() {
+    pricingDots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentPricingIndex);
     });
   }
 
-  planBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      planBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      updatePricing(btn.getAttribute('data-plan'));
+  function updateArrowState() {
+    if (pricingPrev) pricingPrev.disabled = currentPricingIndex === 0;
+    if (pricingNext) pricingNext.disabled = currentPricingIndex === totalCards - 1;
+  }
+
+  // Arrow click handlers
+  if (pricingPrev) {
+    pricingPrev.addEventListener('click', () => {
+      if (currentPricingIndex > 0) scrollToCard(currentPricingIndex - 1);
     });
+  }
+  if (pricingNext) {
+    pricingNext.addEventListener('click', () => {
+      if (currentPricingIndex < totalCards - 1) scrollToCard(currentPricingIndex + 1);
+    });
+  }
+
+  // Dot click handlers
+  pricingDots.forEach((dot, i) => {
+    dot.addEventListener('click', () => scrollToCard(i));
   });
+
+  // Swipe gesture support (touch)
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const swipeThreshold = 50;
+
+  if (pricingScroll) {
+    pricingScroll.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    pricingScroll.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0 && currentPricingIndex < totalCards - 1) {
+          scrollToCard(currentPricingIndex + 1);
+        } else if (diff < 0 && currentPricingIndex > 0) {
+          scrollToCard(currentPricingIndex - 1);
+        }
+      }
+    }, { passive: true });
+
+    // Track scroll position to update dots on manual scroll
+    pricingScroll.addEventListener('scroll', () => {
+      const cards = pricingScroll.querySelectorAll('.pricing-card');
+      const scrollCenter = pricingScroll.scrollLeft + pricingScroll.offsetWidth / 2;
+      let closestIndex = 0;
+      let closestDist = Infinity;
+      cards.forEach((card, i) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const dist = Math.abs(scrollCenter - cardCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIndex = i;
+        }
+      });
+      if (closestIndex !== currentPricingIndex) {
+        currentPricingIndex = closestIndex;
+        updatePricingDots();
+        updateArrowState();
+      }
+    }, { passive: true });
+  }
+
+  // Initialize
+  updateArrowState();
 
   // ==========================================================
   // 9. Ripple effect on buttons

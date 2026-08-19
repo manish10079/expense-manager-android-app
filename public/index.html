@@ -441,64 +441,124 @@
         </p>
       </div>
 
-      <!-- Toggle -->
-      <div class="premium-toggle reveal">
-        <button class="premium-toggle-btn active" data-plan="monthly" type="button">Monthly</button>
-        <button class="premium-toggle-btn" data-plan="semiannual" type="button">6 Months (Save 20%)</button>
-        <button class="premium-toggle-btn" data-plan="yearly" type="button">12 Months (Save 40%)</button>
+      <!-- Scrollable Pricing Cards -->
+      <div class="pricing-carousel reveal" id="pricing-carousel">
+        <button class="pricing-arrow pricing-arrow-left" id="pricing-prev" aria-label="Previous plan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="pricing-scroll" id="pricing-scroll">
+          <!-- Card 1: Free -->
+          <div class="pricing-card">
+            <div class="pricing-card-badge">Free</div>
+            <div class="pricing-card-name">Starter</div>
+            <div class="pricing-card-desc">For getting started with basic tracking</div>
+            <div class="pricing-card-price">
+              <span class="amount">₹0</span>
+              <span class="period">/forever</span>
+            </div>
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="check">✓</span> Unlimited expense tracking</li>
+              <li class="pricing-feature"><span class="check">✓</span> Basic analytics dashboard</li>
+              <li class="pricing-feature"><span class="check">✓</span> 50+ custom categories</li>
+              <li class="pricing-feature"><span class="check">✓</span> PIN & biometric lock</li>
+              <li class="pricing-feature"><span class="check">✓</span> Saving goals tracking</li>
+              <li class="pricing-feature"><span class="check">✓</span> Monthly budgeting</li>
+              <li class="pricing-feature muted"><span class="cross">—</span> Recurring transactions</li>
+              <li class="pricing-feature muted"><span class="cross">—</span> Cloud sync</li>
+              <li class="pricing-feature muted"><span class="cross">—</span> Auto backups</li>
+            </ul>
+            <a href="#cta" class="btn btn-secondary">Get Started Free</a>
+          </div>
+
+          <!-- Card 2: Monthly -->
+          <div class="pricing-card">
+            <div class="pricing-card-badge">Monthly</div>
+            <div class="pricing-card-name">Pro</div>
+            <div class="pricing-card-desc">Full power, cancel anytime</div>
+            <div class="pricing-card-price">
+              <span class="amount">₹99</span>
+              <span class="period">/month</span>
+            </div>
+            <div class="pricing-card-save-note">Flexible month-to-month billing</div>
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="check">✓</span> Everything in Starter</li>
+              <li class="pricing-feature"><span class="check">✓</span> Recurring transactions</li>
+              <li class="pricing-feature"><span class="check">✓</span> Cloud sync (multi-device)</li>
+              <li class="pricing-feature"><span class="check">✓</span> Automated backups</li>
+              <li class="pricing-feature"><span class="check">✓</span> Advanced pro analytics</li>
+              <li class="pricing-feature"><span class="check">✓</span> Ad-free experience</li>
+              <li class="pricing-feature"><span class="check">✓</span> Scrambled PIN keypad</li>
+              <li class="pricing-feature"><span class="check">✓</span> Priority support</li>
+              <li class="pricing-feature"><span class="check">✓</span> ProPass redemption</li>
+            </ul>
+            <a href="#cta" class="btn btn-primary">Subscribe Monthly</a>
+          </div>
+
+          <!-- Card 3: 6 Months -->
+          <div class="pricing-card">
+            <div class="pricing-card-badge badge-green">Save 20%</div>
+            <div class="pricing-card-name">Pro</div>
+            <div class="pricing-card-desc">6 months of Pro power</div>
+            <div class="pricing-card-price">
+              <span class="amount">₹79</span>
+              <span class="period">/mo</span>
+            </div>
+            <div class="pricing-card-total">₹474 for 6 months</div>
+            <div class="pricing-card-save">Save ₹120 (20% off)</div>
+            <div class="pricing-card-permonth">That's just <strong>₹20/mo less</strong> than monthly — smart savings!</div>
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="check">✓</span> Everything in Starter</li>
+              <li class="pricing-feature"><span class="check">✓</span> Recurring transactions</li>
+              <li class="pricing-feature"><span class="check">✓</span> Cloud sync (multi-device)</li>
+              <li class="pricing-feature"><span class="check">✓</span> Automated backups</li>
+              <li class="pricing-feature"><span class="check">✓</span> Advanced pro analytics</li>
+              <li class="pricing-feature"><span class="check">✓</span> Ad-free experience</li>
+              <li class="pricing-feature"><span class="check">✓</span> Scrambled PIN keypad</li>
+              <li class="pricing-feature"><span class="check">✓</span> Priority support</li>
+              <li class="pricing-feature"><span class="check">✓</span> ProPass redemption</li>
+            </ul>
+            <a href="#cta" class="btn btn-primary">Get 6-Month Pro</a>
+          </div>
+
+          <!-- Card 4: 12 Months -->
+          <div class="pricing-card featured">
+            <div class="pricing-card-badge badge-gold">Best Value</div>
+            <div class="pricing-card-name">Pro</div>
+            <div class="pricing-card-desc">12 months — best deal</div>
+            <div class="pricing-card-price">
+              <span class="amount">₹59</span>
+              <span class="period">/mo</span>
+            </div>
+            <div class="pricing-card-total">₹708 for 12 months</div>
+            <div class="pricing-card-save">Save ₹480 (40% off)</div>
+            <div class="pricing-card-permonth">That's just <strong>₹40/mo less</strong> than monthly — best value deal!</div>
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="check">✓</span> Everything in Starter</li>
+              <li class="pricing-feature"><span class="check">✓</span> Recurring transactions</li>
+              <li class="pricing-feature"><span class="check">✓</span> Cloud sync (multi-device)</li>
+              <li class="pricing-feature"><span class="check">✓</span> Automated backups</li>
+              <li class="pricing-feature"><span class="check">✓</span> Advanced pro analytics</li>
+              <li class="pricing-feature"><span class="check">✓</span> Ad-free experience</li>
+              <li class="pricing-feature"><span class="check">✓</span> Scrambled PIN keypad</li>
+              <li class="pricing-feature"><span class="check">✓</span> Priority support</li>
+              <li class="pricing-feature"><span class="check">✓</span> ProPass redemption</li>
+            </ul>
+            <a href="#cta" class="btn btn-primary">Get 12-Month Pro</a>
+          </div>
+        </div>
+
+        <button class="pricing-arrow pricing-arrow-right" id="pricing-next" aria-label="Next plan" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
 
-      <div class="premium-cards">
-        <!-- Free Plan -->
-        <div class="premium-card">
-          <div class="premium-card-header">
-            <div class="premium-card-name">Starter</div>
-            <div class="premium-card-desc">For getting started with basic tracking</div>
-          </div>
-          <div class="premium-card-price" data-monthly="₹0" data-yearly="₹0" data-yearly-monthly="₹0">
-            <span class="amount">₹0</span>
-            <span class="period">/forever</span>
-          </div>
-          <ul class="premium-features">
-            <li class="premium-feature"><span class="check">✓</span> Unlimited expense tracking</li>
-            <li class="premium-feature"><span class="check">✓</span> Basic analytics dashboard</li>
-            <li class="premium-feature"><span class="check">✓</span> 50+ custom categories</li>
-            <li class="premium-feature"><span class="check">✓</span> PIN & biometric lock</li>
-            <li class="premium-feature"><span class="check">✓</span> Saving goals tracking</li>
-            <li class="premium-feature"><span class="check">✓</span> Monthly budgeting</li>
-            <li class="premium-feature muted"><span class="cross">—</span> Recurring transactions</li>
-            <li class="premium-feature muted"><span class="cross">—</span> Cloud sync</li>
-            <li class="premium-feature muted"><span class="cross">—</span> Auto backups</li>
-          </ul>
-          <a href="#cta" class="btn btn-secondary">Get Started Free</a>
-        </div>
-
-        <!-- Pro Plan (Featured) -->
-        <div class="premium-card featured">
-          <div class="premium-card-header">
-            <div class="premium-card-name">Pro</div>
-            <div class="premium-card-desc">Full power for financial mastery</div>
-          </div>
-          <div class="premium-card-price" data-monthly="₹99" data-semiannual="₹79" data-semiannual-total="₹474" data-semiannual-save="₹120" data-semiannual-permonth="₹20" data-yearly="₹59" data-yearly-total="₹708" data-yearly-save="₹480" data-yearly-permonth="₹40" data-actual-monthly="₹99">
-            <span class="amount">₹99</span>
-            <span class="period">/month</span>
-            <div class="premium-card-original" style="display:none;"></div>
-            <div class="premium-card-save" style="display:none;"></div>
-            <div class="premium-card-permonth" style="display:none;"></div>
-          </div>
-          <ul class="premium-features">
-            <li class="premium-feature"><span class="check">✓</span> Everything in Starter</li>
-            <li class="premium-feature"><span class="check">✓</span> Recurring transactions</li>
-            <li class="premium-feature"><span class="check">✓</span> Cloud sync (multi-device)</li>
-            <li class="premium-feature"><span class="check">✓</span> Automated backups</li>
-            <li class="premium-feature"><span class="check">✓</span> Advanced pro analytics</li>
-            <li class="premium-feature"><span class="check">✓</span> Ad-free experience</li>
-            <li class="premium-feature"><span class="check">✓</span> Scrambled PIN keypad</li>
-            <li class="premium-feature"><span class="check">✓</span> Priority support</li>
-            <li class="premium-feature"><span class="check">✓</span> ProPass redemption</li>
-          </ul>
-          <a href="#cta" class="btn btn-primary">Upgrade to Pro</a>
-        </div>
+      <!-- Scroll indicators -->
+      <div class="pricing-dots" id="pricing-dots">
+        <button class="pricing-dot active" data-index="0" aria-label="Starter plan"></button>
+        <button class="pricing-dot" data-index="1" aria-label="Monthly plan"></button>
+        <button class="pricing-dot" data-index="2" aria-label="6-month plan"></button>
+        <button class="pricing-dot" data-index="3" aria-label="12-month plan"></button>
       </div>
     </div>
   </section>

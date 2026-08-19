@@ -259,12 +259,17 @@
     text-align: center;
   }
 
-  .premium-toggle {
-    flex-direction: column;
-    width: 100%;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
+  .pricing-card {
+    flex: 0 0 calc(100% - 32px);
+    min-width: 280px;
+  }
+
+  .pricing-arrow-left {
+    left: 4px;
+  }
+
+  .pricing-arrow-right {
+    right: 4px;
   }
 }
 

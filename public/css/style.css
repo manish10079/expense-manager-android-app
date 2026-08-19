@@ -1024,40 +1024,32 @@ button {
   background: var(--color-surface);
 }
 
-.premium-toggle {
-  display: inline-flex;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 4px;
-  gap: 4px;
-  margin-bottom: var(--space-2xl);
-}
-
-.premium-toggle-btn {
-  padding: 10px 24px;
-  border-radius: var(--radius-full);
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  transition: all var(--transition-base);
-}
-
-.premium-toggle-btn.active {
-  background: var(--gradient-brand);
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(123, 97, 255, 0.3);
-}
-
-.premium-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-lg);
-  max-width: 900px;
+/* Pricing Carousel */
+.pricing-carousel {
+  position: relative;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.premium-card {
+.pricing-scroll {
+  display: flex;
+  gap: var(--space-lg);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 4px 16px;
+  scrollbar-width: none;
+}
+
+.pricing-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.pricing-card {
+  flex: 0 0 calc(25% - 18px);
+  min-width: 260px;
+  scroll-snap-align: start;
   position: relative;
   padding: var(--space-2xl);
   border-radius: var(--radius-lg);
@@ -1095,111 +1087,7 @@ button {
   letter-spacing: 0.02em;
 }
 
-.premium-card-header {
-  margin-bottom: var(--space-lg);
-}
-
-.premium-card-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
-}
-
-.premium-card-desc {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-}
-
-.premium-card-price {
-  margin-bottom: var(--space-lg);
-}
-
-.premium-card-price .amount {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-}
-
-.premium-card-price .period {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-}
-
-.premium-card-original {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  text-decoration: line-through;
-  margin-top: 4px;
-}
-
-.premium-card-save {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-.premium-card-permonth {
-  margin-top: 10px;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(123, 97, 255, 0.08), rgba(123, 97, 255, 0.04));
-  border: 1px solid rgba(123, 97, 255, 0.15);
-  font-size: 0.8125rem;
-  color: var(--color-text-primary);
-  line-height: 1.5;
-}
-
-.premium-card-permonth strong {
-  color: #7B61FF;
-  font-weight: 700;
-}
-
-.premium-features {
-  flex: 1;
-  margin-bottom: var(--space-xl);
-}
-
-.premium-feature {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 8px 0;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.premium-feature:last-child {
-  border-bottom: none;
-}
-
-.premium-feature .check {
-  color: var(--color-income);
-  font-weight: 700;
-}
-
-.premium-feature .cross {
-  color: var(--color-text-secondary);
-  opacity: 0.4;
-}
-
-.premium-feature.muted {
-  color: var(--color-text-secondary);
-  opacity: 0.6;
-}
-
-.premium-card .btn {
-  width: 100%;
-}
+/* Legacy premium-card styles removed — replaced by .pricing-card above */
 
 /* ============================================================
    HOW IT WORKS SECTION
