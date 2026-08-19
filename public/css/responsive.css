@@ -2,23 +2,24 @@
    Expense Tracker: Budget & Spend — Responsive Styles
    ============================================================ */
 
-/* ----- 1200px+ (Desktop) — show all 4 pricing cards ----- */
+/* ----- 1200px+ (Desktop) — show carousel with navigation ----- */
 @media (min-width: 1200px) {
   .pricing-card {
-    flex: 0 0 calc(25% - 18px);
-    min-width: 240px;
+    flex: 0 0 340px;
+    min-width: 340px;
   }
 
   .pricing-scroll {
-    overflow-x: hidden;
+    overflow-x: auto;
+    padding: 12px 16px 24px;
   }
 
   .pricing-arrow {
-    display: none;
+    display: flex;
   }
 
   .pricing-dots {
-    display: none;
+    display: flex;
   }
 }
 
@@ -220,9 +221,7 @@
     grid-template-columns: 1fr;
   }
 
-  .premium-cards {
-    grid-template-columns: 1fr;
-  }
+  /* Keep horizontal scroll for pricing cards */
 
   .why-card {
     flex-direction: column;

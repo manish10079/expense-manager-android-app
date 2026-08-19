@@ -909,6 +909,8 @@ private fun ColumnScope.HomeTransactionsList(
                 showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                 showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
                 showNoteTooltip = isProUser,
+                isProUser = isProUser,
+                isRecurring = card.isRecurring,
                 onClick = { onTransactionClick(card.transaction) }
             )
         }

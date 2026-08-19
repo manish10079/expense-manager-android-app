@@ -67,3 +67,18 @@ Thumbs.db
 
 # Internal implementation plans (kept local only, not in git)
 implementation_plans/
+
+# Firebase Admin Scripts & Secrets
+firebase-script/node_modules/
+firebase-script/service-account.json
+**/service-account*.json
+**/serviceAccount*.json
+*.pem
+*.key
+*.p12
+*.crt
+.env
+.env.*
+node_modules/
+**/node_modules/
+

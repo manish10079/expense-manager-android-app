@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -88,6 +91,8 @@ fun TransactionCard(
     showCategoryLabel: Boolean = true,
     // Pro-gated: the full-note tooltip (info icon) only renders for Pro users.
     showNoteTooltip: Boolean = true,
+    isProUser: Boolean = false,
+    isRecurring: Boolean = false,
     isSelected: Boolean = false,
     selectionMode: Boolean = false,
     onClick: () -> Unit = {},
@@ -142,13 +147,68 @@ fun TransactionCard(
                     color = iconBorderColor
                 )
             }
-            AppIconBox(
-                icon = icon,
-                contentDescription = note,
-                size = 50.dp,
-                iconSize = 25.dp,
-                border = iconBorder
-            )
+            Box {
+                AppIconBox(
+                    icon = icon,
+                    contentDescription = note,
+                    size = 50.dp,
+                    iconSize = 25.dp,
+                    border = iconBorder
+                )
+
+                if (isProUser && isRecurring) {
+                    val recurringTooltipState = rememberTooltipState()
+                    val recurringTooltipScope = rememberCoroutineScope()
+
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(
+                                    text = stringResource(R.string.label_recurring_transaction),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        },
+                        state = recurringTooltipState,
+                        onDismissRequest = { recurringTooltipState.dismiss() },
+                        enableUserInput = false
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 4.dp, y = (-4).dp)
+                                .size(18.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .border(
+                                    width = 1.5.dp,
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shape = CircleShape
+                                )
+                                .clickable {
+                                    recurringTooltipScope.launch {
+                                        if (recurringTooltipState.isVisible) {
+                                            recurringTooltipState.dismiss()
+                                        } else {
+                                            recurringTooltipState.show()
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Autorenew,
+                                contentDescription = stringResource(R.string.label_recurring_transaction),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+                    }
+                }
+            }
             Spacer(modifier = Modifier.width(12.dp))
         }
 

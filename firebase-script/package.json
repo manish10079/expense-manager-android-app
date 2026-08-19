@@ -1,0 +1,17 @@
+{
+  "name": "firebase-script",
+  "version": "1.0.0",
+  "description": "Admin Node.js scripts for ExpenseTracker Firebase administration",
+  "main": "index.js",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

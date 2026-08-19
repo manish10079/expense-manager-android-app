@@ -675,6 +675,8 @@ private fun TransactionScreenContent(
                                             showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                                             showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
                                             showNoteTooltip = isProUser,
+                                            isProUser = isProUser,
+                                            isRecurring = card.isRecurring,
                                             isSelected = uiState.selectedTransactionIds.contains(card.id),
                                             selectionMode = uiState.isSelectionMode,
                                             onClick = {

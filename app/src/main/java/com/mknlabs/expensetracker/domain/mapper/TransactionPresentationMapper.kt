@@ -41,7 +41,8 @@ fun Transaction.toTransactionCardItemUi(
         icon = resolvedIcon,
         transactionTypeId = transactionTypeId,
         paymentType = paymentTypeName.uppercase(Locale.getDefault()),
-        categoryLabel = (category?.name ?: fallbackCategoryName).uppercase(Locale.getDefault())
+        categoryLabel = (category?.name ?: fallbackCategoryName).uppercase(Locale.getDefault()),
+        isRecurring = !sourceRecurringRuleId.isNullOrBlank()
     )
 }
 

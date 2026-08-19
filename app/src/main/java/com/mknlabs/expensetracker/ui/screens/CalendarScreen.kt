@@ -709,6 +709,8 @@ private fun CalendarTransactionCard(
         showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
         showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
         showNoteTooltip = isProUser,
+        isProUser = isProUser,
+        isRecurring = transaction.isRecurring,
         onClick = onClick
     )
 }

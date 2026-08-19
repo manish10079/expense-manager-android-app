@@ -635,7 +635,9 @@ private fun PreviewTransactionCard(
         showTransactionTime = settings.showTransactionTime,
         showCategoryIcon = settings.showCategoryIcon,
         showCategoryLabel = settings.showCategoryLabel,
-        showNoteTooltip = isProUser
+        showNoteTooltip = isProUser,
+        isProUser = isProUser,
+        isRecurring = !transaction.sourceRecurringRuleId.isNullOrBlank()
     )
 }
 

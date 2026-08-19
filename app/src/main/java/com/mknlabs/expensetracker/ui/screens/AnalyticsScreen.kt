@@ -2042,7 +2042,9 @@ private fun FilteredTransactionsBottomSheet(
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
                             paymentType = (payment?.name ?: stringResource(id = R.string.label_unknown)).uppercase(),
                             categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase(),
-                            showNoteTooltip = isProUser
+                            showNoteTooltip = isProUser,
+                            isProUser = isProUser,
+                            isRecurring = !transaction.sourceRecurringRuleId.isNullOrBlank()
                         )
                     }
                 }

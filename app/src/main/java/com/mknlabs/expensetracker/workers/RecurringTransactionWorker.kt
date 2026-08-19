@@ -177,8 +177,11 @@ class RecurringTransactionWorker @AssistedInject constructor(
             )
         }
 
-        NotificationHelper.showUpcomingBillNotification(appContext, message, rule.id, windowDays)
+        // Save the updated window marker to DB atomically BEFORE posting the notification.
+        // This ensures subsequent worker checks (triggered by app open or transaction save)
+        // instantly observe lastNotifiedWindowDays = windowDays and never re-fire this window.
         recurringRuleRepository.upsertRule(rule.copy(lastNotifiedWindowDays = windowDays))
+        NotificationHelper.showUpcomingBillNotification(appContext, message, rule.id, windowDays)
     }
 
     private suspend fun processRule(
