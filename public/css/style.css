@@ -1147,6 +1147,22 @@ button {
   letter-spacing: 0.3px;
 }
 
+.premium-card-permonth {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(123, 97, 255, 0.08), rgba(123, 97, 255, 0.04));
+  border: 1px solid rgba(123, 97, 255, 0.15);
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.premium-card-permonth strong {
+  color: #7B61FF;
+  font-weight: 700;
+}
+
 .premium-features {
   flex: 1;
   margin-bottom: var(--space-xl);
