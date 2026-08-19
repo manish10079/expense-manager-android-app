@@ -100,7 +100,7 @@
 
     <div class="container">
         <h1>Privacy Policy</h1>
-        <p class="last-updated">Last updated: August 8, 2026</p>
+        <p class="last-updated">Last updated: August 19, 2026</p>
 
         <div class="highlight">
             <strong>Our Commitment:</strong> Expense Tracker follows a <strong>"Privacy First"</strong> philosophy. Your financial data belongs to you. We designed the app to work fully offline by default, and your data never leaves your device unless you explicitly choose to enable cloud synchronization.
@@ -126,6 +126,7 @@
             <li><strong>Device Identifier:</strong> We collect a unique Android Device ID (Android ID) strictly to manage and enforce the secure device limit of 4 synchronized devices per premium account. This is stored in Firebase Firestore when you enable cloud sync.</li>
             <li><strong>Device Model:</strong> The device model name (e.g., "Pixel 7") is associated with your device registration so you can identify and manage your connected devices in the App's settings.</li>
             <li><strong>Advertising ID:</strong> Google AdMob may collect your Advertising ID to serve personalized or non-personalized advertisements. You can opt out of personalized advertising in your device settings.</li>
+            <li><strong>FCM Registration Token:</strong> When cloud sync is enabled, the App registers a Firebase Cloud Messaging (FCM) token for your device. This token is stored in Firebase Firestore under your user account and is used exclusively to deliver push notifications to your connected devices (e.g., security alerts, financial insights). Stale or invalid tokens are automatically cleaned up. The token itself does not contain personal information — it is a randomly generated identifier managed by Google's FCM infrastructure.</li>
         </ul>
 
         <h3>1.3 Guest Mode (Anonymous Usage)</h3>
@@ -152,8 +153,11 @@
             <li><strong>To Power Smart SMS Import:</strong> Parse detected bank transaction SMS messages locally on your device to propose transactions you can review and save with one tap. SMS content is never transmitted to our servers.</li>
             <li><strong>To Process Feedback:</strong> When you submit feedback through the App, we collect your email address and message so we can respond and improve the App. Feedback is stored in our internal feedback database (Firebase Firestore) and a private Google Sheets form used by the development team.</li>
             <li><strong>To Improve the App:</strong> Use aggregated, anonymized analytics (Firebase Analytics) to understand usage patterns and improve the App experience.</li>
-            <li><strong>To Serve Advertising:</strong> Display ads via Google AdMob. Ad personalization is handled in accordance with your device-level ad preferences.</li>
+            <li><strong>To Serve Advertising:</strong> Display native, interstitial, and rewarded advertisements via Google AdMob. Ad personalization is handled in accordance with your device-level ad preferences. Rewarded ads allow you to watch a short video to temporarily unlock ad-free access (1 hour) or Pro features — this is entirely optional.</li>
             <li><strong>To Provide Remote Configuration:</strong> Use Firebase Remote Config to deliver feature flags and configuration updates without requiring an App update.</li>
+            <li><strong>To Deliver Push Notifications:</strong> Use Firebase Cloud Messaging (FCM) to send security alerts (e.g., new device login, account email changes) and weekly financial insights (for Pro users) to your registered devices. FCM tokens are stored in Firebase Firestore and managed server-side.</li>
+            <li><strong>To Run Server-Side Processing:</strong> Use Firebase Cloud Functions for server-authoritative operations such as ProPass coupon redemption, security event notifications, and weekly financial insight analysis. These functions process your data in a secure, server-side environment and never expose sensitive fields to the client.</li>
+            <li><strong>To Track Notification Engagement:</strong> Record when notifications are shown and dismissed (locally on your device) to improve notification timing and relevance. This data is used solely within the App and is not transmitted to our servers.</li>
         </ul>
 
         <!-- ===== SECTION 3 ===== -->
@@ -190,6 +194,14 @@
                 Processes payments for Pro Pass (lifetime) and subscription purchases. Google Play handles all payment processing. We never see or store your payment card details. Purchase receipts and expiry timestamps are stored in Firebase Firestore to manage your access level. <a href="https://payments.google.com/payments/apis-secure/u/0/get_legal_document?ldo=0&ldt=privacynotice" target="_blank" rel="noopener">Google Payments Privacy Notice</a>
             </li>
             <li>
+                <strong>Google Firebase Cloud Functions</strong> — <span class="badge">Server-Side</span><br>
+                Executes server-side logic for security-critical operations: ProPass coupon validation and redemption (atomic read-validate-grant transaction), Firestore-triggered security alerts (new device login, account email changes), and a scheduled weekly financial insights engine that analyzes spending trends for Pro users. Cloud Functions run in a secure server environment with Admin SDK privileges. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>
+            </li>
+            <li>
+                <strong>Google Firebase Cloud Messaging (FCM)</strong> — <span class="badge">Push Notifications</span><br>
+                Delivers push notifications to your registered devices, including security alerts (new device connections, account changes) and financial insights (Pro users). FCM tokens are stored in Firestore under your user account and are cleaned up automatically when stale. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>
+            </li>
+            <li>
                 <strong>Google Sheets (via Google Apps Script)</strong> — <span class="badge">Support</span><br>
                 Feedback you submit through the in-App feedback form (your email address and message) is forwarded to a private Google Sheets form used by the development team to triage and respond to support requests. No financial data is ever included. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>
             </li>
@@ -220,15 +232,32 @@
 
         <!-- ===== SECTION 5 ===== -->
         <h2>5. Notifications</h2>
-        <p>The App uses local notifications (processed entirely on your device) for:</p>
+        <p>The App uses notifications for the following purposes. Notifications are delivered via two mechanisms:</p>
         <ul>
-            <li><strong>Daily Reminders:</strong> Encourages you to log your daily expenses.</li>
-            <li><strong>Budget Limit Alerts:</strong> Alerts you when you approach or exceed a category budget.</li>
-            <li><strong>Upcoming Bill Notifications:</strong> Reminds you of upcoming recurring transactions or bills due within 48 hours.</li>
-            <li><strong>Missed Entry Reminder:</strong> Notifies you if no transactions were logged for 2 consecutive days.</li>
-            <li><strong>Smart SMS Import Notification:</strong> When Smart SMS Import is enabled, shows a notification with the detected transaction details from a bank SMS so you can save, change, or open it — all processing happens on your device.</li>
+            <li><strong>Local notifications</strong> — processed entirely on your device, requiring no internet connection.</li>
+            <li><strong>Push notifications (FCM)</strong> — delivered via Firebase Cloud Messaging when cloud sync is enabled. These include security alerts and financial insights processed server-side.</li>
         </ul>
-        <p>These notifications are generated locally by the App and require the <code>POST_NOTIFICATIONS</code> permission on Android 13+. You can enable or disable each notification type in the App's Notification Settings at any time.</p>
+        <h3>5.1 Local Notifications</h3>
+        <ul>
+            <li><strong>Daily Reminders:</strong> Encourages you to log your daily expenses. Includes personalized, dynamic messages based on time of day and spending patterns.</li>
+            <li><strong>Budget Limit Alerts:</strong> Alerts you when you approach (75%, 90%) or exceed a category budget. Related alerts are grouped into collapsible summaries in the notification shade.</li>
+            <li><strong>Large Transaction Alerts:</strong> Notifies you when a single expense exceeds your configured threshold amount.</li>
+            <li><strong>Upcoming Bill Notifications:</strong> Reminds you of upcoming recurring transactions at 7, 3, and 1 day before the due date, and on the due date itself. Alerts for different bills are grouped into collapsible summaries.</li>
+            <li><strong>Missed Entry Reminder:</strong> Notifies you if no transactions were logged for 2 consecutive days.</li>
+            <li><strong>Savings Goal Milestones:</strong> Alerts you when you reach 25%, 50%, 75% of a savings goal, when a goal is achieved, or when you fall behind schedule. Goal alerts are grouped into collapsible summaries.</li>
+            <li><strong>Weekly Spending Summary:</strong> A weekly recap of your spending, delivered on a configurable day and time (default: Sunday 8 PM).</li>
+            <li><strong>Smart SMS Import Notification:</strong> When Smart SMS Import is enabled, shows a notification with the detected transaction details from a bank SMS so you can save, change, or open it — all processing happens on your device.</li>
+            <li><strong>Sync Status Notifications:</strong> Informative notifications about cloud sync progress, pending syncs, or sync failures.</li>
+            <li><strong>Auto-Backup Failure Alert:</strong> Notifies you if a local automatic backup fails.</li>
+        </ul>
+        <h3>5.2 Push Notifications (FCM)</h3>
+        <p>When cloud sync is enabled, the App receives push notifications via Firebase Cloud Messaging for:</p>
+        <ul>
+            <li><strong>Cloud &amp; Security Alerts:</strong> Notifies you when a new device signs into your account, or when your account email is updated. These are delivered to all your registered devices except the one that triggered the event.</li>
+            <li><strong>Weekly Financial Insights (Pro):</strong> For Pro users, a server-side engine analyzes your spending trends (week-over-week comparison, category spikes) and sends a push notification with actionable insights.</li>
+        </ul>
+        <h3>5.3 Notification Controls</h3>
+        <p>All notifications require the <code>POST_NOTIFICATIONS</code> permission on Android 13+. You can enable or disable each notification type individually in the App's Notification Settings at any time. Notification channels are organized by type (Daily Reminders, Budget Alerts, Budget Exceeded, Recurring Transactions, SMS Import, Goal Reminders, Weekly Reports, Cloud Security, Financial Insights, Sync Status) and can be independently configured in your device's system settings.</p>
 
         <!-- ===== SECTION 6 ===== -->
         <h2>6. Data Retention &amp; Deletion</h2>
@@ -280,9 +309,9 @@
             <li><code>USE_BIOMETRIC</code> — To enable fingerprint and face unlock for App Lock. Biometric data is handled by the Android system, not by the App.</li>
             <li><code>POST_NOTIFICATIONS</code> — To send daily reminders, budget alerts, and bill notifications. All notifications are generated and processed locally.</li>
             <li><code>RECEIVE_SMS</code> — <strong>Optional, off by default.</strong> Enables Smart SMS Import, which reads incoming SMS messages on your device to detect bank transaction messages. All processing happens locally on your device, and SMS content is never transmitted or stored by us. The App never reads SMS until you grant this permission, and the feature is disabled if you deny it.</li>
-            <li><code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code> — Used to keep the App's background workers running reliably so daily reminders, budget alerts, and cloud sync happen on time. This only asks to exempt the App from battery optimization; if denied, the App continues to work normally.</li>
-            <li><code>INTERNET</code> — To communicate with Firebase services (authentication, cloud sync, remote config) and load advertisements.</li>
-            <li><code>ACCESS_NETWORK_STATE</code> — To check network connectivity before attempting cloud synchronization or ad loading.</li>
+            <li><code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code> — Used to keep the App's background workers running reliably so daily reminders, budget alerts, weekly summaries, goal reminders, and cloud sync happen on time. This only asks to exempt the App from battery optimization; if denied, the App continues to work normally.</li>
+            <li><code>INTERNET</code> — To communicate with Firebase services (authentication, cloud sync, remote config, cloud functions, FCM push notifications) and load advertisements.</li>
+            <li><code>ACCESS_NETWORK_STATE</code> — To check network connectivity before attempting cloud synchronization, push notification delivery, or ad loading.</li>
         </ul>
 
         <!-- ===== SECTION 11 ===== -->
