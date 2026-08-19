@@ -274,53 +274,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================
   // 8. Premium Plan Toggle
   // ==========================================================
-  const monthlyBtn = document.querySelector('[data-plan="monthly"]');
-  const yearlyBtn = document.querySelector('[data-plan="yearly"]');
+  const planBtns = document.querySelectorAll('.premium-toggle-btn');
 
   function updatePricing(plan) {
     const prices = document.querySelectorAll('.premium-card-price');
 
     prices.forEach(price => {
       const monthly = price.getAttribute('data-monthly');
+      const semiannual = price.getAttribute('data-semiannual');
+      const semiannualTotal = price.getAttribute('data-semiannual-total');
       const yearly = price.getAttribute('data-yearly');
-      const yearlyMonthly = price.getAttribute('data-yearly-monthly');
+      const yearlyTotal = price.getAttribute('data-yearly-total');
       const originalPrice = price.getAttribute('data-actual-monthly');
+      const original = price.querySelector('.premium-card-original');
 
       if (plan === 'monthly') {
-        price.querySelector('.amount').textContent = monthly;
+        price.querySelector('.amount').textContent = originalPrice || monthly;
         price.querySelector('.period').textContent = '/month';
-        const original = price.querySelector('.premium-card-original');
         if (original) original.style.display = 'none';
-        if (yearlyMonthly) {
-          if (originalPrice) {
-            price.querySelector('.amount').textContent = originalPrice;
-          }
-        }
-      } else {
-        price.querySelector('.amount').textContent = yearlyMonthly || yearly;
-        price.querySelector('.period').textContent = yearlyMonthly ? '/mo' : '/year';
-        const original = price.querySelector('.premium-card-original');
+      } else if (plan === 'semiannual') {
+        price.querySelector('.amount').textContent = semiannual || monthly;
+        price.querySelector('.period').textContent = '/mo';
         if (original) {
           original.style.display = 'block';
-          original.textContent = `₹${parseInt(monthly.replace(/[^0-9]/g, '')) * 12}/year`;
+          original.textContent = `${semiannualTotal || '₹474'} for 6 months`;
+        }
+      } else if (plan === 'yearly') {
+        price.querySelector('.amount').textContent = yearly || monthly;
+        price.querySelector('.period').textContent = '/mo';
+        if (original) {
+          original.style.display = 'block';
+          original.textContent = `${yearlyTotal || '₹708'} for 12 months`;
         }
       }
     });
   }
 
-  if (monthlyBtn && yearlyBtn) {
-    monthlyBtn.addEventListener('click', () => {
-      monthlyBtn.classList.add('active');
-      yearlyBtn.classList.remove('active');
-      updatePricing('monthly');
+  planBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      planBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updatePricing(btn.getAttribute('data-plan'));
     });
-
-    yearlyBtn.addEventListener('click', () => {
-      yearlyBtn.classList.add('active');
-      monthlyBtn.classList.remove('active');
-      updatePricing('yearly');
-    });
-  }
+  });
 
   // ==========================================================
   // 9. Ripple effect on buttons
