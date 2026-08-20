@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKN Labs — Apps Built with Privacy in Mind</title>
+    <meta name="description" content="MKN Labs builds premium Android apps focused on privacy, beautiful design, and offline-first experiences.">
+    <meta name="keywords" content="MKN Labs, Android apps, privacy first, offline first, expense tracker">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="MKN Labs — Apps Built with Privacy in Mind">
+    <meta property="og:description" content="Premium Android apps focused on privacy, beautiful design, and offline-first experiences.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mknlabs.web.app">
+    <meta property="og:image" content="https://mknlabs.web.app/logo.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="https://mknlabs.web.app">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7; color: #e2e8f0; background: #0f172a; min-height: 100vh; overflow-x: hidden;
+        }
+        a { color: #818cf8; text-decoration: none; transition: color 0.2s; }
+        a:hover { color: #a5b4fc; }
+
+        /* ===== PARTICLES CANVAS ===== */
+        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+            transition: background 0.4s, padding 0.3s, box-shadow 0.4s;
+        }
+        .navbar.scrolled {
+            background: rgba(15, 23, 42, 0.92); padding: 10px 32px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+        }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; font-size: 1.1rem; font-weight: 700; color: #f1f5f9; position: relative; z-index: 101; }
+        .navbar-brand .logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 800; color: #fff;
+            transition: transform 0.3s;
+        }
+        .navbar-brand:hover .logo { transform: rotate(-8deg) scale(1.1); }
+        .navbar-links { display: flex; gap: 28px; }
+        .navbar-links a { color: #94a3b8; font-size: 0.9rem; font-weight: 500; position: relative; }
+        .navbar-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+            background: #818cf8; border-radius: 2px; transition: width 0.3s;
+        }
+        .navbar-links a:hover { color: #f1f5f9; }
+        /* Contact Chat Bubble */
+        .contact-wrap { position: relative; }
+        .contact-trigger { color: #94a3b8; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+        .contact-trigger:hover { color: #f1f5f9; }
+        .chat-bubble {
+            position: absolute; top: calc(100% + 16px); right: 0;
+            width: 280px; background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(99,102,241,0.25); border-radius: 16px;
+            padding: 16px; opacity: 0; visibility: hidden;
+            transform: translateY(-8px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1);
+            z-index: 200;
+        }
+        .contact-wrap:hover .chat-bubble {
+            opacity: 1; visibility: visible; transform: translateY(0) scale(1);
+        }
+        .chat-bubble-inner { display: flex; gap: 12px; align-items: flex-start; }
+        .chat-avatar {
+            width: 40px; height: 40px; min-width: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 800; color: #fff;
+        }
+        .chat-greeting { font-size: 0.95rem; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
+        .chat-sub { font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px; }
+        .chat-email {
+            display: inline-block; font-size: 0.8rem; font-weight: 600; color: #818cf8;
+            background: rgba(99,102,241,0.1); padding: 4px 10px; border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .chat-email:hover { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+        .chat-tail {
+            position: absolute; top: -6px; right: 24px;
+            width: 12px; height: 12px; background: rgba(30, 41, 59, 0.95);
+            border-left: 1px solid rgba(99,102,241,0.25); border-top: 1px solid rgba(99,102,241,0.25);
+            transform: rotate(45deg);
+        }
+        .navbar-links a:hover::after { width: 100%; }
+
+        /* Hamburger */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 101; padding: 4px; }
+        .hamburger span { width: 24px; height: 2px; background: #e2e8f0; border-radius: 2px; transition: all 0.3s; }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+        .mobile-menu {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px);
+            z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .mobile-menu.active { display: flex; opacity: 1; }
+        .mobile-menu a { font-size: 1.3rem; color: #e2e8f0; font-weight: 600; }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; z-index: 1;
+        }
+        .hero-orb {
+            position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
+            animation: orb-float 8s ease-in-out infinite;
+        }
+        .hero-orb-1 { width: 400px; height: 400px; background: rgba(99,102,241,0.15); top: 10%; left: 10%; animation-delay: 0s; }
+        .hero-orb-2 { width: 300px; height: 300px; background: rgba(139,92,246,0.12); bottom: 10%; right: 10%; animation-delay: -3s; }
+        .hero-orb-3 { width: 200px; height: 200px; background: rgba(236,72,153,0.1); top: 50%; left: 60%; animation-delay: -5s; }
+        @keyframes orb-float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        .hero-content { position: relative; max-width: 720px; }
+        .hero-badge {
+            display: inline-block; padding: 8px 20px; border-radius: 24px;
+            background: rgba(99, 102, 241, 0.12); color: #a5b4fc;
+            font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;
+            margin-bottom: 28px; border: 1px solid rgba(99, 102, 241, 0.2);
+            opacity: 0; transform: translateY(20px);
+            animation: hero-fade-up 0.8s 0.2s forwards;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; line-height: 1.1;
+            margin-bottom: 24px; opacity: 0; transform: translateY(30px);
+            animation: hero-fade-up 0.8s 0.4s forwards;
+        }
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, #c4b5fd, #a78bfa, #8b5cf6, #c4b5fd);
+            background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; animation: gradient-shift 4s ease infinite;
+        }
+        @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .hero p {
+            font-size: 1.15rem; color: #94a3b8; max-width: 540px; margin: 0 auto 40px;
+            opacity: 0; transform: translateY(30px); animation: hero-fade-up 0.8s 0.6s forwards;
+        }
+        .hero-cta {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            opacity: 0; transform: translateY(30px); animation: hero-fade-up 0.8s 0.8s forwards;
+        }
+        @keyframes hero-fade-up { to { opacity: 1; transform: translateY(0); } }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 28px; border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; font-weight: 700; font-size: 0.95rem;
+            transition: transform 0.25s, box-shadow 0.25s; position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(99,102,241,0.35); color: #fff; }
+        .btn-secondary {
+            padding: 14px 28px; border-radius: 14px;
+            border: 1.5px solid rgba(148,163,184,0.2); background: rgba(30,41,59,0.5);
+            color: #e2e8f0; font-weight: 600; font-size: 0.95rem;
+            transition: all 0.25s; backdrop-filter: blur(8px);
+        }
+        .btn-secondary:hover { border-color: #818cf8; background: rgba(99,102,241,0.1); color: #a5b4fc; transform: translateY(-2px); }
+
+        .hero-stats {
+            display: flex; justify-content: center; gap: 56px; margin-top: 60px;
+            opacity: 0; animation: hero-fade-up 0.8s 1s forwards;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat .num { font-size: 2.2rem; font-weight: 800; color: #f1f5f9; display: block; }
+        .hero-stat .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            opacity: 0; animation: hero-fade-up 0.8s 1.2s forwards;
+        }
+        .scroll-indicator .mouse {
+            width: 24px; height: 38px; border: 2px solid rgba(148,163,184,0.3);
+            border-radius: 12px; position: relative;
+        }
+        .scroll-indicator .mouse::before {
+            content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+            width: 3px; height: 8px; background: #818cf8; border-radius: 3px;
+            animation: scroll-wheel 2s infinite;
+        }
+        @keyframes scroll-wheel { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(12px)} }
+        .scroll-indicator span { font-size: 0.7rem; color: #475569; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* ===== SECTIONS ===== */
+        .section { padding: 120px 24px; position: relative; z-index: 1; }
+        .section-inner { max-width: 1100px; margin: 0 auto; }
+        .section-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            background: rgba(99, 102, 241, 0.12); color: #a5b4fc;
+            font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 16px;
+        }
+        .section-title { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; color: #f1f5f9; margin-bottom: 12px; }
+        .section-subtitle { font-size: 1.05rem; color: #94a3b8; max-width: 560px; margin-bottom: 56px; }
+
+        /* ===== REVEAL ANIMATIONS ===== */
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        .reveal-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.7s, transform 0.7s; }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right { opacity: 0; transform: translateX(50px); transition: opacity 0.7s, transform 0.7s; }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+        .reveal-scale { opacity: 0; transform: scale(0.9); transition: opacity 0.7s, transform 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+        .reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+        /* ===== PRODUCTS ===== */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px; }
+        .product-card {
+            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.08);
+            border-radius: 24px; padding: 40px; position: relative; overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.4s, box-shadow 0.4s;
+            cursor: default;
+        }
+        .product-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #6366f1, #8b5cf6, transparent);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .product-card:hover::before { opacity: 1; }
+        .product-card:hover {
+            transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 80px rgba(99,102,241,0.08);
+        }
+        .card-glow {
+            position: absolute; top: -100px; right: -100px;
+            width: 250px; height: 250px; border-radius: 50%;
+            pointer-events: none; opacity: 0; transition: opacity 0.5s;
+            background: radial-gradient(circle, rgba(99,102,241,0.25), transparent);
+        }
+        .product-card:hover .card-glow { opacity: 1; }
+        .product-icon {
+            width: 68px; height: 68px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin-bottom: 24px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .product-card:hover .product-icon { transform: scale(1.1) rotate(-5deg); }
+        .product-card h3 { font-size: 1.3rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }
+        .product-tagline { font-size: 0.9rem; color: #818cf8; font-weight: 500; margin-bottom: 14px; }
+        .product-card p { font-size: 0.95rem; color: #94a3b8; margin-bottom: 22px; line-height: 1.75; }
+        .product-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+        .product-tags span {
+            padding: 5px 14px; border-radius: 8px; font-size: 0.72rem; font-weight: 600;
+            background: rgba(99, 102, 241, 0.08); color: #a5b4fc;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .product-tags span:hover { background: rgba(99, 102, 241, 0.18); transform: scale(1.05); }
+        .product-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+        /* Coming Soon */
+        .product-card.coming-soon { border-style: dashed; }
+        .product-card.coming-soon:hover { transform: none; box-shadow: none; }
+        .coming-soon-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 8px;
+            background: rgba(251, 191, 36, 0.12); color: #fbbf24;
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+        @keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+        /* ===== VALUES ===== */
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+        .value-card {
+            padding: 32px; border-radius: 20px;
+            background: rgba(30, 41, 59, 0.35); border: 1px solid rgba(148, 163, 184, 0.06);
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+        .value-card:hover { transform: translateY(-6px); border-color: rgba(99,102,241,0.2); box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
+        .value-card .icon {
+            font-size: 1.8rem; margin-bottom: 14px;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .value-card:hover .icon { transform: scale(1.2) rotate(-8deg); }
+        .value-card h4 { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }
+        .value-card p { font-size: 0.9rem; color: #94a3b8; }
+
+
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 60px 24px 32px; text-align: center;
+            border-top: 1px solid rgba(148, 163, 184, 0.06); position: relative; z-index: 1;
+        }
+        .footer-brand { font-size: 0.9rem; color: #64748b; margin-bottom: 20px; }
+        .footer-links { display: flex; justify-content: center; gap: 28px; margin-bottom: 20px; flex-wrap: wrap; }
+        .footer-links a { color: #94a3b8; font-size: 0.85rem; transition: color 0.3s, transform 0.2s; display: inline-block; }
+        .footer-links a:hover { color: #f1f5f9; transform: translateY(-2px); }
+        .footer-copy { font-size: 0.78rem; color: #475569; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 16px; }
+            .navbar.scrolled { padding: 8px 16px; }
+            .navbar-links { display: none; }
+            .hamburger { display: flex; }
+            .hero { padding: 100px 16px 60px; min-height: 90vh; }
+            .hero-stats { gap: 28px; }
+            .hero-stat .num { font-size: 1.6rem; }
+            .products-grid { grid-template-columns: 1fr; }
+            .section { padding: 80px 16px; }
+            .product-card { padding: 28px; }
+            .values-grid { grid-template-columns: 1fr 1fr; }
+            .footer-links { gap: 16px; }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.9rem; }
+            .hero p { font-size: 1rem; }
+            .hero-stats { flex-direction: column; gap: 20px; }
+            .hero-cta { flex-direction: column; align-items: center; }
+            .values-grid { grid-template-columns: 1fr; }
+            .product-actions { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PARTICLES -->
+    <canvas id="particles"></canvas>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-brand">
+            <div class="logo"><img src="logo.svg" alt="MKN Labs" style="width: 36px; height: 36px; border-radius: 10px;"></div>
+            <span>MKN Labs</span>
+        </div>
+        <div class="navbar-links">
+            <div class="contact-wrap">
+                <a href="#products" class="contact-trigger">Products</a>
+                <div class="chat-bubble">
+                    <div class="chat-bubble-inner">
+                        <div class="chat-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">🚀</div>
+                        <div class="chat-text">
+                            <p class="chat-greeting">What I've Built</p>
+                            <p class="chat-sub">Currently just one app that does everything your finance app wishes it could.</p>
+                            <a href="#products" class="chat-email">Expense Tracker →</a>
+                        </div>
+                    </div>
+                    <div class="chat-tail"></div>
+                </div>
+            </div>
+            <div class="contact-wrap">
+                <a href="#values" class="contact-trigger">About</a>
+                <div class="chat-bubble">
+                    <div class="chat-bubble-inner">
+                        <div class="chat-avatar">👨‍💻</div>
+                        <div class="chat-text">
+                            <p class="chat-greeting">Manish Kumar Nayak</p>
+                            <p class="chat-sub">Nerd with average knowledge who builds apps instead of going outside. Thinks privacy is cool. Has strong opinions about UI spacing.</p>
+                            <a href="mailto:mknlabs.dev@gmail.com" class="chat-email">Ask me anything →</a>
+                        </div>
+                    </div>
+                    <div class="chat-tail"></div>
+                </div>
+            </div>
+            <div class="contact-wrap">
+                <a href="mailto:mknlabs.dev@gmail.com" class="contact-trigger">Contact</a>
+                <div class="chat-bubble">
+                    <div class="chat-bubble-inner">
+                        <div class="chat-avatar">M</div>
+                        <div class="chat-text">
+                            <p class="chat-greeting">Hi, it's Manish 👋</p>
+                            <p class="chat-sub">Connect with me here</p>
+                            <a href="mailto:mknlabs.dev@gmail.com" class="chat-email">mknlabs.dev@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="chat-tail"></div>
+                </div>
+            </div>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#products" onclick="closeMobile()">Products</a>
+        <a href="#values" onclick="closeMobile()">About</a>
+
+        <a href="mailto:mknlabs.dev@gmail.com">Contact</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🛠️ Independent Developer Studio</div>
+            <h1>Apps Built with<br><span class="gradient-text">Privacy in Mind</span></h1>
+            <p>We craft premium apps that respect your privacy, work offline by default, and look beautiful doing it.</p>
+            <div class="hero-cta">
+                <a href="#products" class="btn-primary">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 0 1 0 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+                    Explore Products
+                </a>
+                <a href="mailto:mknlabs.dev@gmail.com" class="btn-secondary">Get in Touch</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><span class="num" data-target="1">0</span><span class="label">Live App</span></div>
+                <div class="hero-stat"><span class="num" data-target="100">0</span><span class="label">Offline First</span></div>
+                <div class="hero-stat"><span class="num" data-target="0">0</span><span class="label">Data Sold</span></div>
+            </div>
+        </div>
+        <div class="scroll-indicator"><div class="mouse"></div><span>Scroll</span></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="section" id="products">
+        <div class="section-inner">
+            <div class="section-badge reveal">🚀 Our Products</div>
+            <h2 class="section-title reveal reveal-delay-1">What We've Built</h2>
+            <p class="section-subtitle reveal reveal-delay-2">Every app starts with a simple idea: make something useful, make it private, make it beautiful.</p>
+            <div class="products-grid">
+                <div class="product-card reveal reveal-delay-1" data-tilt>
+                    <div class="card-glow"></div>
+                    <div class="product-icon" style="background: transparent; padding: 0;">
+                        <img src="app-icon.webp" alt="Expense Tracker Logo" style="width: 68px; height: 68px; border-radius: 18px; object-fit: cover;">
+                    </div>
+                    <h3>Expense Tracker: Budget & Spend</h3>
+                    <div class="product-tagline">Premium by Design, Private by Nature</div>
+                    <p>A full-featured expense tracker with budgets, analytics, recurring transactions, goals, cloud sync, and a gorgeous Material 3 interface. Your financial data stays on your device — always.</p>
+                    <div class="product-tags">
+                        <span>Finance</span><span>Budgets</span><span>Analytics</span><span>Offline-First</span><span>Material 3</span>
+                    </div>
+                    <div class="product-actions">
+                        <a href="https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker" target="_blank" rel="noopener noreferrer" class="btn-primary">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 0 1 0 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+                            Get on Google Play
+                        </a>
+                        <a href="https://expense-tracker-2ea00.web.app" target="_blank" rel="noopener noreferrer" class="btn-secondary">Learn More →</a>
+                    </div>
+                </div>
+                <div class="product-card coming-soon reveal reveal-delay-2">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="product-icon" style="background: rgba(148,163,184,0.08);">🚧</div>
+                    <h3>Next Big Thing</h3>
+                    <div class="product-tagline" style="color: #64748b;">Currently manifesting in the dev cave</div>
+                    <p>Yes, we know. Another "something exciting coming soon" page. But this time it's real. Probably. We're shipping when it's ready — or when the coffee runs out.</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VALUES -->
+    <section class="section" id="values" style="background: rgba(30, 41, 59, 0.25);">
+        <div class="section-inner">
+            <div class="section-badge reveal">💡 Our Principles</div>
+            <h2 class="section-title reveal reveal-delay-1">What We Believe In</h2>
+            <p class="section-subtitle reveal reveal-delay-2">Every decision we make is guided by these core principles.</p>
+            <div class="values-grid">
+                <div class="value-card reveal reveal-delay-1"><div class="icon">🔒</div><h4>Privacy First</h4><p>Your data stays on your device. No tracking, no selling, no compromises.</p></div>
+                <div class="value-card reveal reveal-delay-2"><div class="icon">📴</div><h4>Offline by Default</h4><p>Every app works fully without internet. Cloud features enhance but never required.</p></div>
+                <div class="value-card reveal reveal-delay-3"><div class="icon">🎨</div><h4>Premium Design</h4><p>Beautiful interfaces built with Material 3. Utility apps deserve great design.</p></div>
+                <div class="value-card reveal reveal-delay-4"><div class="icon">⚡</div><h4>Fast & Light</h4><p>Optimized for performance. Baseline profiles, minimal deps, efficient code.</p></div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-brand">No venture capital was harmed in the making of these apps.</div>
+
+        <div class="footer-copy">&copy; <span id="year"></span> MKN Labs. All rights reserved.</div>
+    </footer>
+
+    <script>
+    // ===== PARTICLES =====
+    (function(){
+        const c = document.getElementById('particles');
+        const ctx = c.getContext('2d');
+        let w, h, particles = [];
+        function resize(){ w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        class P {
+            constructor(){
+                this.x = Math.random()*w; this.y = Math.random()*h;
+                this.vx = (Math.random()-0.5)*0.3; this.vy = (Math.random()-0.5)*0.3;
+                this.r = Math.random()*2+0.5; this.alpha = Math.random()*0.3+0.1;
+            }
+            update(){
+                this.x += this.vx; this.y += this.vy;
+                if(this.x<0) this.x=w; if(this.x>w) this.x=0;
+                if(this.y<0) this.y=h; if(this.y>h) this.y=0;
+            }
+            draw(){
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(99,102,241,${this.alpha})`; ctx.fill();
+            }
+        }
+        for(let i=0; i<60; i++) particles.push(new P());
+        function animate(){
+            ctx.clearRect(0,0,w,h);
+            particles.forEach(p => { p.update(); p.draw(); });
+            // Draw lines between nearby particles
+            for(let i=0;i<particles.length;i++){
+                for(let j=i+1;j<particles.length;j++){
+                    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+                    const dist=Math.sqrt(dx*dx+dy*dy);
+                    if(dist<120){
+                        ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y);
+                        ctx.lineTo(particles[j].x,particles[j].y);
+                        ctx.strokeStyle=`rgba(99,102,241,${0.08*(1-dist/120)})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+
+    // ===== NAVBAR SCROLL =====
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ===== HAMBURGER =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    });
+    function closeMobile(){
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ===== SCROLL REVEAL =====
+    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); revealObserver.unobserve(e.target); }});
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // ===== COUNTER ANIMATION =====
+    const counters = document.querySelectorAll('.num[data-target]');
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if(e.isIntersecting){
+                const target = +e.target.dataset.target;
+                const suffix = target === 100 ? '%' : '';
+                let current = 0;
+                const step = Math.max(1, Math.floor(target / 40));
+                const timer = setInterval(() => {
+                    current += step;
+                    if(current >= target){ current = target; clearInterval(timer); }
+                    e.target.textContent = current + suffix;
+                }, 30);
+                counterObserver.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    counters.forEach(el => counterObserver.observe(el));
+
+    // ===== 3D CARD TILT =====
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left, y = e.clientY - rect.top;
+            const centerX = rect.width/2, centerY = rect.height/2;
+            const rotateX = (y - centerY)/20, rotateY = (centerX - x)/20;
+            card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    });
+
+    // ===== FOOTER YEAR =====
+    document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
