@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account & Data — Expense Tracker: Budget & Spend</title>
+    <meta name="description" content="Request deletion of your Expense Tracker account and all associated data. Learn what data is deleted and what is retained.">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            color: #1a1a2e;
+            background: #f8f9ff;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 48px 40px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+        }
+        h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            border-bottom: 3px solid #ef4444;
+            padding-bottom: 16px;
+            margin-bottom: 8px;
+        }
+        .last-updated {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+        h2 {
+            font-size: 1.25rem;
+            color: #2c3e50;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-left: 16px;
+            border-left: 4px solid #7B61FF;
+        }
+        h3 {
+            font-size: 1.05rem;
+            color: #374151;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        p { margin-bottom: 16px; color: #374151; }
+        ul, ol { margin-bottom: 16px; padding-left: 24px; }
+        li { margin-bottom: 10px; color: #4b5563; }
+        strong { color: #1a1a2e; }
+        .highlight {
+            background: linear-gradient(135deg, #fef2f2, #fde8e8);
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #fecaca;
+            margin: 24px 0;
+        }
+        .highlight strong { color: #dc2626; }
+        .highlight-blue {
+            background: linear-gradient(135deg, #f3f0ff, #ede7ff);
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #d4c8ff;
+            margin: 24px 0;
+        }
+        .highlight-blue strong { color: #5B41DB; }
+        .highlight-green {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #a7f3d0;
+            margin: 24px 0;
+        }
+        .highlight-green strong { color: #059669; }
+        .footer-section {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            background: #7B61FF;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .badge.danger { background: #ef4444; }
+        .badge.green { background: #10b981; }
+        .badge.amber { background: #f59e0b; color: #1a1a2e; }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #7B61FF;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .step-box {
+            background: #f8f9ff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+        .step-box .step-num {
+            display: inline-block;
+            background: #7B61FF;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+        .email-link {
+            display: inline-block;
+            background: #7B61FF;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+        .email-link:hover { background: #5B41DB; }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.95rem;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table th {
+            background: #f8f9ff;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        .data-table td { color: #4b5563; }
+        @media (max-width: 640px) {
+            body { padding: 16px 12px; }
+            .container { padding: 24px 20px; }
+            h1 { font-size: 1.5rem; }
+            .data-table { font-size: 0.85rem; }
+            .data-table th, .data-table td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://expense-tracker-2ea00.web.app" class="back-link">&larr; Back to Expense Tracker</a>
+
+    <div class="container">
+        <h1>🗑️ Delete Account &amp; All Data</h1>
+        <p class="last-updated">Last updated: August 20, 2025</p>
+
+        <div class="highlight">
+            <strong>⚠️ Important:</strong> Account deletion is permanent and irreversible. Once deleted, your data cannot be recovered. Please make sure to export any data you wish to keep before proceeding.
+        </div>
+
+        <p>This page explains how to request deletion of your <strong>Expense Tracker: Budget &amp; Spend</strong> account and all associated data. This applies to accounts created by <strong>MKN Labs</strong>.</p>
+
+        <!-- SECTION 1 -->
+        <h2>1. How to Delete Your Account</h2>
+        <p>You can delete your account using either of the methods below:</p>
+
+        <h3><span class="badge">Method 1</span> Delete via the App (Recommended)</h3>
+        <p>If you still have access to the app on your device, follow these steps:</p>
+        <div class="step-box">
+            <p><span class="step-num">1</span> Open <strong>Expense Tracker: Budget &amp; Spend</strong></p>
+            <p><span class="step-num">2</span> Go to <strong>Settings</strong> (profile icon in the top bar)</p>
+            <p><span class="step-num">3</span> Navigate to <strong>Data Management</strong></p>
+            <p><span class="step-num">4</span> Scroll to the <strong>Storage &amp; Maintenance</strong> section</p>
+            <p><span class="step-num">5</span> Tap <strong>"Delete Account &amp; All Data"</strong> (red button)</p>
+            <p><span class="step-num">6</span> Confirm the deletion when prompted</p>
+        </div>
+        <p>This will immediately and permanently delete:</p>
+        <ul>
+            <li>Your Firebase Authentication account</li>
+            <li>All synced cloud data (transactions, budgets, categories, recurring rules, goals, payment methods, profile)</li>
+            <li>Device registrations from the connected devices list</li>
+            <li>Profile photos</li>
+            <li>All local data stored on your device</li>
+        </ul>
+
+        <h3><span class="badge">Method 2</span> Request via Email</h3>
+        <p>If you no longer have access to the app (e.g., you switched devices or uninstalled the app), you can request account deletion by emailing us:</p>
+        <p>
+            <a class="email-link" href="mailto:mknlabs.dev@gmail.com?subject=Account%20Deletion%20Request%20-%20Expense%20Tracker&body=Please%20delete%20my%20Expense%20Tracker%20account%20and%20all%20associated%20data.%0A%0AApp%20Name%3A%20Expense%20Tracker%3A%20Budget%20%26%20Spend%0ADeveloper%3A%20MKN%20Labs%0AEmail%20associated%20with%20account%3A%20%5Byour%20email%5D%0AGoogle%20Play%20Order%20ID%20(optional)%3A%20%5Byour%20order%20ID%5D">📧 Send Deletion Request</a>
+        </p>
+        <p>Please include your <strong>email address associated with the account</strong> and your <strong>Google Play order ID</strong> (if available) to help us locate your account. We will process your request within <strong>30 days</strong> and confirm deletion by email.</p>
+
+        <!-- SECTION 2 -->
+        <h2>2. What Data Is Deleted</h2>
+        <p>When you delete your account, the following data is <strong>permanently removed</strong>:</p>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Data Type</th>
+                    <th>Where Stored</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Firebase Authentication account</strong> (email, password hash, UID)</td>
+                    <td>Firebase Auth</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Transactions</strong> (amount, category, notes, dates)</td>
+                    <td>Firebase Firestore + Local DB</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Budgets</strong> (category, limits, periods)</td>
+                    <td>Firebase Firestore + Local DB</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Recurring Rules</strong> (frequency, amounts, anchors)</td>
+                    <td>Firebase Firestore + Local DB</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Goals</strong> (targets, progress)</td>
+                    <td>Firebase Firestore + Local DB</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Categories &amp; Payment Methods</strong> (custom entries)</td>
+                    <td>Firebase Firestore + Local DB</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>User Profile</strong> (display name, photo)</td>
+                    <td>Firebase Firestore + Local Storage</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>FCM Push Tokens</strong> (device registrations)</td>
+                    <td>Firebase Firestore</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>App Settings</strong> (preferences, data stores)</td>
+                    <td>Local DataStore</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Local Backups</strong></td>
+                    <td>Local Storage</td>
+                    <td><span class="badge danger">Deleted</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SECTION 3 -->
+        <h2>3. What Data Is Retained</h2>
+        <p>The following data may be retained for the specified periods after account deletion:</p>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Data Type</th>
+                    <th>Retention Period</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Server access logs</strong></td>
+                    <td>Up to 30 days</td>
+                    <td>Security auditing and fraud prevention</td>
+                </tr>
+                <tr>
+                    <td><strong>Aggregated, anonymized analytics</strong></td>
+                    <td>Retained indefinitely</td>
+                    <td>Cannot be linked to individual users; used for product improvement</td>
+                </tr>
+                <tr>
+                    <td><strong>Crash reports</strong></td>
+                    <td>Up to 90 days</td>
+                    <td>Firebase Crashlytics retains anonymized reports; cannot be used to identify you</td>
+                </tr>
+                <tr>
+                    <td><strong>Email correspondence</strong></td>
+                    <td>Up to 2 years</td>
+                    <td>Support request history and legal compliance</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SECTION 4 -->
+        <h2>4. Before You Delete</h2>
+        <div class="highlight-green">
+            <strong>💡 Export your data first!</strong> You can export your transactions and financial data as a <strong>JSON file</strong> or <strong>SQLite database backup</strong> before deleting your account. Go to <strong>Settings → Data Management → Export Data</strong> in the app.
+        </div>
+        <p>After deletion:</p>
+        <ul>
+            <li>You will be <strong>signed out</strong> of the app immediately</li>
+            <li>All cloud sync will be <strong>disconnected</strong></li>
+            <li>Your Pro Pass subscription (if any) will <strong>not</strong> be affected at the Google Play level — manage subscriptions through <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener noreferrer">Google Play Subscriptions</a></li>
+            <li>You can create a <strong>new account</strong> at any time after deletion</li>
+        </ul>
+
+        <!-- SECTION 5 -->
+        <h2>5. Data Safety Summary</h2>
+        <p>This information is provided for Google Play Data Safety compliance:</p>
+        <ul>
+            <li><strong>App:</strong> Expense Tracker: Budget &amp; Spend</li>
+            <li><strong>Developer:</strong> MKN Labs</li>
+            <li><strong>Data collected:</strong> Financial transactions, budgets, user profile (name, email), device identifiers (for sync)</li>
+            <li><strong>Data deletion:</strong> Users can delete all data at any time via the in-app feature or by emailing us</li>
+            <li><strong>Data encryption:</strong> In transit (TLS) and at rest (Firebase)</li>
+            <li><strong>Data sharing:</strong> We do not sell or share personal data with third parties for their own purposes</li>
+        </ul>
+
+        <!-- SECTION 6 -->
+        <h2>6. Questions or Issues?</h2>
+        <p>If you have any questions about account deletion or need assistance, please contact us:</p>
+        <ul>
+            <li><strong>Email:</strong> <a href="mailto:mknlabs.dev@gmail.com">mknlabs.dev@gmail.com</a></li>
+            <li><strong>Developer:</strong> Manish Kumar Nayak</li>
+            <li><strong>Studio:</strong> MKN Labs</li>
+        </ul>
+        <p>We aim to respond to all requests within <strong>30 days</strong>. For urgent requests, please include "URGENT - Account Deletion" in your email subject line.</p>
+
+        <div class="footer-section">
+            <p>&copy; <span id="current-year"></span> Manish Kumar Nayak. All rights reserved.</p>
+            <p>Expense Tracker: Budget &amp; Spend is a product of <strong>MKN Labs</strong>.</p>
+            <p style="margin-top:12px; font-size:0.8rem;">
+                <strong>Privacy First. Offline by Default. Always Transparent.</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
