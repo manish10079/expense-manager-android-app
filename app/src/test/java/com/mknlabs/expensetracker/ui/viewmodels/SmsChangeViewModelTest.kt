@@ -248,6 +248,13 @@ class SmsChangeViewModelTest {
         override suspend fun updateSyncStates(ids: List<String>, syncState: String) = error("unexpected")
         override suspend fun deleteAll() = error("unexpected")
         override suspend fun purgeOldDeleted(threshold: Long) = error("unexpected")
+        override suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
+        override suspend fun getActiveTransactionsPagedForYear(yearStartMillis: Long, yearEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
+        override suspend fun getActiveTransactionsPagedForMonth(monthStartMillis: Long, monthEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
+        override suspend fun getActiveTransactionsPagedForDay(dayStartMillis: Long, dayEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
+        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int = error("unexpected")
+        override suspend fun countActiveTransactions(): Int = error("unexpected")
+        override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean = error("unexpected")
     }
 
     /** Fake domain repository: captures upserted transactions. */
@@ -267,6 +274,12 @@ class SmsChangeViewModelTest {
         override suspend fun softDeleteTransaction(id: String) = error("unexpected")
         override suspend fun softDeleteTransactions(ids: List<String>) = error("unexpected")
         override suspend fun deleteAllTransactions() = error("unexpected")
+        override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> = error("unexpected")
+        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, pageSize: Int, pageNumber: Int): List<Transaction> = error("unexpected")
+        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int = error("unexpected")
+        override suspend fun countActiveTransactions(): Int = error("unexpected")
+        override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary = error("unexpected")
+        override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean = error("unexpected")
     }
 
     private class FakeAppPreferencesRepository(

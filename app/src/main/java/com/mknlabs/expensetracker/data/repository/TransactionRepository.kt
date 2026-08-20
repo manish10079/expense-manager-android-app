@@ -5,6 +5,7 @@ import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.toDomain
 import com.mknlabs.expensetracker.data.local.room.toEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
+import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
@@ -105,6 +106,53 @@ class TransactionRepository @Inject constructor(
             dao.deleteAll()
         }
     }
+
+    override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> =
+        withContext(Dispatchers.IO) {
+            val offset = pageNumber * pageSize
+            dao.getActiveTransactionsPaged(limit = pageSize, offset = offset).map { it.toDomain() }
+        }
+
+    override suspend fun getActiveTransactionsPagedInRange(
+        startMillis: Long,
+        endMillis: Long,
+        pageSize: Int,
+        pageNumber: Int
+    ): List<Transaction> = withContext(Dispatchers.IO) {
+        val offset = pageNumber * pageSize
+        dao.getActiveTransactionsPagedForYear(
+            yearStartMillis = startMillis,
+            yearEndMillis = endMillis,
+            limit = pageSize,
+            offset = offset
+        ).map { it.toDomain() }
+    }
+
+    override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int =
+        withContext(Dispatchers.IO) {
+            dao.countActiveTransactionsInRange(startMillis, endMillis)
+        }
+
+    override suspend fun countActiveTransactions(): Int = withContext(Dispatchers.IO) {
+        dao.countActiveTransactions()
+    }
+
+    override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary =
+        withContext(Dispatchers.IO) {
+            val row = dao.getRangeSummary(startMillis, endMillis)
+            TransactionSummary(
+                totalIncomeMinor = row.incomeMinor,
+                totalExpenseMinor = row.expenseMinor,
+                highlightedExpenseMinor = 0L,
+                previousMonthIncomeMinor = 0L,
+                previousMonthExpenseMinor = 0L
+            )
+        }
+
+    override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean =
+        withContext(Dispatchers.IO) {
+            dao.hasTransactionsInRange(startMillis, endMillis)
+        }
 }
 
 private fun HomeRecentTransactionRow.toRecentTransaction(): RecentTransaction {

@@ -19,6 +19,80 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
     suspend fun getActiveTransactions(): List<TransactionEntity>
 
+    /**
+     * Paged query for the Transactions screen. Returns a window of [limit] rows
+     * starting at [offset], ordered by occurred_at DESC.
+     */
+    @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC LIMIT :limit OFFSET :offset")
+    suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity>
+
+    /**
+     * Paged query filtered to a specific year. [yearStartMillis] and [yearEndMillis]
+     * are the epoch-millis boundaries of the year (inclusive start, exclusive end).
+     */
+    @Query("""
+        SELECT * FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :yearStartMillis
+          AND occurred_at < :yearEndMillis
+        ORDER BY occurred_at DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getActiveTransactionsPagedForYear(yearStartMillis: Long, yearEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
+
+    /**
+     * Paged query filtered to a specific month. [monthStartMillis] and [monthEndMillis]
+     * are the epoch-millis boundaries of the month (inclusive start, exclusive end).
+     */
+    @Query("""
+        SELECT * FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :monthStartMillis
+          AND occurred_at < :monthEndMillis
+        ORDER BY occurred_at DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getActiveTransactionsPagedForMonth(monthStartMillis: Long, monthEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
+
+    /**
+     * Paged query filtered to a specific day. [dayStartMillis] and [dayEndMillis]
+     * are the epoch-millis boundaries of the day (inclusive start, exclusive end).
+     */
+    @Query("""
+        SELECT * FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :dayStartMillis
+          AND occurred_at < :dayEndMillis
+        ORDER BY occurred_at DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getActiveTransactionsPagedForDay(dayStartMillis: Long, dayEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
+
+    /** Count of active transactions in a time range. */
+    @Query("""
+        SELECT COUNT(*) FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :startMillis
+          AND occurred_at < :endMillis
+    """)
+    suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int
+
+    /** Count of all active transactions (no time filter). */
+    @Query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0")
+    suspend fun countActiveTransactions(): Int
+
+    /** Check whether any active transaction exists in a time range. */
+    @Query("""
+        SELECT EXISTS(
+            SELECT 1 FROM transactions
+            WHERE is_deleted = 0
+              AND occurred_at >= :startMillis
+              AND occurred_at < :endMillis
+            LIMIT 1
+        )
+    """)
+    suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean
+
     @Query("SELECT * FROM transactions")
     suspend fun getAllTransactions(): List<TransactionEntity>
 

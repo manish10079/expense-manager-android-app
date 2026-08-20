@@ -286,7 +286,6 @@ fun AppNavigationHost(
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
-                        transactions = transactions,
                         categories = categories,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         recurringRules = recurringRules,

@@ -71,6 +71,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -158,7 +159,6 @@ fun TransactionScreen(
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
-    transactions: List<Transaction> = emptyList(),
     categories: List<CategoryType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
@@ -174,7 +174,6 @@ fun TransactionScreen(
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
 
     LaunchedEffect(
-        transactions,
         categories,
         currencyId,
         amountFormatPreferences,
@@ -183,7 +182,6 @@ fun TransactionScreen(
         transactionCardCustomizationSettings
     ) {
         transactionsViewModel.updateInputs(
-            transactions = transactions,
             categories = categories,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
@@ -224,7 +222,8 @@ fun TransactionScreen(
         updateMaxAmount = transactionsViewModel::updateMaxAmount,
         applyFilters = transactionsViewModel::applyFilters,
         resetFilters = transactionsViewModel::resetFilters,
-        deleteSelectedTransactions = transactionsViewModel::deleteSelectedTransactions
+        deleteSelectedTransactions = transactionsViewModel::deleteSelectedTransactions,
+        loadNextPage = transactionsViewModel::loadNextPage
     )
 }
 
@@ -260,7 +259,8 @@ private fun TransactionScreenContent(
     updateMaxAmount: (String) -> Unit,
     applyFilters: () -> Unit,
     resetFilters: () -> Unit,
-    deleteSelectedTransactions: () -> Unit
+    deleteSelectedTransactions: () -> Unit,
+    loadNextPage: () -> Unit
 ) {
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -269,6 +269,20 @@ private fun TransactionScreenContent(
     val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
+
+    // Scroll-to-load: trigger next page when user scrolls near the bottom
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = lazyListState.layoutInfo.totalItemsCount
+            lastVisibleItem >= totalItems - 5 && !uiState.pagination.isLoading && uiState.pagination.hasMore
+        }
+    }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            loadNextPage()
+        }
+    }
     
     val emptyTransactionMessages = stringArrayResource(R.array.empty_transaction_messages).toList()
 
@@ -711,6 +725,24 @@ private fun TransactionScreenContent(
                                         Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }
                                 }
+                                }
+                            }
+                        }
+
+                        // Loading indicator at the bottom when fetching next page
+                        if (uiState.pagination.isLoading) {
+                            item(key = "loading_indicator") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(Dimens.PaddingMedium),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    androidx.compose.material3.CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        strokeWidth = 2.dp
+                                    )
                                 }
                             }
                         }
@@ -1253,7 +1285,8 @@ private fun TransactionsScreenEmptyStatePreviewLight() {
             updateMaxAmount = {},
             applyFilters = {},
             resetFilters = {},
-            deleteSelectedTransactions = {}
+            deleteSelectedTransactions = {},
+            loadNextPage = {}
         )
     }
 }
@@ -1296,7 +1329,8 @@ private fun TransactionsScreenEmptyStatePreviewDark() {
             updateMaxAmount = {},
             applyFilters = {},
             resetFilters = {},
-            deleteSelectedTransactions = {}
+            deleteSelectedTransactions = {},
+            loadNextPage = {}
         )
     }
 }
@@ -1339,7 +1373,8 @@ private fun TransactionsScreenMultiConfigPreview() {
             updateMaxAmount = {},
             applyFilters = {},
             resetFilters = {},
-            deleteSelectedTransactions = {}
+            deleteSelectedTransactions = {},
+            loadNextPage = {}
         )
     }
 }

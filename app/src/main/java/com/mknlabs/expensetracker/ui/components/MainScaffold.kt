@@ -441,13 +441,12 @@ private fun BoxScope.PreloadSecondaryScreenData(
             transactionCardCustomizationSettings
         )
         transactionsViewModel.updateInputs(
-            transactions,
-            categories,
-            selectedCurrencyId,
-            amountFormatPreferences,
-            selectedDateFormatPattern,
-            selectedTimeFormat,
-            transactionCardCustomizationSettings
+            categories = categories,
+            currencyId = selectedCurrencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = selectedDateFormatPattern,
+            timeFormat = selectedTimeFormat,
+            customizationSettings = transactionCardCustomizationSettings
         )
         settingsViewModel.updateInputs(transactionCount, isAdsEnabled, userTier, isCloudSyncEnabled)
     }

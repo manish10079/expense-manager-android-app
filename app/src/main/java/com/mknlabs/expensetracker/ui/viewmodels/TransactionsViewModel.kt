@@ -23,6 +23,7 @@ import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_30_DAYS
 import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_60_DAYS
 import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_7_DAYS
 import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
+import com.mknlabs.expensetracker.ui.models.PaginationState
 import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatDate
@@ -77,7 +78,8 @@ data class TransactionsScreenUiState(
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isSelectionMode: Boolean = false,
     val selectedTransactionIds: Set<String> = emptySet(),
-    val isDragging: Boolean = false
+    val isDragging: Boolean = false,
+    val pagination: PaginationState = PaginationState()
 )
 
 private const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
@@ -95,7 +97,12 @@ class TransactionsViewModel @Inject constructor(
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
 
-    private var currentTransactions: List<Transaction> = emptyList()
+    /**
+     * Accumulated transactions for the current view. Each page load appends to this list.
+     * Reset to empty when filters, sort, period, or search change.
+     */
+    private val currentTransactions = mutableListOf<Transaction>()
+
     private var currentCategories: List<CategoryType> = emptyList()
 
     private val _selectedTransactionIds = MutableStateFlow<Set<String>>(emptySet())
@@ -106,7 +113,6 @@ class TransactionsViewModel @Inject constructor(
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var currentTimeFormat: String = DEFAULT_TIME_FORMAT
     private var currentCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
-    private var latestTransactionTimestamp: Long = System.currentTimeMillis()
 
     private var searchQuery: String = ""
     private var selectedSort: String = DEFAULT_SORT_BY
@@ -131,7 +137,7 @@ class TransactionsViewModel @Inject constructor(
     private var appliedMaxAmount: String = ""
 
     private var selectedPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY
-    private var focusedPeriodTimestamp: Long = latestTransactionTimestamp
+    private var focusedPeriodTimestamp: Long = System.currentTimeMillis()
 
     private var advancedSearchGranted: Boolean = false
 
@@ -162,20 +168,23 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         observeAdvancedSearchAccess()
-        rebuildUiState()
+        loadFirstPage()
     }
 
     private fun observeAdvancedSearchAccess() {
         viewModelScope.launch {
             observeAccessStatusUseCase(Feature.ADVANCED_SEARCH_SCOPE).collect { status ->
                 advancedSearchGranted = status is AccessStatus.Granted
-                rebuildUiState()
+                resetAndReload()
             }
         }
     }
 
+    /**
+     * Called from the composable when inputs change (categories, currency, etc.).
+     * Only triggers a reload if the inputs actually changed.
+     */
     fun updateInputs(
-        transactions: List<Transaction>,
         categories: List<CategoryType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
@@ -183,74 +192,79 @@ class TransactionsViewModel @Inject constructor(
         timeFormat: String,
         customizationSettings: TransactionCardCustomizationSettings
     ) {
-        currentTransactions = transactions
+        val inputsChanged = currentCategories != categories ||
+            currentCurrencyId != currencyId ||
+            currentDateFormatPattern != dateFormatPattern ||
+            currentTimeFormat != timeFormat ||
+            currentCustomizationSettings != customizationSettings
+
         currentCategories = categories
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
         currentTimeFormat = timeFormat
         currentCustomizationSettings = customizationSettings
-        latestTransactionTimestamp = transactions.maxOfOrNull { it.createdAt } ?: System.currentTimeMillis()
-        if (focusedPeriodTimestamp == 0L) {
-            focusedPeriodTimestamp = System.currentTimeMillis()
+
+        if (inputsChanged) {
+            resetAndReload()
         }
-        rebuildUiState()
     }
+
+    // ─── Search & Filter Actions ──────────────────────────────────────
 
     fun updateSearchQuery(query: String) {
         searchQuery = query
-        // Update the state immediately for the text field to prevent cursor jumping
         _baseUiState.update { it.copy(searchQuery = query) }
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateSort(sort: String) {
         selectedSort = sort
         selectedOrder = getDefaultOrder(sort)
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateOrder(order: SortType) {
         selectedOrder = order
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateDateRange(dateRange: String?) {
         selectedDateRange = dateRange
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateCustomDateRange(start: Long?, end: Long?) {
         customStartDate = start
         customEndDate = end ?: start
         selectedDateRange = KEY_CUSTOM_RANGE
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun toggleTransactionTypeFilter(transactionTypeId: Int) {
         selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(transactionTypeId)
         selectedCategoryIds = emptySet()
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun toggleCategory(categoryId: Int) {
         selectedCategoryIds = selectedCategoryIds.toggle(categoryId)
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun togglePaymentMode(paymentTypeId: Int) {
         selectedPaymentTypeIds = selectedPaymentTypeIds.toggle(paymentTypeId)
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateMinAmount(amount: String) {
         selectedMinAmount = amount
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun updateMaxAmount(amount: String) {
         selectedMaxAmount = amount
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun applyFilters() {
@@ -263,7 +277,7 @@ class TransactionsViewModel @Inject constructor(
         appliedPaymentTypeIds = selectedPaymentTypeIds
         appliedMinAmount = selectedMinAmount
         appliedMaxAmount = selectedMaxAmount
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun resetFilters() {
@@ -280,11 +294,13 @@ class TransactionsViewModel @Inject constructor(
         applyFilters()
     }
 
+    // ─── Period Navigation ────────────────────────────────────────────
+
     fun updatePeriodFilter(filter: TransactionPeriodFilter) {
         selectedPeriodFilter = filter
         focusedPeriodTimestamp = System.currentTimeMillis()
         clearSelection()
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun navigatePeriod(step: Int) {
@@ -294,14 +310,16 @@ class TransactionsViewModel @Inject constructor(
             step = step
         )
         clearSelection()
-        rebuildUiState()
+        resetAndReload()
     }
 
     fun jumpToPeriod(millis: Long) {
         focusedPeriodTimestamp = millis
         clearSelection()
-        rebuildUiState()
+        resetAndReload()
     }
+
+    // ─── Selection ────────────────────────────────────────────────────
 
     fun toggleSelection(transactionId: String) {
         if (!_isSelectionMode.value) {
@@ -313,7 +331,7 @@ class TransactionsViewModel @Inject constructor(
         } else {
             currentIds + transactionId
         }
-        
+
         _selectedTransactionIds.value = newIds
         if (newIds.isEmpty()) {
             _isSelectionMode.value = false
@@ -335,10 +353,9 @@ class TransactionsViewModel @Inject constructor(
             .filterIsInstance<TransactionListItemUi.TransactionRow>()
             .map { it.card.id }
             .toSet()
-        
+
         val currentlySelected = _selectedTransactionIds.value
-        
-        // If everything is already selected, clear it. Otherwise, select all.
+
         if (currentlySelected.size >= allIds.size && allIds.isNotEmpty()) {
             clearSelection()
         } else {
@@ -353,7 +370,10 @@ class TransactionsViewModel @Inject constructor(
 
         viewModelScope.launch {
             transactionRepository.softDeleteTransactions(idsToDelete)
+            // Remove deleted items from current page and rebuild
+            currentTransactions.removeAll { it.id in idsToDelete }
             clearSelection()
+            rebuildUiState()
         }
     }
 
@@ -361,32 +381,137 @@ class TransactionsViewModel @Inject constructor(
         val transactionsInList = _baseUiState.value.transactionItems
             .filterIsInstance<TransactionListItemUi.TransactionRow>()
             .map { it.card.id }
-        
+
         val startIndex = transactionsInList.indexOf(fromId)
         val endIndex = transactionsInList.indexOf(toId)
-        
+
         if (startIndex == -1 || endIndex == -1) return
-        
+
         val rangeIds = if (startIndex <= endIndex) {
             transactionsInList.subList(startIndex, endIndex + 1)
         } else {
             transactionsInList.subList(endIndex, startIndex + 1)
         }
-        
+
         _selectedTransactionIds.value = _selectedTransactionIds.value + rangeIds
         _isSelectionMode.value = true
     }
 
-    private fun rebuildUiState() {
+    // ─── Pagination ───────────────────────────────────────────────────
+
+    /**
+     * Resets pagination state and loads the first page from Room.
+     * Called whenever filters, sort, period, or search change.
+     */
+    private fun resetAndReload() {
+        currentTransactions.clear()
+        _baseUiState.update {
+            it.copy(pagination = PaginationState(isLoading = true))
+        }
+        loadFirstPage()
+    }
+
+    /**
+     * Loads page 0 from Room and rebuilds the UI state.
+     */
+    private fun loadFirstPage() {
+        viewModelScope.launch {
+            val pageSize = PaginationState.PAGE_SIZE_DEFAULT
+            val range = computePeriodRange()
+
+            val totalCount = withContext(Dispatchers.IO) {
+                if (range != null) {
+                    transactionRepository.countActiveTransactionsInRange(range.first, range.second)
+                } else {
+                    transactionRepository.countActiveTransactions()
+                }
+            }
+
+            val page = withContext(Dispatchers.IO) {
+                if (range != null) {
+                    transactionRepository.getActiveTransactionsPagedInRange(
+                        startMillis = range.first,
+                        endMillis = range.second,
+                        pageSize = pageSize,
+                        pageNumber = 0
+                    )
+                } else {
+                    transactionRepository.getActiveTransactionsPaged(
+                        pageSize = pageSize,
+                        pageNumber = 0
+                    )
+                }
+            }
+
+            currentTransactions.clear()
+            currentTransactions.addAll(page)
+
+            val pagination = PaginationState(
+                currentPage = 0,
+                pageSize = pageSize,
+                hasMore = page.size >= pageSize,
+                isLoading = false,
+                totalCount = totalCount
+            )
+
+            rebuildUiState(pagination)
+        }
+    }
+
+    /**
+     * Loads the next page from Room and appends to the current list.
+     * Called by the UI when the user scrolls near the bottom.
+     */
+    fun loadNextPage() {
+        val current = _baseUiState.value.pagination
+        if (current.isLoading || !current.hasMore) return
+
+        viewModelScope.launch {
+            _baseUiState.update { it.copy(pagination = it.pagination.copy(isLoading = true)) }
+
+            val nextPage = current.currentPage + 1
+            val range = computePeriodRange()
+
+            val page = withContext(Dispatchers.IO) {
+                if (range != null) {
+                    transactionRepository.getActiveTransactionsPagedInRange(
+                        startMillis = range.first,
+                        endMillis = range.second,
+                        pageSize = current.pageSize,
+                        pageNumber = nextPage
+                    )
+                } else {
+                    transactionRepository.getActiveTransactionsPaged(
+                        pageSize = current.pageSize,
+                        pageNumber = nextPage
+                    )
+                }
+            }
+
+            currentTransactions.addAll(page)
+
+            val updatedPagination = current.copy(
+                currentPage = nextPage,
+                hasMore = page.size >= current.pageSize,
+                isLoading = false
+            )
+
+            rebuildUiState(updatedPagination)
+        }
+    }
+
+    // ─── Core State Builder ───────────────────────────────────────────
+
+    private fun rebuildUiState(pagination: PaginationState = _baseUiState.value.pagination) {
         viewModelScope.launch {
             val newState = withContext(Dispatchers.Default) {
-                calculateNewUiState()
+                calculateNewUiState(pagination)
             }
             _baseUiState.update { newState }
         }
     }
 
-    private fun calculateNewUiState(): TransactionsScreenUiState {
+    private fun calculateNewUiState(pagination: PaginationState): TransactionsScreenUiState {
         val availableCategories = currentCategories
             .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
@@ -397,6 +522,7 @@ class TransactionsViewModel @Inject constructor(
         val paymentTypeNames = paymentTypeMap.mapValues { it.value.name }
         val normalizedQuery = searchQuery.trim()
 
+        // Apply in-memory filters to the currently loaded page
         val filteredTransactions = sortTransactions(
             currentTransactions.filter { transaction ->
                 val paymentName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
@@ -407,12 +533,7 @@ class TransactionsViewModel @Inject constructor(
                     (advancedSearchGranted && (paymentName.contains(normalizedQuery, ignoreCase = true) ||
                     categoryName.contains(normalizedQuery, ignoreCase = true)))
 
-                matchesSelectedPeriod(
-                    transactionTimestamp = transaction.createdAt,
-                    focusedTimestamp = focusedPeriodTimestamp,
-                    filter = selectedPeriodFilter
-                ) &&
-                    matchesSearchQuery &&
+                matchesSearchQuery &&
                     matchesQuickDateFilter(
                         transactionTimestamp = transaction.createdAt,
                         selectedDateRange = appliedDateRange,
@@ -572,7 +693,7 @@ class TransactionsViewModel @Inject constructor(
                         val monthTransactions = groupedByMonth[monthKey].orEmpty()
                         val monthIncome = monthTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.transaction.amount }
                         val monthExpense = monthTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.transaction.amount }
-                        
+
                         cal.set(Calendar.MONTH, monthKey)
                         val monthLabel = SimpleDateFormat("MMM", Locale.getDefault()).format(cal.time)
 
@@ -600,21 +721,6 @@ class TransactionsViewModel @Inject constructor(
                     }
                 }
                 TransactionPeriodFilter.ALL -> {
-                    /* FUTURE EXTENSION: 
-                       If you want to add a yearly/all summary in All View in the future, 
-                       calculate and add a SummaryCard here:
-                       
-                       val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
-                       val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
-                       transactionItems.add(
-                           TransactionListItemUi.SummaryCard(
-                               id = "summary_all",
-                               totalIncome = formatVal(totalIncome),
-                               totalExpense = formatVal(totalExpense),
-                               periodLabel = "All Time"
-                           )
-                       )
-                    */
                     transactionItems.addAll(
                         buildTransactionListItems(
                             transactions = mappedCardItems,
@@ -629,14 +735,7 @@ class TransactionsViewModel @Inject constructor(
             }
         }
 
-        // Phase 2 (ADS_UI_JANK_FIX_PLAN §5): inject the list ad as its own dedicated item after
-        // every 5th transaction row. Each ad gets a stable key ("ad_5", "ad_10", ...) so its
-        // composition is independent of transaction-card recompositions and Compose recycles the
-        // ad's AndroidView across scroll entries instead of re-inflating it. Runs on
-        // Dispatchers.Default, so no list scanning happens on the main thread.
-        //
-        // The two list placements alternate so both AdMob units serve equally: the 1st, 3rd, ...
-        // slot uses TRANSACTIONS_LIST, the 2nd, 4th, ... use TRANSACTIONS_LIST_2.
+        // Ad injection: insert ads after every 5th transaction row.
         val itemsWithAds = ArrayList<TransactionListItemUi>(transactionItems.size + transactionItems.size / 5 + 1)
         var rowIndex = 0
         var adCount = 0
@@ -656,6 +755,24 @@ class TransactionsViewModel @Inject constructor(
             }
         }
 
+        // Period navigation check — use hasMore from pagination for "next" direction,
+        // and check if there are any items for "previous".
+        val canNavigateForward = pagination.hasMore ||
+            currentTransactions.any {
+                matchesSelectedPeriod(
+                    transactionTimestamp = it.createdAt,
+                    focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, 1),
+                    filter = selectedPeriodFilter
+                )
+            }
+        val canNavigateBackward = currentTransactions.any {
+            matchesSelectedPeriod(
+                transactionTimestamp = it.createdAt,
+                focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, -1),
+                filter = selectedPeriodFilter
+            )
+        }
+
         return _baseUiState.value.copy(
             searchQuery = searchQuery,
             selectedSort = selectedSort,
@@ -670,18 +787,8 @@ class TransactionsViewModel @Inject constructor(
             selectedMaxAmount = selectedMaxAmount,
             selectedPeriodFilter = selectedPeriodFilter,
             focusedPeriodTimestamp = focusedPeriodTimestamp,
-            canNavigateBackward = canNavigateToPeriod(
-                transactions = currentTransactions,
-                focusedTimestamp = focusedPeriodTimestamp,
-                filter = selectedPeriodFilter,
-                direction = -1
-            ),
-            canNavigateForward = canNavigateToPeriod(
-                transactions = currentTransactions,
-                focusedTimestamp = focusedPeriodTimestamp,
-                filter = selectedPeriodFilter,
-                direction = 1
-            ),
+            canNavigateBackward = canNavigateBackward,
+            canNavigateForward = canNavigateForward,
             selectedPeriodLabel = buildPeriodLabel(
                 timestamp = focusedPeriodTimestamp,
                 filter = selectedPeriodFilter,
@@ -691,8 +798,58 @@ class TransactionsViewModel @Inject constructor(
             paymentModes = paymentTypeMap.values.toList(),
             transactionItems = itemsWithAds,
             pinnedSummary = pinnedSummary,
-            customizationSettings = currentCustomizationSettings
+            customizationSettings = currentCustomizationSettings,
+            pagination = pagination
         )
+    }
+
+    /**
+     * Computes the time range boundaries for the current period filter.
+     * Returns null for ALL filter (no range restriction).
+     */
+    private fun computePeriodRange(): Pair<Long, Long>? {
+        return when (selectedPeriodFilter) {
+            TransactionPeriodFilter.ALL -> null
+            TransactionPeriodFilter.DAILY -> {
+                val cal = Calendar.getInstance().apply {
+                    timeInMillis = focusedPeriodTimestamp
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                val start = cal.timeInMillis
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                Pair(start, cal.timeInMillis)
+            }
+            TransactionPeriodFilter.MONTHLY -> {
+                val cal = Calendar.getInstance().apply {
+                    timeInMillis = focusedPeriodTimestamp
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                val start = cal.timeInMillis
+                cal.add(Calendar.MONTH, 1)
+                Pair(start, cal.timeInMillis)
+            }
+            TransactionPeriodFilter.YEARLY -> {
+                val cal = Calendar.getInstance().apply {
+                    timeInMillis = focusedPeriodTimestamp
+                    set(Calendar.MONTH, Calendar.JANUARY)
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                val start = cal.timeInMillis
+                cal.add(Calendar.YEAR, 1)
+                Pair(start, cal.timeInMillis)
+            }
+        }
     }
 
     private fun buildPeriodLabel(
@@ -821,31 +978,6 @@ private fun matchesSelectedPeriod(
         TransactionPeriodFilter.YEARLY -> {
             transactionCalendar.get(Calendar.YEAR) == focusedCalendar.get(Calendar.YEAR)
         }
-    }
-}
-
-private fun canNavigateToPeriod(
-    transactions: List<Transaction>,
-    focusedTimestamp: Long,
-    filter: TransactionPeriodFilter,
-    direction: Int
-): Boolean {
-    if (filter == TransactionPeriodFilter.ALL) {
-        return false
-    }
-
-    val candidateTimestamp = shiftPeriod(
-        timestamp = focusedTimestamp,
-        filter = filter,
-        step = direction
-    )
-
-    return transactions.any { transaction ->
-        matchesSelectedPeriod(
-            transactionTimestamp = transaction.createdAt,
-            focusedTimestamp = candidateTimestamp,
-            filter = filter
-        )
     }
 }
 

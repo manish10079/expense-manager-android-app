@@ -306,10 +306,10 @@ class TransactionsViewModelTest {
     fun `summaries disabled leaves pinned summary null`() {
         // Arrange: summaries disabled (default settings)
         val now = System.currentTimeMillis()
+        fakeRepository.stubTransactions = listOf(
+            transaction("t_expense", now, 4_000L, typeId = 2)
+        )
         viewModel.updateInputs(
-            transactions = listOf(
-                transaction("t_expense", now, 4_000L, typeId = 2)
-            ),
             categories = emptyList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
@@ -328,8 +328,8 @@ class TransactionsViewModelTest {
     }
 
     private fun updateInputsWithSummaries(transactions: List<Transaction>) {
+        fakeRepository.stubTransactions = transactions
         viewModel.updateInputs(
-            transactions = transactions,
             categories = emptyList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
@@ -388,15 +388,34 @@ class TransactionsViewModelTest {
 
     // Manual Fake implementation
     private class FakeTransactionRepository : TransactionRepository {
-        override fun observeActiveTransactions(): Flow<List<Transaction>> = flowOf(emptyList())
+        var stubTransactions: List<Transaction> = emptyList()
+
+        override fun observeActiveTransactions(): Flow<List<Transaction>> = flowOf(stubTransactions)
         override fun observeHomeSummary(): Flow<TransactionSummary> = flowOf(TransactionSummary(0,0,0,0,0))
         override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> = flowOf(emptyList())
-        override fun observeActiveTransactionCount(): Flow<Int> = flowOf(0)
+        override fun observeActiveTransactionCount(): Flow<Int> = flowOf(stubTransactions.size)
         override suspend fun getTransactionById(id: String): Transaction? = null
         override suspend fun upsertTransaction(transaction: Transaction): Transaction = transaction
         override suspend fun softDeleteTransaction(id: String) {}
         override suspend fun softDeleteTransactions(ids: List<String>) {}
         override suspend fun deleteAllTransactions() {}
+        override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> {
+            val start = pageNumber * pageSize
+            return stubTransactions.drop(start).take(pageSize)
+        }
+        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, pageSize: Int, pageNumber: Int): List<Transaction> {
+            val filtered = stubTransactions.filter { it.createdAt in startMillis until endMillis }
+            val start = pageNumber * pageSize
+            return filtered.drop(start).take(pageSize)
+        }
+        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int {
+            return stubTransactions.count { it.createdAt in startMillis until endMillis }
+        }
+        override suspend fun countActiveTransactions(): Int = stubTransactions.size
+        override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary = TransactionSummary(0,0,0,0,0)
+        override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean {
+            return stubTransactions.any { it.createdAt in startMillis until endMillis }
+        }
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {
