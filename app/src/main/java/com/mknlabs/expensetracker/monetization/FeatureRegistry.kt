@@ -4,14 +4,15 @@ package com.mknlabs.expensetracker.monetization
  * Unique identifiers for features that can be gated behind paywalls or ads.
  */
 enum class Feature(val id: String, val displayName: String) {
-    SEARCH_TRANSACTIONS("search_transactions", "Search"),
-    ADVANCED_ANALYTICS("advanced_analytics", "Detailed Analytics"),
-    RECURRING_RULES("recurring_rules", "Recurring Expenses"),
+    RECURRING_RULES_MULTI("recurring_rules_multi", "Create More Recurring Rules"),
+    RECURRING_RULES_UNLIMITED("recurring_rules_unlimited", "Unlimited Recurring Rules"),
     RECURRING_RULE_EDIT("recurring_rule_edit", "Edit Recurring Rules"),
+    RECURRING_FREQUENCY_DAILY("recurring_frequency_daily", "Daily Frequency"),
+    RECURRING_FREQUENCY_WEEKLY("recurring_frequency_weekly", "Weekly Frequency"),
+    RECURRING_FREQUENCY_YEARLY("recurring_frequency_yearly", "Yearly Frequency"),
     AUTO_BACKUP("auto_backup", "Auto Backup"),
     DATA_EXPORT("data_export", "Data Export"),
     BUDGET_CUSTOM_MONTH("budget_custom_month", "Custom Budget Month"),
-    BUDGET_INSIGHTS("budget_insights", "Budget Insights"),
     AUTO_LOCK_SETTING("auto_lock_setting", "Auto Lock Duration"),
     SCRAMBLED_PIN_KEYPAD("scrambled_pin_keypad", "Scrambled PIN Keypad"),
     CALENDAR_YEAR_VIEW("calendar_year_view", "Calendar Year View"),
@@ -44,13 +45,15 @@ enum class Feature(val id: String, val displayName: String) {
 object FeatureRegistry {
     
     private val registry = mapOf<Feature, Any>(
-        Feature.SEARCH_TRANSACTIONS to AccessLevel.FREE, // Search button is now free
         Feature.ADVANCED_SEARCH_SCOPE to AccessLevel.AD_SUPPORTED, // Searching by Category/Wallet is gated
         Feature.DASHBOARD_PRIVACY_MODE to AccessLevel.FREE,
         Feature.SMART_PRIVACY_MODE to AccessLevel.FREE,
-        Feature.ADVANCED_ANALYTICS to AccessLevel.PREMIUM,
-        Feature.RECURRING_RULES to AccessLevel.PREMIUM,
+        Feature.RECURRING_RULES_MULTI to AccessLevel.AD_SUPPORTED,        // 4th & 5th & 6th rules
+        Feature.RECURRING_RULES_UNLIMITED to AccessLevel.PREMIUM,         // 7th+ rules
         Feature.RECURRING_RULE_EDIT to AccessLevel.AD_SUPPORTED,
+        Feature.RECURRING_FREQUENCY_DAILY to AccessLevel.AD_SUPPORTED,
+        Feature.RECURRING_FREQUENCY_WEEKLY to AccessLevel.AD_SUPPORTED,
+        Feature.RECURRING_FREQUENCY_YEARLY to AccessLevel.PREMIUM,
         Feature.AUTO_BACKUP to mapOf(
             "1" to AccessLevel.PREMIUM,
             "7" to AccessLevel.FREE,
@@ -61,7 +64,6 @@ object FeatureRegistry {
         Feature.DATA_EXPORT to AccessLevel.AD_SUPPORTED,
         Feature.TRANSACTION_COUNT to AccessLevel.AD_SUPPORTED,
         Feature.BUDGET_CUSTOM_MONTH to AccessLevel.AD_SUPPORTED,
-        Feature.BUDGET_INSIGHTS to AccessLevel.AD_SUPPORTED,
         Feature.SCRAMBLED_PIN_KEYPAD to AccessLevel.AD_SUPPORTED,
         Feature.CALENDAR_YEAR_VIEW to AccessLevel.AD_SUPPORTED,
         Feature.CALENDAR_DIRECT_MONTH_PICKER to AccessLevel.AD_SUPPORTED,

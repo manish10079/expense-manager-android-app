@@ -835,7 +835,8 @@
     <string name="msg_transaction_deleted">Transaction deleted</string>
     <string name="msg_transaction_duplicated">Transaction duplicated</string>
     <string name="toast_transaction_deleted">Transaction deleted</string>
-    <string name="title_cannot_duplicate_recurring">Cannot Duplicate</string>
+    <string name="title_cannot_duplicate_recurring">Duplicate Rule Found</string>
+    <string name="msg_duplicate_recurring_rule">You already have a recurring rule for %1$s at %2$s/%3$s. Create another?</string>
     <string name="msg_cannot_duplicate_recurring">This transaction is a recurring transaction (either the main one or one created automatically by it), so it cannot be duplicated.</string>
 
     <!-- Analytics Periods -->
@@ -1405,6 +1406,7 @@
     <string name="label_mute_recurring_title">Mute Notifications</string>
     <string name="label_mute_recurring_message">Are you sure you want to mute notifications for %s? You will not receive any bill reminders for this recurring expense.</string>
     <string name="label_mute_yes">Yes, Mute</string>
+    <string name="label_yes">Yes</string>
     <string name="label_no">No</string>
     <string name="label_dont_show_again">Don\'t show this dialog again</string>
     <string name="label_notifications">Notifications</string>

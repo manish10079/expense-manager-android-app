@@ -604,6 +604,8 @@ fun AppNavigationHost(
                         availablePaymentMethods = paymentMethods,
                         existingTransaction = selectedTransaction,
                         existingRecurringRule = selectedRecurringRule,
+                        activeRecurringRuleCount = recurringRules.count { !it.isDeleted },
+                        allRecurringRules = recurringRules,
                         initialAmountInput = addTransactionDraftAmount,
                         initialNote = addTransactionDraftNote,
                         onBackClick = {

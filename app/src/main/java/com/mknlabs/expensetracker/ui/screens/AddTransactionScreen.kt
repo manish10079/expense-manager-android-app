@@ -56,7 +56,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -117,7 +119,15 @@ import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.ui.components.AdRewardDialog
+import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
@@ -171,6 +181,8 @@ fun AddTransactionScreen(
     availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
     existingTransaction: Transaction? = null,
     existingRecurringRule: RecurringTransactionRule? = null,
+    activeRecurringRuleCount: Int = 0,
+    allRecurringRules: List<RecurringTransactionRule> = emptyList(),
     initialAmountInput: String? = null,
     initialNote: String? = null,
     onBackClick: () -> Unit = {},
@@ -240,9 +252,14 @@ fun AddTransactionScreen(
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
+        var showDuplicateWarning by rememberSaveable { mutableStateOf(false) }
+        var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
+        var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
+        var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
         val amountFocusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -547,6 +564,31 @@ fun AddTransactionScreen(
                             } else {
                                 null
                             }
+                            // Duplicate detection: check if a rule with same category + amount + frequency exists
+                            if (recurringDraft != null && !isEditMode) {
+                                val amount = amountInput.toDoubleOrNull() ?: 0.0
+                                val duplicate = allRecurringRules.firstOrNull { rule ->
+                                    !rule.isDeleted &&
+                                    rule.frequency == recurringDraft.frequency &&
+                                    rule.transactionId != transaction.id &&
+                                    // Match by category (from the rule's linked transaction)
+                                    transactions.any { t ->
+                                        t.id == rule.transactionId &&
+                                        t.categoryId == category.id &&
+                                        t.amountMinor == transaction.amountMinor
+                                    }
+                                }
+                                if (duplicate != null) {
+                                    val categoryName = availableCategories.firstOrNull { it.id == category.id }?.name ?: "this category"
+                                    val freqLabel = selectedRecurringFrequency.label
+                                    val amountFormatted = formatCurrencyValue(transaction.amountMinor / 100.0, currencyId)
+                                    duplicateWarningMessage = context.getString(R.string.msg_duplicate_recurring_rule, categoryName, amountFormatted, freqLabel)
+                                    pendingSaveTransaction = transaction
+                                    pendingSaveDraft = recurringDraft
+                                    showDuplicateWarning = true
+                                    return@AddTransactionButton
+                                }
+                            }
                             keyboardController?.hide()
                             onSaveClick(transaction, recurringDraft)
                         }
@@ -633,12 +675,65 @@ fun AddTransactionScreen(
                         selectedFrequency = selectedRecurringFrequency,
                         repeatCountInput = recurringCountInput,
                         compact = compact,
+                        activeRecurringRuleCount = activeRecurringRuleCount,
+                        isEditMode = isEditMode,
                         onEnabledChange = { isRecurringEnabled = it },
                         onFrequencySelected = { selectedRecurringFrequency = it },
                         onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) }
                     )
                 }
             }
+        }
+
+        // Duplicate warning dialog
+        if (showDuplicateWarning && duplicateWarningMessage != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDuplicateWarning = false
+                    duplicateWarningMessage = null
+                    pendingSaveTransaction = null
+                    pendingSaveDraft = null
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = stringResource(R.string.title_cannot_duplicate_recurring),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                },
+                text = {
+                    Text(
+                        text = duplicateWarningMessage ?: "",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDuplicateWarning = false
+                        duplicateWarningMessage = null
+                        val tx = pendingSaveTransaction
+                        val draft = pendingSaveDraft
+                        pendingSaveTransaction = null
+                        pendingSaveDraft = null
+                        keyboardController?.hide()
+                        if (tx != null) onSaveClick(tx, draft)
+                    }) {
+                        Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showDuplicateWarning = false
+                        duplicateWarningMessage = null
+                        pendingSaveTransaction = null
+                        pendingSaveDraft = null
+                    }) {
+                        Text(stringResource(R.string.label_no), fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
         }
     }
 }
@@ -649,10 +744,25 @@ private fun RecurringTransactionSection(
     selectedFrequency: RecurringFrequency,
     repeatCountInput: String,
     compact: Boolean,
+    activeRecurringRuleCount: Int = 0,
+    isEditMode: Boolean = false,
     onEnabledChange: (Boolean) -> Unit,
     onFrequencySelected: (RecurringFrequency) -> Unit,
     onRepeatCountChange: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    var showPremiumSheet by remember { mutableStateOf(false) }
+    var showAdDialog by remember { mutableStateOf(false) }
+    var pendingFrequencyForAd by remember { mutableStateOf<RecurringFrequency?>(null) }
+
+    // Determine rule count gate: 1-3 free, 4-6 ad, 7+ pro
+    val ruleCountGate = when {
+        isEditMode -> AccessStatus.Granted
+        activeRecurringRuleCount < 3 -> AccessStatus.Granted
+        activeRecurringRuleCount < 6 -> AccessStatus.DeniedAd
+        else -> AccessStatus.DeniedPremium
+    }
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (isEnabled) Color.Transparent 
@@ -710,7 +820,18 @@ private fun RecurringTransactionSection(
 
             androidx.compose.material3.Switch(
                 checked = isEnabled,
-                onCheckedChange = onEnabledChange,
+                onCheckedChange = { wantEnabled ->
+                    if (wantEnabled && ruleCountGate !is AccessStatus.Granted) {
+                        // Gate: rule count threshold
+                        when (ruleCountGate) {
+                            is AccessStatus.DeniedAd -> showAdDialog = true
+                            is AccessStatus.DeniedPremium -> showPremiumSheet = true
+                            else -> onEnabledChange(true)
+                        }
+                    } else {
+                        onEnabledChange(wantEnabled)
+                    }
+                },
                 colors = androidx.compose.material3.SwitchDefaults.colors(
                     checkedThumbColor = colorScheme.onPrimary,
                     checkedTrackColor = colorScheme.primary,
@@ -774,7 +895,25 @@ private fun RecurringTransactionSection(
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(16.dp))
-                                        .clickable { onFrequencySelected(option.frequency) }
+                                        .clickable {
+                                        // Frequency gating: Daily/Weekly = ad, Yearly = pro
+                                        val freqGate = when (option.frequency) {
+                                            RecurringFrequency.Daily -> AccessStatus.DeniedAd
+                                            RecurringFrequency.Weekly -> AccessStatus.DeniedAd
+                                            RecurringFrequency.Yearly -> AccessStatus.DeniedPremium
+                                            RecurringFrequency.Monthly -> AccessStatus.Granted
+                                        }
+                                        if (freqGate !is AccessStatus.Granted) {
+                                            pendingFrequencyForAd = option.frequency
+                                            when (freqGate) {
+                                                is AccessStatus.DeniedAd -> showAdDialog = true
+                                                is AccessStatus.DeniedPremium -> showPremiumSheet = true
+                                                else -> onFrequencySelected(option.frequency)
+                                            }
+                                        } else {
+                                            onFrequencySelected(option.frequency)
+                                        }
+                                    }
                                         .padding(vertical = 10.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -897,8 +1036,54 @@ private fun RecurringTransactionSection(
             }
         }
     }
+
+    // Ad dialog for frequency gating and rule count gating
+    if (showAdDialog) {
+        AdRewardDialog(
+            featureName = pendingFrequencyForAd?.label
+                ?: stringResource(R.string.label_recurring_transaction),
+            onDismiss = { showAdDialog = false; pendingFrequencyForAd = null },
+            onWatchAdClick = {
+                val activity = context as? android.app.Activity
+                if (activity != null) {
+                    monetizationViewModel.onAdWatched(
+                        activity,
+                        pendingFrequencyForAd?.let { featureForFrequency(it) }
+                            ?: Feature.RECURRING_RULES_MULTI,
+                        null
+                    )
+                }
+                // Grant access: if it was a frequency gate, select it; if rule count, enable
+                pendingFrequencyForAd?.let {
+                    onFrequencySelected(it)
+                    onEnabledChange(true)
+                } ?: onEnabledChange(true)
+                showAdDialog = false
+                pendingFrequencyForAd = null
+            }
+        )
+    }
+
+    // Premium sheet for Yearly frequency and 7th+ rule
+    if (showPremiumSheet) {
+        PremiumGateSheet(
+            onDismiss = { showPremiumSheet = false; pendingFrequencyForAd = null },
+            onUpgradeClick = {
+                monetizationViewModel.onPurchaseSimulated()
+                showPremiumSheet = false
+                pendingFrequencyForAd = null
+            }
+        )
+    }
 }
 
+/** Maps a frequency to its gating Feature. */
+private fun featureForFrequency(freq: RecurringFrequency): Feature = when (freq) {
+    RecurringFrequency.Daily -> Feature.RECURRING_FREQUENCY_DAILY
+    RecurringFrequency.Weekly -> Feature.RECURRING_FREQUENCY_WEEKLY
+    RecurringFrequency.Yearly -> Feature.RECURRING_FREQUENCY_YEARLY
+    RecurringFrequency.Monthly -> Feature.RECURRING_RULES_MULTI // fallback, should be FREE
+}
 
 
 @Composable

@@ -403,23 +403,18 @@ private fun TransactionScreenContent(
                         title = stringResource(R.string.title_transactions),
                         onBackClick = onBackClick,
                         actions = {
-                            GatedAction(
-                                feature = Feature.SEARCH_TRANSACTIONS,
-                                onAction = { isSearchExpanded = true }
-                            ) { status, onClick ->
-                                IconButton(
-                                    onClick = onClick,
-                                    modifier = Modifier
-                                        .size(26.dp)
+                            IconButton(
+                                onClick = { isSearchExpanded = true },
+                                modifier = Modifier
+                                    .size(26.dp)
                                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
-                                ) {
-                                      Icon(
-                                          imageVector = if (status is AccessStatus.Granted) Icons.Filled.Search else Icons.Filled.Lock,
-                                          contentDescription = stringResource(R.string.desc_search_transactions),
-                                          tint = if (status is AccessStatus.Granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.featureGateLock,
-                                          modifier = Modifier.size(if (status is AccessStatus.Granted) 18.dp else 14.dp)
-                                      )
-                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = stringResource(R.string.desc_search_transactions),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(30.dp))
