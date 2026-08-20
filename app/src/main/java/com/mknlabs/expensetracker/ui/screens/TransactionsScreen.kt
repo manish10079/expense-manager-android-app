@@ -223,7 +223,8 @@ fun TransactionScreen(
         applyFilters = transactionsViewModel::applyFilters,
         resetFilters = transactionsViewModel::resetFilters,
         deleteSelectedTransactions = transactionsViewModel::deleteSelectedTransactions,
-        loadNextPage = transactionsViewModel::loadNextPage
+        loadNextPage = transactionsViewModel::loadNextPage,
+        selectAllInQuery = transactionsViewModel::selectAllInQuery
     )
 }
 
@@ -260,7 +261,8 @@ private fun TransactionScreenContent(
     applyFilters: () -> Unit,
     resetFilters: () -> Unit,
     deleteSelectedTransactions: () -> Unit,
-    loadNextPage: () -> Unit
+    loadNextPage: () -> Unit,
+    selectAllInQuery: () -> Unit
 ) {
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -746,6 +748,42 @@ private fun TransactionScreenContent(
                                 }
                             }
                         }
+                }
+            }
+
+            // "Select all N in this view" link — only when selection mode is active
+            // and not all items are loaded yet
+            val showSelectAllLink = uiState.isSelectionMode
+                && uiState.pagination.loadedCount < uiState.pagination.totalCount
+                && uiState.pagination.totalCount > 0
+
+            AnimatedVisibility(
+                visible = showSelectAllLink,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+            ) {
+                Column {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+                    TextButton(
+                        onClick = { selectAllInQuery() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.label_select_all_in_view,
+                                uiState.pagination.totalCount
+                            ),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
                 }
             }
 
@@ -1286,7 +1324,8 @@ private fun TransactionsScreenEmptyStatePreviewLight() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {}
+            loadNextPage = {},
+            selectAllInQuery = {}
         )
     }
 }
@@ -1330,7 +1369,8 @@ private fun TransactionsScreenEmptyStatePreviewDark() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {}
+            loadNextPage = {},
+            selectAllInQuery = {}
         )
     }
 }
@@ -1374,7 +1414,8 @@ private fun TransactionsScreenMultiConfigPreview() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {}
+            loadNextPage = {},
+            selectAllInQuery = {}
         )
     }
 }

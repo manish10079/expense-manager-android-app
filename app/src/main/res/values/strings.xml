@@ -446,6 +446,7 @@
     <string name="label_val_items">%1$s ITEMS</string>
     <string name="label_val_minutes">%1$s minutes</string>
     <string name="label_val_selected">%1$s Selected</string>
+    <string name="label_select_all_in_view">Select all %1$d in this view</string>
     <string name="label_val_val">%1$s (%2$s)</string>
     <string name="label_valx">%1$sX</string>
     <string name="label_view_all">See All</string>

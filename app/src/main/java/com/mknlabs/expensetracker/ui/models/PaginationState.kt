@@ -9,6 +9,7 @@ import androidx.compose.runtime.Immutable
  * @property pageSize Number of items per page.
  * @property hasMore Whether more pages are available to load.
  * @property isLoading Whether a page load is currently in flight.
+ * @property loadedCount Number of items currently loaded into memory.
  * @property totalCount Total number of items matching the current filter.
  */
 @Immutable
@@ -17,6 +18,7 @@ data class PaginationState(
     val pageSize: Int = PAGE_SIZE_DEFAULT,
     val hasMore: Boolean = true,
     val isLoading: Boolean = false,
+    val loadedCount: Int = 0,
     val totalCount: Int = 0
 ) {
     companion object {

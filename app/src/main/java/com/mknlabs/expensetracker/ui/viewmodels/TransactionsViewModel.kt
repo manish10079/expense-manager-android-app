@@ -348,6 +348,10 @@ class TransactionsViewModel @Inject constructor(
         _selectedTransactionIds.value = emptySet()
     }
 
+    /**
+     * Selects all currently loaded transactions (the visible batch).
+     * Used by the top-bar select-all button.
+     */
     fun selectAll() {
         val allIds = _baseUiState.value.transactionItems
             .filterIsInstance<TransactionListItemUi.TransactionRow>()
@@ -361,6 +365,64 @@ class TransactionsViewModel @Inject constructor(
         } else {
             _selectedTransactionIds.value = allIds
             _isSelectionMode.value = allIds.isNotEmpty()
+        }
+    }
+
+    /**
+     * Loads ALL remaining pages from Room, then selects every transaction.
+     * Called by the "Select all N in this view" link above the period navigator.
+     */
+    fun selectAllInQuery() {
+        val current = _baseUiState.value.pagination
+        if (current.isLoading) return
+
+        // If everything is already loaded, just select all
+        if (!current.hasMore) {
+            selectAll()
+            return
+        }
+
+        viewModelScope.launch {
+            _baseUiState.update { it.copy(pagination = it.pagination.copy(isLoading = true)) }
+
+            val range = computePeriodRange()
+            var pageNumber = current.currentPage + 1
+
+            // Load remaining pages one by one
+            while (true) {
+                val page = withContext(Dispatchers.IO) {
+                    if (range != null) {
+                        transactionRepository.getActiveTransactionsPagedInRange(
+                            startMillis = range.first,
+                            endMillis = range.second,
+                            pageSize = current.pageSize,
+                            pageNumber = pageNumber
+                        )
+                    } else {
+                        transactionRepository.getActiveTransactionsPaged(
+                            pageSize = current.pageSize,
+                            pageNumber = pageNumber
+                        )
+                    }
+                }
+
+                if (page.isEmpty()) break
+                currentTransactions.addAll(page)
+                pageNumber++
+
+                if (page.size < current.pageSize) break
+            }
+
+            val updatedPagination = current.copy(
+                currentPage = pageNumber - 1,
+                hasMore = false,
+                isLoading = false,
+                loadedCount = currentTransactions.size
+            )
+            rebuildUiState(updatedPagination)
+
+            // Now select all loaded items
+            selectAll()
         }
     }
 
@@ -451,6 +513,7 @@ class TransactionsViewModel @Inject constructor(
                 pageSize = pageSize,
                 hasMore = page.size >= pageSize,
                 isLoading = false,
+                loadedCount = page.size,
                 totalCount = totalCount
             )
 
@@ -493,7 +556,8 @@ class TransactionsViewModel @Inject constructor(
             val updatedPagination = current.copy(
                 currentPage = nextPage,
                 hasMore = page.size >= current.pageSize,
-                isLoading = false
+                isLoading = false,
+                loadedCount = currentTransactions.size
             )
 
             rebuildUiState(updatedPagination)
