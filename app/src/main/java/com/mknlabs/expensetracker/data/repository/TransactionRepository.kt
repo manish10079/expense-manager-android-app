@@ -120,9 +120,9 @@ class TransactionRepository @Inject constructor(
         pageNumber: Int
     ): List<Transaction> = withContext(Dispatchers.IO) {
         val offset = pageNumber * pageSize
-        dao.getActiveTransactionsPagedForYear(
-            yearStartMillis = startMillis,
-            yearEndMillis = endMillis,
+        dao.getActiveTransactionsPagedInRange(
+            startMillis = startMillis,
+            endMillis = endMillis,
             limit = pageSize,
             offset = offset
         ).map { it.toDomain() }

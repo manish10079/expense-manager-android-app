@@ -27,6 +27,19 @@ interface TransactionDao {
     suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity>
 
     /**
+     * Paged query filtered to a specific time range [startMillis] to [endMillis].
+     */
+    @Query("""
+        SELECT * FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :startMillis
+          AND occurred_at < :endMillis
+        ORDER BY occurred_at DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
+
+    /**
      * Paged query filtered to a specific year. [yearStartMillis] and [yearEndMillis]
      * are the epoch-millis boundaries of the year (inclusive start, exclusive end).
      */

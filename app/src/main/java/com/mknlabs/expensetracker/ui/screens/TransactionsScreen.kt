@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -16,6 +17,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -42,6 +44,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.TrendingDown
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
@@ -50,6 +54,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.FilterAlt
+import androidx.compose.material.icons.rounded.TrendingDown
+import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -272,12 +278,14 @@ private fun TransactionScreenContent(
     val lazyListState = rememberLazyListState()
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
 
-    // Scroll-to-load: trigger next page when user scrolls near the bottom
+    // Scroll-to-load: trigger next page when user scrolls near the bottom of the list
     val shouldLoadMore by remember {
         derivedStateOf {
-            val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+            val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: 0
             val totalItems = lazyListState.layoutInfo.totalItemsCount
-            lastVisibleItem >= totalItems - 5 && !uiState.pagination.isLoading && uiState.pagination.hasMore
+            totalItems > 0 && lastVisibleIndex >= (totalItems - 8).coerceAtLeast(0) &&
+                !uiState.pagination.isLoading && uiState.pagination.hasMore
         }
     }
     LaunchedEffect(shouldLoadMore) {
@@ -636,7 +644,14 @@ private fun TransactionScreenContent(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .animateItem()
+                                    .animateItem(
+                                        fadeInSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing),
+                                        fadeOutSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+                                        placementSpec = spring(
+                                            stiffness = Spring.StiffnessMediumLow,
+                                            visibilityThreshold = IntOffset(1, 1)
+                                        )
+                                    )
                             ) {
                             when (item) {
                                 is TransactionListItemUi.SummaryCard -> {
@@ -1460,7 +1475,7 @@ private fun TransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.ArrowDownward,
+                        imageVector = Icons.AutoMirrored.Rounded.TrendingDown,
                         contentDescription = null,
                         tint = IncomeGreen,
                         modifier = Modifier.size(16.dp)
@@ -1481,7 +1496,7 @@ private fun TransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.ArrowUpward,
+                        imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
                         contentDescription = null,
                         tint = ExpenseRed,
                         modifier = Modifier.size(16.dp)

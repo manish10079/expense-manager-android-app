@@ -168,7 +168,18 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         observeAdvancedSearchAccess()
+        observeTransactionsChange()
         loadFirstPage()
+    }
+
+    private fun observeTransactionsChange() {
+        viewModelScope.launch {
+            transactionRepository.observeActiveTransactions().collect {
+                // Whenever Room DB active transactions change (added, deleted, restored),
+                // refresh the currently loaded view pages.
+                reloadCurrentPages()
+            }
+        }
     }
 
     private fun observeAdvancedSearchAccess() {
@@ -368,6 +379,18 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    private fun selectAllEveryLoadedItem() {
+        val allIds = _baseUiState.value.transactionItems
+            .filterIsInstance<TransactionListItemUi.TransactionRow>()
+            .map { it.card.id }
+            .toSet()
+
+        if (allIds.isNotEmpty()) {
+            _selectedTransactionIds.value = allIds
+            _isSelectionMode.value = true
+        }
+    }
+
     /**
      * Loads ALL remaining pages from Room, then selects every transaction.
      * Called by the "Select all N in this view" link above the period navigator.
@@ -376,9 +399,9 @@ class TransactionsViewModel @Inject constructor(
         val current = _baseUiState.value.pagination
         if (current.isLoading) return
 
-        // If everything is already loaded, just select all
+        // If everything is already loaded, select all loaded items without toggling off
         if (!current.hasMore) {
-            selectAll()
+            selectAllEveryLoadedItem()
             return
         }
 
@@ -419,10 +442,14 @@ class TransactionsViewModel @Inject constructor(
                 isLoading = false,
                 loadedCount = currentTransactions.size
             )
-            rebuildUiState(updatedPagination)
 
-            // Now select all loaded items
-            selectAll()
+            val newState = withContext(Dispatchers.Default) {
+                calculateNewUiState(updatedPagination)
+            }
+            _baseUiState.value = newState
+
+            // Ensure selection mode is ON and all transaction IDs in this view are selected
+            selectAllEveryLoadedItem()
         }
     }
 
@@ -558,6 +585,56 @@ class TransactionsViewModel @Inject constructor(
                 hasMore = page.size >= current.pageSize,
                 isLoading = false,
                 loadedCount = currentTransactions.size
+            )
+
+            rebuildUiState(updatedPagination)
+        }
+    }
+
+    /**
+     * Re-queries all currently loaded pages from Room and updates the UI state.
+     * Keeps the currently loaded page count intact so the scroll position is preserved.
+     */
+    private fun reloadCurrentPages() {
+        val current = _baseUiState.value.pagination
+        val pagesToFetch = (current.currentPage + 1).coerceAtLeast(1)
+        val limit = pagesToFetch * current.pageSize
+
+        viewModelScope.launch {
+            val range = computePeriodRange()
+
+            val totalCount = withContext(Dispatchers.IO) {
+                if (range != null) {
+                    transactionRepository.countActiveTransactionsInRange(range.first, range.second)
+                } else {
+                    transactionRepository.countActiveTransactions()
+                }
+            }
+
+            val loadedItems = withContext(Dispatchers.IO) {
+                if (range != null) {
+                    transactionRepository.getActiveTransactionsPagedInRange(
+                        startMillis = range.first,
+                        endMillis = range.second,
+                        pageSize = limit,
+                        pageNumber = 0
+                    )
+                } else {
+                    transactionRepository.getActiveTransactionsPaged(
+                        pageSize = limit,
+                        pageNumber = 0
+                    )
+                }
+            }
+
+            currentTransactions.clear()
+            currentTransactions.addAll(loadedItems)
+
+            val updatedPagination = current.copy(
+                hasMore = loadedItems.size >= limit,
+                isLoading = false,
+                loadedCount = loadedItems.size,
+                totalCount = totalCount
             )
 
             rebuildUiState(updatedPagination)

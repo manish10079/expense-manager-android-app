@@ -186,8 +186,6 @@ private fun TransactionCardCustomizeContent(
         }
     }
 
-    val incomeExpenseTitle = stringResource(id = R.string.title_incomeexpense_labels)
-    val incomeExpenseSubtitle = stringResource(id = R.string.title_toggle_visibility_of_transacti)
     val showDateTitle = stringResource(id = R.string.title_show_transaction_date)
     val showDateSubtitle = stringResource(id = R.string.title_display_the_transaction_date)
     val showCategoryIconTitle = stringResource(id = R.string.title_show_category_icon)
@@ -203,16 +201,8 @@ private fun TransactionCardCustomizeContent(
     val showListSummariesTitle = stringResource(id = R.string.title_show_list_summaries)
     val showListSummariesSubtitle = stringResource(id = R.string.desc_show_list_summaries)
 
-    val toggleItems = remember(localSettings, incomeExpenseTitle, incomeExpenseSubtitle, showDateTitle, showDateSubtitle, showCategoryIconTitle, showCategoryIconSubtitle, showTimeTitle, showTimeSubtitle, showCategoryTitle, showCategorySubtitle, showPaymentMethodTitle, showPaymentMethodSubtitle, showDateSeparatorsTitle, showDateSeparatorsSubtitle, showListSummariesTitle, showListSummariesSubtitle) {
+    val toggleItems = remember(localSettings, showDateTitle, showDateSubtitle, showCategoryIconTitle, showCategoryIconSubtitle, showTimeTitle, showTimeSubtitle, showCategoryTitle, showCategorySubtitle, showPaymentMethodTitle, showPaymentMethodSubtitle, showDateSeparatorsTitle, showDateSeparatorsSubtitle, showListSummariesTitle, showListSummariesSubtitle) {
         listOf(
-            TransactionCardToggleItem(
-                title = incomeExpenseTitle,
-                subtitle = incomeExpenseSubtitle,
-                icon = Icons.Outlined.Style,
-                optionId = "showIncomeExpenseLabels",
-                checked = localSettings.showIncomeExpenseLabels,
-                onCheckedChange = { localSettings = localSettings.copy(showIncomeExpenseLabels = it) }
-            ),
             TransactionCardToggleItem(
                 title = showDateTitle,
                 subtitle = showDateSubtitle,
@@ -505,7 +495,7 @@ private fun TransactionCardTogglesList(
         // Group 1: Visual Style
         item {
             SettingsGroup {
-                val groupItems = toggleItems.filter { it.optionId in listOf("showIncomeExpenseLabels", "showCategoryIcon") }
+                val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryIcon") }
                 groupItems.forEachIndexed { index, item ->
                     false.ToggleSettingsItem(
                         item = item,

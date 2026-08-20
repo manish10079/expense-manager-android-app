@@ -131,7 +131,7 @@ fun StatsCard(
         }
 
         Text(
-            text = if (isBalanceHidden) "••••" else totalBalance,
+            text = if (isBalanceHidden) "****" else totalBalance,
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
@@ -157,7 +157,7 @@ fun StatsCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = if (isBalanceHidden) "••••" else previousMonthBalance,
+                    text = if (isBalanceHidden) "****" else previousMonthBalance,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 13.sp,
@@ -188,7 +188,7 @@ fun StatsCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.label_income),
-                value = if (isBalanceHidden) "••••" else formatStatAmount(income, '+'),
+                value = if (isBalanceHidden) "****" else formatStatAmount(income, '+'),
                 icon = Icons.Filled.ArrowUpward,
                 iconColor = MaterialTheme.colorScheme.income,
                 iconAtStart = true
@@ -205,7 +205,7 @@ fun StatsCard(
             StatItem(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.label_expense),
-                value = if (isBalanceHidden) "••••" else formatStatAmount(expense, '-'),
+                value = if (isBalanceHidden) "****" else formatStatAmount(expense, '-'),
                 icon = Icons.Filled.ArrowDownward,
                 iconColor = MaterialTheme.colorScheme.expense,
                 iconAtStart = false
