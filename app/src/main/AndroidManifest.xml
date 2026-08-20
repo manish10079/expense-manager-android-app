@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Required by AdMob for advertising ID on Android 13+ -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <!-- Item 21 (Option B): OS backup is disabled entirely so the plaintext
          Room DB, DataStores and encrypted PIN store can never be pulled off the
          device via adb backup / cloud restore. Restore paths that remain:
