@@ -114,7 +114,7 @@ fun TransactionCard(
     val expenseLabel = remember(resources) { resources.getString(R.string.label_expense) }
     val noNoteLabel = remember(resources) { resources.getString(R.string.label_no_note) }
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
@@ -133,21 +133,24 @@ fun TransactionCard(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-        if (showCategoryIcon) {
-            val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-            val iconBorder = remember(iconBorderColor) {
-                BorderStroke(
-                    width = 1.dp,
-                    color = iconBorderColor
-                )
-            }
-            Box {
+            if (showCategoryIcon) {
+                val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+                val iconBorder = remember(iconBorderColor) {
+                    BorderStroke(
+                        width = 1.dp,
+                        color = iconBorderColor
+                    )
+                }
                 AppIconBox(
                     icon = icon,
                     contentDescription = note,
@@ -155,242 +158,243 @@ fun TransactionCard(
                     iconSize = 25.dp,
                     border = iconBorder
                 )
-
-                if (isProUser && isRecurring) {
-                    val recurringTooltipState = rememberTooltipState()
-                    val recurringTooltipScope = rememberCoroutineScope()
-
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                            TooltipAnchorPosition.Above
-                        ),
-                        tooltip = {
-                            PlainTooltip {
-                                Text(
-                                    text = stringResource(R.string.label_recurring_transaction),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        },
-                        state = recurringTooltipState,
-                        onDismissRequest = { recurringTooltipState.dismiss() },
-                        enableUserInput = false
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .offset(x = 4.dp, y = (-4).dp)
-                                .size(18.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                                .border(
-                                    width = 1.5.dp,
-                                    color = MaterialTheme.colorScheme.surface,
-                                    shape = CircleShape
-                                )
-                                .clickable {
-                                    recurringTooltipScope.launch {
-                                        if (recurringTooltipState.isVisible) {
-                                            recurringTooltipState.dismiss()
-                                        } else {
-                                            recurringTooltipState.show()
-                                        }
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Autorenew,
-                                contentDescription = stringResource(R.string.label_recurring_transaction),
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(11.dp)
-                            )
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.width(12.dp))
             }
-            Spacer(modifier = Modifier.width(12.dp))
-        }
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            val isNoteEmpty = note.isBlank()
-            val displayNote = if (isNoteEmpty) noNoteLabel else note
-            // True only while the note is actually truncated (single line +
-            // ellipsis) — the full-note info icon is offered only in that case.
-            // Line count matters: a multi-line note whose first line fits the
-            // width is still truncated, so we also compare the note's real line
-            // count against what the single-line Text actually rendered.
-            val noteLineCount = remember(displayNote) { displayNote.count { it == '\n' } + 1 }
-            var noteTruncated by remember(displayNote) { mutableStateOf(false) }
-            val noteTooltipState = rememberTooltipState()
-            val noteTooltipScope = rememberCoroutineScope()
-
-            // Truncated notes get a small info icon that reveals the complete
-            // text in a themed tooltip popup when tapped (tapping again dismisses
-            // it; tapping anywhere else dismisses too). The note text itself
-            // keeps its default behavior — tap opens the transaction, long-press
-            // enters multi-select — only the icon carries the tooltip.
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = displayNote,
-                    color = if (isNoteEmpty) {
-                        NeutralGray
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    softWrap = false,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
-                        fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
-                        fontSize = 15.sp
-                    ),
-                    modifier = Modifier.weight(1f, fill = false),
-                    onTextLayout = { result ->
-                        noteTruncated = result.didOverflowWidth || result.lineCount < noteLineCount
-                    }
-                )
+                val isNoteEmpty = note.isBlank()
+                val displayNote = if (isNoteEmpty) noNoteLabel else note
+                // True only while the note is actually truncated (single line +
+                // ellipsis) — the full-note info icon is offered only in that case.
+                // Line count matters: a multi-line note whose first line fits the
+                // width is still truncated, so we also compare the note's real line
+                // count against what the single-line Text actually rendered.
+                val noteLineCount = remember(displayNote) { displayNote.count { it == '\n' } + 1 }
+                var noteTruncated by remember(displayNote) { mutableStateOf(false) }
+                val noteTooltipState = rememberTooltipState()
+                val noteTooltipScope = rememberCoroutineScope()
 
-                if (showNoteTooltip && noteTruncated && !isNoteEmpty) {
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                            TooltipAnchorPosition.Above
+                // Truncated notes get a small info icon that reveals the complete
+                // text in a themed tooltip popup when tapped (tapping again dismisses
+                // it; tapping anywhere else dismisses too). The note text itself
+                // keeps its default behavior — tap opens the transaction, long-press
+                // enters multi-select — only the icon carries the tooltip.
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = displayNote,
+                        color = if (isNoteEmpty) {
+                            NeutralGray
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
+                            fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
+                            fontSize = 15.sp
                         ),
-                        tooltip = {
-                            PlainTooltip {
-                                Text(
-                                    text = note,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.widthIn(max = 280.dp)
+                        modifier = Modifier.weight(1f, fill = false),
+                        onTextLayout = { result ->
+                            noteTruncated = result.didOverflowWidth || result.lineCount < noteLineCount
+                        }
+                    )
+
+                    if (showNoteTooltip && noteTruncated && !isNoteEmpty) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(
+                                        text = note,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.widthIn(max = 280.dp)
+                                    )
+                                }
+                            },
+                            state = noteTooltipState,
+                            onDismissRequest = { noteTooltipState.dismiss() },
+                            enableUserInput = false
+                        ) {
+                            // 24.dp Box keeps the interactive area comfortable to hit while the
+                            // 16.dp glyph stays visually light inside the compact card row.
+                            Box(
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .clickable {
+                                        noteTooltipScope.launch {
+                                            if (noteTooltipState.isVisible) {
+                                                noteTooltipState.dismiss()
+                                            } else {
+                                                noteTooltipState.show()
+                                            }
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    contentDescription = stringResource(
+                                        if (noteTooltipState.isVisible) {
+                                            R.string.desc_hide_full_note
+                                        } else {
+                                            R.string.desc_view_full_note
+                                        }
+                                    ),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
-                        },
-                        state = noteTooltipState,
-                        onDismissRequest = { noteTooltipState.dismiss() },
-                        enableUserInput = false
-                    ) {
-                        // 24.dp Box keeps the interactive area comfortable to hit while the
-                        // 16.dp glyph stays visually light inside the compact card row.
-                        Box(
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .clickable {
-                                    noteTooltipScope.launch {
-                                        if (noteTooltipState.isVisible) {
-                                            noteTooltipState.dismiss()
-                                        } else {
-                                            noteTooltipState.show()
-                                        }
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = stringResource(
-                                    if (noteTooltipState.isVisible) {
-                                        R.string.desc_hide_full_note
-
-                                    } else {
-                                        R.string.desc_view_full_note
-                                    }
-                                ),
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
-                            )
                         }
                     }
                 }
-            }
 
-            if (showTransactionDate || showTransactionTime) {
-                Spacer(modifier = Modifier.height(4.dp))
+                if (showTransactionDate || showTransactionTime) {
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = remember(transactionDate, transactionTime, showTransactionDate, showTransactionTime) {
-                        buildAnnotatedString {
-                            if (showTransactionDate) {
-                                append(transactionDate)
-                            }
-                            if (showTransactionDate && showTransactionTime) {
-                                withStyle(SeparatorSpanStyle) {
-                                    append(" • ") // • ● ⬤
+                    Text(
+                        text = remember(transactionDate, transactionTime, showTransactionDate, showTransactionTime) {
+                            buildAnnotatedString {
+                                if (showTransactionDate) {
+                                    append(transactionDate)
+                                }
+                                if (showTransactionDate && showTransactionTime) {
+                                    withStyle(SeparatorSpanStyle) {
+                                        append(" • ") // • ● ⬤
+                                    }
+                                }
+                                if (showTransactionTime) {
+                                    append(transactionTime)
                                 }
                             }
-                            if (showTransactionTime) {
-                                append(transactionTime)
-                            }
-                        }
-                    },
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.2.sp
+                        },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            letterSpacing = 1.2.sp
+                        )
                     )
-                )
+                }
+
+                // Pills Section — FlowRow: pills keep their natural content width and
+                // wrap onto a second line only when all three don't fit, so every
+                // label stays fully visible.
+                Spacer(modifier = Modifier.height(6.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (showTypeLabel) {
+                        TransactionPill(
+                            text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
+                            color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
+                            backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
+                        )
+                    }
+
+                    if (showCategoryLabel && categoryLabel.isNotBlank()) {
+                        TransactionPill(
+                            text = categoryLabel,
+                            color = MaterialTheme.colorScheme.primary,
+                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                        )
+                    }
+
+                    if (showPaymentMethod && paymentType.isNotBlank()) {
+                        TransactionPill(
+                            text = paymentType,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                        )
+                    }
+                }
             }
 
-            // Pills Section — FlowRow: pills keep their natural content width and
-            // wrap onto a second line only when all three don't fit, so every
-            // label stays fully visible.
-            Spacer(modifier = Modifier.height(6.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = amount,
+                color = getAmountColor(transactionTypeId),
+                maxLines = 1,
+                softWrap = false,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 15.sp,
+                ),
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+        }
+
+        if (isProUser && isRecurring) {
+            val recurringTooltipState = rememberTooltipState()
+            val recurringTooltipScope = rememberCoroutineScope()
+
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above
+                ),
+                tooltip = {
+                    PlainTooltip {
+                        Text(
+                            text = stringResource(R.string.label_recurring_transaction),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                },
+                state = recurringTooltipState,
+                onDismissRequest = { recurringTooltipState.dismiss() },
+                enableUserInput = false,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = 8.dp)
+                    .offset(x = 50.dp, y  =50.dp)
             ) {
-                if (showTypeLabel) {
-                    TransactionPill(
-                        text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
-                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                        backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
-                    )
-                }
-
-                if (showCategoryLabel && categoryLabel.isNotBlank()) {
-                    TransactionPill(
-                        text = categoryLabel,
-                        color = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-                    )
-                }
-
-                if (showPaymentMethod && paymentType.isNotBlank()) {
-                    TransactionPill(
-                        text = paymentType,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                Box(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .border(
+                            width = 1.5.dp,
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            recurringTooltipScope.launch {
+                                if (recurringTooltipState.isVisible) {
+                                    recurringTooltipState.dismiss()
+                                } else {
+                                    recurringTooltipState.show()
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Autorenew,
+                        contentDescription = stringResource(R.string.label_recurring_transaction),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(11.dp)
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = amount,
-            color = getAmountColor(transactionTypeId),
-            maxLines = 1,
-            softWrap = false,
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
-            ),
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.width(14.dp))
     }
 }
 
@@ -433,7 +437,9 @@ fun TransactionCardLightPreview() {
                 transactionTypeId = 1,
                 icon = Icons.Filled.QuestionMark,
                 paymentType = getPaymentTypeName(3).uppercase(),
-                categoryLabel = "Salary".uppercase()
+                categoryLabel = "Salary".uppercase(),
+                isProUser = true,
+                isRecurring = true
             )
         }
     }
@@ -452,7 +458,9 @@ fun TransactionCardDarkPreview() {
                 transactionTypeId = 2,
                 icon = Icons.Filled.QuestionMark,
                 paymentType = getPaymentTypeName(1).uppercase(),
-                categoryLabel = "Food".uppercase()
+                categoryLabel = "Food".uppercase(),
+                isProUser = true,
+                isRecurring = true
             )
         }
     }
