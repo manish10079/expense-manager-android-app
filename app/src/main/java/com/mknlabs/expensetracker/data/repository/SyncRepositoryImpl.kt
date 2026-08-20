@@ -943,6 +943,8 @@ class SyncRepositoryImpl @Inject constructor(
                 "repeatCount" to entity.repeatCount, "isEnabled" to entity.isEnabled, "intervalCount" to entity.intervalCount,
                 "remainingCount" to entity.remainingCount, "anchorAt" to entity.anchorAt, "nextRunAt" to entity.nextRunAt,
                 "lastRunAt" to entity.lastRunAt, "lastNotifiedOccurrenceAt" to entity.lastNotifiedOccurrenceAt,
+                "notificationsEnabled" to entity.notificationsEnabled,
+                "lastNotifiedWindowDays" to entity.lastNotifiedWindowDays,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
             )
         }

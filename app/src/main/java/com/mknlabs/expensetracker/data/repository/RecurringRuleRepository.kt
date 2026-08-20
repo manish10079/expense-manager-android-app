@@ -52,6 +52,15 @@ class RecurringRuleRepository @Inject constructor(
         )
     }
 
+    override suspend fun setNotificationsEnabled(id: String, enabled: Boolean) = withContext(Dispatchers.IO) {
+        dao.updateNotificationsEnabled(
+            id = id,
+            enabled = enabled,
+            syncState = SyncState.PENDING_UPLOAD.name,
+            updatedAt = System.currentTimeMillis()
+        )
+    }
+
     override suspend fun deleteRule(id: String) = withContext(Dispatchers.IO) {
         dao.softDelete(
             id = id,

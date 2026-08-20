@@ -14,5 +14,7 @@ interface RecurringRuleRepository {
 
     suspend fun setEnabled(id: String, enabled: Boolean)
 
+    suspend fun setNotificationsEnabled(id: String, enabled: Boolean)
+
     suspend fun deleteRule(id: String)
 }

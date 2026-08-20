@@ -34,7 +34,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -119,6 +123,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 
 @Composable
 fun BudgetAndRecurringScreen(
@@ -129,6 +134,7 @@ fun BudgetAndRecurringScreen(
     recurringRules: List<RecurringTransactionRule> = emptyList(),
     onDeleteRecurring: (String) -> Unit = {},
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
+    onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
     onBackClick: () -> Unit = {},
     isAdsEnabled: Boolean = false
@@ -156,6 +162,7 @@ fun BudgetAndRecurringScreen(
         transactions = transactions,
         onDeleteRecurring = onDeleteRecurring,
         onRecurringEnabledChange = onRecurringEnabledChange,
+        onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
         onUpdateRecurringRule = onUpdateRecurringRule,
         onBackClick = onBackClick,
         onSelectTab = { budgetViewModel.selectTab(it) },
@@ -177,6 +184,7 @@ private fun BudgetAndRecurringContent(
     transactions: List<Transaction>,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
+    onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
     onBackClick: () -> Unit,
     onSelectTab: (BudgetTab) -> Unit,
@@ -193,6 +201,8 @@ private fun BudgetAndRecurringContent(
     var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
     var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
+    var pendingMuteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
+    var muteDialogDismissed by rememberSaveable { mutableStateOf(false) }
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
@@ -365,6 +375,13 @@ private fun BudgetAndRecurringContent(
                                         onEnabledChange = { enabled ->
                                             onRecurringEnabledChange(expense.id, enabled)
                                         },
+                                        onNotificationsEnabledChange = { enabled ->
+                                            if (!enabled && !muteDialogDismissed) {
+                                                pendingMuteRecurringId = expense.id
+                                            } else {
+                                                onRecurringNotificationsEnabledChange(expense.id, enabled)
+                                            }
+                                        },
                                         onEditClick = { editingRecurringRule = expense },
                                         onDeleteClick = {
                                             pendingDeleteRecurringId = expense.id
@@ -443,6 +460,21 @@ private fun BudgetAndRecurringContent(
             onConfirm = {
                 onDeleteRecurring(pendingDeleteRecurring.id)
                 pendingDeleteRecurringId = null
+            }
+        )
+    }
+
+    if (pendingMuteRecurringId != null) {
+        val pendingMuteExpense = uiState.recurringExpenses.firstOrNull { it.id == pendingMuteRecurringId }
+        MuteRecurringDialog(
+            ruleName = pendingMuteExpense?.title ?: "",
+            onDismiss = { pendingMuteRecurringId = null },
+            onConfirm = { dontShowAgain ->
+                onRecurringNotificationsEnabledChange(pendingMuteRecurringId!!, false)
+                if (dontShowAgain) {
+                    muteDialogDismissed = true
+                }
+                pendingMuteRecurringId = null
             }
         )
     }
@@ -1202,6 +1234,70 @@ private fun DeleteRecurringDialog(
     )
 }
 
+@Composable
+private fun MuteRecurringDialog(
+    ruleName: String,
+    onDismiss: () -> Unit,
+    onConfirm: (dontShowAgain: Boolean) -> Unit
+) {
+    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.label_mute_recurring_title),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(
+                    text = stringResource(id = R.string.label_mute_recurring_message, ruleName),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { dontShowAgain = !dontShowAgain }
+                        .padding(vertical = 4.dp)
+                ) {
+                    Checkbox(
+                        checked = dontShowAgain,
+                        onCheckedChange = { dontShowAgain = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.primary,
+                            uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.label_dont_show_again),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(dontShowAgain) }) {
+                Text(stringResource(id = R.string.label_mute_yes))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_no))
+            }
+        }
+    )
+}
+
 
 
 @Composable
@@ -1503,6 +1599,7 @@ private fun BudgetActionButton(
 private fun RecurringExpenseCard(
     expense: BudgetRecurringExpenseUi,
     onEnabledChange: (Boolean) -> Unit,
+    onNotificationsEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -1640,6 +1737,19 @@ private fun RecurringExpenseCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                BudgetCardAction(
+                    icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+                    contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
+                    accent = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        if (expense.notificationsEnabled) {
+                            onNotificationsEnabledChange(false)
+                        } else {
+                            onNotificationsEnabledChange(true)
+                        }
+                    }
+                )
+
                 GatedAction(
                     feature = Feature.RECURRING_RULE_EDIT,
                     displayName = stringResource(id = R.string.label_edit_recurring_rule),
@@ -1710,6 +1820,7 @@ private fun BudgetAndRecurringScreenPreview() {
             transactions = emptyList(),
             onDeleteRecurring = {},
             onRecurringEnabledChange = { _, _ -> },
+            onRecurringNotificationsEnabledChange = { _, _ -> },
             onUpdateRecurringRule = { _, _, _ -> },
             onBackClick = {},
             onSelectTab = {},

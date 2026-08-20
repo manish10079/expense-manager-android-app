@@ -82,6 +82,7 @@ object AppSettingsDataStore {
         val setupDismissedUntilMillis = longPreferencesKey("setup_dismissed_until_millis")
         val userTier = stringPreferencesKey("user_tier")
         val deviceIntegrityNoticeAcknowledged = booleanPreferencesKey("device_integrity_notice_acknowledged")
+        val muteRecurringDialogDismissed = booleanPreferencesKey("mute_recurring_dialog_dismissed")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -210,7 +211,9 @@ object AppSettingsDataStore {
             setupDismissedUntilMillis = this[Keys.setupDismissedUntilMillis] ?: 0L,
             userTier = this[Keys.userTier]?.let(::userTierOrDefault) ?: defaultAppSettings.userTier,
             deviceIntegrityNoticeAcknowledged = this[Keys.deviceIntegrityNoticeAcknowledged]
-                ?: defaultAppSettings.deviceIntegrityNoticeAcknowledged
+                ?: defaultAppSettings.deviceIntegrityNoticeAcknowledged,
+            muteRecurringDialogDismissed = this[Keys.muteRecurringDialogDismissed]
+                ?: defaultAppSettings.muteRecurringDialogDismissed
         )
     }
 
@@ -276,6 +279,7 @@ object AppSettingsDataStore {
         this[Keys.setupDismissedUntilMillis] = settings.setupDismissedUntilMillis
         this[Keys.userTier] = settings.userTier.name
         this[Keys.deviceIntegrityNoticeAcknowledged] = settings.deviceIntegrityNoticeAcknowledged
+        this[Keys.muteRecurringDialogDismissed] = settings.muteRecurringDialogDismissed
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

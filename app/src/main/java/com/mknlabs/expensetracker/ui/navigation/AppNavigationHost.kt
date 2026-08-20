@@ -106,6 +106,7 @@ fun AppNavigationHost(
     onDuplicateTransaction: (Transaction, (Transaction) -> Unit) -> Unit,
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
+    onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
     onCreateCustomCategory: (String, String, Int) -> Unit,
     onCreateCustomPaymentType: (String, String) -> Unit,
@@ -245,6 +246,7 @@ fun AppNavigationHost(
                         recurringRules = recurringRules,
                         onDeleteRecurring = onDeleteRecurring,
                         onRecurringEnabledChange = onRecurringEnabledChange,
+                        onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
                         onUpdateRecurringRule = onUpdateRecurringRule,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)

@@ -784,6 +784,7 @@ fun MainScreen(
                         },
                         onDeleteRecurring = mainViewModel::deleteRecurring,
                         onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
+                        onRecurringNotificationsEnabledChange = mainViewModel::setRecurringNotificationsEnabled,
                         onUpdateRecurringRule = mainViewModel::updateRecurringRule,
                         onCreateCustomCategory = mainViewModel::createCustomCategory,
                         onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,

@@ -70,5 +70,6 @@ data class AppSettings(
     // Weekly summary delivery time as millis-of-day (spec default 8:00 PM =
     // 20h * 60m * 60s * 1000ms). Always Sunday, per the spec.
     val weeklySummaryTimeMillis: Long = 72000000L,
-    val deviceIntegrityNoticeAcknowledged: Boolean = false
+    val deviceIntegrityNoticeAcknowledged: Boolean = false,
+    val muteRecurringDialogDismissed: Boolean = false
 )

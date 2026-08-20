@@ -388,6 +388,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun setRecurringNotificationsEnabled(ruleId: String, enabled: Boolean) {
+        viewModelScope.launch {
+            recurringRuleRepository.setNotificationsEnabled(ruleId, enabled)
+        }
+    }
+
     fun updateRecurringRule(
         ruleId: String,
         frequency: RecurringFrequency,

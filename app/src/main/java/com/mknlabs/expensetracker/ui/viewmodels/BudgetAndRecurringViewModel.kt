@@ -102,7 +102,8 @@ data class BudgetRecurringExpenseUi(
     val icon: ImageVector,
     val accent: BudgetAccent,
     val nextDueAt: Long,
-    val isEnabled: Boolean
+    val isEnabled: Boolean,
+    val notificationsEnabled: Boolean = true
 )
 
 @Immutable
@@ -134,6 +135,7 @@ private data class RecurringEntry(
     val frequency: RecurringFrequency,
     val repeatCount: Int,
     val isEnabled: Boolean,
+    val notificationsEnabled: Boolean = true,
     val nextRunAt: Long = 0L
 )
 
@@ -183,6 +185,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 frequency = rule.frequency,
                 repeatCount = rule.repeatCount,
                 isEnabled = rule.isEnabled,
+                notificationsEnabled = rule.notificationsEnabled,
                 nextRunAt = rule.nextRunAt
             )
         }
@@ -560,7 +563,8 @@ private fun buildRecurringExpenses(
                 icon = category.icon,
                 accent = accent,
                 nextDueAt = nextDueAt,
-                isEnabled = recurringEntry.isEnabled
+                isEnabled = recurringEntry.isEnabled,
+                notificationsEnabled = recurringEntry.notificationsEnabled
             )
         }
         .sortedWith(
