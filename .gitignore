@@ -61,6 +61,7 @@ Thumbs.db
 
 # ===================== Misc =====================
 /commit.md
+FEATURE_GRAPHIC_ASO_PROMPT.md
 
 # Benchmark screen captures (large transient artifacts)
 /benchmark_screen.png

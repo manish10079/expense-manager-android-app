@@ -1474,17 +1474,10 @@ private fun TransactionSummaryCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.TrendingDown,
-                        contentDescription = null,
-                        tint = IncomeGreen,
-                        modifier = Modifier.size(16.dp)
-                    )
                     Text(
-//                       text = stringResource(R.string.label_income) + ": " + income,
-                        text = "+" + income,
+                        text = "+ " + income,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = IncomeGreen
                     )
                 }
 
@@ -1495,17 +1488,11 @@ private fun TransactionSummaryCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
-                        contentDescription = null,
-                        tint = ExpenseRed,
-                        modifier = Modifier.size(16.dp)
-                    )
+
                     Text(
-//                      text = stringResource(R.string.label_expense) + ": " + expense,
-                        text = "-" + expense,
+                        text = "- " + expense,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = ExpenseRed
                     )
                 }
             }
