@@ -20,66 +20,114 @@ class GoogleAuthHelper @Inject constructor(
 ) {
     private val credentialManager = CredentialManager.create(context)
 
+    /**
+     * Builds a [GetCredentialRequest] for the given [filterFlag] and [autoSelect].
+     */
+    private fun buildGoogleIdRequest(
+        context: Context,
+        filterByAuthorizedAccounts: Boolean,
+        autoSelectEnabled: Boolean
+    ): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(filterByAuthorizedAccounts)
+            .setServerClientId(context.getString(R.string.default_web_client_id))
+            .setAutoSelectEnabled(autoSelectEnabled)
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+    }
+
+    /**
+     * Attempts a single credential retrieval. Returns the ID token on success,
+     * null on user cancellation, or throws on failure.
+     */
+    private suspend fun tryGetCredential(
+        context: Context,
+        filterByAuthorizedAccounts: Boolean,
+        autoSelectEnabled: Boolean
+    ): String? {
+        val request = buildGoogleIdRequest(context, filterByAuthorizedAccounts, autoSelectEnabled)
+        val result = credentialManager.getCredential(context = context, request = request)
+        Log.d("AUTH", "GoogleAuthHelper: Credential received (filterByAuthorized=$filterByAuthorizedAccounts)")
+        val credential = result.credential
+        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+        return googleIdTokenCredential.idToken
+    }
+
     suspend fun getGoogleIdToken(
         context: Context,
         autoSelect: Boolean = false,
         filterByAuthorized: Boolean = false
     ): Result<String?> {
-        val credentialManager = CredentialManager.create(context)
-
         // Two-step strategy to avoid the "Add Account" screen on first click:
         // 1. First try with filterByAuthorizedAccounts=true (fast path for returning users).
         // 2. If no authorized accounts exist yet, retry with false to show the full picker.
         val filterSteps = if (filterByAuthorized) {
-            // Caller explicitly requested authorized-only; honour that.
             listOf(true)
         } else {
-            // Try authorized first, then fall back to all accounts.
             listOf(true, false)
         }
 
+        // --- First attempt: normal two-step strategy ---
+        val firstAttempt = attemptCredentialRetrieval(context, filterSteps, autoSelect)
+        if (firstAttempt != null) return firstAttempt
+
+        // --- Retry: clear stale credential state, then retry all steps ---
+        // Credential Manager can get into a stale state after clearCredentialState()
+        // (e.g. on sign-out), causing NoCredentialException even when Google
+        // accounts exist on the device. Clearing and retrying resets this.
+        Log.d("AUTH", "GoogleAuthHelper: First attempt failed, clearing credential state and retrying")
+        try {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        } catch (_: Exception) { /* best-effort cleanup */ }
+
+        // Small delay to let Play Services re-sync account state
+        kotlinx.coroutines.delay(300)
+
+        val retryResult = attemptCredentialRetrieval(context, filterSteps, autoSelect)
+        if (retryResult != null) return retryResult
+
+        // Both attempts exhausted — no credentials available
+        Log.e("AUTH", "GoogleAuthHelper: No Google accounts found on device after retry")
+        return Result.failure(NoCredentialException())
+    }
+
+    /**
+     * Runs through the given [filterSteps] once, returning a Result on success/cancel/error,
+     * or null if all steps threw [NoCredentialException] (caller should retry or fail).
+     */
+    private suspend fun attemptCredentialRetrieval(
+        context: Context,
+        filterSteps: List<Boolean>,
+        autoSelect: Boolean
+    ): Result<String?>? {
         for ((index, filterFlag) in filterSteps.withIndex()) {
-            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(filterFlag)
-                .setServerClientId(context.getString(R.string.default_web_client_id))
-                .setAutoSelectEnabled(autoSelect && filterFlag)
-                .build()
-
-            val request = GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build()
-
             try {
-                val result = credentialManager.getCredential(
+                val idToken = tryGetCredential(
                     context = context,
-                    request = request
+                    filterByAuthorizedAccounts = filterFlag,
+                    autoSelectEnabled = autoSelect && filterFlag
                 )
-
-                Log.d("AUTH", "GoogleAuthHelper: Credential received (filterByAuthorized=$filterFlag)")
-                val credential = result.credential
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                return Result.success(googleIdTokenCredential.idToken)
-
+                return Result.success(idToken)
             } catch (e: GetCredentialCancellationException) {
-                Log.d("GoogleAuth", "User cancelled the Google Sign-In request")
+                Log.d("AUTH", "GoogleAuth: User cancelled the Google Sign-In request")
                 return Result.success(null)
             } catch (e: NoCredentialException) {
                 if (index < filterSteps.lastIndex) {
-                    // No authorized accounts yet — retry with the full picker.
-                    Log.d("GoogleAuth", "No authorized accounts, retrying with all accounts")
+                    Log.d("AUTH", "GoogleAuth: No authorized accounts, retrying with all accounts")
                     continue
                 }
-                Log.e("GoogleAuth", "No Google accounts found on device")
-                return Result.failure(e)
+                // All steps in this attempt threw NoCredentialException — let caller retry
+                Log.d("AUTH", "GoogleAuth: NoCredentialException on this attempt")
+                return null
             } catch (e: Exception) {
-                // Log only the class name — the raw message may embed the user's email
-                Log.e("GoogleAuth", "Google Sign-In failed: ${e.javaClass.simpleName}")
+                Log.e("AUTH", "GoogleAuth: Google Sign-In failed: ${e.javaClass.simpleName}")
                 return Result.failure(e)
             }
         }
-
-        // Should be unreachable, but satisfy the compiler.
-        return Result.failure(NoCredentialException())
+        return null
     }
 
     suspend fun signOut() {

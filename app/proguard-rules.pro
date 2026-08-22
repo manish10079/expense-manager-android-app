@@ -33,3 +33,8 @@
 
 # RootBeer (root detection) uses JNI + reflection — keep the whole library under R8.
 -keep class com.scottyab.rootbeer.** { *; }
+
+# Firebase App Check — Play Integrity and Debug providers use reflection
+# for factory instantiation; keep them under R8 minification.
+-keep class com.google.firebase.appcheck.** { *; }
+-keep class com.google.android.play.core.integrity.** { *; }

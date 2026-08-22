@@ -1416,6 +1416,10 @@
     <string name="msg_logout_confirm">Are you sure you want to sign out? Your cloud data will stop syncing until you sign back in.</string>
     <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
     <string name="error_no_google_accounts">No Google accounts found on this device. Please use your email to sign up.</string>
+    <string name="title_google_accounts_not_found">Google Account Required</string>
+    <string name="msg_google_accounts_not_found">No Google accounts were detected. Please add a Google account in your device settings, then try again.</string>
+    <string name="label_add_account">Add Account</string>
+    <string name="label_retry">Retry</string>
     <string name="error_auth_user_not_found">Account not found. Please sign up first.</string>
     <string name="error_auth_wrong_password">Incorrect password. Please try again.</string>
     <string name="error_auth_invalid_credentials">Invalid email or password.</string>

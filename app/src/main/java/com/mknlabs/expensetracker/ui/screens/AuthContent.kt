@@ -68,14 +68,15 @@ fun AuthRoute(
         }
     }
 
+    // Show an in-app dialog when no Google accounts are found, instead of
+    // immediately jumping to the system "Add Account" screen.  The Credential
+    // Manager can throw NoCredentialException due to stale state after a
+    // sign-out; a retry often succeeds without leaving the app.
+    var showNoGoogleAccountsDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(authState) {
         if (authState is AuthState.NoGoogleAccounts) {
-            viewModel.shouldAttemptAutoSignInAfterReturn = true
-            onPrepareForExternalActivity()
-            val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
-                putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
-            }
-            context.startActivity(intent)
+            showNoGoogleAccountsDialog = true
             viewModel.resetState()
         }
 
@@ -100,6 +101,40 @@ fun AuthRoute(
         }
     }
 
+    // ── No-Google-Accounts dialog ──────────────────────────────────────
+    if (showNoGoogleAccountsDialog) {
+        AlertDialog(
+            onDismissRequest = { showNoGoogleAccountsDialog = false },
+            title = { Text(stringResource(id = R.string.title_google_accounts_not_found)) },
+            text = { Text(stringResource(id = R.string.msg_google_accounts_not_found)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showNoGoogleAccountsDialog = false
+                    // Open device Settings → Add Google Account
+                    viewModel.shouldAttemptAutoSignInAfterReturn = true
+                    onPrepareForExternalActivity()
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
+                        putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text(stringResource(id = R.string.label_add_account))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showNoGoogleAccountsDialog = false
+                    // Retry sign-in — the Credential Manager may succeed on a
+                    // second attempt after clearing its stale state.
+                    viewModel.signInWithGoogle(context)
+                }) {
+                    Text(stringResource(id = R.string.label_retry))
+                }
+            }
+        )
+    }
+
+    // ── Sign-in content ────────────────────────────────────────────────
     AuthContent(
         authState = authState,
         cooldownSeconds = cooldownSeconds,

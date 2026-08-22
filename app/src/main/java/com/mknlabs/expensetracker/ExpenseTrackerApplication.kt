@@ -3,6 +3,10 @@ package com.mknlabs.expensetracker
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.messaging.FirebaseMessaging
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.domain.repository.FcmTokenRepository
@@ -44,6 +48,22 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
     override fun onCreate() {
 
         super.onCreate()
+
+        // Initialize Firebase App Check BEFORE any other Firebase SDK calls.
+        // Debug builds use a debug token (shown in logcat) so development is
+        // not blocked by integrity checks. Release builds use Play Integrity
+        // which verifies the app is genuine and the device is uncompromised.
+        FirebaseApp.initializeApp(this)
+        val appCheck = FirebaseAppCheck.getInstance()
+        if (BuildConfig.DEBUG) {
+            appCheck.installAppCheckProviderFactory(
+                DebugAppCheckProviderFactory.getInstance()
+            )
+        } else {
+            appCheck.installAppCheckProviderFactory(
+                PlayIntegrityAppCheckProviderFactory.getInstance()
+            )
+        }
 
         // Initialize security preferences early
         com.mknlabs.expensetracker.data.local.AppLockPreferences.initialize(this)
