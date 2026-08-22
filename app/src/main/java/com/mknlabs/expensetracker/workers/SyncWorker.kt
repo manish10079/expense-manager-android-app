@@ -78,47 +78,60 @@ class SyncWorker @AssistedInject constructor(
             com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncInProgressNotification(applicationContext)
         }
 
-        // 3. Handshake (Register/Check Device Limit)
-        val handshakeResult = syncRepository.registerCurrentDevice()
+        var notificationHandled = false
+        try {
+            // 3. Handshake (Register/Check Device Limit)
+            val handshakeResult = syncRepository.registerCurrentDevice()
 
-        if (handshakeResult.isFailure) {
-            val error = handshakeResult.exceptionOrNull()
-            android.util.Log.e("SyncWorker", "Device registration failed", error)
-            if (showNotifications) {
-                com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncFailedNotification(applicationContext)
-            }
-            // If the failure is due to device limit, we stop trying
-            return if (error?.message?.contains("limit reached") == true) {
-                Result.failure()
-            } else {
-                schedulePeriodic(applicationContext)
-                Result.retry()
-            }
-        }
-
-        // 4. Perform actual data sync
-        val syncResult = syncRepository.syncTransactions()
-
-        val success = syncResult.isSuccess
-        if (!success) {
-            android.util.Log.e("SyncWorker", "Transaction sync failed", syncResult.exceptionOrNull())
-            if (showNotifications) {
-                val isNetworkError = syncResult.exceptionOrNull() is java.io.IOException ||
-                        syncResult.exceptionOrNull()?.message?.contains("network", ignoreCase = true) == true
-                if (isNetworkError) {
-                    com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncPendingNotification(applicationContext)
-                } else {
+            if (handshakeResult.isFailure) {
+                val error = handshakeResult.exceptionOrNull()
+                android.util.Log.e("SyncWorker", "Device registration failed", error)
+                if (showNotifications) {
                     com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncFailedNotification(applicationContext)
+                    notificationHandled = true
+                }
+                // If the failure is due to device limit, we stop trying
+                return if (error?.message?.contains("limit reached") == true) {
+                    Result.failure()
+                } else {
+                    schedulePeriodic(applicationContext)
+                    Result.retry()
                 }
             }
-        } else {
-            com.mknlabs.expensetracker.notifications.NotificationHelper.cancelSyncInProgressNotification(applicationContext)
+
+            // 4. Perform actual data sync
+            val syncResult = syncRepository.syncTransactions()
+
+            val success = syncResult.isSuccess
+            if (!success) {
+                android.util.Log.e("SyncWorker", "Transaction sync failed", syncResult.exceptionOrNull())
+                if (showNotifications) {
+                    val isNetworkError = syncResult.exceptionOrNull() is java.io.IOException ||
+                            syncResult.exceptionOrNull()?.message?.contains("network", ignoreCase = true) == true
+                    if (isNetworkError) {
+                        com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncPendingNotification(applicationContext)
+                    } else {
+                        com.mknlabs.expensetracker.notifications.NotificationHelper.showSyncFailedNotification(applicationContext)
+                    }
+                    notificationHandled = true
+                }
+            } else {
+                com.mknlabs.expensetracker.notifications.NotificationHelper.cancelSyncInProgressNotification(applicationContext)
+                notificationHandled = true
+            }
+
+            return if (success) Result.success() else Result.retry()
+        } finally {
+            // Safety net: if the notification was posted but none of the
+            // normal code paths cancelled/replaced it (e.g. an uncaught
+            // exception, or the coroutine was cancelled by the system),
+            // cancel it now so it never lingers in the shade.
+            if (showNotifications && !notificationHandled) {
+                com.mknlabs.expensetracker.notifications.NotificationHelper.cancelSyncInProgressNotification(applicationContext)
+            }
+            // Always re-enroll the periodic chain.
+            schedulePeriodic(applicationContext)
         }
-
-        // Always re-enroll the periodic chain at the end of doWork().
-        schedulePeriodic(applicationContext)
-
-        return if (success) Result.success() else Result.retry()
     }
 
     companion object {

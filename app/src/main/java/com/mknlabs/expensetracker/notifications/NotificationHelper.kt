@@ -988,9 +988,12 @@ object NotificationHelper {
             .setContentTitle(context.getString(R.string.notification_title_syncing_in_progress))
             .setContentText(context.getString(R.string.notification_desc_syncing_in_progress))
             .setProgress(0, 0, true)
-            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pendingIntent)
+            // Auto-cancel after 2 minutes as a safety net — if the sync
+            // worker fails to clean up the notification (crash, timeout,
+            // etc.), it disappears automatically instead of lingering.
+            .setTimeoutAfter(120_000L)
 
         with(NotificationManagerCompat.from(context)) {
             try {
