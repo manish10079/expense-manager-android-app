@@ -113,19 +113,22 @@ class GoogleAuthHelper @Inject constructor(
             val credential = GoogleIdTokenCredential.createFrom(result.credential.data)
             Result.success(credential.idToken)
         } catch (e: GetCredentialCancellationException) {
-            Log.d("AUTH", "GoogleAuthHelper: User cancelled the sign-in request")
+            Log.w("AUTH", "GoogleAuthHelper: User cancelled the Google sign-in prompt: ${e.message}")
             Result.success(null)
         } catch (e: NoCredentialException) {
-            Log.d("AUTH", "GoogleAuthHelper: NoCredentialException — need next stage")
+            Log.w("AUTH", "GoogleAuthHelper: No credential / account found on device: ${e.message}")
             null
         } catch (e: GoogleIdTokenParsingException) {
-            Log.e("AUTH", "GoogleAuthHelper: GoogleIdTokenParsingException — malformed token")
+            Log.e("AUTH", "GoogleAuthHelper: Malformed Google ID token exception: ${e.message}", e)
             Result.failure(e)
         } catch (e: UnknownHostException) {
-            Log.e("AUTH", "GoogleAuthHelper: Network error — cannot reach Google servers")
+            Log.e("AUTH", "GoogleAuthHelper: Network unreachable while attempting Google sign-in: ${e.message}", e)
+            Result.failure(e)
+        } catch (e: GetCredentialException) {
+            Log.e("AUTH", "GoogleAuthHelper: GetCredentialException [type=${e.type}, errorMessage=${e.errorMessage}]", e)
             Result.failure(e)
         } catch (e: Exception) {
-            Log.e("AUTH", "GoogleAuthHelper: Unexpected error: ${e.javaClass.simpleName}")
+            Log.e("AUTH", "GoogleAuthHelper: Unexpected Google Sign-In failure: [class=${e.javaClass.name}, message=${e.message}]", e)
             Result.failure(e)
         }
     }

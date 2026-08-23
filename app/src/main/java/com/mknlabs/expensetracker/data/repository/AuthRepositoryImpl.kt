@@ -62,7 +62,9 @@ class AuthRepositoryImpl @Inject constructor(
             
             Result.success(result.additionalUserInfo?.isNewUser == true)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Firebase Google Sign-In/Link failed: ${authErrorSummary(e)}")
+            val summary = authErrorSummary(e)
+            val detailMsg = (e as? FirebaseAuthException)?.message ?: e.message
+            android.util.Log.e("AuthRepo", "Firebase Google Sign-In/Link failed: summary=[$summary], class=[${e.javaClass.name}], message=[$detailMsg]", e)
             Result.failure(e)
         }
     }

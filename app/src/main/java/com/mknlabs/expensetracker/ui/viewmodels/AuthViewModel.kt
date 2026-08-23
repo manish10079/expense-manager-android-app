@@ -249,20 +249,20 @@ class AuthViewModel @Inject constructor(
                                 _authState.value = AuthState.Success(isNewUser)
                             }
                             .onFailure { error ->
-                                android.util.Log.e("AUTH", "Firebase sign-in failed: ${error.javaClass.simpleName}")
+                                android.util.Log.e("AUTH", "Firebase Google credential sign-in failed in AuthViewModel: class=[${error.javaClass.name}], message=[${error.message}]", error)
                                 if (!silent) {
                                     _authState.value = AuthState.Error(mapFirebaseError(error))
                                 }
                             }
                     } else {
-                        android.util.Log.d("AUTH", "Sign-in cancelled (idToken is null)")
+                        android.util.Log.w("AUTH", "Google Sign-In cancelled or returned null token")
                         if (!silent) {
                             _authState.value = AuthState.Idle
                         }
                     }
                 }
                 .onFailure { error ->
-                    android.util.Log.e("AUTH", "Google Auth failed: ${error.javaClass.simpleName}")
+                    android.util.Log.e("AUTH", "GoogleAuthHelper token retrieval failed in AuthViewModel: class=[${error.javaClass.name}], message=[${error.message}]", error)
                     if (!silent) {
                         _authState.value = when (error) {
                             is NoCredentialException -> AuthState.NoGoogleAccounts
