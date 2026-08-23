@@ -9,7 +9,6 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.mknlabs.expensetracker.R
@@ -19,16 +18,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Two-stage Google Sign-In helper using Credential Manager (2026 best practices).
+ * Two-stage Google Sign-In helper using Credential Manager per official Google docs.
  *
  * **Stage 1 — Silent / Auto sign-in** (returning users):
  * [GetGoogleIdOption] with `filterByAuthorizedAccounts=true` and `autoSelectEnabled=true`.
  * Shows no UI when an authorized account already exists.
  *
- * **Stage 2 — Full account picker** (fallback on [NoCredentialException]):
- * [GetSignInWithGoogleOption] — the official Google Sign-In button flow.
- * Shows ALL Google accounts on the device, fixing the "No accounts detected"
- * issue that occurs when the Play Store re-signs the APK.
+ * **Stage 2 — Bottom sheet with all accounts** (fallback on [NoCredentialException]):
+ * [GetGoogleIdOption] with `filterByAuthorizedAccounts=false`.
+ * Shows the Credential Manager bottom sheet with ALL Google accounts on the device.
  */
 @Singleton
 class GoogleAuthHelper @Inject constructor(
@@ -42,6 +40,7 @@ class GoogleAuthHelper @Inject constructor(
     /**
      * Builds a [GetCredentialRequest] for Stage 1 — silent automatic sign-in.
      * Only authorized accounts are considered; auto-selects if exactly one exists.
+     * Shows no UI when an authorized account already exists.
      */
     private fun buildSilentRequest(): GetCredentialRequest {
         val googleIdOption = GetGoogleIdOption.Builder()
@@ -55,29 +54,33 @@ class GoogleAuthHelper @Inject constructor(
             .build()
     }
 
-    // ── Stage 2: Full account picker ──────────────────────────────────────
+    // ── Stage 2: Bottom sheet with all accounts ──────────────────────────
 
     /**
-     * Builds a [GetCredentialRequest] for Stage 2 — official Google Sign-In
-     * button flow. Shows ALL Google accounts available on the device.
+     * Builds a [GetCredentialRequest] for Stage 2 — bottom sheet showing
+     * ALL Google accounts on the device. Uses [GetGoogleIdOption] with
+     * `filterByAuthorizedAccounts=false` per Google's recommended flow.
      */
-    private fun buildFullPickerRequest(): GetCredentialRequest {
-        val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
+    private fun buildAllAccountsRequest(): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(webClientId)
             .build()
 
         return GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
+            .addCredentialOption(googleIdOption)
             .build()
     }
 
     // ── Public API ────────────────────────────────────────────────────────
 
     /**
-     * Two-stage Google sign-in.
+     * Two-stage Google sign-in per official Google Credential Manager docs.
      *
      * @param context       Activity or application context.
      * @param silent        If `true`, only Stage 1 runs — never shows UI.
-     *                      If `false`, Stage 2 (full picker) is launched on failure.
+     *                      If `false`, Stage 1 runs first (silent), then
+     *                      Stage 2 (bottom sheet) on failure.
      * @return `Result.success(idToken)` on success, `Result.success(null)` on
      *         cancellation, or `Result.failure(exception)` on error.
      */
@@ -92,9 +95,14 @@ class GoogleAuthHelper @Inject constructor(
             return stage1 ?: Result.failure(NoCredentialException())
         }
 
-        // ── Explicit sign-in: Launch Stage 2 (full account picker) directly ──
-        Log.d("AUTH", "GoogleAuthHelper: Explicit sign-in — launching full account picker directly")
-        val stage2 = tryStage(context, buildFullPickerRequest())
+        // ── Explicit sign-in: Stage 1 → Stage 2 (bottom sheet) ──
+        Log.d("AUTH", "GoogleAuthHelper: Explicit sign-in — Stage 1 (silent)")
+        val stage1 = tryStage(context, buildSilentRequest())
+        if (stage1 != null) return stage1
+
+        // Stage 1 failed (NoCredentialException) → show bottom sheet with all accounts
+        Log.d("AUTH", "GoogleAuthHelper: Stage 1 failed — launching Stage 2 (bottom sheet with all accounts)")
+        val stage2 = tryStage(context, buildAllAccountsRequest())
         return stage2 ?: Result.failure(NoCredentialException())
     }
 
