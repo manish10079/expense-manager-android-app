@@ -990,7 +990,7 @@ private fun BottomControls(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.4.sp,
-                        fontSize = 14.sp
+                        fontSize = 11.sp
                     ),
                     modifier = Modifier
                         .clickable(onClick = onPreviousClick)
@@ -1013,7 +1013,7 @@ private fun BottomControls(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.4.sp,
-                        fontSize = 14.sp
+                        fontSize = 11.sp
                     ),
                     modifier = Modifier
                         .clickable(onClick = onSkipClick)

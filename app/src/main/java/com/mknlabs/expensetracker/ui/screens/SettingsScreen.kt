@@ -26,12 +26,14 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -149,21 +151,28 @@ fun SettingsScreen(
         onLogoutClick = onLogoutClick,
         onConnectedDevicesClick = onConnectedDevicesClick,
         onShowUpgradeSheet = onShowUpgradeSheet,
-        onRedeemProPassClick = { showRedeemDialog = true },
-        onAdFreeAccessClick = {
-            val activity = context as? android.app.Activity
-            if (activity != null) {
-                monetizationViewModel.onWatchAdFreeClicked(activity)
-            }
-        },
-        onPrivacyOptionsClick = {
-            val activity = context as? android.app.Activity
-            if (activity != null) {
-                monetizationViewModel.showPrivacyOptionsForm(activity)
-            }
-        },
-        onBackClick = onBackClick
-    )
+        onRedeemProPassClick = { showRedeemDialog = true },            onAdFreeAccessClick = {
+                val activity = context as? android.app.Activity
+                if (activity != null) {
+                    monetizationViewModel.onWatchAdFreeClicked(activity)
+                }
+            },
+            onPrivacyOptionsClick = {
+                val activity = context as? android.app.Activity
+                if (activity != null) {
+                    monetizationViewModel.showPrivacyOptionsForm(activity)
+                }
+            },
+            onLinkedInClick = {
+                val linkedInUrl = "https://www.linkedin.com/in/manish-nayak-172348210"
+                val intent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse(linkedInUrl)
+                )
+                context.startActivity(intent)
+            },
+            onBackClick = onBackClick
+        )
 }
 
 @Composable
@@ -195,6 +204,7 @@ private fun SettingsScreenContent(
     onShowUpgradeSheet: () -> Unit,
     onRedeemProPassClick: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
+    onLinkedInClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -278,6 +288,7 @@ private fun SettingsScreenContent(
                                     }
                                     SettingsActionId.Logout -> onLogoutClick()
                                     SettingsActionId.RedeemProPass -> onRedeemProPassClick()
+                                    SettingsActionId.LinkedIn -> onLinkedInClick()
                                     else -> Unit
                                 }
                             },
@@ -533,6 +544,12 @@ private fun SettingsScreenPreview() {
                             subtitleRes = R.string.label_about_subtitle,
                             icon = Icons.Rounded.Info,
                             actionId = SettingsActionId.About
+                        ),
+                        SettingsItemUi(
+                            titleRes = R.string.title_connect_on_linkedin,
+                            subtitleRes = R.string.label_connect_on_linkedin_subtitle,
+                            icon = Icons.Rounded.Link,
+                            actionId = SettingsActionId.LinkedIn
                         )
                     )
                 )
@@ -561,6 +578,7 @@ private fun SettingsScreenPreview() {
             onShowUpgradeSheet = {},
             onRedeemProPassClick = {},
             onAdFreeAccessClick = {},
+            onLinkedInClick = {},
             onBackClick = {}
         )
     }

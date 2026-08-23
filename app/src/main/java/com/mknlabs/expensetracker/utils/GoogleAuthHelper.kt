@@ -6,32 +6,48 @@ import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.mknlabs.expensetracker.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Two-stage Google Sign-In helper using Credential Manager (2026 best practices).
+ *
+ * **Stage 1 — Silent / Auto sign-in** (returning users):
+ * [GetGoogleIdOption] with `filterByAuthorizedAccounts=true` and `autoSelectEnabled=true`.
+ * Shows no UI when an authorized account already exists.
+ *
+ * **Stage 2 — Full account picker** (fallback on [NoCredentialException]):
+ * [GetSignInWithGoogleOption] — the official Google Sign-In button flow.
+ * Shows ALL Google accounts on the device, fixing the "No accounts detected"
+ * issue that occurs when the Play Store re-signs the APK.
+ */
 @Singleton
 class GoogleAuthHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val credentialManager = CredentialManager.create(context)
+    private val webClientId = context.getString(R.string.default_web_client_id)
+
+    // ── Stage 1: Silent / auto sign-in ────────────────────────────────────
 
     /**
-     * Builds a [GetCredentialRequest] for the given [filterFlag] and [autoSelect].
+     * Builds a [GetCredentialRequest] for Stage 1 — silent automatic sign-in.
+     * Only authorized accounts are considered; auto-selects if exactly one exists.
      */
-    private fun buildGoogleIdRequest(
-        context: Context,
-        filterByAuthorizedAccounts: Boolean,
-        autoSelectEnabled: Boolean
-    ): GetCredentialRequest {
+    private fun buildSilentRequest(): GetCredentialRequest {
         val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(filterByAuthorizedAccounts)
-            .setServerClientId(context.getString(R.string.default_web_client_id))
-            .setAutoSelectEnabled(autoSelectEnabled)
+            .setFilterByAuthorizedAccounts(true)
+            .setServerClientId(webClientId)
+            .setAutoSelectEnabled(true)
             .build()
 
         return GetCredentialRequest.Builder()
@@ -39,98 +55,97 @@ class GoogleAuthHelper @Inject constructor(
             .build()
     }
 
+    // ── Stage 2: Full account picker ──────────────────────────────────────
+
     /**
-     * Attempts a single credential retrieval. Returns the ID token on success,
-     * null on user cancellation, or throws on failure.
+     * Builds a [GetCredentialRequest] for Stage 2 — official Google Sign-In
+     * button flow. Shows ALL Google accounts available on the device.
      */
-    private suspend fun tryGetCredential(
-        context: Context,
-        filterByAuthorizedAccounts: Boolean,
-        autoSelectEnabled: Boolean
-    ): String? {
-        val request = buildGoogleIdRequest(context, filterByAuthorizedAccounts, autoSelectEnabled)
-        val result = credentialManager.getCredential(context = context, request = request)
-        Log.d("AUTH", "GoogleAuthHelper: Credential received (filterByAuthorized=$filterByAuthorizedAccounts)")
-        val credential = result.credential
-        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-        return googleIdTokenCredential.idToken
+    private fun buildFullPickerRequest(): GetCredentialRequest {
+        val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(signInWithGoogleOption)
+            .build()
     }
 
+    // ── Public API ────────────────────────────────────────────────────────
+
+    /**
+     * Two-stage Google sign-in.
+     *
+     * @param context       Activity or application context.
+     * @param silent        If `true`, only Stage 1 runs — never shows UI.
+     *                      If `false`, Stage 2 (full picker) is launched on failure.
+     * @return `Result.success(idToken)` on success, `Result.success(null)` on
+     *         cancellation, or `Result.failure(exception)` on error.
+     */
     suspend fun getGoogleIdToken(
         context: Context,
-        autoSelect: Boolean = false,
-        filterByAuthorized: Boolean = false
+        silent: Boolean = false
     ): Result<String?> {
-        // Two-step strategy to avoid the "Add Account" screen on first click:
-        // 1. First try with filterByAuthorizedAccounts=true (fast path for returning users).
-        // 2. If no authorized accounts exist yet, retry with false to show the full picker.
-        val filterSteps = if (filterByAuthorized) {
-            listOf(true)
-        } else {
-            listOf(true, false)
+        // ── Stage 1: Try silent sign-in with authorized accounts ──────
+        Log.d("AUTH", "GoogleAuthHelper: Stage 1 — silent sign-in (filterByAuthorized=true)")
+        val stage1 = tryStage(context, buildSilentRequest())
+        if (stage1 != null) return stage1
+
+        // ── Stage 2: Full account picker (only for explicit sign-in) ──
+        if (silent) {
+            Log.d("AUTH", "GoogleAuthHelper: Silent mode — skipping Stage 2")
+            return Result.failure(NoCredentialException())
         }
 
-        // --- First attempt: normal two-step strategy ---
-        val firstAttempt = attemptCredentialRetrieval(context, filterSteps, autoSelect)
-        if (firstAttempt != null) return firstAttempt
+        Log.d("AUTH", "GoogleAuthHelper: Stage 2 — full account picker via GetSignInWithGoogleOption")
+        clearCredentialStateSafely()
 
-        // --- Retry: clear stale credential state, then retry all steps ---
-        // Credential Manager can get into a stale state after clearCredentialState()
-        // (e.g. on sign-out), causing NoCredentialException even when Google
-        // accounts exist on the device. Clearing and retrying resets this.
-        Log.d("AUTH", "GoogleAuthHelper: First attempt failed, clearing credential state and retrying")
-        try {
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-        } catch (_: Exception) { /* best-effort cleanup */ }
+        val stage2 = tryStage(context, buildFullPickerRequest())
+        if (stage2 != null) return stage2
 
-        // Small delay to let Play Services re-sync account state
-        kotlinx.coroutines.delay(300)
-
-        val retryResult = attemptCredentialRetrieval(context, filterSteps, autoSelect)
-        if (retryResult != null) return retryResult
-
-        // Both attempts exhausted — no credentials available
-        Log.e("AUTH", "GoogleAuthHelper: No Google accounts found on device after retry")
+        // Both stages exhausted
+        Log.e("AUTH", "GoogleAuthHelper: No Google accounts found after both stages")
         return Result.failure(NoCredentialException())
     }
 
     /**
-     * Runs through the given [filterSteps] once, returning a Result on success/cancel/error,
-     * or null if all steps threw [NoCredentialException] (caller should retry or fail).
+     * Attempts a single credential retrieval with the given [request].
+     * Returns `Result<String?>` on success/cancel/error, or `null` on
+     * [NoCredentialException] so the caller can try the next stage.
      */
-    private suspend fun attemptCredentialRetrieval(
+    private suspend fun tryStage(
         context: Context,
-        filterSteps: List<Boolean>,
-        autoSelect: Boolean
+        request: GetCredentialRequest
     ): Result<String?>? {
-        for ((index, filterFlag) in filterSteps.withIndex()) {
-            try {
-                val idToken = tryGetCredential(
-                    context = context,
-                    filterByAuthorizedAccounts = filterFlag,
-                    autoSelectEnabled = autoSelect && filterFlag
-                )
-                return Result.success(idToken)
-            } catch (e: GetCredentialCancellationException) {
-                Log.d("AUTH", "GoogleAuth: User cancelled the Google Sign-In request")
-                return Result.success(null)
-            } catch (e: NoCredentialException) {
-                if (index < filterSteps.lastIndex) {
-                    Log.d("AUTH", "GoogleAuth: No authorized accounts, retrying with all accounts")
-                    continue
-                }
-                // All steps in this attempt threw NoCredentialException — let caller retry
-                Log.d("AUTH", "GoogleAuth: NoCredentialException on this attempt")
-                return null
-            } catch (e: Exception) {
-                Log.e("AUTH", "GoogleAuth: Google Sign-In failed: ${e.javaClass.simpleName}")
-                return Result.failure(e)
-            }
+        return try {
+            val result = credentialManager.getCredential(context = context, request = request)
+            Log.d("AUTH", "GoogleAuthHelper: Credential received successfully")
+            val credential = GoogleIdTokenCredential.createFrom(result.credential.data)
+            Result.success(credential.idToken)
+        } catch (e: GetCredentialCancellationException) {
+            Log.d("AUTH", "GoogleAuthHelper: User cancelled the sign-in request")
+            Result.success(null)
+        } catch (e: NoCredentialException) {
+            Log.d("AUTH", "GoogleAuthHelper: NoCredentialException — need next stage")
+            null
+        } catch (e: GoogleIdTokenParsingException) {
+            Log.e("AUTH", "GoogleAuthHelper: GoogleIdTokenParsingException — malformed token")
+            Result.failure(e)
+        } catch (e: UnknownHostException) {
+            Log.e("AUTH", "GoogleAuthHelper: Network error — cannot reach Google servers")
+            Result.failure(e)
+        } catch (e: Exception) {
+            Log.e("AUTH", "GoogleAuthHelper: Unexpected error: ${e.javaClass.simpleName}")
+            Result.failure(e)
         }
-        return null
+    }
+
+    private suspend fun clearCredentialStateSafely() {
+        try {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        } catch (_: Exception) { /* best-effort cleanup */ }
     }
 
     suspend fun signOut() {
-        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        clearCredentialStateSafely()
     }
 }

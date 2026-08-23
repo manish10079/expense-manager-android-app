@@ -23,13 +23,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
+enum class AuthLoadingType {
+    GOOGLE,
+    EMAIL,
+    MAGIC_LINK,
+    GUEST,
+    GENERIC
+}
+
 sealed class AuthState {
     object Idle : AuthState()
-    object Loading : AuthState()
+    data class Loading(val type: AuthLoadingType = AuthLoadingType.GENERIC) : AuthState()
     data class Success(val isNewUser: Boolean = false) : AuthState()
     object ResetEmailSent : AuthState()
     object MagicLinkSent : AuthState()
@@ -190,14 +200,13 @@ class AuthViewModel @Inject constructor(
                     else -> 5000L
                 }
                 kotlinx.coroutines.delay(delayTime)
-                
-                // We use autoSelect=true and silent=true for the retry attempts
-                // so we don't flash the "No Accounts" error state if it's still syncing.
-                googleAuthHelper.getGoogleIdToken(context = context, autoSelect = true, filterByAuthorized = false)
+
+                // Stage 1 only (silent=true) — don't flash UI while syncing
+                googleAuthHelper.getGoogleIdToken(context = context, silent = true)
                     .onSuccess { idToken ->
                         if (idToken != null) {
                             authRepository.signInWithGoogle(idToken)
-                                .onSuccess { isNewUser -> 
+                                .onSuccess { isNewUser ->
                                     _authState.value = AuthState.Success(isNewUser)
                                     return@launch // Success! Exit the loop.
                                 }
@@ -213,8 +222,8 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signInWithGoogle(context: Context? = null, autoSelect: Boolean = false, silent: Boolean = false) {
-        android.util.Log.d("AUTH", "Starting Google sign in, silent = $silent, autoSelect = $autoSelect")
+    fun signInWithGoogle(context: Context? = null, silent: Boolean = false) {
+        android.util.Log.d("AUTH", "Starting Google sign-in (silent=$silent)")
         if (!networkMonitor.isConnected()) {
             if (!silent) {
                 _authState.value = AuthState.Error(R.string.error_no_internet)
@@ -226,41 +235,40 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (!silent) {
-                _authState.value = AuthState.Loading
+                _authState.value = AuthState.Loading(AuthLoadingType.GOOGLE)
             }
-            
-            googleAuthHelper.getGoogleIdToken(context = targetContext, autoSelect = autoSelect, filterByAuthorized = silent)
+
+            // Two-stage flow: Stage 1 (silent) → Stage 2 (full picker) if not silent
+            googleAuthHelper.getGoogleIdToken(context = targetContext, silent = silent)
                 .onSuccess { idToken ->
                     android.util.Log.d("AUTH", "Credential received, ID Token exists: ${idToken != null}")
                     if (idToken != null) {
                         authRepository.signInWithGoogle(idToken)
-                            .onSuccess { isNewUser -> 
-                                android.util.Log.d("AUTH", "Firebase sign in success, isNewUser = $isNewUser")
-                                _authState.value = AuthState.Success(isNewUser) 
+                            .onSuccess { isNewUser ->
+                                android.util.Log.d("AUTH", "Firebase sign-in success, isNewUser=$isNewUser")
+                                _authState.value = AuthState.Success(isNewUser)
                             }
                             .onFailure { error ->
-                                // Log only the class name — the raw message may embed the user's email
-                                android.util.Log.e("AUTH", "Firebase sign in failed: ${error.javaClass.simpleName}")
+                                android.util.Log.e("AUTH", "Firebase sign-in failed: ${error.javaClass.simpleName}")
                                 if (!silent) {
                                     _authState.value = AuthState.Error(mapFirebaseError(error))
                                 }
                             }
                     } else {
-                        android.util.Log.d("AUTH", "Sign in cancelled or idToken is null")
+                        android.util.Log.d("AUTH", "Sign-in cancelled (idToken is null)")
                         if (!silent) {
                             _authState.value = AuthState.Idle
                         }
                     }
                 }
                 .onFailure { error ->
-                    // Log only the class name — the raw message may embed the user's email
-                    android.util.Log.e("AUTH", "Google Auth Helper failed: ${error.javaClass.simpleName}")
+                    android.util.Log.e("AUTH", "Google Auth failed: ${error.javaClass.simpleName}")
                     if (!silent) {
-                        if (error is NoCredentialException) {
-                            android.util.Log.d("AUTH", "No Google accounts found on device")
-                            _authState.value = AuthState.NoGoogleAccounts
-                        } else {
-                            _authState.value = AuthState.Error(mapGoogleAuthError(error))
+                        _authState.value = when (error) {
+                            is NoCredentialException -> AuthState.NoGoogleAccounts
+                            is GoogleIdTokenParsingException -> AuthState.Error(R.string.error_auth_token_parse)
+                            is UnknownHostException -> AuthState.Error(R.string.error_no_internet)
+                            else -> AuthState.Error(mapGoogleAuthError(error))
                         }
                     }
                 }
@@ -274,8 +282,7 @@ class AuthViewModel @Inject constructor(
         if (authRepository.isUserLoggedIn()) {
             return
         }
-        // Redirect to the main signInWithGoogle logic with silent flag set to true
-        signInWithGoogle(context = context, autoSelect = true, silent = true)
+        signInWithGoogle(context = context, silent = true)
     }
 
     fun signInWithEmail(email: String, password: String) {
@@ -285,7 +292,7 @@ class AuthViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.EMAIL)
             authRepository.signInWithEmail(email, password)
                 .onSuccess { isNewUser -> 
                     val user = authRepository.currentUser.value
@@ -327,7 +334,7 @@ class AuthViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.EMAIL)
             authRepository.signUpWithEmail(email, password)
                 .onSuccess {
                     val uid = authRepository.currentUser.value?.uid
@@ -367,7 +374,7 @@ class AuthViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.EMAIL)
             authRepository.sendPasswordResetEmail(email)
                 .onSuccess { _authState.value = AuthState.ResetEmailSent }
                 .onFailure { error ->
@@ -385,7 +392,7 @@ class AuthViewModel @Inject constructor(
         if (_cooldownSeconds.value > 0) return
 
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.MAGIC_LINK)
             
             // 1. Store email locally for verification when user clicks the link
             AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = email) }
@@ -415,7 +422,7 @@ class AuthViewModel @Inject constructor(
 
     fun completeMagicLinkSignIn(emailLink: String) {
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.MAGIC_LINK)
             
             // 1. Retrieve the email we stored earlier
             val pendingEmail = AppSettingsDataStore.getAppSettingsFlow(context).first().pendingAuthEmail
@@ -442,7 +449,7 @@ class AuthViewModel @Inject constructor(
         android.util.Log.d("AuthVM", "Starting guest sign-in session: $sessionId")
 
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _authState.value = AuthState.Loading(AuthLoadingType.GUEST)
             authRepository.signInAnonymously()
                 .onSuccess { isNewUser ->
                     if (guestSignInSessionId == sessionId) {
@@ -490,15 +497,18 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun mapGoogleAuthError(error: Throwable): Int {
-        val message = error.message ?: ""
-        return when {
-            message.contains("DEVELOPER_ERROR") || 
-            message.contains("10:") || 
-            message.contains("12500") -> {
-                R.string.error_auth_cloned_or_unauthorized
+    private fun mapGoogleAuthError(error: Throwable): Int = when {
+        error is GoogleIdTokenParsingException -> R.string.error_auth_token_parse
+        error is UnknownHostException -> R.string.error_no_internet
+        error is NoCredentialException -> R.string.error_auth_no_google_accounts
+        else -> {
+            val message = error.message ?: ""
+            when {
+                message.contains("DEVELOPER_ERROR") ||
+                message.contains("10:") ||
+                message.contains("12500") -> R.string.error_auth_cloned_or_unauthorized
+                else -> R.string.error_auth_generic_fail
             }
-            else -> R.string.error_auth_generic_fail
         }
     }
 

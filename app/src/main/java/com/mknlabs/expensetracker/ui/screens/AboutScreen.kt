@@ -275,7 +275,7 @@ private fun AboutScreenContent(
                 SocialButton(
                     icon = Icons.Filled.Work,
                     label = stringResource(R.string.label_linkedin),
-                    onClick = { onOpenUrl("https://linkedin.com/in/manishkumar10079") }
+                    onClick = { onOpenUrl("https://www.linkedin.com/in/manish-nayak-172348210") }
                 )
             }
 

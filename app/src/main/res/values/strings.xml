@@ -244,6 +244,8 @@
     <string name="label_data_management_subtitle">Backup and manage data</string>
     <string name="label_notifications_subtitle">Control alerts and reminders</string>
     <string name="label_about_subtitle">App info and details</string>
+    <string name="title_connect_on_linkedin">Connect on LinkedIn</string>
+    <string name="label_connect_on_linkedin_subtitle">Follow Manish on LinkedIn</string>
     <string name="label_val_min">%1$d min</string>
 
     <string name="label_add_note_optional">Add a note… (optional)</string>
@@ -1428,6 +1430,8 @@
     <string name="error_auth_too_many_requests">Too many attempts. Please try again later.</string>
     <string name="error_auth_weak_password">Password is too weak. Please use a stronger one.</string>
     <string name="error_auth_generic_fail">Authentication failed. Please check your details.</string>
+    <string name="error_auth_token_parse">Google sign-in token is invalid. Please try again.</string>
+    <string name="error_auth_no_google_accounts">No Google accounts found on this device. Please add a Google account in your device settings.</string>
     <string name="msg_auth_reset_email_sent">Password reset link sent! Please check your inbox.</string>
     <string name="label_send_magic_link">Sign in with Email Link</string>
     <string name="msg_auth_magic_link_sent">Magic link sent! Please check your inbox (and spam folder) to sign in.</string>

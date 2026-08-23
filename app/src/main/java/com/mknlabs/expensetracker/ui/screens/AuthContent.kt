@@ -26,6 +26,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.ui.components.input.InputType
 import com.mknlabs.expensetracker.ui.viewmodels.AuthState
+import com.mknlabs.expensetracker.ui.viewmodels.AuthLoadingType
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.ColorFilter
 import com.mknlabs.expensetracker.ui.theme.SurfaceHighlight
@@ -261,7 +262,7 @@ private fun AuthContentBody(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    if (authState is AuthState.Loading && !isSignUp && email.isEmpty()) {
+                    if (authState is AuthState.Loading && authState.type == AuthLoadingType.GOOGLE) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                     } else {
                         Text(
@@ -409,7 +410,7 @@ private fun AuthContentBody(
                 shape = RoundedCornerShape(16.dp),
                 enabled = canSubmit && authState !is AuthState.Loading
             ) {
-                if (authState is AuthState.Loading) {
+                if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -447,7 +448,7 @@ private fun AuthContentBody(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        if (authState is AuthState.Loading && !isSignUp && email.isEmpty()) {
+                        if (authState is AuthState.Loading && authState.type == AuthLoadingType.MAGIC_LINK) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onSecondary)
                         } else {
                             Icon(
@@ -482,13 +483,17 @@ private fun AuthContentBody(
                 onClick = onGuestContinue,
                 enabled = authState !is AuthState.Loading
             ) {
-                Text(
-                    text = stringResource(id = R.string.label_continue_as_guest),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (authState is AuthState.Loading && authState.type == AuthLoadingType.GUEST) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = stringResource(id = R.string.label_continue_as_guest),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
