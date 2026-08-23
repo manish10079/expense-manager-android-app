@@ -85,26 +85,17 @@ class GoogleAuthHelper @Inject constructor(
         context: Context,
         silent: Boolean = false
     ): Result<String?> {
-        // ── Stage 1: Try silent sign-in with authorized accounts ──────
-        Log.d("AUTH", "GoogleAuthHelper: Stage 1 — silent sign-in (filterByAuthorized=true)")
-        val stage1 = tryStage(context, buildSilentRequest())
-        if (stage1 != null) return stage1
-
-        // ── Stage 2: Full account picker (only for explicit sign-in) ──
         if (silent) {
-            Log.d("AUTH", "GoogleAuthHelper: Silent mode — skipping Stage 2")
-            return Result.failure(NoCredentialException())
+            // ── Silent mode: Stage 1 only (auto-select authorized account, no UI) ──
+            Log.d("AUTH", "GoogleAuthHelper: Silent mode — Stage 1 auto sign-in")
+            val stage1 = tryStage(context, buildSilentRequest())
+            return stage1 ?: Result.failure(NoCredentialException())
         }
 
-        Log.d("AUTH", "GoogleAuthHelper: Stage 2 — full account picker via GetSignInWithGoogleOption")
-        clearCredentialStateSafely()
-
+        // ── Explicit sign-in: Launch Stage 2 (full account picker) directly ──
+        Log.d("AUTH", "GoogleAuthHelper: Explicit sign-in — launching full account picker directly")
         val stage2 = tryStage(context, buildFullPickerRequest())
-        if (stage2 != null) return stage2
-
-        // Both stages exhausted
-        Log.e("AUTH", "GoogleAuthHelper: No Google accounts found after both stages")
-        return Result.failure(NoCredentialException())
+        return stage2 ?: Result.failure(NoCredentialException())
     }
 
     /**
