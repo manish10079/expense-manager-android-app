@@ -5,14 +5,13 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Log stripping intentionally DISABLED so Google Sign-In failures are visible
-# in release logcat (filter by tag "AUTH" or "AuthRepo"). Re-enable once auth
-# is stable in production.
-#-assumenosideeffects class android.util.Log {
-#    public static *** d(...);
-#    public static *** v(...);
-#    public static *** i(...);
-#}
+# Strip verbose/debug/info logs from release builds to reduce APK size
+# and remove sensitive debug output.
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+}
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
