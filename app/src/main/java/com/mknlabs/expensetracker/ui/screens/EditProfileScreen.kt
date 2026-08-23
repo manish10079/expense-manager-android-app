@@ -245,15 +245,64 @@ private fun ProfileScreenContent(
             Spacer(modifier = Modifier.height(18.dp))
 
             if (userProfile.emailAddress.isNotBlank()) {
-                InputFieldCard(
-                    title = stringResource(id = R.string.label_email_address_caps),
-                    value = userProfile.emailAddress,
-                    onValueChange = {},
-                    inputType = InputType.Text,
-                    leadingIcon = Icons.Rounded.Email,
-                    placeholder = "",
-                    isEnabled = false
-                )
+                val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
+                val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
+                var showVerificationSheet by remember { mutableStateOf(false) }
+
+                androidx.compose.material3.Surface(
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    ),
+                    shadowElevation = 8.dp
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        InputFieldCard(
+                            title = stringResource(id = R.string.label_email_address_caps),
+                            value = userProfile.emailAddress,
+                            onValueChange = {},
+                            inputType = InputType.Text,
+                            leadingIcon = Icons.Rounded.Email,
+                            placeholder = "",
+                            isEnabled = false
+                        )
+
+                        if (!isEmailVerified) {
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            )
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    firebaseUser?.sendEmailVerification()
+                                    showVerificationSheet = true
+                                    Toast.makeText(context, context.getString(R.string.toast_verification_email_sent), Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Email,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(id = R.string.btn_verify_email),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (showVerificationSheet) {
+                    com.mknlabs.expensetracker.ui.screens.VerificationBottomSheet(
+                        email = userProfile.emailAddress,
+                        onDismiss = { showVerificationSheet = false }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(18.dp))
             }

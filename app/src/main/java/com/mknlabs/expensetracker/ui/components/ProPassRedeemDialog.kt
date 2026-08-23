@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ConfirmationNumber
+import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,10 +39,60 @@ import com.mknlabs.expensetracker.ui.viewmodels.RedemptionState
 @Composable
 fun ProPassRedeemDialog(
     viewModel: MonetizationViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onVerifyEmail: () -> Unit = {}
 ) {
     var code by remember { mutableStateOf("") }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
+    val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+    val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
+    val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
+
+    // If email is not verified, show verification prompt instead of redemption form
+    if (!isEmailVerified) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.Email,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.dialog_verify_email_title),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(id = R.string.dialog_verify_email_pro_pass),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    firebaseUser?.sendEmailVerification()
+                    onVerifyEmail()
+                    onDismiss()
+                }) {
+                    Text(text = stringResource(id = R.string.label_verify_now))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(id = R.string.label_later))
+                }
+            }
+        )
+        return
+    }
 
     AlertDialog(
         onDismissRequest = { 

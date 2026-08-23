@@ -627,14 +627,6 @@ fun MainScreen(
                             kotlinx.coroutines.delay(400)
                         }
                         
-                        val isGoogleAccount = user.providerData.any { it.providerId == "google.com" }
-                        if (!user.isAnonymous && !user.isEmailVerified && !isGoogleAccount) {
-                            // Automatically show verification sheet if user is logged in via email but unverified
-                            authViewModel.loadVerificationExpiry()
-                            showAuthSheet = true
-                            return@let
-                        }
-                        
                         val remotePhotoUri = user.photoUrl
                         val currentProfile = kotlinx.coroutines.withContext(Dispatchers.IO) {
                             UserProfileDataStore.getUserProfileFlow(context).first()
@@ -1282,11 +1274,6 @@ fun MainScreen(
             ModalBottomSheet(
                 onDismissRequest = { 
                     showAuthSheet = false
-                    val user = firebaseUser
-                    val isGoogle = user?.providerData?.any { it.providerId == "google.com" } == true
-                    if (user != null && !user.isAnonymous && !user.isEmailVerified && !isGoogle) {
-                        authViewModel.signOutFirebaseOnly()
-                    }
                     authViewModel.resetState()
                 },
                 sheetState = authSheetState,

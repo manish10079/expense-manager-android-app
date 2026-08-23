@@ -297,29 +297,28 @@ class AuthViewModel @Inject constructor(
                 .onSuccess { isNewUser -> 
                     val user = authRepository.currentUser.value
                     if (user != null && !user.isEmailVerified) {
-                        val uid = user.uid
-                        try {
-                            val snapshot = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
-                            var expiry = snapshot.getLong("verificationExpiry")
-                            val now = System.currentTimeMillis()
-                            
-                            if (expiry == null || now > (expiry ?: 0L)) {
-                                authRepository.sendEmailVerification()
-                                expiry = now + 72L * 60 * 60 * 1000
-                                updateVerificationExpiryInFirestore(uid, expiry)
-                            } else {
-                                _verificationExpiry.value = expiry
+                        // Send verification email silently in background — don't block onboarding
+                        viewModelScope.launch {
+                            try {
+                                val uid = user.uid
+                                val snapshot = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                                var expiry = snapshot.getLong("verificationExpiry")
+                                val now = System.currentTimeMillis()
+                                
+                                if (expiry == null || now > (expiry ?: 0L)) {
+                                    authRepository.sendEmailVerification()
+                                    expiry = now + 72L * 60 * 60 * 1000
+                                    updateVerificationExpiryInFirestore(uid, expiry)
+                                } else {
+                                    _verificationExpiry.value = expiry
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("AuthVM", "Error sending verification email silently", e)
                             }
-                        } catch (e: Exception) {
-                            android.util.Log.e("AuthVM", "Error checking verification status during sign in", e)
-                            authRepository.sendEmailVerification()
-                            val expiry = System.currentTimeMillis() + 72L * 60 * 60 * 1000
-                            updateVerificationExpiryInFirestore(uid, expiry)
                         }
-                        _authState.value = AuthState.EmailVerificationRequired()
-                    } else {
-                        _authState.value = AuthState.Success(isNewUser)
                     }
+                    // Always allow the user in — verification is gated at feature level
+                    _authState.value = AuthState.Success(isNewUser)
                 }
                 .onFailure { error ->
                     _authState.value = AuthState.Error(mapFirebaseError(error))
@@ -337,12 +336,20 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading(AuthLoadingType.EMAIL)
             authRepository.signUpWithEmail(email, password)
                 .onSuccess {
+                    // Send verification email silently — don't block onboarding
                     val uid = authRepository.currentUser.value?.uid
                     if (uid != null) {
-                        val expiryTime = System.currentTimeMillis() + 72 * 60 * 60 * 1000
-                        updateVerificationExpiryInFirestore(uid, expiryTime)
+                        viewModelScope.launch {
+                            try {
+                                val expiryTime = System.currentTimeMillis() + 72 * 60 * 60 * 1000
+                                updateVerificationExpiryInFirestore(uid, expiryTime)
+                            } catch (e: Exception) {
+                                android.util.Log.e("AuthVM", "Error setting verification expiry", e)
+                            }
+                        }
                     }
-                    _authState.value = AuthState.EmailVerificationRequired()
+                    // Always allow the user in — verification is gated at feature level
+                    _authState.value = AuthState.Success(isNewUser = true)
                 }
                 .onFailure { error ->
                     val isCollision = error is com.google.firebase.auth.FirebaseAuthUserCollisionException || 

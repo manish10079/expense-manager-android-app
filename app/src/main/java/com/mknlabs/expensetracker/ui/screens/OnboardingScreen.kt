@@ -69,6 +69,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -134,7 +136,6 @@ fun OnboardingScreen(
     OnboardingScreenContent(
         currentUser = currentUser,
         returningUserProfile = returningUserProfile,
-        isEmailVerificationPending = authState is AuthState.EmailVerificationRequired,
         onFinish = onFinish,
         onSignUpSuccess = onSignUpSuccess,
         onCancelGuestSignIn = { authViewModel.cancelGuestSignIn() },
@@ -157,7 +158,6 @@ fun OnboardingScreen(
 private fun OnboardingScreenContent(
     currentUser: com.google.firebase.auth.FirebaseUser?,
     returningUserProfile: ReturningUserProfile? = null,
-    isEmailVerificationPending: Boolean = false,
     onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit,
     onSignUpSuccess: (() -> Unit)?,
     onCancelGuestSignIn: () -> Unit,
@@ -237,6 +237,8 @@ private fun OnboardingScreenContent(
     var userFinancialGoal by remember { mutableStateOf("") }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val nameFocusRequester = remember { FocusRequester() }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
     // Auto-fill name if user logged in via social provider
     LaunchedEffect(currentUser) {
@@ -252,12 +254,8 @@ private fun OnboardingScreenContent(
     // too so the routing also applies when the user is already signed in and walks
     // back to the auth page (page 4) — not only right after the sign-in tap.
     //
-    // Paused while the email-verification screen is shown: an unverified
-    // email/password user must verify before onboarding advances (the same
-    // guard SyncRepository applies to every sync operation).
-    LaunchedEffect(currentUser, currentPage, isEmailVerificationPending) {
+    LaunchedEffect(currentUser, currentPage) {
         if (currentPage != 4) return@LaunchedEffect
-        if (isEmailVerificationPending) return@LaunchedEffect
         val user = currentUser ?: return@LaunchedEffect
         if (user.isAnonymous) {
             // Anonymous / guest user — go straight to the goal page
@@ -269,9 +267,8 @@ private fun OnboardingScreenContent(
     }
 
     // Once we have the returning profile, decide where to land
-    LaunchedEffect(returningUserProfile, currentPage, isEmailVerificationPending) {
+    LaunchedEffect(returningUserProfile, currentPage) {
         if (currentPage != 4) return@LaunchedEffect // only act right after auth page
-        if (isEmailVerificationPending) return@LaunchedEffect
         val profile = returningUserProfile ?: return@LaunchedEffect
         when (resolveReturningUserStep(profile)) {
             ReturningUserStep.WELCOME_BACK -> {
@@ -607,6 +604,10 @@ private fun OnboardingScreenContent(
                                 }
                             }
                         } else if (isSetupOnThisPageIndex) {
+                            // Auto-focus the name field when the setup page first appears
+                            LaunchedEffect(Unit) {
+                                nameFocusRequester.requestFocus()
+                            }
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -619,7 +620,8 @@ private fun OnboardingScreenContent(
                                     onValueChange = { userName = it },
                                     inputType = InputType.Text,
                                     leadingIcon = Icons.Rounded.Person,
-                                    placeholder = stringResource(id = R.string.placeholder_enter_name)
+                                    placeholder = stringResource(id = R.string.placeholder_enter_name),
+                                    modifier = Modifier.focusRequester(nameFocusRequester)
                                 )
 
                                 InputFieldCard(
@@ -743,10 +745,16 @@ private fun OnboardingScreenContent(
             items = genderItems,
             selectedId = userGender,
             sheetState = genderPickerSheetState,
-            onDismiss = { isGenderPickerVisible = false },
+            onDismiss = {
+                isGenderPickerVisible = false
+                // Clear focus so the keyboard doesn't reappear after the sheet closes
+                focusManager.clearFocus()
+            },
             onItemSelected = { selectedGender ->
                 userGender = selectedGender
                 isGenderPickerVisible = false
+                // Clear focus so the keyboard doesn't reappear after selection
+                focusManager.clearFocus()
             }
         )
     }

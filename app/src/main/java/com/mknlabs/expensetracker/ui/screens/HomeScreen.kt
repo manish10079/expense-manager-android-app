@@ -647,7 +647,8 @@ private fun HomeStatsSection(
                     }
                 }
             },
-            onActionClick = onProfileClick
+            onActionClick = onProfileClick,
+            onVerifyEmail = onProfileClick
         )
     }
 
@@ -923,23 +924,31 @@ fun AccountSetupCard(
     userProfile: UserProfile,
     appSettings: com.mknlabs.expensetracker.models.AppSettings,
     onDismiss: () -> Unit,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit,
+    onVerifyEmail: () -> Unit = {}
 ) {
     var showChecklist by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     val guestUserLabel = stringResource(id = R.string.placeholder_guest_user)
-    val checklist = remember(userProfile, guestUserLabel) {
+    val isEmailVerified = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isEmailVerified == true
+    val isGoogleAccount = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.providerData?.any { it.providerId == "google.com" } == true
+    // Google accounts are implicitly verified
+    val emailVerified = isEmailVerified || isGoogleAccount
+
+    val checklist = remember(userProfile, guestUserLabel, emailVerified) {
         listOf(
             Triple(R.string.label_checklist_full_name, userProfile.fullName.isNotEmpty() && userProfile.fullName != guestUserLabel, null),
             Triple(R.string.label_checklist_email, userProfile.emailAddress.isNotEmpty(), R.string.label_checklist_signin_to_add),
             Triple(R.string.label_checklist_dob, userProfile.dateOfBirthMillis != null && userProfile.dateOfBirthMillis != 0L, null),
             Triple(R.string.label_checklist_gender, userProfile.gender.isNotEmpty(), null),
-            Triple(R.string.label_checklist_phone, userProfile.hasPhoneNumber, null)
+            Triple(R.string.label_checklist_phone, userProfile.hasPhoneNumber, null),
+            Triple(R.string.label_checklist_email_verified, emailVerified, R.string.label_checklist_verify_email)
         )
     }
 
     val score = remember(checklist) {
-        checklist.count { it.second } * 20
+        checklist.count { it.second } * 100 / checklist.size
     }
 
     val isComplete = score >= 100
@@ -1048,10 +1057,29 @@ fun AccountSetupCard(
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    checklist.forEach { (labelRes, isDone, subtitleRes) ->
+                    checklist.forEachIndexed { index, (labelRes, isDone, subtitleRes) ->
+                        val isEmailVerifyItem = labelRes == R.string.label_checklist_email_verified
+                        val isClickable = !isDone && isEmailVerifyItem
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (isClickable) {
+                                        Modifier.clickable {
+                                            showChecklist = false
+                                            // Send verification email
+                                            com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                context.getString(R.string.toast_verification_email_sent),
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                            onVerifyEmail()
+                                        }
+                                    } else Modifier
+                                )
                         ) {
                             Icon(
                                 imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,

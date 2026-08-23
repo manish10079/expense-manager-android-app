@@ -1501,6 +1501,8 @@
     <string name="label_checklist_dob">Date of Birth</string>
     <string name="label_checklist_email">Email Address</string>
     <string name="label_checklist_signin_to_add">Sign in to add email</string>
+    <string name="label_checklist_email_verified">Email Verified</string>
+    <string name="label_checklist_verify_email">Tap profile to verify</string>
     <string name="btn_got_it">Got it</string>
 
     <!-- Goals Feature -->
@@ -1589,6 +1591,19 @@
     <string name="error_email_not_verified_expired_sent">Your verification link had expired, so a new one has been sent to your email. Please check your inbox and spam folder.</string>
     <string name="label_verification_link_expired">Your verification link has expired. Please click Resend below to request a new one.</string>
     <string name="label_verification_link_expires_in">Link expires in: %1$s</string>
+    <string name="btn_verify_email">Verify Email</string>
+    <string name="dialog_verify_email_title">Email Not Verified</string>
+    <string name="dialog_verify_email_pro_pass">Verify your email to activate Pro Pass. We\'ll send you a verification link.</string>
+    <string name="dialog_verify_email_auto_backup">Verify your email to enable auto backup. This ensures your data can be restored on other devices.</string>
+    <string name="dialog_verify_email_sync">Verify your email to enable cross-device sync.</string>
+    <string name="label_verify_now">Verify Now</string>
+    <string name="label_later">Later</string>
+    <string name="toast_verification_email_sent">Verification email sent — check your inbox</string>
+    <string name="msg_email_not_verified_yet">Email not verified yet. Please check your inbox.</string>
+    <string name="msg_failed_to_check_status">Failed to check status. Please try again.</string>
+    <string name="msg_verification_email_resent">Verification email resent. Please check your inbox.</string>
+    <string name="msg_failed_to_resend">Failed to resend. Please try again.</string>
+    <string name="msg_email_verified_success">Email verified successfully!</string>
 
     <!-- Force Cloud Sync -->
     <string name="title_force_sync">Trouble Syncing?</string>

@@ -61,10 +61,24 @@ fun DataManagementScreen(
     onBackClick: () -> Unit,
     isAdsEnabled: Boolean = false
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
     val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
     val isAnonymous = currentUser?.isAnonymous ?: true
+    val isGoogleAccount = currentUser?.providerData?.any { it.providerId == "google.com" } == true
+    val isEmailVerified = currentUser?.isEmailVerified == true || isGoogleAccount
+
+    // Gate auto backup behind email verification
+    val wrappedAutoBackupChange = { enabled: Boolean ->
+        if (enabled && !isEmailVerified) {
+            // Show verification dialog
+            currentUser?.sendEmailVerification()
+            android.widget.Toast.makeText(context, context.getString(R.string.toast_verification_email_sent), android.widget.Toast.LENGTH_SHORT).show()
+        } else {
+            onAutoBackupEnabledChange(enabled)
+        }
+    }
 
     DataManagementContent(
         transactionCount = transactionCount,
@@ -72,7 +86,7 @@ fun DataManagementScreen(
         autoBackupFrequencyDays = autoBackupFrequencyDays,
         isAdsEnabled = isAdsEnabled,
         isAnonymous = isAnonymous,
-        onAutoBackupEnabledChange = onAutoBackupEnabledChange,
+        onAutoBackupEnabledChange = wrappedAutoBackupChange,
         onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
         onDatabaseBackupFileSelected = onDatabaseBackupFileSelected,
         onDatabaseRestoreFileSelected = onDatabaseRestoreFileSelected,
