@@ -43,6 +43,7 @@ keystore.properties
 *.ap_
 *.hprof
 *.mapping
+app/release/
 local.properties
 
 # ===================== Secrets & API config =====================
