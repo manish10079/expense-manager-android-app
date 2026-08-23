@@ -229,4 +229,15 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun verifyBeforeUpdateEmail(newEmail: String): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser ?: throw IllegalStateException("No user logged in")
+            user.verifyBeforeUpdateEmail(newEmail).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Verify before update email failed: ${authErrorSummary(e)}")
+            Result.failure(e)
+        }
+    }
 }

@@ -45,6 +45,7 @@ import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
 import androidx.compose.material.icons.rounded.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
@@ -249,6 +250,18 @@ private fun ProfileScreenContent(
                 val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
                 val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
                 var showVerificationSheet by remember { mutableStateOf(false) }
+                var showUpdateEmailSheet by remember { mutableStateOf(false) }
+                var emailVerifiedState by remember { mutableStateOf(isEmailVerified) }
+
+                // Refresh verification state when returning from bottom sheet
+                LaunchedEffect(showVerificationSheet) {
+                    if (!showVerificationSheet && firebaseUser != null) {
+                        try {
+                            firebaseUser.reload().await()
+                            emailVerifiedState = firebaseUser.isEmailVerified || isGoogleAccount
+                        } catch (_: Exception) { }
+                    }
+                }
 
                 androidx.compose.material3.Surface(
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
@@ -270,10 +283,12 @@ private fun ProfileScreenContent(
                             isEnabled = false
                         )
 
-                        if (!isEmailVerified) {
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-                            )
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                        )
+
+                        if (!emailVerifiedState) {
+                            // Email not verified → Verify Email button
                             androidx.compose.material3.TextButton(
                                 onClick = {
                                     firebaseUser?.sendEmailVerification()
@@ -293,6 +308,23 @@ private fun ProfileScreenContent(
                                     style = MaterialTheme.typography.labelLarge
                                 )
                             }
+                        } else {
+                            // Email verified → Update Email button
+                            androidx.compose.material3.TextButton(
+                                onClick = { showUpdateEmailSheet = true },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(id = R.string.btn_update_email),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
                         }
                     }
                 }
@@ -301,6 +333,18 @@ private fun ProfileScreenContent(
                     com.mknlabs.expensetracker.ui.screens.VerificationBottomSheet(
                         email = userProfile.emailAddress,
                         onDismiss = { showVerificationSheet = false }
+                    )
+                }
+
+                if (showUpdateEmailSheet) {
+                    com.mknlabs.expensetracker.ui.screens.UpdateEmailBottomSheet(
+                        currentEmail = userProfile.emailAddress,
+                        onDismiss = { showUpdateEmailSheet = false },
+                        onEmailUpdateInitiated = {
+                            // Show verification sheet for the new email
+                            showVerificationSheet = true
+                            Toast.makeText(context, context.getString(R.string.toast_email_update_verification_sent), Toast.LENGTH_SHORT).show()
+                        }
                     )
                 }
 

@@ -1604,6 +1604,20 @@
     <string name="msg_verification_email_resent">Verification email resent. Please check your inbox.</string>
     <string name="msg_failed_to_resend">Failed to resend. Please try again.</string>
     <string name="msg_email_verified_success">Email verified successfully!</string>
+    <string name="btn_update_email">Update Email</string>
+    <string name="title_update_email">Update Email Address</string>
+    <string name="desc_update_email">Enter your new email address. A verification link will be sent — your email will only change after you verify it.</string>
+    <string name="label_current_email">Current Email</string>
+    <string name="label_new_email">New Email</string>
+    <string name="placeholder_enter_new_email">Enter new email address</string>
+    <string name="label_send_verification">Send Verification Link</string>
+    <string name="label_verify_and_update">Verify &amp; Update</string>
+    <string name="msg_reauth_required">For security, please enter your current password to change your email.</string>
+    <string name="toast_email_update_verification_sent">Verification link sent to new email — check your inbox</string>
+    <string name="msg_email_already_in_use">This email is already associated with another account.</string>
+    <string name="msg_failed_to_update_email">Failed to update email. Please try again.</string>
+    <string name="msg_incorrect_password">Incorrect password. Please try again.</string>
+    <string name="msg_auth_failed">Authentication failed. Please try again.</string>
 
     <!-- Force Cloud Sync -->
     <string name="title_force_sync">Trouble Syncing?</string>

@@ -87,4 +87,11 @@ interface AuthRepository {
      * Requires re-authentication with the current password.
      */
     suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit>
+
+    /**
+     * Initiates email change by sending a verification link to the new email.
+     * The email is only updated after the user clicks the verification link.
+     * Uses Firebase's verifyBeforeUpdateEmail for safety.
+     */
+    suspend fun verifyBeforeUpdateEmail(newEmail: String): Result<Unit>
 }
