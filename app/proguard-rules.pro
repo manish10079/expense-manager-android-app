@@ -5,13 +5,14 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Strip verbose debug logging in production builds, but KEEP warnings and errors so
-# runtime failures (e.g. AdMob load errors) remain diagnosable from release logcat.
--assumenosideeffects class android.util.Log {
-    public static *** d(...);
-    public static *** v(...);
-    public static *** i(...);
-}
+# Log stripping intentionally DISABLED so Google Sign-In failures are visible
+# in release logcat (filter by tag "AUTH" or "AuthRepo"). Re-enable once auth
+# is stable in production.
+#-assumenosideeffects class android.util.Log {
+#    public static *** d(...);
+#    public static *** v(...);
+#    public static *** i(...);
+#}
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
@@ -38,3 +39,11 @@
 # for factory instantiation; keep them under R8 minification.
 -keep class com.google.firebase.appcheck.** { *; }
 -keep class com.google.android.play.core.integrity.** { *; }
+
+# AndroidX Credential Manager + Google Identity — required for Google Sign-In
+# via CredentialManager. Without these, R8 can strip or rename classes that
+# the Credential Manager uses to resolve Google ID tokens at runtime.
+-keep class androidx.credentials.** { *; }
+-keep class com.google.android.libraries.identity.googleid.** { *; }
+-keep class com.google.android.gms.auth.** { *; }
+-keep class com.google.android.gms.common.** { *; }
