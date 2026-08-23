@@ -103,7 +103,8 @@ class SyncRepositoryImpl @Inject constructor(
         if (currentUser == null) {
             return@withContext Result.failure(Exception("User not logged in"))
         }
-        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+        val isGoogle = currentUser.providerData.any { it.providerId == "google.com" }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified && !isGoogle) {
             android.util.Log.d("Sync", "Skipping device registration: user email is not verified yet.")
             return@withContext Result.success(Unit)
         }
@@ -168,7 +169,8 @@ class SyncRepositoryImpl @Inject constructor(
         if (currentUser == null) {
             return@withContext Result.success(Unit)
         }
-        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+        val isGoogle = currentUser.providerData.any { it.providerId == "google.com" }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified && !isGoogle) {
             android.util.Log.d("Sync", "Skipping user profile sync: user email is not verified yet.")
             return@withContext Result.success(Unit)
         }
@@ -202,7 +204,8 @@ class SyncRepositoryImpl @Inject constructor(
         if (currentUser == null) {
             return@withContext Result.failure(Exception("User not logged in"))
         }
-        if (!currentUser.isAnonymous && !currentUser.isEmailVerified) {
+        val isGoogle = currentUser.providerData.any { it.providerId == "google.com" }
+        if (!currentUser.isAnonymous && !currentUser.isEmailVerified && !isGoogle) {
             android.util.Log.d("Sync", "Skipping transaction sync: user email is not verified yet.")
             return@withContext Result.success(Unit)
         }
