@@ -1709,4 +1709,18 @@
     <string name="label_welcome_back_fallback">there</string>
     <string name="title_upcoming_recurring">Upcoming Recurring</string>
     <string name="label_no_upcoming_recurring">No upcoming recurring transactions</string>
+
+    <!-- Voice Transaction Parser -->
+    <string name="title_voice_add">Voice Add</string>
+    <string name="desc_voice_add">Add transaction by voice</string>
+    <string name="msg_voice_listening">Listening…</string>
+    <string name="msg_voice_processing">Processing…</string>
+    <string name="msg_voice_error_empty_input">Please say something like Spent 50 dollars on groceries</string>
+    <string name="msg_voice_error_no_amount">I could not detect an amount. Try saying Spent 50 dollars for groceries</string>
+    <string name="label_voice_confirm">Confirm</string>
+    <string name="label_voice_edit">Edit</string>
+    <string name="label_voice_retry">Try Again</string>
+    <string name="label_voice_confidence_high">High confidence</string>
+    <string name="label_voice_confidence_medium">Medium confidence</string>
+    <string name="label_voice_confidence_low">Low confidence — please review</string>
 </resources>

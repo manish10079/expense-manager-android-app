@@ -126,4 +126,25 @@ class SmsParserTest {
         val body = "Rs 2,50,000 personal loan approved. Click here to avail loan now."
         assertNull(SmsParser.parse(body, sender = "AD-BAJAJ", smsTimestamp = 0L))
     }
+
+    @Test
+    fun parses_sbi_expense_with_bare_amount_no_currency_prefix() {
+        // SBI messages often omit Rs./INR prefix: "debited by 1984.00"
+        val body = "Dear UPI user A/C X5289 debited by 1984.00 on date 24Aug26 trf to SNAPMINT FINANCI Refno 300272338278 If not u? call-1800111109 for other services-18001234-SBI"
+        val parsed = SmsParser.parse(body, sender = "SBI", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(198_400L, parsed!!.amountMinor)
+        assertEquals(2, parsed.transactionTypeId) // Expense
+    }
+
+    @Test
+    fun parses_kotak_income_with_rs_prefix() {
+        val body = "Received Rs.797.00 in your Kotak Bank AC 3773 from Manish Kumar Nayak on 24-08-26.UPI Ref:000101953226"
+        val parsed = SmsParser.parse(body, sender = "KOTAK", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(79_700L, parsed!!.amountMinor)
+        assertEquals(1, parsed.transactionTypeId) // Income
+    }
 }

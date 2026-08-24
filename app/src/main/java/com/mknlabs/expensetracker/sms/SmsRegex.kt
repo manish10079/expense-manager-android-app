@@ -10,15 +10,61 @@ package com.mknlabs.expensetracker.sms
 object SmsRegex {
 
     /**
-     * Matches a currency amount with Indian digit grouping, e.g.
-     * `Rs 520`, `₹1,234.50`, `Rs. 15,000`, `INR 1,23,456.50`.
+     * Default AMOUNT regex for Indian Rupees (backward compatibility).
+     * Matches: `Rs 520`, `₹1,234.50`, `Rs. 15,000`, `INR 1,23,456.50`.
      * Group 1 holds the raw digits (commas included).
-     *
-     * Note: `\b` cannot precede `₹` (a non-word char), so the word boundary is
-     * only applied to the letter-based currency markers.
      */
-    val AMOUNT: Regex = Regex(
-        pattern = """(?:\bRs\.?|\bINR\.?|₹)\s*(\d[\d,]*(?:\.\d{1,2})?)""",
+    val AMOUNT: Regex = getAmountRegex("₹")
+
+    /**
+     * Generates an AMOUNT regex that matches the user's selected currency
+     * symbol/code plus the standard Indian formats (Rs., INR, ₹).
+     *
+     * @param currencySymbol The user's currency symbol (e.g. "$", "€", "£", "RM").
+     *                       If null or blank, falls back to ₹-only matching.
+     *
+     * Examples:
+     * - `$` → matches `$45`, `$1,234.50`, `USD 100`
+     * - `€` → matches `€50`, `EUR 200`
+     * - `£` → matches `£25`, `GBP 150`
+     * - `RM` → matches `RM 100`, `RM50`
+     */
+    fun getAmountRegex(currencySymbol: String?): Regex {
+        // Build the currency prefix pattern dynamically
+        val currencyPrefix = buildString {
+            // Always include standard Indian formats
+            append("(?:\\bRs\\.?|\\bINR\\.?|\\u20B9)")
+            // Add user's currency if provided
+            if (!currencySymbol.isNullOrBlank()) {
+                val escaped = Regex.escape(currencySymbol)
+                val isLetterBased = currencySymbol.all { it.isLetter() }
+                append("|")
+                if (isLetterBased) {
+                    append("\\b")
+                }
+                append(escaped)
+                if (isLetterBased) {
+                    append("\\.?")
+                }
+                append("\\s*")
+            }
+        }
+        val amountPattern = "(?:$currencyPrefix)(\\d[\\d,]*(?:\\.\\d{1,2})?)"
+        return Regex(
+            pattern = amountPattern,
+            option = RegexOption.IGNORE_CASE
+        )
+    }
+
+    /**
+     * Fallback: matches bare amounts after transaction keywords like
+     * `debited by 1984.00`, `paid 500`, `sent Rs.1000`. Used when the
+     * primary [AMOUNT] regex (which requires a currency prefix) doesn't match.
+     * Some banks (e.g. SBI) omit the Rs./INR prefix in their SMS format.
+     * Group 1 holds the raw digits.
+     */
+    val BARE_AMOUNT: Regex = Regex(
+        pattern = """\b(?:debited|credited|paid|sent|received|by|for|of|amount)\s+(?:Rs\.?\s*)?(?:INR\s*)?(?:₹\s*)?(\d[\d,]*(?:\.\d{1,2})?)""",
         option = RegexOption.IGNORE_CASE
     )
 

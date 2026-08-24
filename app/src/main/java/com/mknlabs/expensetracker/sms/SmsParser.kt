@@ -23,16 +23,21 @@ object SmsParser {
      *
      * [userOverrides] feeds the learning system (plan §10): merchant → category
      * mappings recorded from past user corrections, consulted before static rules.
+     *
+     * [currencySymbol] is the user's selected currency symbol (e.g. "$", "€", "£").
+     * When provided, the parser also matches amounts with that currency.
+     * Defaults to "₹" for backward compatibility.
      */
     fun parse(
         body: String,
         sender: String,
         smsTimestamp: Long,
-        userOverrides: Map<String, Int> = emptyMap()
+        userOverrides: Map<String, Int> = emptyMap(),
+        currencySymbol: String? = "₹"
     ): ParsedSms? {
-        if (!SmsDetector.isFinancialTransaction(body, sender)) return null
+        if (!SmsDetector.isFinancialTransaction(body, sender, currencySymbol)) return null
 
-        val amountMinor = extractAmountMinor(body) ?: return null
+        val amountMinor = extractAmountMinor(body, currencySymbol) ?: return null
 
         val transactionTypeId = detectTransactionType(body)
         val detection = SmsCategoryDetector.detect(body, transactionTypeId, userOverrides)
@@ -49,12 +54,15 @@ object SmsParser {
         )
     }
 
-    // First match wins: Indian bank SMS list the transaction amount before the
+    // First match wins: bank SMS list the transaction amount before the
     // "Avl Bal" trailing balance, so AMOUNT.find() returns the transaction amount.
-    private fun extractAmountMinor(body: String): Long? {
-        val match = SmsRegex.AMOUNT.find(body) ?: return null
-        val digits = match.groupValues.getOrNull(1)?.replace(",", "") ?: return null
-        return digits.toDoubleOrNull()?.toMinorUnits()
+    // Uses user's currency symbol for international support.
+    // Falls back to BARE_AMOUNT for banks that omit the currency prefix (e.g. SBI).
+    private fun extractAmountMinor(body: String, currencySymbol: String? = "₹"): Long {
+        val amountRegex = SmsRegex.getAmountRegex(currencySymbol)
+        val match = amountRegex.find(body) ?: SmsRegex.BARE_AMOUNT.find(body) ?: return 0L
+        val digits = match.groupValues.getOrNull(1)?.replace(",", "") ?: return 0L
+        return digits.toDoubleOrNull()?.toMinorUnits() ?: 0L
     }
 
     private fun detectTransactionType(body: String): Int {

@@ -113,6 +113,8 @@ class SettingsViewModelTest {
         override suspend fun sendEmailVerification(): Result<Unit> = Result.success(Unit)
         override suspend fun reloadUser(): Result<Unit> = Result.success(Unit)
         override suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> = Result.success(Unit)
+        override suspend fun verifyBeforeUpdateEmail(newEmail: String): Result<Unit> = Result.success(Unit)
+        override suspend fun reauthenticate(email: String, password: String): Result<Unit> = Result.success(Unit)
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {

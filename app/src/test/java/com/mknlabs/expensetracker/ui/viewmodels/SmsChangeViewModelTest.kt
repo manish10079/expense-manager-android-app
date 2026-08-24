@@ -249,6 +249,7 @@ class SmsChangeViewModelTest {
         override suspend fun deleteAll() = error("unexpected")
         override suspend fun purgeOldDeleted(threshold: Long) = error("unexpected")
         override suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
+        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
         override suspend fun getActiveTransactionsPagedForYear(yearStartMillis: Long, yearEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
         override suspend fun getActiveTransactionsPagedForMonth(monthStartMillis: Long, monthEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
         override suspend fun getActiveTransactionsPagedForDay(dayStartMillis: Long, dayEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")

@@ -10,8 +10,12 @@ object SmsDetector {
 
     /**
      * Returns `true` when the [body] and [sender] look like a real financial transaction SMS.
+     *
+     * [currencySymbol] is the user's selected currency symbol (e.g. "$", "€", "£").
+     * When provided, the detector also matches amounts with that currency.
+     * Defaults to "₹" for backward compatibility.
      */
-    fun isFinancialTransaction(body: String, sender: String = ""): Boolean {
+    fun isFinancialTransaction(body: String, sender: String = "", currencySymbol: String? = "₹"): Boolean {
         if (body.isBlank()) return false
 
         // TRAI Guidelines: Reject sender headers ending with -P (Promotional)
@@ -28,7 +32,9 @@ object SmsDetector {
         if (SmsRegex.REJECTION_PATTERNS.any { it.containsMatchIn(body) }) return false
 
         // A genuine transaction message must state a currency amount...
-        if (!SmsRegex.AMOUNT.containsMatchIn(body)) return false
+        // Uses user's currency symbol for international support.
+        val amountRegex = SmsRegex.getAmountRegex(currencySymbol)
+        if (!amountRegex.containsMatchIn(body) && !SmsRegex.BARE_AMOUNT.containsMatchIn(body)) return false
 
         // ...and must contain an expense or income verb.
         return SmsRegex.EXPENSE_VERBS.containsMatchIn(body) ||

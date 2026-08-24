@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Telephony
 import androidx.core.content.ContextCompat
+import com.mknlabs.expensetracker.data.constants.currencyMap
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository
 import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
@@ -51,6 +53,10 @@ class SmsReceiver : BroadcastReceiver() {
                 // the category suggestion before the static rules kick in.
                 val userOverrides = smsLearningStore.observeOverrides().first()
 
+                // Read user's selected currency for international SMS support.
+                val appSettings = AppSettingsDataStore.getAppSettingsFlow(context).first()
+                val currencySymbol = currencyMap[appSettings.currencyId]?.currencySymbol ?: "₹"
+
                 // A multipart SMS arrives as one broadcast with several PDUs —
                 // concatenate them so a split message is parsed exactly once
                 // (never N notifications / N transactions for a single SMS).
@@ -74,7 +80,8 @@ class SmsReceiver : BroadcastReceiver() {
                     body = fullBody,
                     sender = sender,
                     smsTimestamp = smsTimestamp,
-                    userOverrides = userOverrides
+                    userOverrides = userOverrides,
+                    currencySymbol = currencySymbol
                 ) ?: return@launch
 
                 if (smsRepository.isDuplicate(parsed)) return@launch
