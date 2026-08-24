@@ -144,6 +144,7 @@ fun MainScaffold(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onDirectSignOut: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
@@ -328,6 +329,7 @@ fun MainScaffold(
             onCloudSyncEnabledChange = onCloudSyncEnabledChange,
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
+            onDirectSignOut = onDirectSignOut,
             onShowUpgradeSheet = onShowUpgradeSheet,
             onPrepareForExternalActivity = onPrepareForExternalActivity
             )

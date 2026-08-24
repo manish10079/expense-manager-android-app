@@ -281,6 +281,7 @@
     <string name="desc_custom_range">Custom range</string>
     <string name="desc_delete">Delete</string>
     <string name="desc_delete_photo">Delete photo</string>
+    <string name="content_desc_email_verified">Email verified</string>
     <string name="desc_delete_selected">Delete Selected</string>
     <string name="desc_delete_val">Delete %1$s</string>
     <string name="desc_delete_val_1">Delete %1$s</string>
@@ -607,12 +608,12 @@
     <string name="label_or">OR</string>
     <string name="label_email">Email Address</string>
     <string name="label_password">Password</string>
-    <string name="label_create_account">Create Account</string>
+    <string name="label_create_account">Sign Up</string>
     <string name="msg_creating_account">Creating account...</string>
     <string name="title_account_created">Account created</string>
     <string name="label_ok">OK</string>
-    <string name="label_login">Login</string>
-    <string name="label_already_have_account">Already have an account? Login</string>
+    <string name="label_login">Sign In</string>
+    <string name="label_already_have_account">Already have an account? Sign In</string>
     <string name="label_no_account_signup">Don\'t have an account? Sign up</string>
     <string name="label_continue_as_guest">Continue as Guest</string>
     <string name="desc_tell_us_about_yourself">Tell us a bit about yourself to personalize your experience.</string>
@@ -1618,6 +1619,25 @@
     <string name="msg_failed_to_update_email">Failed to update email. Please try again.</string>
     <string name="msg_incorrect_password">Incorrect password. Please try again.</string>
     <string name="msg_auth_failed">Authentication failed. Please try again.</string>
+
+    <!-- Update Email Flow (Phase 2) -->
+    <string name="title_pending_email_verification">Verify Your New Email</string>
+    <string name="msg_verification_sent_to_new_email">A verification link has been sent to %1$s. Click the link in your inbox to complete the email change.</string>
+    <string name="msg_current_email_unchanged">Your current login email (%1$s) will remain active until you verify the new one.</string>
+    <string name="msg_checking_verification_status">Checking verification status…</string>
+    <string name="msg_email_updated_success">Email Updated!</string>
+    <string name="msg_email_updated_success_desc">Your login email has been changed. You can now use your new email to sign in.</string>
+    <string name="label_confirm_new_email">Confirm New Email</string>
+    <string name="placeholder_confirm_new_email">Re-enter new email address</string>
+    <string name="error_emails_do_not_match">Emails do not match.</string>
+    <string name="msg_fill_all_fields_correctly">Please fill in all fields correctly.</string>
+    <string name="msg_enter_current_password">Please enter your current password.</string>
+    <string name="label_send_verification_to_new_email">Send Verification Link</string>
+    <string name="btn_resend_in_seconds">Resend in %1$ds</string>
+    <string name="msg_check_spam_folder">Can\'t find it? Check your spam or junk folder.</string>
+    <string name="placeholder_reenter_password_for_security">Re-enter password for security</string>
+    <string name="desc_show_password">Show password</string>
+    <string name="desc_hide_password">Hide password</string>
 
     <!-- Force Cloud Sync -->
     <string name="title_force_sync">Trouble Syncing?</string>

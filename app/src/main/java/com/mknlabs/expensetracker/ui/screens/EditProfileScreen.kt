@@ -44,6 +44,9 @@ import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
 import androidx.compose.material.icons.rounded.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.UpdateEmailUiState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -76,7 +79,8 @@ fun ProfileScreen(
     onBackClick: () -> Unit = {},
     onSaveClick: (UserProfile) -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    onEmailUpdateSuccess: () -> Unit = {}
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
@@ -84,14 +88,29 @@ fun ProfileScreen(
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val dbCountryCodes by profileViewModel.countryCodes.collectAsStateWithLifecycle()
 
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val updateEmailUiState by authViewModel.updateEmailState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(updateEmailUiState) {
+        if (updateEmailUiState is UpdateEmailUiState.Success) {
+            onEmailUpdateSuccess()
+            authViewModel.resetUpdateEmailState()
+        }
+    }
+
     ProfileScreenContent(
         userProfile = userProfile,
         isAdsEnabled = isAdsEnabled,
         userTier = userTier,
         dbCountryCodes = dbCountryCodes,
+        updateEmailUiState = updateEmailUiState,
         onBackClick = onBackClick,
         onSaveClick = onSaveClick,
-        onPrepareForExternalActivity = onPrepareForExternalActivity
+        onPrepareForExternalActivity = onPrepareForExternalActivity,
+        onUpdateEmailInitiate = { newEmail, password -> authViewModel.initiateEmailUpdate(newEmail, password) },
+        onUpdateEmailCheckStatus = { authViewModel.checkEmailUpdateVerification() },
+        onUpdateEmailResend = { newEmail -> authViewModel.resendEmailUpdateVerification(newEmail) },
+        onUpdateEmailReset = { authViewModel.resetUpdateEmailState() }
     )
 }
 
@@ -102,9 +121,14 @@ private fun ProfileScreenContent(
     isAdsEnabled: Boolean,
     userTier: UserTier,
     dbCountryCodes: List<com.mknlabs.expensetracker.models.CountryCode>,
+    updateEmailUiState: UpdateEmailUiState,
     onBackClick: () -> Unit,
     onSaveClick: (UserProfile) -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onPrepareForExternalActivity: () -> Unit,
+    onUpdateEmailInitiate: (String, String) -> Unit,
+    onUpdateEmailCheckStatus: () -> Unit,
+    onUpdateEmailResend: (String) -> Unit,
+    onUpdateEmailReset: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -263,6 +287,18 @@ private fun ProfileScreenContent(
                     }
                 }
 
+                // Lifecycle-aware: check email verification when returning from email client
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME && showUpdateEmailSheet) {
+                            onUpdateEmailCheckStatus()
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                }
+
                 androidx.compose.material3.Surface(
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
                     color = MaterialTheme.colorScheme.surface,
@@ -280,7 +316,17 @@ private fun ProfileScreenContent(
                             inputType = InputType.Text,
                             leadingIcon = Icons.Rounded.Email,
                             placeholder = "",
-                            isEnabled = false
+                            isEnabled = false,
+                            trailingContent = if (emailVerifiedState) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Verified,
+                                        contentDescription = stringResource(id = R.string.content_desc_email_verified),
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            } else null
                         )
 
                         HorizontalDivider(
@@ -339,12 +385,15 @@ private fun ProfileScreenContent(
                 if (showUpdateEmailSheet) {
                     com.mknlabs.expensetracker.ui.screens.UpdateEmailBottomSheet(
                         currentEmail = userProfile.emailAddress,
-                        onDismiss = { showUpdateEmailSheet = false },
-                        onEmailUpdateInitiated = {
-                            // Show verification sheet for the new email
-                            showVerificationSheet = true
-                            Toast.makeText(context, context.getString(R.string.toast_email_update_verification_sent), Toast.LENGTH_SHORT).show()
-                        }
+                        uiState = updateEmailUiState,
+                        onInitiateUpdate = onUpdateEmailInitiate,
+                        onCheckStatus = onUpdateEmailCheckStatus,
+                        onResend = onUpdateEmailResend,
+                        onDismiss = {
+                            showUpdateEmailSheet = false
+                            onUpdateEmailReset()
+                        },
+                        onReset = onUpdateEmailReset
                     )
                 }
 
@@ -653,9 +702,14 @@ private fun ProfileScreenPreview() {
             isAdsEnabled = true,
             userTier = UserTier.PREMIUM,
             dbCountryCodes = emptyList(),
+            updateEmailUiState = UpdateEmailUiState.Idle,
             onBackClick = {},
             onSaveClick = {},
-            onPrepareForExternalActivity = {}
+            onPrepareForExternalActivity = {},
+            onUpdateEmailInitiate = { _, _ -> },
+            onUpdateEmailCheckStatus = {},
+            onUpdateEmailResend = {},
+            onUpdateEmailReset = {}
         )
     }
 }

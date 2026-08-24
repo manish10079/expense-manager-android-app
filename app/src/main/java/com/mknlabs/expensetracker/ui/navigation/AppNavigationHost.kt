@@ -12,6 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
@@ -147,10 +152,12 @@ fun AppNavigationHost(
     onCloudSyncEnabledChange: (Boolean) -> Unit,
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onDirectSignOut: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
+    var showEmailUpdateSuccessDialog by remember { mutableStateOf(false) }
     
     val exitAddTransactionScreen: (AppRoute) -> Unit = { destinationRoute ->
         onBottomBarVisibilityChange(false)
@@ -581,6 +588,11 @@ fun AppNavigationHost(
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(profileOriginRoute)
+                        },
+                        onEmailUpdateSuccess = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(profileOriginRoute)
+                            showEmailUpdateSuccessDialog = true
                         }
                     )
                 }
@@ -684,6 +696,23 @@ fun AppNavigationHost(
                         }
                     )
                 }
+            }
+            if (showEmailUpdateSuccessDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showEmailUpdateSuccessDialog = false
+                    },
+                    title = { Text(stringResource(id = R.string.msg_email_updated_success)) },
+                    text = { Text(stringResource(id = R.string.msg_email_updated_success_desc)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showEmailUpdateSuccessDialog = false
+                            onDirectSignOut()
+                        }) {
+                            Text(stringResource(id = R.string.label_ok))
+                        }
+                    }
+                )
             }
         }
     }

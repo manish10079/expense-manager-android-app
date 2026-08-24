@@ -60,6 +60,42 @@ sealed class UpdatePasswordState {
 }
 
 /**
+ * Represents the UI state for the Update Email flow.
+ * Uses a unidirectional data flow pattern — the ViewModel exposes this as a StateFlow,
+ * and the UI layer observes and renders based on the current state.
+ */
+sealed class UpdateEmailUiState {
+    /** Initial state — show the form with new email input + re-auth password. */
+    object Idle : UpdateEmailUiState()
+
+    /** Re-authentication required — show password prompt (Firebase requires recent login). */
+    object ReAuthenticating : UpdateEmailUiState()
+
+    /** Loading — waiting for Firebase to process the request. */
+    object Loading : UpdateEmailUiState()
+
+    /**
+     * Verification email has been sent to the new email.
+     * The email will NOT change until the user clicks the link in the new email.
+     * [newEmail] is the pending new email address.
+     * [currentEmail] is the user's current login email (unchanged until verified).
+     */
+    data class PendingVerification(
+        val newEmail: String,
+        val currentEmail: String
+    ) : UpdateEmailUiState()
+
+    /** The new email has been verified and updated successfully. */
+    object Success : UpdateEmailUiState()
+
+    /** An error occurred. [messageRes] is the string resource ID for the error message. */
+    data class Error(@StringRes val messageRes: Int) : UpdateEmailUiState()
+
+    /** Reload after resume — user came back from email client, check if verified. */
+    object CheckingVerification : UpdateEmailUiState()
+}
+
+/**
  * Snapshot of a returning (existing) user's profile pulled from Firestore.
  * Used by [OnboardingScreen] to decide which setup steps to skip on a fresh
  * install when the user already has a cloud profile.
@@ -117,6 +153,9 @@ class AuthViewModel @Inject constructor(
 
     private val _updatePasswordState = MutableStateFlow<UpdatePasswordState>(UpdatePasswordState.Idle)
     val updatePasswordState: StateFlow<UpdatePasswordState> = _updatePasswordState.asStateFlow()
+
+    private val _updateEmailState = MutableStateFlow<UpdateEmailUiState>(UpdateEmailUiState.Idle)
+    val updateEmailState: StateFlow<UpdateEmailUiState> = _updateEmailState.asStateFlow()
 
     private val _cooldownSeconds = MutableStateFlow(0)
     val cooldownSeconds: StateFlow<Int> = _cooldownSeconds.asStateFlow()
@@ -369,10 +408,22 @@ class AuthViewModel @Inject constructor(
     fun sendPasswordResetEmail(email: String) {
         if (email.isBlank()) {
             _authState.value = AuthState.Error(R.string.error_enter_email)
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(10000L)
+                if (_authState.value is AuthState.Error && (_authState.value as AuthState.Error).messageRes == R.string.error_enter_email) {
+                    resetState()
+                }
+            }
             return
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _authState.value = AuthState.Error(R.string.error_invalid_email)
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(10000L)
+                if (_authState.value is AuthState.Error && (_authState.value as AuthState.Error).messageRes == R.string.error_invalid_email) {
+                    resetState()
+                }
+            }
             return
         }
         if (!networkMonitor.isConnected()) {
@@ -383,9 +434,24 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading(AuthLoadingType.EMAIL)
             authRepository.sendPasswordResetEmail(email)
-                .onSuccess { _authState.value = AuthState.ResetEmailSent }
+                .onSuccess {
+                    _authState.value = AuthState.ResetEmailSent
+                    launch {
+                        kotlinx.coroutines.delay(10000L)
+                        if (_authState.value is AuthState.ResetEmailSent) {
+                            resetState()
+                        }
+                    }
+                }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                    val errorRes = mapFirebaseError(error)
+                    _authState.value = AuthState.Error(errorRes)
+                    launch {
+                        kotlinx.coroutines.delay(10000L)
+                        if (_authState.value is AuthState.Error && (_authState.value as AuthState.Error).messageRes == errorRes) {
+                            resetState()
+                        }
+                    }
                 }
         }
     }
@@ -682,5 +748,163 @@ class AuthViewModel @Inject constructor(
 
     fun resetUpdatePasswordState() {
         _updatePasswordState.value = UpdatePasswordState.Idle
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Update Email Flow
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Initiates the email update flow. Checks if re-authentication is required
+     * (Firebase requires a recent sign-in for email changes), then calls
+     * verifyBeforeUpdateEmail which sends a verification link to [newEmail].
+     *
+     * The user's current email does NOT change until they click the link.
+     */
+    fun initiateEmailUpdate(newEmail: String, currentPassword: String) {
+        if (!networkMonitor.isConnected()) {
+            _updateEmailState.value = UpdateEmailUiState.Error(R.string.error_no_internet)
+            return
+        }
+
+        viewModelScope.launch {
+            _updateEmailState.value = UpdateEmailUiState.Loading
+
+            val user = authRepository.currentUser.value
+            val currentEmail = user?.email ?: run {
+                _updateEmailState.value = UpdateEmailUiState.Error(R.string.error_auth_generic_fail)
+                return@launch
+            }
+
+            try {
+                // Step 1: Check if re-authentication is needed (Firebase requires recent login)
+                val tokenResult = user.getIdToken(false).await()
+                val authTime = tokenResult.claims["auth_time"] as? Long ?: 0L
+                val now = System.currentTimeMillis() / 1000
+                val fiveMinutesAgo = now - 300
+
+                if (authTime < fiveMinutesAgo) {
+                    // Need re-authentication first
+                    _updateEmailState.value = UpdateEmailUiState.Loading
+
+                    authRepository.reauthenticate(currentEmail, currentPassword)
+                        .onFailure { error ->
+                            val errorRes = mapUpdateEmailError(error)
+                            _updateEmailState.value = UpdateEmailUiState.Error(errorRes)
+                            return@launch
+                        }
+                }
+
+                // Step 2: Call verifyBeforeUpdateEmail — sends verification link to NEW email
+                authRepository.verifyBeforeUpdateEmail(newEmail)
+                    .onSuccess {
+                        _updateEmailState.value = UpdateEmailUiState.PendingVerification(
+                            newEmail = newEmail,
+                            currentEmail = currentEmail
+                        )
+                    }
+                    .onFailure { error ->
+                        val errorRes = mapUpdateEmailError(error)
+                        _updateEmailState.value = UpdateEmailUiState.Error(errorRes)
+                    }
+            } catch (e: Exception) {
+                android.util.Log.e("AuthVM", "initiateEmailUpdate failed", e)
+                _updateEmailState.value = UpdateEmailUiState.Error(mapUpdateEmailError(e))
+            }
+        }
+    }
+
+    /**
+     * Checks if the new email has been verified after the user clicked the link.
+     * Called on ON_RESUME lifecycle event or when user taps "Check Status".
+     * If verified, Firebase automatically updates the email in the auth profile.
+     */
+    fun checkEmailUpdateVerification() {
+        viewModelScope.launch {
+            _updateEmailState.value = UpdateEmailUiState.CheckingVerification
+            authRepository.reloadUser()
+                .onSuccess {
+                    val user = authRepository.currentUser.value
+                    if (user != null && user.isEmailVerified) {
+                        _updateEmailState.value = UpdateEmailUiState.Success
+                    } else {
+                        // Still pending — revert to previous state if we were in PendingVerification
+                        val current = _updateEmailState.value
+                        if (current is UpdateEmailUiState.CheckingVerification) {
+                            _updateEmailState.value = UpdateEmailUiState.Error(R.string.msg_email_not_verified_yet)
+                        }
+                    }
+                }
+                .onFailure { error ->
+                    val current = _updateEmailState.value
+                    if (current is UpdateEmailUiState.CheckingVerification) {
+                        val msg = error.message.orEmpty()
+                        val isTokenInvalid = error is com.google.firebase.auth.FirebaseAuthInvalidUserException ||
+                                error is com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException ||
+                                msg.contains("user-token-expired") ||
+                                msg.contains("TOKEN_EXPIRED") ||
+                                msg.contains("user-not-found") ||
+                                msg.contains("no longer valid") ||
+                                msg.contains("revoked")
+
+                        if (isTokenInvalid) {
+                            // Token was revoked because email was verified on another device! Treat as Success.
+                            _updateEmailState.value = UpdateEmailUiState.Success
+                        } else {
+                            _updateEmailState.value = UpdateEmailUiState.Error(R.string.msg_failed_to_check_status)
+                        }
+                    }
+                }
+        }
+    }
+
+    /**
+     * Re-sends the verification link to the new email address.
+     */
+    fun resendEmailUpdateVerification(newEmail: String) {
+        if (!networkMonitor.isConnected()) {
+            _updateEmailState.value = UpdateEmailUiState.Error(R.string.error_no_internet)
+            return
+        }
+
+        viewModelScope.launch {
+            authRepository.verifyBeforeUpdateEmail(newEmail)
+                .onSuccess {
+                    val currentEmail = authRepository.currentUser.value?.email.orEmpty()
+                    _updateEmailState.value = UpdateEmailUiState.PendingVerification(
+                        newEmail = newEmail,
+                        currentEmail = currentEmail
+                    )
+                }
+                .onFailure { error ->
+                    _updateEmailState.value = UpdateEmailUiState.Error(mapUpdateEmailError(error))
+                }
+        }
+    }
+
+    /** Resets the update email UI state back to idle. */
+    fun resetUpdateEmailState() {
+        _updateEmailState.value = UpdateEmailUiState.Idle
+    }
+
+    /**
+     * Maps Firebase exceptions to user-friendly string resources for the email update flow.
+     * Uses generic messages to prevent username enumeration.
+     */
+    private fun mapUpdateEmailError(error: Throwable): Int {
+        val msg = error.message ?: ""
+        return when {
+            msg.contains("wrong-password") || msg.contains("INVALID_CREDENTIAL") ||
+            msg.contains("invalid-credential") || msg.contains("ERROR_WRONG_PASSWORD") ->
+                R.string.msg_incorrect_password
+            msg.contains("email-already-in-use") || msg.contains("EMAIL_ALREADY_IN_USE") ||
+                msg.contains("ERROR_EMAIL_ALREADY_IN_USE") ->
+                R.string.msg_email_already_in_use
+            msg.contains("invalid-email") || msg.contains("INVALID_EMAIL") ->
+                R.string.error_invalid_email
+            msg.contains("recent login") || msg.contains("REQUIRES_RECENT_LOGIN") ->
+                R.string.msg_reauth_required
+            else -> R.string.msg_failed_to_update_email
+        }
     }
 }

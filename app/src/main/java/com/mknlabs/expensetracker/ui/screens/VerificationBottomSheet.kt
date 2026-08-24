@@ -9,6 +9,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.R
 import kotlinx.coroutines.delay
@@ -25,6 +27,7 @@ fun VerificationBottomSheet(
     email: String,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     var isChecking by remember { mutableStateOf(false) }
@@ -33,7 +36,7 @@ fun VerificationBottomSheet(
     var isVerified by remember { mutableStateOf(false) }
 
     // Timer for verification expiry (72 hours from when email was last sent)
-    var remainingTimeMs by remember { mutableStateOf(0L) }
+    var remainingTimeMs by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(Unit) {
         // Load verification expiry from Firestore
@@ -47,11 +50,18 @@ fun VerificationBottomSheet(
                     while (true) {
                         val now = System.currentTimeMillis()
                         remainingTimeMs = (expiry - now).coerceAtLeast(0L)
-                        if (remainingTimeMs <= 0L) break
+                        if (remainingTimeMs!! <= 0L) break
                         delay(1000L)
                     }
+                } else {
+                    // No expiry stored, nothing to show
+                    remainingTimeMs = null
                 }
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+                remainingTimeMs = null
+            }
+        } else {
+            remainingTimeMs = null
         }
     }
 
@@ -84,12 +94,12 @@ fun VerificationBottomSheet(
                 textAlign = TextAlign.Center
             )
 
-            if (remainingTimeMs > 0L) {
+            if (remainingTimeMs != null && remainingTimeMs!! > 0L) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = stringResource(
                         id = R.string.label_verification_link_expires_in,
-                        formatRemainingTime(remainingTimeMs)
+                        formatRemainingTime(remainingTimeMs!!)
                     ),
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.SemiBold
@@ -97,7 +107,7 @@ fun VerificationBottomSheet(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
-            } else if (remainingTimeMs == 0L) {
+            } else if (remainingTimeMs != null && remainingTimeMs!! == 0L) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = stringResource(id = R.string.label_verification_link_expired),
@@ -108,6 +118,7 @@ fun VerificationBottomSheet(
                     textAlign = TextAlign.Center
                 )
             }
+            // null = still loading from Firestore, show nothing
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -122,6 +133,10 @@ fun VerificationBottomSheet(
                             isVerified = user?.isEmailVerified == true
                             if (isVerified) {
                                 verificationStatus = null
+                                val toast = Toast.makeText(context, context.getString(R.string.msg_email_verified_success), Toast.LENGTH_SHORT)
+                                toast.setGravity(android.view.Gravity.CENTER, 0, 0)
+                                toast.show()
+                                onDismiss()
                             } else {
                                 verificationStatus = "email_not_verified"
                             }
@@ -194,25 +209,7 @@ fun VerificationBottomSheet(
                 )
             }
 
-            // Verified success message
-            if (isVerified) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(id = R.string.msg_email_verified_success),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = stringResource(id = R.string.btn_got_it))
-                }
-            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

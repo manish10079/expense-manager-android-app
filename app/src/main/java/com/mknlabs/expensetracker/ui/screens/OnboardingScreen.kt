@@ -20,12 +20,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -122,7 +126,7 @@ private data class OnboardingPage(
     val illustration: @Composable (BoxScope.() -> Unit)
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun OnboardingScreen(
     onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit = { _, _, _, _ -> },
@@ -153,7 +157,7 @@ fun OnboardingScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun OnboardingScreenContent(
     currentUser: com.google.firebase.auth.FirebaseUser?,
@@ -201,6 +205,8 @@ private fun OnboardingScreenContent(
                 title = context.getString(R.string.title_secure_your_account),
                 description = context.getString(R.string.desc_sync_and_premium_features),
                 actionLabel = context.getString(R.string.label_next),
+                titleFontSize = 34.sp,
+                titleLineHeight = 40.sp,
                 illustration = { SecureTrackerIllustration() } 
             ),
             OnboardingPage(
@@ -230,6 +236,13 @@ private fun OnboardingScreenContent(
     val isGoalPage = currentPage == 5
     val isSetupPage = currentPage == 6
     val isWelcomeBackPage = currentPage == 7
+    val scrollState = rememberScrollState()
+    val isKeyboardVisible = WindowInsets.isImeVisible
+
+    // Reset scroll position on page change
+    LaunchedEffect(currentPage) {
+        scrollState.scrollTo(0)
+    }
 
     // Setup state
     var userName by remember { mutableStateOf("") }
@@ -370,6 +383,7 @@ private fun OnboardingScreenContent(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .imePadding()
                 .padding(top = Dimens.HeaderSpacing, bottom = 16.dp)
         ) {
             // Main Content Area (Weight 1 pushes footer down)
@@ -378,7 +392,7 @@ private fun OnboardingScreenContent(
                     .weight(1f)
                     .fillMaxWidth()
                     .then(
-                        if (isAuthPage || isSetupPage || isGoalPage) Modifier.verticalScroll(rememberScrollState())
+                        if (isAuthPage || isSetupPage || isGoalPage) Modifier.verticalScroll(scrollState)
                         else Modifier
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally

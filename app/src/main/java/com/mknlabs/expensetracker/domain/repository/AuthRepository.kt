@@ -94,4 +94,10 @@ interface AuthRepository {
      * Uses Firebase's verifyBeforeUpdateEmail for safety.
      */
     suspend fun verifyBeforeUpdateEmail(newEmail: String): Result<Unit>
+
+    /**
+     * Re-authenticates the current user with the given email/password credential.
+     * Required for sensitive operations like email change when the session is stale.
+     */
+    suspend fun reauthenticate(email: String, password: String): Result<Unit>
 }

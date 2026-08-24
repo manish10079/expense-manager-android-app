@@ -467,7 +467,7 @@ private fun AutoLockDurationPickerSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun ChangePasswordSheet(
     onDismiss: () -> Unit,
@@ -480,10 +480,23 @@ private fun ChangePasswordSheet(
     var confirmNewPassword by rememberSaveable { mutableStateOf("") }
 
     val context = LocalContext.current
+    val currentPasswordFocusRequester = androidx.compose.ui.focus.FocusRequester()
+    val scrollState = rememberScrollState()
+    val isKeyboardVisible = WindowInsets.isImeVisible
 
     DisposableEffect(Unit) {
         onDispose {
             onResetUpdatePasswordState()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        currentPasswordFocusRequester.requestFocus()
+    }
+
+    LaunchedEffect(isKeyboardVisible, scrollState.maxValue) {
+        if (isKeyboardVisible) {
+            scrollState.animateScrollTo(scrollState.maxValue)
         }
     }
 
@@ -497,12 +510,13 @@ private fun ChangePasswordSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .navigationBarsPadding()
                 .imePadding()
                 .padding(horizontal = 24.dp)
@@ -538,7 +552,8 @@ private fun ChangePasswordSheet(
                 onValueChange = { currentPassword = it },
                 inputType = InputType.Password,
                 placeholder = stringResource(R.string.placeholder_current_password),
-                isEnabled = !isLoading
+                isEnabled = !isLoading,
+                focusRequester = currentPasswordFocusRequester
             )
 
             val isNewPasswordShort = newPassword.isNotEmpty() && newPassword.length < 6

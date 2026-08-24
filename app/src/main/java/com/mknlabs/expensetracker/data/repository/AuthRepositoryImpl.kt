@@ -240,4 +240,16 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun reauthenticate(email: String, password: String): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser ?: throw IllegalStateException("No user logged in")
+            val credential = EmailAuthProvider.getCredential(email, password)
+            user.reauthenticate(credential).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Reauthentication failed: ${authErrorSummary(e)}")
+            Result.failure(e)
+        }
+    }
 }

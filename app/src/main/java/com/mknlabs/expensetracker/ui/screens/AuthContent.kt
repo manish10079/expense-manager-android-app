@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Email
@@ -12,11 +13,11 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,12 +30,10 @@ import com.mknlabs.expensetracker.ui.viewmodels.AuthState
 import com.mknlabs.expensetracker.ui.viewmodels.AuthLoadingType
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.ExperimentalFoundationApi
 import com.mknlabs.expensetracker.ui.theme.SurfaceHighlight
-
-private enum class EmailAuthAction {
-    Login,
-    SignUp
-}
 
 @Composable
 fun AuthRoute(
@@ -203,6 +202,7 @@ fun AuthContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AuthContentBody(
     authState: AuthState,
@@ -219,6 +219,8 @@ private fun AuthContentBody(
     var isSignUp by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val submitButtonBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     val isEmailValid = remember(email) {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
@@ -307,7 +309,14 @@ private fun AuthContentBody(
                 leadingIcon = Icons.Filled.Email,
                 placeholder = stringResource(id = R.string.placeholder_email),
                 isError = email.isNotEmpty() && !isEmailValid,
-                errorText = if (email.isNotEmpty() && !isEmailValid) stringResource(id = R.string.error_invalid_email) else null
+                errorText = if (email.isNotEmpty() && !isEmailValid) stringResource(id = R.string.error_invalid_email) else null,
+                modifier = Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        coroutineScope.launch {
+                            submitButtonBringIntoViewRequester.bringIntoView()
+                        }
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -321,9 +330,16 @@ private fun AuthContentBody(
                 placeholder = stringResource(id = R.string.placeholder_password),
                 isError = isSignUp && password.isNotEmpty() && !isPasswordStrong,
                 errorText = if (isSignUp && passwordErrors.isNotEmpty()) {
-                    stringResource(id = R.string.error_password_required_prefix) + 
+                    stringResource(id = R.string.error_password_required_prefix) +
                     passwordErrors.joinToString(", ") { context.getString(it) }
-                } else null
+                } else null,
+                modifier = Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        coroutineScope.launch {
+                            submitButtonBringIntoViewRequester.bringIntoView()
+                        }
+                    }
+                }
             )
 
             if (!isSignUp) {
@@ -405,15 +421,28 @@ private fun AuthContentBody(
                     }
                 },
                 modifier = Modifier
+                    .bringIntoViewRequester(submitButtonBringIntoViewRequester)
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                enabled = canSubmit && authState !is AuthState.Loading
+                enabled = canSubmit && authState !is AuthState.Loading,
+                colors = ButtonDefaults.buttonColors(
+                    disabledContainerColor = if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
+                        androidx.compose.ui.graphics.Color.Transparent
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                    },
+                    disabledContentColor = if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    }
+                )
             ) {
                 if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         strokeWidth = 2.dp
                     )
                 } else {

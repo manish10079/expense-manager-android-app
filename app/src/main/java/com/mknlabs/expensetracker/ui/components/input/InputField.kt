@@ -28,6 +28,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +51,8 @@ fun InputFieldCard(
     errorText: String? = null,
     leadingIcon: ImageVector? = null,
     onClick: (() -> Unit)? = null,
-    trailingContent: (@Composable (() -> Unit))? = null
+    trailingContent: (@Composable (() -> Unit))? = null,
+    focusRequester: FocusRequester? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val focusManager = LocalFocusManager.current
@@ -249,7 +252,9 @@ fun InputFieldCard(
                                         fontSize = 16.sp
                                     ),
                                     cursorBrush = SolidColor(primary),
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().then(
+                                        if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+                                    ),
                                     decorationBox = { innerTextField ->
                                         if (value.isEmpty() && placeholder != null) {
                                             Text(
