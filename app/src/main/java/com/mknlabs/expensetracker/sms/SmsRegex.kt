@@ -33,7 +33,7 @@ object SmsRegex {
         // Build the currency prefix pattern dynamically
         val currencyPrefix = buildString {
             // Always include standard Indian formats
-            append("(?:\\bRs\\.?|\\bINR\\.?|\\u20B9)")
+            append("(?:\\bRs\\.?\\s*|\\bINR\\.?\\s*|\\u20B9\\s*)")
             // Add user's currency if provided
             if (!currencySymbol.isNullOrBlank()) {
                 val escaped = Regex.escape(currencySymbol)

@@ -1723,4 +1723,12 @@
     <string name="label_voice_confidence_high">High confidence</string>
     <string name="label_voice_confidence_medium">Medium confidence</string>
     <string name="label_voice_confidence_low">Low confidence — please review</string>
+    <string name="label_merchant">Merchant</string>
+    <string name="label_confidence">Confidence</string>
+    <string name="label_voice_confidence">Confidence</string>
+    <string name="label_category">Category</string>
+    <string name="msg_voice_error_no_permission">Microphone permission is required for voice input</string>
+    <string name="msg_voice_error_recognizer">Speech recognition failed. Please try again.</string>
+    <string name="msg_voice_error_network">Network error. Check your connection and try again.</string>
+    <string name="msg_voice_error_audio">Audio recording error. Please try again.</string>
 </resources>

@@ -59,6 +59,10 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*inr""", RegexOption.IGNORE_CASE),
         // Bare number after spending keywords: "for 45", "of 500", "on 20"
         Regex("""(?:for|of|on|amount|price|cost|worth)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // Bare number after income/spending verbs: "Paid 350", "Received 5000", "Earned 300"
+        Regex("""(?:spent|paid|bought|ordered|booked|charged|sent|transferred|recharged|received|earned|got|refund(?:ed)?|cashback|deposited|credited|add|record|log|track|create)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // Verb + word + number: "Received salary 75000", "Paid bill 500"
+        Regex("""(?:spent|paid|bought|received|earned|add|record|log|track|create|refund(?:ed)?|cashback)\s+\w+\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
     )
 
     /**
@@ -66,6 +70,12 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
      * e.g. "groceries 500" or "coffee 5"
      */
     private val bareNumberAtEnd = Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*$""")
+
+    /**
+     * Bare number at the beginning of a short utterance.
+     * e.g. "45 groceries" or "500 rent"
+     */
+    private val bareNumberAtStart = Regex("""^(\d[\d,]*(?:\.\d{1,2})?)\s+""")
 
     // ──────────────────────────────────────────────────────────────────────
     // Transaction type detection
@@ -88,7 +98,8 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
     private data class CategoryKeyword(val keyword: String, val categoryName: String)
 
     private val categoryKeywords = listOf(
-        // Food (id=1)
+        // Food (id=1) — specific multi-word keywords first
+        CategoryKeyword("pet food", "Pets"),
         CategoryKeyword("food", "Food"),
         CategoryKeyword("meal", "Food"),
         CategoryKeyword("lunch", "Food"),
@@ -147,6 +158,8 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         CategoryKeyword("mobile bill", "Bills"),
 
         // Health (id=5)
+        CategoryKeyword("gym", "Health"),
+        CategoryKeyword("fitness", "Health"),
         CategoryKeyword("health", "Health"),
         CategoryKeyword("medicine", "Health"),
         CategoryKeyword("doctor", "Health"),
@@ -155,22 +168,20 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         CategoryKeyword("medical", "Health"),
         CategoryKeyword("clinic", "Health"),
         CategoryKeyword("dental", "Health"),
-        CategoryKeyword("gym", "Health"),
-        CategoryKeyword("fitness", "Health"),
-        CategoryKeyword("insurance premium", "Health"),
+
 
         // Entertainment (id=6)
+        CategoryKeyword("netflix", "Entertainment"),
+        CategoryKeyword("spotify", "Entertainment"),
+        CategoryKeyword("youtube", "Entertainment"),
+        CategoryKeyword("bookmyshow", "Entertainment"),
         CategoryKeyword("entertainment", "Entertainment"),
         CategoryKeyword("movie", "Entertainment"),
         CategoryKeyword("cinema", "Entertainment"),
         CategoryKeyword("concert", "Entertainment"),
-        CategoryKeyword("netflix", "Entertainment"),
-        CategoryKeyword("spotify", "Entertainment"),
-        CategoryKeyword("youtube", "Entertainment"),
-        CategoryKeyword("game", "Entertainment"),
         CategoryKeyword("gaming", "Entertainment"),
+        CategoryKeyword("game", "Entertainment"),
         CategoryKeyword("book", "Entertainment"),
-        CategoryKeyword("bookmyshow", "Entertainment"),
 
         // Rent (id=7)
         CategoryKeyword("rent", "Rent"),
@@ -202,10 +213,10 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         CategoryKeyword("coursera", "Education"),
 
         // Subscriptions (id=10)
-        CategoryKeyword("subscription", "Subscriptions"),
-        CategoryKeyword("subscribe", "Subscriptions"),
-        CategoryKeyword("membership", "Subscriptions"),
         CategoryKeyword("premium plan", "Subscriptions"),
+        CategoryKeyword("subscribe", "Subscriptions"),
+        CategoryKeyword("subscription", "Subscriptions"),
+        CategoryKeyword("membership", "Subscriptions"),
 
         // Insurance (id=11)
         CategoryKeyword("insurance", "Insurance"),
@@ -258,6 +269,7 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         CategoryKeyword("charity", "Donations"),
 
         // Pets (id=17)
+        CategoryKeyword("pet food", "Pets"),
         CategoryKeyword("pet", "Pets"),
         CategoryKeyword("dog", "Pets"),
         CategoryKeyword("cat", "Pets"),
@@ -273,6 +285,17 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         // Taxes (id=16)
         CategoryKeyword("tax", "Taxes"),
         CategoryKeyword("taxes", "Taxes"),
+
+        // Income categories
+        CategoryKeyword("salary", "Salary"),
+        CategoryKeyword("wages", "Salary"),
+        CategoryKeyword("paycheck", "Salary"),
+        CategoryKeyword("freelance", "Freelance"),
+        CategoryKeyword("freelancing", "Freelance"),
+        CategoryKeyword("business", "Business"),
+        CategoryKeyword("investment", "Investment"),
+        CategoryKeyword("dividend", "Investment"),
+        CategoryKeyword("interest", "Investment"),
     )
 
     // ──────────────────────────────────────────────────────────────────────
@@ -284,11 +307,13 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
      * - "at Walmart", "from Amazon", "to John"
      * - "at Starbucks for coffee"
      */
+    // Words that terminate a merchant name (dates, prepositions, amounts)
+    private val merchantTerminators = """(?:for|on|at|from|to|in|with|the|a|an|\$|\d|yesterday|today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|days?\s+ago|weeks?\s+ago)"""
+
     private val merchantPatterns = listOf(
-        Regex("""at\s+([A-Z][a-zA-Z\s]+?)(?:\s+for\b|\s+on\b|\s+\d|\s*$)"""),
-        Regex("""from\s+([A-Z][a-zA-Z\s]+?)(?:\s+for\b|\s+on\b|\s+\d|\s*$)"""),
-        Regex("""to\s+([A-Z][a-zA-Z\s]+?)(?:\s+for\b|\s+on\b|\s+\d|\s*$)"""),
-        Regex("""at\s+([A-Z][a-zA-Z\s]+?)(?:\s*$)"""),
+        Regex("""at\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*?)(?:\s+$merchantTerminators|\s*$)"""),
+        Regex("""from\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*?)(?:\s+$merchantTerminators|\s*$)"""),
+        Regex("""to\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*?)(?:\s+$merchantTerminators|\s*$)"""),
     )
 
     // ──────────────────────────────────────────────────────────────────────
@@ -397,6 +422,13 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
             val value = digits.toDoubleOrNull()
             if (value != null && value > 0) return value
         }
+        // Bare number at start (e.g. "45 groceries")
+        val bareStartMatch = bareNumberAtStart.find(text)
+        if (bareStartMatch != null) {
+            val digits = bareStartMatch.groupValues[1].replace(",", "")
+            val value = digits.toDoubleOrNull()
+            if (value != null && value > 0) return value
+        }
         return null
     }
 
@@ -412,6 +444,8 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
     private fun detectCategory(text: String, transactionTypeId: Int): Int {
         val lower = text.lowercase(Locale.ROOT)
 
+        // First match wins — list order determines priority.
+        // More specific keywords (e.g. "pet food") are listed before generic ones (e.g. "food").
         for ((keyword, categoryName) in categoryKeywords) {
             if (lower.contains(keyword)) {
                 val categoryId = resolveCategoryId(categoryName, transactionTypeId)

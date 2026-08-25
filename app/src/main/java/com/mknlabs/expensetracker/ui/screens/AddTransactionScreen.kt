@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -131,6 +132,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.models.TabItem
@@ -142,7 +145,23 @@ import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getRankedCategories
 import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
 import com.mknlabs.expensetracker.utils.getCurrency
+import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
+import com.mknlabs.expensetracker.utils.getCurrency
+import com.mknlabs.expensetracker.domain.models.VoiceConfidence
+import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.ui.components.VoiceSheetState
+import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import android.speech.RecognitionListener
+import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import java.math.BigDecimal
 
 private const val incomeTypeId = 1
@@ -261,6 +280,75 @@ fun AddTransactionScreen(
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
 
+        // Voice input state
+        var isVoiceSheetVisible by rememberSaveable { mutableStateOf(false) }
+        val voiceViewModel: VoiceAddViewModel = hiltViewModel()
+        val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
+        val hasMicPermission = remember {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                PackageManager.PERMISSION_GRANTED
+        }
+        var micPermissionGranted by rememberSaveable { mutableStateOf(hasMicPermission) }
+        val micPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            micPermissionGranted = granted
+            if (granted) {
+                voiceViewModel.resetToListening()
+                isVoiceSheetVisible = true
+            } else {
+                voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
+                isVoiceSheetVisible = true
+            }
+        }
+
+        // SpeechRecognizer — created once, started/stopped with the sheet
+        val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+        DisposableEffect(speechRecognizer) {
+            onDispose { speechRecognizer.destroy() }
+        }
+        LaunchedEffect(isVoiceSheetVisible, voiceUiState.sheetState) {
+            if (isVoiceSheetVisible && voiceUiState.sheetState == VoiceSheetState.LISTENING) {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                }
+                speechRecognizer.setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(params: Bundle?) {}
+                    override fun onBeginningOfSpeech() {}
+                    override fun onRmsChanged(rmsdB: Float) {}
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+                    override fun onEndOfSpeech() {
+                        voiceViewModel.onSpeechResult(voiceUiState.transcript)
+                    }
+                    override fun onError(error: Int) {
+                        val errorResId = when (error) {
+                            SpeechRecognizer.ERROR_NO_MATCH,
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
+                            SpeechRecognizer.ERROR_NETWORK,
+                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
+                            SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
+                            else -> R.string.msg_voice_error_recognizer
+                        }
+                        voiceViewModel.onRecognizerError(errorResId)
+                    }
+                    override fun onResults(results: Bundle?) {
+                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull().orEmpty()
+                        voiceViewModel.onSpeechResult(text)
+                    }
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull().orEmpty()
+                        voiceViewModel.onPartialResult(text)
+                    }
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                })
+                speechRecognizer.startListening(intent)
+            }
+        }
+
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
                 amountInput = initialAmountInput
@@ -337,6 +425,22 @@ fun AddTransactionScreen(
                 onBackClick = {
                     keyboardController?.hide()
                     onBackClick()
+                },
+                actions = {
+                    IconButton(onClick = {
+                        voiceViewModel.resetToListening()
+                        if (micPermissionGranted) {
+                            isVoiceSheetVisible = true
+                        } else {
+                            micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Mic,
+                            contentDescription = stringResource(R.string.desc_voice_add),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             )
 
@@ -654,6 +758,39 @@ fun AddTransactionScreen(
                     focusManager.clearFocus(force = true)
                     keyboardController?.hide()
                     isNoteSheetVisible = false
+                }
+            )
+        }
+
+        if (isVoiceSheetVisible) {
+            val currencySymbol = remember(currencyId) { getCurrency(currencyId).currencySymbol }
+            VoiceInputSheet(
+                sheetState = voiceUiState.sheetState,
+                transcript = voiceUiState.transcript,
+                parsedTransaction = voiceUiState.parsedTransaction,
+                errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
+                currencySymbol = currencySymbol,
+                onDismissRequest = {
+                    voiceViewModel.dismiss()
+                    isVoiceSheetVisible = false
+                },
+                onConfirm = { transaction ->
+                    // Auto-fill form fields from parsed voice result
+                    amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
+                    selectedTransactionTypeId = transaction.transactionTypeId
+                    selectedCategoryId = transaction.categoryId
+                    note = transaction.note
+                    noteDraft = transaction.note
+                    if (transaction.merchant != null) {
+                        note = if (note.isNotBlank()) "$note \u2014 ${transaction.merchant}" else transaction.merchant
+                        noteDraft = note
+                    }
+                    selectedDateMillis = transaction.createdAt
+                    voiceViewModel.dismiss()
+                    isVoiceSheetVisible = false
+                },
+                onRetry = {
+                    voiceViewModel.resetToListening()
                 }
             )
         }
