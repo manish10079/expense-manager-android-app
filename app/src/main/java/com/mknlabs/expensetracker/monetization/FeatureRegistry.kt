@@ -32,7 +32,14 @@ enum class Feature(val id: String, val displayName: String) {
     ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips"),
     TRANSACTION_COUNT("transaction_count", "Transaction Statistics"),
     AD_FREE_GLOBAL("ad_free_global", "Ad-Free Experience"),
-    DATABASE_RESTORE("database_restore", "Restore Database")
+    DATABASE_RESTORE("database_restore", "Restore Database"),
+
+    // AI Features
+    AI_VOICE_OFFLINE("ai_voice_offline", "Voice Add Transaction (Offline)"),
+    AI_VOICE_GEMINI("ai_voice_gemini", "Voice Add Transaction (AI)"),
+    AI_CATEGORY_DETECTION("ai_category_detection", "Auto Category Detection"),
+    AI_PAYMENT_MEMORY("ai_payment_memory", "Payment Method Memory"),
+    AI_VOICE_UNLIMITED("ai_voice_unlimited", "Unlimited AI Voice Parsing")
 }
 
 /**
@@ -108,7 +115,14 @@ object FeatureRegistry {
         
         Feature.PRIVACY_PROTECTION to AccessLevel.PREMIUM,
         Feature.BIOMETRIC_LOCK to AccessLevel.FREE,
-        Feature.DATABASE_RESTORE to AccessLevel.AD_SUPPORTED
+        Feature.DATABASE_RESTORE to AccessLevel.AD_SUPPORTED,
+
+        // AI Features
+        Feature.AI_VOICE_OFFLINE to AccessLevel.FREE,
+        Feature.AI_VOICE_GEMINI to AccessLevel.FREE, // with daily limit
+        Feature.AI_CATEGORY_DETECTION to AccessLevel.FREE,
+        Feature.AI_PAYMENT_MEMORY to AccessLevel.FREE,
+        Feature.AI_VOICE_UNLIMITED to AccessLevel.PREMIUM
     )
 
     /**

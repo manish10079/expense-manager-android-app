@@ -18,7 +18,7 @@ This roadmap outlines the implementation of AI-powered features split into **Fre
 | **1.1 Offline Voice Parser** | ✅ Complete | Parser + domain model + Hilt module + UI + tests all done. |
 | **1.2 Auto Category Detection** | ✅ Complete | Standalone CategoryPredictor + 55 tests. OfflineVoiceParser delegates to it. |
 | **1.3 Auto Payment Method Detection** | ✅ Complete | PaymentMethodPredictor + DataStore learning + 16 tests. Auto-fills in AddTransactionScreen. |
-| **2 Gemini AI Voice Parser** | ⬜ Not Started | — |
+| **2 Gemini AI Voice Parser** | ✅ Complete | GeminiVoiceParser + AiUsageTracker + Cloud Function + 10/day free limit. |
 | **3 Enhanced SMS Detection** | 🟡 ~30% | Currency-aware regex + bare amount fallback done. Auto-add logic pending. |
 | **4 Voice Home Widget** | ⬜ Not Started | — |
 | **5 Unlimited Gemini (Pro)** | ⬜ Not Started | — |
@@ -277,44 +277,35 @@ The app already has a robust monetization system that we'll extend:
 ### Phase 2: Gemini AI Voice Parser (Free Tier — 10/day)
 
 > **Priority: HIGH**  
-> **Timeline: Week 3–4**
+> **Timeline: Week 3–4**  
+> **Status: ✅ COMPLETE**
 
 **Goal:** Cloud-powered voice parsing for complex/ambiguous inputs
 
 **Implementation:**
 
-- **New files:**
-  - `ai/cloud/GeminiVoiceParser.kt` (pending)
-  - `ai/cloud/GeminiApiService.kt` (Retrofit interface, pending)
-  - `ai/AiUsageTracker.kt` (daily limit management, pending)
+- ✅ `ai/cloud/GeminiVoiceParser.kt` — cloud-powered parser using Firebase Functions + Gemini API
+- ✅ `ai/cloud/GeminiApiService.kt` — Firebase Functions callable interface
+- ✅ `ai/AiUsageTracker.kt` — DataStore-backed daily limit tracker (10/day free)
+- ✅ `functions/parseVoiceTransaction.js` — Firebase Cloud Function with Gemini prompt
+- ✅ Updated `VoiceParserModule.kt` — named binding for offline parser
+- ✅ Updated `VoiceAddViewModel.kt` — offline-first, Gemini fallback on LOW confidence
+- ✅ Updated `VoiceParserRepository.kt` — added `VoiceParserType` enum and `parserType` to result
+- ✅ Added AI features to `FeatureRegistry` (AI_VOICE_OFFLINE, AI_VOICE_GEMINI, AI_VOICE_UNLIMITED)
+- ✅ Created `AiUsageModule.kt` — Hilt DataStore provider
+- ✅ Unit tests for AiUsageTracker
 
-- **API Design:**
-  ```kotlin
-  // Firebase Cloud Function endpoint
-  POST /parseVoiceTransaction
-  Body: { text: String, locale: String, userId: String }
-  Response: {
-      amount: Long,
-      currency: String,
-      type: Int, // INCOME/EXPENSE
-      categoryId: Int,
-      merchant: String?,
-      date: Long?,
-      confidence: Float
-  }
-  ```
+**Flow:**
+1. Offline parser runs first (fast, free)
+2. If confidence is HIGH/MEDIUM → use offline result
+3. If confidence is LOW → try Gemini AI (if within daily limit)
+4. If limit reached → use offline result anyway
+5. Gemini fails → fallback to offline result
 
-- **Usage tracking:**
-  - Store daily count in `DataStore` (key: `gemini_voice_daily_count`, date)
-  - Reset at midnight (local timezone)
-  - Show remaining count in UI: "7/10 AI parses left today"
-
-- **Fallback:** If limit reached → offline parser automatically used
-
-- **Cost management:**
-  - Firebase Functions: ~$0.40/million invocations (first 2M free)
-  - Gemini API: Free tier available (limited RPM/TPM)
-  - Monitor usage via Firebase Analytics events
+**Cost:**
+- Firebase Functions: ~$0.40/million invocations (first 2M free)
+- Gemini API: Free tier available (limited RPM/TPM)
+- Estimated: ~$0.12/month for 1K users
 
 ---
 
@@ -628,7 +619,7 @@ The app already has a robust monetization system that we'll extend:
 Week 1-2:   Phase 1.1 - Offline Voice Parser          ✅ COMPLETE
 Week 2-3:   Phase 1.2 - Auto Category Detection       ✅ COMPLETE
 Week 3:     Phase 1.3 - Auto Payment Method Detection  ✅ COMPLETE
-Week 3-4:   Phase 2 - Gemini AI Voice Parser           ⬜ PENDING
+Week 3-4:   Phase 2 - Gemini AI Voice Parser           ✅ COMPLETE
 Week 4-5:   Phase 3 - Enhanced SMS Detection           🟡 ~30%
 Week 4:     Phase 5 - Unlimited Gemini for Pro         ⬜ PENDING
 Week 5-6:   Phase 4 - Voice Home Widget                ⬜ PENDING
@@ -647,7 +638,7 @@ Week 12-14: Phase 11 - Merchant Memory Cloud Sync      ⬜ PENDING
 | **M1: Voice MVP** | Week 2 | ✅ 100% | Parser + domain model + Hilt module + VoiceInputSheet + VoiceAddViewModel + 55 tests |
 | **M1.2: Category Detection** | Week 3 | ✅ 100% | CategoryPredictor + CategoryPrediction model + 55 tests + OfflineVoiceParser refactored |
 | **M1.3: Payment Method Detection** | Week 3 | ✅ 100% | PaymentMethodPredictor + PaymentMethodLearningStore + 16 tests + AddTransactionScreen integration |
-| **M2: AI Voice** | Week 4 | ⬜ | Gemini parser + daily limits |
+| **M2: AI Voice** | Week 4 | ✅ 100% | GeminiVoiceParser + AiUsageTracker + Cloud Function + FeatureRegistry + 10/day limits |
 | **M3: Widget** | Week 6 | ⬜ | Home widget with voice |
 | **M4: Insights** | Week 8 | ⬜ | Pro insights dashboard |
 | **M5: Receipts** | Week 10 | ⬜ | OCR scanning live |

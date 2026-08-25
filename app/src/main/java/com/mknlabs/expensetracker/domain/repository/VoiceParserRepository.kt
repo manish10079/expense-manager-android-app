@@ -3,11 +3,21 @@ package com.mknlabs.expensetracker.domain.repository
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 
 /**
+ * Type of voice parser to use.
+ */
+enum class VoiceParserType {
+    /** Offline, rule-based parser (free, unlimited). */
+    OFFLINE,
+    /** Cloud-powered Gemini parser (daily-limited). */
+    GEMINI
+}
+
+/**
  * Abstraction for voice-to-transaction parsing.
  *
  * Implementations:
  * - OfflineVoiceParser (free, on-device, rule-based)
- * - Future: GeminiVoiceParser (Pro, cloud-powered, daily-limited)
+ * - GeminiVoiceParser (cloud, daily-limited)
  */
 interface VoiceParserRepository {
 
@@ -28,6 +38,9 @@ interface VoiceParserRepository {
  * per GEMINI.md i18n requirements.
  */
 sealed class VoiceParseResult {
-    data class Success(val transaction: ParsedVoiceTransaction) : VoiceParseResult()
+    data class Success(
+        val transaction: ParsedVoiceTransaction,
+        val parserType: VoiceParserType = VoiceParserType.OFFLINE
+    ) : VoiceParseResult()
     data class Failed(val errorMessageResId: Int) : VoiceParseResult()
 }

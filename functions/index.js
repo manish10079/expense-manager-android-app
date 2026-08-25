@@ -10,6 +10,10 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
+// Import parseVoiceTransaction function
+const { parseVoiceTransaction } = require("./parseVoiceTransaction");
+exports.parseVoiceTransaction = parseVoiceTransaction;
+
 admin.initializeApp();
 
 const db = admin.firestore();
