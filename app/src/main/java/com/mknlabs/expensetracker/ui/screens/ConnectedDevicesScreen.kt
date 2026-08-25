@@ -185,7 +185,7 @@ private fun SyncTeaseContent(onUpgradeClick: () -> Unit) {
             onClick = onUpgradeClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(

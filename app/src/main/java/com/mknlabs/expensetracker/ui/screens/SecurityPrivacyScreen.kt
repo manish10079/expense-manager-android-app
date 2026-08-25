@@ -593,7 +593,7 @@ private fun ChangePasswordSheet(
                 enabled = isFormValid && !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 if (isLoading) {

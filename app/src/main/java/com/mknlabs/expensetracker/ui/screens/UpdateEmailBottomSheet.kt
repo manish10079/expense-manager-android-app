@@ -259,7 +259,7 @@ fun UpdateEmailBottomSheet(
                                 localError = context.getString(R.string.msg_enter_current_password)
                             }
                         },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                         enabled = isFormValid && password.isNotBlank() && !isLoading,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -481,7 +481,7 @@ private fun PendingVerificationContent(
         val isChecking = false // Managed by ViewModel
         Button(
             onClick = onCheckStatus,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             enabled = !isChecking,
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -496,7 +496,7 @@ private fun PendingVerificationContent(
         // Resend with countdown
         OutlinedButton(
             onClick = handleResend,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             enabled = countdownSeconds <= 0 && !isResending,
             shape = RoundedCornerShape(12.dp)
         ) {

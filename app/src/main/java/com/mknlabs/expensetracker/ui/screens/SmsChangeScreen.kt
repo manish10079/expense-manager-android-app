@@ -300,7 +300,7 @@ fun SmsChangeContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
                     .alpha(if (uiState.isSaving) 0.6f else 1f)
                     .shadow(
                         elevation = 16.dp,

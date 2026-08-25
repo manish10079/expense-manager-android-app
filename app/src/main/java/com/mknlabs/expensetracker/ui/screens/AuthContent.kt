@@ -252,7 +252,7 @@ private fun AuthContentBody(
                 onClick = onGoogleSignIn,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 enabled = authState !is AuthState.Loading,
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
@@ -423,7 +423,7 @@ private fun AuthContentBody(
                 modifier = Modifier
                     .bringIntoViewRequester(submitButtonBringIntoViewRequester)
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(16.dp),
                 enabled = canSubmit && authState !is AuthState.Loading,
                 colors = ButtonDefaults.buttonColors(
@@ -465,7 +465,7 @@ private fun AuthContentBody(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .heightIn(min = 56.dp),
                     enabled = email.isNotEmpty() && isEmailValid && authState !is AuthState.Loading && cooldownSeconds == 0,
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -633,7 +633,7 @@ private fun EmailVerificationContent(
             onClick = onCheckStatus,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(16.dp),
             enabled = !isVerificationLoading
         ) {
@@ -655,7 +655,7 @@ private fun EmailVerificationContent(
             onClick = onResend,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(16.dp),
             enabled = !isVerificationLoading
         ) {

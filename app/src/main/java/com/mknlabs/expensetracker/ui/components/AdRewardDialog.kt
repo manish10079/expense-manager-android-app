@@ -65,7 +65,7 @@ fun AdRewardDialog(
             Button(
                 onClick = onWatchAdClick,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(stringResource(R.string.label_watch_ad_unlock), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)

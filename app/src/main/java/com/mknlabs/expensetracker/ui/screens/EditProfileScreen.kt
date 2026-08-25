@@ -491,7 +491,7 @@ private fun ProfileScreenContent(
                 enabled = !isPhotoProcessing,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp)
+                    .heightIn(min = 64.dp, max = 80.dp)
                     .shadow(
                         elevation = 28.dp,
                         shape = RoundedCornerShape(999.dp),
@@ -505,7 +505,8 @@ private fun ProfileScreenContent(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(
@@ -523,7 +524,8 @@ private fun ProfileScreenContent(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 18.sp
-                        )
+                        ),
+                        maxLines = 1
                     )
                 }
             }

@@ -1083,7 +1083,7 @@ private fun RecurringTransactionSection(
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(44.dp)
+                                    .heightIn(min = 44.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
                                         if (isSelected) SolidColor(colorScheme.primary.copy(alpha = 0.15f))
@@ -1110,7 +1110,7 @@ private fun RecurringTransactionSection(
                         OutlinedTextField(
                             value = if (repeatCountInput in presetInstallments) "" else repeatCountInput,
                             onValueChange = { if (it.length <= 3) onRepeatCountChange(it) },
-                            modifier = Modifier.weight(1.2f).height(44.dp),
+                            modifier = Modifier.weight(1.2f).heightIn(min = 44.dp),
                             singleLine = true,
                             placeholder = { Text(stringResource(R.string.label_other_installment), fontSize = 14.sp) },
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -1986,7 +1986,7 @@ private fun TransactionNoteBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
                     .shadow(
                         elevation = 16.dp,
                         shape = RoundedCornerShape(28.dp),

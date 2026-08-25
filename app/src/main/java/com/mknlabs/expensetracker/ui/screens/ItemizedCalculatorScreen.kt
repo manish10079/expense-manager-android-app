@@ -377,7 +377,7 @@ private fun CalculatorKeypad(
             } else {
                 Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .heightIn(min = 72.dp)
             },
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -413,7 +413,7 @@ private fun CalculatorKeypad(
             } else {
                 Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .heightIn(min = 72.dp)
             },
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -441,7 +441,7 @@ private fun CalculatorKeypad(
             } else {
                 Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .heightIn(min = 72.dp)
             },
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -489,7 +489,7 @@ private fun CalculatorKeypad(
                     } else {
                         Modifier
                             .fillMaxWidth()
-                            .height(72.dp)
+                            .heightIn(min = 72.dp)
                     },
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -511,7 +511,7 @@ private fun CalculatorKeypad(
                     } else {
                         Modifier
                             .fillMaxWidth()
-                            .height(72.dp)
+                            .heightIn(min = 72.dp)
                     },
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -944,7 +944,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp)
+            .heightIn(min = 70.dp)
             .drawBehind {
                 drawRoundRect(
                     color = borderColor,
@@ -990,7 +990,7 @@ private fun SecondaryActionButton(
 ) {
     Box(
         modifier = modifier
-            .height(54.dp)
+            .heightIn(min = 54.dp)
             .clip(RoundedCornerShape(24.dp))
             .background(standardCardGradient())
             .clickable(onClick = onClick),
@@ -1015,7 +1015,7 @@ private fun PrimaryActionButton(
 ) {
     Box(
         modifier = modifier
-            .height(54.dp)
+            .heightIn(min = 54.dp)
             .alpha(if (enabled) 1f else 0.55f)
             .clip(RoundedCornerShape(24.dp))
             .background(
@@ -1047,7 +1047,7 @@ private fun ApplyToNoteButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
+            .heightIn(min = 72.dp)
             .alpha(if (enabled) 1f else 0.55f)
             .shadow(
                 elevation = 22.dp,

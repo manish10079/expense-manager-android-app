@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -219,7 +220,7 @@ fun <T> ViewPickerDialog(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(80.dp)
+                                        .heightIn(min = 80.dp)
                                         .clip(RoundedCornerShape(18.dp))
                                         .background(bgColor)
                                         .then(

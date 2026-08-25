@@ -177,7 +177,7 @@ private fun <T> SelectionRow(
         if (item.leadingText != null || item.leadingIcon != null) {
             Box(
                 modifier = Modifier
-                    .height(42.dp)
+                    .heightIn(min = 42.dp)
                     .widthIn(min = 42.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(boxBackgroundColor)

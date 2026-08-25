@@ -228,7 +228,7 @@ private fun FeedbackScreenContent(
                 enabled = !uiState.isLoading && !uiState.isCooldownActive && uiState.feedbackText.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
                     .clip(RoundedCornerShape(28.dp)),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
