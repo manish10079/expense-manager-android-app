@@ -2,17 +2,17 @@ package com.mknlabs.expensetracker
 
 import android.content.Context
 import com.google.firebase.appcheck.FirebaseAppCheck
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 
 /**
- * Release variant: uses Play Integrity to verify the app is genuine
- * and running on an uncompromised device.
+ * Release variant: uses debug token for testing purposes.
+ * TODO: Switch to PlayIntegrityAppCheckProviderFactory after Play Store release.
  */
 object AppCheckInitializer {
     fun initialize(@Suppress("UNUSED_PARAMETER") context: Context) {
         val appCheck = FirebaseAppCheck.getInstance()
         appCheck.installAppCheckProviderFactory(
-            PlayIntegrityAppCheckProviderFactory.getInstance()
+            DebugAppCheckProviderFactory.getInstance()
         )
     }
 }
