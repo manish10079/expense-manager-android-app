@@ -152,6 +152,7 @@ import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
 import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.ui.components.VoiceSheetState
+import com.mknlabs.expensetracker.ui.viewmodels.PaymentMethodPredictorViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
 import android.Manifest
 import android.content.pm.PackageManager
@@ -257,6 +258,27 @@ fun AddTransactionScreen(
         var note by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingTransaction?.note.orEmpty())
         }
+
+        // Payment method prediction
+        val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
+        val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId.collectAsStateWithLifecycle()
+
+        var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(false) }
+
+        // Auto-predict payment method when note/merchant text changes
+        LaunchedEffect(note) {
+            if (note.isNotBlank() && !isEditMode && !hasManuallySelectedPayment) {
+                paymentMethodPredictorViewModel.predict(note)
+            }
+        }
+
+        // Apply predicted payment method when prediction arrives
+        LaunchedEffect(predictedPaymentMethodId) {
+            if (!isEditMode && predictedPaymentMethodId != null && !hasManuallySelectedPayment) {
+                selectedPaymentId = predictedPaymentMethodId!!
+            }
+        }
+
         var noteDraft by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingTransaction?.note.orEmpty())
         }
@@ -533,7 +555,7 @@ fun AddTransactionScreen(
                             getId = { it.id },
                             getLabel = { it.name },
                             getIcon = { it.icon },
-                            onItemSelected = { selectedPaymentId = it }
+                            onItemSelected = { selectedPaymentId = it; hasManuallySelectedPayment = true }
                         )
                     }
                 }
@@ -695,6 +717,10 @@ fun AddTransactionScreen(
                                 }
                             }
                             keyboardController?.hide()
+                            // Learn merchant → payment method association
+                            if (note.isNotBlank()) {
+                                paymentMethodPredictorViewModel.learn(note, payment.id)
+                            }
                             onSaveClick(transaction, recurringDraft)
                         }
                     )

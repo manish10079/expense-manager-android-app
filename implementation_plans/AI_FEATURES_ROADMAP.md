@@ -17,7 +17,7 @@ This roadmap outlines the implementation of AI-powered features split into **Fre
 |-------|--------|-------|
 | **1.1 Offline Voice Parser** | ✅ Complete | Parser + domain model + Hilt module + UI + tests all done. |
 | **1.2 Auto Category Detection** | ✅ Complete | Standalone CategoryPredictor + 55 tests. OfflineVoiceParser delegates to it. |
-| **1.3 Auto Payment Method Detection** | ⬜ Not Started | — |
+| **1.3 Auto Payment Method Detection** | ✅ Complete | PaymentMethodPredictor + DataStore learning + 16 tests. Auto-fills in AddTransactionScreen. |
 | **2 Gemini AI Voice Parser** | ⬜ Not Started | — |
 | **3 Enhanced SMS Detection** | 🟡 ~30% | Currency-aware regex + bare amount fallback done. Auto-add logic pending. |
 | **4 Voice Home Widget** | ⬜ Not Started | — |
@@ -35,6 +35,7 @@ This roadmap outlines the implementation of AI-powered features split into **Fre
 app/src/main/java/com/mknlabs/expensetracker/
 ├── ai/
 │   ├── CategoryPredictor.kt               ✅ Standalone, injectable category predictor (27 merchant + 100+ keyword rules)
+│   ├── PaymentMethodPredictor.kt          ✅ Offline, DataStore-backed payment method predictor
 │   └── offline/
 │       └── OfflineVoiceParser.kt          ✅ Hilt-injectable, delegates category detection to CategoryPredictor
 ├── domain/
@@ -44,13 +45,18 @@ app/src/main/java/com/mknlabs/expensetracker/
 │   └── repository/
 │       ├── CategoryPredictorRepository.kt ✅ Interface for auto category detection
 │       └── VoiceParserRepository.kt       ✅ Interface + VoiceParseResult sealed class
+├── data/local/
+│   ├── PaymentMethodLearningStore.kt      ✅ DataStore-backed merchant→payment method learning store
+│   └── SmsLearningStore.kt                ✅ DataStore-backed merchant→category learning store
 ├── di/
 │   ├── CategoryPredictorModule.kt         ✅ Hilt @Binds binding for CategoryPredictor
+│   ├── PaymentMethodPredictorModule.kt    ✅ Hilt @Binds + @Provides for PaymentMethodPredictor
 │   └── VoiceParserModule.kt               ✅ Hilt @Binds binding for VoiceParser
 ├── ui/
 │   ├── components/
 │   │   └── VoiceInputSheet.kt             ✅ Bottom sheet: Listening/Processing/Result/Error states
 │   └── viewmodels/
+│       ├── PaymentMethodPredictorViewModel.kt ✅ @HiltViewModel: predict + learn + StateFlow
 │       └── VoiceAddViewModel.kt           ✅ @HiltViewModel: state machine + parser integration
 ├── sms/
 │   ├── SmsRegex.kt                        ✅ Currency-aware regex + BARE_AMOUNT fallback
@@ -65,7 +71,8 @@ app/src/main/res/values/
 
 app/src/test/java/com/mknlabs/expensetracker/
 ├── ai/
-│   └── CategoryPredictorTest.kt           ✅ 55 unit tests for category prediction
+│   ├── CategoryPredictorTest.kt           ✅ 55 unit tests for category prediction
+│   └── PaymentMethodPredictorTest.kt      ✅ 16 unit tests for payment method prediction
 ├── ai/offline/
 │   └── OfflineVoiceParserTest.kt          ✅ 55 unit tests (updated for CategoryPredictor injection)
 ├── sms/
@@ -103,6 +110,13 @@ app/src/test/java/com/mknlabs/expensetracker/
   - Bottom sheet with 4 states: Listening (pulsing mic), Processing, Result (parsed preview), Error
   - Auto-fill form fields on confirm (amount, type, category, note, merchant, date)
   - Error handling: no permission, no speech, network error, audio error
+
+- **PaymentMethodPredictor** — Auto payment method detection from merchant history
+  - Exact + partial merchant matching (case-insensitive)
+  - Learns from user transaction history via DataStore
+  - Auto-fills payment method picker in AddTransactionScreen
+  - Respects manual user selection (won't override after manual pick)
+  - 16 unit tests
 
 - **Currency-Aware SMS Detection** — Reads user's selected currency
   - Dynamic regex generation via `SmsRegex.getAmountRegex(currencySymbol)`
@@ -236,20 +250,27 @@ The app already has a robust monetization system that we'll extend:
 - ✅ Refactored `OfflineVoiceParser` — delegates to `CategoryPredictor` (removed 200+ lines of duplicate rules)
 - ✅ 55 unit tests in `CategoryPredictorTest.kt` — all pass
 
-#### 1.3 Auto Payment Method Detection
+#### 1.3 Auto Payment Method Detection (Offline)
 
 > **Priority: MEDIUM**  
-> **Timeline: Week 3**
+> **Timeline: Week 3**  
+> **Status: ✅ COMPLETE**
 
 **Goal:** Remember merchant → payment method associations
 
 **Implementation:**
 
-- **New file:** `ai/PaymentMethodPredictor.kt` (pending)
-  - User history: merchant → last used payment method
-  - Stored in Room DB (`MerchantPaymentMemory` table)
-  - Auto-populate payment method when adding transaction
+- ✅ `PaymentMethodPredictor.kt` — offline, injectable predictor
+  - Exact + partial merchant matching
+  - Learns from user transaction history via `PaymentMethodLearningStore`
+  - Auto-populates payment method in AddTransactionScreen
   - User can override (learns from corrections)
+- ✅ `PaymentMethodLearningStore.kt` — DataStore-backed merchant→paymentMethodId store
+- ✅ `PaymentMethodPredictorRepository.kt` — interface: predict(), learn(), forget()
+- ✅ `PaymentMethodPredictorViewModel.kt` — @HiltViewModel with StateFlow
+- ✅ `PaymentMethodPredictorModule.kt` — Hilt bindings
+- ✅ Integrated into `AddTransactionScreen.kt` — auto-fills on note change, learns on save
+- ✅ 16 unit tests in `PaymentMethodPredictorTest.kt` — all pass
 
 ---
 
@@ -606,7 +627,7 @@ The app already has a robust monetization system that we'll extend:
 ```
 Week 1-2:   Phase 1.1 - Offline Voice Parser          ✅ COMPLETE
 Week 2-3:   Phase 1.2 - Auto Category Detection       ✅ COMPLETE
-Week 3:     Phase 1.3 - Auto Payment Method Detection  ⬜ PENDING
+Week 3:     Phase 1.3 - Auto Payment Method Detection  ✅ COMPLETE
 Week 3-4:   Phase 2 - Gemini AI Voice Parser           ⬜ PENDING
 Week 4-5:   Phase 3 - Enhanced SMS Detection           🟡 ~30%
 Week 4:     Phase 5 - Unlimited Gemini for Pro         ⬜ PENDING
@@ -625,6 +646,7 @@ Week 12-14: Phase 11 - Merchant Memory Cloud Sync      ⬜ PENDING
 |-----------|--------|--------|------------------|
 | **M1: Voice MVP** | Week 2 | ✅ 100% | Parser + domain model + Hilt module + VoiceInputSheet + VoiceAddViewModel + 55 tests |
 | **M1.2: Category Detection** | Week 3 | ✅ 100% | CategoryPredictor + CategoryPrediction model + 55 tests + OfflineVoiceParser refactored |
+| **M1.3: Payment Method Detection** | Week 3 | ✅ 100% | PaymentMethodPredictor + PaymentMethodLearningStore + 16 tests + AddTransactionScreen integration |
 | **M2: AI Voice** | Week 4 | ⬜ | Gemini parser + daily limits |
 | **M3: Widget** | Week 6 | ⬜ | Home widget with voice |
 | **M4: Insights** | Week 8 | ⬜ | Pro insights dashboard |
