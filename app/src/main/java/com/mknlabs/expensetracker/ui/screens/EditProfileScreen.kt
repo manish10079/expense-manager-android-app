@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -333,7 +334,18 @@ private fun ProfileScreenContent(
                             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                         )
 
-                        if (!emailVerifiedState) {
+                        if (isGoogleAccount) {
+                            // Google auth → show signed-in label (no email edit)
+                            Text(
+                                text = stringResource(id = R.string.label_signed_in_with_google),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        } else if (!emailVerifiedState) {
                             // Email not verified → Verify Email button
                             androidx.compose.material3.TextButton(
                                 onClick = {
@@ -355,7 +367,7 @@ private fun ProfileScreenContent(
                                 )
                             }
                         } else {
-                            // Email verified → Update Email button
+                            // Email verified (non-Google) → Update Email button
                             androidx.compose.material3.TextButton(
                                 onClick = { showUpdateEmailSheet = true },
                                 modifier = Modifier.fillMaxWidth()

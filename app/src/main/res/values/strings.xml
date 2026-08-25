@@ -1606,6 +1606,7 @@
     <string name="msg_failed_to_resend">Failed to resend. Please try again.</string>
     <string name="msg_email_verified_success">Email verified successfully!</string>
     <string name="btn_update_email">Update Email</string>
+    <string name="label_signed_in_with_google">Signed in with Google</string>
     <string name="title_update_email">Update Email Address</string>
     <string name="desc_update_email">Enter your new email address. A verification link will be sent — your email will only change after you verify it.</string>
     <string name="label_current_email">Current Email</string>
