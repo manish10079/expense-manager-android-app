@@ -1,12 +1,16 @@
 package com.mknlabs.expensetracker.ui.viewmodels
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.AiUsageTracker
+import com.mknlabs.expensetracker.ai.aiUsageDataStore
+import com.mknlabs.expensetracker.ai.offline.OfflineVoiceParser
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
-import com.mknlabs.expensetracker.domain.repository.VoiceParserRepository
 import com.mknlabs.expensetracker.domain.repository.VoiceParserType
 import com.mknlabs.expensetracker.ui.components.VoiceSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
  * UI state for the voice input sheet.
@@ -39,13 +42,25 @@ data class VoiceInputUiState(
  * The actual SpeechRecognizer is managed in the Composable layer (needs
  * Android lifecycle), and recognized text is passed here for parsing.
  *
+ * Parser selection logic:
+ * 1. Check internet availability
+ * 2. If online AND within daily limit → use Gemini AI parser
+ * 3. If offline OR limit reached → use offline parser
+ *
  * Follows GEMINI.md: @HiltViewModel, StateFlow, no hardcoded strings.
  */
 @HiltViewModel
 class VoiceAddViewModel @Inject constructor(
-    @Named("offline") private val offlineParser: VoiceParserRepository,
-    private val aiUsageTracker: AiUsageTracker
-) : ViewModel() {
+    application: Application,
+    private val offlineParser: OfflineVoiceParser
+) : AndroidViewModel(application) {
+
+    /** Lazily created — avoids Hilt DataStore injection issues. */
+    private val aiUsageTracker by lazy {
+        val dataStore = getApplication<Application>()
+            .aiUsageDataStore
+        AiUsageTracker(dataStore)
+    }
 
     private val _uiState = MutableStateFlow(VoiceInputUiState())
     val uiState: StateFlow<VoiceInputUiState> = _uiState.asStateFlow()
@@ -77,75 +92,62 @@ class VoiceAddViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            // 1. Always try offline parser first (fast, free)
-            val offlineResult = offlineParser.parse(text)
+            val isOnline = isInternetAvailable()
+            val hasRemainingAiParses = aiUsageTracker.hasRemainingParses.first()
 
-            if (offlineResult is VoiceParseResult.Success &&
-                offlineResult.transaction.confidence != com.mknlabs.expensetracker.domain.models.VoiceConfidence.LOW
-            ) {
-                // Offline parser gave a good result — use it
-                val remaining = aiUsageTracker.remainingParses.first()
-                _uiState.value = _uiState.value.copy(
-                    sheetState = VoiceSheetState.RESULT,
-                    parsedTransaction = offlineResult.transaction,
-                    parserType = VoiceParserType.OFFLINE,
-                    remainingAiParses = remaining
-                )
-                return@launch
-            }
-
-            // 2. Offline result is LOW confidence — try Gemini if within limit
-            val hasRemaining = aiUsageTracker.hasRemainingParses.first()
-            if (!hasRemaining) {
-                // Limit reached — use offline result anyway
-                val remaining = aiUsageTracker.remainingParses.first()
-                _uiState.value = _uiState.value.copy(
-                    sheetState = VoiceSheetState.RESULT,
-                    parsedTransaction = offlineResult.transactionOrFallback(),
-                    parserType = VoiceParserType.OFFLINE,
-                    remainingAiParses = remaining
-                )
-                return@launch
-            }
-
-            // 3. Try Gemini AI parser
-            try {
-                val geminiParser = tryGeminiParser()
-                if (geminiParser != null) {
-                    val geminiResult = geminiParser.parse(text)
-                    if (geminiResult is VoiceParseResult.Success) {
-                        // Record usage
-                        aiUsageTracker.recordUsage()
-                        val remaining = aiUsageTracker.remainingParses.first()
-                        _uiState.value = _uiState.value.copy(
-                            sheetState = VoiceSheetState.RESULT,
-                            parsedTransaction = geminiResult.transaction,
-                            parserType = VoiceParserType.GEMINI,
-                            remainingAiParses = remaining
-                        )
-                        return@launch
+            // Decision: use Gemini AI only if online AND within daily limit
+            if (isOnline && hasRemainingAiParses) {
+                // Try Gemini AI parser first
+                try {
+                    val geminiParser = tryGeminiParser()
+                    if (geminiParser != null) {
+                        val geminiResult = geminiParser.parse(text)
+                        if (geminiResult is VoiceParseResult.Success) {
+                            // Record usage
+                            aiUsageTracker.recordUsage()
+                            val remaining = aiUsageTracker.remainingParses.first()
+                            _uiState.value = _uiState.value.copy(
+                                sheetState = VoiceSheetState.RESULT,
+                                parsedTransaction = geminiResult.transaction,
+                                parserType = VoiceParserType.GEMINI,
+                                remainingAiParses = remaining
+                            )
+                            return@launch
+                        }
                     }
+                } catch (_: Exception) {
+                    // Gemini failed — fall through to offline parser
                 }
-            } catch (_: Exception) {
-                // Gemini failed — fall through to offline result
             }
 
-            // 4. Fallback to offline result
+            // Fallback: use offline parser (no internet OR limit reached OR Gemini failed)
+            val offlineResult = offlineParser.parse(text)
             val remaining = aiUsageTracker.remainingParses.first()
-            _uiState.value = _uiState.value.copy(
-                sheetState = VoiceSheetState.RESULT,
-                parsedTransaction = offlineResult.transactionOrFallback(),
-                parserType = VoiceParserType.OFFLINE,
-                remainingAiParses = remaining
-            )
+
+            when (offlineResult) {
+                is VoiceParseResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.RESULT,
+                        parsedTransaction = offlineResult.transaction,
+                        parserType = VoiceParserType.OFFLINE,
+                        remainingAiParses = remaining
+                    )
+                }
+                is VoiceParseResult.Failed -> {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.ERROR,
+                        errorMessageResId = offlineResult.errorMessageResId
+                    )
+                }
+            }
         }
     }
 
     /**
-     * Attempts to get the Gemini parser via Hilt injection.
-     * Returns null if not available (e.g., not injected).
+     * Attempts to get the Gemini parser via reflection.
+     * Returns null if not available (e.g., not configured or network error).
      */
-    private fun tryGeminiParser(): VoiceParserRepository? {
+    private fun tryGeminiParser(): com.mknlabs.expensetracker.domain.repository.VoiceParserRepository? {
         return try {
             val clazz = Class.forName("com.mknlabs.expensetracker.ai.cloud.GeminiVoiceParser")
             val constructor = clazz.constructors.first()
@@ -153,26 +155,22 @@ class VoiceAddViewModel @Inject constructor(
             val functionsClass = Class.forName("com.google.firebase.functions.FirebaseFunctions")
             val functions = functionsClass.getMethod("getInstance").invoke(null)
             val apiService = apiServiceClass.constructors.first().newInstance(functions)
-            constructor.newInstance(apiService) as? VoiceParserRepository
+            constructor.newInstance(apiService) as? com.mknlabs.expensetracker.domain.repository.VoiceParserRepository
         } catch (_: Exception) {
             null
         }
     }
 
     /**
-     * Extracts the transaction from a Success result, or creates a fallback.
+     * Checks if the device has an active internet connection.
      */
-    private fun VoiceParseResult.transactionOrFallback(): ParsedVoiceTransaction {
-        return when (this) {
-            is VoiceParseResult.Success -> transaction
-            is VoiceParseResult.Failed -> ParsedVoiceTransaction(
-                amountMinor = 0,
-                transactionTypeId = 2,
-                categoryId = 23,
-                note = _uiState.value.transcript.trim(),
-                confidence = com.mknlabs.expensetracker.domain.models.VoiceConfidence.LOW
-            )
-        }
+    private fun isInternetAvailable(): Boolean {
+        val app = getApplication<Application>()
+        val connectivityManager = app.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+               capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     /**
