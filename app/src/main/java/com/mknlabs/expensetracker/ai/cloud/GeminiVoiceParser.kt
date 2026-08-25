@@ -23,7 +23,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class GeminiVoiceParser @Inject constructor(
-    private val apiService: GeminiApiService
+    private val apiService: GeminiApiService,
+    private val userContextProvider: com.mknlabs.expensetracker.ai.cloud.UserContextProvider
 ) : VoiceParserRepository {
 
     /**
@@ -34,12 +35,14 @@ class GeminiVoiceParser @Inject constructor(
      *         [VoiceParseResult.Failed] with a string resource ID for the error message.
      */
     override fun parse(text: String): VoiceParseResult {
-        // This is called synchronously from VoiceAddViewModel.
-        // We use runBlocking to bridge coroutine suspension into sync context.
-        // The actual network call happens in the ViewModel's coroutine scope.
         return kotlinx.coroutines.runBlocking {
             try {
-                val response = apiService.parseVoiceTransaction(text)
+                val context = userContextProvider.getUserContext()
+                val response = apiService.parseVoiceTransaction(
+                    text = text,
+                    locale = context.locale,
+                    currency = context.currency
+                )
 
                 val confidence = when (response.confidence.uppercase()) {
                     "HIGH" -> VoiceConfidence.HIGH

@@ -5,7 +5,13 @@
  * transaction data. Called by the ExpenseTracker Android app when the
  * offline parser returns LOW confidence.
  *
- * Request:  { text: string, locale: string }
+ * Personalization:
+ * - Fetches user's currency and locale from Firestore
+ * - Includes ALL available categories and payment methods in prompt
+ * - Includes user's top 3 most-used categories and payment methods
+ * - No raw transaction data is sent to Gemini (privacy safe)
+ *
+ * Request:  { text: string, locale: string, currency: string }
  * Response: { amount, currency, transactionTypeId, categoryId, note,
  *             merchant, paymentTypeId, createdAt, confidence, source }
  *
@@ -21,22 +27,43 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-// Gemini API key from Firebase Remote Config or environment
+const db = admin.firestore();
+
+// Gemini API key from environment
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
 /**
+ * All available expense categories (matches Android categoryMap).
+ */
+const EXPENSE_CATEGORIES = [
+  "Food", "Travel", "Shopping", "Bills", "Health", "Entertainment",
+  "Rent", "Groceries", "Education", "Subscriptions", "Insurance",
+  "Gifts", "Personal Care", "Fuel", "Maintenance", "Taxes",
+  "Pets", "Childcare", "Donations", "Miscellaneous", "Transport", "Other"
+];
+
+/**
+ * All available income categories (matches Android categoryMap).
+ */
+const INCOME_CATEGORIES = [
+  "Salary", "Business", "Investment", "Freelance", "Other Income"
+];
+
+/**
+ * All available payment methods (matches Android paymentTypeMap).
+ */
+const PAYMENT_METHODS = ["UPI", "Cash", "Bank", "Card", "Other"];
+
+/**
  * Category ID mapping (matches Android categoryMap).
- * Used to map Gemini's category suggestions to our internal IDs.
  */
 const CATEGORY_MAP = {
-  // Expense categories
   "food": 1, "travel": 2, "shopping": 3, "bills": 4,
   "health": 5, "entertainment": 6, "rent": 7, "groceries": 8,
   "education": 9, "subscriptions": 10, "insurance": 11,
   "gifts": 12, "personal care": 13, "fuel": 14, "maintenance": 15,
   "taxes": 16, "pets": 17, "childcare": 18, "donations": 19,
   "miscellaneous": 20, "transport": 22, "other": 23,
-  // Income categories
   "salary": 101, "business": 102, "investment": 103,
   "freelance": 104, "other income": 105
 };
@@ -71,6 +98,7 @@ exports.parseVoiceTransaction = onCall(
       throw new HttpsError("invalid-argument", "Text cannot be empty");
     }
     const locale = request.data?.locale || "en-US";
+    const clientCurrency = request.data?.currency || "INR";
 
     // --- Check Gemini API key ---
     if (!GEMINI_API_KEY) {
@@ -78,10 +106,13 @@ exports.parseVoiceTransaction = onCall(
     }
 
     try {
+      // Fetch user context from Firestore (minimal reads, no privacy risk)
+      const userContext = await fetchUserContext(uid, clientCurrency, locale);
+
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-      const prompt = buildPrompt(text, locale);
+      const prompt = buildPrompt(text, userContext);
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text_response = response.text();
@@ -91,7 +122,7 @@ exports.parseVoiceTransaction = onCall(
 
       return {
         amount: parsed.amount || 0,
-        currency: parsed.currency || "",
+        currency: parsed.currency || userContext.currency,
         transactionTypeId: parsed.transactionTypeId || 2,
         categoryId: resolveCategoryId(parsed.category),
         note: parsed.note || text.trim(),
@@ -112,45 +143,119 @@ exports.parseVoiceTransaction = onCall(
 );
 
 /**
- * Builds the Gemini prompt for voice transaction parsing.
+ * Fetches user context from Firestore for personalized parsing.
+ * 
+ * Reads only:
+ * - User profile (currency, locale) — 1 read
+ * - Top categories aggregation — 1 read (computed on-device, stored as summary)
+ * - Top payment methods aggregation — 1 read (computed on-device, stored as summary)
+ * 
+ * Total: 3 Firestore reads per parse (well within free tier)
  */
-function buildPrompt(text, locale) {
-  return `You are a financial transaction parser. Parse the following voice input into a structured transaction.
+async function fetchUserContext(uid, fallbackCurrency, fallbackLocale) {
+  const context = {
+    currency: fallbackCurrency,
+    locale: fallbackLocale,
+    topCategories: [],
+    topPaymentMethods: []
+  };
 
-Voice input: "${text}"
-Locale: ${locale}
+  try {
+    // 1. Fetch user profile for currency and locale
+    const userSnap = await db.collection("users").doc(uid).get();
+    if (userSnap.exists) {
+      const userData = userSnap.data();
+      context.currency = userData.currency || fallbackCurrency;
+      context.locale = userData.locale || fallbackLocale;
+    }
 
-Extract and return ONLY a JSON object with these fields:
-- amount: numeric amount (Long, in smallest currency unit, e.g., cents or paise)
+    // 2. Fetch aggregated AI stats (computed on-device, synced periodically)
+    // These are summary fields stored in the user document — not raw transactions
+    const aiStatsSnap = await db.collection("users").doc(uid)
+      .collection("aiStats").doc("voiceParsing").get();
+    if (aiStatsSnap.exists) {
+      const aiStats = aiStatsSnap.data();
+      context.topCategories = aiStats.topCategories || [];
+      context.topPaymentMethods = aiStats.topPaymentMethods || [];
+    }
+  } catch (error) {
+    console.error("Error fetching user context:", error);
+    // Continue with fallback defaults — don't fail the parse
+  }
+
+  return context;
+}
+
+/**
+ * Builds the Gemini prompt with personalized user context.
+ * 
+ * Includes:
+ * - User's currency (for amount conversion)
+ * - User's locale (for language parsing)
+ * - ALL available categories (so Gemini knows exact options)
+ * - ALL available payment methods (so Gemini knows exact options)
+ * - User's top 3 most-used categories (for prioritization)
+ * - User's top 3 most-used payment methods (for prioritization)
+ */
+function buildPrompt(text, userContext) {
+  const topCats = userContext.topCategories.length > 0
+    ? userContext.topCategories.slice(0, 3).join(", ")
+    : "Food, Transport, Shopping";
+  const topPayments = userContext.topPaymentMethods.length > 0
+    ? userContext.topPaymentMethods.slice(0, 3).join(", ")
+    : "UPI, Card, Cash";
+
+  return `You are a financial transaction parser for an expense tracker app.
+
+USER CONTEXT (use this for better predictions):
+- User's currency: ${userContext.currency}
+- User's locale: ${userContext.locale}
+- User's top 3 most-used categories: ${topCats}
+- User's top 3 most-used payment methods: ${topPayments}
+
+AVAILABLE EXPENSE CATEGORIES (use ONLY these exact names):
+${EXPENSE_CATEGORIES.join(", ")}
+
+AVAILABLE INCOME CATEGORIES (use ONLY these exact names):
+${INCOME_CATEGORIES.join(", ")}
+
+AVAILABLE PAYMENT METHODS (use ONLY these exact names):
+${PAYMENT_METHODS.join(", ")}
+
+PARSE THE FOLLOWING VOICE INPUT:
+"${text}"
+
+RETURN ONLY a JSON object with these fields:
+- amount: numeric amount in smallest currency unit (cents for USD, paise for INR, etc.)
 - currency: currency code (e.g., "USD", "INR", "EUR")
 - transactionTypeId: 1 for Income, 2 for Expense
-- category: one of [food, travel, shopping, bills, health, entertainment, rent, groceries, education, subscriptions, insurance, gifts, personal care, fuel, maintenance, taxes, pets, childcare, donations, miscellaneous, transport, other, salary, business, investment, freelance, other income]
-- note: clean description of the transaction (without amount, date, merchant)
+- category: EXACT category name from the available lists above (e.g., "Food", "Transport")
+- note: clean description of the transaction
 - merchant: store/person name (null if not mentioned)
-- paymentMethod: one of [upi, cash, bank, card, other] (null if not mentioned)
-- date: timestamp in milliseconds (null for today, calculate relative dates like "yesterday")
+- paymentMethod: EXACT payment method name from available list (e.g., "UPI", "Card")
+- date: timestamp in milliseconds (null for today, calculate relative dates)
 - confidence: HIGH if amount + category + date detected, MEDIUM if amount + category, LOW if partial
 
-Important:
+IMPORTANT RULES:
+- ALWAYS use the exact category names from the lists above
+- ALWAYS use the exact payment method names from the list above
 - For amounts like "45 dollars", convert to cents (4500)
 - For amounts like "500 rupees", convert to paise (50000)
 - Default to expense (type 2) if unclear
-- Use context clues for category (e.g., "uber" = transport, "swiggy" = food)
+- Use the user's top categories as hints for ambiguous inputs
 - Return ONLY the JSON object, no explanation
 
-Example response:
-{"amount":4500,"currency":"USD","transactionTypeId":2,"category":"food","note":"Lunch at restaurant","merchant":"Restaurant","paymentMethod":"card","date":null,"confidence":"HIGH"}`;
+EXAMPLE:
+Input: "Lunch with client at Taj, 2500 on credit card"
+Response: {"amount":250000,"currency":"INR","transactionTypeId":2,"category":"Food","note":"Lunch with client at Taj","merchant":"Taj","paymentMethod":"Card","date":null,"confidence":"HIGH"}`;
 }
 
 /**
  * Parses the Gemini text response into a structured object.
  */
 function parseGeminiResponse(text) {
-  // Try to extract JSON from the response (may have markdown formatting)
   const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    return {};
-  }
+  if (!jsonMatch) return {};
 
   try {
     return JSON.parse(jsonMatch[0]);
@@ -164,7 +269,7 @@ function parseGeminiResponse(text) {
  * Resolves a category name to our internal category ID.
  */
 function resolveCategoryId(categoryName) {
-  if (!categoryName) return 23; // Other
+  if (!categoryName) return 23;
   const normalized = categoryName.toLowerCase().trim();
   return CATEGORY_MAP[normalized] || 23;
 }

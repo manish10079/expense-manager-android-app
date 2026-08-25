@@ -22,17 +22,20 @@ class GeminiApiService @Inject constructor(
      *
      * @param text The transcribed voice text to parse.
      * @param locale The user's locale (e.g., "en-US", "hi-IN").
+     * @param currency The user's currency code (e.g., "INR", "USD").
      * @return [GeminiParseResponse] with parsed transaction data.
      * @throws [GeminiApiException] if the call fails.
      */
     suspend fun parseVoiceTransaction(
         text: String,
-        locale: String = "en-US"
+        locale: String = "en-US",
+        currency: String = "INR"
     ): GeminiParseResponse {
         return try {
             val data = mapOf(
                 "text" to text,
-                "locale" to locale
+                "locale" to locale,
+                "currency" to currency
             )
 
             val result = functions
