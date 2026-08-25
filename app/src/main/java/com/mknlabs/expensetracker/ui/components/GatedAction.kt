@@ -42,6 +42,7 @@ fun GatedAction(
     val accessStatus by monetizationViewModel.getAccessStatus(feature, optionId).collectAsStateWithLifecycle()
 
     var showPremiumSheet by remember { mutableStateOf(false) }
+    var showComingSoonDialog by remember { mutableStateOf(false) }
     var showAdDialog by remember { mutableStateOf(false) }
 
     val actualDisplayName = displayName ?: feature.displayName
@@ -60,9 +61,15 @@ fun GatedAction(
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                monetizationViewModel.onPurchaseSimulated()
                 showPremiumSheet = false
+                showComingSoonDialog = true
             }
+        )
+    }
+
+    if (showComingSoonDialog) {
+        ComingSoonDialog(
+            onDismiss = { showComingSoonDialog = false }
         )
     }
 

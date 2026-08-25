@@ -70,6 +70,7 @@ import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.ui.components.MainScaffold
+import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
@@ -1105,20 +1106,21 @@ fun MainScreen(
         )
     }
 
+    var showComingSoonDialog by remember { mutableStateOf(false) }
+
     if (showPremiumSheet && isUiInteractive) {
         PremiumGateSheet(
-            financialGoal = userProfile.financialGoal,
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                // monetizationViewModel.onPurchaseSimulated() // Disabled until Google Play Billing is implemented                                showToast(rawContext.getString(R.string.toast_pro_billing_coming_soon))
                 showPremiumSheet = false
-            },
-            onRedeemClick = if (isProPassEnabled) {
-                {
-                    showPremiumSheet = false
-                    showProPassRedeemDialog = true
-                }
-            } else null
+                showComingSoonDialog = true
+            }
+        )
+    }
+
+    if (showComingSoonDialog && isUiInteractive) {
+        ComingSoonDialog(
+            onDismiss = { showComingSoonDialog = false }
         )
     }
 

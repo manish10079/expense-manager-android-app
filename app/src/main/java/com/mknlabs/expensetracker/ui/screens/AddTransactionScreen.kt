@@ -123,6 +123,7 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.components.AdRewardDialog
+import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.theme.Dimens
@@ -1202,14 +1203,19 @@ private fun RecurringTransactionSection(
     }
 
     // Premium sheet for Yearly frequency and 7th+ rule
+    var showComingSoonDialog by remember { mutableStateOf(false) }
     if (showPremiumSheet) {
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false; pendingFrequencyForAd = null },
             onUpgradeClick = {
-                monetizationViewModel.onPurchaseSimulated()
                 showPremiumSheet = false
-                pendingFrequencyForAd = null
+                showComingSoonDialog = true
             }
+        )
+    }
+    if (showComingSoonDialog) {
+        ComingSoonDialog(
+            onDismiss = { showComingSoonDialog = false }
         )
     }
 }

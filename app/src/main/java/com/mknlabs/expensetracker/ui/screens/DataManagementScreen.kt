@@ -505,13 +505,19 @@ private fun DataManagementContent(
         )
     }
 
+    var showComingSoonDialog by remember { mutableStateOf(false) }
     if (showPremiumSheet) {
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
-                onPurchaseSimulated()
                 showPremiumSheet = false
+                showComingSoonDialog = true
             }
+        )
+    }
+    if (showComingSoonDialog) {
+        ComingSoonDialog(
+            onDismiss = { showComingSoonDialog = false }
         )
     }
 
