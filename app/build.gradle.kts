@@ -16,8 +16,8 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 194
-        versionName = "2.74.1"
+        versionCode = 195
+        versionName = "2.74.2"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -147,6 +147,8 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.functions)
     implementation(libs.firebase.messaging)
+    // Firebase AI Logic — Gemini integration
+    implementation(libs.firebase.ai)
     // Firebase App Check — Play Integrity for release, debug token for development
     implementation(libs.firebase.appcheck.playintegrity)
     debugImplementation(libs.firebase.appcheck.debug)
