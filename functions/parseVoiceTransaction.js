@@ -99,6 +99,11 @@ exports.parseVoiceTransaction = onCall(
     }
     const locale = request.data?.locale || "en-US";
     const clientCurrency = request.data?.currency || "INR";
+    const allExpenseCategories = request.data?.allExpenseCategories || [];
+    const allIncomeCategories = request.data?.allIncomeCategories || [];
+    const allPaymentMethods = request.data?.allPaymentMethods || [];
+    const topCategories = request.data?.topCategories || [];
+    const topPaymentMethods = request.data?.topPaymentMethods || [];
 
     // --- Check Gemini API key ---
     if (!GEMINI_API_KEY) {
@@ -106,13 +111,22 @@ exports.parseVoiceTransaction = onCall(
     }
 
     try {
-      // Fetch user context from Firestore (minimal reads, no privacy risk)
-      const userContext = await fetchUserContext(uid, clientCurrency, locale);
+      // Build user context from client-provided data (all from local Room DB)
+      const userContext = {
+        currency: clientCurrency,
+        locale: locale,
+        allExpenseCategories: allExpenseCategories,
+        allIncomeCategories: allIncomeCategories,
+        allPaymentMethods: allPaymentMethods,
+        topCategories: topCategories,
+        topPaymentMethods: topPaymentMethods
+      };
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const prompt = buildPrompt(text, userContext);
+      console.log("Prompt length:", prompt.length, "chars");
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text_response = response.text();
@@ -198,6 +212,15 @@ async function fetchUserContext(uid, fallbackCurrency, fallbackLocale) {
  * - User's top 3 most-used payment methods (for prioritization)
  */
 function buildPrompt(text, userContext) {
+  const expenseCats = userContext.allExpenseCategories.length > 0
+    ? userContext.allExpenseCategories.join(", ")
+    : EXPENSE_CATEGORIES.join(", ");
+  const incomeCats = userContext.allIncomeCategories.length > 0
+    ? userContext.allIncomeCategories.join(", ")
+    : INCOME_CATEGORIES.join(", ");
+  const paymentMethods = userContext.allPaymentMethods.length > 0
+    ? userContext.allPaymentMethods.join(", ")
+    : PAYMENT_METHODS.join(", ");
   const topCats = userContext.topCategories.length > 0
     ? userContext.topCategories.slice(0, 3).join(", ")
     : "Food, Transport, Shopping";
@@ -213,14 +236,14 @@ USER CONTEXT (use this for better predictions):
 - User's top 3 most-used categories: ${topCats}
 - User's top 3 most-used payment methods: ${topPayments}
 
-AVAILABLE EXPENSE CATEGORIES (use ONLY these exact names):
-${EXPENSE_CATEGORIES.join(", ")}
+AVAILABLE EXPENSE CATEGORIES (use ONLY these exact names — these are from the user's app, may include custom categories):
+${expenseCats}
 
 AVAILABLE INCOME CATEGORIES (use ONLY these exact names):
-${INCOME_CATEGORIES.join(", ")}
+${incomeCats}
 
-AVAILABLE PAYMENT METHODS (use ONLY these exact names):
-${PAYMENT_METHODS.join(", ")}
+AVAILABLE PAYMENT METHODS (use ONLY these exact names — these are from the user's app, may include custom methods):
+${paymentMethods}
 
 PARSE THE FOLLOWING VOICE INPUT:
 "${text}"
@@ -237,8 +260,8 @@ RETURN ONLY a JSON object with these fields:
 - confidence: HIGH if amount + category + date detected, MEDIUM if amount + category, LOW if partial
 
 IMPORTANT RULES:
-- ALWAYS use the exact category names from the lists above
-- ALWAYS use the exact payment method names from the list above
+- ALWAYS use the exact category names from the lists above (they may include custom categories like "Pet Food" or "Gym")
+- ALWAYS use the exact payment method names from the list above (they may include custom methods like "Google Pay")
 - For amounts like "45 dollars", convert to cents (4500)
 - For amounts like "500 rupees", convert to paise (50000)
 - Default to expense (type 2) if unclear
@@ -246,8 +269,8 @@ IMPORTANT RULES:
 - Return ONLY the JSON object, no explanation
 
 EXAMPLE:
-Input: "Lunch with client at Taj, 2500 on credit card"
-Response: {"amount":250000,"currency":"INR","transactionTypeId":2,"category":"Food","note":"Lunch with client at Taj","merchant":"Taj","paymentMethod":"Card","date":null,"confidence":"HIGH"}`;
+Input: "Bought pet food for 500"
+Response: {"amount":50000,"currency":"INR","transactionTypeId":2,"category":"Pet Food","note":"Bought pet food","merchant":null,"paymentMethod":null,"date":null,"confidence":"HIGH"}`;
 }
 
 /**

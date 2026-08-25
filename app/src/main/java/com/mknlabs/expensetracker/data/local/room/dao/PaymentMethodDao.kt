@@ -41,4 +41,22 @@ interface PaymentMethodDao {
 
     @Query("UPDATE payment_methods SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<Int>, syncState: String)
+
+    /**
+     * Returns the most frequently used payment methods based on transaction count.
+     * Used by AI voice parser to personalize Gemini prompts.
+     */
+    @Query("""
+        SELECT pm.* FROM payment_methods pm
+        LEFT JOIN transactions t ON t.payment_method_id = pm.id AND t.is_deleted = 0
+            AND t.created_at >= :sinceMillis
+        WHERE pm.is_deleted = 0
+        GROUP BY pm.id
+        ORDER BY COUNT(t.id) DESC, pm.sort_order ASC, pm.name ASC
+        LIMIT :limit
+    """)
+    suspend fun getFrequentlyUsedPaymentMethods(
+        limit: Int,
+        sinceMillis: Long
+    ): List<PaymentMethodEntity>
 }

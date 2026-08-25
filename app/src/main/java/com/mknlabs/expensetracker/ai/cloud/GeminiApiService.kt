@@ -29,13 +29,23 @@ class GeminiApiService @Inject constructor(
     suspend fun parseVoiceTransaction(
         text: String,
         locale: String = "en-US",
-        currency: String = "INR"
+        currency: String = "INR",
+        allExpenseCategories: List<String> = emptyList(),
+        allIncomeCategories: List<String> = emptyList(),
+        allPaymentMethods: List<String> = emptyList(),
+        topCategories: List<String> = emptyList(),
+        topPaymentMethods: List<String> = emptyList()
     ): GeminiParseResponse {
         return try {
             val data = mapOf(
                 "text" to text,
                 "locale" to locale,
-                "currency" to currency
+                "currency" to currency,
+                "allExpenseCategories" to allExpenseCategories,
+                "allIncomeCategories" to allIncomeCategories,
+                "allPaymentMethods" to allPaymentMethods,
+                "topCategories" to topCategories,
+                "topPaymentMethods" to topPaymentMethods
             )
 
             val result = functions

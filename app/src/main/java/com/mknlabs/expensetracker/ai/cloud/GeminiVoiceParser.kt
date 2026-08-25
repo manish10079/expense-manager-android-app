@@ -37,11 +37,16 @@ class GeminiVoiceParser @Inject constructor(
     override fun parse(text: String): VoiceParseResult {
         return kotlinx.coroutines.runBlocking {
             try {
-                val context = userContextProvider.getUserContext()
+                val ctx = userContextProvider.getUserContext()
                 val response = apiService.parseVoiceTransaction(
                     text = text,
-                    locale = context.locale,
-                    currency = context.currency
+                    locale = ctx.locale,
+                    currency = ctx.currency,
+                    allExpenseCategories = ctx.allExpenseCategories,
+                    allIncomeCategories = ctx.allIncomeCategories,
+                    allPaymentMethods = ctx.allPaymentMethods,
+                    topCategories = ctx.topCategories,
+                    topPaymentMethods = ctx.topPaymentMethods
                 )
 
                 val confidence = when (response.confidence.uppercase()) {
