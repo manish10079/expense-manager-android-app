@@ -1,9 +1,9 @@
 package com.mknlabs.expensetracker.ai.offline
 
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
+import com.mknlabs.expensetracker.domain.repository.CategoryPredictorRepository
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
 import com.mknlabs.expensetracker.domain.repository.VoiceParserRepository
 import com.mknlabs.expensetracker.utils.toMinorUnits
@@ -33,7 +33,9 @@ import kotlin.math.abs
  * in [com.mknlabs.expensetracker.di.VoiceParserModule].
  */
 @Singleton
-class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
+class OfflineVoiceParser @Inject constructor(
+    private val categoryPredictor: CategoryPredictorRepository
+) : VoiceParserRepository {
 
     // ──────────────────────────────────────────────────────────────────────
     // Amount extraction
@@ -92,211 +94,8 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
     )
 
     // ──────────────────────────────────────────────────────────────────────
-    // Category detection (keyword → category name, matching categoryMap)
+    // Category detection — delegated to CategoryPredictor
     // ──────────────────────────────────────────────────────────────────────
-
-    private data class CategoryKeyword(val keyword: String, val categoryName: String)
-
-    private val categoryKeywords = listOf(
-        // Food (id=1) — specific multi-word keywords first
-        CategoryKeyword("pet food", "Pets"),
-        CategoryKeyword("food", "Food"),
-        CategoryKeyword("meal", "Food"),
-        CategoryKeyword("lunch", "Food"),
-        CategoryKeyword("dinner", "Food"),
-        CategoryKeyword("breakfast", "Food"),
-        CategoryKeyword("snack", "Food"),
-        CategoryKeyword("restaurant", "Food"),
-        CategoryKeyword("cafe", "Food"),
-        CategoryKeyword("coffee", "Food"),
-        CategoryKeyword("tea", "Food"),
-        CategoryKeyword("pizza", "Food"),
-        CategoryKeyword("burger", "Food"),
-        CategoryKeyword("swiggy", "Food"),
-        CategoryKeyword("zomato", "Food"),
-        CategoryKeyword("doordash", "Food"),
-        CategoryKeyword("uber eats", "Food"),
-        CategoryKeyword("takeout", "Food"),
-        CategoryKeyword("takeaway", "Food"),
-        CategoryKeyword("dine", "Food"),
-        CategoryKeyword("eatery", "Food"),
-
-        // Travel (id=2)
-        CategoryKeyword("travel", "Travel"),
-        CategoryKeyword("flight", "Travel"),
-        CategoryKeyword("hotel", "Travel"),
-        CategoryKeyword("airbnb", "Travel"),
-        CategoryKeyword("vacation", "Travel"),
-        CategoryKeyword("trip", "Travel"),
-        CategoryKeyword("holiday", "Travel"),
-        CategoryKeyword("train ticket", "Travel"),
-        CategoryKeyword("bus ticket", "Travel"),
-
-        // Shopping (id=3)
-        CategoryKeyword("shopping", "Shopping"),
-        CategoryKeyword("clothes", "Shopping"),
-        CategoryKeyword("clothing", "Shopping"),
-        CategoryKeyword("shoes", "Shopping"),
-        CategoryKeyword("electronics", "Shopping"),
-        CategoryKeyword("gadget", "Shopping"),
-        CategoryKeyword("amazon", "Shopping"),
-        CategoryKeyword("flipkart", "Shopping"),
-        CategoryKeyword("myntra", "Shopping"),
-        CategoryKeyword("nike", "Shopping"),
-        CategoryKeyword("adidas", "Shopping"),
-
-        // Bills (id=4)
-        CategoryKeyword("bill", "Bills"),
-        CategoryKeyword("electricity", "Bills"),
-        CategoryKeyword("electric", "Bills"),
-        CategoryKeyword("water bill", "Bills"),
-        CategoryKeyword("gas bill", "Bills"),
-        CategoryKeyword("internet", "Bills"),
-        CategoryKeyword("wifi", "Bills"),
-        CategoryKeyword("broadband", "Bills"),
-        CategoryKeyword("phone bill", "Bills"),
-        CategoryKeyword("mobile bill", "Bills"),
-
-        // Health (id=5)
-        CategoryKeyword("gym", "Health"),
-        CategoryKeyword("fitness", "Health"),
-        CategoryKeyword("health", "Health"),
-        CategoryKeyword("medicine", "Health"),
-        CategoryKeyword("doctor", "Health"),
-        CategoryKeyword("hospital", "Health"),
-        CategoryKeyword("pharmacy", "Health"),
-        CategoryKeyword("medical", "Health"),
-        CategoryKeyword("clinic", "Health"),
-        CategoryKeyword("dental", "Health"),
-
-
-        // Entertainment (id=6)
-        CategoryKeyword("netflix", "Entertainment"),
-        CategoryKeyword("spotify", "Entertainment"),
-        CategoryKeyword("youtube", "Entertainment"),
-        CategoryKeyword("bookmyshow", "Entertainment"),
-        CategoryKeyword("entertainment", "Entertainment"),
-        CategoryKeyword("movie", "Entertainment"),
-        CategoryKeyword("cinema", "Entertainment"),
-        CategoryKeyword("concert", "Entertainment"),
-        CategoryKeyword("gaming", "Entertainment"),
-        CategoryKeyword("game", "Entertainment"),
-        CategoryKeyword("book", "Entertainment"),
-
-        // Rent (id=7)
-        CategoryKeyword("rent", "Rent"),
-        CategoryKeyword("lease", "Rent"),
-        CategoryKeyword("housing", "Rent"),
-
-        // Groceries (id=8)
-        CategoryKeyword("groceries", "Groceries"),
-        CategoryKeyword("grocery", "Groceries"),
-        CategoryKeyword("supermarket", "Groceries"),
-        CategoryKeyword("bigbasket", "Groceries"),
-        CategoryKeyword("blinkit", "Groceries"),
-        CategoryKeyword("zepto", "Groceries"),
-        CategoryKeyword("instamart", "Groceries"),
-        CategoryKeyword("dmart", "Groceries"),
-        CategoryKeyword("d mart", "Groceries"),
-        CategoryKeyword("walmart", "Groceries"),
-        CategoryKeyword("target", "Groceries"),
-        CategoryKeyword("costco", "Groceries"),
-
-        // Education (id=9)
-        CategoryKeyword("education", "Education"),
-        CategoryKeyword("school", "Education"),
-        CategoryKeyword("college", "Education"),
-        CategoryKeyword("university", "Education"),
-        CategoryKeyword("course", "Education"),
-        CategoryKeyword("tuition", "Education"),
-        CategoryKeyword("udemy", "Education"),
-        CategoryKeyword("coursera", "Education"),
-
-        // Subscriptions (id=10)
-        CategoryKeyword("premium plan", "Subscriptions"),
-        CategoryKeyword("subscribe", "Subscriptions"),
-        CategoryKeyword("subscription", "Subscriptions"),
-        CategoryKeyword("membership", "Subscriptions"),
-
-        // Insurance (id=11)
-        CategoryKeyword("insurance", "Insurance"),
-
-        // Gifts (id=12)
-        CategoryKeyword("gift", "Gifts"),
-        CategoryKeyword("present", "Gifts"),
-        CategoryKeyword("birthday", "Gifts"),
-        CategoryKeyword("anniversary", "Gifts"),
-
-        // Personal Care (id=13)
-        CategoryKeyword("personal care", "Personal Care"),
-        CategoryKeyword("haircut", "Personal Care"),
-        CategoryKeyword("salon", "Personal Care"),
-        CategoryKeyword("spa", "Personal Care"),
-        CategoryKeyword("beauty", "Personal Care"),
-        CategoryKeyword("cosmetics", "Personal Care"),
-
-        // Fuel (id=14)
-        CategoryKeyword("fuel", "Fuel"),
-        CategoryKeyword("petrol", "Fuel"),
-        CategoryKeyword("diesel", "Fuel"),
-        CategoryKeyword("gas station", "Fuel"),
-        CategoryKeyword("filling station", "Fuel"),
-        CategoryKeyword("petrol pump", "Fuel"),
-
-        // Maintenance (id=15)
-        CategoryKeyword("maintenance", "Maintenance"),
-        CategoryKeyword("repair", "Maintenance"),
-        CategoryKeyword("service", "Maintenance"),
-        CategoryKeyword("plumber", "Maintenance"),
-        CategoryKeyword("electrician", "Maintenance"),
-
-        // Transport (id=22)
-        CategoryKeyword("taxi", "Transport"),
-        CategoryKeyword("uber", "Transport"),
-        CategoryKeyword("ola", "Transport"),
-        CategoryKeyword("rapido", "Transport"),
-        CategoryKeyword("auto", "Transport"),
-        CategoryKeyword("bus", "Transport"),
-        CategoryKeyword("metro", "Transport"),
-        CategoryKeyword("parking", "Transport"),
-        CategoryKeyword("toll", "Transport"),
-        CategoryKeyword("cab", "Transport"),
-        CategoryKeyword("ride", "Transport"),
-
-        // Donations (id=19)
-        CategoryKeyword("donation", "Donations"),
-        CategoryKeyword("donate", "Donations"),
-        CategoryKeyword("charity", "Donations"),
-
-        // Pets (id=17)
-        CategoryKeyword("pet food", "Pets"),
-        CategoryKeyword("pet", "Pets"),
-        CategoryKeyword("dog", "Pets"),
-        CategoryKeyword("cat", "Pets"),
-        CategoryKeyword("vet", "Pets"),
-        CategoryKeyword("pet food", "Pets"),
-
-        // Childcare (id=18)
-        CategoryKeyword("childcare", "Childcare"),
-        CategoryKeyword("daycare", "Childcare"),
-        CategoryKeyword("kids", "Childcare"),
-        CategoryKeyword("baby", "Childcare"),
-
-        // Taxes (id=16)
-        CategoryKeyword("tax", "Taxes"),
-        CategoryKeyword("taxes", "Taxes"),
-
-        // Income categories
-        CategoryKeyword("salary", "Salary"),
-        CategoryKeyword("wages", "Salary"),
-        CategoryKeyword("paycheck", "Salary"),
-        CategoryKeyword("freelance", "Freelance"),
-        CategoryKeyword("freelancing", "Freelance"),
-        CategoryKeyword("business", "Business"),
-        CategoryKeyword("investment", "Investment"),
-        CategoryKeyword("dividend", "Investment"),
-        CategoryKeyword("interest", "Investment"),
-    )
 
     // ──────────────────────────────────────────────────────────────────────
     // Merchant extraction
@@ -442,19 +241,7 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
     }
 
     private fun detectCategory(text: String, transactionTypeId: Int): Int {
-        val lower = text.lowercase(Locale.ROOT)
-
-        // First match wins — list order determines priority.
-        // More specific keywords (e.g. "pet food") are listed before generic ones (e.g. "food").
-        for ((keyword, categoryName) in categoryKeywords) {
-            if (lower.contains(keyword)) {
-                val categoryId = resolveCategoryId(categoryName, transactionTypeId)
-                if (categoryId != null) return categoryId
-            }
-        }
-
-        // Fallback to "Other" for the transaction type
-        return resolveCategoryId("Other", transactionTypeId) ?: FALLBACK_CATEGORY_ID
+        return categoryPredictor.predict(text, transactionTypeId).categoryId
     }
 
     private fun extractMerchant(text: String): String? {
@@ -573,14 +360,5 @@ class OfflineVoiceParser @Inject constructor() : VoiceParserRepository {
         }
     }
 
-    private fun resolveCategoryId(categoryName: String, transactionTypeId: Int): Int? {
-        return categoryMap.entries.firstOrNull {
-            it.value.name.equals(categoryName, ignoreCase = true) &&
-                    it.value.transactionTypeId == transactionTypeId
-        }?.key
-    }
-
-    companion object {
-        private const val FALLBACK_CATEGORY_ID = 23 // "Other" expense
-    }
+    companion object
 }

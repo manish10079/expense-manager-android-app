@@ -95,7 +95,12 @@ com.mkn0079.expensetracker/
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
 - **No AI-Attribution Footer:** Never append AI-attribution or credit lines to commit messages. In particular, never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar "Generated with ..." / "Co-Authored-By ..." signatures from any tool or model. Commit messages contain only the subject line and the change description.
 
-### 9. Naming Conventions
+### 9. Git Branching
+- **Create branch if:** new feature, bug fix changing logic, UI/UX redesign, multi-file refactor, Firebase/AdMob/AI/SMS/auth/DB/API integration, or experimental work. Names: `feature/<name>`, `fix/<name>`, `refactor/<name>`, `ui/<name>`, `hotfix/<name>`.
+- **Stay on main if:** typo/comment fix, docs/README update, minor config/resource change, or small cleanup (1-2 files, no behavior change).
+- **Always ask user** before creating a branch — confirm name and whether to proceed.
+
+### 10. Naming Conventions
 - **PascalCase (UpperCamelCase):** 
     - Used for Classes, Interfaces, Objects, and Enums (`TransactionRepository`, `SyncState`).
     - Used for UI Composable functions that emit UI (`HomeScreen`, `ProfileAvatar`).

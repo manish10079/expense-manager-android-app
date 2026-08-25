@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.ai.offline
 
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ai.CategoryPredictor
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
 import org.junit.Assert.assertEquals
@@ -15,7 +16,7 @@ class OfflineVoiceParserTest {
 
     @Before
     fun setUp() {
-        parser = OfflineVoiceParser()
+        parser = OfflineVoiceParser(CategoryPredictor())
     }
 
     // ──────────────────────────────────────────────────────────────────────
