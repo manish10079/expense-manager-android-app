@@ -6,6 +6,8 @@ import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.type.GenerateContentResponse
 import com.google.firebase.ai.type.GenerationConfig
 import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
@@ -14,6 +16,7 @@ import com.mknlabs.expensetracker.domain.repository.VoiceParserRepository
 import com.mknlabs.expensetracker.domain.repository.VoiceParserType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import javax.inject.Inject
@@ -35,15 +38,38 @@ class FirebaseGeminiParser @Inject constructor(
     private val userContextProvider: UserContextProvider
 ) : VoiceParserRepository {
 
-    private val generativeModel: GenerativeModel by lazy {
+    companion object {
+        private const val REMOTE_CONFIG_KEY_MODEL = "gemini_voice_model"
+        private const val DEFAULT_MODEL = "gemini-3.7-flash"
+    }
+
+    private val remoteConfig by lazy {
+        FirebaseRemoteConfig.getInstance().apply {
+            setConfigSettingsAsync(
+                FirebaseRemoteConfigSettings.Builder()
+                    .setMinimumFetchIntervalInSeconds(3600)
+                    .build()
+            )
+            setDefaultsAsync(mapOf(REMOTE_CONFIG_KEY_MODEL to DEFAULT_MODEL))
+        }
+    }
+
+    private suspend fun getGeminiModel(): GenerativeModel {
+        val modelName = try {
+            remoteConfig.fetchAndActivate().await()
+            remoteConfig.getString(REMOTE_CONFIG_KEY_MODEL)
+                .ifBlank { DEFAULT_MODEL }
+        } catch (_: Exception) {
+            DEFAULT_MODEL
+        }
+
         val config = GenerationConfig.Builder()
-            .setTemperature(0.3f)
             .setMaxOutputTokens(2048)
             .build()
 
-        Firebase.ai(backend = GenerativeBackend.googleAI())
+        return Firebase.ai(backend = GenerativeBackend.googleAI())
             .generativeModel(
-                modelName = "gemini-2.0-flash",
+                modelName = modelName,
                 generationConfig = config
             )
     }
@@ -59,7 +85,8 @@ class FirebaseGeminiParser @Inject constructor(
             try {
                 val ctx = userContextProvider.getUserContext()
                 val prompt = buildPrompt(text, ctx)
-                val response: GenerateContentResponse = generativeModel.generateContent(prompt)
+                val model = getGeminiModel()
+                val response: GenerateContentResponse = model.generateContent(prompt)
                 val responseText = response.text ?: return@withContext VoiceParseResult.Failed(
                     R.string.msg_voice_error_network
                 )
