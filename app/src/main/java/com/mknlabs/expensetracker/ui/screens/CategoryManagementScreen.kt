@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -387,15 +388,20 @@ private fun CategoryManagementCard(
 
         if (item.isUserCreated) {
             Spacer(modifier = Modifier.width(8.dp))
-            AppIconBox(
-                icon = Icons.Filled.DeleteOutline,
-                contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
-                size = 42.dp,
-                iconSize = 20.dp,
-                tint = MaterialTheme.colorScheme.error,
-                backgroundColor = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
-                modifier = Modifier.clickable(onClick = onDeleteClick)
-            )
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f), CircleShape)
+                    .clickable(onClick = onDeleteClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
+                    contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(14.dp))

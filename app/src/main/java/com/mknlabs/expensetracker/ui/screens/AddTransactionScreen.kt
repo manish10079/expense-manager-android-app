@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -456,16 +457,22 @@ fun AddTransactionScreen(
                     onBackClick()
                 },
                 actions = {
-                    // Delete transaction icon (always visible)
+                    // Delete transaction icon (matches SelectionHeader style)
                     if (isEditMode) {
-                        IconButton(onClick = {
-                            keyboardController?.hide()
-                            onDeleteClick()
-                        }) {
+                        IconButton(
+                            onClick = {
+                                keyboardController?.hide()
+                                onDeleteClick()
+                            },
+                            modifier = Modifier
+                                .size(28.dp)
+                                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f), CircleShape)
+                        ) {
                             Icon(
-                                imageVector = Icons.Filled.DeleteOutline,
+                                imageVector = Icons.Rounded.Delete,
                                 contentDescription = stringResource(R.string.desc_delete_transaction),
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
