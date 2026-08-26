@@ -299,6 +299,7 @@ fun AddTransactionScreen(
         var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
         var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
         val amountFocusRequester = remember { FocusRequester() }
+        val noteFocusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
@@ -378,6 +379,12 @@ fun AddTransactionScreen(
             }
         }
 
+        // Auto-focus amount field and open keyboard on screen entry
+        LaunchedEffect(Unit) {
+            amountFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+
         LaunchedEffect(initialNote) {
             if (initialNote != null && initialNote != note) {
                 note = initialNote
@@ -442,27 +449,33 @@ fun AddTransactionScreen(
                         }
                     }
                 )
-        ) {
-            AppHeader(
+        ) {                AppHeader(
                 title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
                 onBackClick = {
                     keyboardController?.hide()
                     onBackClick()
                 },
                 actions = {
-                    IconButton(onClick = {
-                        voiceViewModel.resetToListening()
-                        if (micPermissionGranted) {
-                            isVoiceSheetVisible = true
-                        } else {
-                            micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    // Reset form icon (swapped from bottom row to header)
+                    if (!isEditMode) {
+                        IconButton(onClick = {
+                            selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
+                            selectedCategoryId = 0
+                            selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
+                            amountInput = "0"
+                            selectedDateMillis = System.currentTimeMillis()
+                            note = ""
+                            noteDraft = ""
+                            isRecurringEnabled = false
+                            selectedRecurringFrequency = RecurringFrequency.Monthly
+                            recurringCountInput = "12"
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = stringResource(R.string.desc_clear_fields),
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Mic,
-                            contentDescription = stringResource(R.string.desc_voice_add),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
                     }
                 }
             )
@@ -472,8 +485,7 @@ fun AddTransactionScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
-            ) {
-                // Shared form blocks, reused by both the single-column (phone)
+            ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {
                     AnimatedTabSwitcher(
@@ -506,6 +518,12 @@ fun AddTransactionScreen(
                             onClick = {
                                 amountFocusRequester.requestFocus()
                                 keyboardController?.show()
+                            },
+                            onImeNext = {
+                                // Tick/enter on amount → open note sheet
+                                keyboardController?.hide()
+                                noteDraft = note
+                                isNoteSheetVisible = true
                             }
                         )
                     }
@@ -638,12 +656,18 @@ fun AddTransactionScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Mic icon (swapped from header to bottom row)
                     SideActionButton(
-                        icon = Icons.Filled.DeleteOutline,
-                        contentDescription = stringResource(R.string.desc_delete_transaction),
+                        icon = Icons.Filled.Mic,
+                        contentDescription = stringResource(R.string.desc_voice_add),
                         onClick = {
                             keyboardController?.hide()
-                            onDeleteClick()
+                            voiceViewModel.resetToListening()
+                            if (micPermissionGranted) {
+                                isVoiceSheetVisible = true
+                            } else {
+                                micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
                         }
                     )
 
@@ -734,24 +758,7 @@ fun AddTransactionScreen(
                         }
                     )
 
-                    if (!isEditMode) {
-                        SideActionButton(
-                            icon = Icons.Filled.Refresh,
-                            contentDescription = stringResource(R.string.desc_clear_fields),
-                            onClick = {
-                                selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
-                                selectedCategoryId = 0
-                                selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
-                                amountInput = "0"
-                                selectedDateMillis = System.currentTimeMillis()
-                                note = ""
-                                noteDraft = ""
-                                isRecurringEnabled = false
-                                selectedRecurringFrequency = RecurringFrequency.Monthly
-                                recurringCountInput = "12"
-                            }
-                        )
-                    }
+
                 }
             }
         }
@@ -1264,7 +1271,8 @@ private fun CurrencyAmountCard(
     focusRequester: FocusRequester,
     canFocus: Boolean = true,
     onAmountChange: (String) -> Unit,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onImeNext: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
     val currency = getCurrency(currencyId)
@@ -1384,12 +1392,10 @@ private fun CurrencyAmountCard(
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Done
+                            imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
-                            onDone = {
-                                keyboardController?.hide()
-                            }
+                            onNext = { onImeNext() }
                         ),
                         singleLine = true,
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
