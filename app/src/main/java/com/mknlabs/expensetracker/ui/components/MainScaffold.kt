@@ -444,6 +444,7 @@ private fun BoxScope.PreloadSecondaryScreenData(
         )
         transactionsViewModel.updateInputs(
             categories = categories,
+            paymentMethods = paymentMethods,
             currencyId = selectedCurrencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = selectedDateFormatPattern,

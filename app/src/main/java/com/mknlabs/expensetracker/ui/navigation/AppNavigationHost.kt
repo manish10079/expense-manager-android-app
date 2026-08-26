@@ -249,7 +249,7 @@ fun AppNavigationHost(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,
-                        availableCategories = categories,
+                        availableCategories = categories.filter { !it.isDeleted },
                         recurringRules = recurringRules,
                         onDeleteRecurring = onDeleteRecurring,
                         onRecurringEnabledChange = onRecurringEnabledChange,
@@ -294,6 +294,7 @@ fun AppNavigationHost(
                         dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
                         categories = categories,
+                        paymentMethods = paymentMethods,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         recurringRules = recurringRules,
                         onDuplicateTransaction = onDuplicateTransaction,
@@ -520,8 +521,8 @@ fun AppNavigationHost(
                 AppRoute.CategoryManagement -> {
                     CategoryManagementScreen(
                         isAdsEnabled = isAdsEnabled,
-                        customCategories = categories.filter { !it.isSystem },
-                        customPaymentTypes = paymentMethods.filter { !it.isSystem },
+                        customCategories = categories.filter { !it.isSystem && !it.isDeleted },
+                        customPaymentTypes = paymentMethods.filter { !it.isSystem && !it.isDeleted },
                         onCreateCustomCategory = onCreateCustomCategory,
                         onCreateCustomPaymentType = onCreateCustomPaymentType,
                         onDeleteCustomCategory = onDeleteCustomCategory,
@@ -611,8 +612,8 @@ fun AppNavigationHost(
                     AddTransactionScreen(
                         currencyId = selectedCurrencyId,
                         transactions = transactions,
-                        availableCategories = categories,
-                        availablePaymentMethods = paymentMethods,
+                        availableCategories = categories.filter { !it.isDeleted },
+                        availablePaymentMethods = paymentMethods.filter { !it.isDeleted },
                         existingTransaction = selectedTransaction,
                         existingRecurringRule = selectedRecurringRule,
                         activeRecurringRuleCount = recurringRules.count { !it.isDeleted },

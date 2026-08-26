@@ -124,6 +124,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.models.Transaction
@@ -166,6 +167,7 @@ fun TransactionScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     categories: List<CategoryType> = emptyList(),
+    paymentMethods: List<PaymentType> = emptyList(),
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
     onBackClick: () -> Unit = {},
@@ -181,6 +183,7 @@ fun TransactionScreen(
 
     LaunchedEffect(
         categories,
+        paymentMethods,
         currencyId,
         amountFormatPreferences,
         dateFormatPattern,
@@ -189,6 +192,7 @@ fun TransactionScreen(
     ) {
         transactionsViewModel.updateInputs(
             categories = categories,
+            paymentMethods = paymentMethods,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,

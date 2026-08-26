@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryRepository {
     fun observeActiveCategories(): Flow<List<CategoryType>>
 
+    fun observeAllCategories(): Flow<List<CategoryType>>
+
     fun observeActiveCustomCategories(): Flow<List<CategoryType>>
 
     suspend fun createCustomCategory(

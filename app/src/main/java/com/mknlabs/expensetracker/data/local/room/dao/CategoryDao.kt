@@ -12,6 +12,9 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE is_deleted = 0 ORDER BY transaction_type_id ASC, sort_order ASC, name ASC")
     fun observeActiveCategories(): Flow<List<CategoryEntity>>
 
+    @Query("SELECT * FROM categories ORDER BY transaction_type_id ASC, sort_order ASC, name ASC")
+    fun observeAllCategories(): Flow<List<CategoryEntity>>
+
     @Query("SELECT * FROM categories WHERE is_deleted = 0 ORDER BY transaction_type_id ASC, sort_order ASC, name ASC")
     suspend fun getActiveCategories(): List<CategoryEntity>
 

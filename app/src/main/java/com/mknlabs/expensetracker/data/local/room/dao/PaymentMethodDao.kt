@@ -12,6 +12,9 @@ interface PaymentMethodDao {
     @Query("SELECT * FROM payment_methods WHERE is_deleted = 0 ORDER BY sort_order ASC, name ASC")
     fun observeActivePaymentMethods(): Flow<List<PaymentMethodEntity>>
 
+    @Query("SELECT * FROM payment_methods ORDER BY sort_order ASC, name ASC")
+    fun observeAllPaymentMethods(): Flow<List<PaymentMethodEntity>>
+
     @Query("SELECT * FROM payment_methods WHERE is_deleted = 0 ORDER BY sort_order ASC, name ASC")
     suspend fun getActivePaymentMethods(): List<PaymentMethodEntity>
 

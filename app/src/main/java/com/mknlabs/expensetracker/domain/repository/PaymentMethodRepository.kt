@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 interface PaymentMethodRepository {
     fun observeActivePaymentMethods(): Flow<List<PaymentType>>
 
+    fun observeAllPaymentMethods(): Flow<List<PaymentType>>
+
     fun observeActiveCustomPaymentMethods(): Flow<List<PaymentType>>
 
     suspend fun createCustomPaymentMethod(

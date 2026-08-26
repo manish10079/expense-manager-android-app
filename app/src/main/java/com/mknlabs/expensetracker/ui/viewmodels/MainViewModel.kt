@@ -102,8 +102,8 @@ class MainViewModel @Inject constructor(
                 },
                 transactionRepository.observeActiveTransactionCount(),
                 recurringRuleRepository.observeActiveRecurringRules(),
-                categoryRepository.observeActiveCategories(),
-                paymentMethodRepository.observeActivePaymentMethods()
+                categoryRepository.observeAllCategories(),
+                paymentMethodRepository.observeAllPaymentMethods()
             ) { transactions, transactionCount, recurringRules, categories, paymentMethods ->
                 MainDataUiState(
                     transactions = transactions,

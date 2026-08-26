@@ -104,6 +104,7 @@ class TransactionsViewModel @Inject constructor(
     private val currentTransactions = mutableListOf<Transaction>()
 
     private var currentCategories: List<CategoryType> = emptyList()
+    private var currentPaymentMethods: List<PaymentType> = emptyList()
 
     private val _selectedTransactionIds = MutableStateFlow<Set<String>>(emptySet())
     private val _isSelectionMode = MutableStateFlow(false)
@@ -197,6 +198,7 @@ class TransactionsViewModel @Inject constructor(
      */
     fun updateInputs(
         categories: List<CategoryType>,
+        paymentMethods: List<PaymentType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
@@ -204,12 +206,14 @@ class TransactionsViewModel @Inject constructor(
         customizationSettings: TransactionCardCustomizationSettings
     ) {
         val inputsChanged = currentCategories != categories ||
+            currentPaymentMethods != paymentMethods ||
             currentCurrencyId != currencyId ||
             currentDateFormatPattern != dateFormatPattern ||
             currentTimeFormat != timeFormat ||
             currentCustomizationSettings != customizationSettings
 
         currentCategories = categories
+        currentPaymentMethods = paymentMethods
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentDateFormatPattern = dateFormatPattern
@@ -660,7 +664,7 @@ class TransactionsViewModel @Inject constructor(
         val appliedMinAmountValue = appliedMinAmount.toDoubleOrNull()
         val appliedMaxAmountValue = appliedMaxAmount.toDoubleOrNull()
         val categoryNames = currentCategories.associate { it.id to it.name }
-        val paymentTypeNames = paymentTypeMap.mapValues { it.value.name }
+        val paymentTypeNames = paymentTypeMap.mapValues { it.value.name } + currentPaymentMethods.associate { it.id to it.name }
         val normalizedQuery = searchQuery.trim()
 
         // Apply in-memory filters to the currently loaded page

@@ -23,6 +23,12 @@ class CategoryRepository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
+    override fun observeAllCategories(): Flow<List<CategoryType>> {
+        return dao.observeAllCategories().map { entities ->
+            entities.map { it.toDomain() }
+        }.flowOn(Dispatchers.IO)
+    }
+
     override fun observeActiveCustomCategories(): Flow<List<CategoryType>> {
         return dao.observeActiveCustomCategories().map { entities ->
             entities.map { it.toDomain() }

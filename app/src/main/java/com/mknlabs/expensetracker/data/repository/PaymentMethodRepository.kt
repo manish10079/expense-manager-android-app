@@ -23,6 +23,12 @@ class PaymentMethodRepository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
+    override fun observeAllPaymentMethods(): Flow<List<PaymentType>> {
+        return dao.observeAllPaymentMethods().map { entities ->
+            entities.map { it.toDomain() }
+        }.flowOn(Dispatchers.IO)
+    }
+
     override fun observeActiveCustomPaymentMethods(): Flow<List<PaymentType>> {
         return dao.observeActiveCustomPaymentMethods().map { entities ->
             entities.map { it.toDomain() }
