@@ -82,6 +82,7 @@ com.mkn0079.expensetracker/
 ### 8. Versioning & Commits
 - **Automated Updates:** Whenever a commit message is prepared or requested, the agent must
  update `app/build.gradle.kts`.
+- **Version Code:** `versionCode` must always increment by **1** (required by Android, but not tracked in README).
 - **Version Name:** `versionName` must always increment and follow the format: `major.minor.bug`.
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `bumped version to <versionName>`.
 - **Versioning Logic (SemVer):**
