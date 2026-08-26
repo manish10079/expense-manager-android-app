@@ -27,10 +27,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -163,6 +167,10 @@ private fun CategoryManagementContent(
     val activeTab = uiState.selectedTab
     val coroutineScope = rememberCoroutineScope()
 
+    // Delete confirmation dialog state
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var pendingDeleteItem by remember { mutableStateOf<Pair<CategoryManagementItemUi, CategoryManagementTab>?>(null) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -272,16 +280,8 @@ private fun CategoryManagementContent(
                             CategoryManagementCard(
                                 item = item,
                                 onDeleteClick = {
-                                    when (currentTab) {
-                                        CategoryManagementTab.Income,
-                                        CategoryManagementTab.Expense -> {
-                                            onDeleteCustomCategory(item.id)
-                                        }
-
-                                        CategoryManagementTab.Payment -> {
-                                            onDeleteCustomPaymentType(item.id)
-                                        }
-                                    }
+                                    pendingDeleteItem = Pair(item, currentTab)
+                                    showDeleteDialog = true
                                 }
                             )
                         }
@@ -298,6 +298,57 @@ private fun CategoryManagementContent(
                 .padding(end = 22.dp, bottom = 28.dp),
             onClick = {
                 onAddCategoryClick(activeTab)
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog && pendingDeleteItem != null) {
+        val (item, tab) = pendingDeleteItem!!
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                pendingDeleteItem = null
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = stringResource(R.string.label_delete_confirm),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.msg_delete_category_confirm, item.title),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    when (tab) {
+                        CategoryManagementTab.Income,
+                        CategoryManagementTab.Expense -> {
+                            onDeleteCustomCategory(item.id)
+                        }
+                        CategoryManagementTab.Payment -> {
+                            onDeleteCustomPaymentType(item.id)
+                        }
+                    }
+                    pendingDeleteItem = null
+                }) {
+                    Text(stringResource(R.string.label_delete_confirm), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    pendingDeleteItem = null
+                }) {
+                    Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
+                }
             }
         )
     }

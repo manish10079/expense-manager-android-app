@@ -832,6 +832,7 @@
     <string name="label_search_placeholder">Notes or Amount…</string>
     <string name="label_search_by_category_wallet">Search by Category &amp; Wallet</string>
     <string name="msg_delete_transactions_confirm">Are you sure you want to delete %1$d transactions? This action cannot be undone.</string>
+    <string name="msg_delete_category_confirm">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
     <string name="label_delete_confirm">Delete</string>
     <string name="label_cancel_confirm">Cancel</string>
     <string name="label_duplicate">Duplicate</string>
