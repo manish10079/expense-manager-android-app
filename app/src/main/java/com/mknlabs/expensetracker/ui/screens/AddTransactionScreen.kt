@@ -486,7 +486,7 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = stringResource(R.string.desc_clear_fields),
-                                tint = MaterialTheme.colorScheme.error
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
