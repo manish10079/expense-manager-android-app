@@ -82,15 +82,14 @@ com.mkn0079.expensetracker/
 ### 8. Versioning & Commits
 - **Automated Updates:** Whenever a commit message is prepared or requested, the agent must
  update `app/build.gradle.kts`.
-- **Version Code:** `versionCode` must always increment by **1**.
-- **Version Name:** `versionName` must follow the format: `major.minor.bug`.
+- **Version Name:** `versionName` must always increment and follow the format: `major.minor.bug`.
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `bumped version to <versionName>`.
 - **Versioning Logic (SemVer):**
     - **Major:** Increment for breaking changes (e.g., `feat!`, `fix!`, or `BREAKING CHANGE` in footer). Reset minor and bug to 0.
     - **Minor:** Increment for new features (`feat`). Reset bug to 0.
     - **Bug:** Increment for bug fixes (`fix`).
-    - **Other types (chore, refactor, docs, etc.):** Only increment `versionCode` and update the last segment of `versionName`.
-- **README Sync:** Whenever `versionCode`/`versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header (line 7) and the `| **Version** | <name> (<code>) |` row in the feature table. Never leave README.md on an older version.
+    - **Other types (chore, refactor, docs, etc.):** Update the last segment of `versionName`.
+- **README Sync:** Whenever `versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header (line 7) and the `| **Version** | <name> |` row in the feature table. Never leave README.md on an older version.
 - **Verification:** Ensure the updated version is reflected in the build file before finalizing the task after aksing user to add it or not.
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
 - **No AI-Attribution Footer:** Never append AI-attribution or credit lines to commit messages. In particular, never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar "Generated with ..." / "Co-Authored-By ..." signatures from any tool or model. Commit messages contain only the subject line and the change description.

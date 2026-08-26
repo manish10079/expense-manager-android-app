@@ -21,7 +21,7 @@
 | | |
 |---|---|
 | **Application ID** | `com.mknlabs.expensetracker` |
-| **Version** | 2.74.9 (202) |
+| **Version** | 2.74.9 |
 | **Min SDK / Target SDK** | 24 / 36 |
 | **Language** | 100% Kotlin |
 | **UI** | Jetpack Compose (Material 3) |
