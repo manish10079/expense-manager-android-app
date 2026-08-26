@@ -1,6 +1,6 @@
 # 🚀 AI Features: Free vs Pro — Implementation Roadmap
 
-> **Expense Tracker App (v2.73.0)**  
+> **Expense Tracker App (v2.74.3)**  
 > Last updated: August 25, 2026
 
 ---
@@ -180,7 +180,10 @@ The app already has a robust monetization system that we'll extend:
 │  ✅ CategoryPrediction (domain model + enums)           │
 │  ✅ CategoryPredictorRepository (interface)             │
 │  ✅ CategoryPredictorModule (Hilt binding)              │
-│  ⬜ GeminiVoiceParser (cloud, Pro)                      │
+│  ✅ FirebaseGeminiParser (Firebase AI Logic, direct)    │
+│  ✅ UserContextProvider (dynamic context from Room DB)   │
+│  ✅ ConnectivityHelper (internet availability check)    │
+│  ✅ AiUsageTracker (daily limit tracker)                │
 │  ⬜ ReceiptOcrService (ML Kit + Gemini)                 │
 │  ⬜ InsightsEngine (Gemini-powered analytics)           │
 │  ⬜ MerchantMemoryService (cloud sync)                  │
@@ -284,28 +287,50 @@ The app already has a robust monetization system that we'll extend:
 
 **Implementation:**
 
-- ✅ `ai/cloud/GeminiVoiceParser.kt` — cloud-powered parser using Firebase Functions + Gemini API
-- ✅ `ai/cloud/GeminiApiService.kt` — Firebase Functions callable interface
+- ✅ `ai/cloud/GeminiVoiceParser.kt` — cloud-powered parser using Firebase AI Logic (not Cloud Functions)
+- ✅ `ai/cloud/FirebaseGeminiParser.kt` — Firebase AI Logic integration with `Firebase.ai(backend = GenerativeBackend.googleAI())`
+- ✅ `ai/cloud/GeminiApiService.kt` — Firebase Functions callable interface (legacy, kept for reference)
+- ✅ `ai/cloud/UserContextProvider.kt` — Dynamic user context from Room DB (categories, payment methods, currency, locale)
 - ✅ `ai/AiUsageTracker.kt` — DataStore-backed daily limit tracker (10/day free)
-- ✅ `functions/parseVoiceTransaction.js` — Firebase Cloud Function with Gemini prompt
+- ✅ `functions/parseVoiceTransaction.js` — Firebase Cloud Function with personalized Gemini prompt
 - ✅ Updated `VoiceAddViewModel.kt` — AndroidViewModel with internet check + Gemini fallback
 - ✅ Updated `VoiceParserRepository.kt` — added `VoiceParserType` enum and `parserType` to result
 - ✅ Added AI features to `FeatureRegistry` (AI_VOICE_OFFLINE, AI_VOICE_GEMINI, AI_VOICE_UNLIMITED)
 - ✅ Created `AiUsageModule.kt` — Hilt DataStore provider
 - ✅ Created `ConnectivityHelper.kt` — internet availability check utility
+- ✅ Added `@Named("offline")` and `@Named("gemini")` Hilt bindings in `VoiceParserModule.kt`
+- ✅ Added `payment_methods.getTopPaymentMethods()` DAO query for dynamic context
 - ✅ Unit tests for AiUsageTracker
 
 **Parser Selection Flow:**
 1. Check internet availability via `ConnectivityHelper`
-2. If online AND within daily limit (10/day) → use Gemini AI parser
+2. If online AND within daily limit (10/day) → use Gemini AI parser via `FirebaseGeminiParser`
 3. If offline OR limit reached → use offline parser
 4. Gemini fails → fallback to offline parser
 5. Daily limit only decrements when Gemini is used successfully
 
+**Personalized Prompt (Dynamic Context from Room DB):**
+- ✅ Currency from `AppSettingsDataStore` (maps currencyId → ISO code)
+- ✅ Locale derived from currency region (IN → en-IN, US → en-US, etc.)
+- ✅ All categories (including custom) from `CategoryDao.getAllActiveCategories()`
+- ✅ All payment methods (including custom) from `PaymentMethodDao.getAllActivePaymentMethods()`
+- ✅ Top 3 most-used categories from `CategoryDao.getFrequentlyUsedCategories()`
+- ✅ Top 3 most-used payment methods from `PaymentMethodDao.getTopPaymentMethods()`
+- ✅ All this context sent to Gemini for accurate predictions
+
+**Security (App Check):**
+- ✅ Cloud Functions enforce App Check (`enforceAppCheck: true`)
+- ✅ Release builds use `DebugAppCheckProviderFactory` (for testing; switch to `PlayIntegrity` after Play Store release)
+- ✅ Debug builds use `DebugAppCheckProviderFactory`
+- ✅ `FirebaseGeminiParser` uses `Firebase.ai()` which auto-attaches App Check tokens
+- ✅ Console set to "Monitoring only" — will switch to "Enforced" after 1-2 weeks
+
 **Cost:**
-- Firebase Functions: ~$0.40/million invocations (first 2M free)
+- Firebase AI Logic: Free tier available (Gemini Developer API)
 - Gemini API: Free tier available (limited RPM/TPM)
 - Estimated: ~$0.12/month for 1K users
+- Model: `gemini-3.7-flash` (configurable via Firebase Remote Config)
+- Deprecated: `gemini-2.0-flash` (shutting down per Firebase FAQ)
 
 ---
 
@@ -638,7 +663,7 @@ Week 12-14: Phase 11 - Merchant Memory Cloud Sync      ⬜ PENDING
 | **M1: Voice MVP** | Week 2 | ✅ 100% | Parser + domain model + Hilt module + VoiceInputSheet + VoiceAddViewModel + 55 tests |
 | **M1.2: Category Detection** | Week 3 | ✅ 100% | CategoryPredictor + CategoryPrediction model + 55 tests + OfflineVoiceParser refactored |
 | **M1.3: Payment Method Detection** | Week 3 | ✅ 100% | PaymentMethodPredictor + PaymentMethodLearningStore + 16 tests + AddTransactionScreen integration |
-| **M2: AI Voice** | Week 4 | ✅ 100% | GeminiVoiceParser + AiUsageTracker + Cloud Function + FeatureRegistry + 10/day limits + internet check |
+| **M2: AI Voice** | Week 4 | ✅ 100% | FirebaseGeminiParser + UserContextProvider + AiUsageTracker + Personalized prompts + App Check enforcement + 10/day limits + internet check + Remote Config model selection |
 | **M3: Widget** | Week 6 | ⬜ | Home widget with voice |
 | **M4: Insights** | Week 8 | ⬜ | Pro insights dashboard |
 | **M5: Receipts** | Week 10 | ⬜ | OCR scanning live |

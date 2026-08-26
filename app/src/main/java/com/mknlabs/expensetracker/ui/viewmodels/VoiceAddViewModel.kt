@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.AiUsageTracker
 import com.mknlabs.expensetracker.ai.aiUsageDataStore
+import com.mknlabs.expensetracker.ai.cloud.FirebaseGeminiParser
 import com.mknlabs.expensetracker.ai.offline.OfflineVoiceParser
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
@@ -52,7 +53,8 @@ data class VoiceInputUiState(
 @HiltViewModel
 class VoiceAddViewModel @Inject constructor(
     application: Application,
-    private val offlineParser: OfflineVoiceParser
+    private val offlineParser: OfflineVoiceParser,
+    private val firebaseGeminiParser: FirebaseGeminiParser
 ) : AndroidViewModel(application) {
 
     /** Lazily created — avoids Hilt DataStore injection issues. */
@@ -97,23 +99,20 @@ class VoiceAddViewModel @Inject constructor(
 
             // Decision: use Gemini AI only if online AND within daily limit
             if (isOnline && hasRemainingAiParses) {
-                // Try Gemini AI parser first
+                // Try Gemini AI parser via Firebase AI Logic
                 try {
-                    val geminiParser = tryGeminiParser()
-                    if (geminiParser != null) {
-                        val geminiResult = geminiParser.parse(text)
-                        if (geminiResult is VoiceParseResult.Success) {
-                            // Record usage
-                            aiUsageTracker.recordUsage()
-                            val remaining = aiUsageTracker.remainingParses.first()
-                            _uiState.value = _uiState.value.copy(
-                                sheetState = VoiceSheetState.RESULT,
-                                parsedTransaction = geminiResult.transaction,
-                                parserType = VoiceParserType.GEMINI,
-                                remainingAiParses = remaining
-                            )
-                            return@launch
-                        }
+                    val geminiResult = firebaseGeminiParser.parse(text)
+                    if (geminiResult is VoiceParseResult.Success) {
+                        // Record usage
+                        aiUsageTracker.recordUsage()
+                        val remaining = aiUsageTracker.remainingParses.first()
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.RESULT,
+                            parsedTransaction = geminiResult.transaction,
+                            parserType = VoiceParserType.GEMINI,
+                            remainingAiParses = remaining
+                        )
+                        return@launch
                     }
                 } catch (_: Exception) {
                     // Gemini failed — fall through to offline parser
@@ -143,23 +142,7 @@ class VoiceAddViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Attempts to get the Gemini parser via reflection.
-     * Returns null if not available (e.g., not configured or network error).
-     */
-    private fun tryGeminiParser(): com.mknlabs.expensetracker.domain.repository.VoiceParserRepository? {
-        return try {
-            val clazz = Class.forName("com.mknlabs.expensetracker.ai.cloud.GeminiVoiceParser")
-            val constructor = clazz.constructors.first()
-            val apiServiceClass = Class.forName("com.mknlabs.expensetracker.ai.cloud.GeminiApiService")
-            val functionsClass = Class.forName("com.google.firebase.functions.FirebaseFunctions")
-            val functions = functionsClass.getMethod("getInstance").invoke(null)
-            val apiService = apiServiceClass.constructors.first().newInstance(functions)
-            constructor.newInstance(apiService) as? com.mknlabs.expensetracker.domain.repository.VoiceParserRepository
-        } catch (_: Exception) {
-            null
-        }
-    }
+
 
     /**
      * Checks if the device has an active internet connection.

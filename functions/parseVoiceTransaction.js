@@ -79,7 +79,8 @@ exports.parseVoiceTransaction = onCall(
   {
     region: "us-central1",
     timeoutSeconds: 30,
-    memory: "256MB"
+    memory: "256MB",
+    enforceAppCheck: true
   },
   async (request) => {
     // --- Auth gate ---

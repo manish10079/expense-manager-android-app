@@ -36,7 +36,7 @@ const DURATION_MS_PER_DAY = 24 * 60 * 60 * 1000;
  *  - already-exists       this user already redeemed this coupon
  *  - failed-precondition  inactive / expired / usage limit reached
  */
-exports.redeemProPass = onCall(async (request) => {
+exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
   // --- Auth gate (mirrors the old app check) ---
   const uid = request.auth?.uid;
   if (!uid) {

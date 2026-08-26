@@ -33,7 +33,7 @@ errorproneAnnotations = "2.30.0"
 playServicesAuth = "21.3.0"
 credentials = "1.6.0"
 googleid = "1.1.1"
-firebaseBom = "34.16.0"
+firebaseBom = "34.18.0"
 googleServices = "4.4.4"
 rootbeer = "0.1.2"
 coil = "2.7.0"
@@ -87,6 +87,7 @@ firebase-functions = { group = "com.google.firebase", name = "firebase-functions
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
+firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
