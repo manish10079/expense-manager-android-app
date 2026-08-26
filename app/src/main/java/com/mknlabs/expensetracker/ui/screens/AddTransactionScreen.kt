@@ -465,7 +465,7 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.DeleteOutline,
                                 contentDescription = stringResource(R.string.desc_delete_transaction),
-                                tint = MaterialTheme.colorScheme.error
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
