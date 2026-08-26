@@ -456,7 +456,20 @@ fun AddTransactionScreen(
                     onBackClick()
                 },
                 actions = {
-                    // Reset form icon (swapped from bottom row to header)
+                    // Delete transaction icon (always visible)
+                    if (isEditMode) {
+                        IconButton(onClick = {
+                            keyboardController?.hide()
+                            onDeleteClick()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.DeleteOutline,
+                                contentDescription = stringResource(R.string.desc_delete_transaction),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    // Reset form icon (only in add mode)
                     if (!isEditMode) {
                         IconButton(onClick = {
                             selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
