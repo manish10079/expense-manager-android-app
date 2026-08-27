@@ -82,7 +82,13 @@ class AddCategoryViewModel @Inject constructor(
     }
 
     fun resetState() {
-        _uiState.update { AddCategoryUiState() }
+        val currentTab = _uiState.value.targetTab
+        _uiState.update {
+            AddCategoryUiState(
+                targetTab = currentTab,
+                selectedIconId = defaultIconIdFor(currentTab)
+            )
+        }
     }
 
     private fun defaultIconIdFor(tab: CategoryManagementTab): String {
