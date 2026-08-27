@@ -369,16 +369,10 @@ private fun CalculatorKeypad(
         verticalArrangement = Arrangement.spacedBy(rowSpacing)
     ) {
         Row(
-            modifier = if (compact) {
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .heightIn(min = 32.dp)
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 72.dp)
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .heightIn(min = if (compact) 32.dp else 72.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
@@ -405,16 +399,10 @@ private fun CalculatorKeypad(
         }
 
         Row(
-            modifier = if (compact) {
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .heightIn(min = 32.dp)
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 72.dp)
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .heightIn(min = if (compact) 32.dp else 72.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("7", "8", "9").forEach { value ->
@@ -433,16 +421,10 @@ private fun CalculatorKeypad(
         }
 
         Row(
-            modifier = if (compact) {
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .heightIn(min = 32.dp)
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 72.dp)
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .heightIn(min = if (compact) 32.dp else 72.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("4", "5", "6").forEach { value ->
@@ -461,17 +443,10 @@ private fun CalculatorKeypad(
         }
 
         Row(
-            modifier = if (compact) {
-                Modifier
-                    .fillMaxWidth()
-                    .weight(2f)
-                    .heightIn(min = 64.dp)
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .heightIn(min = 148.dp)
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(2f)
+                .heightIn(min = if (compact) 64.dp else 144.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Column(
@@ -481,16 +456,10 @@ private fun CalculatorKeypad(
                 verticalArrangement = Arrangement.spacedBy(innerRowSpacing)
             ) {
                 Row(
-                    modifier = if (compact) {
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .heightIn(min = 24.dp)
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 72.dp)
-                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .heightIn(min = if (compact) 24.dp else 72.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     listOf("1", "2", "3").forEach { value ->
@@ -503,16 +472,10 @@ private fun CalculatorKeypad(
                 }
 
                 Row(
-                    modifier = if (compact) {
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .heightIn(min = 24.dp)
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 72.dp)
-                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .heightIn(min = if (compact) 24.dp else 72.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     CalculatorKeyButton(

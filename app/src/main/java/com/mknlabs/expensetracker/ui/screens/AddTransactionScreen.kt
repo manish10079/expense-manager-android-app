@@ -579,18 +579,134 @@ fun AddTransactionScreen(
                 }
 
                 val noteBlock: @Composable () -> Unit = {
-                    SelectionInfoCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = Icons.Filled.EditNote,
-                        label = stringResource(R.string.label_note),
-                        value = note.ifBlank { stringResource(R.string.label_add_note) },
-                        isPlaceholder = note.isBlank(),
-                        compact = compact,
-                        onClick = {
-                            noteDraft = note
-                            isNoteSheetVisible = true
-                        }
+                    val micBorderColor by animateColorAsState(
+                        targetValue = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        label = "mic_border"
                     )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = if (compact) 48.dp else 56.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .clickable(onClick = {
+                                    noteDraft = note
+                                    isNoteSheetVisible = true
+                                })
+                                .padding(
+                                    horizontal = if (compact) 12.dp else 16.dp,
+                                    vertical = if (compact) 4.dp else 6.dp
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.EditNote,
+                                    contentDescription = stringResource(R.string.label_note),
+                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.primary,
+                                    modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = note.ifBlank { stringResource(R.string.label_add_note) },
+                                    color = if (note.isBlank()) colorScheme.onSurfaceVariant else colorScheme.onSurface,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = if (compact) 14.sp else 15.sp,
+                                        fontStyle = if (note.isBlank()) FontStyle.Italic else FontStyle.Normal,
+                                        lineHeight = 18.sp
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 48.dp else 56.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    voiceViewModel.resetToListening()
+                                    if (micPermissionGranted) {
+                                        isVoiceSheetVisible = true
+                                    } else {
+                                        micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                    }
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Mic,
+                                contentDescription = stringResource(R.string.desc_voice_add),
+                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 48.dp else 56.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    onCalculatorClick()
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Calculate,
+                                contentDescription = stringResource(R.string.desc_open_calculator),
+                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
 
                 val categoryBlock: @Composable () -> Unit = {
@@ -705,21 +821,6 @@ fun AddTransactionScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Mic icon (swapped from header to bottom row)
-                    SideActionButton(
-                        icon = Icons.Filled.Mic,
-                        contentDescription = stringResource(R.string.desc_voice_add),
-                        onClick = {
-                            keyboardController?.hide()
-                            voiceViewModel.resetToListening()
-                            if (micPermissionGranted) {
-                                isVoiceSheetVisible = true
-                            } else {
-                                micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        }
-                    )
-
                     SideActionButton(
                         icon = Icons.Filled.Dialpad,
                         contentDescription = stringResource(R.string.desc_enter_amount),
@@ -795,15 +896,6 @@ fun AddTransactionScreen(
                                 paymentMethodPredictorViewModel.learn(note, payment.id)
                             }
                             onSaveClick(transaction, recurringDraft)
-                        }
-                    )
-
-                    SideActionButton(
-                        icon = Icons.Filled.Calculate,
-                        contentDescription = stringResource(R.string.desc_open_calculator),
-                        onClick = {
-                            keyboardController?.hide()
-                            onCalculatorClick()
                         }
                     )
 
