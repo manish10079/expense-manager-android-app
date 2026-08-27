@@ -100,7 +100,7 @@
 
     <div class="container">
         <h1>Privacy Policy</h1>
-        <p class="last-updated">Last updated: August 19, 2026</p>
+        <p class="last-updated">Last updated: August 27, 2026</p>
 
         <div class="highlight">
             <strong>Our Commitment:</strong> Expense Tracker follows a <strong>"Privacy First"</strong> philosophy. Your financial data belongs to you. We designed the app to work fully offline by default, and your data never leaves your device unless you explicitly choose to enable cloud synchronization.
@@ -132,7 +132,17 @@
         <h3>1.3 Guest Mode (Anonymous Usage)</h3>
         <p>You can use the App entirely without an account in <strong>Guest Mode</strong>. In this mode, we create an anonymous Firebase Authentication session tied only to your device. All your financial data remains strictly local and is never transmitted to our servers. You may later convert your guest account to a full account to enable cloud sync — your existing data will be linked to your new account during this process.</p>
 
-        <h3>1.4 Smart SMS Import (Optional)</h3>
+        <h3>1.4 Voice Transaction Input (Optional)</h3>
+        <p>With your explicit permission (the <code>RECORD_AUDIO</code> permission), the App can capture your voice to add transactions via natural language. This feature is <strong>entirely optional and off by default</strong> — you will be asked for microphone permission the first time you tap the mic button, and if you deny it the feature simply stays off. You can revoke the permission at any time in your device settings.</p>
+        <p>When enabled, voice input works as follows:</p>
+        <ul>
+            <li><strong>Speech-to-Text:</strong> Your spoken words are converted to text using Android's built-in <code>SpeechRecognizer</code> API. When you have an internet connection, Google's cloud speech recognition service processes the audio. When offline, on-device speech recognition is used. Audio is processed in real-time and is <strong>not stored or transmitted</strong> by the App — it is sent directly to Google's speech recognition service for conversion and discarded immediately.</li>
+            <li><strong>Offline Voice Parsing (Free):</strong> The transcribed text is parsed locally on your device using a rule-based parser that extracts amount, category, merchant, and date. No data leaves your device for this path.</li>
+            <li><strong>AI Voice Parsing (Free, 10/day limit):</strong> When you have an internet connection and have not exceeded the daily limit of 10 AI-powered parses, the transcribed text is sent to <strong>Google Gemini</strong> (via Firebase AI Logic) for more accurate parsing of complex or ambiguous inputs. To improve accuracy, the following metadata is sent along with your spoken text: your selected currency, locale, your category names, and your payment method names. <strong>No financial data (amounts, transactions, merchant names) is sent</strong> — only the metadata needed for accurate parsing. Your AI usage is tracked locally on your device and never transmitted to our servers.</li>
+            <li><strong>Fallback:</strong> If the AI parser fails or the daily limit is reached, the App automatically falls back to the offline parser. Your data always stays on your device in this case.</li>
+        </ul>
+
+        <h3>1.5 Smart SMS Import (Optional)</h3>
         <p>With your explicit permission (the <code>RECEIVE_SMS</code> permission), the App can read incoming SMS messages on your device to detect transaction messages from banks, payment apps, or UPI services (e.g., amount, sender/merchant, and suggested category). This feature is <strong>entirely optional and off by default</strong> — you will be asked once whether you want to enable it, and if you deny it the feature simply stays off. You can revoke the permission at any time in your device settings or turn the feature off in the App's settings.</p>
         <p>When enabled, SMS processing works as follows:</p>
         <ul>
@@ -151,6 +161,7 @@
             <li><strong>To Enforce Security Limits:</strong> Use your device ID to enforce the 4-device sync limit and prevent unauthorized access.</li>
             <li><strong>To Send Notifications:</strong> Send daily reminders, budget limit alerts, upcoming bill notifications, and missed entry reminders — all scheduled and processed locally on your device.</li>
             <li><strong>To Power Smart SMS Import:</strong> Parse detected bank transaction SMS messages locally on your device to propose transactions you can review and save with one tap. SMS content is never transmitted to our servers.</li>
+            <li><strong>To Enable Voice Transaction Input:</strong> Convert your spoken words to text using Android's SpeechRecognizer API (cloud or on-device depending on connectivity), then parse the transcribed text locally (offline parser) or via Google Gemini AI (when online and within daily limit) to create transaction suggestions. Your spoken audio is never recorded or stored by the App. When using the AI parser, only your transcribed text and metadata (currency, locale, category names, payment method names) are sent to Google Gemini — no financial data is transmitted.</li>
             <li><strong>To Process Feedback:</strong> When you submit feedback through the App, we collect your email address and message so we can respond and improve the App. Feedback is stored in our internal feedback database (Firebase Firestore) and a private Google Sheets form used by the development team.</li>
             <li><strong>To Improve the App:</strong> Use aggregated, anonymized analytics (Firebase Analytics) to understand usage patterns and improve the App experience.</li>
             <li><strong>To Serve Advertising:</strong> Display native, interstitial, and rewarded advertisements via Google AdMob. Ad personalization is handled in accordance with your device-level ad preferences. Rewarded ads allow you to watch a short video to temporarily unlock ad-free access (1 hour) or Pro features — this is entirely optional.</li>
@@ -200,6 +211,10 @@
             <li>
                 <strong>Google Firebase Cloud Messaging (FCM)</strong> — <span class="badge">Push Notifications</span><br>
                 Delivers push notifications to your registered devices, including security alerts (new device connections, account changes) and financial insights (Pro users). FCM tokens are stored in Firestore under your user account and are cleaned up automatically when stale. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>
+            </li>
+            <li>
+                <strong>Google Gemini (via Firebase AI Logic)</strong> — <span class="badge">AI Processing</span><br>
+                Powers the AI Voice Parser for complex or ambiguous voice transaction inputs. When you use voice input with an internet connection (within the 10/day free limit), your transcribed spoken text and metadata (currency, locale, category names, payment method names) are sent to Google Gemini for parsing. <strong>No financial data or transaction history is sent.</strong> Audio is never sent — only the already-transcribed text. Gemini processes the request and returns a structured transaction suggestion. Your AI usage count is tracked locally on your device. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>
             </li>
             <li>
                 <strong>Google Sheets (via Google Apps Script)</strong> — <span class="badge">Support</span><br>
@@ -312,6 +327,8 @@
             <li><code>USE_BIOMETRIC</code> — To enable fingerprint and face unlock for App Lock. Biometric data is handled by the Android system, not by the App.</li>
             <li><code>POST_NOTIFICATIONS</code> — To send daily reminders, budget alerts, and bill notifications. All notifications are generated and processed locally.</li>
             <li><code>RECEIVE_SMS</code> — <strong>Optional, off by default.</strong> Enables Smart SMS Import, which reads incoming SMS messages on your device to detect bank transaction messages. All processing happens locally on your device, and SMS content is never transmitted or stored by us. The App never reads SMS until you grant this permission, and the feature is disabled if you deny it.</li>
+            <li><code>RECORD_AUDIO</code> — <strong>Optional, off by default.</strong> Enables Voice Transaction Input, which captures your voice to add transactions via natural language. Audio is processed in real-time by Android's SpeechRecognizer API and is never recorded, stored, or transmitted by the App. When online, Google's cloud speech recognition processes the audio for transcription. The App requests this permission only when you tap the mic button, and the feature is disabled if you deny it.</li>
+            <li><code>com.google.android.gms.permission.AD_ID</code> — Required by Google AdMob on Android 13+ to serve advertisements. Used only for ad personalization in accordance with your device-level ad preferences.</li>
             <li><code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code> — Used to keep the App's background workers running reliably so daily reminders, budget alerts, weekly summaries, goal reminders, and cloud sync happen on time. This only asks to exempt the App from battery optimization; if denied, the App continues to work normally.</li>
             <li><code>INTERNET</code> — To communicate with Firebase services (authentication, cloud sync, remote config, cloud functions, FCM push notifications) and load advertisements.</li>
             <li><code>ACCESS_NETWORK_STATE</code> — To check network connectivity before attempting cloud synchronization, push notification delivery, or ad loading.</li>
