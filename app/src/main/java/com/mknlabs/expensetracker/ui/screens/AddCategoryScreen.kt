@@ -301,17 +301,31 @@ private fun AddCategoryScreenContent(
                     .heightIn(min = 58.dp),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                    containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ),
+                contentPadding = PaddingValues(0.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.label_cancel).uppercase(),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(brush = surfaceGradient())
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                            shape = RoundedCornerShape(22.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_cancel).uppercase(),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
                     )
-                )
+                }
             }
 
             Button(
@@ -343,12 +357,7 @@ private fun AddCategoryScreenContent(
                             brush = if (canCreate) {
                                 brandGradient()
                             } else {
-                                Brush.horizontalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.surfaceVariant,
-                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                                    )
-                                )
+                                brandGradient(alpha = 0.35f)
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -463,7 +472,7 @@ private fun IconSelectionItem(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
             tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier.size(22.dp)
         )
     }
 }
