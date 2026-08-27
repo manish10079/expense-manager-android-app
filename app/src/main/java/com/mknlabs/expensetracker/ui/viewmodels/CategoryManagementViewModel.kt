@@ -46,8 +46,8 @@ class CategoryManagementViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                categoryRepository.observeAllCategories(),
-                paymentMethodRepository.observeAllPaymentMethods()
+                categoryRepository.observeActiveCustomCategories(),
+                paymentMethodRepository.observeActiveCustomPaymentMethods()
             ) { categories, paymentMethods ->
                 categories to paymentMethods
             }.collect { (categories, paymentMethods) ->
