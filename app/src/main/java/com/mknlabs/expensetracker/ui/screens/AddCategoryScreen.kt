@@ -4,9 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -251,9 +250,9 @@ private fun AddCategoryScreenContent(
 
                 Box(modifier = Modifier.heightIn(max = 400.dp)) {
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(78.dp),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        columns = GridCells.Fixed(6),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(filteredIcons) { option ->
@@ -454,7 +453,8 @@ private fun IconSelectionItem(
 ) {
     Box(
         modifier = Modifier
-            .size(78.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
@@ -472,7 +472,7 @@ private fun IconSelectionItem(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
             tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }
