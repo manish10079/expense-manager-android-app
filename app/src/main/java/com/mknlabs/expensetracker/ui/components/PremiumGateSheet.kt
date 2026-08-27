@@ -161,7 +161,7 @@ fun PremiumGateSheet(
                     onClick = onUpgradeClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .heightIn(min = 56.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
@@ -193,7 +193,7 @@ fun PremiumGateSheet(
 
                 TextButton(
                     onClick = onDismiss,
-                    modifier = Modifier.height(44.dp)
+                    modifier = Modifier.heightIn(min = 44.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.label_not_now),
@@ -209,7 +209,7 @@ fun PremiumGateSheet(
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
                         onClick = onRedeemClick,
-                        modifier = Modifier.height(40.dp)
+                        modifier = Modifier.heightIn(min = 40.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.label_have_a_code),
