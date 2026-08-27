@@ -298,7 +298,7 @@ private fun AddCategoryScreenContent(
                 onClick = onBackClick,
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 58.dp),
+                    .height(58.dp),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
@@ -333,7 +333,7 @@ private fun AddCategoryScreenContent(
                 enabled = canCreate,
                 modifier = Modifier
                     .weight(1.5f)
-                    .heightIn(min = 58.dp)
+                    .height(58.dp)
                     .shadow(
                         elevation = if (canCreate) 8.dp else 0.dp,
                         shape = RoundedCornerShape(22.dp),
