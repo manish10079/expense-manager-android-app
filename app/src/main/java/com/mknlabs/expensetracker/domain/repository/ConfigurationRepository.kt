@@ -10,6 +10,7 @@ interface ConfigurationRepository {
     val isSyncEnabled: StateFlow<Boolean>
     val maxSyncDevices: StateFlow<Int>
     val googleSheetsFeedbackUrl: StateFlow<String>
+    val isProGatingEnabled: StateFlow<Boolean>
 
     fun fetchAndActivate()
     fun isUpdateRequired(): Boolean

@@ -14,6 +14,7 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
+import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -22,7 +23,8 @@ import javax.inject.Singleton
 
 @Singleton
 class MonetizationRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val configurationRepository: ConfigurationRepository
 ) : MonetizationRepository {
     private companion object {
         const val TEST_PREMIUM_DURATION_MILLIS = 1 * 60 * 60 * 1000L
@@ -69,11 +71,18 @@ class MonetizationRepositoryImpl @Inject constructor(
         return combine(
             AppSettingsDataStore.getAppSettingsFlow(context),
             UserProfileDataStore.getUserProfileFlow(context),
-            MonetizationDataStore.getGlobalAdAccessExpiry(context)
-        ) { settings, profile, globalAdExpiry ->
+            MonetizationDataStore.getGlobalAdAccessExpiry(context),
+            configurationRepository.isProGatingEnabled
+        ) { settings, profile, globalAdExpiry, proGatingEnabled ->
             // Benchmark hook (Phase 0): forces granted access for the Pro journey.
             val forcePro = if (BuildConfig.BUILD_TYPE == "benchmark") BenchmarkHooks.forcePro else null
             forcePro?.let { if (it) return@combine AccessStatus.Granted }
+
+            // When pro_gating_enabled is false (Remote Config), all features are unlocked
+            if (!proGatingEnabled) {
+                return@combine AccessStatus.Granted
+            }
+
             val now = System.currentTimeMillis()
             val isPremium = isPremiumUser(settings, profile, now)
             

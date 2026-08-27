@@ -7,9 +7,14 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,6 +45,15 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
     private val _googleSheetsFeedbackUrl = MutableStateFlow("")
     override val googleSheetsFeedbackUrl: StateFlow<String> = _googleSheetsFeedbackUrl.asStateFlow()
 
+    private val _isProGatingEnabled = MutableStateFlow(true)
+    override val isProGatingEnabled: StateFlow<Boolean> = _isProGatingEnabled.asStateFlow()
+
+    /** Process-lifetime scope for periodic Remote Config refreshes. */
+    private val configScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /** Interval between periodic Remote Config fetches (15 minutes). */
+    private val PERIODIC_REFRESH_MILLIS = 15 * 60 * 1000L
+
     init {
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
@@ -53,10 +67,26 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
                 "is_pro_pass_enabled" to true,
                 "is_sync_enabled" to true,
                 "max_sync_devices" to 4,
-                "google_sheets_feedback_url" to ""
+                "google_sheets_feedback_url" to "",
+                "pro_gating_enabled" to true
             )
         )
         fetchAndActivate()
+        startPeriodicRefresh()
+    }
+
+    /**
+     * Periodically re-fetches Remote Config every [PERIODIC_REFRESH_MILLIS] so flags like
+     * `pro_gating_enabled` propagate within a session without requiring an app restart.
+     */
+    private fun startPeriodicRefresh() {
+        configScope.launch {
+            while (true) {
+                delay(PERIODIC_REFRESH_MILLIS)
+                Log.d("ConfigRepo", "Periodic Remote Config refresh")
+                fetchAndActivate()
+            }
+        }
     }
 
     override fun fetchAndActivate() {
@@ -79,6 +109,7 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
         _isSyncEnabled.value = remoteConfig.getBoolean("is_sync_enabled")
         _maxSyncDevices.value = remoteConfig.getLong("max_sync_devices").toInt()
         _googleSheetsFeedbackUrl.value = remoteConfig.getString("google_sheets_feedback_url")
+        _isProGatingEnabled.value = remoteConfig.getBoolean("pro_gating_enabled")
     }
 
     override fun isUpdateRequired(): Boolean {
