@@ -204,7 +204,11 @@ private fun CategoryManagementContent(
                 beyondViewportPageCount = 1
             ) { pageIndex ->
                 val currentTab = CategoryManagementTab.entries[pageIndex]
-                val animatingItems = uiState.items
+                val animatingItems = when (currentTab) {
+                    CategoryManagementTab.Income -> uiState.incomeItems
+                    CategoryManagementTab.Expense -> uiState.expenseItems
+                    CategoryManagementTab.Payment -> uiState.paymentItems
+                }
 
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(

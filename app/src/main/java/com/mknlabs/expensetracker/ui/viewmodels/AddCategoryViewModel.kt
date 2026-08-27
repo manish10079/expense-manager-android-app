@@ -32,11 +32,11 @@ class AddCategoryViewModel @Inject constructor(
     val uiState: StateFlow<AddCategoryUiState> = _uiState.asStateFlow()
 
     fun setTargetTab(tab: CategoryManagementTab) {
-        _uiState.update { 
-            it.copy(
+        _uiState.update {
+            AddCategoryUiState(
                 targetTab = tab,
                 selectedIconId = defaultIconIdFor(tab)
-            ) 
+            )
         }
     }
 

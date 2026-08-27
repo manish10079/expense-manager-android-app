@@ -26,9 +26,18 @@ import javax.inject.Inject
 @Immutable
 data class CategoryManagementUiState(
     val selectedTab: CategoryManagementTab = CategoryManagementTab.Expense,
-    val items: List<CategoryManagementItemUi> = emptyList(),
-    val itemCount: Int = 0
-)
+    val incomeItems: List<CategoryManagementItemUi> = emptyList(),
+    val expenseItems: List<CategoryManagementItemUi> = emptyList(),
+    val paymentItems: List<CategoryManagementItemUi> = emptyList()
+) {
+    val items: List<CategoryManagementItemUi>
+        get() = when (selectedTab) {
+            CategoryManagementTab.Income -> incomeItems
+            CategoryManagementTab.Expense -> expenseItems
+            CategoryManagementTab.Payment -> paymentItems
+        }
+    val itemCount: Int get() = items.size
+}
 
 @HiltViewModel
 class CategoryManagementViewModel @Inject constructor(
@@ -78,17 +87,13 @@ class CategoryManagementViewModel @Inject constructor(
             fallbackSubtitleRes = R.string.title_custom_expense_category
         )
         val paymentItems = buildPaymentManagementItems(customPaymentTypes)
-        val items = when (selectedTab) {
-            CategoryManagementTab.Income -> incomeItems
-            CategoryManagementTab.Expense -> expenseItems
-            CategoryManagementTab.Payment -> paymentItems
-        }
 
         _uiState.update {
             it.copy(
                 selectedTab = selectedTab,
-                items = items,
-                itemCount = items.size
+                incomeItems = incomeItems,
+                expenseItems = expenseItems,
+                paymentItems = paymentItems
             )
         }
     }
