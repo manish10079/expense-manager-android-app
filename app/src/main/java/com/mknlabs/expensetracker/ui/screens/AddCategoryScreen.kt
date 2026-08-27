@@ -86,13 +86,13 @@ private fun AddCategoryScreenContent(
     val existingNamesForTarget = remember(targetTab, existingCategories, existingPaymentMethods) {
         when (targetTab) {
             CategoryManagementTab.Income -> {
-                existingCategories.filter { it.transactionTypeId == 1 }.map { it.name }
+                existingCategories.filter { it.transactionTypeId == 1 && !it.isDeleted }.map { it.name }
             }
             CategoryManagementTab.Expense -> {
-                existingCategories.filter { it.transactionTypeId == 2 }.map { it.name }
+                existingCategories.filter { it.transactionTypeId == 2 && !it.isDeleted }.map { it.name }
             }
             CategoryManagementTab.Payment -> {
-                existingPaymentMethods.map { it.name }
+                existingPaymentMethods.filter { !it.isDeleted }.map { it.name }
             }
         }
     }
