@@ -192,7 +192,7 @@ private fun AddCategoryScreenContent(
                     )
                 )
 
-                if (isDuplicateName) {
+                if (isDuplicateName && trimmedName.isNotBlank() && !uiState.isSaving) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.msg_name_already_exists, stringResource(targetTab.titleRes).lowercase()),
