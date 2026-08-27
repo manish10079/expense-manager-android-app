@@ -84,8 +84,7 @@
     <string name="msg_choose_icons_info">Choose from 50 icons. Color styling stays automatic.</string>
     <string name="placeholder_search_icons">Search icons (e.g. \'Food\')…</string>
     <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
-    <string name="label_create_type">Create Type</string>
-    <string name="label_create_category">Create Category</string>
+    <string name="label_add_type">Add Type</string>
     <string name="label_payment_type_item">Payment Type</string>
     <string name="label_income_category_item">Income Category</string>
     <string name="label_expense_category_item">Expense Category</string>

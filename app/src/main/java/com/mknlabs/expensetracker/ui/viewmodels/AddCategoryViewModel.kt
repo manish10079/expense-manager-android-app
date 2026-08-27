@@ -61,19 +61,28 @@ class AddCategoryViewModel @Inject constructor(
         _uiState.update { it.copy(isSaving = true) }
         
         viewModelScope.launch {
-            when (currentState.targetTab) {
-                CategoryManagementTab.Income -> {
-                    categoryRepository.createCustomCategory(name, currentState.selectedIconId, 1)
+            try {
+                when (currentState.targetTab) {
+                    CategoryManagementTab.Income -> {
+                        categoryRepository.createCustomCategory(name, currentState.selectedIconId, 1)
+                    }
+                    CategoryManagementTab.Expense -> {
+                        categoryRepository.createCustomCategory(name, currentState.selectedIconId, 2)
+                    }
+                    CategoryManagementTab.Payment -> {
+                        paymentMethodRepository.createCustomPaymentMethod(name, currentState.selectedIconId)
+                    }
                 }
-                CategoryManagementTab.Expense -> {
-                    categoryRepository.createCustomCategory(name, currentState.selectedIconId, 2)
-                }
-                CategoryManagementTab.Payment -> {
-                    paymentMethodRepository.createCustomPaymentMethod(name, currentState.selectedIconId)
-                }
+                _uiState.update { it.copy(isSaving = false) }
+                onSuccess()
+            } catch (_: Exception) {
+                _uiState.update { it.copy(isSaving = false) }
             }
-            onSuccess()
         }
+    }
+
+    fun resetState() {
+        _uiState.update { AddCategoryUiState() }
     }
 
     private fun defaultIconIdFor(tab: CategoryManagementTab): String {

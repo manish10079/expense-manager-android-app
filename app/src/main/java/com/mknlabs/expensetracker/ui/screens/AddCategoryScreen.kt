@@ -52,6 +52,10 @@ fun AddCategoryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.resetState()
+    }
+
     AddCategoryScreenContent(
         uiState = uiState,
         existingCategories = existingCategories,
@@ -134,7 +138,6 @@ private fun AddCategoryScreenContent(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -246,41 +249,40 @@ private fun AddCategoryScreenContent(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Box(modifier = Modifier.heightIn(max = 400.dp)) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(6),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(filteredIcons) { option ->
-                            IconSelectionItem(
-                                option = option,
-                                selected = option.id == uiState.selectedIconId,
-                                onClick = { onIconSelected(option.id) }
-                            )
-                        }
-                    }
-
-                    if (filteredIcons.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(R.string.msg_no_icons_found, uiState.iconSearchQuery),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(6),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth().weight(1f)
+                ) {
+                    items(filteredIcons) { option ->
+                        IconSelectionItem(
+                            option = option,
+                            selected = option.id == uiState.selectedIconId,
+                            onClick = { onIconSelected(option.id) }
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(100.dp))
+                if (filteredIcons.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.msg_no_icons_found, uiState.iconSearchQuery),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
@@ -309,16 +311,16 @@ private fun AddCategoryScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(22.dp))
-                        .background(brush = surfaceGradient())
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             shape = RoundedCornerShape(22.dp)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = stringResource(R.string.label_cancel).uppercase(),
+                        text = stringResource(R.string.label_cancel_1),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
@@ -352,12 +354,9 @@ private fun AddCategoryScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(22.dp))
-                        .background(
-                            brush = if (canCreate) {
-                                brandGradient()
-                            } else {
-                                brandGradient(alpha = 0.35f)
-                            }
+                        .then(
+                            if (canCreate) Modifier.background(brush = brandGradient())
+                            else Modifier.background(color = MaterialTheme.colorScheme.surfaceVariant)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -369,7 +368,7 @@ private fun AddCategoryScreenContent(
                         )
                     } else {
                         Text(
-                            text = if (targetTab == CategoryManagementTab.Payment) stringResource(R.string.label_create_type) else stringResource(R.string.label_create_category),
+                            text = if (targetTab == CategoryManagementTab.Payment) stringResource(R.string.label_add_type) else stringResource(R.string.label_add_category),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
                         )
                     }
@@ -395,6 +394,7 @@ private fun CategorySectionLabel(text: String) {
 private fun TypePreviewChip(targetTab: CategoryManagementTab) {
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(

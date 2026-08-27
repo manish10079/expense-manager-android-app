@@ -2,19 +2,26 @@ package com.mknlabs.expensetracker.ui.viewmodels
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.domain.repository.CategoryRepository
+import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.ui.models.CategoryManagementItemUi
 import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import com.mknlabs.expensetracker.data.constants.categoryFallbackDescriptions
 import com.mknlabs.expensetracker.data.constants.paymentFallbackDescriptions
+import javax.inject.Inject
 
 @Immutable
 data class CategoryManagementUiState(
@@ -23,34 +30,43 @@ data class CategoryManagementUiState(
     val itemCount: Int = 0
 )
 
-class CategoryManagementViewModel : ViewModel() {
+@HiltViewModel
+class CategoryManagementViewModel @Inject constructor(
+    private val categoryRepository: CategoryRepository,
+    private val paymentMethodRepository: PaymentMethodRepository
+) : ViewModel() {
 
-    private var customCategories: List<CategoryType> = emptyList()
-    private var customPaymentTypes: List<PaymentType> = emptyList()
     private var selectedTab: CategoryManagementTab = CategoryManagementTab.Expense
+    private var latestCategories: List<CategoryType> = emptyList()
+    private var latestPaymentTypes: List<PaymentType> = emptyList()
 
     private val _uiState = MutableStateFlow(CategoryManagementUiState())
     val uiState: StateFlow<CategoryManagementUiState> = _uiState.asStateFlow()
 
     init {
-        rebuildUiState()
-    }
-
-    fun updateInputs(
-        customCategories: List<CategoryType>,
-        customPaymentTypes: List<PaymentType>
-    ) {
-        this.customCategories = customCategories
-        this.customPaymentTypes = customPaymentTypes
-        rebuildUiState()
+        viewModelScope.launch {
+            combine(
+                categoryRepository.observeAllCategories(),
+                paymentMethodRepository.observeAllPaymentMethods()
+            ) { categories, paymentMethods ->
+                categories to paymentMethods
+            }.collect { (categories, paymentMethods) ->
+                latestCategories = categories
+                latestPaymentTypes = paymentMethods
+                rebuildUiState(categories, paymentMethods)
+            }
+        }
     }
 
     fun selectTab(tab: CategoryManagementTab) {
         selectedTab = tab
-        rebuildUiState()
+        rebuildUiState(latestCategories, latestPaymentTypes)
     }
 
-    private fun rebuildUiState() {
+    private fun rebuildUiState(
+        customCategories: List<CategoryType>,
+        customPaymentTypes: List<PaymentType>
+    ) {
         val incomeItems = buildCategoryManagementItems(
             categories = customCategories,
             transactionTypeId = 1,
@@ -118,5 +134,3 @@ private fun buildPaymentManagementItems(
         )
     }
 }
-
-

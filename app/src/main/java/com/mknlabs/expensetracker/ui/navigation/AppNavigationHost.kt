@@ -521,8 +521,6 @@ fun AppNavigationHost(
                 AppRoute.CategoryManagement -> {
                     CategoryManagementScreen(
                         isAdsEnabled = isAdsEnabled,
-                        customCategories = categories.filter { !it.isSystem && !it.isDeleted },
-                        customPaymentTypes = paymentMethods.filter { !it.isSystem && !it.isDeleted },
                         onCreateCustomCategory = onCreateCustomCategory,
                         onCreateCustomPaymentType = onCreateCustomPaymentType,
                         onDeleteCustomCategory = onDeleteCustomCategory,

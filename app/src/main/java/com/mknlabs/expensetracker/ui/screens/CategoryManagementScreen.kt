@@ -53,11 +53,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.data.constants.categoryMap
-import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.data.constants.transactionList
-import com.mknlabs.expensetracker.models.CategoryType
-import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
@@ -77,8 +73,7 @@ import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
 import com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
-import com.mknlabs.expensetracker.data.constants.categoryFallbackDescriptions
-import com.mknlabs.expensetracker.data.constants.paymentFallbackDescriptions
+
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
@@ -94,8 +89,6 @@ import kotlinx.coroutines.launch
 fun CategoryManagementScreen(
     userProfile: UserProfile = defaultUserProfile,
     transactions: List<Transaction> = transactionList,
-    customCategories: List<CategoryType> = emptyList(),
-    customPaymentTypes: List<PaymentType> = emptyList(),
     onBackClick: () -> Unit = {},
     onCreateCustomCategory: (String, String, Int) -> Unit = { _, _, _ -> },
     onCreateCustomPaymentType: (String, String) -> Unit = { _, _ -> },
@@ -105,13 +98,6 @@ fun CategoryManagementScreen(
     isAdsEnabled: Boolean = false
 ) {
     val categoryManagementViewModel: CategoryManagementViewModel = hiltViewModel()
-
-    androidx.compose.runtime.LaunchedEffect(customCategories, customPaymentTypes) {
-        categoryManagementViewModel.updateInputs(
-            customCategories = customCategories,
-            customPaymentTypes = customPaymentTypes
-        )
-    }
     val uiState by categoryManagementViewModel.uiState.collectAsStateWithLifecycle()
 
     // The pager is the SINGLE source of truth for the visible tab.
@@ -142,8 +128,6 @@ fun CategoryManagementScreen(
         uiState = uiState,
         pagerState = pagerState,
         isAdsEnabled = isAdsEnabled,
-        customCategories = customCategories,
-        customPaymentTypes = customPaymentTypes,
         onBackClick = onBackClick,
         onDeleteCustomCategory = onDeleteCustomCategory,
         onDeleteCustomPaymentType = onDeleteCustomPaymentType,
@@ -157,8 +141,6 @@ private fun CategoryManagementContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState,
     pagerState: androidx.compose.foundation.pager.PagerState,
     isAdsEnabled: Boolean,
-    customCategories: List<CategoryType>,
-    customPaymentTypes: List<PaymentType>,
     onBackClick: () -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
     onDeleteCustomPaymentType: (Int) -> Unit,
@@ -222,30 +204,7 @@ private fun CategoryManagementContent(
                 beyondViewportPageCount = 1
             ) { pageIndex ->
                 val currentTab = CategoryManagementTab.entries[pageIndex]
-                val incomeSourceDesc = stringResource(R.string.desc_income_source)
-                val expenseCategoryDesc = stringResource(R.string.desc_expense_category)
-                val paymentMethodFallbackDesc = stringResource(R.string.desc_payment_method_fallback)
-
-                val animatingItems = remember(currentTab, customCategories, customPaymentTypes, incomeSourceDesc, expenseCategoryDesc, paymentMethodFallbackDesc) {
-                    when (currentTab) {
-                        CategoryManagementTab.Income -> buildCategoryManagementItems(customCategories, 1, incomeSourceDesc)
-                        CategoryManagementTab.Expense -> buildCategoryManagementItems(customCategories, 2, expenseCategoryDesc)
-                        CategoryManagementTab.Payment -> {
-                            val customItems = customPaymentTypes.sortedByDescending { it.id }
-                            val builtinItems = paymentTypeMap.values.sortedBy { it.id }
-                            (customItems + builtinItems).map { payment ->
-                                CategoryManagementItemUi(
-                                    id = payment.id,
-                                    title = payment.name,
-                                    subtitleRes = paymentFallbackDescriptions[payment.id],
-                                    subtitle = if (paymentFallbackDescriptions[payment.id] == null) paymentMethodFallbackDesc else null,
-                                    icon = payment.icon,
-                                    isUserCreated = payment.id !in paymentTypeMap
-                                )
-                            }
-                        }
-                    }
-                }
+                val animatingItems = uiState.items
 
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -502,30 +461,6 @@ private fun defaultIconIdFor(tab: CategoryManagementTab): String {
     }
 }
 
-private fun buildCategoryManagementItems(
-    categories: List<CategoryType>,
-    transactionTypeId: Int,
-    fallbackSubtitle: String
-): List<CategoryManagementItemUi> {
-    val customItems = categories
-        .filter { it.transactionTypeId == transactionTypeId }
-        .sortedByDescending { it.id }
-    val builtinItems = categoryMap.values
-        .filter { it.transactionTypeId == transactionTypeId }
-        .sortedBy { it.id }
-
-    return (customItems + builtinItems).map { category ->
-        CategoryManagementItemUi(
-            id = category.id,
-            title = category.name,
-            subtitleRes = categoryFallbackDescriptions[category.id],
-            subtitle = if (categoryFallbackDescriptions[category.id] == null) fallbackSubtitle else null,
-            icon = category.icon,
-            isUserCreated = category.id !in categoryMap
-        )
-    }
-}
-
 @Composable
 private fun AddCategoryFab(
         modifier: Modifier = Modifier,
@@ -584,8 +519,6 @@ private fun CategoryManagementScreenPreview() {
             uiState = com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState(),
             pagerState = rememberPagerState(initialPage = 0) { CategoryManagementTab.entries.size },
             isAdsEnabled = true,
-            customCategories = emptyList(),
-            customPaymentTypes = emptyList(),
             onBackClick = {},
             onDeleteCustomCategory = {},
             onDeleteCustomPaymentType = {},
