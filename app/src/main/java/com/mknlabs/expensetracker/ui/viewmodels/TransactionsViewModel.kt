@@ -657,19 +657,25 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private fun calculateNewUiState(pagination: PaginationState): TransactionsScreenUiState {
-        val availableCategories = currentCategories
+        // Snapshot mutable lists to avoid ConcurrentModificationException
+        // when other coroutines modify them concurrently
+        val snapshotTransactions = currentTransactions.toList()
+        val snapshotCategories = currentCategories.toList()
+        val snapshotPaymentMethods = currentPaymentMethods.toList()
+
+        val availableCategories = snapshotCategories
             .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
             .sortedBy { it.name }
 
         val appliedMinAmountValue = appliedMinAmount.toDoubleOrNull()
         val appliedMaxAmountValue = appliedMaxAmount.toDoubleOrNull()
-        val categoryNames = currentCategories.associate { it.id to it.name }
-        val paymentTypeNames = paymentTypeMap.mapValues { it.value.name } + currentPaymentMethods.associate { it.id to it.name }
+        val categoryNames = snapshotCategories.associate { it.id to it.name }
+        val paymentTypeNames = paymentTypeMap.mapValues { it.value.name } + snapshotPaymentMethods.associate { it.id to it.name }
         val normalizedQuery = searchQuery.trim()
 
         // Apply in-memory filters to the currently loaded page
         val filteredTransactions = sortTransactions(
-            currentTransactions.filter { transaction ->
+            snapshotTransactions.filter { transaction ->
                 val paymentName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
                 val categoryName = categoryNames[transaction.categoryId].orEmpty()
                 val matchesSearchQuery = normalizedQuery.isBlank() ||
@@ -903,14 +909,14 @@ class TransactionsViewModel @Inject constructor(
         // Period navigation check — use hasMore from pagination for "next" direction,
         // and check if there are any items for "previous".
         val canNavigateForward = pagination.hasMore ||
-            currentTransactions.any {
+            snapshotTransactions.any {
                 matchesSelectedPeriod(
                     transactionTimestamp = it.createdAt,
                     focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, 1),
                     filter = selectedPeriodFilter
                 )
             }
-        val canNavigateBackward = currentTransactions.any {
+        val canNavigateBackward = snapshotTransactions.any {
             matchesSelectedPeriod(
                 transactionTimestamp = it.createdAt,
                 focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, -1),
