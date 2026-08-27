@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.ai.offline
 
+import android.util.Log
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
@@ -159,7 +160,9 @@ class OfflineVoiceParser @Inject constructor(
     // ──────────────────────────────────────────────────────────────────────
 
     override fun parse(text: String): VoiceParseResult {
+        Log.d(TAG, "parse: text='$text'")
         if (text.isBlank()) {
+            Log.w(TAG, "parse: blank text")
             return VoiceParseResult.Failed(R.string.msg_voice_error_empty_input)
         }
 
@@ -167,27 +170,37 @@ class OfflineVoiceParser @Inject constructor(
 
         // 1. Extract amount
         val amount = extractAmount(trimmed)
-            ?: return VoiceParseResult.Failed(R.string.msg_voice_error_no_amount)
+        if (amount == null) {
+            Log.w(TAG, "parse: no amount found in '$trimmed'")
+            return VoiceParseResult.Failed(R.string.msg_voice_error_no_amount)
+        }
+        Log.d(TAG, "parse: amount=$amount")
 
         // 2. Detect transaction type
         val transactionTypeId = detectTransactionType(trimmed)
+        Log.d(TAG, "parse: transactionTypeId=$transactionTypeId (${if (transactionTypeId == 1) "Income" else "Expense"})")
 
         // 3. Detect category
         val categoryId = detectCategory(trimmed, transactionTypeId)
+        Log.d(TAG, "parse: categoryId=$categoryId")
 
         // 4. Extract merchant
         val merchant = extractMerchant(trimmed)
+        Log.d(TAG, "parse: merchant=$merchant")
 
         // 5. Extract date
         val createdAt = extractDate(trimmed)
+        Log.d(TAG, "parse: createdAt=$createdAt")
 
         // 6. Generate note from input
         val note = generateNote(trimmed, merchant)
+        Log.d(TAG, "parse: note='$note'")
 
         // 7. Calculate confidence
         val confidence = calculateConfidence(amount, categoryId, createdAt, trimmed)
+        Log.d(TAG, "parse: confidence=$confidence")
 
-        return VoiceParseResult.Success(
+        val result = VoiceParseResult.Success(
             ParsedVoiceTransaction(
                 amountMinor = amount.toMinorUnits(),
                 transactionTypeId = transactionTypeId,
@@ -199,6 +212,8 @@ class OfflineVoiceParser @Inject constructor(
                 confidence = confidence
             )
         )
+        Log.d(TAG, "parse: SUCCESS — amountMinor=${amount.toMinorUnits()}, confidence=$confidence")
+        return result
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -360,5 +375,7 @@ class OfflineVoiceParser @Inject constructor(
         }
     }
 
-    companion object
+    companion object {
+        private const val TAG = "OfflineVoiceParser"
+    }
 }

@@ -163,14 +163,6 @@ fun SettingsScreen(
                     monetizationViewModel.showPrivacyOptionsForm(activity)
                 }
             },
-            onLinkedInClick = {
-                val linkedInUrl = "https://www.linkedin.com/in/manish-nayak-172348210"
-                val intent = android.content.Intent(
-                    android.content.Intent.ACTION_VIEW,
-                    android.net.Uri.parse(linkedInUrl)
-                )
-                context.startActivity(intent)
-            },
             onBackClick = onBackClick
         )
 }
@@ -204,7 +196,6 @@ private fun SettingsScreenContent(
     onShowUpgradeSheet: () -> Unit,
     onRedeemProPassClick: () -> Unit,
     onAdFreeAccessClick: () -> Unit,
-    onLinkedInClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -288,7 +279,7 @@ private fun SettingsScreenContent(
                                     }
                                     SettingsActionId.Logout -> onLogoutClick()
                                     SettingsActionId.RedeemProPass -> onRedeemProPassClick()
-                                    SettingsActionId.LinkedIn -> onLinkedInClick()
+
                                     else -> Unit
                                 }
                             },
@@ -545,12 +536,7 @@ private fun SettingsScreenPreview() {
                             icon = Icons.Rounded.Info,
                             actionId = SettingsActionId.About
                         ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_connect_on_linkedin,
-                            subtitleRes = R.string.label_connect_on_linkedin_subtitle,
-                            icon = Icons.Rounded.Link,
-                            actionId = SettingsActionId.LinkedIn
-                        )
+
                     )
                 )
             ),
@@ -578,7 +564,6 @@ private fun SettingsScreenPreview() {
             onShowUpgradeSheet = {},
             onRedeemProPassClick = {},
             onAdFreeAccessClick = {},
-            onLinkedInClick = {},
             onBackClick = {}
         )
     }

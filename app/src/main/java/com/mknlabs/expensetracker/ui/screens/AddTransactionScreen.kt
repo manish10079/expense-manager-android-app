@@ -151,6 +151,7 @@ import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
+import android.util.Log
 import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.ui.viewmodels.PaymentMethodPredictorViewModel
@@ -334,20 +335,43 @@ fun AddTransactionScreen(
         }
         LaunchedEffect(isVoiceSheetVisible, voiceUiState.sheetState) {
             if (isVoiceSheetVisible && voiceUiState.sheetState == VoiceSheetState.LISTENING) {
+                Log.d("VoiceInput", "Starting speech recognizer, sheetVisible=$isVoiceSheetVisible, sheetState=${voiceUiState.sheetState}")
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                     putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 }
                 speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) {}
-                    override fun onBeginningOfSpeech() {}
-                    override fun onRmsChanged(rmsdB: Float) {}
-                    override fun onBufferReceived(buffer: ByteArray?) {}
+                    override fun onReadyForSpeech(params: Bundle?) {
+                        Log.d("VoiceInput", "onReadyForSpeech: params=$params")
+                    }
+                    override fun onBeginningOfSpeech() {
+                        Log.d("VoiceInput", "onBeginningOfSpeech")
+                    }
+                    override fun onRmsChanged(rmsdB: Float) {
+                        // Too frequent to log — intentionally silent
+                    }
+                    override fun onBufferReceived(buffer: ByteArray?) {
+                        Log.d("VoiceInput", "onBufferReceived: ${buffer?.size ?: 0} bytes")
+                    }
                     override fun onEndOfSpeech() {
-                        voiceViewModel.onSpeechResult(voiceUiState.transcript)
+                        Log.d("VoiceInput", "onEndOfSpeech: currentViewModelTranscript='${voiceUiState.transcript}'")
+                        // Do NOT call onSpeechResult here — voiceUiState.transcript is stale
+                        // (captured at LaunchedEffect launch time). The real result arrives in onResults.
                     }
                     override fun onError(error: Int) {
+                        val errorLabel = when (error) {
+                            SpeechRecognizer.ERROR_NO_MATCH -> "ERROR_NO_MATCH"
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "ERROR_SPEECH_TIMEOUT"
+                            SpeechRecognizer.ERROR_NETWORK -> "ERROR_NETWORK"
+                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "ERROR_NETWORK_TIMEOUT"
+                            SpeechRecognizer.ERROR_AUDIO -> "ERROR_AUDIO"
+                            SpeechRecognizer.ERROR_CLIENT -> "ERROR_CLIENT"
+                            SpeechRecognizer.ERROR_SERVER -> "ERROR_SERVER"
+                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "ERROR_RECOGNIZER_BUSY"
+                            else -> "ERROR_UNKNOWN($error)"
+                        }
+                        Log.e("VoiceInput", "onError: $errorLabel (code=$error)")
                         val errorResId = when (error) {
                             SpeechRecognizer.ERROR_NO_MATCH,
                             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
@@ -361,14 +385,19 @@ fun AddTransactionScreen(
                     override fun onResults(results: Bundle?) {
                         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         val text = matches?.firstOrNull().orEmpty()
+                        val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+                        Log.d("VoiceInput", "onResults: text='$text', matchCount=${matches?.size ?: 0}, confidence=${confidenceScores?.firstOrNull()}")
                         voiceViewModel.onSpeechResult(text)
                     }
                     override fun onPartialResults(partialResults: Bundle?) {
                         val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         val text = matches?.firstOrNull().orEmpty()
+                        Log.d("VoiceInput", "onPartialResults: text='$text'")
                         voiceViewModel.onPartialResult(text)
                     }
-                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                    override fun onEvent(eventType: Int, params: Bundle?) {
+                        Log.d("VoiceInput", "onEvent: eventType=$eventType")
+                    }
                 })
                 speechRecognizer.startListening(intent)
             }

@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.ui.viewmodels
 import android.app.Application
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
@@ -57,6 +58,10 @@ class VoiceAddViewModel @Inject constructor(
     private val firebaseGeminiParser: FirebaseGeminiParser
 ) : AndroidViewModel(application) {
 
+    companion object {
+        private const val TAG = "VoiceAddViewModel"
+    }
+
     /** Lazily created — avoids Hilt DataStore injection issues. */
     private val aiUsageTracker by lazy {
         val dataStore = getApplication<Application>()
@@ -72,6 +77,7 @@ class VoiceAddViewModel @Inject constructor(
      * Updates the live transcript in the UI.
      */
     fun onPartialResult(text: String) {
+        Log.d(TAG, "onPartialResult: '$text'")
         _uiState.value = _uiState.value.copy(transcript = text)
     }
 
@@ -80,7 +86,9 @@ class VoiceAddViewModel @Inject constructor(
      * Transitions to PROCESSING, runs the parser, then to RESULT or ERROR.
      */
     fun onSpeechResult(text: String) {
+        Log.d(TAG, "onSpeechResult: text='$text'")
         if (text.isBlank()) {
+            Log.w(TAG, "onSpeechResult: blank text → ERROR")
             _uiState.value = _uiState.value.copy(
                 sheetState = VoiceSheetState.ERROR,
                 errorMessageResId = R.string.msg_voice_error_empty_input
@@ -92,20 +100,25 @@ class VoiceAddViewModel @Inject constructor(
             sheetState = VoiceSheetState.PROCESSING,
             transcript = text
         )
+        Log.d(TAG, "onSpeechResult: state → PROCESSING, launching parse coroutine")
 
         viewModelScope.launch {
             val isOnline = isInternetAvailable()
             val hasRemainingAiParses = aiUsageTracker.hasRemainingParses.first()
+            Log.d(TAG, "onSpeechResult: isOnline=$isOnline, hasRemainingAiParses=$hasRemainingAiParses")
 
             // Decision: use Gemini AI only if online AND within daily limit
             if (isOnline && hasRemainingAiParses) {
+                Log.d(TAG, "onSpeechResult: attempting Gemini AI parse...")
                 // Try Gemini AI parser via Firebase AI Logic
                 try {
-                    val geminiResult = firebaseGeminiParser.parse(text)
+                    val geminiResult = firebaseGeminiParser.parseAsync(text)
+                    Log.d(TAG, "onSpeechResult: Gemini result=$geminiResult")
                     if (geminiResult is VoiceParseResult.Success) {
                         // Record usage
                         aiUsageTracker.recordUsage()
                         val remaining = aiUsageTracker.remainingParses.first()
+                        Log.d(TAG, "onSpeechResult: Gemini SUCCESS — amount=${geminiResult.transaction.amountMinor}, remainingAiParses=$remaining")
                         _uiState.value = _uiState.value.copy(
                             sheetState = VoiceSheetState.RESULT,
                             parsedTransaction = geminiResult.transaction,
@@ -113,18 +126,25 @@ class VoiceAddViewModel @Inject constructor(
                             remainingAiParses = remaining
                         )
                         return@launch
+                    } else {
+                        Log.w(TAG, "onSpeechResult: Gemini returned Failed — falling through to offline parser")
                     }
-                } catch (_: Exception) {
-                    // Gemini failed — fall through to offline parser
+                } catch (e: Exception) {
+                    Log.e(TAG, "onSpeechResult: Gemini exception — falling through to offline parser", e)
                 }
+            } else {
+                Log.d(TAG, "onSpeechResult: skipping Gemini (online=$isOnline, remaining=$hasRemainingAiParses) — using offline parser")
             }
 
             // Fallback: use offline parser (no internet OR limit reached OR Gemini failed)
+            Log.d(TAG, "onSpeechResult: running offline parser...")
             val offlineResult = offlineParser.parse(text)
             val remaining = aiUsageTracker.remainingParses.first()
+            Log.d(TAG, "onSpeechResult: offline result=$offlineResult, remainingAiParses=$remaining")
 
             when (offlineResult) {
                 is VoiceParseResult.Success -> {
+                    Log.d(TAG, "onSpeechResult: offline SUCCESS — amount=${offlineResult.transaction.amountMinor}")
                     _uiState.value = _uiState.value.copy(
                         sheetState = VoiceSheetState.RESULT,
                         parsedTransaction = offlineResult.transaction,
@@ -133,6 +153,7 @@ class VoiceAddViewModel @Inject constructor(
                     )
                 }
                 is VoiceParseResult.Failed -> {
+                    Log.e(TAG, "onSpeechResult: offline FAILED — errorResId=${offlineResult.errorMessageResId}")
                     _uiState.value = _uiState.value.copy(
                         sheetState = VoiceSheetState.ERROR,
                         errorMessageResId = offlineResult.errorMessageResId
@@ -142,8 +163,6 @@ class VoiceAddViewModel @Inject constructor(
         }
     }
 
-
-
     /**
      * Checks if the device has an active internet connection.
      */
@@ -152,8 +171,10 @@ class VoiceAddViewModel @Inject constructor(
         val connectivityManager = app.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+        val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        Log.d(TAG, "isInternetAvailable: $hasInternet")
+        return hasInternet
     }
 
     /**
@@ -161,6 +182,7 @@ class VoiceAddViewModel @Inject constructor(
      * (e.g., no permission, network error, audio error).
      */
     fun onRecognizerError(errorResId: Int) {
+        Log.e(TAG, "onRecognizerError: errorResId=$errorResId")
         _uiState.value = _uiState.value.copy(
             sheetState = VoiceSheetState.ERROR,
             errorMessageResId = errorResId
@@ -171,6 +193,7 @@ class VoiceAddViewModel @Inject constructor(
      * Reset to listening state for retry.
      */
     fun resetToListening() {
+        Log.d(TAG, "resetToListening: state → LISTENING")
         _uiState.value = VoiceInputUiState(
             sheetState = VoiceSheetState.LISTENING
         )
@@ -180,6 +203,7 @@ class VoiceAddViewModel @Inject constructor(
      * Dismiss the sheet entirely.
      */
     fun dismiss() {
+        Log.d(TAG, "dismiss")
         _uiState.value = VoiceInputUiState()
     }
 }

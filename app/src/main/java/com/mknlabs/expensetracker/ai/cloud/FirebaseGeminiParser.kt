@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.ai.cloud
 
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.GenerativeModel
@@ -39,6 +40,7 @@ class FirebaseGeminiParser @Inject constructor(
 ) : VoiceParserRepository {
 
     companion object {
+        private const val TAG = "FirebaseGeminiParser"
         private const val REMOTE_CONFIG_KEY_MODEL = "gemini_voice_model"
         private const val DEFAULT_MODEL = "gemini-3.7-flash"
     }
@@ -59,9 +61,12 @@ class FirebaseGeminiParser @Inject constructor(
             remoteConfig.fetchAndActivate().await()
             remoteConfig.getString(REMOTE_CONFIG_KEY_MODEL)
                 .ifBlank { DEFAULT_MODEL }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to fetch RemoteConfig model, using default: $DEFAULT_MODEL", e)
             DEFAULT_MODEL
         }
+
+        Log.d(TAG, "Using Gemini model: $modelName")
 
         val config = GenerationConfig.Builder()
             .setMaxOutputTokens(2048)
@@ -80,21 +85,37 @@ class FirebaseGeminiParser @Inject constructor(
         }
     }
 
-    private suspend fun parseAsync(text: String): VoiceParseResult {
+    /**
+     * Suspending version of [parse] — call this from coroutines to avoid
+     * blocking the calling thread with [runBlocking].
+     */
+    suspend fun parseAsync(text: String): VoiceParseResult {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d(TAG, "parseAsync: text='$text'")
                 val ctx = userContextProvider.getUserContext()
+                Log.d(TAG, "parseAsync: userContext currency=${ctx.currency}, locale=${ctx.locale}")
                 val prompt = buildPrompt(text, ctx)
+                Log.d(TAG, "parseAsync: prompt length=${prompt.length}")
                 val model = getGeminiModel()
+                Log.d(TAG, "parseAsync: calling model.generateContent()...")
                 val response: GenerateContentResponse = model.generateContent(prompt)
-                val responseText = response.text ?: return@withContext VoiceParseResult.Failed(
-                    R.string.msg_voice_error_network
-                )
+                val responseText = response.text
+                Log.d(TAG, "parseAsync: response text=$responseText")
+                if (responseText == null) {
+                    Log.e(TAG, "parseAsync: response.text is null")
+                    return@withContext VoiceParseResult.Failed(
+                        R.string.msg_voice_error_network
+                    )
+                }
 
                 val parsed = parseJsonResponse(responseText)
                 if (parsed == null) {
+                    Log.e(TAG, "parseAsync: failed to parse JSON from response: $responseText")
                     return@withContext VoiceParseResult.Failed(R.string.msg_voice_error_network)
                 }
+
+                Log.d(TAG, "parseAsync: parsed JSON=$parsed")
 
                 val confidence = when (parsed.optString("confidence", "MEDIUM").uppercase()) {
                     "HIGH" -> VoiceConfidence.HIGH
@@ -102,7 +123,7 @@ class FirebaseGeminiParser @Inject constructor(
                     else -> VoiceConfidence.MEDIUM
                 }
 
-                VoiceParseResult.Success(
+                val result = VoiceParseResult.Success(
                     parserType = VoiceParserType.GEMINI,
                     transaction = ParsedVoiceTransaction(
                         amountMinor = parsed.optLong("amount", 0),
@@ -115,7 +136,10 @@ class FirebaseGeminiParser @Inject constructor(
                         confidence = confidence
                     )
                 )
+                Log.d(TAG, "parseAsync: success — amount=${result.transaction.amountMinor}, type=${result.transaction.transactionTypeId}, confidence=$confidence")
+                result
             } catch (e: Exception) {
+                Log.e(TAG, "parseAsync: exception during Gemini call", e)
                 VoiceParseResult.Failed(R.string.msg_voice_error_network)
             }
         }

@@ -83,7 +83,6 @@ enum class SettingsActionId {
     LinkAccount,
     ConnectedDevices,
     RedeemProPass,
-    LinkedIn,
     Logout,
     MyMembership
 }
@@ -394,12 +393,6 @@ private fun buildSettingsSections(
                     subtitleRes = com.mknlabs.expensetracker.R.string.label_about_subtitle,
                     icon = Icons.Rounded.Info,
                     actionId = SettingsActionId.About
-                ),
-                SettingsItemUi(
-                    titleRes = com.mknlabs.expensetracker.R.string.title_connect_on_linkedin,
-                    subtitleRes = com.mknlabs.expensetracker.R.string.label_connect_on_linkedin_subtitle,
-                    icon = Icons.Rounded.Link,
-                    actionId = SettingsActionId.LinkedIn
                 )
             )
         )
