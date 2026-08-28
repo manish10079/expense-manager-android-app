@@ -12,5 +12,4 @@
     android:targetCellWidth="4"
     android:targetCellHeight="3"
     android:description="@string/widget_description"
-    android:previewImage="@mipmap/ic_launcher"
-    android:previewDisplayMode="static" />
+    android:previewImage="@mipmap/ic_launcher" />
