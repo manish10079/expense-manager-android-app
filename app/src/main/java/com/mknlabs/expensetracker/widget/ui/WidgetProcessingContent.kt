@@ -19,14 +19,12 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 
-/**
- * Widget processing state: progress indicator + "Analyzing transaction..."
- */
 @Composable
 internal fun WidgetProcessingContent() {
     val surfaceColor = ColorProvider(R.color.widget_surface)
     val primaryColor = ColorProvider(R.color.widget_primary)
     val textColor = ColorProvider(R.color.widget_text)
+    val subtitleColor = ColorProvider(R.color.widget_subtitle)
 
     Box(
         modifier = GlanceModifier
@@ -47,21 +45,21 @@ internal fun WidgetProcessingContent() {
                     .background(primaryColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "⏳", style = TextStyle(fontSize = 24.sp))
+                Text(text = "⏳", style = TextStyle(fontSize = 22.sp))
             }
 
-            Spacer(modifier = GlanceModifier.height(12.dp))
+            Spacer(modifier = GlanceModifier.height(10.dp))
 
             Text(
                 text = "Analyzing...",
-                style = TextStyle(color = textColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             )
 
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(2.dp))
 
             Text(
                 text = "Processing your transaction",
-                style = TextStyle(color = textColor, fontSize = 11.sp)
+                style = TextStyle(color = subtitleColor, fontSize = 11.sp)
             )
         }
     }

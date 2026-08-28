@@ -2,11 +2,11 @@
 <resources>
     <color name="splash_background">#0A0A0A</color>
 
-    <!-- Widget colors (Phase 4.1) -->
-    <color name="widget_surface">#1A1A2E</color>
-    <color name="widget_primary">#6B8AFF</color>
-    <color name="widget_text">#F0F0F5</color>
-    <color name="widget_subtitle">#9CA3AF</color>
-    <color name="widget_error">#F87171</color>
-    <color name="widget_success">#34D399</color>
+    <!-- Widget colors — matching app theme -->
+    <color name="widget_surface">#181817</color>
+    <color name="widget_primary">#7B61FF</color>
+    <color name="widget_text">#EAEAEA</color>
+    <color name="widget_subtitle">#9E9E9E</color>
+    <color name="widget_error">#FF7D7D</color>
+    <color name="widget_success">#81C784</color>
 </resources>

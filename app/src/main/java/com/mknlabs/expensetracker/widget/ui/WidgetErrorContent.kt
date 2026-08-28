@@ -22,9 +22,6 @@ import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.widget.actions.WidgetRetryCallback
 
-/**
- * Widget error state: friendly message + retry button.
- */
 @Composable
 internal fun WidgetErrorContent(
     errorMessageResId: Int
@@ -52,10 +49,10 @@ internal fun WidgetErrorContent(
                     .background(errorColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "⚠️", style = TextStyle(fontSize = 24.sp))
+                Text(text = "⚠️", style = TextStyle(fontSize = 22.sp))
             }
 
-            Spacer(modifier = GlanceModifier.height(8.dp))
+            Spacer(modifier = GlanceModifier.height(10.dp))
 
             Text(
                 text = resolveErrorMessage(errorMessageResId),
@@ -67,15 +64,12 @@ internal fun WidgetErrorContent(
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(38.dp)
                     .background(errorColor)
                     .clickable(actionRunCallback<WidgetRetryCallback>()),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Try Again",
-                    style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                )
+                Text(text = "Try Again", style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 13.sp, fontWeight = FontWeight.Bold))
             }
         }
     }

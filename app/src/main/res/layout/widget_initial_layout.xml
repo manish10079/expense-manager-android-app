@@ -9,14 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="🎙"
             android:textSize="28sp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -24,7 +25,7 @@
             android:text="Tap to Speak"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#1A1A2E" />
+            android:textColor="#1A1A1A" />
 
     </LinearLayout>
 

@@ -22,11 +22,6 @@ import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.widget.actions.WidgetStartRecordingCallback
 
-/**
- * Widget idle state: mic icon centered, "Tap to Speak" label.
- *
- * Entire widget clickable to start recording.
- */
 @Composable
 internal fun WidgetIdleContent(
     todaySpendingText: String,
@@ -58,6 +53,7 @@ internal fun WidgetIdleContent(
                 Spacer(modifier = GlanceModifier.height(8.dp))
             }
 
+            // Mic button — purple primary matching app theme
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
@@ -71,7 +67,7 @@ internal fun WidgetIdleContent(
                 )
             }
 
-            Spacer(modifier = GlanceModifier.height(8.dp))
+            Spacer(modifier = GlanceModifier.height(10.dp))
 
             Text(
                 text = "Tap to Speak",

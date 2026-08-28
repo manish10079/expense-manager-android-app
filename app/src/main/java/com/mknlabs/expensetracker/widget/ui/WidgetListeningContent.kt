@@ -22,9 +22,6 @@ import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.widget.actions.WidgetCancelCallback
 
-/**
- * Widget listening state: recording indicator, "Listening..." text, cancel button.
- */
 @Composable
 internal fun WidgetListeningContent() {
     val surfaceColor = ColorProvider(R.color.widget_surface)
@@ -47,40 +44,40 @@ internal fun WidgetListeningContent() {
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(48.dp)
                     .background(errorColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "🔴", style = TextStyle(fontSize = 28.sp))
+                Text(text = "🔴", style = TextStyle(fontSize = 22.sp))
             }
 
-            Spacer(modifier = GlanceModifier.height(8.dp))
+            Spacer(modifier = GlanceModifier.height(10.dp))
 
             Text(
                 text = "Listening...",
-                style = TextStyle(color = textColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             )
 
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(2.dp))
 
             Text(
-                text = "Speak now",
+                text = "Speak your transaction",
                 style = TextStyle(color = subtitleColor, fontSize = 11.sp)
             )
 
-            Spacer(modifier = GlanceModifier.height(8.dp))
+            Spacer(modifier = GlanceModifier.height(12.dp))
 
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(36.dp)
                     .background(errorColor)
                     .clickable(actionRunCallback<WidgetCancelCallback>()),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Cancel",
-                    style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 )
             }
         }

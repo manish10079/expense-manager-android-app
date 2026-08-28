@@ -25,14 +25,12 @@ import com.mknlabs.expensetracker.widget.actions.WidgetCancelCallback
 import com.mknlabs.expensetracker.widget.actions.WidgetSaveCallback
 import com.mknlabs.expensetracker.widget.model.WidgetParsedTransaction
 
-/**
- * Widget preview state: displays parsed transaction with Save/Cancel buttons.
- */
 @Composable
 internal fun WidgetPreviewContent(
     parsedTransaction: WidgetParsedTransaction
 ) {
     val surfaceColor = ColorProvider(R.color.widget_surface)
+    val primaryColor = ColorProvider(R.color.widget_primary)
     val successColor = ColorProvider(R.color.widget_success)
     val errorColor = ColorProvider(R.color.widget_error)
     val textColor = ColorProvider(R.color.widget_text)
@@ -42,68 +40,56 @@ internal fun WidgetPreviewContent(
         modifier = GlanceModifier
             .fillMaxSize()
             .background(surfaceColor)
-            .padding(12.dp),
+            .padding(14.dp),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
+            // Amount — purple accent matching app
             Text(
                 text = parsedTransaction.amountText,
-                style = TextStyle(color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(color = primaryColor, fontSize = 26.sp, fontWeight = FontWeight.Bold)
             )
 
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(6.dp))
 
             if (parsedTransaction.categoryName.isNotBlank()) {
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "📁", style = TextStyle(fontSize = 12.sp))
-                    Text(
-                        text = parsedTransaction.categoryName,
-                        style = TextStyle(color = subtitleColor, fontSize = 12.sp)
-                    )
+                    Text(text = "📁", style = TextStyle(fontSize = 13.sp))
+                    Text(text = parsedTransaction.categoryName, style = TextStyle(color = subtitleColor, fontSize = 12.sp))
                 }
             }
 
             if (!parsedTransaction.merchant.isNullOrBlank()) {
-                Spacer(modifier = GlanceModifier.height(2.dp))
+                Spacer(modifier = GlanceModifier.height(3.dp))
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "🏪", style = TextStyle(fontSize = 12.sp))
-                    Text(
-                        text = parsedTransaction.merchant,
-                        style = TextStyle(color = subtitleColor, fontSize = 12.sp)
-                    )
+                    Text(text = "🏪", style = TextStyle(fontSize = 13.sp))
+                    Text(text = parsedTransaction.merchant, style = TextStyle(color = subtitleColor, fontSize = 12.sp))
                 }
             }
 
             if (parsedTransaction.note.isNotBlank()) {
-                Spacer(modifier = GlanceModifier.height(2.dp))
-                Text(
-                    text = parsedTransaction.note,
-                    style = TextStyle(color = subtitleColor, fontSize = 11.sp)
-                )
+                Spacer(modifier = GlanceModifier.height(3.dp))
+                Text(text = parsedTransaction.note, style = TextStyle(color = subtitleColor, fontSize = 11.sp))
             }
 
             Spacer(modifier = GlanceModifier.defaultWeight())
 
-            // Action buttons row
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Box(
                     modifier = GlanceModifier
                         .defaultWeight()
-                        .height(32.dp)
+                        .height(38.dp)
                         .background(errorColor)
                         .clickable(actionRunCallback<WidgetCancelCallback>()),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Cancel",
-                        style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    )
+                    Text(text = "Cancel", style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 13.sp, fontWeight = FontWeight.Bold))
                 }
 
                 Spacer(modifier = GlanceModifier.height(8.dp))
@@ -111,15 +97,12 @@ internal fun WidgetPreviewContent(
                 Box(
                     modifier = GlanceModifier
                         .defaultWeight()
-                        .height(32.dp)
+                        .height(38.dp)
                         .background(successColor)
                         .clickable(actionRunCallback<WidgetSaveCallback>()),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Save",
-                        style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    )
+                    Text(text = "Save", style = TextStyle(color = ColorProvider(android.R.color.white), fontSize = 13.sp, fontWeight = FontWeight.Bold))
                 }
             }
         }
