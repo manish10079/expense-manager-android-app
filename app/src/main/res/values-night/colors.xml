@@ -2,11 +2,39 @@
 <resources>
     <color name="splash_background">#0A0A0A</color>
 
-    <!-- Widget colors — matching app theme -->
-    <color name="widget_surface">#181817</color>
-    <color name="widget_primary">#7B61FF</color>
-    <color name="widget_text">#EAEAEA</color>
-    <color name="widget_subtitle">#9E9E9E</color>
-    <color name="widget_error">#FF7D7D</color>
-    <color name="widget_success">#81C784</color>
+    <!-- Widget glassmorphic dark palette (same as light — always dark) -->
+    <color name="widget_canvas">#0B0D1B</color>
+    <color name="widget_surface">#16152B</color>
+    <color name="widget_surface_border">#3A355A</color>
+    <color name="widget_details_card">#99161829</color>
+    <color name="widget_details_border">#2A2D48</color>
+
+    <color name="widget_mic_start">#9A51F5</color>
+    <color name="widget_mic_end">#6B25C6</color>
+    <color name="widget_mic_glow">#40A275E3</color>
+    <color name="widget_waveform">#59A275E3</color>
+
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_subtitle">#A0A5C0</color>
+    <color name="widget_text_amount">#A855F7</color>
+    <color name="widget_text_detail">#D1D5DB</color>
+
+    <color name="widget_icon_green">#4ADE80</color>
+    <color name="widget_icon_orange">#FB923C</color>
+    <color name="widget_icon_grey">#9CA3AF</color>
+
+    <color name="widget_cancel_bg">#211218</color>
+    <color name="widget_cancel_border">#7F1D1D</color>
+    <color name="widget_cancel_text">#EF4444</color>
+
+    <color name="widget_save_start">#6D28D9</color>
+    <color name="widget_save_end">#7C3AED</color>
+
+    <color name="widget_error">#EF4444</color>
+    <color name="widget_processing_dot">#A855F7</color>
+
+    <color name="widget_surface_legacy">#181817</color>
+    <color name="widget_primary">#7C3AED</color>
+    <color name="widget_text">#FFFFFF</color>
+    <color name="widget_subtitle">#A0A5C0</color>
 </resources>

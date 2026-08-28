@@ -10,26 +10,32 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 
+/**
+ * Processing state — pixel-perfect glassmorphic UI.
+ *
+ * Spec:
+ *  - Indicator: solid purple circle
+ *  - "Analyzing..." #FFFFFF, 16sp bold
+ *  - "Processing your transaction" #A0A5C0, 12sp
+ */
 @Composable
 internal fun WidgetProcessingContent() {
-    val surfaceColor = ColorProvider(R.color.widget_surface)
-    val primaryColor = ColorProvider(R.color.widget_primary)
-    val textColor = ColorProvider(R.color.widget_text)
-    val subtitleColor = ColorProvider(R.color.widget_subtitle)
+    val textColor = ColorProvider(R.color.widget_text_primary)
+    val subtitleColor = ColorProvider(R.color.widget_text_subtitle)
+    val dotColor = ColorProvider(R.color.widget_processing_dot)
 
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(surfaceColor)
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -40,26 +46,29 @@ internal fun WidgetProcessingContent() {
         ) {
             Box(
                 modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .background(primaryColor),
+                    .size(64.dp)
+                    .background(dotColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "⏳", style = TextStyle(fontSize = 22.sp))
+                Text(text = "⏳", style = TextStyle(fontSize = 28.sp))
             }
 
-            Spacer(modifier = GlanceModifier.height(10.dp))
+            Spacer(modifier = GlanceModifier.height(14.dp))
 
             Text(
                 text = "Analyzing...",
-                style = TextStyle(color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    color = textColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
 
-            Spacer(modifier = GlanceModifier.height(2.dp))
+            Spacer(modifier = GlanceModifier.height(4.dp))
 
             Text(
                 text = "Processing your transaction",
-                style = TextStyle(color = subtitleColor, fontSize = 11.sp)
+                style = TextStyle(color = subtitleColor, fontSize = 12.sp)
             )
         }
     }
