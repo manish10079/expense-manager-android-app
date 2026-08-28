@@ -73,7 +73,10 @@ class AddCategoryViewModel @Inject constructor(
                     }
                 }
                 onSuccess()
-                _uiState.update { it.copy(isSaving = false) }
+                // Intentionally do NOT reset isSaving here.
+                // isSaving = true blocks the duplicate-name error from ever
+                // rendering while the screen is alive. Once onSuccess() navigates
+                // away the composable is disposed, so the flag never matters.
             } catch (_: Exception) {
                 _uiState.update { it.copy(isSaving = false) }
             }
