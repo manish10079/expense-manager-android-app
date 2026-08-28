@@ -18,7 +18,6 @@ data class AddCategoryUiState(
     val selectedIconId: String = "shopping_cart",
     val iconSearchQuery: String = "",
     val targetTab: CategoryManagementTab = CategoryManagementTab.Expense,
-    val isDuplicateName: Boolean = false,
     val isSaving: Boolean = false
 )
 
@@ -73,8 +72,8 @@ class AddCategoryViewModel @Inject constructor(
                         paymentMethodRepository.createCustomPaymentMethod(name, currentState.selectedIconId)
                     }
                 }
-                _uiState.update { it.copy(isSaving = false) }
                 onSuccess()
+                _uiState.update { it.copy(isSaving = false) }
             } catch (_: Exception) {
                 _uiState.update { it.copy(isSaving = false) }
             }
