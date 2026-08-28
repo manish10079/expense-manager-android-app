@@ -40,6 +40,22 @@ class PaymentMethodRepository @Inject constructor(
         iconKey: String
     ) = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
+
+        // Check if a deleted payment method with the same name exists
+        val deleted = dao.findDeletedByName(name)
+        if (deleted != null) {
+            // Reactivate the deleted row instead of creating a duplicate
+            dao.upsert(
+                deleted.copy(
+                    iconKey = iconKey,
+                    isDeleted = false,
+                    updatedAt = now,
+                    syncState = SyncState.PENDING_UPLOAD
+                )
+            )
+            return@withContext
+        }
+
         val nextId = dao.getMaxId() + 1
         dao.upsert(
             PaymentType(

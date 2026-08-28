@@ -30,6 +30,9 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE id = :id LIMIT 1")
     suspend fun getById(id: Int): CategoryEntity?
 
+    @Query("SELECT * FROM categories WHERE name = :name AND transaction_type_id = :transactionTypeId AND is_deleted = 1 AND is_system = 0 LIMIT 1")
+    suspend fun findDeletedByNameAndType(name: String, transactionTypeId: Int): CategoryEntity?
+
     @Upsert
     suspend fun upsert(category: CategoryEntity)
 
