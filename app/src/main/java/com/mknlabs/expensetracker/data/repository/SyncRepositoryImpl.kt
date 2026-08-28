@@ -657,14 +657,28 @@ class SyncRepositoryImpl @Inject constructor(
         // These MUST be pulled first because almost everything else depends on them.
         try {
             val catMax = pullCollection(userDoc, "categories", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity ->
-                categoryDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                // Dedup: if a local category with same name+type exists (different ID),
+                // merge into the local one to avoid duplicates across devices.
+                val existing = categoryDao.findActiveByNameAndType(cloudItem.name, cloudItem.transactionTypeId)
+                if (existing != null && existing.id != cloudItem.id) {
+                    categoryDao.upsert(cloudItem.copy(id = existing.id, syncState = SyncState.SYNCED))
+                } else {
+                    categoryDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                }
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, catMax)
         } catch (e: Exception) { android.util.Log.e("Sync", "Categories pull failed", e) }
 
         try {
             val pmMax = pullCollection(userDoc, "payment_methods", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity ->
-                paymentMethodDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                // Dedup: if a local payment method with same name exists (different ID),
+                // merge into the local one to avoid duplicates across devices.
+                val existing = paymentMethodDao.findActiveByName(cloudItem.name)
+                if (existing != null && existing.id != cloudItem.id) {
+                    paymentMethodDao.upsert(cloudItem.copy(id = existing.id, syncState = SyncState.SYNCED))
+                } else {
+                    paymentMethodDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                }
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, pmMax)
         } catch (e: Exception) { android.util.Log.e("Sync", "Payment methods pull failed", e) }

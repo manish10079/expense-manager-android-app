@@ -30,6 +30,9 @@ interface PaymentMethodDao {
     @Query("SELECT * FROM payment_methods WHERE id = :id LIMIT 1")
     suspend fun getById(id: Int): PaymentMethodEntity?
 
+    @Query("SELECT * FROM payment_methods WHERE name = :name AND is_deleted = 0 AND is_system = 0 LIMIT 1")
+    suspend fun findActiveByName(name: String): PaymentMethodEntity?
+
     @Query("SELECT * FROM payment_methods WHERE name = :name AND is_deleted = 1 AND is_system = 0 LIMIT 1")
     suspend fun findDeletedByName(name: String): PaymentMethodEntity?
 
