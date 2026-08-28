@@ -10,7 +10,7 @@ lifecycleViewmodelCompose = "2.10.0"
 activityCompose = "1.10.0"
 kotlin = "2.2.10"
 composeBom = "2026.06.01"
-glancePreview = "1.1.1"
+glance = "1.2.0"
 dataStore = "1.2.1"
 biometric = "1.1.0"
 fragment = "1.6.2"
@@ -60,7 +60,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-androidx-glance-preview = { group = "androidx.glance", name = "glance-preview", version.ref = "glancePreview" }
+androidx-glance = { group = "androidx.glance", name = "glance", version.ref = "glance" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
+androidx-glance-preview = { group = "androidx.glance", name = "glance-preview", version.ref = "glance" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }

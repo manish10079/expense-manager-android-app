@@ -233,6 +233,16 @@ interface TransactionDao {
     @Query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0")
     fun observeActiveTransactionCount(): Flow<Int>
 
+    /** Today's total expense in minor units, for the widget. */
+    @Query("""
+        SELECT COALESCE(SUM(amount_minor), 0)
+        FROM transactions
+        WHERE is_deleted = 0
+          AND transaction_type_id != 1
+          AND strftime('%Y-%m-%d', occurred_at / 1000, 'unixepoch', 'localtime') = :dayStr
+    """)
+    suspend fun getTodayExpenseMinor(dayStr: String): Long
+
     @Query("SELECT COUNT(*) FROM transactions")
     suspend fun countAll(): Int
 

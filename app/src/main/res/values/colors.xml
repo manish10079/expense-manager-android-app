@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="splash_background">#F6F6F8</color>
+
+    <!-- Widget colors (Phase 4.1) -->
+    <color name="widget_surface">#FFFFFF</color>
+    <color name="widget_primary">#4A6CF7</color>
+    <color name="widget_text">#1A1A2E</color>
+    <color name="widget_subtitle">#6B7280</color>
+    <color name="widget_error">#EF4444</color>
+    <color name="widget_success">#10B981</color>
 </resources>

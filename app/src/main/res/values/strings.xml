@@ -1732,4 +1732,12 @@
     <string name="msg_voice_error_recognizer">Speech recognition failed. Please try again.</string>
     <string name="msg_voice_error_network">Network error. Check your connection and try again.</string>
     <string name="msg_voice_error_audio">Audio recording error. Please try again.</string>
+    <string name="msg_voice_error_timeout">No speech detected. Please try again.</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Quick voice transaction entry and today\'s spending summary</string>
+    <string name="widget_voice_channel_name">Voice Recording</string>
+    <string name="widget_voice_channel_desc">Used while recording voice input from the home widget</string>
+    <string name="widget_notification_recording_title">Recording…</string>
+    <string name="widget_notification_recording_text">Speak your transaction now</string>
 </resources>
