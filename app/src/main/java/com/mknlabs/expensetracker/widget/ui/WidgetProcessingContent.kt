@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,7 +18,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.mknlabs.expensetracker.R
 
 /**
  * Processing state — pixel-perfect glassmorphic UI.
@@ -29,10 +29,6 @@ import com.mknlabs.expensetracker.R
  */
 @Composable
 internal fun WidgetProcessingContent() {
-    val textColor = ColorProvider(R.color.widget_text_primary)
-    val subtitleColor = ColorProvider(R.color.widget_text_subtitle)
-    val dotColor = ColorProvider(R.color.widget_processing_dot)
-
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -47,7 +43,7 @@ internal fun WidgetProcessingContent() {
             Box(
                 modifier = GlanceModifier
                     .size(64.dp)
-                    .background(dotColor),
+                    .background(ColorProvider(Color.parseColor("#A855F7"))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "⏳", style = TextStyle(fontSize = 28.sp))
@@ -58,7 +54,7 @@ internal fun WidgetProcessingContent() {
             Text(
                 text = "Analyzing...",
                 style = TextStyle(
-                    color = textColor,
+                    color = ColorProvider(Color.WHITE),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -68,7 +64,10 @@ internal fun WidgetProcessingContent() {
 
             Text(
                 text = "Processing your transaction",
-                style = TextStyle(color = subtitleColor, fontSize = 12.sp)
+                style = TextStyle(
+                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    fontSize = 12.sp
+                )
             )
         }
     }

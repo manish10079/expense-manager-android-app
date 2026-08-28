@@ -1,9 +1,11 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
@@ -26,21 +28,18 @@ import com.mknlabs.expensetracker.widget.actions.WidgetRetryCallback
 /**
  * Error state — pixel-perfect glassmorphic UI.
  *
+ * Uses ImageProvider(R.drawable.bg_cancel_button) for retry button with border.
+ *
  * Spec:
  *  - Error icon: #EF4444 circle
  *  - Message: #FFFFFF 14sp bold
  *  - Subtitle: #A0A5C0 12sp
- *  - Retry: #211218 bg, #EF4444 text
+ *  - Retry: #211218 bg, #7F1D1D border, #EF4444 text
  */
 @Composable
 internal fun WidgetErrorContent(
     errorMessageResId: Int
 ) {
-    val errorColor = ColorProvider(R.color.widget_error)
-    val textColor = ColorProvider(R.color.widget_text_primary)
-    val subtitleColor = ColorProvider(R.color.widget_text_subtitle)
-    val cancelBg = ColorProvider(R.color.widget_cancel_bg)
-
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -55,7 +54,7 @@ internal fun WidgetErrorContent(
             Box(
                 modifier = GlanceModifier
                     .size(64.dp)
-                    .background(errorColor),
+                    .background(ColorProvider(Color.parseColor("#EF4444"))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "⚠️", style = TextStyle(fontSize = 28.sp))
@@ -66,7 +65,7 @@ internal fun WidgetErrorContent(
             Text(
                 text = resolveErrorMessage(errorMessageResId),
                 style = TextStyle(
-                    color = textColor,
+                    color = ColorProvider(Color.WHITE),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -76,23 +75,27 @@ internal fun WidgetErrorContent(
 
             Text(
                 text = "Please try again",
-                style = TextStyle(color = subtitleColor, fontSize = 12.sp)
+                style = TextStyle(
+                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    fontSize = 12.sp
+                )
             )
 
             Spacer(modifier = GlanceModifier.height(16.dp))
 
+            // ── Try Again button (bg_cancel_button.xml) ──
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .height(44.dp)
-                    .background(cancelBg)
+                    .background(ImageProvider(R.drawable.bg_cancel_button))
                     .clickable(actionRunCallback<WidgetRetryCallback>()),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "↻  Try Again",
                     style = TextStyle(
-                        color = errorColor,
+                        color = ColorProvider(Color.parseColor("#EF4444")),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )

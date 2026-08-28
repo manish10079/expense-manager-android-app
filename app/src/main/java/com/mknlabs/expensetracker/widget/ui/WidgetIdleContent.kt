@@ -1,9 +1,12 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
@@ -27,9 +30,11 @@ import com.mknlabs.expensetracker.widget.actions.WidgetStartRecordingCallback
 /**
  * Idle state — pixel-perfect glassmorphic mic UI.
  *
+ * Uses ImageProvider(R.drawable.bg_mic_button) for gradient + glow.
+ *
  * Spec:
  *  - Waveform: #A275E3 at 35% opacity bars
- *  - Mic: 64dp circle, #9A51F5→#6B25C6 gradient (solid: #9A51F5)
+ *  - Mic: 64dp circle, #9A51F5→#6B25C6 gradient + radial glow
  *  - Title: "Tap to speak", #FFFFFF, SemiBold, 16sp
  *  - Subtitle: "Add expense with voice", #A0A5C0, 12sp
  */
@@ -38,11 +43,6 @@ internal fun WidgetIdleContent(
     todaySpendingText: String,
     currencySymbol: String
 ) {
-    val textColor = ColorProvider(R.color.widget_text_primary)       // #FFFFFF
-    val subtitleColor = ColorProvider(R.color.widget_text_subtitle)  // #A0A5C0
-    val waveformColor = ColorProvider(R.color.widget_waveform)       // #59A275E3
-    val micColor = ColorProvider(R.color.widget_mic_start)           // #9A51F5
-
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -61,14 +61,13 @@ internal fun WidgetIdleContent(
                 modifier = GlanceModifier.height(40.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 7 vertical bars with varying heights
                 val barData = listOf(16, 28, 36, 40, 32, 24, 18)
                 barData.forEachIndexed { index, h ->
                     Box(
                         modifier = GlanceModifier
                             .width(5.dp)
                             .height(h.dp)
-                            .background(waveformColor)
+                            .background(ColorProvider(Color.parseColor("#59A275E3")))
                     ) {}
                     if (index < barData.lastIndex) {
                         Spacer(modifier = GlanceModifier.width(5.dp))
@@ -78,16 +77,14 @@ internal fun WidgetIdleContent(
 
             Spacer(modifier = GlanceModifier.height(10.dp))
 
-            // ── Mic button — 64dp circle (solid #9A51F5) ──
+            // ── Mic button — 64dp circle with gradient + glow (ImageProvider) ──
             Box(
-                modifier = GlanceModifier
-                    .size(64.dp)
-                    .background(micColor),
+                modifier = GlanceModifier.size(64.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "🎙",
-                    style = TextStyle(fontSize = 28.sp)
+                Image(
+                    provider = ImageProvider(R.drawable.bg_mic_button),
+                    contentDescription = "Microphone"
                 )
             }
 
@@ -97,7 +94,7 @@ internal fun WidgetIdleContent(
             Text(
                 text = "Tap to speak",
                 style = TextStyle(
-                    color = textColor,
+                    color = ColorProvider(Color.WHITE),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -109,7 +106,7 @@ internal fun WidgetIdleContent(
             Text(
                 text = "Add expense with voice",
                 style = TextStyle(
-                    color = subtitleColor,
+                    color = ColorProvider(Color.parseColor("#A0A5C0")),
                     fontSize = 12.sp
                 )
             )
@@ -120,7 +117,7 @@ internal fun WidgetIdleContent(
                 Text(
                     text = todaySpendingText,
                     style = TextStyle(
-                        color = subtitleColor,
+                        color = ColorProvider(Color.parseColor("#A0A5C0")),
                         fontSize = 11.sp
                     )
                 )

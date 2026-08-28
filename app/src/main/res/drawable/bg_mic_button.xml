@@ -1,0 +1,26 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer glow - soft radial purple -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="48"
+                android:startColor="#40A275E3"
+                android:endColor="#00A275E3" />
+        </shape>
+    </item>
+    <!-- Inner circle with gradient -->
+    <item
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#9A51F5"
+                android:endColor="#6B25C6" />
+        </shape>
+    </item>
+</layer-list>

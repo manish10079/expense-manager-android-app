@@ -1,9 +1,11 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
@@ -28,21 +30,16 @@ import com.mknlabs.expensetracker.widget.actions.WidgetCancelCallback
 /**
  * Listening state — pixel-perfect glassmorphic UI.
  *
+ * Uses ImageProvider(R.drawable.bg_cancel_button) for cancel button with border.
+ *
  * Spec:
  *  - Mic: solid purple circle
  *  - "Listening..." #FFFFFF, 16sp bold
  *  - "Speak your transaction" #A0A5C0, 12sp
- *  - Cancel: #211218 bg, #EF4444 text, bold 14sp
+ *  - Cancel: #211218 bg, #7F1D1D border, #EF4444 text, bold 14sp
  */
 @Composable
 internal fun WidgetListeningContent() {
-    val textColor = ColorProvider(R.color.widget_text_primary)
-    val subtitleColor = ColorProvider(R.color.widget_text_subtitle)
-    val micColor = ColorProvider(R.color.widget_mic_start)
-    val waveformColor = ColorProvider(R.color.widget_waveform)
-    val cancelTextColor = ColorProvider(R.color.widget_cancel_text)
-    val cancelBg = ColorProvider(R.color.widget_cancel_bg)
-
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -65,7 +62,7 @@ internal fun WidgetListeningContent() {
                         modifier = GlanceModifier
                             .width(4.dp)
                             .height(h.dp)
-                            .background(waveformColor)
+                            .background(ColorProvider(Color.parseColor("#59A275E3")))
                     ) {}
                     if (index < barData.lastIndex) {
                         Spacer(modifier = GlanceModifier.width(4.dp))
@@ -79,7 +76,7 @@ internal fun WidgetListeningContent() {
             Box(
                 modifier = GlanceModifier
                     .size(64.dp)
-                    .background(micColor),
+                    .background(ColorProvider(Color.parseColor("#9A51F5"))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "🎙", style = TextStyle(fontSize = 28.sp))
@@ -90,7 +87,7 @@ internal fun WidgetListeningContent() {
             Text(
                 text = "Listening...",
                 style = TextStyle(
-                    color = textColor,
+                    color = ColorProvider(Color.WHITE),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -100,24 +97,27 @@ internal fun WidgetListeningContent() {
 
             Text(
                 text = "Speak your transaction",
-                style = TextStyle(color = subtitleColor, fontSize = 12.sp)
+                style = TextStyle(
+                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    fontSize = 12.sp
+                )
             )
 
             Spacer(modifier = GlanceModifier.height(16.dp))
 
-            // ── Cancel button (pill) ──
+            // ── Cancel button (ImageProvider drawable with border) ──
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .height(44.dp)
-                    .background(cancelBg)
+                    .background(ImageProvider(R.drawable.bg_cancel_button))
                     .clickable(actionRunCallback<WidgetCancelCallback>()),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "✕  Cancel",
                     style = TextStyle(
-                        color = cancelTextColor,
+                        color = ColorProvider(Color.parseColor("#EF4444")),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )

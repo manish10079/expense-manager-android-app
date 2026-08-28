@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.ImageProvider
 import androidx.glance.background
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
@@ -14,7 +15,6 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.widget.model.WidgetState
 import com.mknlabs.expensetracker.widget.model.WidgetUiState
@@ -23,8 +23,8 @@ import com.mknlabs.expensetracker.widget.voice.WidgetVoiceSessionStore
 /**
  * Glance home widget — premium glassmorphic dark UI.
  *
- * All backgrounds use solid ColorProvider only.
- * Glance does not support drawable/gradient backgrounds in GlanceModifier.background().
+ * Uses ImageProvider(R.drawable.bg_*) for drawable backgrounds.
+ * This is the correct way to apply drawable backgrounds in Glance.
  */
 class ExpenseHomeWidget : GlanceAppWidget() {
 
@@ -82,14 +82,14 @@ class ExpenseHomeWidget : GlanceAppWidget() {
 
 /**
  * Pure renderer — switches UI by WidgetState.
- * Root uses #16152B (widget_surface) matching spec card background.
+ * Root uses bg_widget_card.xml for glassmorphic card background.
  */
 @Composable
 internal fun ExpenseWidgetContent(uiState: WidgetUiState) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(R.color.widget_surface))
+            .background(ImageProvider(R.drawable.bg_widget_card))
     ) {
         when (val state = uiState.state) {
             is WidgetState.Idle -> {

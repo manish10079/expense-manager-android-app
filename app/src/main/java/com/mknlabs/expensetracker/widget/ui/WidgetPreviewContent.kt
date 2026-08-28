@@ -1,9 +1,11 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
@@ -29,6 +31,11 @@ import com.mknlabs.expensetracker.widget.model.WidgetParsedTransaction
 /**
  * Preview state — pixel-perfect glassmorphic expense card + buttons.
  *
+ * Uses ImageProvider for drawable backgrounds:
+ *  - bg_expense_card.xml: Translucent dark blue with border
+ *  - bg_cancel_button.xml: Dark red with border
+ *  - bg_save_button.xml: Purple gradient
+ *
  * Spec:
  *  Card: #161829 @ 60% opacity, 16dp radius, 1dp #2A2D48 border, 12dp padding
  *  Left:  category #4ADE80 icon + "Groceries" #FFFFFF 14sp
@@ -36,21 +43,13 @@ import com.mknlabs.expensetracker.widget.model.WidgetParsedTransaction
  *         calendar #9CA3AF icon + date #D1D5DB 12sp
  *  Right: amount #A855F7 bold 26sp
  *         note #9CA3AF icon + text #D1D5DB 12sp
- *  Cancel: #211218 bg, #EF4444 text, bold 14sp
- *  Save:   #6D28D9 bg, #FFFFFF text, bold 14sp
+ *  Cancel: #211218 bg, #7F1D1D border, #EF4444 text, bold 14sp
+ *  Save:   #6D28D9→#7C3AED gradient bg, #FFFFFF text, bold 14sp
  */
 @Composable
 internal fun WidgetPreviewContent(
     parsedTransaction: WidgetParsedTransaction
 ) {
-    val textColor = ColorProvider(R.color.widget_text_primary)       // #FFFFFF
-    val amountColor = ColorProvider(R.color.widget_text_amount)      // #A855F7
-    val detailColor = ColorProvider(R.color.widget_text_detail)      // #D1D5DB
-    val cancelTextColor = ColorProvider(R.color.widget_cancel_text)  // #EF4444
-    val cancelBg = ColorProvider(R.color.widget_cancel_bg)           // #211218
-    val detailsBg = ColorProvider(R.color.widget_details_card)       // #99161829
-    val saveColor = ColorProvider(R.color.widget_save_start)         // #6D28D9
-
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -61,12 +60,12 @@ internal fun WidgetPreviewContent(
 
             // ════════════════════════════════════════
             //  EXPENSE DETAILS CARD
-            //  #161829 @ 60% opacity, 12dp inner padding
+            //  bg_expense_card.xml: #161829 @ 60% opacity, 16dp radius, 1dp #2A2D48 border
             // ════════════════════════════════════════
             Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .background(detailsBg)
+                    .background(ImageProvider(R.drawable.bg_expense_card))
                     .padding(12.dp)
             ) {
                 Row(
@@ -84,7 +83,10 @@ internal fun WidgetPreviewContent(
                                 Spacer(modifier = GlanceModifier.width(6.dp))
                                 Text(
                                     text = parsedTransaction.categoryName,
-                                    style = TextStyle(color = textColor, fontSize = 14.sp)
+                                    style = TextStyle(
+                                        color = ColorProvider(Color.WHITE),
+                                        fontSize = 14.sp
+                                    )
                                 )
                             }
                             Spacer(modifier = GlanceModifier.height(8.dp))
@@ -99,7 +101,10 @@ internal fun WidgetPreviewContent(
                                 Spacer(modifier = GlanceModifier.width(6.dp))
                                 Text(
                                     text = parsedTransaction.merchant,
-                                    style = TextStyle(color = textColor, fontSize = 14.sp)
+                                    style = TextStyle(
+                                        color = ColorProvider(Color.WHITE),
+                                        fontSize = 14.sp
+                                    )
                                 )
                             }
                             Spacer(modifier = GlanceModifier.height(8.dp))
@@ -113,7 +118,10 @@ internal fun WidgetPreviewContent(
                             Spacer(modifier = GlanceModifier.width(6.dp))
                             Text(
                                 text = formatWidgetDate(parsedTransaction.createdAt),
-                                style = TextStyle(color = detailColor, fontSize = 12.sp)
+                                style = TextStyle(
+                                    color = ColorProvider(Color.parseColor("#D1D5DB")),
+                                    fontSize = 12.sp
+                                )
                             )
                         }
                     }
@@ -127,7 +135,7 @@ internal fun WidgetPreviewContent(
                         Text(
                             text = parsedTransaction.amountText,
                             style = TextStyle(
-                                color = amountColor,
+                                color = ColorProvider(Color.parseColor("#A855F7")),
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -143,7 +151,10 @@ internal fun WidgetPreviewContent(
                                 Spacer(modifier = GlanceModifier.width(4.dp))
                                 Text(
                                     text = parsedTransaction.note,
-                                    style = TextStyle(color = detailColor, fontSize = 12.sp)
+                                    style = TextStyle(
+                                        color = ColorProvider(Color.parseColor("#D1D5DB")),
+                                        fontSize = 12.sp
+                                    )
                                 )
                             }
                         }
@@ -154,24 +165,22 @@ internal fun WidgetPreviewContent(
             Spacer(modifier = GlanceModifier.height(12.dp))
 
             // ════════════════════════════════════════
-            //  ACTION BUTTONS
-            //  Cancel: #211218 bg, #EF4444 text
-            //  Save:   #6D28D9 bg, #FFFFFF text
+            //  ACTION BUTTONS (ImageProvider drawables)
             // ════════════════════════════════════════
             Row(modifier = GlanceModifier.fillMaxWidth()) {
-                // ── Cancel button (pill) ──
+                // ── Cancel button (bg_cancel_button.xml) ──
                 Box(
                     modifier = GlanceModifier
                         .defaultWeight()
                         .height(44.dp)
-                        .background(cancelBg)
+                        .background(ImageProvider(R.drawable.bg_cancel_button))
                         .clickable(actionRunCallback<WidgetCancelCallback>()),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "✕  Cancel",
                         style = TextStyle(
-                            color = cancelTextColor,
+                            color = ColorProvider(Color.parseColor("#EF4444")),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -180,19 +189,19 @@ internal fun WidgetPreviewContent(
 
                 Spacer(modifier = GlanceModifier.width(12.dp))
 
-                // ── Save button (pill) ──
+                // ── Save button (bg_save_button.xml) ──
                 Box(
                     modifier = GlanceModifier
                         .defaultWeight()
                         .height(44.dp)
-                        .background(saveColor)
+                        .background(ImageProvider(R.drawable.bg_save_button))
                         .clickable(actionRunCallback<WidgetSaveCallback>()),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "✓  Save",
                         style = TextStyle(
-                            color = ColorProvider(android.R.color.white),
+                            color = ColorProvider(Color.WHITE),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
