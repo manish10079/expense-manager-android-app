@@ -94,7 +94,7 @@ fun WheelDateTimePicker(
                 items = months,
                 initialIndex = selectedMonth,
                 onItemSelected = { selectedMonth = it },
-                label = { "${(it + 1).toString().padStart(2, '0')} ${monthNames[it]}" },
+                label = { monthNames[it] },
                 selectedTextColor = MaterialTheme.colorScheme.primary,
                 unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
             )

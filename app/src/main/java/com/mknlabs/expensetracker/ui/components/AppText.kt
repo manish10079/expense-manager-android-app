@@ -152,11 +152,11 @@ fun AmountText(
     maxLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null
 ) {
-    val baseFontSize = 34.sp
+    val baseFontSize = 30.sp
     val resolvedFontSize = if (responsive) {
         when {
-            text.length > 12 -> 24.sp
-            text.length > 10 -> 28.sp
+            text.length > 12 -> 20.sp
+            text.length > 10 -> 25.sp
             else -> baseFontSize
         }
     } else {

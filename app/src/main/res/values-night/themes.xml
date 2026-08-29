@@ -8,8 +8,8 @@
     </style>
 
     <style name="Theme.ExpenseTracker.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenBackground">?android:attr/colorBackground</item>
-        <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
+        <item name="android:windowSplashScreenBackground">#FF000000</item>
+        <item name="windowSplashScreenBackground">#FF000000</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo_system</item>
         <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
     </style>
