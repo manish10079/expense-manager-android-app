@@ -179,10 +179,7 @@ fun <T> ViewPickerDialog(
                     // Title
                     Text(
                         text = stringResource(R.string.title_view_by),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        ),
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -265,10 +262,7 @@ fun <T> ViewPickerDialog(
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Text(
                                             text = option.label,
-                                            style = MaterialTheme.typography.labelLarge.copy(
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                fontSize = 13.sp
-                                            ),
+                                            style = MaterialTheme.typography.labelMedium,
                                             color = contentColor
                                         )
                                     }

@@ -77,10 +77,7 @@ fun TransactionPeriodNavigator(
                 Text(
                     text = periodLabel,
                     color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
 
@@ -116,10 +113,7 @@ fun TransactionPeriodNavigator(
                         Text(
                             text = periodLabel,
                             color = colorScheme.onSurface,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 16.sp
-                            )
+                            style = MaterialTheme.typography.titleSmall,
                         )
 
                         Spacer(modifier = Modifier.size(8.dp))

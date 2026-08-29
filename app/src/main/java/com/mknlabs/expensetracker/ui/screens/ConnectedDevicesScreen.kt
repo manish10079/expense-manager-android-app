@@ -230,7 +230,7 @@ private fun DeviceListContent(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.title_cloud_sync),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
@@ -267,7 +267,7 @@ private fun DeviceListContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = stringResource(R.string.title_force_sync),
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -415,7 +415,7 @@ private fun DeviceListContent(
             title = {
                 Text(
                     text = stringResource(R.string.title_force_sync),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium
                 )
             },
             text = {
@@ -496,7 +496,7 @@ private fun DeviceItem(
                     ) {
                         Text(
                             text = stringResource(R.string.label_this_device),
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )

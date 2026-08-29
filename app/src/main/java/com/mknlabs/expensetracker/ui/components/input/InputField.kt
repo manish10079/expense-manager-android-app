@@ -140,9 +140,8 @@ fun InputFieldCard(
                                     keyboardActions = androidx.compose.foundation.text.KeyboardActions(
                                         onDone = { focusManager.clearFocus() }
                                     ),
-                                    textStyle = LocalTextStyle.current.copy(
-                                        color = onSurface,
-                                        fontSize = 16.sp
+                                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                        color = onSurface
                                     ),
                                     cursorBrush = SolidColor(primary),
                                     modifier = Modifier.fillMaxWidth(),
@@ -176,7 +175,7 @@ fun InputFieldCard(
                                         keyboardActions = androidx.compose.foundation.text.KeyboardActions(
                                             onDone = { focusManager.clearFocus() }
                                         ),
-                                        textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
+                                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = onSurface),
                                         cursorBrush = SolidColor(primary),
                                         modifier = Modifier.fillMaxWidth(),
                                         decorationBox = { innerTextField ->
@@ -208,8 +207,7 @@ fun InputFieldCard(
                                     ),
                                     keyboardActions = androidx.compose.foundation.text.KeyboardActions(
                                         onDone = { focusManager.clearFocus() }
-                                    ),
-                                    textStyle = LocalTextStyle.current.copy(color = onSurface, fontSize = 16.sp),
+                                    ),                                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = onSurface),
                                     cursorBrush = SolidColor(primary),
                                     modifier = Modifier.fillMaxWidth(),
                                     decorationBox = { innerTextField ->
@@ -217,7 +215,7 @@ fun InputFieldCard(
                                             Text(
                                                 text = placeholder,
                                                 color = onSurfaceVariant.copy(alpha = 0.5f),
-                                                fontSize = 16.sp
+                                                style = MaterialTheme.typography.bodyLarge
                                             )
                                         }
                                         innerTextField()
@@ -229,7 +227,7 @@ fun InputFieldCard(
                                 Text(
                                     text = if (value.isEmpty()) placeholder ?: stringResource(R.string.title_select_date) else value,
                                     color = if (value.isEmpty()) onSurfaceVariant.copy(alpha = 0.6f) else onSurface,
-                                    fontSize = 16.sp
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
 
@@ -247,9 +245,8 @@ fun InputFieldCard(
                                         onDone = { focusManager.clearFocus() }
                                     ),
                                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                    textStyle = LocalTextStyle.current.copy(
-                                        color = onSurface,
-                                        fontSize = 16.sp
+                                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                        color = onSurface
                                     ),
                                     cursorBrush = SolidColor(primary),
                                     modifier = Modifier.fillMaxWidth().then(

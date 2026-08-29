@@ -644,11 +644,7 @@ private fun AppLockScreenContent(
                         Text(
                             text = eyebrow,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Medium,
-                                letterSpacing = 4.sp,
-                                fontSize = 12.sp
-                            ),
+                            style = MaterialTheme.typography.labelMedium,
                             textAlign = TextAlign.Center
                         )
 
@@ -1063,10 +1059,7 @@ private fun PrimaryActionButton(
             Text(
                 text = label,
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp
-                )
+                style = MaterialTheme.typography.titleMedium,
             )
         }
     }
@@ -1139,11 +1132,7 @@ private fun AppLockKey(
                 Text(
                     text = stringResource(R.string.label_forgot),
                     color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 1.2.sp,
-                        fontSize = 12.sp
-                    )
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
 

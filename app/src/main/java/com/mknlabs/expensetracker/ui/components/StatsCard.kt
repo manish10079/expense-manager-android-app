@@ -32,14 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.income
@@ -87,12 +84,9 @@ fun StatsCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
+                LabelText(
                     text = stringResource(R.string.label_total_balance),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 2.4.sp
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -114,32 +108,19 @@ fun StatsCard(
                 }
             }
 
-            Text(
+            LabelText(
                 text = currentDateLabel,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Medium
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
         Spacer(modifier = Modifier.height(2.dp))
 
-        val balanceFontSize = when {
-            totalBalance.length > 12 -> 24.sp
-            totalBalance.length > 10 -> 28.sp
-            else -> 34.sp
-        }
-
-        Text(
+        AmountText(
             text = if (isBalanceHidden) "****" else totalBalance,
             modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = if (isBalanceHidden) 28.sp else balanceFontSize,
-                lineHeight = if (isBalanceHidden) 44.sp else (balanceFontSize.value * 1.2).sp,
-                brush = brandGradient(alpha = 0.95f)
-            ),
-            maxLines = 1
+            brush = brandGradient(alpha = 0.95f),
+            responsive = !isBalanceHidden
         )
 
         if (previousMonthBalance.isNotBlank()) {
@@ -148,20 +129,14 @@ fun StatsCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                LabelText(
                     text = stringResource(R.string.label_last_month),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 2.4.sp
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = if (isBalanceHidden) "****" else previousMonthBalance,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp,
+                    style = MaterialTheme.typography.labelLarge.copy(
                         brush = brandGradient(alpha = 0.95f)
                     ),
                     maxLines = 1
@@ -245,11 +220,8 @@ private fun StatItem(
                 Spacer(modifier = Modifier.width(12.dp))
             }
 
-            Text(
+            LabelText(
                 text = label,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.1.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -267,20 +239,10 @@ private fun StatItem(
             }
         }
 
-        val valueFontSize = when {
-            value.length > 12 -> 14.sp
-            value.length > 10 -> 16.sp
-            else -> 20.sp
-        }
-
-        Text(
+        AmountText(
             text = value,
             modifier = Modifier.fillMaxWidth(),
-            fontSize = valueFontSize,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            responsive = true,
             textAlign = if (iconAtStart) TextAlign.Start else TextAlign.End
         )
     }

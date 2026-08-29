@@ -11,16 +11,14 @@ import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
@@ -92,13 +90,9 @@ fun SmallHomeCard(
                                 .border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
+                            LabelText(
                                 text = badgeCount.toString(),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Black
-                                )
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -107,23 +101,20 @@ fun SmallHomeCard(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Column {
-                    Text(
+                    LabelText(
                         text = title,
-                        style = MaterialTheme.typography.labelMedium,
                         color = colorScheme.onSurfaceVariant,
-                        maxLines  = 1
+                        maxLines = 1
                     )
 
                     Spacer(modifier = Modifier.height(1.dp))
 
-                    Text(
+                    AppText(
                         text = value,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        ),
+                        style = MaterialTheme.typography.titleSmall,
                         color = colorScheme.onSurface,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -618,12 +618,7 @@ private fun BudgetPeriodChip(
                 text = label,
                 color = animatedColor,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 15.sp,
-                    letterSpacing = 0.sp,
-                    fontSize = 11.sp
-                )
+                style = MaterialTheme.typography.labelSmall,
             )
 
             if (isLocked) {
@@ -692,10 +687,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             Text(
                 text = summary.totalBudgetLabel,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    fontSize = 34.sp
-                )
+                style = MaterialTheme.typography.headlineLarge
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -799,11 +791,7 @@ private fun BudgetMetricCard(
 
         Text(
             text = value,
-            color = valueColor,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                fontSize = 18.sp
-            )
+            color = valueColor,                style = MaterialTheme.typography.titleMedium,
         )
     }
 }
@@ -1915,12 +1903,7 @@ private fun BudgetTabChip(
         Text(
             text = label.uppercase(),
             color = animatedColor,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.1.sp,
-                fontSize = 12.sp
-            )
+            textAlign = TextAlign.Center,                style = MaterialTheme.typography.labelMedium,
         )
     }
 }
@@ -1959,7 +1942,7 @@ private fun RecurringRuleEditorModal(
             Text(
                 text = stringResource(id = R.string.title_edit_recurring),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

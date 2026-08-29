@@ -64,7 +64,7 @@ fun ProPassRedeemDialog(
             title = {
                 Text(
                     text = stringResource(id = R.string.dialog_verify_email_title),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center
                 )
             },
@@ -113,7 +113,7 @@ fun ProPassRedeemDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.title_activate_pro_pass),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
         },

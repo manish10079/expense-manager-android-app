@@ -257,7 +257,7 @@ fun SettingsItemCard(
                             Text(
                                 text = valueText,
                                 color = if (isTimer) primary else onSurfaceVariant,
-                                style = if (isTimer) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                style = if (isTimer) MaterialTheme.typography.titleMedium
                                        else MaterialTheme.typography.bodyMedium
                             )
                         }

@@ -479,8 +479,7 @@ private fun MonthHeading(
                 Text(
                     text = calendarMonthTitle(monthStart),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Icon(
                     imageVector = Icons.Filled.DateRange,
@@ -523,8 +522,7 @@ private fun TodayShortcutButton(onClick: () -> Unit) {
         Text(
             text = stringResource(id = R.string.label_today),
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }
@@ -564,8 +562,7 @@ private fun MonthCalendarCard(
                             6 -> MaterialTheme.colorScheme.expense
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
                     )
@@ -616,8 +613,7 @@ private fun DayCell(
                     day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
                     else -> MaterialTheme.colorScheme.outline
                 },
-                fontSize = 14.sp,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                style = if (selected) MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold) else MaterialTheme.typography.bodyMedium
             )
         }
 
@@ -652,14 +648,12 @@ private fun DailyTotalsRow(
         Text(
             text = expenseLabel,
             color = getAmountColor(2),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.labelMedium
         )
         Text(
             text = incomeLabel,
             color = getAmountColor(1),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }
@@ -672,16 +666,13 @@ private fun TransactionSectionHeader(
         Text(
             text = stringResource(id = R.string.label_transactions),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.6.sp
+            style = MaterialTheme.typography.labelSmall
         )
 
         Text(
             text = selectedDayTitle,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -732,13 +723,12 @@ private fun EmptyTransactionsCard(
             Text(
                 text = stringResource(id = R.string.label_no_transactions_found),
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleSmall
             )
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -772,8 +762,7 @@ private fun YearHeading(
                 Text(
                     text = year.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Icon(
                     imageVector = Icons.Filled.DateRange,
@@ -845,16 +834,13 @@ private fun SummaryStat(
         Text(
             text = label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.3.sp
+            style = MaterialTheme.typography.labelSmall
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = value,
             color = valueColor,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -905,8 +891,7 @@ private fun MonthSummaryCard(
                 Text(
                     text = summary.label.asString(),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelMedium
                 )
                 Box(
                     modifier = Modifier.size(7.dp).clip(CircleShape)
@@ -931,8 +916,7 @@ private fun MonthSummaryCard(
                     icon = Icons.Default.AccountBalanceWallet,
                     label = summary.netLabel,
                     color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    isBold = true,
-                    fontSize = 14.sp
+                    isBold = true
                 )
             }
         }
@@ -1067,7 +1051,7 @@ private fun MonthYearPickerDialog(
             Text(
                 text = stringResource(id = R.string.title_choose_month_year),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
@@ -1116,7 +1100,7 @@ private fun YearPickerDialog(
             Text(
                 text = stringResource(id = R.string.label_choose_year),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {

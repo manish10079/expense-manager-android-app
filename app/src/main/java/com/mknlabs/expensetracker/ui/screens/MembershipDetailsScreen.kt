@@ -311,10 +311,7 @@ private fun MembershipHeroCard(
                     } else {
                         stringResource(R.string.label_free_tier)
                     },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 24.sp
-                    ),
+                    style = MaterialTheme.typography.headlineSmall,
                     color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
                 )
 

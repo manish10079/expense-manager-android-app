@@ -631,11 +631,8 @@ fun AddTransactionScreen(
                                     color = if (note.isBlank()) colorScheme.onSurfaceVariant else colorScheme.onSurface,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = if (compact) 14.sp else 15.sp,
-                                        fontStyle = if (note.isBlank()) FontStyle.Italic else FontStyle.Normal,
-                                        lineHeight = 18.sp
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontStyle = if (note.isBlank()) FontStyle.Italic else FontStyle.Normal
                                     ),
                                     modifier = Modifier.weight(1f)
                                 )
@@ -1011,7 +1008,7 @@ fun AddTransactionScreen(
                     Text(
                         text = stringResource(R.string.title_cannot_duplicate_recurring),
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge
                     )
                 },
                 text = {
@@ -1123,10 +1120,7 @@ private fun RecurringTransactionSection(
                 Text(
                     text = stringResource(R.string.label_recurring_transaction),
                     color = if (isEnabled) colorScheme.primary else colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
 
@@ -1286,7 +1280,7 @@ private fun RecurringTransactionSection(
                             onValueChange = { if (it.length <= 3) onRepeatCountChange(it) },
                             modifier = Modifier.weight(1.2f).heightIn(min = 44.dp),
                             singleLine = true,
-                            placeholder = { Text(stringResource(R.string.label_other_installment), fontSize = 14.sp) },
+                            placeholder = { Text(stringResource(R.string.label_other_installment), style = MaterialTheme.typography.bodyMedium) },
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
@@ -1460,11 +1454,7 @@ private fun CurrencyAmountCard(
                 Text(
                     text = stringResource(R.string.label_enter_amount),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.2.sp,
-                        fontSize = 12.sp // Slightly reduced label size for tightness
-                    ),
+                    style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier
                         .graphicsLayer { translationY = labelTranslationY }
                 )
@@ -1566,11 +1556,7 @@ private fun SectionHeader(title: String) {
     Text(
         text = title,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.labelLarge.copy(
-            letterSpacing = 2.1.sp,
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp
-        )
+        style = MaterialTheme.typography.labelSmall
     )
 }
 
@@ -1891,10 +1877,7 @@ private fun AddTransactionButton(
                 color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                style = MaterialTheme.typography.titleSmall,
             )
 
 
@@ -2174,7 +2157,7 @@ private fun TransactionNoteBottomSheet(
                 Text(
                     text = stringResource(R.string.label_save_note),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }

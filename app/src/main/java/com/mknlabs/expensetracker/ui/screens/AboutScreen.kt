@@ -169,15 +169,13 @@ private fun AboutScreenContent(
             Text(
                 text = stringResource(R.string.label_app_name_display),
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Text(
                 text = stringResource(R.string.label_app_version),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 4.dp)
             )
 
@@ -277,8 +275,7 @@ private fun AboutScreenContent(
             Text(
                 text = stringResource(R.string.label_handcrafted_with_precision_and),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -318,16 +315,14 @@ private fun AboutInfoCard(
             Text(
                 text = title,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = description,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 15.sp,
-            lineHeight = 22.sp
+            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
@@ -355,20 +350,18 @@ private fun DeveloperCard(
             Text(
                 text = stringResource(R.string.label_developed_by),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = name,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium
             )
             Text(
                 text = email,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -379,9 +372,7 @@ private fun AboutSectionHeader(title: String) {
     Text(
         text = title,
         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.ExtraBold,
-        letterSpacing = 1.5.sp,
+        style = MaterialTheme.typography.labelSmall,
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 4.dp, bottom = 12.dp)
@@ -428,8 +419,7 @@ private fun AboutActionItem(
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.weight(1f)
         )
         Icon(
@@ -464,8 +454,7 @@ private fun SocialButton(
         Text(
             text = label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }

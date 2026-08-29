@@ -48,7 +48,7 @@ fun AdRewardDialog(
                     text = stringResource(R.string.label_1_hour_access),
                     color = MaterialTheme.colorScheme.secondary, // Gold/Accent color for emphasis
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         },

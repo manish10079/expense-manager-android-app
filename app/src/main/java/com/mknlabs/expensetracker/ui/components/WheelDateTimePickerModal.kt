@@ -112,10 +112,7 @@ fun WheelDateTimePickerModal(
                     WheelPickerMode.DATE_RANGE  -> stringResource(id = R.string.title_select_date_range)
                 },
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 22.sp
-                )
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(20.dp))

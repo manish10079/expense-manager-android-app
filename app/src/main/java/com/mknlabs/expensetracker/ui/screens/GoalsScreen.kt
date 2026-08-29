@@ -256,11 +256,7 @@ private fun GoalsScreenContent(
 private fun GoalsSectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleSmall.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
-            fontSize = 13.sp
-        ),
+        style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
     )
@@ -277,7 +273,7 @@ fun DeleteGoalDialog(
         title = {
             Text(
                 text = stringResource(R.string.title_delete_goal),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
@@ -319,7 +315,7 @@ fun FundGoalDialog(
         title = {
             Text(
                 text = stringResource(R.string.title_fund_goal),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
@@ -379,7 +375,7 @@ fun AddGoalDialog(
         title = {
             Text(
                 text = stringResource(R.string.title_add_goal),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
@@ -487,7 +483,7 @@ fun EditGoalDialog(
         title = {
             Text(
                 text = stringResource(R.string.title_edit_goal),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {
@@ -708,7 +704,7 @@ private fun GoalIconPickerModal(
         title = {
             Text(
                 text = stringResource(R.string.title_choose_icon),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+                style = MaterialTheme.typography.titleLarge
             )
         },
         text = {

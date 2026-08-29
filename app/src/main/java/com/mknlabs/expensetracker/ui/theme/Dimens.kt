@@ -7,21 +7,45 @@ import com.mknlabs.expensetracker.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 
 /**
- * Legacy static spacing tokens. These remain as the Compact (phone portrait)
- * values so every existing call site compiles unchanged; size-class-aware code
+ * Google 2026 spacing tokens.
+ *
+ * Naming follows the Google Material 3 spacing scale:
+ * - [spacingTiny]    = 4dp
+ * - [spacingSmall]   = 8dp
+ * - [spacingCompact] = 12dp
+ * - [spacingDefault] = 16dp
+ * - [spacingMedium]  = 20dp
+ * - [spacingLarge]   = 24dp
+ * - [spacingXL]      = 32dp
+ *
+ * Legacy aliases ([PaddingSmall], [PaddingMedium], etc.) are kept for
+ * backward compatibility with existing call sites. Size-class-aware code
  * should prefer [currentSpacing] / [CompactSpacing] / [MediumSpacing] /
  * [ExpandedSpacing].
  */
 object Dimens {
 
-    val PaddingSmall = 8.dp
-    val PaddingMedium = 16.dp
-    val ScreenPadding = 20.dp
-    val HeaderSpacing = 10.dp
-    val PaddingLarge = 24.dp
-    val PaddingXL = 32.dp
+    // ── Google 2026 Spacing Scale ──────────────────────────────────────
+    val spacingTiny = 4.dp
+    val spacingSmall = 8.dp
+    val spacingCompact = 12.dp
+    val spacingDefault = 16.dp
+    val spacingMedium = 20.dp
+    val spacingLarge = 24.dp
+    val spacingXL = 32.dp
 
+    // ── Layout ─────────────────────────────────────────────────────────
     val CardRadius = 24.dp
+
+    // ── Legacy aliases (kept for backward compatibility) ────────────────
+    val PaddingTiny = spacingTiny
+    val PaddingSmall = spacingSmall
+    val PaddingCompact = spacingCompact
+    val PaddingMedium = spacingDefault
+    val ScreenPadding = spacingMedium
+    val HeaderSpacing = 10.dp  // Migrated from legacy; prefer spacingCompact
+    val PaddingLarge = spacingLarge
+    val PaddingXL = spacingXL
 
 }
 
@@ -29,7 +53,9 @@ object Dimens {
 data class AppSpacing(
     val screenPadding: Dp,
     val headerSpacing: Dp,
+    val paddingTiny: Dp,
     val paddingSmall: Dp,
+    val paddingCompact: Dp,
     val paddingMedium: Dp,
     val paddingLarge: Dp,
     val paddingXL: Dp,
@@ -54,7 +80,9 @@ data class AppSpacing(
 val CompactSpacing = AppSpacing(
     screenPadding = 20.dp,
     headerSpacing = 10.dp,
+    paddingTiny = 4.dp,
     paddingSmall = 8.dp,
+    paddingCompact = 12.dp,
     paddingMedium = 16.dp,
     paddingLarge = 24.dp,
     paddingXL = 32.dp,

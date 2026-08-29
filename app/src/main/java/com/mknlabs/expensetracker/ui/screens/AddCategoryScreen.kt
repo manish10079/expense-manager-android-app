@@ -197,7 +197,7 @@ private fun AddCategoryScreenContent(
                     Text(
                         text = stringResource(R.string.msg_name_already_exists, stringResource(targetTab.titleRes).lowercase()),
                         color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
 
@@ -369,7 +369,7 @@ private fun AddCategoryScreenContent(
                     } else {
                         Text(
                             text = if (targetTab == CategoryManagementTab.Payment) stringResource(R.string.label_add_type) else stringResource(R.string.label_add_category),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }
@@ -433,13 +433,13 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                     CategoryManagementTab.Expense -> stringResource(R.string.label_expense_category_item)
                 },
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                style = MaterialTheme.typography.titleSmall,
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = stringResource(R.string.msg_item_added_under, stringResource(targetTab.titleRes)),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }

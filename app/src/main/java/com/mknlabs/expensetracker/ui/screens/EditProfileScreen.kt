@@ -521,10 +521,7 @@ private fun ProfileScreenContent(
                     Text(
                         text = stringResource(id = R.string.label_save_changes),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp
-                        ),
+                        style = MaterialTheme.typography.titleMedium,
                         maxLines = 1
                     )
                 }
@@ -834,9 +831,8 @@ private fun PhoneInputFieldCard(
                         keyboardActions = KeyboardActions(
                             onDone = { focusManager.clearFocus() }
                         ),
-                        textStyle = LocalTextStyle.current.copy(
-                            color = onSurface,
-                            fontSize = 16.sp
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = onSurface
                         ),
                         cursorBrush = SolidColor(primary),
                         modifier = Modifier.fillMaxWidth(),
@@ -845,7 +841,7 @@ private fun PhoneInputFieldCard(
                                 Text(
                                     text = placeholder,
                                     color = onSurfaceVariant.copy(alpha = 0.5f),
-                                    fontSize = 16.sp
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                             innerTextField()

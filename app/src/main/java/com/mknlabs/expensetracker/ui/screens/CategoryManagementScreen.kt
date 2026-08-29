@@ -218,10 +218,7 @@ private fun CategoryManagementContent(
                             CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, animatingItems.size)
                         },
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.sp
-                        )
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     Spacer(modifier = Modifier.height(22.dp))
@@ -278,7 +275,7 @@ private fun CategoryManagementContent(
                 Text(
                     text = stringResource(R.string.label_delete_confirm),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             text = {
@@ -382,10 +379,7 @@ private fun CategoryManagementCard(
             Text(
                 text = item.title,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 16.sp
-                )
+                style = MaterialTheme.typography.titleSmall,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -393,10 +387,7 @@ private fun CategoryManagementCard(
             Text(
                 text = item.subtitleRes?.let { stringResource(it) } ?: item.subtitle ?: "",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 13.sp
-                )
+                style = MaterialTheme.typography.bodySmall,
             )
         }
 

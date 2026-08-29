@@ -1241,10 +1241,7 @@ private fun SwipeActionLabel(
             Text(
                 text = text,
                 color = tint,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                )
+                style = MaterialTheme.typography.labelMedium,
             )
         }
     }

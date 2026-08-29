@@ -194,10 +194,9 @@ fun TransactionCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         softWrap = false,
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
-                            fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal,
-                            fontSize = 15.sp
+                            fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal
                         ),
                         modifier = Modifier.weight(1f, fill = false),
                         onTextLayout = { result ->
@@ -281,11 +280,7 @@ fun TransactionCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         softWrap = false,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            letterSpacing = 1.2.sp
-                        )
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
 
@@ -331,9 +326,8 @@ fun TransactionCard(
                 color = getAmountColor(transactionTypeId),
                 maxLines = 1,
                 softWrap = false,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 15.sp,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
@@ -415,11 +409,7 @@ private fun TransactionPill(
             color = color,
             maxLines = 1,
             softWrap = false,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 10.sp,
-                letterSpacing = 0.5.sp
-            )
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }

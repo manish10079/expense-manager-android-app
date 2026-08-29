@@ -508,10 +508,7 @@ private fun NotificationSettingsContent(
                 Text(
                     text = stringResource(id = category.titleRes),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp
-                    )
+                    style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -671,11 +668,7 @@ private fun ReminderTimeWindowPickerModal(
         ) {
             Text(
                 text = stringResource(id = R.string.title_select_reminder_window),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 22.sp
-                )
+                color = MaterialTheme.colorScheme.onSurface,                    style = MaterialTheme.typography.titleLarge,
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -683,7 +676,7 @@ private fun ReminderTimeWindowPickerModal(
             Text(
                 text = stringResource(id = R.string.label_starts_at),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
             WheelDateTimePicker(
@@ -705,7 +698,7 @@ private fun ReminderTimeWindowPickerModal(
             Text(
                 text = stringResource(id = R.string.label_ends_at),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
             WheelDateTimePicker(
@@ -728,7 +721,7 @@ private fun ReminderTimeWindowPickerModal(
                 Text(
                     text = errorMessage!!,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -825,11 +818,7 @@ private fun LargeTransactionThresholdModal(
         ) {
             Text(
                 text = stringResource(id = R.string.title_large_transaction_threshold),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 22.sp
-                )
+                color = MaterialTheme.colorScheme.onSurface,                    style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -912,7 +901,7 @@ private fun LargeTransactionThresholdModal(
                 Text(
                     text = errorMessage!!,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -989,11 +978,7 @@ private fun WeeklySummaryTimeModal(
         ) {
             Text(
                 text = stringResource(id = R.string.title_weekly_summary_time),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 22.sp
-                )
+                color = MaterialTheme.colorScheme.onSurface,                    style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -1024,7 +1009,7 @@ private fun WeeklySummaryTimeModal(
                 Text(
                     text = errorMessage!!,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 

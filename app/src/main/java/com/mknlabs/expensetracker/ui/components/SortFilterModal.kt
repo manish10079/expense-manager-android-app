@@ -529,8 +529,7 @@ fun FilterBottomSheet(
                         )
                         Text(
                             text = stringResource(R.string.label_apply_filters),
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.titleSmall
                         )
                     }
                 }

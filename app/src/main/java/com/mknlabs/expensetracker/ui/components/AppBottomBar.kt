@@ -237,9 +237,7 @@ private fun VaultNavItem(
             text = if (selected) stringResource(item.titleRes).uppercase() else " ",
             color = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0f) else labelColor,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 8.sp,
-                letterSpacing = 0.7.sp,
+                fontWeight = FontWeight.Bold,
                 brush = if (selected) gradientBrush else null
             )
         )

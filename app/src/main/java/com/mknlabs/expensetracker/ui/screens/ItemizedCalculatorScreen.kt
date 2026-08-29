@@ -239,19 +239,13 @@ private fun ItemizedCalculatorContent(
                 Text(
                     text = stringResource(id = R.string.label_breakdown),
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall,
                 )
 
                 Text(
                     text = stringResource(id = R.string.label_items_count_formatted, items.size),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        letterSpacing = 1.2.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
 
@@ -671,10 +665,7 @@ private fun TotalAmountCard(
             Text(
                 text = formatCurrencyValue(totalAmount, currencyId, amountFormatPreferences),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 34.sp
-                )
+                style = MaterialTheme.typography.headlineLarge
             )
         }
     }
@@ -745,20 +736,14 @@ private fun BreakdownItemCard(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 15.sp
-                    ),
+                    style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
 
                 Text(
                     text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    ),
+                    style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(start = 14.dp, end = 16.dp)
                 )
 
@@ -936,11 +921,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
 
         Text(
             text = stringResource(id = R.string.label_add_new_item),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
-            )
+            color = MaterialTheme.colorScheme.onSurface,                style = MaterialTheme.typography.titleSmall
         )
     }
 }
@@ -1054,10 +1035,7 @@ private fun ApplyToNoteButton(
             Text(
                 text = stringResource(id = R.string.label_apply_to_note),
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }

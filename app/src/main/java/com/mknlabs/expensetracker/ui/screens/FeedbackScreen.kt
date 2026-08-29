@@ -150,8 +150,7 @@ private fun FeedbackScreenContent(
                     Text(
                         text = stringResource(R.string.label_send_feedback_desc),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -162,7 +161,7 @@ private fun FeedbackScreenContent(
                         uiState.userId.take(8)
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
@@ -199,7 +198,7 @@ private fun FeedbackScreenContent(
                 Text(
                     text = stringResource(uiState.errorMessageRes),
                     color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Start
                 )
@@ -213,7 +212,7 @@ private fun FeedbackScreenContent(
                         uiState.cooldownRemainingMinutes.toString()
                     ),
                     color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.Medium
@@ -255,9 +254,7 @@ private fun FeedbackScreenContent(
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = stringResource(R.string.btn_submit_feedback),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            letterSpacing = 1.sp
+                            style = MaterialTheme.typography.titleSmall
                         )
                     }
                 }

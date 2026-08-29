@@ -751,10 +751,7 @@ private fun UpcomingRecurringCard(
                 Text(
                     text = stringResource(id = R.string.title_upcoming_recurring),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
 
@@ -794,7 +791,7 @@ private fun UpcomingRecurringCard(
                             Text(
                                 text = expense.title,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                style = MaterialTheme.typography.titleSmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -809,7 +806,7 @@ private fun UpcomingRecurringCard(
                         Text(
                             text = expense.dueAmountLabel,
                             color = MaterialTheme.colorScheme.expense,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleSmall
                         )
                     }
 
@@ -834,8 +831,7 @@ private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
         Text(
             text = stringResource(id = R.string.label_recent_activities),
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleSmall
         )
 
         var isPressed by remember { mutableStateOf(false) }
@@ -862,8 +858,7 @@ private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
             Text(
                 text = stringResource(id = R.string.label_view_all),
                 color = MaterialTheme.colorScheme.primary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelLarge
             )
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
@@ -975,7 +970,7 @@ fun AccountSetupCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.msg_discipline_score_title),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -983,8 +978,7 @@ fun AccountSetupCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "$score%",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleMedium.copy(
                             color = MaterialTheme.colorScheme.primary
                         )
                     )
@@ -1052,7 +1046,7 @@ fun AccountSetupCard(
             title = {
                 Text(
                     text = stringResource(R.string.title_setup_progress),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             text = {

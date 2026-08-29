@@ -337,7 +337,7 @@ private fun AutoLockDurationPickerSheet(
         ) {
             Text(
                 text = stringResource(R.string.title_auto_lock_duration),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
             
@@ -525,7 +525,7 @@ private fun ChangePasswordSheet(
         ) {
             Text(
                 text = stringResource(R.string.title_change_password),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
@@ -605,7 +605,7 @@ private fun ChangePasswordSheet(
                 } else {
                     Text(
                         text = stringResource(R.string.btn_change_password),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }

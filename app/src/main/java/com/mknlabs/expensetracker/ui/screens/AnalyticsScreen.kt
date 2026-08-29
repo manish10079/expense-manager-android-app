@@ -576,7 +576,7 @@ private fun CustomRangeSelector(
             Text(
                 text = stringResource(id = R.string.label_clear),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.clickable(onClick = onClear)
             )
         }
@@ -651,15 +651,12 @@ private fun HeroAnalyticsSection(
             Text(
                 text = amount,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 34.sp
-                )
+                style = MaterialTheme.typography.headlineLarge
             )
             Text(
                 text = snapshot.changeDisplay.asString(),
                 color = if (snapshot.changePercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
         }
@@ -1004,7 +1001,7 @@ private fun InsightStatCard(
                     Text(
                         text = delta,
                         color = deltaColor,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }
@@ -1053,10 +1050,7 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = stringResource(id = R.string.label_cash_flow_ratio),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     LegendDot(stringResource(id = R.string.label_income).uppercase(), MaterialTheme.colorScheme.income)
@@ -1070,12 +1064,12 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = snapshot.incomeDisplay,
                     color = MaterialTheme.colorScheme.income,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = snapshot.expenseDisplay,
                     color = MaterialTheme.colorScheme.expense,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }
@@ -1168,11 +1162,7 @@ private fun CategoryCard(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                         fontSize = 16.sp,
-                        lineHeight = 28.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 if (snapshot.allCategoryBreakdown.isNotEmpty()) {
                     Row(
@@ -1239,7 +1229,7 @@ private fun CategoryCard(
                                 Text(
                                     text = stringResource(id = R.string.format_percentage, category.percentLabel),
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
@@ -1456,7 +1446,7 @@ private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: M
             Text(
                 text = stringResource(id = R.string.label_top_val, (breakdown.firstOrNull()?.let { if (it.isOther) stringResource(id = R.string.label_other) else it.label } ?: stringResource(id = R.string.label_not_available))),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center
             )
         }
@@ -1588,7 +1578,7 @@ private fun TopSpendingRow(
         Text(
             text = transaction.amountDisplay,
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -1630,7 +1620,7 @@ private fun SmartTipCard(
                 Text(
                     text = stringResource(id = R.string.label_smart_ai_tip),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -1671,11 +1661,7 @@ private fun PaymentTypeCard(
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                         fontSize = 16.sp,
-                        lineHeight = 28.sp
-                    )
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 if (snapshot.allPaymentTypeBreakdown.isNotEmpty()) {
                     Row(
@@ -1748,7 +1734,7 @@ private fun PaymentTypeCard(
                                 Text(
                                     text = stringResource(id = R.string.format_percentage, item.percentLabel),
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,

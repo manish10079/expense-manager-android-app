@@ -156,8 +156,9 @@ fun <T> WheelPicker(
                     Text(
                         text = label(item),
                         color = if (isSelected) finalSelectedColor else finalUnselectedColor.copy(alpha = 0.4f),
-                        fontSize = 18.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        ),
                         modifier = Modifier.graphicsLayer {
                             this.alpha = opacity
                             this.scaleX = scale

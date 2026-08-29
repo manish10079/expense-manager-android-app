@@ -110,9 +110,7 @@ fun PremiumGateSheet(
                 Text(
                     text = stringResource(selectedCopy.sloganResId),
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 24.sp
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -181,9 +179,7 @@ fun PremiumGateSheet(
                         Text(
                             text = stringResource(R.string.label_upgrade_to_pro),
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 18.sp
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                     }

@@ -179,7 +179,7 @@ fun SmsChangeContent(
                     Text(
                         text = stringResource(R.string.title_sms_change),
                         color = colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -192,7 +192,7 @@ fun SmsChangeContent(
                             } else {
                                 colorScheme.onSurface
                             },
-                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.headlineSmall
                         )
                         Text(
                             text = verb,
@@ -228,16 +228,12 @@ fun SmsChangeContent(
                     Text(
                         text = stringResource(R.string.label_choose_category),
                         color = colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            letterSpacing = 2.1.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
+                        style = MaterialTheme.typography.labelSmall,
                     )
                     Text(
                         text = stringResource(R.string.notification_format_sms_import_suggested, suggestedName),
                         color = colorScheme.secondary,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
 
@@ -323,7 +319,7 @@ fun SmsChangeContent(
                     Text(
                         text = stringResource(R.string.label_save),
                         color = colorScheme.onPrimary,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
@@ -381,10 +377,7 @@ private fun SmsCategoryChip(
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 11.sp
-            )
+            style = MaterialTheme.typography.labelSmall,
         )
     }
 }

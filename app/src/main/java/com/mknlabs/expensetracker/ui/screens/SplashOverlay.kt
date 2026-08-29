@@ -203,11 +203,7 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                 if (task !is InitTask.Complete) {
                     Text(
                         text = stringResource(id = task.labelResId).lowercase(),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            letterSpacing = 3.sp,
-                            fontWeight = FontWeight.Light,
-                            fontSize = 13.sp
-                        ),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center
                     )
@@ -221,10 +217,7 @@ private fun SplashOverlayContent(currentTask: InitTask) {
         // Fixed Footer
         Text(
             text = stringResource(id = R.string.label_splash_footer),
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 9.sp,
-                letterSpacing = 1.5.sp
-            ),
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
             modifier = Modifier
                 .align(Alignment.BottomCenter)

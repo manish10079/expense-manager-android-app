@@ -2,105 +2,123 @@ package com.mknlabs.expensetracker.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.*
-import com.mknlabs.expensetracker.R
 
-// ✅ Added (new)
-val InterFont = FontFamily(
-    Font(R.font.inter_regular, FontWeight.Normal),
-    Font(R.font.inter_medium, FontWeight.Medium),
-    Font(R.font.inter_bold, FontWeight.Bold)
-)
-
-// ✅ SAME name: Typography (unchanged)
+/**
+ * Central typography system — Google 2026 style.
+ *
+ * - Display, Headline, Title, Label → Google Sans (via [GoogleSansFont])
+ * - Body → Roboto (system default, [FontFamily.Default])
+ */
 val Typography = Typography(
-    // Display styles
+    // ── Display ──────────────────────────────────────────────────────────
     displayLarge = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Normal,
         fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Normal,
         fontSize = 45.sp,
         lineHeight = 52.sp
     ),
     displaySmall = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Normal,
         fontSize = 36.sp,
         lineHeight = 44.sp
     ),
 
-    // Headline styles
+    // ── Headline ─────────────────────────────────────────────────────────
     headlineLarge = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Bold,
-        fontSize = 34.sp
+        fontSize = 34.sp,
+        lineHeight = 40.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = InterFont,
-        fontWeight = FontWeight.Medium, // safe fallback
-        fontSize = 26.sp
+        fontFamily = GoogleSansFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 26.sp,
+        lineHeight = 32.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 22.sp
+        fontSize = 22.sp,
+        lineHeight = 28.sp
     ),
 
-    // Title styles
+    // ── Title ────────────────────────────────────────────────────────────
     titleLarge = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 20.sp
+        fontSize = 20.sp,
+        lineHeight = 28.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 18.sp
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.1.sp
     ),
 
-    // Body styles
+    // ── Body (Roboto — system default) ───────────────────────────────────
     bodyLarge = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp
     ),
 
-    // Label styles
+    // ── Label ────────────────────────────────────────────────────────────
     labelLarge = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = InterFont,
+        fontFamily = GoogleSansFont,
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     )
 )

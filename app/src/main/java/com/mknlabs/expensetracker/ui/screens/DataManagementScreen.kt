@@ -387,7 +387,7 @@ private fun DataManagementContent(
                 Text(
                     text = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             text = {
@@ -431,7 +431,7 @@ private fun DataManagementContent(
                 Text(
                     text = stringResource(id = R.string.label_restore_database),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             text = {
@@ -529,7 +529,7 @@ private fun DataManagementContent(
                 Text(
                     text = stringResource(R.string.title_custom_backup_frequency),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             text = {
