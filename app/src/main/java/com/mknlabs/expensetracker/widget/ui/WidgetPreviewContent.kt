@@ -1,10 +1,11 @@
 package com.mknlabs.expensetracker.widget.ui
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -14,6 +15,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.size
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -35,16 +37,6 @@ import com.mknlabs.expensetracker.widget.model.WidgetParsedTransaction
  *  - bg_expense_card.xml: Translucent dark blue with border
  *  - bg_cancel_button.xml: Dark red with border
  *  - bg_save_button.xml: Purple gradient
- *
- * Spec:
- *  Card: #161829 @ 60% opacity, 16dp radius, 1dp #2A2D48 border, 12dp padding
- *  Left:  category #4ADE80 icon + "Groceries" #FFFFFF 14sp
- *         merchant #FB923C icon + "Big Bazaar" #FFFFFF 14sp
- *         calendar #9CA3AF icon + date #D1D5DB 12sp
- *  Right: amount #A855F7 bold 26sp
- *         note #9CA3AF icon + text #D1D5DB 12sp
- *  Cancel: #211218 bg, #7F1D1D border, #EF4444 text, bold 14sp
- *  Save:   #6D28D9→#7C3AED gradient bg, #FFFFFF text, bold 14sp
  */
 @Composable
 internal fun WidgetPreviewContent(
@@ -60,7 +52,6 @@ internal fun WidgetPreviewContent(
 
             // ════════════════════════════════════════
             //  EXPENSE DETAILS CARD
-            //  bg_expense_card.xml: #161829 @ 60% opacity, 16dp radius, 1dp #2A2D48 border
             // ════════════════════════════════════════
             Box(
                 modifier = GlanceModifier
@@ -76,15 +67,16 @@ internal fun WidgetPreviewContent(
                     Column(modifier = GlanceModifier.defaultWeight()) {
                         if (parsedTransaction.categoryName.isNotBlank()) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "🛒",
-                                    style = TextStyle(fontSize = 14.sp)
+                                Image(
+                                    provider = ImageProvider(R.drawable.ic_shopping_basket),
+                                    contentDescription = "Category Icon",
+                                    modifier = GlanceModifier.size(16.dp)
                                 )
-                                Spacer(modifier = GlanceModifier.width(6.dp))
+                                Spacer(modifier = GlanceModifier.width(8.dp))
                                 Text(
                                     text = parsedTransaction.categoryName,
                                     style = TextStyle(
-                                        color = ColorProvider(Color.WHITE),
+                                        color = ColorProvider(Color.White),
                                         fontSize = 14.sp
                                     )
                                 )
@@ -94,15 +86,16 @@ internal fun WidgetPreviewContent(
 
                         if (!parsedTransaction.merchant.isNullOrBlank()) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "🏪",
-                                    style = TextStyle(fontSize = 14.sp)
+                                Image(
+                                    provider = ImageProvider(R.drawable.ic_storefront),
+                                    contentDescription = "Merchant Icon",
+                                    modifier = GlanceModifier.size(16.dp)
                                 )
-                                Spacer(modifier = GlanceModifier.width(6.dp))
+                                Spacer(modifier = GlanceModifier.width(8.dp))
                                 Text(
                                     text = parsedTransaction.merchant,
                                     style = TextStyle(
-                                        color = ColorProvider(Color.WHITE),
+                                        color = ColorProvider(Color.White),
                                         fontSize = 14.sp
                                     )
                                 )
@@ -111,15 +104,16 @@ internal fun WidgetPreviewContent(
                         }
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "📅",
-                                style = TextStyle(fontSize = 14.sp)
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_calendar),
+                                contentDescription = "Calendar Icon",
+                                modifier = GlanceModifier.size(16.dp)
                             )
-                            Spacer(modifier = GlanceModifier.width(6.dp))
+                            Spacer(modifier = GlanceModifier.width(8.dp))
                             Text(
                                 text = formatWidgetDate(parsedTransaction.createdAt),
                                 style = TextStyle(
-                                    color = ColorProvider(Color.parseColor("#D1D5DB")),
+                                    color = ColorProvider(Color(0xFFD1D5DB)),
                                     fontSize = 12.sp
                                 )
                             )
@@ -135,24 +129,25 @@ internal fun WidgetPreviewContent(
                         Text(
                             text = parsedTransaction.amountText,
                             style = TextStyle(
-                                color = ColorProvider(Color.parseColor("#A855F7")),
+                                color = ColorProvider(Color(0xFFA855F7)),
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         )
 
                         if (parsedTransaction.note.isNotBlank()) {
-                            Spacer(modifier = GlanceModifier.height(6.dp))
+                            Spacer(modifier = GlanceModifier.height(8.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "📝",
-                                    style = TextStyle(fontSize = 12.sp)
+                                Image(
+                                    provider = ImageProvider(R.drawable.ic_check_document),
+                                    contentDescription = "Note Icon",
+                                    modifier = GlanceModifier.size(14.dp)
                                 )
-                                Spacer(modifier = GlanceModifier.width(4.dp))
+                                Spacer(modifier = GlanceModifier.width(6.dp))
                                 Text(
                                     text = parsedTransaction.note,
                                     style = TextStyle(
-                                        color = ColorProvider(Color.parseColor("#D1D5DB")),
+                                        color = ColorProvider(Color(0xFFD1D5DB)),
                                         fontSize = 12.sp
                                     )
                                 )
@@ -169,18 +164,25 @@ internal fun WidgetPreviewContent(
             // ════════════════════════════════════════
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 // ── Cancel button (bg_cancel_button.xml) ──
-                Box(
+                Row(
                     modifier = GlanceModifier
                         .defaultWeight()
                         .height(44.dp)
                         .background(ImageProvider(R.drawable.bg_cancel_button))
                         .clickable(actionRunCallback<WidgetCancelCallback>()),
-                    contentAlignment = Alignment.Center
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_cancel_x),
+                        contentDescription = "Cancel Icon",
+                        modifier = GlanceModifier.size(16.dp)
+                    )
+                    Spacer(modifier = GlanceModifier.width(8.dp))
                     Text(
-                        text = "✕  Cancel",
+                        text = "Cancel",
                         style = TextStyle(
-                            color = ColorProvider(Color.parseColor("#EF4444")),
+                            color = ColorProvider(Color(0xFFEF4444)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -190,18 +192,25 @@ internal fun WidgetPreviewContent(
                 Spacer(modifier = GlanceModifier.width(12.dp))
 
                 // ── Save button (bg_save_button.xml) ──
-                Box(
+                Row(
                     modifier = GlanceModifier
                         .defaultWeight()
                         .height(44.dp)
                         .background(ImageProvider(R.drawable.bg_save_button))
                         .clickable(actionRunCallback<WidgetSaveCallback>()),
-                    contentAlignment = Alignment.Center
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_checkmark),
+                        contentDescription = "Save Icon",
+                        modifier = GlanceModifier.size(16.dp)
+                    )
+                    Spacer(modifier = GlanceModifier.width(8.dp))
                     Text(
-                        text = "✓  Save",
+                        text = "Save",
                         style = TextStyle(
-                            color = ColorProvider(Color.WHITE),
+                            color = ColorProvider(Color.White),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )

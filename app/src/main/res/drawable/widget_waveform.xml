@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="40dp"
+    android:viewportWidth="100"
+    android:viewportHeight="40">
+    <!-- Waveform bars - symmetrical vertical bars at 35% opacity (#A275E3) -->
+    <path android:fillColor="#59A275E3" android:pathData="M10,14 L14,14 L14,26 L10,26 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M18,10 L22,10 L22,30 L18,30 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M26,6 L30,6 L30,34 L26,34 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M34,12 L38,12 L38,28 L34,28 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M42,2 L46,2 L46,38 L42,38 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M50,8 L54,8 L54,32 L50,32 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M58,4 L62,4 L62,36 L58,36 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M66,10 L70,10 L70,30 L66,30 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M74,14 L78,14 L78,26 L74,26 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M82,12 L86,12 L86,28 L82,28 Z"/>
+    <path android:fillColor="#59A275E3" android:pathData="M90,16 L94,16 L94,24 L90,24 Z"/>
+</vector>

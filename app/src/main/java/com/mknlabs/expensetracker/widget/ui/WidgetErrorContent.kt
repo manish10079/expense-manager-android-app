@@ -1,6 +1,6 @@
 package com.mknlabs.expensetracker.widget.ui
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,14 +27,6 @@ import com.mknlabs.expensetracker.widget.actions.WidgetRetryCallback
 
 /**
  * Error state — pixel-perfect glassmorphic UI.
- *
- * Uses ImageProvider(R.drawable.bg_cancel_button) for retry button with border.
- *
- * Spec:
- *  - Error icon: #EF4444 circle
- *  - Message: #FFFFFF 14sp bold
- *  - Subtitle: #A0A5C0 12sp
- *  - Retry: #211218 bg, #7F1D1D border, #EF4444 text
  */
 @Composable
 internal fun WidgetErrorContent(
@@ -54,7 +46,7 @@ internal fun WidgetErrorContent(
             Box(
                 modifier = GlanceModifier
                     .size(64.dp)
-                    .background(ColorProvider(Color.parseColor("#EF4444"))),
+                    .background(ColorProvider(Color(0xFFEF4444))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "⚠️", style = TextStyle(fontSize = 28.sp))
@@ -65,7 +57,7 @@ internal fun WidgetErrorContent(
             Text(
                 text = resolveErrorMessage(errorMessageResId),
                 style = TextStyle(
-                    color = ColorProvider(Color.WHITE),
+                    color = ColorProvider(Color.White),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -76,7 +68,7 @@ internal fun WidgetErrorContent(
             Text(
                 text = "Please try again",
                 style = TextStyle(
-                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    color = ColorProvider(Color(0xFFA0A5C0)),
                     fontSize = 12.sp
                 )
             )
@@ -95,7 +87,7 @@ internal fun WidgetErrorContent(
                 Text(
                     text = "↻  Try Again",
                     style = TextStyle(
-                        color = ColorProvider(Color.parseColor("#EF4444")),
+                        color = ColorProvider(Color(0xFFEF4444)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )

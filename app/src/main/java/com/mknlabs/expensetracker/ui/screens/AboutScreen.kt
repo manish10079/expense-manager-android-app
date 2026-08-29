@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -270,12 +269,6 @@ private fun AboutScreenContent(
                     icon = Icons.Filled.Code,
                     label = stringResource(R.string.label_github),
                     onClick = { onOpenUrl("https://github.com/manish10079") }
-                )
-                Spacer(modifier = Modifier.width(24.dp))
-                SocialButton(
-                    icon = Icons.Filled.Work,
-                    label = stringResource(R.string.label_linkedin),
-                    onClick = { onOpenUrl("https://www.linkedin.com/in/manish-nayak-172348210") }
                 )
             }
 

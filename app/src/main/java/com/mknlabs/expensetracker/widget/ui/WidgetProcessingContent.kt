@@ -1,6 +1,6 @@
 package com.mknlabs.expensetracker.widget.ui
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,7 +43,7 @@ internal fun WidgetProcessingContent() {
             Box(
                 modifier = GlanceModifier
                     .size(64.dp)
-                    .background(ColorProvider(Color.parseColor("#A855F7"))),
+                    .background(ColorProvider(Color(0xFFA855F7))),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "⏳", style = TextStyle(fontSize = 28.sp))
@@ -54,7 +54,7 @@ internal fun WidgetProcessingContent() {
             Text(
                 text = "Analyzing...",
                 style = TextStyle(
-                    color = ColorProvider(Color.WHITE),
+                    color = ColorProvider(Color.White),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -65,7 +65,7 @@ internal fun WidgetProcessingContent() {
             Text(
                 text = "Processing your transaction",
                 style = TextStyle(
-                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    color = ColorProvider(Color(0xFFA0A5C0)),
                     fontSize = 12.sp
                 )
             )

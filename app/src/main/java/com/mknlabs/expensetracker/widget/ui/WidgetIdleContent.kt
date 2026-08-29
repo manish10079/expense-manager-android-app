@@ -1,6 +1,6 @@
 package com.mknlabs.expensetracker.widget.ui
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,6 +16,7 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
@@ -55,37 +56,47 @@ internal fun WidgetIdleContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            // ── Waveform bars (decorative) ──
-            Row(
-                modifier = GlanceModifier.height(40.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // ── Top Section (Voice Recording Area) ──
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .height(80.dp)
             ) {
-                val barData = listOf(16, 28, 36, 40, 32, 24, 18)
-                barData.forEachIndexed { index, h ->
-                    Box(
-                        modifier = GlanceModifier
-                            .width(5.dp)
-                            .height(h.dp)
-                            .background(ColorProvider(Color.parseColor("#59A275E3")))
-                    ) {}
-                    if (index < barData.lastIndex) {
-                        Spacer(modifier = GlanceModifier.width(5.dp))
+                // Audio Waveform Background: Symmetrical vertical soundwave bars in semi-transparent light purple (#A275E3, 35% opacity) placed behind the mic button.
+                // Row container cannot have more than 10 elements, so we use padding instead of Spacers and 7 bars.
+                Row(
+                    modifier = GlanceModifier.height(48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val barData = listOf(16, 28, 40, 48, 40, 28, 16)
+                    barData.forEach { h ->
+                        Box(
+                            modifier = GlanceModifier
+                                .width(4.dp)
+                                .height(h.dp)
+                                .padding(horizontal = 3.dp)
+                                .background(ColorProvider(Color(0x59A275E3)))
+                        ) {}
                     }
                 }
-            }
 
-            Spacer(modifier = GlanceModifier.height(10.dp))
-
-            // ── Mic button — 64dp circle with gradient + glow (ImageProvider) ──
-            Box(
-                modifier = GlanceModifier.size(64.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    provider = ImageProvider(R.drawable.bg_mic_button),
-                    contentDescription = "Microphone"
-                )
+                // Mic Button: 64dp x 64dp circle with gradient + glow + solid white mic icon
+                Box(
+                    modifier = GlanceModifier.size(64.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        provider = ImageProvider(R.drawable.bg_mic_button),
+                        contentDescription = null,
+                        modifier = GlanceModifier.fillMaxSize()
+                    )
+                    Image(
+                        provider = ImageProvider(R.drawable.widget_ic_mic),
+                        contentDescription = "Microphone",
+                        modifier = GlanceModifier.size(24.dp)
+                    )
+                }
             }
 
             Spacer(modifier = GlanceModifier.height(14.dp))
@@ -94,7 +105,7 @@ internal fun WidgetIdleContent(
             Text(
                 text = "Tap to speak",
                 style = TextStyle(
-                    color = ColorProvider(Color.WHITE),
+                    color = ColorProvider(Color.White),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -106,7 +117,7 @@ internal fun WidgetIdleContent(
             Text(
                 text = "Add expense with voice",
                 style = TextStyle(
-                    color = ColorProvider(Color.parseColor("#A0A5C0")),
+                    color = ColorProvider(Color(0xFFA0A5C0)),
                     fontSize = 12.sp
                 )
             )
@@ -117,7 +128,7 @@ internal fun WidgetIdleContent(
                 Text(
                     text = todaySpendingText,
                     style = TextStyle(
-                        color = ColorProvider(Color.parseColor("#A0A5C0")),
+                        color = ColorProvider(Color(0xFFA0A5C0)),
                         fontSize = 11.sp
                     )
                 )
