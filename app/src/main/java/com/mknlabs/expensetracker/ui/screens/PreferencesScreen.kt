@@ -1,10 +1,28 @@
 package com.mknlabs.expensetracker.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.CurrencyRupee
@@ -13,8 +31,12 @@ import androidx.compose.material.icons.rounded.MoreTime
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +72,35 @@ fun PreferencesScreen(
     isAdsEnabled: Boolean = false
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Font import launcher
+    val fontImportLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                val result = com.mknlabs.expensetracker.domain.usecase.ImportCustomFontUseCase(
+                    context = context,
+                    repository = preferencesViewModel.repository
+                )(it)
+                result.onSuccess { name ->
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.msg_import_font_success),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }.onFailure { e ->
+                    android.widget.Toast.makeText(
+                        context,
+                        e.message ?: context.getString(R.string.msg_import_font_error),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
 
     PreferencesScreenContent(
         uiState = uiState,
@@ -65,7 +116,21 @@ fun PreferencesScreen(
         selectDateFormat = { preferencesViewModel.selectDateFormat(it) },
         selectTimeFormat = { preferencesViewModel.selectTimeFormat(it) },
         selectGroupingStyle = { preferencesViewModel.selectGroupingStyle(it) },
-        selectDecimalPlaces = { preferencesViewModel.selectDecimalPlaces(it) }
+        selectDecimalPlaces = { preferencesViewModel.selectDecimalPlaces(it) },
+        selectFontMode = { fontMode, fileName ->
+            preferencesViewModel.selectFontMode(fontMode, fileName)
+        },
+        onImportFont = {
+            fontImportLauncher.launch(arrayOf("font/*"))
+        },
+        onDeleteFont = { fileName ->
+            scope.launch {
+                com.mknlabs.expensetracker.domain.usecase.DeleteCustomFontUseCase(
+                    context = context,
+                    repository = preferencesViewModel.repository
+                )(fileName)
+            }
+        }
     )
 }
 
@@ -85,7 +150,10 @@ private fun PreferencesScreenContent(
     selectDateFormat: (String) -> Unit,
     selectTimeFormat: (String) -> Unit,
     selectGroupingStyle: (com.mknlabs.expensetracker.models.CurrencyGroupingStyle) -> Unit,
-    selectDecimalPlaces: (Int) -> Unit
+    selectDecimalPlaces: (Int) -> Unit,
+    selectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
+    onImportFont: () -> Unit,
+    onDeleteFont: (String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -197,6 +265,25 @@ private fun PreferencesScreenContent(
                             type = SettingsItemType.Value,
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.ThemeMode) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_font),
+                            subtitle = stringResource(R.string.label_font_subtitle),
+                            icon = Icons.Filled.FontDownload,
+                            valueText = when (uiState.selectedFontMode) {
+                                com.mknlabs.expensetracker.models.FontMode.APP -> stringResource(R.string.label_font_app)
+                                com.mknlabs.expensetracker.models.FontMode.SYSTEM -> stringResource(R.string.label_font_system)
+                                com.mknlabs.expensetracker.models.FontMode.CUSTOM -> {
+                                    val activeName = uiState.activeCustomFontFileName?.let {
+                                        com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(it)
+                                    } ?: stringResource(R.string.label_font_custom)
+                                    activeName
+                                }
+                            },
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.Font) }
                         )
                     }
                 }
@@ -351,6 +438,208 @@ private fun PreferencesScreenContent(
                     onDismiss = dismissSheet
                 )
             }
+
+            PreferencesSheetType.Font -> {
+                FontPickerSheet(
+                    selectedFontMode = uiState.selectedFontMode,
+                    activeCustomFontFileName = uiState.activeCustomFontFileName,
+                    importedFontFileNames = uiState.importedFontFileNames,
+                    onSelectFontMode = { fontMode, fileName ->
+                        selectFontMode(fontMode, fileName)
+                    },
+                    onImportFont = onImportFont,
+                    onDeleteFont = onDeleteFont,
+                    onDismiss = dismissSheet
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FontPickerSheet(
+    selectedFontMode: com.mknlabs.expensetracker.models.FontMode,
+    activeCustomFontFileName: String?,
+    importedFontFileNames: List<String>,
+    onSelectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
+    onImportFont: () -> Unit,
+    onDeleteFont: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showDeleteDialog by remember { mutableStateOf<String?>(null) }
+
+    showDeleteDialog?.let { fileName ->
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            title = { Text(stringResource(R.string.msg_delete_font_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.msg_delete_font_desc,
+                        com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName)
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteFont(fileName)
+                    showDeleteDialog = null
+                }) {
+                    Text(stringResource(R.string.label_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) {
+                    Text(stringResource(R.string.label_cancel))
+                }
+            }
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 48.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.label_select_font),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.label_select_font_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Built-in",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            FontOptionItem(
+                title = stringResource(R.string.label_font_app),
+                isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.APP,
+                onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.APP, null) }
+            )
+
+            FontOptionItem(
+                title = stringResource(R.string.label_font_system),
+                isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.SYSTEM,
+                onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.SYSTEM, null) }
+            )
+
+            if (importedFontFileNames.isNotEmpty() || selectedFontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.label_font_count,
+                            importedFontFileNames.size,
+                            com.mknlabs.expensetracker.utils.FontFileHelper.MAX_CUSTOM_FONTS
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                importedFontFileNames.forEach { fileName ->
+                    FontOptionItem(
+                        title = com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName),
+                        isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM && activeCustomFontFileName == fileName,
+                        onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.CUSTOM, fileName) },
+                        onDelete = { showDeleteDialog = fileName }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val canImport = com.mknlabs.expensetracker.utils.FontFileHelper.canImport(importedFontFileNames.size)
+            Button(
+                onClick = onImportFont,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = canImport,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.FontDownload,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.label_import_font))
+            }
+
+            if (!canImport) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(
+                        R.string.label_max_fonts_reached,
+                        com.mknlabs.expensetracker.utils.FontFileHelper.MAX_CUSTOM_FONTS
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FontOptionItem(
+    title: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = isSelected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        if (onDelete != null) {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = stringResource(R.string.label_delete_font),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
@@ -380,7 +669,10 @@ private fun PreferencesScreenPreview() {
             selectDateFormat = {},
             selectTimeFormat = {},
             selectGroupingStyle = {},
-            selectDecimalPlaces = {}
+            selectDecimalPlaces = {},
+            selectFontMode = { _, _ -> },
+            onImportFont = {},
+            onDeleteFont = {}
         )
     }
 }

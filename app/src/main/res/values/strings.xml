@@ -557,6 +557,25 @@
     <string name="desc_theme_system">Follow your device appearance</string>
     <string name="desc_theme_light">Always use the light theme</string>
     <string name="desc_theme_dark">Always use the dark theme</string>
+    <!-- Font -->
+    <string name="title_font">Font</string>
+    <string name="label_font_subtitle">App typography style</string>
+    <string name="label_font_app">Default</string>
+    <string name="label_font_system">System Font</string>
+    <string name="label_font_custom">Custom Font</string>
+    <string name="label_import_font">Import Font</string>
+    <string name="label_font_count">%1$d/%2$d custom fonts</string>
+    <string name="label_max_fonts_reached">Max %1$d custom fonts. Delete one to add more.</string>
+    <string name="label_no_custom_fonts">No custom fonts yet</string>
+    <string name="msg_import_font_success">Font imported successfully</string>
+    <string name="msg_import_font_error">Failed to import font</string>
+    <string name="msg_font_too_large">Font file is too large. Please choose a smaller file.</string>
+    <string name="msg_invalid_font">Invalid font file</string>
+    <string name="label_select_font">Select Font</string>
+    <string name="label_select_font_desc">Choose the font used throughout the app.</string>
+    <string name="label_delete_font">Delete</string>
+    <string name="msg_delete_font_title">Remove font?</string>
+    <string name="msg_delete_font_desc">%1$s will be removed from your custom fonts.</string>
     <string name="label_select">Select</string>
     <string name="label_grouping_indian">Indian (1,23,456.78)</string>
     <string name="label_grouping_international">International (1,234,567.89)</string>

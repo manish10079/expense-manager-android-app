@@ -38,7 +38,8 @@ enum class PreferencesSheetType {
     DateFormat,
     TimeFormat,
     NumberFormat,
-    DecimalPlaces
+    DecimalPlaces,
+    Font
 }
 
 @Immutable
@@ -81,12 +82,16 @@ data class PreferencesScreenUiState(
     val themeModeOptions: List<ThemeModeOptionUi> = buildThemeModeOptions(),
     val numberFormatOptions: List<NumberFormatOptionUi> = emptyList(),
     val decimalPlaceOptions: List<DecimalPlacesOptionUi> = emptyList(),
-    val activeSheet: PreferencesSheetType? = null
+    val activeSheet: PreferencesSheetType? = null,
+    // Font settings
+    val selectedFontMode: com.mknlabs.expensetracker.models.FontMode = com.mknlabs.expensetracker.models.FontMode.APP,
+    val activeCustomFontFileName: String? = null,
+    val importedFontFileNames: List<String> = emptyList()
 )
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    repository: AppPreferencesRepository
+    val repository: AppPreferencesRepository
 ) : ViewModel() {
 
     private val getAppPreferences = GetAppPreferencesUseCase(repository)
@@ -105,6 +110,9 @@ class PreferencesViewModel @Inject constructor(
     private var selectedTimeFormat: String = DEFAULT_TIME_FORMAT
     private var selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN
     private var selectedDecimalPlaces: Int = DEFAULT_CURRENCY_DECIMAL_PLACES
+    private var selectedFontMode: com.mknlabs.expensetracker.models.FontMode = com.mknlabs.expensetracker.models.FontMode.APP
+    private var selectedActiveCustomFontFileName: String? = null
+    private var selectedImportedFontFileNames: List<String> = emptyList()
 
     private val _uiState = MutableStateFlow(
         PreferencesScreenUiState(
@@ -124,6 +132,9 @@ class PreferencesViewModel @Inject constructor(
                 selectedTimeFormat = settings.timeFormat
                 selectedGroupingStyle = settings.currencyGroupingStyle
                 selectedDecimalPlaces = settings.currencyDecimalPlaces.coerceIn(0, 4)
+                selectedFontMode = settings.fontMode
+                selectedActiveCustomFontFileName = settings.activeCustomFontFileName
+                selectedImportedFontFileNames = settings.importedFontFileNames
                 rebuildUiState()
             }
         }
@@ -193,6 +204,24 @@ class PreferencesViewModel @Inject constructor(
         dismissSheet()
     }
 
+    fun selectFontMode(fontMode: com.mknlabs.expensetracker.models.FontMode, customFontFileName: String? = null) {
+        viewModelScope.launch {
+            if (fontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM && customFontFileName != null) {
+                repository.setActiveCustomFont(customFontFileName)
+            } else {
+                repository.updateFontMode(fontMode)
+            }
+        }
+        dismissSheet()
+    }
+
+    fun selectCustomFont(fontMode: com.mknlabs.expensetracker.models.FontMode, customFontFileName: String?) {
+        viewModelScope.launch {
+            repository.setActiveCustomFont(customFontFileName)
+        }
+        dismissSheet()
+    }
+
     private fun rebuildUiState() {
         val query = _uiState.value.currencySearchQuery.trim()
         val filteredCurrencies = if (query.isEmpty()) {
@@ -226,7 +255,10 @@ class PreferencesViewModel @Inject constructor(
                 filteredCurrencies = filteredCurrencies,
                 themeModeOptions = buildThemeModeOptions(),
                 numberFormatOptions = buildNumberFormatOptions(selectedDecimalPlaces),
-                decimalPlaceOptions = buildDecimalPlaceOptions(selectedGroupingStyle)
+                decimalPlaceOptions = buildDecimalPlaceOptions(selectedGroupingStyle),
+                selectedFontMode = selectedFontMode,
+                activeCustomFontFileName = selectedActiveCustomFontFileName,
+                importedFontFileNames = selectedImportedFontFileNames
             )
         }
     }

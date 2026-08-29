@@ -286,7 +286,19 @@ class MainActivity : AppCompatActivity() {
             onDispose { }
         }
 
-        ExpenseTrackerTheme(darkTheme = darkTheme) {
+        // Dynamic typography based on font preference
+        val fontMode = appSettings?.fontMode ?: com.mknlabs.expensetracker.models.FontMode.APP
+        val customFontFileName = appSettings?.activeCustomFontFileName
+        val customFontFamily = remember(customFontFileName) {
+            customFontFileName?.let {
+                com.mknlabs.expensetracker.utils.FontFileHelper.loadFontFamily(context, it)
+            }
+        }
+        val dynamicTypography = remember(fontMode, customFontFileName) {
+            com.mknlabs.expensetracker.ui.theme.resolveTypography(fontMode, customFontFamily)
+        }
+
+        ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
             CompositionLocalProvider(
                 LocalAppWindowInfo provides rememberAppWindowInfo(),
                 LocalFontScaleInfo provides rememberFontScaleInfo()

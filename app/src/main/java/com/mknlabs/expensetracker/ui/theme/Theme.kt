@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.ui.theme
 import android.app.Activity
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -47,6 +48,7 @@ private fun ApplySystemBarStyle(darkTheme: Boolean) {
 @Composable
 fun ExpenseTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    typography: Typography = Typography,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) {
@@ -59,7 +61,7 @@ fun ExpenseTrackerTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         shapes = Shapes,
         content = content
     )

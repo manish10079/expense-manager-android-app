@@ -14,6 +14,7 @@ import com.mknlabs.expensetracker.data.constants.defaultAppSettings
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
+import com.mknlabs.expensetracker.models.FontMode
 import com.mknlabs.expensetracker.models.SortType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -83,6 +84,9 @@ object AppSettingsDataStore {
         val userTier = stringPreferencesKey("user_tier")
         val deviceIntegrityNoticeAcknowledged = booleanPreferencesKey("device_integrity_notice_acknowledged")
         val muteRecurringDialogDismissed = booleanPreferencesKey("mute_recurring_dialog_dismissed")
+        val fontMode = stringPreferencesKey("font_mode")
+        val activeCustomFontFileName = stringPreferencesKey("active_custom_font_file_name")
+        val importedFontFileNames = stringPreferencesKey("imported_font_file_names")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -213,7 +217,15 @@ object AppSettingsDataStore {
             deviceIntegrityNoticeAcknowledged = this[Keys.deviceIntegrityNoticeAcknowledged]
                 ?: defaultAppSettings.deviceIntegrityNoticeAcknowledged,
             muteRecurringDialogDismissed = this[Keys.muteRecurringDialogDismissed]
-                ?: defaultAppSettings.muteRecurringDialogDismissed
+                ?: defaultAppSettings.muteRecurringDialogDismissed,
+            fontMode = this[Keys.fontMode]?.let { FontMode.valueOf(it) }
+                ?: defaultAppSettings.fontMode,
+            activeCustomFontFileName = this[Keys.activeCustomFontFileName]
+                ?: defaultAppSettings.activeCustomFontFileName,
+            importedFontFileNames = this[Keys.importedFontFileNames]
+                ?.split(",")
+                ?.filter { it.isNotBlank() }
+                ?: defaultAppSettings.importedFontFileNames
         )
     }
 
@@ -280,6 +292,13 @@ object AppSettingsDataStore {
         this[Keys.userTier] = settings.userTier.name
         this[Keys.deviceIntegrityNoticeAcknowledged] = settings.deviceIntegrityNoticeAcknowledged
         this[Keys.muteRecurringDialogDismissed] = settings.muteRecurringDialogDismissed
+        this[Keys.fontMode] = settings.fontMode.name
+        if (settings.activeCustomFontFileName != null) {
+            this[Keys.activeCustomFontFileName] = settings.activeCustomFontFileName
+        } else {
+            remove(Keys.activeCustomFontFileName)
+        }
+        this[Keys.importedFontFileNames] = settings.importedFontFileNames.joinToString(",")
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

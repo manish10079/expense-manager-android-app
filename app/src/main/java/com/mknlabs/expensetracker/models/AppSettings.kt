@@ -71,5 +71,9 @@ data class AppSettings(
     // 20h * 60m * 60s * 1000ms). Always Sunday, per the spec.
     val weeklySummaryTimeMillis: Long = 72000000L,
     val deviceIntegrityNoticeAcknowledged: Boolean = false,
-    val muteRecurringDialogDismissed: Boolean = false
+    val muteRecurringDialogDismissed: Boolean = false,
+    // Font settings
+    val fontMode: FontMode = FontMode.APP,
+    val activeCustomFontFileName: String? = null,
+    val importedFontFileNames: List<String> = emptyList()
 )
