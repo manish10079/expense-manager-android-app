@@ -41,7 +41,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -818,15 +817,6 @@ fun AddTransactionScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SideActionButton(
-                        icon = Icons.Filled.Dialpad,
-                        contentDescription = stringResource(R.string.desc_enter_amount),
-                        onClick = {
-                            amountFocusRequester.requestFocus()
-                            keyboardController?.show()
-                        }
-                    )
-
                     AddTransactionButton(
                         modifier = Modifier.weight(1f),
                         enabled = canSubmit,
@@ -1501,15 +1491,29 @@ private fun CurrencyAmountCard(
                         maxLines = 1
                     )
                     val keyboardController = LocalSoftwareKeyboardController.current
-                    val textFieldValue = remember(amountText) {
-                        TextFieldValue(
-                            text = amountText,
-                            selection = TextRange(amountText.length)
+                    var textFieldValue by remember {
+                        mutableStateOf(
+                            TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(amountText.length)
+                            )
                         )
+                    }
+                    // Sync when text changes externally (e.g. delete button, load existing)
+                    LaunchedEffect(amountText) {
+                        if (textFieldValue.text != amountText) {
+                            textFieldValue = TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(amountText.length)
+                            )
+                        }
                     }
                     BasicTextField(
                         value = textFieldValue,
-                        onValueChange = { onAmountChange(it.text) },
+                        onValueChange = { newValue ->
+                            textFieldValue = newValue
+                            onAmountChange(newValue.text)
+                        },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .focusProperties { this.canFocus = canFocus }
@@ -1886,33 +1890,6 @@ private fun AddTransactionButton(
 }
 
 @Composable
-private fun SideActionButton(
-    icon: ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(58.dp)
-            .shadow(
-                elevation = 18.dp,
-                shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
-            )
-            .clip(CircleShape)
-            .background(standardCardGradient())
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
-        )
-    }
-}
 
 private fun updateAmountInput(
     current: String,

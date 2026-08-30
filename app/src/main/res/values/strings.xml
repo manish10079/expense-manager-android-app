@@ -118,7 +118,6 @@
     <string name="desc_clear_fields">Clear fields</string>
     <string name="desc_clear_note">Clear note</string>
     <string name="desc_close">Close</string>
-    <string name="desc_enter_amount">Enter amount</string>
     <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>
     <string name="desc_add_category">Add category</string>
     <string name="desc_add_transaction">Add transaction</string>
