@@ -515,7 +515,8 @@ private fun ProfileScreenContent(
                                 )
                             ),
                             shape = RoundedCornerShape(999.dp)
-                        ),
+                        )
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(

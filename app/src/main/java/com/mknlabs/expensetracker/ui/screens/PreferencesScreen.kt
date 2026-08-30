@@ -21,11 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.CurrencyRupee
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.MoreTime
 import androidx.compose.material.icons.rounded.Pin
@@ -39,7 +41,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.models.SettingsItemType
@@ -49,8 +53,14 @@ import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.models.SelectionItem
 import com.mknlabs.expensetracker.ui.viewmodels.PreferencesSheetType
+import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.FeatureRegistry
+import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.AccessLevel
+import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mknlabs.expensetracker.utils.supportedDateFormats
@@ -69,13 +79,15 @@ fun PreferencesScreen(
     onManageCategoryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     preferencesViewModel: PreferencesViewModel = hiltViewModel(),
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? android.app.Activity
     val scope = rememberCoroutineScope()
 
-    // Font import launcher
+    // Font import launcher (only for Pro users)
     val fontImportLauncher = rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -105,6 +117,7 @@ fun PreferencesScreen(
     PreferencesScreenContent(
         uiState = uiState,
         isAdsEnabled = isAdsEnabled,
+        userTier = userTier,
         onManageCategoryClick = onManageCategoryClick,
         onBackClick = onBackClick,
         showSheet = { preferencesViewModel.showSheet(it) },
@@ -117,8 +130,13 @@ fun PreferencesScreen(
         selectTimeFormat = { preferencesViewModel.selectTimeFormat(it) },
         selectGroupingStyle = { preferencesViewModel.selectGroupingStyle(it) },
         selectDecimalPlaces = { preferencesViewModel.selectDecimalPlaces(it) },
-        selectFontMode = { fontMode, fileName ->
+        onSelectFontMode = { fontMode, fileName ->
             preferencesViewModel.selectFontMode(fontMode, fileName)
+            android.widget.Toast.makeText(
+                context,
+                context.getString(R.string.msg_font_changed),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         },
         onImportFont = {
             fontImportLauncher.launch(arrayOf("font/*"))
@@ -139,6 +157,7 @@ fun PreferencesScreen(
 private fun PreferencesScreenContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.PreferencesScreenUiState,
     isAdsEnabled: Boolean,
+    userTier: com.mknlabs.expensetracker.models.UserTier,
     onManageCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
     showSheet: (PreferencesSheetType) -> Unit,
@@ -151,7 +170,7 @@ private fun PreferencesScreenContent(
     selectTimeFormat: (String) -> Unit,
     selectGroupingStyle: (com.mknlabs.expensetracker.models.CurrencyGroupingStyle) -> Unit,
     selectDecimalPlaces: (Int) -> Unit,
-    selectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
+    onSelectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
     onImportFont: () -> Unit,
     onDeleteFont: (String) -> Unit
 ) {
@@ -445,7 +464,7 @@ private fun PreferencesScreenContent(
                     activeCustomFontFileName = uiState.activeCustomFontFileName,
                     importedFontFileNames = uiState.importedFontFileNames,
                     onSelectFontMode = { fontMode, fileName ->
-                        selectFontMode(fontMode, fileName)
+                        onSelectFontMode(fontMode, fileName)
                     },
                     onImportFont = onImportFont,
                     onDeleteFont = onDeleteFont,
@@ -501,71 +520,82 @@ private fun FontPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
+        dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 48.dp)
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp)
         ) {
             Text(
                 text = stringResource(R.string.label_select_font),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = stringResource(R.string.label_select_font_desc),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                lineHeight = 20.sp
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            Text(
-                text = "Built-in",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
+            // Default font — always free, no gating
             FontOptionItem(
                 title = stringResource(R.string.label_font_app),
                 isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.APP,
-                onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.APP, null) }
-            )
-
-            FontOptionItem(
-                title = stringResource(R.string.label_font_system),
-                isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.SYSTEM,
-                onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.SYSTEM, null) }
-            )
-
-            if (importedFontFileNames.isNotEmpty() || selectedFontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.label_font_count,
-                            importedFontFileNames.size,
-                            com.mknlabs.expensetracker.utils.FontFileHelper.MAX_CUSTOM_FONTS
-                        ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                onClick = {
+                    onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.APP, null)
+                    onDismiss()
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+            )
 
-                importedFontFileNames.forEach { fileName ->
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // System font — ad-supported gating
+            GatedAction(
+                feature = Feature.SYSTEM_FONT,
+                displayName = stringResource(R.string.label_font_system),
+                onAction = {
+                    onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.SYSTEM, null)
+                    onDismiss()
+                }
+            ) { status, onClick ->
+                val accessLevel = FeatureRegistry.getAccessLevel(Feature.SYSTEM_FONT)
+                FontOptionItem(
+                    title = stringResource(R.string.label_font_system),
+                    isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.SYSTEM,
+                    isLocked = status !is AccessStatus.Granted,
+                    accessLevel = accessLevel,
+                    onClick = onClick
+                )
+            }
+
+            importedFontFileNames.forEach { fileName ->
+                Spacer(modifier = Modifier.height(10.dp))
+                GatedAction(
+                    feature = Feature.CUSTOM_FONT,
+                    optionId = fileName,
+                    displayName = com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName),
+                    onAction = {
+                        onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.CUSTOM, fileName)
+                        onDismiss()
+                    }
+                ) { status, onClick ->
+                    val accessLevel = FeatureRegistry.getAccessLevel(Feature.CUSTOM_FONT, fileName)
                     FontOptionItem(
                         title = com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName),
                         isSelected = selectedFontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM && activeCustomFontFileName == fileName,
-                        onClick = { onSelectFontMode(com.mknlabs.expensetracker.models.FontMode.CUSTOM, fileName) },
+                        isLocked = status !is AccessStatus.Granted,
+                        accessLevel = accessLevel,
+                        onClick = onClick,
                         onDelete = { showDeleteDialog = fileName }
                     )
                 }
@@ -574,19 +604,33 @@ private fun FontPickerSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             val canImport = com.mknlabs.expensetracker.utils.FontFileHelper.canImport(importedFontFileNames.size)
-            Button(
-                onClick = onImportFont,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = canImport,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.FontDownload,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.label_import_font))
+            GatedAction(
+                feature = Feature.CUSTOM_FONT,
+                displayName = stringResource(R.string.label_import_font),
+                onAction = onImportFont
+            ) { status, onClick ->
+                val accessLevel = FeatureRegistry.getAccessLevel(Feature.CUSTOM_FONT)
+                val isGated = status !is AccessStatus.Granted
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = canImport,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.FontDownload,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        if (isGated) {
+                            if (accessLevel == AccessLevel.AD_SUPPORTED) stringResource(R.string.label_watch_ad) else stringResource(R.string.label_pro_required)
+                        } else {
+                            stringResource(R.string.label_import_font)
+                        }
+                    )
+                }
             }
 
             if (!canImport) {
@@ -597,7 +641,7 @@ private fun FontPickerSheet(
                         com.mknlabs.expensetracker.utils.FontFileHelper.MAX_CUSTOM_FONTS
                     ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.error
                 )
             }
         }
@@ -609,29 +653,105 @@ private fun FontOptionItem(
     title: String,
     isSelected: Boolean,
     onClick: () -> Unit,
+    subtitle: String? = null,
+    isLocked: Boolean = false,
+    accessLevel: AccessLevel = AccessLevel.FREE,
     onDelete: (() -> Unit)? = null
 ) {
+    val lockColor = MaterialTheme.colorScheme.featureGateLock
+    val isGated = isLocked && accessLevel != AccessLevel.FREE
+
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    val contentColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else if (isGated) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .background(backgroundColor)
             .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = onClick,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary
+        if (isGated) {
+            Icon(
+                imageVector = Icons.Rounded.Lock,
+                contentDescription = null,
+                tint = lockColor,
+                modifier = Modifier.size(20.dp)
             )
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
+        } else if (isSelected) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(if (isGated || isSelected) 14.dp else 34.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    color = contentColor,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                if (isGated) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.Lock,
+                        contentDescription = null,
+                        tint = lockColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+            if (subtitle != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        if (isSelected) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.label_selected),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        } else if (isGated) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (accessLevel == AccessLevel.AD_SUPPORTED) stringResource(R.string.label_watch_ad) else stringResource(R.string.label_premium),
+                color = lockColor,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
         if (onDelete != null) {
             IconButton(onClick = onDelete) {
                 Icon(
@@ -658,6 +778,7 @@ private fun PreferencesScreenPreview() {
                 currentThemeModeLabelRes = R.string.label_theme_dark,
             ),
             isAdsEnabled = true,
+            userTier = com.mknlabs.expensetracker.models.UserTier.FREE,
             onManageCategoryClick = {},
             onBackClick = {},
             showSheet = {},
@@ -670,7 +791,7 @@ private fun PreferencesScreenPreview() {
             selectTimeFormat = {},
             selectGroupingStyle = {},
             selectDecimalPlaces = {},
-            selectFontMode = { _, _ -> },
+            onSelectFontMode = { _, _ -> },
             onImportFont = {},
             onDeleteFont = {}
         )
