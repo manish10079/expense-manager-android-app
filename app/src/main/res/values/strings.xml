@@ -577,7 +577,7 @@
     <string name="msg_font_too_large">Font file is too large. Please choose a smaller file.</string>
     <string name="msg_invalid_font">Invalid font file</string>
     <string name="label_select_font">Select Font</string>
-    <string name="label_select_font_desc">Choose the font used throughout the app.</string>
+    <string name="label_select_font_desc">Long press to delete font</string>
     <string name="label_select_font_built_in">Built-in</string>
     <string name="label_delete_font">Delete</string>
     <string name="msg_delete_font_title">Remove font?</string>

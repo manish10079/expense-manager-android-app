@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Tune
@@ -596,7 +596,7 @@ private fun FontPickerSheet(
                         isLocked = status !is AccessStatus.Granted,
                         accessLevel = accessLevel,
                         onClick = onClick,
-                        onDelete = { showDeleteDialog = fileName }
+                        onLongClick = { showDeleteDialog = fileName }
                     )
                 }
             }
@@ -656,7 +656,7 @@ private fun FontOptionItem(
     subtitle: String? = null,
     isLocked: Boolean = false,
     accessLevel: AccessLevel = AccessLevel.FREE,
-    onDelete: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null
 ) {
     val lockColor = MaterialTheme.colorScheme.featureGateLock
     val isGated = isLocked && accessLevel != AccessLevel.FREE
@@ -680,7 +680,10 @@ private fun FontOptionItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .background(backgroundColor)
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick?.let { { it() } }
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -752,15 +755,7 @@ private fun FontOptionItem(
                 )
             )
         }
-        if (onDelete != null) {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = stringResource(R.string.label_delete_font),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
+
     }
 }
 
