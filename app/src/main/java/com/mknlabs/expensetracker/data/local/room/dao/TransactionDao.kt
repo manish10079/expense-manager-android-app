@@ -141,8 +141,8 @@ interface TransactionDao {
                 SUM(
                     CASE
                         WHEN transaction_type_id = 1
-                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
-                             strftime('%Y-%m', 'now', 'localtime')
+                         AND occurred_at >= :currentMonthStartMillis
+                         AND occurred_at <= :currentMonthEndMillis
                         THEN amount_minor
                         ELSE 0
                     END
@@ -153,8 +153,8 @@ interface TransactionDao {
                 SUM(
                     CASE
                         WHEN transaction_type_id != 1
-                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
-                             strftime('%Y-%m', 'now', 'localtime')
+                         AND occurred_at >= :currentMonthStartMillis
+                         AND occurred_at <= :currentMonthEndMillis
                         THEN amount_minor
                         ELSE 0
                     END
@@ -165,8 +165,8 @@ interface TransactionDao {
                 SUM(
                     CASE
                         WHEN transaction_type_id = 2
-                         AND strftime('%Y-%m-%d', occurred_at / 1000, 'unixepoch', 'localtime') =
-                             strftime('%Y-%m-%d', 'now', 'localtime')
+                         AND occurred_at >= :todayStartMillis
+                         AND occurred_at <= :todayEndMillis
                         THEN amount_minor
                         ELSE 0
                     END
@@ -177,8 +177,8 @@ interface TransactionDao {
                 SUM(
                     CASE
                         WHEN transaction_type_id = 1
-                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
-                              strftime('%Y-%m', 'now', '-1 month', 'localtime')
+                         AND occurred_at >= :previousMonthStartMillis
+                         AND occurred_at <= :previousMonthEndMillis
                         THEN amount_minor
                         ELSE 0
                     END
@@ -189,8 +189,8 @@ interface TransactionDao {
                 SUM(
                     CASE
                         WHEN transaction_type_id != 1
-                         AND strftime('%Y-%m', occurred_at / 1000, 'unixepoch', 'localtime') =
-                              strftime('%Y-%m', 'now', '-1 month', 'localtime')
+                         AND occurred_at >= :previousMonthStartMillis
+                         AND occurred_at <= :previousMonthEndMillis
                         THEN amount_minor
                         ELSE 0
                     END
@@ -201,7 +201,14 @@ interface TransactionDao {
         WHERE is_deleted = 0
         """
     )
-    fun observeHomeSummary(): Flow<HomeSummaryRow>
+    fun observeHomeSummary(
+        currentMonthStartMillis: Long,
+        currentMonthEndMillis: Long,
+        previousMonthStartMillis: Long,
+        previousMonthEndMillis: Long,
+        todayStartMillis: Long,
+        todayEndMillis: Long
+    ): Flow<HomeSummaryRow>
 
     @Query(
         """

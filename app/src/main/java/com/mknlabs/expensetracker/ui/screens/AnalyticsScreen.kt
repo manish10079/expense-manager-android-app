@@ -105,18 +105,20 @@ fun AnalyticsScreen(
     transactions: List<Transaction> = transactionList,
     categories: List<CategoryType> = emptyList(),
     paymentMethods: List<PaymentType> = emptyList(),
+    monthStartDay: Int = 1,
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = hiltViewModel(),
     isAdsEnabled: Boolean = false,
     isProUser: Boolean = false
 ) {
-    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences) {
+    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences, monthStartDay) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
             categories = categories,
             paymentTypes = paymentMethods,
             currencyId = currencyId,
-            amountFormatPreferences = amountFormatPreferences
+            amountFormatPreferences = amountFormatPreferences,
+            monthStartDay = monthStartDay
         )
     }
     val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()

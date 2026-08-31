@@ -113,6 +113,7 @@ fun CalendarScreen(
     timeFormat: String = DEFAULT_TIME_FORMAT,
     transactions: List<Transaction> = transactionList,
     categories: List<CategoryType> = emptyList(),
+    monthStartDay: Int = 1,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onBackClick: () -> Unit = {},
     onTransactionClick: (Transaction) -> Unit = {},
@@ -135,6 +136,7 @@ fun CalendarScreen(
         dateFormatPattern,
         timeFormat,
         categories,
+        monthStartDay,
         transactionCardCustomizationSettings
     ) {
         calendarViewModel.updateInputs(
@@ -144,7 +146,8 @@ fun CalendarScreen(
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             timeFormat = timeFormat,
-            customizationSettings = transactionCardCustomizationSettings
+            customizationSettings = transactionCardCustomizationSettings,
+            monthStartDay = monthStartDay
         )
     }
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
@@ -990,16 +993,8 @@ private fun startOfDay(timestamp: Long): Long {
     }.timeInMillis
 }
 
-private fun startOfMonth(timestamp: Long): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.DAY_OF_MONTH, 1)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
+private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
 
 private fun addMonths(timestamp: Long, months: Int): Long {
     return Calendar.getInstance().apply {

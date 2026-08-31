@@ -6,7 +6,14 @@ import kotlinx.coroutines.flow.Flow
 interface TransactionRepository {
     fun observeActiveTransactions(): Flow<List<Transaction>>
     
-    fun observeHomeSummary(): Flow<TransactionSummary>
+    fun observeHomeSummary(
+        currentMonthStartMillis: Long,
+        currentMonthEndMillis: Long,
+        previousMonthStartMillis: Long,
+        previousMonthEndMillis: Long,
+        todayStartMillis: Long,
+        todayEndMillis: Long
+    ): Flow<TransactionSummary>
     
     fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>>
     

@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
@@ -201,7 +202,8 @@ class HomeViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val goalRepository: GoalRepository,
     private val recurringRuleRepository: RecurringRuleRepository,
-    private val syncRepository: SyncRepository
+    private val syncRepository: SyncRepository,
+    private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(HomeInputState())
@@ -210,6 +212,7 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
 
     private var smartHideJob: Job? = null
+    private var currentMonthStartDay: Int = 1
 
     init {
         startDataObservation()
@@ -217,108 +220,139 @@ class HomeViewModel @Inject constructor(
 
     private fun startDataObservation() {
         viewModelScope.launch {
-            combine(
-                transactionRepository.observeHomeSummary(),
-                transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
-                goalRepository.observeAllGoals(),
-                recurringRuleRepository.observeActiveRecurringRules(),
-                transactionRepository.observeActiveTransactions(),
-                syncRepository.isSyncing,
-                inputState
-            ) { flows ->
-                @Suppress("UNCHECKED_CAST")
-                val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
-                @Suppress("UNCHECKED_CAST")
-                val recentTransactions = flows[1] as List<com.mknlabs.expensetracker.domain.repository.RecentTransaction>
-                @Suppress("UNCHECKED_CAST")
-                val allGoals = flows[2] as List<Goal>
-                @Suppress("UNCHECKED_CAST")
-                val recurringRules = flows[3] as List<RecurringTransactionRule>
-                @Suppress("UNCHECKED_CAST")
-                val allActiveTransactions = flows[4] as List<Transaction>
-                val isSyncing = flows[5] as Boolean
-                val inputs = flows[6] as HomeInputState
+            com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+                .getAppSettingsFlow(application)
+                .flatMapLatest { settings ->
+                    currentMonthStartDay = settings.monthStartDay
+                    val now = System.currentTimeMillis()
+                    val (currentMonthStart, currentMonthEnd) = com.mknlabs.expensetracker.utils.CustomMonthUtils.getCustomMonthRange(now, currentMonthStartDay, 0)
+                    val (prevMonthStart, prevMonthEnd) = com.mknlabs.expensetracker.utils.CustomMonthUtils.getCustomMonthRange(now, currentMonthStartDay, -1)
+                    val todayStart = java.util.Calendar.getInstance().apply {
+                        timeInMillis = now
+                        set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        set(java.util.Calendar.MINUTE, 0)
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }.timeInMillis
+                    val todayEnd = java.util.Calendar.getInstance().apply {
+                        timeInMillis = now
+                        set(java.util.Calendar.HOUR_OF_DAY, 23)
+                        set(java.util.Calendar.MINUTE, 59)
+                        set(java.util.Calendar.SECOND, 59)
+                        set(java.util.Calendar.MILLISECOND, 999)
+                    }.timeInMillis
 
-                val categoriesMap = inputs.categories.associateBy { it.id }
-                val upcomingRecurring = buildUpcomingRecurring(
-                    rules = recurringRules,
-                    transactions = allActiveTransactions,
-                    categories = categoriesMap,
-                    currencyId = inputs.currencyId,
-                    amountFormatPreferences = inputs.amountFormatPreferences
-                )
+                    combine(
+                        transactionRepository.observeHomeSummary(
+                            currentMonthStartMillis = currentMonthStart,
+                            currentMonthEndMillis = currentMonthEnd,
+                            previousMonthStartMillis = prevMonthStart,
+                            previousMonthEndMillis = prevMonthEnd,
+                            todayStartMillis = todayStart,
+                            todayEndMillis = todayEnd
+                        ),
+                        transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
+                        goalRepository.observeAllGoals(),
+                        recurringRuleRepository.observeActiveRecurringRules(),
+                        transactionRepository.observeActiveTransactions(),
+                        syncRepository.isSyncing,
+                        inputState
+                    ) { flows ->
+                        @Suppress("UNCHECKED_CAST")
+                        val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
+                        @Suppress("UNCHECKED_CAST")
+                        val recentTransactions = flows[1] as List<com.mknlabs.expensetracker.domain.repository.RecentTransaction>
+                        @Suppress("UNCHECKED_CAST")
+                        val allGoals = flows[2] as List<Goal>
+                        @Suppress("UNCHECKED_CAST")
+                        val recurringRules = flows[3] as List<RecurringTransactionRule>
+                        @Suppress("UNCHECKED_CAST")
+                        val allActiveTransactions = flows[4] as List<Transaction>
+                        val isSyncing = flows[5] as Boolean
+                        val inputs = flows[6] as HomeInputState
 
-                val monthlySummary = buildMonthlySummary(
-                    incomeMinor = summary.totalIncomeMinor,
-                    expenseMinor = summary.totalExpenseMinor,
-                    previousIncomeMinor = summary.previousMonthIncomeMinor,
-                    previousExpenseMinor = summary.previousMonthExpenseMinor
-                )
-                HomeScreenUiState(
-                    greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
-                    totalBalance = formatCurrencyValue(
-                        (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    previousMonthBalance = formatCurrencyValue(
-                        (summary.previousMonthIncomeMinor - summary.previousMonthExpenseMinor).toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    totalIncome = formatCurrencyValue(
-                        summary.totalIncomeMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    totalExpense = formatCurrencyValue(
-                        summary.totalExpenseMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    todaySpending = formatCurrencyValue(
-                        summary.highlightedExpenseMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    monthlyNetDisplay = formatCurrencyValue(
-                        monthlySummary.netMinor.toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    monthlyNetDeltaPercent = monthlySummary.deltaPercent,
-                    monthlyNetDeltaDisplay = if (monthlySummary.hasBaseline) {
-                        formatPercent(monthlySummary.deltaPercent)
-                    } else {
-                        null // No last-month baseline to compare against.
-                    },
-                    monthlyIncomeFraction = monthlySummary.incomeFraction,
-                    upcomingRecurring = upcomingRecurring,
-                    recentTransactions = recentTransactions.map { recentTransaction ->
-                        recentTransaction.transaction.toTransactionCardItemUi(
+                        val categoriesMap = inputs.categories.associateBy { it.id }
+                        val upcomingRecurring = buildUpcomingRecurring(
+                            rules = recurringRules,
+                            transactions = allActiveTransactions,
+                            categories = categoriesMap,
                             currencyId = inputs.currencyId,
-                            amountFormatPreferences = inputs.amountFormatPreferences,
-                            dateFormatPattern = inputs.dateFormatPattern,
-                            timeFormat = inputs.timeFormat,
-                            paymentTypeName = recentTransaction.paymentTypeName,
-                            categories = inputs.categories,
-                            fallbackCategoryName = application.getString(R.string.label_other)
+                            amountFormatPreferences = inputs.amountFormatPreferences
                         )
-                    },
-                    activeGoalsSaved = formatCurrencyValue(
-                        activeGoalsSavedMinor(allGoals).toMajorUnits(),
-                        currencyId = inputs.currencyId,
-                        amountFormatPreferences = inputs.amountFormatPreferences
-                    ),
-                    goalCount = allGoals.count { !it.isCompleted },
-                    customizationSettings = inputs.customizationSettings,
-                    isBalanceHidden = _uiState.value.isBalanceHidden,
-                    isSyncing = isSyncing,
-                    userTier = inputs.userTier
-                )
-            }.collect { state ->
-                _uiState.value = state
-            }
+
+                        val monthlySummary = buildMonthlySummary(
+                            incomeMinor = summary.totalIncomeMinor,
+                            expenseMinor = summary.totalExpenseMinor,
+                            previousIncomeMinor = summary.previousMonthIncomeMinor,
+                            previousExpenseMinor = summary.previousMonthExpenseMinor
+                        )
+                        HomeScreenUiState(
+                            greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
+                            totalBalance = formatCurrencyValue(
+                                (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            previousMonthBalance = formatCurrencyValue(
+                                (summary.previousMonthIncomeMinor - summary.previousMonthExpenseMinor).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            totalIncome = formatCurrencyValue(
+                                summary.totalIncomeMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            totalExpense = formatCurrencyValue(
+                                summary.totalExpenseMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            todaySpending = formatCurrencyValue(
+                                summary.highlightedExpenseMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            monthlyNetDisplay = formatCurrencyValue(
+                                monthlySummary.netMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            monthlyNetDeltaPercent = monthlySummary.deltaPercent,
+                            monthlyNetDeltaDisplay = if (monthlySummary.hasBaseline) {
+                                formatPercent(monthlySummary.deltaPercent)
+                            } else {
+                                null
+                            },
+                            monthlyIncomeFraction = monthlySummary.incomeFraction,
+                            upcomingRecurring = upcomingRecurring,
+                            recentTransactions = recentTransactions.map { recentTransaction ->
+                                recentTransaction.transaction.toTransactionCardItemUi(
+                                    currencyId = inputs.currencyId,
+                                    amountFormatPreferences = inputs.amountFormatPreferences,
+                                    dateFormatPattern = inputs.dateFormatPattern,
+                                    timeFormat = inputs.timeFormat,
+                                    paymentTypeName = recentTransaction.paymentTypeName,
+                                    categories = inputs.categories,
+                                    fallbackCategoryName = application.getString(R.string.label_other)
+                                )
+                            },
+                            activeGoalsSaved = formatCurrencyValue(
+                                activeGoalsSavedMinor(allGoals).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            goalCount = allGoals.count { !it.isCompleted },
+                            customizationSettings = inputs.customizationSettings,
+                            isBalanceHidden = _uiState.value.isBalanceHidden,
+                            isSyncing = isSyncing,
+                            userTier = inputs.userTier
+                        )
+                    }
+                }
+                .collect { state ->
+                    _uiState.value = state
+                }
         }
     }
 

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.CurrencyRupee
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.MoreTime
+import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
@@ -152,7 +153,8 @@ fun PreferencesScreen(
                     repository = preferencesViewModel.repository
                 )(fileName)
             }
-        }
+        },
+        selectMonthStartDay = { day -> preferencesViewModel.selectMonthStartDay(day) }
     )
 }
 
@@ -176,7 +178,8 @@ private fun PreferencesScreenContent(
     selectDecimalPlaces: (Int) -> Unit,
     onSelectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
     onImportFont: () -> Unit,
-    onDeleteFont: (String) -> Unit
+    onDeleteFont: (String) -> Unit,
+    selectMonthStartDay: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -273,6 +276,20 @@ private fun PreferencesScreenContent(
                             type = SettingsItemType.Value,
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.TimeFormat) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_month_start_day),
+                            subtitle = stringResource(R.string.label_month_start_day_subtitle),
+                            icon = Icons.Rounded.CalendarToday,
+                            valueText = if (uiState.monthStartDay == 1) {
+                                stringResource(R.string.label_month_start_day_standard)
+                            } else {
+                                stringResource(R.string.label_month_start_day_value, uiState.monthStartDay)
+                            },
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.MonthStartDay) }
                         )
                     }
                 }
@@ -438,6 +455,28 @@ private fun PreferencesScreenContent(
                     items = timeItems,
                     selectedId = uiState.selectedTimeFormat,
                     onItemSelected = { selectTimeFormat(it) },
+                    onDismiss = dismissSheet
+                )
+            }
+
+            PreferencesSheetType.MonthStartDay -> {
+                val dayItems = remember {
+                    (com.mknlabs.expensetracker.utils.CustomMonthUtils.MIN_MONTH_START_DAY..
+                        com.mknlabs.expensetracker.utils.CustomMonthUtils.MAX_MONTH_START_DAY).map { day ->
+                        SelectionItem(
+                            id = day.toString(),
+                            title = if (day == 1) "1st (Standard)" else "$day${getOrdinalSuffix(day)}",
+                            subtitle = null,
+                            leadingIcon = Icons.Filled.CalendarMonth
+                        )
+                    }
+                }
+                AppSelectionSheet<String>(
+                    title = stringResource(R.string.title_month_start_day),
+                    description = stringResource(R.string.label_month_start_day_subtitle),
+                    items = dayItems,
+                    selectedId = uiState.monthStartDay.toString(),
+                    onItemSelected = { day -> selectMonthStartDay(day.toInt()) },
                     onDismiss = dismissSheet
                 )
             }
@@ -815,8 +854,19 @@ private fun PreferencesScreenPreview() {
             selectDecimalPlaces = {},
             onSelectFontMode = { _, _ -> },
             onImportFont = {},
-            onDeleteFont = {}
+            onDeleteFont = {},
+            selectMonthStartDay = {}
         )
+    }
+}
+
+private fun getOrdinalSuffix(day: Int): String {
+    return when {
+        day in 11..13 -> "th"
+        day % 10 == 1 -> "st"
+        day % 10 == 2 -> "nd"
+        day % 10 == 3 -> "rd"
+        else -> "th"
     }
 }
 

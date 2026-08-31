@@ -35,8 +35,22 @@ class TransactionRepository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun observeHomeSummary(): Flow<TransactionSummary> {
-        return dao.observeHomeSummary().map { row ->
+    override fun observeHomeSummary(
+        currentMonthStartMillis: Long,
+        currentMonthEndMillis: Long,
+        previousMonthStartMillis: Long,
+        previousMonthEndMillis: Long,
+        todayStartMillis: Long,
+        todayEndMillis: Long
+    ): Flow<TransactionSummary> {
+        return dao.observeHomeSummary(
+            currentMonthStartMillis = currentMonthStartMillis,
+            currentMonthEndMillis = currentMonthEndMillis,
+            previousMonthStartMillis = previousMonthStartMillis,
+            previousMonthEndMillis = previousMonthEndMillis,
+            todayStartMillis = todayStartMillis,
+            todayEndMillis = todayEndMillis
+        ).map { row ->
             TransactionSummary(
                 totalIncomeMinor = row.incomeMinor,
                 totalExpenseMinor = row.expenseMinor,

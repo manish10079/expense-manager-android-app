@@ -34,4 +34,6 @@ interface AppPreferencesRepository {
      * Single DataStore write to avoid stale intermediate states.
      */
     suspend fun addAndActivateFont(fileName: String)
+
+    suspend fun updateMonthStartDay(day: Int)
 }

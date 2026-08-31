@@ -160,18 +160,22 @@ class AnalyticsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AnalyticsScreenUiState())
     val uiState: StateFlow<AnalyticsScreenUiState> = _uiState.asStateFlow()
 
+    private var currentMonthStartDay: Int = 1
+
     fun updateInputs(
         transactions: List<Transaction>,
         categories: List<CategoryType>,
         paymentTypes: List<PaymentType>,
         currencyId: Int,
-        amountFormatPreferences: AmountFormatPreferences
+        amountFormatPreferences: AmountFormatPreferences,
+        monthStartDay: Int = 1
     ) {
         currentTransactions = transactions
         currentCategories = categories
         currentPaymentTypes = paymentTypes
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
+        currentMonthStartDay = monthStartDay
         rebuildUiState()
     }
 
@@ -209,7 +213,7 @@ class AnalyticsViewModel : ViewModel() {
             customRangeEnd?.let { end ->
                 startOfDay(start)..endOfDay(end)
             }
-        } ?: periodRangeFor(latestTimestamp, selectedPeriod)
+        } ?: periodRangeFor(latestTimestamp, selectedPeriod, currentMonthStartDay)
 
         _uiState.update {
             it.copy(
@@ -224,7 +228,8 @@ class AnalyticsViewModel : ViewModel() {
                     transactions = currentTransactions,
                     categories = currentCategories,
                     paymentTypes = currentPaymentTypes,
-                    customRange = range
+                    customRange = range,
+                    monthStartDay = currentMonthStartDay
                 )
             )
         }
@@ -238,11 +243,12 @@ private fun buildAnalyticsSnapshot(
     transactions: List<Transaction>,
     categories: List<CategoryType>,
     paymentTypes: List<PaymentType>,
-    customRange: LongRange? = null
+    customRange: LongRange? = null,
+    monthStartDay: Int = 1
 ): AnalyticsSnapshotUi {
     val latestTimestamp = System.currentTimeMillis()
-    val range = customRange ?: periodRangeFor(latestTimestamp, period)
-    val previousRange = previousPeriodRange(range, period, customRange)
+    val range = customRange ?: periodRangeFor(latestTimestamp, period, monthStartDay)
+    val previousRange = previousPeriodRange(range, period, customRange, monthStartDay)
     val currentTransactions = transactions.filter { it.createdAt in range.first..range.last }
     val previousTransactions = transactions.filter { it.createdAt in previousRange.first..previousRange.last }
     val categoryMap = categories.associateBy { it.id }
@@ -262,7 +268,8 @@ private fun buildAnalyticsSnapshot(
         transactions = currentTransactions,
         period = period,
         activeRange = range,
-        referenceTimestamp = latestTimestamp
+        referenceTimestamp = latestTimestamp,
+        monthStartDay = monthStartDay
     )
     val categoryTotals = currentTransactions
         .filter { it.transactionTypeId == 2 }
@@ -392,7 +399,8 @@ private fun buildChartBuckets(
     transactions: List<Transaction>,
     period: AnalyticsPeriod,
     activeRange: LongRange,
-    referenceTimestamp: Long
+    referenceTimestamp: Long,
+    monthStartDay: Int = 1
 ): List<ChartBucket> {
     return when (period) {
         AnalyticsPeriod.WEEK -> {
@@ -442,8 +450,8 @@ private fun buildChartBuckets(
                     timeInMillis = yearStart
                     add(Calendar.MONTH, monthIndex)
                 }
-                val start = startOfMonth(calendar.timeInMillis)
-                val end = endOfMonth(calendar.timeInMillis)
+                val start = startOfMonth(calendar.timeInMillis, monthStartDay)
+                val end = endOfMonth(calendar.timeInMillis, monthStartDay)
                 
                 // Show labels for every 2nd month to keep it readable
                 val label = if (monthIndex % 2 == 0) {
@@ -510,19 +518,20 @@ private fun percentageChange(current: Double, previous: Double): Float {
     return (((current - previous) / previous) * 100.0).toFloat()
 }
 
-private fun periodRangeFor(timestamp: Long, period: AnalyticsPeriod): LongRange {
+private fun periodRangeFor(timestamp: Long, period: AnalyticsPeriod, monthStartDay: Int = 1): LongRange {
     return when (period) {
         AnalyticsPeriod.WEEK -> startOfWeek(timestamp)..endOfWeek(timestamp)
-        AnalyticsPeriod.MONTH -> startOfMonth(timestamp)..endOfMonth(timestamp)
+        AnalyticsPeriod.MONTH -> startOfMonth(timestamp, monthStartDay)..endOfMonth(timestamp, monthStartDay)
         AnalyticsPeriod.YEAR -> startOfYear(timestamp)..endOfYear(timestamp)
-        AnalyticsPeriod.CUSTOM -> startOfMonth(timestamp)..endOfMonth(timestamp)
+        AnalyticsPeriod.CUSTOM -> startOfMonth(timestamp, monthStartDay)..endOfMonth(timestamp, monthStartDay)
     }
 }
 
 private fun previousPeriodRange(
     range: LongRange,
     period: AnalyticsPeriod,
-    customRange: LongRange? = null
+    customRange: LongRange? = null,
+    monthStartDay: Int = 1
 ): LongRange {
     if (period == AnalyticsPeriod.CUSTOM || customRange != null) {
         val dayCount = daysBetween(range.first, range.last) + 1
@@ -538,8 +547,8 @@ private fun previousPeriodRange(
         AnalyticsPeriod.MONTH -> {
             val calendar = Calendar.getInstance().apply { timeInMillis = range.first }
             calendar.add(Calendar.MONTH, -1)
-            val start = startOfMonth(calendar.timeInMillis)
-            start..endOfMonth(calendar.timeInMillis)
+            val start = startOfMonth(calendar.timeInMillis, monthStartDay)
+            start..endOfMonth(calendar.timeInMillis, monthStartDay)
         }
 
         AnalyticsPeriod.YEAR -> {
@@ -676,23 +685,11 @@ private fun endOfDay(timestamp: Long): Long = Calendar.getInstance().apply {
 
 private fun endOfWeek(timestamp: Long): Long = shiftByDays(startOfWeek(timestamp), 7) - 1
 
-private fun startOfMonth(timestamp: Long): Long = Calendar.getInstance().apply {
-    timeInMillis = timestamp
-    set(Calendar.DAY_OF_MONTH, 1)
-    set(Calendar.HOUR_OF_DAY, 0)
-    set(Calendar.MINUTE, 0)
-    set(Calendar.SECOND, 0)
-    set(Calendar.MILLISECOND, 0)
-}.timeInMillis
+private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
 
-private fun endOfMonth(timestamp: Long): Long = Calendar.getInstance().apply {
-    timeInMillis = timestamp
-    set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-    set(Calendar.HOUR_OF_DAY, 23)
-    set(Calendar.MINUTE, 59)
-    set(Calendar.SECOND, 59)
-    set(Calendar.MILLISECOND, 999)
-}.timeInMillis
+private fun endOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getEndOfCustomMonth(timestamp, monthStartDay)
 
 private fun startOfYear(timestamp: Long): Long = Calendar.getInstance().apply {
     timeInMillis = timestamp

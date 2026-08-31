@@ -37,6 +37,7 @@ enum class PreferencesSheetType {
     ThemeMode,
     DateFormat,
     TimeFormat,
+    MonthStartDay,
     NumberFormat,
     DecimalPlaces,
     Font
@@ -86,7 +87,9 @@ data class PreferencesScreenUiState(
     // Font settings
     val selectedFontMode: com.mknlabs.expensetracker.models.FontMode = com.mknlabs.expensetracker.models.FontMode.APP,
     val activeCustomFontFileName: String? = null,
-    val importedFontFileNames: List<String> = emptyList()
+    val importedFontFileNames: List<String> = emptyList(),
+    // Custom month start day
+    val monthStartDay: Int = 1
 )
 
 @HiltViewModel
@@ -113,6 +116,7 @@ class PreferencesViewModel @Inject constructor(
     private var selectedFontMode: com.mknlabs.expensetracker.models.FontMode = com.mknlabs.expensetracker.models.FontMode.APP
     private var selectedActiveCustomFontFileName: String? = null
     private var selectedImportedFontFileNames: List<String> = emptyList()
+    private var selectedMonthStartDay: Int = 1
 
     private val _uiState = MutableStateFlow(
         PreferencesScreenUiState(
@@ -135,6 +139,7 @@ class PreferencesViewModel @Inject constructor(
                 selectedFontMode = settings.fontMode
                 selectedActiveCustomFontFileName = settings.activeCustomFontFileName
                 selectedImportedFontFileNames = settings.importedFontFileNames
+                selectedMonthStartDay = settings.monthStartDay
                 rebuildUiState()
             }
         }
@@ -222,6 +227,12 @@ class PreferencesViewModel @Inject constructor(
         dismissSheet()
     }
 
+    fun selectMonthStartDay(day: Int) {
+        viewModelScope.launch {
+            repository.updateMonthStartDay(day)
+        }
+    }
+
     private fun rebuildUiState() {
         val query = _uiState.value.currencySearchQuery.trim()
         val filteredCurrencies = if (query.isEmpty()) {
@@ -258,7 +269,8 @@ class PreferencesViewModel @Inject constructor(
                 decimalPlaceOptions = buildDecimalPlaceOptions(selectedGroupingStyle),
                 selectedFontMode = selectedFontMode,
                 activeCustomFontFileName = selectedActiveCustomFontFileName,
-                importedFontFileNames = selectedImportedFontFileNames
+                importedFontFileNames = selectedImportedFontFileNames,
+                monthStartDay = selectedMonthStartDay
             )
         }
     }

@@ -78,6 +78,8 @@ class CalendarViewModel @Inject constructor(
         rebuildUiState()
     }
 
+    private var currentMonthStartDay: Int = 1
+
     fun updateInputs(
         transactions: List<Transaction>,
         categories: List<CategoryType>,
@@ -85,7 +87,8 @@ class CalendarViewModel @Inject constructor(
         amountFormatPreferences: AmountFormatPreferences,
         dateFormatPattern: String,
         timeFormat: String,
-        customizationSettings: TransactionCardCustomizationSettings
+        customizationSettings: TransactionCardCustomizationSettings,
+        monthStartDay: Int = 1
     ) {
         currentTransactions = transactions
         currentCategories = categories
@@ -94,9 +97,10 @@ class CalendarViewModel @Inject constructor(
         currentDateFormatPattern = dateFormatPattern
         currentTimeFormat = timeFormat
         currentCustomizationSettings = customizationSettings
+        currentMonthStartDay = monthStartDay
 
         val latestTransactionDay = startOfDay(transactions.maxOfOrNull { it.createdAt } ?: System.currentTimeMillis())
-        val latestTransactionMonth = startOfMonth(latestTransactionDay)
+        val latestTransactionMonth = startOfMonth(latestTransactionDay, currentMonthStartDay)
         if (displayedMonthStart == 0L) {
             displayedMonthStart = latestTransactionMonth
         }
@@ -158,7 +162,8 @@ class CalendarViewModel @Inject constructor(
             currentTodayMonthStart = todayMonthStart,
             selectedDate = selectedDate,
             displayedMonthStart = displayedMonthStart,
-            newToday = startOfDay(System.currentTimeMillis())
+            newToday = startOfDay(System.currentTimeMillis()),
+            monthStartDay = currentMonthStartDay
         )
         if (!result.changed) return
         todayDate = result.todayDate
@@ -171,7 +176,7 @@ class CalendarViewModel @Inject constructor(
     fun selectDay(day: CalendarDayUi) {
         selectedDate = day.timestamp
         if (!day.isCurrentMonth) {
-            displayedMonthStart = startOfMonth(day.timestamp)
+            displayedMonthStart = startOfMonth(day.timestamp, currentMonthStartDay)
         }
         rebuildUiState()
     }
@@ -271,7 +276,8 @@ internal fun computeTodayRefresh(
     currentTodayMonthStart: Long,
     selectedDate: Long,
     displayedMonthStart: Long,
-    newToday: Long
+    newToday: Long,
+    monthStartDay: Int = 1
 ): TodayRefreshResult {
     if (newToday == currentTodayDate) {
         return TodayRefreshResult(
@@ -282,7 +288,7 @@ internal fun computeTodayRefresh(
             changed = false
         )
     }
-    val newTodayMonthStart = startOfMonth(newToday)
+    val newTodayMonthStart = startOfMonth(newToday, monthStartDay)
     val wasOnToday = selectedDate == currentTodayDate
     return if (wasOnToday) {
         TodayRefreshResult(
@@ -491,16 +497,8 @@ private fun startOfDay(timestamp: Long): Long {
     }.timeInMillis
 }
 
-private fun startOfMonth(timestamp: Long): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.DAY_OF_MONTH, 1)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
+private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
 
 private fun addMonths(timestamp: Long, months: Int): Long {
     return Calendar.getInstance().apply {

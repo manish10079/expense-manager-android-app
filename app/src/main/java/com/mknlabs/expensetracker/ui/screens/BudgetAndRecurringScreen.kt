@@ -132,6 +132,7 @@ fun BudgetAndRecurringScreen(
     transactions: List<Transaction> = transactionList,
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
+    monthStartDay: Int = 1,
     onDeleteRecurring: (String) -> Unit = {},
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
@@ -141,13 +142,14 @@ fun BudgetAndRecurringScreen(
 ) {
     val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
 
-    LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules) {
+    LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules, monthStartDay) {
         budgetViewModel.updateInputs(
             transactions = transactions,
             categories = availableCategories,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
-            recurringRules = recurringRules
+            recurringRules = recurringRules,
+            monthStartDay = monthStartDay
         )
     }
 

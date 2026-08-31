@@ -167,17 +167,21 @@ class BudgetAndRecurringViewModel @Inject constructor(
         rebuildUiState()
     }
 
+    private var currentMonthStartDay: Int = 1
+
     fun updateInputs(
         transactions: List<Transaction>,
         categories: List<CategoryType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
-        recurringRules: List<RecurringTransactionRule>
+        recurringRules: List<RecurringTransactionRule>,
+        monthStartDay: Int = 1
     ) {
         currentTransactions = transactions
         currentCategories = categories.associateBy { it.id }
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
+        currentMonthStartDay = monthStartDay
         currentRecurringEntries = recurringRules.map { rule ->
             RecurringEntry(
                 id = rule.id,
@@ -189,7 +193,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 nextRunAt = rule.nextRunAt
             )
         }
-        anchorMonthStart = resolveAnchorMonthStart(transactions)
+        anchorMonthStart = resolveAnchorMonthStart(transactions, currentMonthStartDay)
         if (customMonthStart == 0L) {
             customMonthStart = anchorMonthStart
         }
@@ -206,7 +210,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
     }
 
     fun selectCustomMonth(timestamp: Long) {
-        customMonthStart = startOfMonth(timestamp)
+        customMonthStart = startOfMonth(timestamp, currentMonthStartDay)
         selectedPeriod = BudgetPeriodFilter.CustomMonth
         rebuildUiState()
     }
@@ -246,7 +250,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
 
         viewModelScope.launch {
             val monthStart = currentSelectedMonthStart()
-            val currentMonthStart = startOfMonth(System.currentTimeMillis())
+            val currentMonthStart = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
             val prevMonthStart = addMonths(currentMonthStart, -1)
 
             val existingBudget = budgetEntries.firstOrNull { it.id == budgetId }
@@ -299,7 +303,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
 
     private fun rebuildUiState() {
         val selectedMonthStart = currentSelectedMonthStart()
-        val currentMonthStart = startOfMonth(System.currentTimeMillis())
+        val currentMonthStart = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
         val prevMonthStart = addMonths(currentMonthStart, -1)
 
         val isMonthLocked = selectedMonthStart < prevMonthStart
@@ -317,7 +321,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
             else -> false
         }
 
-        val selectedMonthEnd = endOfMonth(selectedMonthStart)
+        val selectedMonthEnd = endOfMonth(selectedMonthStart, currentMonthStartDay)
         val expenseTransactions = currentTransactions.filter {
             it.transactionTypeId != 1 && it.createdAt in selectedMonthStart..selectedMonthEnd
         }
@@ -343,7 +347,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
             expenseTransactions = expenseTransactions,
             categoryBudgets = categoryBudgets,
             currencyId = currentCurrencyId,
-            amountFormatPreferences = currentAmountFormatPreferences
+            amountFormatPreferences = currentAmountFormatPreferences,
+            monthStartDay = currentMonthStartDay
         )
         _uiState.update {
             it.copy(
@@ -379,7 +384,8 @@ private fun buildSummary(
     expenseTransactions: List<Transaction>,
     categoryBudgets: List<BudgetCategoryBudgetUi>,
     currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
+    amountFormatPreferences: AmountFormatPreferences,
+    monthStartDay: Int = 1
 ): BudgetSummaryUi {
     val spentAmount = expenseTransactions.sumOf { it.amount }
     val totalBudgetAmount = categoryBudgets.sumOf { it.limitAmount }
@@ -402,7 +408,7 @@ private fun buildSummary(
 
     // Daily Allowance Calculation
     val now = System.currentTimeMillis()
-    val endOfMonth = endOfMonth(monthStart)
+    val endOfMonth = endOfMonth(monthStart, monthStartDay)
     val dailyAllowanceLabel = if (remainingAmount > 0.0 && now < endOfMonth) {
         val daysInMonth = Calendar.getInstance().apply { timeInMillis = monthStart }.getActualMaximum(Calendar.DAY_OF_MONTH)
         val currentDay = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.DAY_OF_MONTH)
@@ -601,9 +607,8 @@ private fun categoryAccent(progress: Float): BudgetAccent {
     }
 }
 
-private fun resolveAnchorMonthStart(transactions: List<Transaction>): Long {
-    // "This Month" should always mean the actual current calendar month
-    return startOfMonth(System.currentTimeMillis())
+private fun resolveAnchorMonthStart(transactions: List<Transaction>, monthStartDay: Int = 1): Long {
+    return startOfMonth(System.currentTimeMillis(), monthStartDay)
 }
 
 private fun calculateNextInstallmentInfo(
@@ -685,27 +690,11 @@ private fun dueLabelFor(
     }
 }
 
-private fun startOfMonth(timestamp: Long): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.DAY_OF_MONTH, 1)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
+private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
 
-private fun endOfMonth(timestamp: Long): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-        set(Calendar.HOUR_OF_DAY, 23)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 59)
-        set(Calendar.MILLISECOND, 999)
-    }.timeInMillis
-}
+private fun endOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
+    com.mknlabs.expensetracker.utils.CustomMonthUtils.getEndOfCustomMonth(timestamp, monthStartDay)
 
 private fun addMonths(timestamp: Long, months: Int): Long {
     return Calendar.getInstance().apply {

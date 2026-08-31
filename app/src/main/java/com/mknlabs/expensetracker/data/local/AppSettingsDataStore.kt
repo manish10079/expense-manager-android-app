@@ -87,6 +87,7 @@ object AppSettingsDataStore {
         val fontMode = stringPreferencesKey("font_mode")
         val activeCustomFontFileName = stringPreferencesKey("active_custom_font_file_name")
         val importedFontFileNames = stringPreferencesKey("imported_font_file_names")
+        val monthStartDay = intPreferencesKey("month_start_day")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -225,7 +226,9 @@ object AppSettingsDataStore {
             importedFontFileNames = this[Keys.importedFontFileNames]
                 ?.split(",")
                 ?.filter { it.isNotBlank() }
-                ?: defaultAppSettings.importedFontFileNames
+                ?: defaultAppSettings.importedFontFileNames,
+            monthStartDay = this[Keys.monthStartDay]
+                ?: defaultAppSettings.monthStartDay
         )
     }
 
@@ -299,6 +302,7 @@ object AppSettingsDataStore {
             remove(Keys.activeCustomFontFileName)
         }
         this[Keys.importedFontFileNames] = settings.importedFontFileNames.joinToString(",")
+        this[Keys.monthStartDay] = settings.monthStartDay
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

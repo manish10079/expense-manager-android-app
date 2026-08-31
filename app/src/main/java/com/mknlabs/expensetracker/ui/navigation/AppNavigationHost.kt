@@ -236,6 +236,7 @@ fun AppNavigationHost(
                         transactions = transactions,
                         categories = categories,
                         paymentMethods = paymentMethods,
+                        monthStartDay = appSettings.monthStartDay,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
@@ -251,6 +252,7 @@ fun AppNavigationHost(
                         transactions = transactions,
                         availableCategories = categories.filter { !it.isDeleted },
                         recurringRules = recurringRules,
+                        monthStartDay = appSettings.monthStartDay,
                         onDeleteRecurring = onDeleteRecurring,
                         onRecurringEnabledChange = onRecurringEnabledChange,
                         onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
@@ -272,6 +274,7 @@ fun AppNavigationHost(
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
+                        monthStartDay = appSettings.monthStartDay,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)

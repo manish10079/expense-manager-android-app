@@ -105,14 +105,6 @@ class CheckBudgetUseCase @Inject constructor(
         )
     }
 
-    private fun getStartOfMonthTimestamp(timestamp: Long): Long {
-        return Calendar.getInstance().apply {
-            timeInMillis = timestamp
-            set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-    }
+    private fun getStartOfMonthTimestamp(timestamp: Long, monthStartDay: Int = 1): Long =
+        com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
 }

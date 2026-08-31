@@ -105,4 +105,13 @@ class AppPreferencesRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun updateMonthStartDay(day: Int) {
+        AppSettingsDataStore.updateAppSettings(context) { settings ->
+            settings.copy(monthStartDay = day.coerceIn(
+                com.mknlabs.expensetracker.utils.CustomMonthUtils.MIN_MONTH_START_DAY,
+                com.mknlabs.expensetracker.utils.CustomMonthUtils.MAX_MONTH_START_DAY
+            ))
+        }
+    }
 }
