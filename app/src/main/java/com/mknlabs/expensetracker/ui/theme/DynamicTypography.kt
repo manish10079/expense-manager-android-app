@@ -25,7 +25,7 @@ fun resolveTypography(
     }
 
     val bodyFamily = when (fontMode) {
-        FontMode.APP -> FontFamily.Default // Body stays Roboto for APP mode
+        FontMode.APP -> BundledRoboto
         FontMode.SYSTEM -> FontFamily.Default
         FontMode.CUSTOM -> customFontFamily ?: FontFamily.Default
     }
