@@ -476,7 +476,10 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_month_start_day_subtitle),
                     items = dayItems,
                     selectedId = uiState.monthStartDay.toString(),
-                    onItemSelected = { day -> selectMonthStartDay(day.toInt()) },
+                    onItemSelected = { day ->
+                        selectMonthStartDay(day.toInt())
+                        dismissSheet()
+                    },
                     onDismiss = dismissSheet
                 )
             }

@@ -95,6 +95,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
@@ -256,7 +257,13 @@ private fun BudgetAndRecurringContent(
                 AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+                CurrentPeriodIndicator(
+                    startMillis = uiState.currentPeriodStartMillis,
+                    endMillis = uiState.currentPeriodEndMillis,
+                    monthStartDay = uiState.monthStartDay
+                )
+            }
 
             // Tab Row
             Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {

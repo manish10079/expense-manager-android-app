@@ -85,7 +85,11 @@ data class HomeScreenUiState(
     val monthlyNetDeltaPercent: Float = 0f,
     val monthlyNetDeltaDisplay: UiText? = null,
     val monthlyIncomeFraction: Float = 0.5f,
-    val upcomingRecurring: List<UpcomingRecurringUi> = emptyList()
+    val upcomingRecurring: List<UpcomingRecurringUi> = emptyList(),
+    // Current period indicator
+    val currentPeriodStartMillis: Long = 0L,
+    val currentPeriodEndMillis: Long = 0L,
+    val monthStartDay: Int = 1
 )
 
 private data class HomeInputState(
@@ -346,7 +350,10 @@ class HomeViewModel @Inject constructor(
                             customizationSettings = inputs.customizationSettings,
                             isBalanceHidden = _uiState.value.isBalanceHidden,
                             isSyncing = isSyncing,
-                            userTier = inputs.userTier
+                            userTier = inputs.userTier,
+                            currentPeriodStartMillis = currentMonthStart,
+                            currentPeriodEndMillis = currentMonthEnd,
+                            monthStartDay = currentMonthStartDay
                         )
                     }
                 }

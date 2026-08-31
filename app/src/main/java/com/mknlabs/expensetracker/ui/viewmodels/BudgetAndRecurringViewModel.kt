@@ -117,7 +117,11 @@ data class BudgetAndRecurringScreenUiState(
     val emptyRecurringMessage: UiText? = null,
     val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
     val isMonthLocked: Boolean = false,
-    val canAddBudget: Boolean = true
+    val canAddBudget: Boolean = true,
+    // Current period indicator
+    val currentPeriodStartMillis: Long = 0L,
+    val currentPeriodEndMillis: Long = 0L,
+    val monthStartDay: Int = 1
 )
 
 
@@ -373,7 +377,10 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 },
                 customMonthStart = customMonthStart,
                 isMonthLocked = isMonthLocked,
-                canAddBudget = canAddBudget
+                canAddBudget = canAddBudget,
+                currentPeriodStartMillis = selectedMonthStart,
+                currentPeriodEndMillis = endOfMonth(selectedMonthStart, currentMonthStartDay),
+                monthStartDay = currentMonthStartDay
             )
         }
     }

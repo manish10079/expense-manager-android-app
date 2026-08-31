@@ -76,6 +76,7 @@ import com.mknlabs.expensetracker.ui.models.CalendarDayUi
 import com.mknlabs.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
 import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.TransactionCard
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -216,6 +217,13 @@ private fun CalendarScreenContent(
                     contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 20.dp, bottom = 130.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
+                    item {
+                        CurrentPeriodIndicator(
+                            startMillis = uiState.currentPeriodStartMillis,
+                            endMillis = uiState.currentPeriodEndMillis,
+                            monthStartDay = uiState.monthStartDay
+                        )
+                    }
                     item {
                         GatedAction(
                             feature = Feature.CALENDAR_YEAR_VIEW,

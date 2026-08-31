@@ -48,6 +48,7 @@ import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.ui.models.TabItem
@@ -205,6 +206,13 @@ fun AnalyticsScreenContent(
             contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 18.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
+            item {
+                CurrentPeriodIndicator(
+                    startMillis = uiState.currentPeriodStartMillis,
+                    endMillis = uiState.currentPeriodEndMillis,
+                    monthStartDay = uiState.monthStartDay
+                )
+            }
             item {
                 GatedAction(
                     feature = Feature.ANALYTICS_PERIOD_YEAR,

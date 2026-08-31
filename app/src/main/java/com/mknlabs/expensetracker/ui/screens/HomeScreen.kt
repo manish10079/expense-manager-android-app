@@ -672,6 +672,12 @@ private fun HomeStatsSection(
 
     Spacer(modifier = Modifier.height(10.dp))
 
+    CurrentPeriodIndicator(
+        startMillis = uiState.currentPeriodStartMillis,
+        endMillis = uiState.currentPeriodEndMillis,
+        monthStartDay = uiState.monthStartDay
+    )
+
     StatsCard(
         totalBalance = uiState.totalBalance,
         previousMonthBalance = uiState.previousMonthBalance,

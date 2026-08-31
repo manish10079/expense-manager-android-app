@@ -129,7 +129,11 @@ data class AnalyticsScreenUiState(
     val customRangeStart: Long? = null,
     val customRangeEnd: Long? = null,
     val activeRange: LongRange = System.currentTimeMillis()..System.currentTimeMillis(),
-    val snapshot: AnalyticsSnapshotUi = AnalyticsSnapshotUi()
+    val snapshot: AnalyticsSnapshotUi = AnalyticsSnapshotUi(),
+    // Current period indicator
+    val currentPeriodStartMillis: Long = 0L,
+    val currentPeriodEndMillis: Long = 0L,
+    val monthStartDay: Int = 1
 ) {
     val customRange: LongRange?
         get() = customRangeStart?.let { start ->
@@ -221,6 +225,9 @@ class AnalyticsViewModel : ViewModel() {
                 customRangeStart = customRangeStart,
                 customRangeEnd = customRangeEnd,
                 activeRange = range,
+                currentPeriodStartMillis = range.first,
+                currentPeriodEndMillis = range.last,
+                monthStartDay = currentMonthStartDay,
                 snapshot = buildAnalyticsSnapshot(
                     period = selectedPeriod,
                     currencyId = currentCurrencyId,

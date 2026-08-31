@@ -49,7 +49,11 @@ data class CalendarScreenUiState(
     val yearlyIncomeLabel: String = "",
     val yearlyExpenseLabel: String = "",
     val calendarYearRange: IntRange = 2024..2026,
-    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    // Current period indicator
+    val currentPeriodStartMillis: Long = 0L,
+    val currentPeriodEndMillis: Long = 0L,
+    val monthStartDay: Int = 1
 )
 
 @HiltViewModel
@@ -251,7 +255,10 @@ class CalendarViewModel @Inject constructor(
                 yearlyIncomeLabel = formatConfiguredCurrency(yearlyIncome, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
                 yearlyExpenseLabel = formatConfiguredCurrency(yearlyExpense, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences),
                 calendarYearRange = calendarYearRange,
-                customizationSettings = currentCustomizationSettings
+                customizationSettings = currentCustomizationSettings,
+                currentPeriodStartMillis = safeDisplayedMonthStart,
+                currentPeriodEndMillis = com.mknlabs.expensetracker.utils.CustomMonthUtils.getEndOfCustomMonth(safeDisplayedMonthStart, currentMonthStartDay),
+                monthStartDay = currentMonthStartDay
             )
         }
     }
