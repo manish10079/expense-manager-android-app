@@ -255,7 +255,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
         viewModelScope.launch {
             val monthStart = currentSelectedMonthStart()
             val currentMonthStart = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
-            val prevMonthStart = addMonths(currentMonthStart, -1)
+            val prevMonthStart = addMonths(currentMonthStart, -1, currentMonthStartDay)
 
             val existingBudget = budgetEntries.firstOrNull { it.id == budgetId }
             val conflictingBudget = budgetEntries.firstOrNull {
@@ -300,7 +300,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
     private fun currentSelectedMonthStart(): Long {
         return when (selectedPeriod) {
             BudgetPeriodFilter.ThisMonth -> anchorMonthStart
-            BudgetPeriodFilter.LastMonth -> addMonths(anchorMonthStart, -1)
+            BudgetPeriodFilter.LastMonth -> addMonths(anchorMonthStart, -1, currentMonthStartDay)
             BudgetPeriodFilter.CustomMonth -> customMonthStart
         }
     }
@@ -308,7 +308,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
     private fun rebuildUiState() {
         val selectedMonthStart = currentSelectedMonthStart()
         val currentMonthStart = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
-        val prevMonthStart = addMonths(currentMonthStart, -1)
+        val prevMonthStart = addMonths(currentMonthStart, -1, currentMonthStartDay)
 
         val isMonthLocked = selectedMonthStart < prevMonthStart
         val canAddBudget = when {
@@ -335,7 +335,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
             selectedMonthExpenses = expenseTransactions,
             categories = currentCategories,
             currencyId = currentCurrencyId,
-            amountFormatPreferences = currentAmountFormatPreferences
+            amountFormatPreferences = currentAmountFormatPreferences,
+            monthStartDay = currentMonthStartDay
         )
         val allRecurring = buildRecurringExpenses(
             recurringEntries = currentRecurringEntries,
@@ -448,10 +449,11 @@ private fun buildCategoryBudgets(
     selectedMonthExpenses: List<Transaction>,
     categories: Map<Int, CategoryType>,
     currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
+    amountFormatPreferences: AmountFormatPreferences,
+    monthStartDay: Int = 1
 ): List<BudgetCategoryBudgetUi> {
-    val currentMonthStart = startOfMonth(System.currentTimeMillis())
-    val prevMonthStart = addMonths(currentMonthStart, -1)
+    val currentMonthStart = startOfMonth(System.currentTimeMillis(), monthStartDay)
+    val prevMonthStart = addMonths(currentMonthStart, -1, monthStartDay)
 
     return monthlyBudgets
         .mapNotNull { budgetEntry ->
@@ -703,11 +705,11 @@ private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
 private fun endOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
     com.mknlabs.expensetracker.utils.CustomMonthUtils.getEndOfCustomMonth(timestamp, monthStartDay)
 
-private fun addMonths(timestamp: Long, months: Int): Long {
+private fun addMonths(timestamp: Long, months: Int, monthStartDay: Int = 1): Long {
     return Calendar.getInstance().apply {
         timeInMillis = timestamp
         add(Calendar.MONTH, months)
-    }.let { startOfMonth(it.timeInMillis) }
+    }.let { startOfMonth(it.timeInMillis, monthStartDay) }
 }
 
 private fun startOfDay(timestamp: Long): Long {

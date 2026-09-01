@@ -670,12 +670,13 @@ private fun HomeStatsSection(
         )
     }
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(4.dp))
 
     CurrentPeriodIndicator(
         startMillis = uiState.currentPeriodStartMillis,
         endMillis = uiState.currentPeriodEndMillis,
-        monthStartDay = uiState.monthStartDay
+        monthStartDay = uiState.monthStartDay,
+        modifier = Modifier.padding(bottom = 8.dp)
     )
 
     StatsCard(

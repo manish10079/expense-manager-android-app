@@ -47,13 +47,9 @@ fun WheelDateTimePicker(
     val minutes = remember { (0..59).toList() }
     val amPmOptions = remember(labelAm, labelPm) { listOf(labelAm, labelPm) }
 
-    // ✅ FIX: precomputed month names
+    // ✅ FIX: precomputed month names using DateFormatSymbols for reliability
     val monthNames = remember {
-        (0..11).map {
-            Calendar.getInstance()
-                .apply { set(Calendar.MONTH, it) }
-                .getDisplayName(Calendar.LONG, Calendar.SHORT, Locale.getDefault()) ?: ""
-        }
+        java.text.DateFormatSymbols(Locale.getDefault()).shortMonths.take(12).toList()
     }
 
     LaunchedEffect(

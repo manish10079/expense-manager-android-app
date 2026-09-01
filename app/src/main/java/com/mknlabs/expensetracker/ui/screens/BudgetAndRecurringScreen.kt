@@ -261,7 +261,8 @@ private fun BudgetAndRecurringContent(
                 CurrentPeriodIndicator(
                     startMillis = uiState.currentPeriodStartMillis,
                     endMillis = uiState.currentPeriodEndMillis,
-                    monthStartDay = uiState.monthStartDay
+                    monthStartDay = uiState.monthStartDay,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
 
