@@ -7,6 +7,15 @@
     <string name="title_nav_home">Home</string>
     <string name="title_nav_analytics">Analytics</string>
     <string name="title_nav_budget">Budget</string>
+    <string name="label_already_tracked_in">Already in %1$s</string>
+    <string name="tip_duplicate_budget_tracking">Note: Selected categories are also tracked in other active budgets. Expenses will count towards both limits.</string>
+    <string name="label_select_categories">Select Categories</string>
+    <string name="label_budget_name_optional">Budget Name (Optional)</string>
+    <string name="label_budget_group">Budget Group</string>
+    <string name="label_monthly">Monthly</string>
+    <string name="label_yearly">Yearly</string>
+    <string name="label_period">Period</string>
+    <string name="label_done">Done</string>
     <string name="title_nav_calendar">Calendar</string>
     <string name="label_ad">Ad</string>
     <string name="label_sponsored_content">Sponsored Content</string>

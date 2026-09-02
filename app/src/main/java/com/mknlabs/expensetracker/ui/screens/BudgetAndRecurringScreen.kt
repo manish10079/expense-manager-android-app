@@ -37,22 +37,26 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -171,8 +175,9 @@ fun BudgetAndRecurringScreen(
         onSelectTab = { budgetViewModel.selectTab(it) },
         onSelectPeriod = { budgetViewModel.selectPeriod(it) },
         onSelectCustomMonth = { budgetViewModel.selectCustomMonth(it) },
-        onUpdateBudget = { budgetId, categoryId, limit -> budgetViewModel.updateBudget(budgetId, categoryId, limit) },
-        onAddBudget = { categoryId, limit -> budgetViewModel.addBudget(categoryId, limit) },
+        onSaveBudget = { budgetId, categoryIds, limit, name, period ->
+            budgetViewModel.saveBudget(budgetId, categoryIds, limit, name, period)
+        },
         onDeleteBudget = { budgetId -> budgetViewModel.deleteBudget(budgetId) }
     )
 }
@@ -193,8 +198,7 @@ private fun BudgetAndRecurringContent(
     onSelectTab: (BudgetTab) -> Unit,
     onSelectPeriod: (BudgetPeriodFilter) -> Unit,
     onSelectCustomMonth: (Long) -> Unit,
-    onUpdateBudget: (String, Int, Double) -> Unit,
-    onAddBudget: (Int, Double) -> Unit,
+    onSaveBudget: (String?, List<Int>, Double, String, BudgetPeriod) -> Unit,
     onDeleteBudget: (String) -> Unit
 ) {
     var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
@@ -435,17 +439,14 @@ private fun BudgetAndRecurringContent(
             monthLabel = uiState.summary.monthLabel,
             expenseCategories = expenseCategories,
             existingBudget = editingBudget,
+            categoryTrackedMap = uiState.categoryTrackedMap,
             sessionKey = budgetEditorSessionKey,
             onDismiss = {
                 isBudgetEditorVisible = false
                 editingBudgetId = null
             },
-            onSave = { categoryId, limitAmount ->
-                if (editingBudget != null) {
-                    onUpdateBudget(editingBudget.id, categoryId, limitAmount)
-                } else {
-                    onAddBudget(categoryId, limitAmount)
-                }
+            onSave = { categoryIds, limitAmount, name, period ->
+                onSaveBudget(editingBudget?.id, categoryIds, limitAmount, name, period)
                 isBudgetEditorVisible = false
                 editingBudgetId = null
             }
@@ -847,15 +848,30 @@ private fun BudgetEditorDialog(
     monthLabel: String,
     expenseCategories: List<CategoryType>,
     existingBudget: BudgetCategoryBudgetUi?,
+    categoryTrackedMap: Map<Int, List<String>>,
     sessionKey: Any?,
     onDismiss: () -> Unit,
-    onSave: (Int, Double) -> Unit
+    onSave: (List<Int>, Double, String, BudgetPeriod) -> Unit
 ) {
     var isCategoryPickerVisible by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) { mutableStateOf(false) }
     val categoryPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedCategoryId by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
-        mutableStateOf(existingBudget?.categoryId ?: expenseCategories.firstOrNull()?.id)
+
+    var selectedCategoryIds by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(
+            existingBudget?.categoryIds?.ifEmpty { listOf(existingBudget.categoryId) }?.toSet()
+                ?: expenseCategories.firstOrNull()?.id?.let { setOf(it) }
+                ?: emptySet()
+        )
     }
+
+    var nameInput by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(existingBudget?.name.orEmpty())
+    }
+
+    var selectedPeriod by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(existingBudget?.period ?: BudgetPeriod.MONTHLY)
+    }
+
     var amountInput by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
         mutableStateOf(
             existingBudget?.limitAmount
@@ -864,9 +880,16 @@ private fun BudgetEditorDialog(
                 .orEmpty()
         )
     }
-    val selectedCategory = expenseCategories.firstOrNull { it.id == selectedCategoryId }
+
+    val selectedCategories = expenseCategories.filter { it.id in selectedCategoryIds }
     val limitAmount = amountInput.toDoubleOrNull()
-    val isSaveEnabled = selectedCategory != null && limitAmount != null && limitAmount > 0.0
+    val isSaveEnabled = selectedCategoryIds.isNotEmpty() && limitAmount != null && limitAmount > 0.0
+
+    val categoryFieldValue = when {
+        selectedCategories.isEmpty() -> stringResource(id = R.string.msg_no_expense_categories_available)
+        selectedCategories.size == 1 -> selectedCategories.first().name
+        else -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -878,37 +901,57 @@ private fun BudgetEditorDialog(
                 Text(
                     text = if (existingBudget == null) stringResource(id = R.string.title_add_budget) else stringResource(id = R.string.title_edit_budget),
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        fontWeight = FontWeight.ExtraBold
                     )
                 )
                 Text(
                     text = monthLabel,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        fontWeight = FontWeight.Bold
                     )
                 )
             }
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(
-                    text = stringResource(id = R.string.label_budgets_are_no_longer_preloade),
-                    style = MaterialTheme.typography.bodyMedium
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
+                    placeholder = {
+                        val placeholder = when {
+                            selectedCategories.size == 1 -> selectedCategories.first().name
+                            selectedCategories.size > 1 -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
+                            else -> stringResource(id = R.string.label_budget_group)
+                        }
+                        Text(placeholder)
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = stringResource(id = R.string.label_category_1),
+                        text = stringResource(id = R.string.label_select_categories),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            fontWeight = FontWeight.Bold
                         )
                     )
 
                     SelectionDialogField(
                         label = "",
-                        value = selectedCategory?.name ?: stringResource(id = R.string.msg_no_expense_categories_available),
+                        value = categoryFieldValue,
                         actionLabel = stringResource(id = R.string.label_change_caps),
                         enabled = expenseCategories.isNotEmpty(),
                         onClick = { isCategoryPickerVisible = true },
@@ -940,13 +983,34 @@ private fun BudgetEditorDialog(
                         cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_period),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        BudgetPeriod.entries.forEach { period ->
+                            FilterChip(
+                                selected = selectedPeriod == period,
+                                onClick = { selectedPeriod = period },
+                                label = { Text(stringResource(period.labelRes)) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (selectedCategoryId != null && limitAmount != null) {
-                        onSave(selectedCategoryId!!, limitAmount)
+                    if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
+                        onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
                     }
                 },
                 enabled = isSaveEnabled
@@ -964,13 +1028,196 @@ private fun BudgetEditorDialog(
     if (isCategoryPickerVisible) {
         BudgetCategoryPickerSheet(
             categories = expenseCategories,
-            selectedCategoryId = selectedCategoryId,
+            selectedCategoryIds = selectedCategoryIds,
+            categoryTrackedMap = categoryTrackedMap,
             sheetState = categoryPickerSheetState,
             onDismiss = { isCategoryPickerVisible = false },
-            onCategorySelected = { categoryId ->
-                selectedCategoryId = categoryId
+            onSelectionChanged = { newCategoryIds ->
+                selectedCategoryIds = newCategoryIds
                 isCategoryPickerVisible = false
             }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BudgetCategoryPickerSheet(
+    categories: List<CategoryType>,
+    selectedCategoryIds: Set<Int>,
+    categoryTrackedMap: Map<Int, List<String>>,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSelectionChanged: (Set<Int>) -> Unit
+) {
+    var tempSelectedIds by remember(selectedCategoryIds) { mutableStateOf(selectedCategoryIds) }
+
+    val conflictingTrackedCategories = tempSelectedIds.filter { catId ->
+        categoryTrackedMap[catId]?.isNotEmpty() == true
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.label_select_categories),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(id = R.string.label_choose_from_all_expense_catego),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            if (conflictingTrackedCategories.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.tip_duplicate_budget_tracking),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = categories,
+                    key = { category -> category.id }
+                ) { category ->
+                    val isSelected = category.id in tempSelectedIds
+                    val trackedInBudgets = categoryTrackedMap[category.id]
+
+                    BudgetCategoryMultiPickerRow(
+                        category = category,
+                        isSelected = isSelected,
+                        trackedInBudgets = trackedInBudgets,
+                        onClick = {
+                            tempSelectedIds = if (isSelected) {
+                                tempSelectedIds - category.id
+                            } else {
+                                tempSelectedIds + category.id
+                            }
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onSelectionChanged(tempSelectedIds)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(stringResource(id = R.string.label_done))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun BudgetCategoryMultiPickerRow(
+    category: CategoryType,
+    isSelected: Boolean,
+    trackedInBudgets: List<String>?,
+    onClick: () -> Unit
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        label = "bgColor_${category.id}"
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(backgroundColor)
+            .border(
+                width = 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column {
+                Text(
+                    text = category.name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                )
+                if (!trackedInBudgets.isNullOrEmpty()) {
+                    Text(
+                        text = stringResource(id = R.string.label_already_tracked_in, trackedInBudgets.joinToString(", ")),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+
+        Checkbox(
+            checked = isSelected,
+            onCheckedChange = { onClick() },
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.primary,
+                uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
     }
 }

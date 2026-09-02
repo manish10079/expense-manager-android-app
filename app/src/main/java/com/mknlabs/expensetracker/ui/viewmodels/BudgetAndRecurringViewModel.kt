@@ -69,6 +69,9 @@ data class BudgetSummaryUi(
 data class BudgetCategoryBudgetUi(
     val id: String,
     val categoryId: Int,
+    val categoryIds: List<Int> = if (categoryId != 0) listOf(categoryId) else emptyList(),
+    val name: String = "",
+    val period: BudgetPeriod = BudgetPeriod.MONTHLY,
     val title: String,
     val summaryLabel: String,
     val statusValueLabel: UiText,
@@ -113,6 +116,7 @@ data class BudgetAndRecurringScreenUiState(
     val summary: BudgetSummaryUi = BudgetSummaryUi(),
     val categoryBudgets: List<BudgetCategoryBudgetUi> = emptyList(),
     val recurringExpenses: List<BudgetRecurringExpenseUi> = emptyList(),
+    val categoryTrackedMap: Map<Int, List<String>> = emptyMap(),
     val emptyCategoryMessage: UiText? = null,
     val emptyRecurringMessage: UiText? = null,
     val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
@@ -128,6 +132,9 @@ data class BudgetAndRecurringScreenUiState(
 private data class BudgetEntry(
     val id: String,
     val categoryId: Int,
+    val categoryIds: List<Int> = if (categoryId != 0) listOf(categoryId) else emptyList(),
+    val name: String = "",
+    val period: BudgetPeriod = BudgetPeriod.MONTHLY,
     val monthStart: Long,
     val limitAmount: Double,
     val editCount: Int
@@ -219,10 +226,26 @@ class BudgetAndRecurringViewModel @Inject constructor(
         rebuildUiState()
     }
 
-    fun addBudget(categoryId: Int, limitAmount: Double) {
+    fun saveBudget(
+        budgetId: String?,
+        categoryIds: List<Int>,
+        limitAmount: Double,
+        name: String = "",
+        period: BudgetPeriod = BudgetPeriod.MONTHLY
+    ) {
         upsertBudget(
+            budgetId = budgetId,
+            categoryIds = categoryIds,
+            limitAmount = limitAmount,
+            name = name,
+            period = period
+        )
+    }
+
+    fun addBudget(categoryId: Int, limitAmount: Double) {
+        saveBudget(
             budgetId = null,
-            categoryId = categoryId,
+            categoryIds = listOf(categoryId),
             limitAmount = limitAmount
         )
     }
@@ -232,9 +255,9 @@ class BudgetAndRecurringViewModel @Inject constructor(
         categoryId: Int,
         limitAmount: Double
     ) {
-        upsertBudget(
+        saveBudget(
             budgetId = budgetId,
-            categoryId = categoryId,
+            categoryIds = listOf(categoryId),
             limitAmount = limitAmount
         )
     }
@@ -247,10 +270,12 @@ class BudgetAndRecurringViewModel @Inject constructor(
 
     private fun upsertBudget(
         budgetId: String?,
-        categoryId: Int,
-        limitAmount: Double
+        categoryIds: List<Int>,
+        limitAmount: Double,
+        name: String = "",
+        period: BudgetPeriod = BudgetPeriod.MONTHLY
     ) {
-        if (limitAmount <= 0.0) return
+        if (limitAmount <= 0.0 || categoryIds.isEmpty()) return
 
         viewModelScope.launch {
             val monthStart = currentSelectedMonthStart()
@@ -258,19 +283,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
             val prevMonthStart = addMonths(currentMonthStart, -1, currentMonthStartDay)
 
             val existingBudget = budgetEntries.firstOrNull { it.id == budgetId }
-            val conflictingBudget = budgetEntries.firstOrNull {
-                it.monthStart == monthStart &&
-                    it.categoryId == categoryId &&
-                    it.id != budgetId
-            }
-
-            // Logic:
-            // 1. Current/Future Month: Unlimited edits (editCount stays 0 or doesn't matter)
-            // 2. Previous Month: Limit 3 edits.
-            // 3. Older than Previous: No edits (should be blocked by UI, but guard here)
 
             if (monthStart < prevMonthStart) {
-                // Strictly no edits for older months
                 return@launch
             }
 
@@ -280,15 +294,13 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 newEditCount++
             }
 
-            // If we are changing category and it conflicts with an existing budget
-            if (budgetId != null && conflictingBudget != null) {
-                budgetRepository.deleteBudget(budgetId)
-            }
-
             budgetRepository.upsertBudget(
                 Budget(
-                    id = conflictingBudget?.id ?: budgetId.orEmpty(),
-                    categoryId = categoryId,
+                    id = budgetId.orEmpty(),
+                    categoryId = categoryIds.firstOrNull() ?: 0,
+                    categoryIds = categoryIds,
+                    name = name,
+                    period = period,
                     monthStart = monthStart,
                     limitAmount = limitAmount,
                     editCount = if (monthStart >= currentMonthStart) 0 else newEditCount
@@ -347,6 +359,18 @@ class BudgetAndRecurringViewModel @Inject constructor(
         )
         val activeRecurring = allRecurring.filter { it.currentInstallment <= it.totalInstallments }
 
+        val categoryTrackedMap = mutableMapOf<Int, MutableList<String>>()
+        monthlyBudgets.forEach { budgetEntry ->
+            val bName = if (budgetEntry.name.isNotBlank()) budgetEntry.name
+            else {
+                val firstCat = budgetEntry.categoryIds.firstOrNull()?.let { currentCategories[it] }
+                firstCat?.name ?: "Budget"
+            }
+            budgetEntry.categoryIds.forEach { catId ->
+                categoryTrackedMap.getOrPut(catId) { mutableListOf() }.add(bName)
+            }
+        }
+
         val summary = buildSummary(
             monthStart = selectedMonthStart,
             expenseTransactions = expenseTransactions,
@@ -361,6 +385,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 summary = summary,
                 categoryBudgets = categoryBudgets,
                 recurringExpenses = activeRecurring,
+                categoryTrackedMap = categoryTrackedMap,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
                     when {
@@ -457,9 +482,21 @@ private fun buildCategoryBudgets(
 
     return monthlyBudgets
         .mapNotNull { budgetEntry ->
-            val category = categories[budgetEntry.categoryId] ?: return@mapNotNull null
+            val catIds = budgetEntry.categoryIds.ifEmpty {
+                if (budgetEntry.categoryId != 0) listOf(budgetEntry.categoryId) else emptyList()
+            }
+            if (catIds.isEmpty() && budgetEntry.name.isBlank()) return@mapNotNull null
+
+            val firstCategory = catIds.firstOrNull()?.let { categories[it] }
+            val title = when {
+                budgetEntry.name.isNotBlank() -> budgetEntry.name
+                catIds.size == 1 -> firstCategory?.name ?: ""
+                catIds.size > 1 && firstCategory != null -> "${firstCategory.name} (+${catIds.size - 1})"
+                else -> "Budget Group"
+            }
+
             val spentAmount = selectedMonthExpenses
-                .filter { it.categoryId == budgetEntry.categoryId }
+                .filter { it.categoryId in catIds }
                 .sumOf { it.amount }
             val progress = if (budgetEntry.limitAmount <= 0.0) {
                 0f
@@ -488,10 +525,6 @@ private fun buildCategoryBudgets(
                 )
             }
 
-            // Logic:
-            // 1. Current/Future: canEdit = true
-            // 2. Previous: canEdit = editCount < 3
-            // 3. Older: canEdit = false
             val canEdit = when {
                 budgetEntry.monthStart >= currentMonthStart -> true
                 budgetEntry.monthStart == prevMonthStart -> budgetEntry.editCount < 3
@@ -507,7 +540,10 @@ private fun buildCategoryBudgets(
             BudgetCategoryBudgetUi(
                 id = budgetEntry.id,
                 categoryId = budgetEntry.categoryId,
-                title = category.name,
+                categoryIds = catIds,
+                name = budgetEntry.name,
+                period = budgetEntry.period,
+                title = title,
                 summaryLabel = "${formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences)} / ${formatCurrencyValue(budgetEntry.limitAmount, currencyId, amountFormatPreferences)}",
                 statusValueLabel = statusValueLabel,
                 statusCaption = statusCaption,
@@ -515,7 +551,7 @@ private fun buildCategoryBudgets(
                 progressFraction = progress.coerceIn(0f, 1f),
                 spentAmount = spentAmount,
                 limitAmount = budgetEntry.limitAmount,
-                icon = category.icon,
+                icon = firstCategory?.icon ?: Icons.Filled.DateRange,
                 accent = accent,
                 canEdit = canEdit,
                 remainingEdits = remainingEdits,

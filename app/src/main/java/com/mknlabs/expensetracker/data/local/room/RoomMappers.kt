@@ -144,6 +144,9 @@ fun BudgetEntity.toDomain(): Budget {
     return Budget(
         id = id,
         categoryId = categoryId,
+        categoryIds = effectiveCategoryIds,
+        name = name,
+        period = period,
         monthStart = monthStart,
         limitMinor = limitMinor,
         createdAt = createdAt,
@@ -158,6 +161,9 @@ fun Budget.toEntity(): BudgetEntity {
     return BudgetEntity(
         id = id,
         categoryId = categoryId,
+        categoryIds = effectiveCategoryIds,
+        name = name,
+        period = period,
         monthStart = monthStart,
         limitMinor = limitMinor,
         createdAt = createdAt,

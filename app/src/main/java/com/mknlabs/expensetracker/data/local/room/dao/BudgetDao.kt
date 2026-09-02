@@ -18,10 +18,13 @@ interface BudgetDao {
     @Query("SELECT * FROM budgets WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): BudgetEntity?
 
+    @Query("SELECT * FROM budgets WHERE month_start = :monthStart AND is_deleted = 0")
+    suspend fun getActiveByMonthStart(monthStart: Long): List<BudgetEntity>
+
     @Query(
         """
         SELECT * FROM budgets
-        WHERE category_id = :categoryId
+        WHERE (category_id = :categoryId OR category_ids LIKE '%' || :categoryId || '%')
           AND month_start = :monthStart
           AND is_deleted = 0
         LIMIT 1

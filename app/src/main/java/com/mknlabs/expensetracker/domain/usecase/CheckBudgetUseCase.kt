@@ -44,7 +44,10 @@ class CheckBudgetUseCase @Inject constructor(
         val limitMinor = budgetEntity.limitMinor
         if (limitMinor <= 0) return
 
-        val currentSpending = transactionDao.getMonthlyCategorySpending(transaction.categoryId, monthStr)
+        val catIds = budgetEntity.effectiveCategoryIds.ifEmpty { listOf(transaction.categoryId) }
+        val currentSpending = catIds.sumOf { catId ->
+            transactionDao.getMonthlyCategorySpending(catId, monthStr)
+        }
         if (currentSpending <= 0) return
 
         val usageRatio = currentSpending.toDouble() / limitMinor
@@ -53,8 +56,14 @@ class CheckBudgetUseCase @Inject constructor(
         // 100% and exceeded beyond it. No alert below 75%.
         if (usageRatio < 0.75) return
 
-        val categoryName = categoryDao.getById(transaction.categoryId)?.name
-            ?: context.getString(R.string.label_unknown)
+        val categoryName = if (budgetEntity.name.isNotBlank()) {
+            budgetEntity.name
+        } else if (catIds.size == 1) {
+            categoryDao.getById(catIds.first())?.name ?: context.getString(R.string.label_unknown)
+        } else {
+            val firstCatName = categoryDao.getById(catIds.first())?.name.orEmpty()
+            if (firstCatName.isNotBlank()) "$firstCatName (+${catIds.size - 1})" else context.getString(R.string.label_budget_group)
+        }
 
         // Budget amounts are stored in the user's own currency, so format with
         // the app's display currency settings (unlike SMS import, which is INR).
