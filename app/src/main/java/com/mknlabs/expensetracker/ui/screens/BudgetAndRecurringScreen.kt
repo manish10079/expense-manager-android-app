@@ -1155,8 +1155,7 @@ private fun BudgetCategoryMultiPickerRow(
     onClick: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        targetValue = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
         label = "bgColor_${category.id}"
     )
 
@@ -1167,7 +1166,7 @@ private fun BudgetCategoryMultiPickerRow(
             .background(backgroundColor)
             .border(
                 width = 1.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                 else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(16.dp)
             )

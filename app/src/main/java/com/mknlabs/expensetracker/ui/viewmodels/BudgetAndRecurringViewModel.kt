@@ -765,6 +765,9 @@ private fun Budget.toBudgetEntry(): BudgetEntry {
     return BudgetEntry(
         id = id,
         categoryId = categoryId,
+        categoryIds = effectiveCategoryIds,
+        name = name,
+        period = period,
         monthStart = monthStart,
         limitAmount = limitAmount,
         editCount = editCount
