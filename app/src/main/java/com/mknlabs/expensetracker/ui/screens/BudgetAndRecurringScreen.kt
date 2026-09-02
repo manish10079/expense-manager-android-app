@@ -1154,16 +1154,11 @@ private fun BudgetCategoryMultiPickerRow(
     trackedInBudgets: List<String>?,
     onClick: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-        label = "bgColor_${category.id}"
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
             .border(
                 width = 1.dp,
                 color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
@@ -1213,7 +1208,7 @@ private fun BudgetCategoryMultiPickerRow(
 
         Checkbox(
             checked = isSelected,
-            onCheckedChange = { onClick() },
+            onCheckedChange = null,
             colors = CheckboxDefaults.colors(
                 checkedColor = MaterialTheme.colorScheme.primary,
                 uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
