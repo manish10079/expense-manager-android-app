@@ -42,6 +42,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -2071,8 +2072,7 @@ private fun BudgetAndRecurringScreenPreview() {
             onSelectTab = {},
             onSelectPeriod = {},
             onSelectCustomMonth = {},
-            onUpdateBudget = { _, _, _ -> },
-            onAddBudget = { _, _ -> },
+            onSaveBudget = { _, _, _, _, _ -> },
             onDeleteBudget = {}
         )
     }
