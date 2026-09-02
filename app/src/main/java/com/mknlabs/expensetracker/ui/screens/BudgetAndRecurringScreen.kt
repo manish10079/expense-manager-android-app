@@ -51,6 +51,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -1155,7 +1156,45 @@ private fun BudgetCategoryPickerSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        tempSelectedIds = categories.map { it.id }.toSet()
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_select_all),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        tempSelectedIds = categories
+                            .filter { categoryTrackedMap[it.id].isNullOrEmpty() }
+                            .map { it.id }
+                            .toSet()
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_select_unbudgeted),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = {
@@ -1164,7 +1203,7 @@ private fun BudgetCategoryPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(stringResource(id = R.string.label_done))
+                Text(stringResource(id = R.string.label_add))
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -1781,4 +1781,7 @@
     <string name="label_budget_categories_info">View budget categories</string>
     <string name="title_budget_categories">Budget Categories</string>
     <string name="label_included_categories">Categories in this budget</string>
+    <string name="label_select_all">Select All</string>
+    <string name="label_select_unbudgeted">Select Available Only</string>
+    <string name="label_add">Add</string>
 </resources>
