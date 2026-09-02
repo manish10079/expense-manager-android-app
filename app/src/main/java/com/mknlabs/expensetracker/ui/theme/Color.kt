@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 
 val transparent= Color.Transparent;
@@ -67,6 +68,18 @@ val LightGradientEnd = Color(0xFF9480EE)
 
 val IconColor = Color(0xFFCDBDFF)
 val FeatureGateLockGold = Color(0xFFFFC857)
+
+// Premium StatsCard Gradient
+val PremiumCardDarkStart = Color(0xFF261C38)   // Deep Dark Violet
+val PremiumCardDarkCenter = Color(0xFF19181F) // Dark Charcoal
+val PremiumCardDarkEnd = Color(0xFF121116)     // Muted Slate
+
+val PremiumCardLightStart = Color(0xFFF8F5FF)  // Soft Lavender White
+val PremiumCardLightCenter = Color(0xFFEDE8FF) // Pale Lilac
+val PremiumCardLightEnd = Color(0xFFE0D8F5)    // Light Violet
+
+val PremiumCardLabelDark = Color(0xFFA09CAB)   // Muted blue-gray for dark mode labels
+val PremiumCardDateDark = Color(0xFF7A7585)     // Dimmer gray for dark mode date
 
 // Premium Membership Palette
 val PremiumGradientStart = Color(0xFF7C4DFF) // Deep Violet
@@ -155,6 +168,10 @@ internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme(
     outlineVariant = DividerLight,
     scrim = BackgroundLight
 )
+
+/** Detects dark mode from the active color scheme (works with app-level theme, not just system). */
+val ColorScheme.isDark: Boolean
+    get() = background.luminance() < 0.5f
 
 val ColorScheme.featureGateLock: Color
     get() = FeatureGateLockGold

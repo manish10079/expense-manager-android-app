@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
@@ -26,24 +24,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.theme.income
-import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.ui.theme.income
+import com.mknlabs.expensetracker.ui.theme.expense
+import com.mknlabs.expensetracker.ui.theme.isDark
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
 import com.mknlabs.expensetracker.utils.getCurrentDateLabel
 
 @Composable
@@ -55,196 +61,197 @@ fun StatsCard(
     isBalanceHidden: Boolean = false,
     onToggleVisibility: () -> Unit = {}
 ) {
-    val cardShape = RoundedCornerShape(35.dp)
+    val cardShape = RoundedCornerShape(30.dp)
     val currentDateLabel = getCurrentDateLabel()
 
-    Column(
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+
+    // Theme-aware gradient background (driven by color scheme, not system)
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(
+            colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd)
+        )
+    }
+
+    // Theme-aware border glow using primary color
+    val borderBrush = remember(colorScheme.primary) {
+        Brush.linearGradient(
+            colors = listOf(
+                colorScheme.primary.copy(alpha = 0.4f),
+                Color.White.copy(alpha = 0.08f)
+            )
+        )
+    }
+
+    // All text colors derived from MaterialTheme.colorScheme
+    val labelColor = colorScheme.onSurfaceVariant
+    val dateColor = colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+    val dividerColor = if (isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.06f)
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 190.dp)
+            .heightIn(min = 154.dp)
             .shadow(
-                elevation = 20.dp,
+                elevation = 12.dp,
                 shape = cardShape,
-                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
-                spotColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)
+                ambientColor = colorScheme.primary.copy(alpha = 0.2f),
+                spotColor = Color.Black
             )
             .clip(cardShape)
             .clickable(onClick = onToggleVisibility)
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = cardShape
-            )
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .background(brush = gradientBrush)
+            .border(width = 1.dp, brush = borderBrush, shape = cardShape)
+            .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Header: Label & Date
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LabelText(
+                        text = stringResource(R.string.label_total_balance),
+                        color = labelColor
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = onToggleVisibility,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .minimumInteractiveComponentSize()
+                    ) {
+                        Icon(
+                            imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = if (isBalanceHidden) stringResource(R.string.desc_show_balance) else stringResource(R.string.desc_hide_balance),
+                            tint = colorScheme.primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+
                 LabelText(
-                    text = stringResource(R.string.label_total_balance),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = currentDateLabel,
+                    color = dateColor
                 )
-                
-                Spacer(modifier = Modifier.width(8.dp))
-                
-                IconButton(
-                    onClick = onToggleVisibility,
-                    // Visual 18dp; minimumInteractiveComponentSize keeps the
-                    // touch target at the 48dp accessibility minimum.
-                    modifier = Modifier
-                        .size(18.dp)
-                        .minimumInteractiveComponentSize()
+            }
+
+            // Main Balance Amount
+            AmountText(
+                text = if (isBalanceHidden) "****" else totalBalance,
+                modifier = Modifier.fillMaxWidth(),
+                brush = brandGradient(alpha = 0.95f),
+                responsive = !isBalanceHidden
+            )
+
+            // Previous Month Balance
+            if (previousMonthBalance.isNotBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (isBalanceHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = if (isBalanceHidden) stringResource(R.string.desc_show_balance) else stringResource(R.string.desc_hide_balance),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
+                    LabelText(
+                        text = stringResource(R.string.label_last_month),
+                        color = labelColor
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (isBalanceHidden) "****" else previousMonthBalance,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            brush = brandGradient(alpha = 0.95f)
+                        ),
+                        maxLines = 1
                     )
                 }
             }
 
-            LabelText(
-                text = currentDateLabel,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            // Subtle divider
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(dividerColor)
             )
-        }
 
-        Spacer(modifier = Modifier.height(2.dp))
-
-        AmountText(
-            text = if (isBalanceHidden) "****" else totalBalance,
-            modifier = Modifier.fillMaxWidth(),
-            brush = brandGradient(alpha = 0.95f),
-            responsive = !isBalanceHidden
-        )
-
-        if (previousMonthBalance.isNotBlank()) {
-            Spacer(modifier = Modifier.height(4.dp))
+            // Income vs Expense Metric Pills
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                LabelText(
-                    text = stringResource(R.string.label_last_month),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                MetricPill(
+                    modifier = Modifier.weight(1f),
+                    label = stringResource(R.string.label_income),
+                    amount = if (isBalanceHidden) "****" else formatStatAmount(income, '+'),
+                    badgeColor = colorScheme.income
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = if (isBalanceHidden) "****" else previousMonthBalance,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        brush = brandGradient(alpha = 0.95f)
-                    ),
-                    maxLines = 1
+
+                MetricPill(
+                    modifier = Modifier.weight(1f),
+                    label = stringResource(R.string.label_expense),
+                    amount = if (isBalanceHidden) "****" else formatStatAmount(expense, '-'),
+                    badgeColor = colorScheme.expense
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
-        } else {
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
-            StatItem(
-                modifier = Modifier.weight(1f),
-                label = stringResource(R.string.label_income),
-                value = if (isBalanceHidden) "****" else formatStatAmount(income, '+'),
-                icon = Icons.Filled.ArrowUpward,
-                iconColor = MaterialTheme.colorScheme.income,
-                iconAtStart = true
-            )
-
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .width(1.dp)
-                    .height(80.dp)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f))
-            )
-
-            StatItem(
-                modifier = Modifier.weight(1f),
-                label = stringResource(R.string.label_expense),
-                value = if (isBalanceHidden) "****" else formatStatAmount(expense, '-'),
-                icon = Icons.Filled.ArrowDownward,
-                iconColor = MaterialTheme.colorScheme.expense,
-                iconAtStart = false
-            )
         }
     }
 }
 
 @Composable
-private fun StatItem(
+private fun MetricPill(
     modifier: Modifier = Modifier,
     label: String,
-    value: String,
-    icon: ImageVector,
-    iconColor: Color,
-    iconAtStart: Boolean
+    amount: String,
+    badgeColor: Color
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (iconAtStart) Arrangement.Start else Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (iconAtStart) {
-                AppIconBox(
-                    icon = icon,
-                    contentDescription = label,
-                    size = 38.dp,
-                    iconSize = 20.dp,
-                    tint = iconColor,
-                    backgroundAlpha = 0.12f
-                )
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
 
-                Spacer(modifier = Modifier.width(12.dp))
-            }
-
-            LabelText(
-                text = label,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(badgeColor.copy(alpha = if (isDark) 0.08f else 0.10f))
+            .border(
+                width = 1.dp,
+                color = badgeColor.copy(alpha = if (isDark) 0.15f else 0.20f),
+                shape = RoundedCornerShape(14.dp)
             )
-
-            if (!iconAtStart) {
-                Spacer(modifier = Modifier.width(12.dp))
-
-                AppIconBox(
-                    icon = icon,
-                    contentDescription = label,
-                    size = 38.dp,
-                    iconSize = 20.dp,
-                    tint = iconColor,
-                    backgroundAlpha = 0.12f
-                )
-            }
-        }
-
-        AmountText(
-            text = value,
-            modifier = Modifier.fillMaxWidth(),
-            responsive = true,
-            textAlign = if (iconAtStart) TextAlign.Start else TextAlign.End
+            .padding(horizontal = 9.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Color-coded status dot
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(RoundedCornerShape(50))
+                .background(badgeColor)
         )
+        Column {
+            Text(
+                text = label,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.onSurfaceVariant,
+                letterSpacing = 0.5.sp
+            )
+            Text(
+                text = amount,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
+            )
+        }
     }
 }
 
@@ -292,8 +299,7 @@ private fun String.toZeroPlaceholder(): String {
 @Preview(showBackground = false)
 @Composable
 fun TotalBalanceCardPreview() {
-    ExpenseTrackerTheme(darkTheme = false
-    ) {
+    ExpenseTrackerTheme(darkTheme = true) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -306,12 +312,9 @@ fun TotalBalanceCardPreview() {
     }
 }
 
-// Multi-config adaptive previews (screen sizes × font scales) so the heightIn
-// min-height and large-font layout are visually verifiable without a device
-// (roadmap Milestone 5).
 @Preview(name = "Stats Card - Multi-Config", showBackground = false)
-@PreviewScreenSizes
-@PreviewFontScale
+//@PreviewScreenSizes
+//@PreviewFontScale
 @Composable
 fun StatsCardMultiConfigPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
