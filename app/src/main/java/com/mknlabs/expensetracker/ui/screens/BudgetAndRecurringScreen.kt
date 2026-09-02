@@ -86,7 +86,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -212,6 +214,9 @@ private fun BudgetAndRecurringContent(
     var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
     var pendingMuteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
     var muteDialogDismissed by rememberSaveable { mutableStateOf(false) }
+    var infoBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var isGroupInfoSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val groupInfoSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
@@ -343,6 +348,10 @@ private fun BudgetAndRecurringContent(
                                     },
                                     onDeleteClick = {
                                         pendingDeleteBudgetId = budget.id
+                                    },
+                                    onInfoClick = {
+                                        infoBudgetId = budget.id
+                                        isGroupInfoSheetVisible = true
                                     }
                                 )
                             }
@@ -451,6 +460,19 @@ private fun BudgetAndRecurringContent(
                 onSaveBudget(editingBudget?.id, categoryIds, limitAmount, name, period)
                 isBudgetEditorVisible = false
                 editingBudgetId = null
+            }
+        )
+    }
+
+    val infoBudget = uiState.categoryBudgets.firstOrNull { it.id == infoBudgetId }
+    if (isGroupInfoSheetVisible && infoBudget != null) {
+        BudgetGroupInfoSheet(
+            budget = infoBudget,
+            categories = availableCategories,
+            sheetState = groupInfoSheetState,
+            onDismiss = {
+                isGroupInfoSheetVisible = false
+                infoBudgetId = null
             }
         )
     }
@@ -1564,7 +1586,8 @@ private fun MuteRecurringDialog(
 private fun CategoryBudgetCard(
     budget: BudgetCategoryBudgetUi,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onInfoClick: () -> Unit
 ) {
     val containerBrush = when {
         budget.spentAmount > budget.limitAmount -> Brush.verticalGradient(
@@ -1615,13 +1638,29 @@ private fun CategoryBudgetCard(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = budget.title,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = budget.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
-                )
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.label_budget_categories_info),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable(onClick = onInfoClick)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -2325,6 +2364,110 @@ private fun RecurringRuleEditorModal(
                         .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
                 ) {
                     Text(stringResource(id = R.string.label_save_changes_caps), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BudgetGroupInfoSheet(
+    budget: BudgetCategoryBudgetUi,
+    categories: List<CategoryType>,
+    sheetState: SheetState,
+    onDismiss: () -> Unit
+) {
+    val budgetCategories = remember(budget.categoryIds, categories) {
+        categories.filter { it.id in budget.categoryIds }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = budget.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = stringResource(R.string.label_included_categories),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            if (budgetCategories.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.msg_no_category_budget_data),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                budgetCategories.forEach { category ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+                            .padding(horizontal = 14.dp, vertical = 12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = category.icon,
+                                contentDescription = category.name,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Text(
+                            text = category.name,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }

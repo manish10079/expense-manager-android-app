@@ -1776,4 +1776,9 @@
     <string name="widget_voice_channel_desc">Used while recording voice input from the home widget</string>
     <string name="widget_notification_recording_title">Recording…</string>
     <string name="widget_notification_recording_text">Speak your transaction now</string>
+
+    <!-- Budget group info sheet -->
+    <string name="label_budget_categories_info">View budget categories</string>
+    <string name="title_budget_categories">Budget Categories</string>
+    <string name="label_included_categories">Categories in this budget</string>
 </resources>
