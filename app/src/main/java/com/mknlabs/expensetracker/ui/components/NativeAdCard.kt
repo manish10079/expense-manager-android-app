@@ -25,10 +25,12 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.ui.theme.isDark
 import dagger.hilt.EntryPoints
 
 import com.mknlabs.expensetracker.di.MonetizationEntryPoint
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
@@ -81,9 +83,22 @@ fun NativeAdCard(
     var isLoading by remember(placement) { mutableStateOf(nativeAd == null) }
 
     // Theme-aware colors from Compose
-    val headlineColor = MaterialTheme.colorScheme.onSurface
-    val bodyColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.primary
+    val colorScheme = MaterialTheme.colorScheme
+    val headlineColor = colorScheme.onSurface
+    val bodyColor = colorScheme.onSurfaceVariant
+    val primaryColor = colorScheme.primary
+    val isDarkMode = colorScheme.isDark
+
+    // Premium gradient border matching StatsCard/SmallHomeCard
+    val adCardShape = RoundedCornerShape(20.dp)
+    val borderBrush = remember(primaryColor) {
+        Brush.linearGradient(
+            colors = listOf(
+                primaryColor.copy(alpha = 0.35f),
+                Color.White.copy(alpha = 0.06f)
+            )
+        )
+    }
 
     LaunchedEffect(placement) {
         if (nativeAd == null) {
@@ -108,12 +123,12 @@ fun NativeAdCard(
             Box(
                 modifier = modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(adCardShape)
                     .background(surfaceGradient())
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                        shape = RoundedCornerShape(20.dp)
+                        brush = borderBrush,
+                        shape = adCardShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -183,6 +198,15 @@ private class NativeAdViewHolder(private val adView: NativeAdView) {
         headlineView.setTextColor(headline.toArgb())
         bodyView.setTextColor(body.toArgb())
         callToActionView.setTextColor(primary.toArgb())
+
+        // Style CTA button with subtle outline matching theme
+        val outlineDrawable = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = 16f
+            setColor(android.graphics.Color.TRANSPARENT)
+            setStroke(2, primary.toArgb())
+        }
+        callToActionView.background = outlineDrawable
     }
 
     fun bind(nativeAd: NativeAd) {

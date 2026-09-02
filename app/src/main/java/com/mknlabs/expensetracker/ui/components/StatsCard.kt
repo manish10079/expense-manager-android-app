@@ -243,7 +243,8 @@ private fun MetricPill(
             modifier = Modifier.size(16.dp)
         )
         Column(
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(6
+                .dp)
         ) {
             Text(
                 text = label,

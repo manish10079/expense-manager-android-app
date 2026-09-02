@@ -113,12 +113,6 @@ fun <T> DialogModeSelector(
                     fontWeight = FontWeight.SemiBold
                 )
             )
-            Icon(
-                imageVector = Icons.Filled.CalendarMonth,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(14.dp)
-            )
         }
 
         // Centered half-screen picker dialog

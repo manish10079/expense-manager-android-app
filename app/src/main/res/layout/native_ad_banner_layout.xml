@@ -12,7 +12,7 @@
         android:paddingHorizontal="16dp"
         android:gravity="center_vertical">
 
-        <!-- Banner Icon (Increased to 52dp) -->
+        <!-- Banner Icon (52dp) -->
         <ImageView
             android:id="@+id/ad_app_icon"
             android:layout_width="52dp"
@@ -26,28 +26,31 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- Headline: Bold, primary text -->
             <TextView
                 android:id="@+id/ad_headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="?android:attr/textColorPrimary"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
+            <!-- Body: Muted secondary text -->
             <TextView
                 android:id="@+id/ad_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="2dp"
                 android:textColor="?android:attr/textColorSecondary"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
         </LinearLayout>
 
+        <!-- CTA Button: Subtle outline style matching theme -->
         <Button
             android:id="@+id/ad_call_to_action"
             android:layout_width="wrap_content"
@@ -55,11 +58,13 @@
             android:layout_marginStart="12dp"
             android:background="@android:color/transparent"
             android:gravity="center"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="14dp"
             android:textAllCaps="true"
-            android:textColor="?android:attr/colorPrimary"
+            android:textColor="?attr/colorPrimary"
             android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
 
         <!-- Hidden views required for SDK compatibility -->
         <TextView android:id="@+id/ad_advertiser" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
