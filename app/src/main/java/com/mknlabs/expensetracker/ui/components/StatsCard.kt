@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -193,14 +196,16 @@ fun StatsCard(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_income),
                     amount = if (isBalanceHidden) "****" else formatStatAmount(income, '+'),
-                    badgeColor = colorScheme.income
+                    badgeColor = colorScheme.income,
+                    icon = Icons.Filled.ArrowUpward
                 )
 
                 MetricPill(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_expense),
                     amount = if (isBalanceHidden) "****" else formatStatAmount(expense, '-'),
-                    badgeColor = colorScheme.expense
+                    badgeColor = colorScheme.expense,
+                    icon = Icons.Filled.ArrowDownward
                 )
             }
         }
@@ -212,7 +217,8 @@ private fun MetricPill(
     modifier: Modifier = Modifier,
     label: String,
     amount: String,
-    badgeColor: Color
+    badgeColor: Color,
+    icon: ImageVector
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
@@ -230,25 +236,28 @@ private fun MetricPill(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Color-coded status dot
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(RoundedCornerShape(50))
-                .background(badgeColor)
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = badgeColor,
+            modifier = Modifier.size(16.dp)
         )
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             Text(
                 text = label,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = colorScheme.onSurfaceVariant,
-                letterSpacing = 0.5.sp
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
+                ),
+                color = colorScheme.onSurfaceVariant
             )
             Text(
                 text = amount,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = colorScheme.onSurface
             )
         }
