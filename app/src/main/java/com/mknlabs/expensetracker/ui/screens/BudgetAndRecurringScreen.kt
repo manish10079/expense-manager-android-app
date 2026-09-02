@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -2370,7 +2372,7 @@ private fun RecurringRuleEditorModal(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun BudgetGroupInfoSheet(
     budget: BudgetCategoryBudgetUi,
@@ -2381,6 +2383,13 @@ private fun BudgetGroupInfoSheet(
     val budgetCategories = remember(budget.categoryIds, categories) {
         categories.filter { it.id in budget.categoryIds }
     }
+
+    // Odd-index (0, 2, 4...) → category pill style from TransactionCard
+    val oddColor = MaterialTheme.colorScheme.primary
+    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+    // Even-index (1, 3, 5...) → payment-method pill style from TransactionCard
+    val evenColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -2395,6 +2404,7 @@ private fun BudgetGroupInfoSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -2435,38 +2445,29 @@ private fun BudgetGroupInfoSheet(
                     textAlign = TextAlign.Center
                 )
             } else {
-                budgetCategories.forEach { category ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
-                            .padding(horizontal = 14.dp, vertical = 12.dp)
-                    ) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    budgetCategories.forEachIndexed { index, category ->
+                        val isOdd = index % 2 == 0
+                        val pillColor = if (isOdd) oddColor else evenColor
+                        val pillBg    = if (isOdd) oddBackground else evenBackground
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
+                                .background(pillBg, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = category.icon,
-                                contentDescription = category.name,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(18.dp)
+                            Text(
+                                text = category.name.uppercase(),
+                                color = pillColor,
+                                maxLines = 1,
+                                softWrap = false,
+                                style = MaterialTheme.typography.labelSmall
                             )
                         }
-                        Text(
-                            text = category.name,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                 }
             }
