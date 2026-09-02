@@ -688,7 +688,7 @@ private fun HomeStatsSection(
         onToggleVisibility = onToggleBalanceVisibility
     )
 
-    Spacer(modifier = Modifier.height(14.dp))
+    Spacer(modifier = Modifier.height(7.dp))
 
     Row(
         modifier = Modifier.fillMaxWidth(),

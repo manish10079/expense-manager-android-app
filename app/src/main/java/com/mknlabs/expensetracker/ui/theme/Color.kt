@@ -81,6 +81,14 @@ val PremiumCardLightEnd = Color(0xFFE0D8F5)    // Light Violet
 val PremiumCardLabelDark = Color(0xFFA09CAB)   // Muted blue-gray for dark mode labels
 val PremiumCardDateDark = Color(0xFF7A7585)     // Dimmer gray for dark mode date
 
+// SmallHomeCard Gradient
+val SmallCardDarkStart = Color(0xFF1E1730)      // Deep violet-charcoal
+val SmallCardDarkEnd = Color(0xFF151218)        // Muted dark slate
+val SmallCardLightStart = Color(0xFFFAF7FF)     // Soft lavender white
+val SmallCardLightEnd = Color(0xFFF0EAFB)       // Pale lilac
+val SmallCardIconBgDark = Color(0xFF6C5CE7)     // Purple for icon bg (dark)
+val SmallCardIconBgLight = Color(0xFF7B61FF)    // Purple for icon bg (light)
+
 // Premium Membership Palette
 val PremiumGradientStart = Color(0xFF7C4DFF) // Deep Violet
 val PremiumGradientEnd = Color(0xFF651FFF) // Vibrant Purple
