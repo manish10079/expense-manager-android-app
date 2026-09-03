@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -108,77 +109,78 @@ fun FilterBottomSheet(
     var tempFromMillis by remember { mutableStateOf<Long?>(selectedCustomStartDate) }
     var tempToMillis by remember { mutableStateOf<Long?>(selectedCustomEndDate) }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-            .background(colorScheme.background)
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
+            .background(colorScheme.surface)
     ) {
-        item(key = "drag_handle") {
+        // ── Sticky Header ──────────────────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorScheme.surface)
+                .padding(horizontal = 20.dp)
+        ) {
+            // Drag handle
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .width(54.dp)
-                        .height(5.dp)
+                        .width(40.dp)
+                        .height(4.dp)
                         .clip(CircleShape)
-                        .background(colorScheme.onSurface.copy(alpha = 0.25f))
+                        .background(colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                 )
             }
-        }
 
-        item(key = "header") {
+            // Title row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(
-                    onClick = onClose,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(colorScheme.surfaceVariant.copy(alpha = 0.55f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.desc_close_filters),
-                        tint = colorScheme.onSurface
-                    )
-                }
-
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.label_sort_filter),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        color = colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = stringResource(R.string.label_sort_filter_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant
                     )
                 }
 
-                TextButton(onClick = {
-                    isExpenseExpanded = false
-                    isIncomeExpanded = false
-                    onReset()
-                }) {
-                    Text(
-                        text = stringResource(R.string.label_reset),
-                        color = colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
+                IconButton(onClick = onClose) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.desc_close_filters),
+                        tint = colorScheme.onSurfaceVariant
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.4f))
         }
+
+        // ── Scrollable Body ────────────────────────────────────────────────────
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 8.dp)
+        ) {
 
         item(key = "sort_section") {
             FilterSection(
@@ -496,46 +498,82 @@ fun FilterBottomSheet(
             }
         }
 
-        item(key = "apply_button") {
-            Button(
-                onClick = onApply,
+        } // end LazyColumn
+
+        // ── Sticky Footer ──────────────────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorScheme.surface)
+        ) {
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.4f))
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(58.dp)
-                    .shadow(
-                        elevation = 4.dp, // Reduced for performance
-                        shape = RoundedCornerShape(22.dp),
-                        ambientColor = colorScheme.primary.copy(alpha = 0.15f),
-                        spotColor = colorScheme.primary.copy(alpha = 0.15f)
-                    ),
-                shape = RoundedCornerShape(22.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = colorScheme.onPrimary
-                ),
-                contentPadding = PaddingValues(0.dp)
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
+                // Reset button
+                OutlinedButton(
+                    onClick = {
+                        isExpenseExpanded = false
+                        isIncomeExpanded = false
+                        onReset()
+                    },
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(brandBrush),
-                    contentAlignment = Alignment.Center
+                        .weight(1f)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp, colorScheme.outline.copy(alpha = 0.5f)
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = colorScheme.onSurfaceVariant
+                    )
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Done,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.label_reset),
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.SemiBold
                         )
-                        Text(
-                            text = stringResource(R.string.label_apply_filters),
-                            style = MaterialTheme.typography.titleSmall
+                    )
+                }
+
+                // Apply button
+                Button(
+                    onClick = onApply,
+                    modifier = Modifier
+                        .weight(2f)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.primary,
+                        contentColor = colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Done,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.label_apply_filters),
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold
                         )
-                    }
+                    )
                 }
             }
         }
-    }
+    } // end outer Column
 }
 
 @Composable
@@ -634,25 +672,27 @@ private fun FilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    selectedBrush: Brush = brandGradient(alpha = 0.2f),
-    unselectedBrush: Brush = subtlePrimaryGradient()
+    selectedBrush: Brush? = null,
+    unselectedBrush: Brush? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    val selectedBorderColor = colorScheme.primary.copy(alpha = 0.35f)
-    val unselectedBorderColor = colorScheme.onSurface.copy(alpha = 0.15f)
+    val bgModifier = if (selected) {
+        Modifier.background(selectedBrush ?: SolidColor(colorScheme.primaryContainer.copy(alpha = 0.6f)))
+    } else {
+        Modifier.background(unselectedBrush ?: SolidColor(colorScheme.surfaceVariant.copy(alpha = 0.35f)))
+    }
+
+    val borderColor = if (selected) colorScheme.primary.copy(alpha = 0.35f) else colorScheme.outlineVariant.copy(alpha = 0.4f)
+    val shape = RoundedCornerShape(12.dp)
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(if (selected) selectedBrush else unselectedBrush)
-            .border(
-                width = 1.dp,
-                color = if (selected) selectedBorderColor else unselectedBorderColor,
-                shape = RoundedCornerShape(18.dp)
-            )
+            .clip(shape)
+            .then(bgModifier)
+            .border(width = 1.dp, color = borderColor, shape = shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 14.dp, vertical = 9.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -663,14 +703,15 @@ private fun FilterChip(
                 tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
         }
 
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+            ),
+            color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant
         )
     }
 }
@@ -689,7 +730,7 @@ private fun AmountFilterField(
         onValueChange = { onValueChange(sanitizeAmountRangeInput(it)) },
         modifier = modifier,
         singleLine = true,
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(14.dp),
         placeholder = {
             Text(
                 text = placeholder,
@@ -698,10 +739,10 @@ private fun AmountFilterField(
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = colorScheme.surface.copy(alpha = 0.5f),
-            unfocusedContainerColor = colorScheme.surface.copy(alpha = 0.3f),
-            focusedBorderColor = colorScheme.primary.copy(alpha = 0.35f),
-            unfocusedBorderColor = colorScheme.onSurface.copy(alpha = 0.15f),
+            focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.25f),
+            unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.15f),
+            focusedBorderColor = colorScheme.primary,
+            unfocusedBorderColor = colorScheme.outlineVariant.copy(alpha = 0.5f),
             cursorColor = colorScheme.primary,
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface
@@ -714,22 +755,23 @@ private fun FilterSection(
     title: String,
     subtitle: String,
     icon: ImageVector,
-    backgroundBrush: Brush = standardCardGradient(),
+    backgroundBrush: Brush? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(20.dp)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
-            .background(backgroundBrush)
+            .clip(shape)
+            .background(colorScheme.surfaceVariant.copy(alpha = 0.35f))
             .border(
                 width = 1.dp,
-                color = colorScheme.primary.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(28.dp)
+                color = colorScheme.outlineVariant.copy(alpha = 0.4f),
+                shape = shape
             )
-            .padding(18.dp)
+            .padding(16.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -737,23 +779,26 @@ private fun FilterSection(
         ) {
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(colorScheme.primary.copy(alpha = 0.15f))
-                    .padding(10.dp)
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = colorScheme.primary
+                    tint = colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
             Column {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
@@ -764,7 +809,7 @@ private fun FilterSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
         content()
     }
 }
@@ -794,27 +839,31 @@ private fun OrderOption(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val selected = value == selectedOrder
+    val shape = RoundedCornerShape(14.dp)
+
+    val bgColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.4f) else colorScheme.surfaceVariant.copy(alpha = 0.25f)
+    val borderColor = if (selected) colorScheme.primary.copy(alpha = 0.3f) else colorScheme.outlineVariant.copy(alpha = 0.3f)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
-            .background(if (selected) brandGradient(alpha = 0.12f) else androidx.compose.ui.graphics.SolidColor(Color.Transparent))
+            .clip(shape)
+            .background(bgColor)
             .border(
                 width = 1.dp,
-                color = if (selected) colorScheme.primary.copy(alpha = 0.25f) else Color.Transparent,
-                shape = RoundedCornerShape(18.dp)
+                color = borderColor,
+                shape = shape
             )
             .clickable(onClick = onClick)
-            .padding(14.dp),
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(42.dp)
+                .size(38.dp)
                 .clip(CircleShape)
-                .background(if (selected) brandGradient() else androidx.compose.ui.graphics.SolidColor(colorScheme.surfaceVariant.copy(alpha = 0.4f))),
+                .background(if (selected) colorScheme.primaryContainer else colorScheme.surfaceVariant.copy(alpha = 0.6f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -827,22 +876,23 @@ private fun OrderOption(
                     SortType.EXPENSE_FIRST -> Icons.Default.ArrowDownward
                 },
                 contentDescription = null,
-                tint = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
+                tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
             )
         }
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(titleResId),
-                style = MaterialTheme.typography.titleSmall,
-                color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                color = colorScheme.onSurfaceVariant
             )
         }
 
