@@ -1577,6 +1577,15 @@
     <string name="cd_goal_icon">Goal icon</string>
     <string name="title_goal_reminder">Savings goal update</string>
     <string name="msg_goal_reminder_due_soon">Only %1$d days left for \"%2$s\" — you\'re %3$d%% there!</string>
+
+    <!-- Goal Fund History -->
+    <string name="title_fund_history">Fund History</string>
+    <string name="format_fund_entries_count">%1$d entries</string>
+    <string name="label_no_fund_history">No contributions yet</string>
+    <string name="label_funded_on">Funded on %1$s</string>
+    <string name="desc_toggle_fund_history">Toggle fund history</string>
+    <string name="label_fund_history_inline">Fund History</string>
+    <string name="format_fund_entries_one">1 entry</string>
     <string name="msg_goal_reminder_due_soon_1">Only 1 day left for \"%1$s\" — you\'re %2$d%% there!</string>
     <string name="msg_goal_reminder_due_today">Due today — \"%1$s\"! You\'re %2$d%% there.</string>
     <string name="msg_goal_reminder_progress">You\'re %1$d%% toward \"%2$s\". Keep going!</string>

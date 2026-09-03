@@ -35,6 +35,9 @@ object DatabaseModule {
     fun provideGoalDao(database: ExpenseTrackerDatabase) = database.goalDao()
 
     @Provides
+    fun provideGoalFundEntryDao(database: ExpenseTrackerDatabase) = database.goalFundEntryDao()
+
+    @Provides
     fun providePaymentMethodDao(database: ExpenseTrackerDatabase) = database.paymentMethodDao()
 
     @Provides

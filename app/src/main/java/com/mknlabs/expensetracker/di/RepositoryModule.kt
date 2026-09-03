@@ -5,6 +5,7 @@ import com.mknlabs.expensetracker.data.repository.AppPreferencesRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.BudgetRepository as BudgetRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CategoryRepository as CategoryRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.DataManagementRepository as DataManagementRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.GoalFundEntryRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.GoalRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.PaymentMethodRepository as PaymentMethodRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.RecurringRuleRepository as RecurringRuleRepositoryImpl
@@ -80,6 +81,12 @@ abstract class RepositoryModule {
     abstract fun bindGoalRepository(
         impl: GoalRepositoryImpl
     ): GoalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGoalFundEntryRepository(
+        impl: GoalFundEntryRepositoryImpl
+    ): GoalFundEntryRepository
 
     @Binds
     @Singleton

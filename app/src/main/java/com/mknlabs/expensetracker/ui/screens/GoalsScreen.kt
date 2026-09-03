@@ -1,5 +1,10 @@
 package com.mknlabs.expensetracker.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,8 +20,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +44,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
+import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
@@ -70,9 +79,13 @@ fun GoalsScreen(
     viewModel: GoalsViewModel = hiltViewModel()
 ) {
     val goals by viewModel.goals.collectAsStateWithLifecycle()
+    val expandedGoalHistoryId by viewModel.expandedGoalHistoryId.collectAsStateWithLifecycle()
+    val fundEntries by viewModel.fundEntries.collectAsStateWithLifecycle()
 
     GoalsScreenContent(
         goals = goals,
+        expandedGoalHistoryId = expandedGoalHistoryId,
+        fundEntries = fundEntries,
         currencyId = currencyId,
         amountFormatPreferences = amountFormatPreferences,
         dateFormatPattern = dateFormatPattern,
@@ -82,7 +95,8 @@ fun GoalsScreen(
         onEditGoal = { id, name, amount, deadline, iconKey ->
             viewModel.updateGoal(id, name, amount, deadline, iconKey)
         },
-        onDeleteGoal = { viewModel.deleteGoal(it.id) }
+        onDeleteGoal = { viewModel.deleteGoal(it.id) },
+        onToggleFundHistory = { goalId -> viewModel.toggleGoalHistory(goalId) }
     )
 }
 
@@ -90,6 +104,8 @@ fun GoalsScreen(
 @Composable
 private fun GoalsScreenContent(
     goals: List<Goal>,
+    expandedGoalHistoryId: String?,
+    fundEntries: Map<String, List<GoalFundEntry>>,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
@@ -97,7 +113,8 @@ private fun GoalsScreenContent(
     onAddGoal: (String, Double, Long?, String) -> Unit,
     onFundGoal: (String, Double) -> Unit,
     onEditGoal: (String, String, Double, Long?, String) -> Unit,
-    onDeleteGoal: (Goal) -> Unit
+    onDeleteGoal: (Goal) -> Unit,
+    onToggleFundHistory: (String) -> Unit
 ) {
     var isAddGoalDialogVisible by rememberSaveable { mutableStateOf(false) }
     var fundingGoalId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -170,9 +187,13 @@ private fun GoalsScreenContent(
                                     goal = goal,
                                     currencyId = currencyId,
                                     amountFormatPreferences = amountFormatPreferences,
+                                    dateFormatPattern = dateFormatPattern,
+                                    isHistoryExpanded = expandedGoalHistoryId == goal.id,
+                                    fundEntries = fundEntries[goal.id] ?: emptyList(),
                                     onFund = { fundingGoalId = goal.id },
                                     onEdit = { editingGoalId = goal.id },
-                                    onDelete = { pendingDeleteGoal = goal }
+                                    onDelete = { pendingDeleteGoal = goal },
+                                    onToggleFundHistory = { onToggleFundHistory(goal.id) }
                                 )
                             }
                         }
@@ -186,9 +207,13 @@ private fun GoalsScreenContent(
                                     goal = goal,
                                     currencyId = currencyId,
                                     amountFormatPreferences = amountFormatPreferences,
+                                    dateFormatPattern = dateFormatPattern,
+                                    isHistoryExpanded = expandedGoalHistoryId == goal.id,
+                                    fundEntries = fundEntries[goal.id] ?: emptyList(),
                                     onFund = { fundingGoalId = goal.id },
                                     onEdit = { editingGoalId = goal.id },
-                                    onDelete = { pendingDeleteGoal = goal }
+                                    onDelete = { pendingDeleteGoal = goal },
+                                    onToggleFundHistory = { onToggleFundHistory(goal.id) }
                                 )
                             }
                         }
@@ -709,12 +734,12 @@ private fun GoalIconPickerModal(
         },
         text = {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(64.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                columns = GridCells.Fixed(5),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 360.dp)
+                    .heightIn(max = 340.dp)
             ) {
                 items(categoryIconOptions, key = { it.id }) { option ->
                     GoalIconSelectionItem(
@@ -739,17 +764,19 @@ private fun GoalIconSelectionItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
-            .size(64.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
             .clip(CircleShape)
             .background(
-                brush = if (selected) brandGradient() else androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surfaceVariant,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                    )
-                )
+                color = if (selected) colorScheme.primary else colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            )
+            .border(
+                width = if (selected) 2.dp else 1.dp,
+                color = if (selected) colorScheme.primary else colorScheme.outlineVariant.copy(alpha = 0.4f),
+                shape = CircleShape
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -757,8 +784,8 @@ private fun GoalIconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(28.dp)
+            tint = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(22.dp)
         )
     }
 }
@@ -768,9 +795,13 @@ fun GoalItem(
     goal: Goal,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String,
+    isHistoryExpanded: Boolean,
+    fundEntries: List<GoalFundEntry>,
     onFund: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onToggleFundHistory: () -> Unit
 ) {
     // Resolve the picked icon from the same catalog the picker uses; fall back to
     // the registry-resolved icon for legacy keys not in the catalog.
@@ -900,26 +931,67 @@ fun GoalItem(
                 )
             }
 
-            goal.deadlineAt?.let { deadline ->
-                if (!goal.isCompleted) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    val daysLeft = daysUntilTimestamp(deadline)
-                    val (deadlineText, deadlineColor) = when {
-                        daysLeft < 0 -> stringResource(
-                            R.string.format_days_overdue, -daysLeft
-                        ) to MaterialTheme.colorScheme.error
+            // Deadline + Fund History in the same row
+            if (!goal.isCompleted) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Left: deadline text (if set)
+                    goal.deadlineAt?.let { deadline ->
+                        val daysLeft = daysUntilTimestamp(deadline)
+                        val (deadlineText, deadlineColor) = when {
+                            daysLeft < 0 -> stringResource(
+                                R.string.format_days_overdue, -daysLeft
+                            ) to MaterialTheme.colorScheme.error
 
-                        daysLeft == 0L -> stringResource(R.string.label_goal_due_today) to MaterialTheme.colorScheme.error
-                        daysLeft == 1L -> stringResource(R.string.label_one_day_left) to MaterialTheme.colorScheme.error
-                        else -> stringResource(R.string.format_days_left, daysLeft) to MaterialTheme.colorScheme.onSurfaceVariant
+                            daysLeft == 0L -> stringResource(R.string.label_goal_due_today) to MaterialTheme.colorScheme.error
+                            daysLeft == 1L -> stringResource(R.string.label_one_day_left) to MaterialTheme.colorScheme.error
+                            else -> stringResource(R.string.format_days_left, daysLeft) to MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        Text(
+                            text = deadlineText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = deadlineColor,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-                    Text(
-                        text = deadlineText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = deadlineColor,
-                        fontWeight = FontWeight.Medium
+                    // If no deadline, push fund history to the start
+                    if (goal.deadlineAt == null) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                    // Right: Fund History toggle
+                    GoalFundHistoryInline(
+                        entryCount = fundEntries.size,
+                        isExpanded = isHistoryExpanded,
+                        onClick = onToggleFundHistory
                     )
                 }
+            }
+            // Completed goals: still show fund history
+            if (goal.isCompleted) {
+                Spacer(modifier = Modifier.height(8.dp))
+                GoalFundHistoryInline(
+                    entryCount = fundEntries.size,
+                    isExpanded = isHistoryExpanded,
+                    onClick = onToggleFundHistory
+                )
+            }
+
+            // Collapsible Fund History
+            AnimatedVisibility(
+                visible = isHistoryExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                GoalFundHistorySection(
+                    entries = fundEntries,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences,
+                    dateFormatPattern = dateFormatPattern
+                )
             }
         }
     }
@@ -961,6 +1033,119 @@ private fun GoalCardAction(
             tint = accent,
             modifier = Modifier.size(16.dp)
         )
+    }
+}
+
+@Composable
+private fun GoalFundHistoryInline(
+    entryCount: Int,
+    isExpanded: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.History,
+            contentDescription = stringResource(R.string.desc_toggle_fund_history),
+            tint = colorScheme.primary,
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = stringResource(R.string.label_fund_history_inline),
+            style = MaterialTheme.typography.labelSmall,
+            color = colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        )
+        if (entryCount > 0) {
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(
+                    if (entryCount == 1) R.string.format_fund_entries_one
+                    else R.string.format_fund_entries_count,
+                    entryCount
+                ),
+                style = MaterialTheme.typography.labelSmall,
+                color = colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.width(2.dp))
+        Icon(
+            imageVector = if (isExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+            contentDescription = null,
+            tint = colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
+@Composable
+private fun GoalFundHistorySection(
+    entries: List<GoalFundEntry>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    dateFormatPattern: String
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+    ) {
+        if (entries.isEmpty()) {
+            Text(
+                text = stringResource(R.string.label_no_fund_history),
+                style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 26.dp, top = 4.dp, bottom = 4.dp)
+            )
+        } else {
+            entries.forEach { entry ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 26.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Colored dot indicator
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(GoalProgressHigh)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    // Formatted amount
+                    Text(
+                        text = formatCurrencyValue(
+                            entry.amountMinor / 100.0,
+                            currencyId,
+                            amountFormatPreferences
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    // Date
+                    Text(
+                        text = stringResource(
+                            R.string.label_funded_on,
+                            formatDate(entry.fundedAt, dateFormatPattern)
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -1007,6 +1192,8 @@ private fun GoalsScreenPreview() {
                     updatedAt = System.currentTimeMillis()
                 )
             ),
+            expandedGoalHistoryId = null,
+            fundEntries = emptyMap(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
@@ -1014,7 +1201,8 @@ private fun GoalsScreenPreview() {
             onAddGoal = { _, _, _, _ -> },
             onFundGoal = { _, _ -> },
             onEditGoal = { _, _, _, _, _ -> },
-            onDeleteGoal = {}
+            onDeleteGoal = {},
+            onToggleFundHistory = {}
         )
     }
 }

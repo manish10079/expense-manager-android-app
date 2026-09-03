@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
 import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.data.local.room.dao.GoalDao
+import com.mknlabs.expensetracker.data.local.room.dao.GoalFundEntryDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
@@ -17,6 +18,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.CountryCodeDao
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
+import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
@@ -31,9 +33,10 @@ import java.io.File
         BudgetEntity::class,
         RecurringRuleEntity::class,
         GoalEntity::class,
+        GoalFundEntryEntity::class,
         CountryCodeEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -45,6 +48,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun budgetDao(): BudgetDao
     abstract fun recurringRuleDao(): RecurringRuleDao
     abstract fun goalDao(): GoalDao
+    abstract fun goalFundEntryDao(): GoalFundEntryDao
     abstract fun countryCodeDao(): CountryCodeDao
 
     companion object {
@@ -60,7 +64,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                     .build().also { INSTANCE = it }
             }
         }
@@ -71,6 +75,24 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE budgets ADD COLUMN name TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE budgets ADD COLUMN period TEXT NOT NULL DEFAULT 'MONTHLY'")
                 db.execSQL("UPDATE budgets SET category_ids = CAST(category_id AS TEXT) WHERE category_id IS NOT NULL AND category_id != 0")
+            }
+        }
+
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `goal_fund_entries` (
+                        `id` TEXT NOT NULL,
+                        `goal_id` TEXT NOT NULL,
+                        `amount_minor` INTEGER NOT NULL,
+                        `note` TEXT NOT NULL DEFAULT '',
+                        `funded_at` INTEGER NOT NULL,
+                        `sync_state` TEXT NOT NULL,
+                        PRIMARY KEY(`id`),
+                        FOREIGN KEY(`goal_id`) REFERENCES `goals`(`id`) ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_goal_fund_entries_goal_id_funded_at` ON `goal_fund_entries` (`goal_id`, `funded_at`)")
             }
         }
 

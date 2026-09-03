@@ -3,12 +3,14 @@ package com.mknlabs.expensetracker.data.local.room
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
+import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Goal
+import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
@@ -215,5 +217,27 @@ fun RecurringTransactionRule.toEntity(): RecurringRuleEntity {
         updatedAt = updatedAt,
         syncState = syncState,
         isDeleted = isDeleted
+    )
+}
+
+fun GoalFundEntryEntity.toDomain(): GoalFundEntry {
+    return GoalFundEntry(
+        id = id,
+        goalId = goalId,
+        amountMinor = amountMinor,
+        note = note,
+        fundedAt = fundedAt,
+        syncState = syncState
+    )
+}
+
+fun GoalFundEntry.toEntity(): GoalFundEntryEntity {
+    return GoalFundEntryEntity(
+        id = id,
+        goalId = goalId,
+        amountMinor = amountMinor,
+        note = note,
+        fundedAt = fundedAt,
+        syncState = syncState
     )
 }
