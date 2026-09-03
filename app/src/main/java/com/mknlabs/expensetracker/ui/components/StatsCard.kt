@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,18 +71,8 @@ fun StatsCard(
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
 
-    // Theme-aware gradient background (driven by color scheme, not system)
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
-        )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd)
-        )
-    }
-
-    // Theme-aware border glow using primary color
+    // Background matching GoalItem card from GoalsScreen (MaterialTheme.colorScheme.surface)
+    val cardBg = colorScheme.surface
     val borderBrush = remember(colorScheme.primary) {
         Brush.linearGradient(
             colors = listOf(
@@ -94,21 +85,21 @@ fun StatsCard(
     // All text colors derived from MaterialTheme.colorScheme
     val labelColor = colorScheme.onSurfaceVariant
     val dateColor = colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-    val dividerColor = if (isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.06f)
+    val dividerColor = colorScheme.outlineVariant.copy(alpha = 0.4f)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 154.dp)
             .shadow(
-                elevation = 12.dp,
+                elevation = 4.dp,
                 shape = cardShape,
-                ambientColor = colorScheme.primary.copy(alpha = 0.2f),
-                spotColor = Color.Black
+                ambientColor = colorScheme.primary.copy(alpha = 0.1f),
+                spotColor = Color.Black.copy(alpha = 0.1f)
             )
             .clip(cardShape)
             .clickable(onClick = onToggleVisibility)
-            .background(brush = gradientBrush)
+            .background(cardBg)
             .border(width = 1.dp, brush = borderBrush, shape = cardShape)
             .padding(16.dp)
     ) {
@@ -223,13 +214,22 @@ private fun MetricPill(
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
 
+    val pillBorderBrush = remember(badgeColor) {
+        Brush.linearGradient(
+            colors = listOf(
+                badgeColor.copy(alpha = 0.4f),
+                Color.White.copy(alpha = 0.08f)
+            )
+        )
+    }
+
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
             .background(badgeColor.copy(alpha = if (isDark) 0.08f else 0.10f))
             .border(
                 width = 1.dp,
-                color = badgeColor.copy(alpha = if (isDark) 0.15f else 0.20f),
+                brush = pillBorderBrush,
                 shape = RoundedCornerShape(14.dp)
             )
             .padding(horizontal = 9.dp, vertical = 8.dp),
