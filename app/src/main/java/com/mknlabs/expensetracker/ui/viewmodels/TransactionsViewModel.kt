@@ -79,7 +79,8 @@ data class TransactionsScreenUiState(
     val isSelectionMode: Boolean = false,
     val selectedTransactionIds: Set<String> = emptySet(),
     val isDragging: Boolean = false,
-    val pagination: PaginationState = PaginationState()
+    val pagination: PaginationState = PaginationState(),
+    val isFilterActive: Boolean = false
 )
 
 private const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
@@ -721,7 +722,8 @@ class TransactionsViewModel @Inject constructor(
             appliedTransactionTypeIds.size < 2
 
         val isSearchActive = searchQuery.trim().isNotEmpty()
-        val isFilteredOrSearchApplied = isFilterApplied || isSearchActive
+        val isFilterActive = isFilterApplied || isSearchActive
+        val isFilteredOrSearchApplied = isFilterActive
 
         val formatVal = { value: Double ->
             com.mknlabs.expensetracker.utils.formatCurrencyValue(
@@ -950,7 +952,8 @@ class TransactionsViewModel @Inject constructor(
             transactionItems = itemsWithAds,
             pinnedSummary = pinnedSummary,
             customizationSettings = currentCustomizationSettings,
-            pagination = pagination
+            pagination = pagination,
+            isFilterActive = isFilterActive
         )
     }
 

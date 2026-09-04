@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.TrendingDown
 import androidx.compose.material.icons.rounded.TrendingUp
@@ -121,6 +122,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
+import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
@@ -131,9 +134,12 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.ui.components.ActiveFilter
+import com.mknlabs.expensetracker.ui.components.ActiveFilterBar
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.FilterBottomSheet
+import com.mknlabs.expensetracker.ui.components.FilterPillType
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.ui.components.SelectionHeader
@@ -447,24 +453,39 @@ private fun TransactionScreenContent(
 
                             Spacer(modifier = Modifier.width(30.dp))
 
-                            IconButton(
-                                onClick = {
-                                    closeSearchBar(
-                                        focusManager = focusManager,
-                                        onSearchQueryChange = updateSearchQuery,
-                                        onSearchExpandedChange = { isSearchExpanded = it }
+                            Box {
+                                IconButton(
+                                    onClick = {
+                                        closeSearchBar(
+                                            focusManager = focusManager,
+                                            onSearchQueryChange = updateSearchQuery,
+                                            onSearchExpandedChange = { isSearchExpanded = it }
+                                        )
+                                        showBottomSheet = true
+                                    },
+                                    modifier = Modifier
+                                        .size(26.dp)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = if (uiState.isFilterActive) Icons.Rounded.FilterAlt else Icons.Outlined.FilterAlt,
+                                        contentDescription = stringResource(R.string.label_sort_filter),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(18.dp)
                                     )
-                                    showBottomSheet = true
-                                },
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.FilterAlt,
-                                    contentDescription = stringResource(R.string.label_sort_filter),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                                }
+                                // Tiny purple dot indicator when any filter/sort is active
+                                if (uiState.isFilterActive) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(7.dp)
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                                                shape = CircleShape
+                                            )
+                                    )
+                                }
                             }
                         }
                     )
@@ -552,6 +573,83 @@ private fun TransactionScreenContent(
                 )
             }
 
+
+            // Active filter pills — shown below search bar, above the list.
+            val activeFilters = remember(
+                uiState.selectedSort,
+                uiState.selectedOrder,
+                uiState.selectedDateRange,
+                uiState.selectedTransactionTypeIds,
+                uiState.selectedCategoryIds,
+                uiState.selectedPaymentTypeIds,
+                uiState.selectedMinAmount,
+                uiState.selectedMaxAmount,
+                uiState.searchQuery
+            ) {
+                buildList {
+                    // Sort
+                    if (uiState.selectedSort != DEFAULT_SORT_BY || uiState.selectedOrder != DEFAULT_SORT_ORDER) {
+                        val orderLabel = if (uiState.selectedOrder == SortType.NEWEST) "↓" else "↑"
+                        add(ActiveFilter(FilterPillType.SORT, "${uiState.selectedSort} $orderLabel") {
+                            updateSort(DEFAULT_SORT_BY)
+                        })
+                    }
+                    // Date range
+                    uiState.selectedDateRange?.let { range ->
+                        add(ActiveFilter(FilterPillType.DATE_RANGE, range) {
+                            updateDateRange(null)
+                        })
+                    }
+                    // Transaction type (show only if filtered to one type)
+                    if (uiState.selectedTransactionTypeIds.size == 1) {
+                        val isIncome = uiState.selectedTransactionTypeIds.contains(1)
+                        val label = if (isIncome) "Income" else "Expense"
+                        val pillType = if (isIncome) FilterPillType.INCOME else FilterPillType.EXPENSE
+                        add(ActiveFilter(pillType, label) {
+                            toggleTransactionTypeFilter(uiState.selectedTransactionTypeIds.first())
+                        })
+                    }
+                    // Categories
+                    uiState.selectedCategoryIds.forEach { catId ->
+                        val catName = uiState.availableCategories.firstOrNull { it.id == catId }?.name ?: "# $catId"
+                        add(ActiveFilter(FilterPillType.CATEGORY, catName) {
+                            toggleCategory(catId)
+                        })
+                    }
+                    // Payment modes
+                    uiState.selectedPaymentTypeIds.forEach { payId ->
+                        val payName = uiState.paymentModes.firstOrNull { it.id == payId }?.name ?: "# $payId"
+                        add(ActiveFilter(FilterPillType.PAYMENT_MODE, payName) {
+                            togglePaymentMode(payId)
+                        })
+                    }
+                    // Amount range
+                    val hasMin = uiState.selectedMinAmount.isNotBlank()
+                    val hasMax = uiState.selectedMaxAmount.isNotBlank()
+                    if (hasMin || hasMax) {
+                        val label = when {
+                            hasMin && hasMax -> "${uiState.selectedMinAmount}–${uiState.selectedMaxAmount}"
+                            hasMin -> "> ${uiState.selectedMinAmount}"
+                            else -> "< ${uiState.selectedMaxAmount}"
+                        }
+                        add(ActiveFilter(FilterPillType.AMOUNT_RANGE, label) {
+                            updateMinAmount("")
+                            updateMaxAmount("")
+                        })
+                    }
+                    // Search
+                    if (uiState.searchQuery.isNotBlank()) {
+                        add(ActiveFilter(FilterPillType.SEARCH, "\"${uiState.searchQuery.trim()}\"") {
+                            updateSearchQuery("")
+                        })
+                    }
+                }
+            }
+
+            ActiveFilterBar(
+                filters = activeFilters,
+                onClearAll = { resetFilters() }
+            )
 
             Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 

@@ -589,7 +589,7 @@
     <string name="title_month_start_day">Month starts on</string>
     <string name="label_month_start_day_subtitle">Set the first day of your billing cycle</string>
     <string name="label_month_start_day_value">Day %1$d</string>
-    <string name="label_month_start_day_standard">1st (Standard)</string>
+    <string name="label_month_start_day_standard">1st (Default)</string>
     <string name="label_current_period">Current Period:</string>
     <string name="msg_delete_font_title">Remove font?</string>
     <string name="msg_delete_font_desc">%1$s will be removed from your custom fonts.</string>
