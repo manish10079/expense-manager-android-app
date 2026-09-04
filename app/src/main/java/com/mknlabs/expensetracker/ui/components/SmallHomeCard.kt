@@ -38,10 +38,12 @@ import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.isDark
-import com.mknlabs.expensetracker.ui.theme.SmallCardDarkStart
-import com.mknlabs.expensetracker.ui.theme.SmallCardDarkEnd
-import com.mknlabs.expensetracker.ui.theme.SmallCardLightStart
-import com.mknlabs.expensetracker.ui.theme.SmallCardLightEnd
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
 
 
 @Composable
@@ -57,11 +59,11 @@ fun SmallHomeCard(
     val isDark = colorScheme.isDark
     val shape = RoundedCornerShape(Dimens.CardRadius)
 
-    // Theme-aware gradient background
+    // Theme-aware gradient background (same as StatsCard)
     val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
+        Brush.linearGradient(listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd))
     } else {
-        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
+        Brush.linearGradient(listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd))
     }
 
     // Purple border glow matching the hero card
@@ -162,7 +164,7 @@ fun SmallHomeCard(
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = colorScheme.primary.copy(alpha = 0.7f),
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }

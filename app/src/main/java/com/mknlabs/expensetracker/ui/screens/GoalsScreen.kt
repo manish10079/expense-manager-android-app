@@ -31,6 +31,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -54,6 +56,13 @@ import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.ui.theme.GoalProgressMedium
+import com.mknlabs.expensetracker.ui.theme.isDark
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
 import com.mknlabs.expensetracker.ui.viewmodels.GoalsViewModel
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -815,17 +824,44 @@ fun GoalItem(
         else -> GoalProgressHigh
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+    val cardShape = RoundedCornerShape(24.dp)
+
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(
+            colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
         )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd)
+        )
+    }
+    val borderBrush = remember(colorScheme.primary) {
+        Brush.linearGradient(
+            colors = listOf(
+                colorScheme.primary.copy(alpha = 0.4f),
+                Color.White.copy(alpha = 0.08f)
+            )
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 12.dp,
+                shape = cardShape,
+                ambientColor = colorScheme.primary.copy(alpha = 0.2f),
+                spotColor = Color.Black
+            )
+            .clip(cardShape)
+            .background(brush = gradientBrush)
+            .border(width = 1.dp, brush = borderBrush, shape = cardShape)
+            .padding(16.dp)
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
