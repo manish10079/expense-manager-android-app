@@ -172,6 +172,7 @@
     <string name="label_delete_account_and_data">Delete Account &amp; All Data</string>
     <string name="desc_delete_data_warning">This will permanently remove all your expenses and budgets. If you are signed in, your account and cloud backups will also be destroyed. This cannot be undone.</string>
     <string name="label_this_removes_only_transactions">This will remove all your data permanently. This action is irreversible.</string>
+    <string name="title_spent">Spent</string>
     <string name="label_spent_today">Spent Today</string>
     <string name="label_top_spending">Top Spending</string>
     <string name="label_top_spending_by_category">Top Spending by\nCategory</string>
@@ -520,8 +521,7 @@
     <string name="title_show_list_summaries">Show Period Summaries</string>
     <string name="desc_show_list_summaries">Display income and expense totals for the current period</string>
     <string name="title_show_payment_method">Show Payment Method</string>
-    <string name="title_sort_by">Sort by</string>
-    <string name="title_spent">SPENT</string>
+    <string name="title_sort_by">Sort By</string>
     <string name="title_stack_multiple_filters_to_narr">Stack multiple filters to narrow the transaction list.</string>
     <string name="title_support">SUPPORT</string>
     <string name="title_terms_conditions">Terms &amp; Conditions</string>
@@ -844,7 +844,7 @@
     <string name="title_restore_database">Restore Database</string>
     <string name="label_restore">Restore</string>
     <string name="label_premium_features">Premium Features</string>
-    <string name="label_sort_by">SORT BY</string>
+    <string name="label_sort_by">Sort By</string>
     <string name="title_date_range">DATE RANGE</string>
     <string name="label_custom_range">Custom Range</string>
     <string name="label_order">Order</string>

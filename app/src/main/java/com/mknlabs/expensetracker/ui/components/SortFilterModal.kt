@@ -550,7 +550,7 @@ fun FilterBottomSheet(
                 Button(
                     onClick = onApply,
                     modifier = Modifier
-                        .weight(2f)
+                        .weight(1f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
