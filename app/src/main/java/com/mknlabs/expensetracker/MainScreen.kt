@@ -577,6 +577,21 @@ fun MainScreen(
                 }
             }
 
+            // Auto-reset custom font when Pro status is lost
+            LaunchedEffect(effectiveUserTier) {
+                if (effectiveUserTier != UserTier.PREMIUM &&
+                    (appSettings.fontMode == com.mknlabs.expensetracker.models.FontMode.CUSTOM ||
+                        appSettings.activeCustomFontFileName != null)
+                ) {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        settings.copy(
+                            fontMode = com.mknlabs.expensetracker.models.FontMode.APP,
+                            activeCustomFontFileName = null
+                        )
+                    }
+                }
+            }
+
             LaunchedEffect(navigationState.currentRoute) {
                 mainViewModel.setTransactionObservationEnabled(
                     navigationState.currentRoute in routesKeepingTransactionsWarm
