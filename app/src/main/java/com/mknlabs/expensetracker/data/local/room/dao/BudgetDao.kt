@@ -47,6 +47,14 @@ interface BudgetDao {
     @Query("UPDATE budgets SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<String>, syncState: String)
 
+    /**
+     * Updates the month_start for a single budget by id.
+     * Used when the user changes the month-start-day setting so that
+     * existing budgets align with the new custom-month boundaries.
+     */
+    @Query("UPDATE budgets SET month_start = :newMonthStart, updated_at = :updatedAt, sync_state = 'PENDING_UPLOAD' WHERE id = :id")
+    suspend fun updateMonthStart(id: String, newMonthStart: Long, updatedAt: Long)
+
     @Query("DELETE FROM budgets WHERE is_deleted = 1 AND sync_state = 'SYNCED' AND updated_at < :threshold")
     suspend fun purgeOldDeleted(threshold: Long)
 }

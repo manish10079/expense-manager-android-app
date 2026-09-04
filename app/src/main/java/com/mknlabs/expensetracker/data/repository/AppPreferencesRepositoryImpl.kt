@@ -2,17 +2,20 @@ package com.mknlabs.expensetracker.data.repository
 
 import android.content.Context
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.FontMode
+import com.mknlabs.expensetracker.utils.CustomMonthUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AppPreferencesRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val budgetDao: BudgetDao
 ) : AppPreferencesRepository {
 
     override fun observeAppSettings(): Flow<AppSettings> {
@@ -107,11 +110,30 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateMonthStartDay(day: Int) {
+        val boundedDay = day.coerceIn(
+            CustomMonthUtils.MIN_MONTH_START_DAY,
+            CustomMonthUtils.MAX_MONTH_START_DAY
+        )
+
+        // 1. Persist the new setting.
         AppSettingsDataStore.updateAppSettings(context) { settings ->
-            settings.copy(monthStartDay = day.coerceIn(
-                com.mknlabs.expensetracker.utils.CustomMonthUtils.MIN_MONTH_START_DAY,
-                com.mknlabs.expensetracker.utils.CustomMonthUtils.MAX_MONTH_START_DAY
-            ))
+            settings.copy(monthStartDay = boundedDay)
+        }
+
+        // 2. Re-key every existing budget so its monthStart aligns with
+        //    the new custom-month boundaries.  Each budget's old monthStart
+        //    is recalculated using the NEW day — e.g. if the old monthStart
+        //    was Sep 1 and the new day is 15, it becomes Sep 15.
+        val now = System.currentTimeMillis()
+        val allBudgets = budgetDao.getActiveBudgets()
+        allBudgets.forEach { budget ->
+            val newMonthStart = CustomMonthUtils.getStartOfCustomMonth(
+                budget.monthStart,
+                boundedDay
+            )
+            if (newMonthStart != budget.monthStart) {
+                budgetDao.updateMonthStart(budget.id, newMonthStart, now)
+            }
         }
     }
 }
