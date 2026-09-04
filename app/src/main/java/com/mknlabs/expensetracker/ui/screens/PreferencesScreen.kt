@@ -3,8 +3,6 @@ package com.mknlabs.expensetracker.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,8 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -296,58 +292,35 @@ private fun PreferencesScreenContent(
 
                 // Group 3: Appearance
                 item {
-                    var isFontCardVisible by remember { mutableStateOf(false) }
-                    val themeScope = rememberCoroutineScope()
                     SettingsGroup {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .pointerInput(Unit) {
-                                    awaitEachGesture {
-                                        awaitFirstDown(requireUnconsumed = false)
-                                        val startTime = System.currentTimeMillis()
-                                        while (true) {
-                                            val event = awaitPointerEvent(PointerEventPass.Main)
-                                            if (event.changes.all { !it.pressed }) break
-                                            if (System.currentTimeMillis() - startTime >= 5_000L) {
-                                                isFontCardVisible = true
-                                                break
-                                            }
-                                        }
-                                    }
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_theme),
+                            subtitle = stringResource(R.string.label_theme_subtitle),
+                            icon = Icons.Filled.Palette,
+                            valueText = stringResource(uiState.currentThemeModeLabelRes),
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.ThemeMode) }
+                        )
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_font),
+                            subtitle = stringResource(R.string.label_font_subtitle),
+                            icon = Icons.Filled.FontDownload,
+                            valueText = when (uiState.selectedFontMode) {
+                                com.mknlabs.expensetracker.models.FontMode.APP -> stringResource(R.string.label_font_app)
+                                com.mknlabs.expensetracker.models.FontMode.SYSTEM -> stringResource(R.string.label_font_system)
+                                com.mknlabs.expensetracker.models.FontMode.CUSTOM -> {
+                                    val activeName = uiState.activeCustomFontFileName?.let {
+                                        com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(it)
+                                    } ?: stringResource(R.string.label_font_custom)
+                                    activeName
                                 }
-                        ) {
-                            SettingsItemCard(
-                                title = stringResource(R.string.title_theme),
-                                subtitle = stringResource(R.string.label_theme_subtitle),
-                                icon = Icons.Filled.Palette,
-                                valueText = stringResource(uiState.currentThemeModeLabelRes),
-                                type = SettingsItemType.Value,
-                                standalone = false,
-                                onClick = { showSheet(PreferencesSheetType.ThemeMode) }
-                            )
-                        }
-                        if (isFontCardVisible) {
-                            SettingsGroupDivider()
-                            SettingsItemCard(
-                                title = stringResource(R.string.title_font),
-                                subtitle = stringResource(R.string.label_font_subtitle),
-                                icon = Icons.Filled.FontDownload,
-                                valueText = when (uiState.selectedFontMode) {
-                                    com.mknlabs.expensetracker.models.FontMode.APP -> stringResource(R.string.label_font_app)
-                                    com.mknlabs.expensetracker.models.FontMode.SYSTEM -> stringResource(R.string.label_font_system)
-                                    com.mknlabs.expensetracker.models.FontMode.CUSTOM -> {
-                                        val activeName = uiState.activeCustomFontFileName?.let {
-                                            com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(it)
-                                        } ?: stringResource(R.string.label_font_custom)
-                                        activeName
-                                    }
-                                },
-                                type = SettingsItemType.Value,
-                                standalone = false,
-                                onClick = { showSheet(PreferencesSheetType.Font) }
-                            )
-                        }
+                            },
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.Font) }
+                        )
                     }
                 }
 
