@@ -743,6 +743,18 @@
     <string name="label_save_1">Save</string>
     <string name="label_update_1">Update</string>
     <string name="label_delete_1">Delete</string>
+    <string name="title_copy_previous_month_budgets">Copy Previous Month Budgets</string>
+    <string name="action_copy_all">Copy All</string>
+    <string name="action_copy_selected">Copy Selected</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_create_budget">Create Budget</string>
+    <string name="msg_copy_previous_budgets_context">Choose budgets from %1$s to copy into %2$s.</string>
+    <string name="empty_copy_previous_month_title">No budgets found for last month.</string>
+    <string name="msg_copy_previous_month_empty">You didn\'t create any budgets last month, so there\'s nothing to copy.</string>
+    <string name="msg_copy_all_budgets_success">All previous month budgets copied successfully.</string>
+    <string name="msg_copy_selected_budgets_success">Selected budgets copied successfully.</string>
+    <string name="title_copy_budgets_confirmation">Budgets Already Exist</string>
+    <string name="msg_copy_budgets_confirmation">%1$s already has budgets. Copying last month\'s budgets may create duplicate budget entries. Do you want to continue?</string>
     <!-- Calendar Screen -->
     <string name="label_calendar_year_view">Calendar Year View</string>
     <string name="label_calendar_year_picker">Calendar Year Picker</string>

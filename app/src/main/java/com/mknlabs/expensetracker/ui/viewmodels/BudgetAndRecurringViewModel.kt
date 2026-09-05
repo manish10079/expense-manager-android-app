@@ -113,6 +113,15 @@ data class BudgetRecurringExpenseUi(
 )
 
 @Immutable
+data class BudgetCopyCandidateUi(
+    val id: String,
+    val categoryIds: List<Int> = emptyList(),
+    val name: String = "",
+    val period: BudgetPeriod = BudgetPeriod.MONTHLY,
+    val limitAmount: Double = 0.0
+)
+
+@Immutable
 data class BudgetAndRecurringScreenUiState(
     val selectedTab: BudgetTab = BudgetTab.Budgets,
     val selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth,
@@ -125,6 +134,9 @@ data class BudgetAndRecurringScreenUiState(
     val customMonthStart: Long = startOfMonth(System.currentTimeMillis()),
     val isMonthLocked: Boolean = false,
     val canAddBudget: Boolean = true,
+    // Copy-previous-month-budgets sheet data
+    val previousMonthLabel: String = "",
+    val previousMonthBudgets: List<BudgetCopyCandidateUi> = emptyList(),
     // Current period indicator
     val currentPeriodStartMillis: Long = 0L,
     val currentPeriodEndMillis: Long = 0L,
@@ -271,6 +283,46 @@ class BudgetAndRecurringViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Copies every budget of the previous month into the current month as new
+     * budget rows (existing current-month budgets are never deleted or edited).
+     */
+    fun copyAllPreviousMonthBudgets() {
+        copyPreviousMonthBudgets(_uiState.value.previousMonthBudgets.map { it.id })
+    }
+
+    /**
+     * Copies only the [budgetIds] selected by the user from the previous month
+     * into the current month as new budget rows.
+     */
+    fun copySelectedPreviousMonthBudgets(budgetIds: List<String>) {
+        copyPreviousMonthBudgets(budgetIds)
+    }
+
+    private fun copyPreviousMonthBudgets(budgetIds: List<String>) {
+        if (budgetIds.isEmpty()) return
+        val currentMonthStart = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
+        val prevMonthStart = addMonths(currentMonthStart, -1, currentMonthStartDay)
+        viewModelScope.launch {
+            budgetEntries
+                .filter { it.id in budgetIds && it.monthStart == prevMonthStart }
+                .forEach { source ->
+                    budgetRepository.upsertBudget(
+                        Budget(
+                            id = "",
+                            categoryId = source.categoryIds.firstOrNull() ?: source.categoryId,
+                            categoryIds = source.categoryIds,
+                            name = source.name,
+                            period = source.period,
+                            monthStart = currentMonthStart,
+                            limitAmount = source.limitAmount,
+                            editCount = 0
+                        )
+                    )
+                }
+        }
+    }
+
     private fun upsertBudget(
         budgetId: String?,
         categoryIds: List<Int>,
@@ -374,6 +426,10 @@ class BudgetAndRecurringViewModel @Inject constructor(
             }
         }
 
+        val previousMonthBudgets = buildCopyCandidates(
+            previousBudgets = budgetEntries.filter { it.monthStart == prevMonthStart }
+        )
+
         val summary = buildSummary(
             monthStart = selectedMonthStart,
             expenseTransactions = expenseTransactions,
@@ -389,6 +445,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 categoryBudgets = categoryBudgets,
                 recurringExpenses = activeRecurring,
                 categoryTrackedMap = categoryTrackedMap,
+                previousMonthLabel = monthFormatter.format(Date(prevMonthStart)),
+                previousMonthBudgets = previousMonthBudgets,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
                     when {
@@ -470,6 +528,27 @@ private fun buildSummary(
             UiText.res(R.string.format_limit_amount, formatCurrencyValue(totalBudgetAmount, currencyId, amountFormatPreferences))
         }
     )
+}
+
+private fun buildCopyCandidates(
+    previousBudgets: List<BudgetEntry>
+): List<BudgetCopyCandidateUi> {
+    return previousBudgets
+        .map { entry ->
+            BudgetCopyCandidateUi(
+                id = entry.id,
+                categoryIds = entry.categoryIds.ifEmpty {
+                    if (entry.categoryId != 0) listOf(entry.categoryId) else emptyList()
+                },
+                name = entry.name,
+                period = entry.period,
+                limitAmount = entry.limitAmount
+            )
+        }
+        .sortedWith(
+            compareBy<BudgetCopyCandidateUi> { it.name.lowercase(Locale.getDefault()) }
+                .thenBy { it.categoryIds.firstOrNull() ?: 0 }
+        )
 }
 
 private fun buildCategoryBudgets(

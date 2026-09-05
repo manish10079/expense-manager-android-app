@@ -33,10 +33,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
@@ -96,6 +99,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -106,6 +111,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.ui.components.AppHeader
+import com.mknlabs.expensetracker.ui.components.AppIconBox
 import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
@@ -125,6 +131,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.BudgetPeriodFilter
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetAccent
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
+import com.mknlabs.expensetracker.ui.viewmodels.BudgetCopyCandidateUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
@@ -136,6 +143,16 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+
+private enum class BudgetCopyMode {
+    All,
+    Selected
+}
+
+private data class PendingBudgetCopy(
+    val mode: BudgetCopyMode,
+    val budgetIds: List<String>
+)
 
 @Composable
 fun BudgetAndRecurringScreen(
@@ -166,6 +183,7 @@ fun BudgetAndRecurringScreen(
     }
 
     val uiState by budgetViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     BudgetAndRecurringContent(
         uiState = uiState,
@@ -185,7 +203,15 @@ fun BudgetAndRecurringScreen(
         onSaveBudget = { budgetId, categoryIds, limit, name, period ->
             budgetViewModel.saveBudget(budgetId, categoryIds, limit, name, period)
         },
-        onDeleteBudget = { budgetId -> budgetViewModel.deleteBudget(budgetId) }
+        onDeleteBudget = { budgetId -> budgetViewModel.deleteBudget(budgetId) },
+        onCopyAllBudgets = {
+            budgetViewModel.copyAllPreviousMonthBudgets()
+            Toast.makeText(context, R.string.msg_copy_all_budgets_success, Toast.LENGTH_SHORT).show()
+        },
+        onCopySelectedBudgets = { budgetIds ->
+            budgetViewModel.copySelectedPreviousMonthBudgets(budgetIds)
+            Toast.makeText(context, R.string.msg_copy_selected_budgets_success, Toast.LENGTH_SHORT).show()
+        }
     )
 }
 
@@ -206,7 +232,9 @@ private fun BudgetAndRecurringContent(
     onSelectPeriod: (BudgetPeriodFilter) -> Unit,
     onSelectCustomMonth: (Long) -> Unit,
     onSaveBudget: (String?, List<Int>, Double, String, BudgetPeriod) -> Unit,
-    onDeleteBudget: (String) -> Unit
+    onDeleteBudget: (String) -> Unit,
+    onCopyAllBudgets: () -> Unit,
+    onCopySelectedBudgets: (List<String>) -> Unit
 ) {
     var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
@@ -220,6 +248,8 @@ private fun BudgetAndRecurringContent(
     var infoBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var isGroupInfoSheetVisible by rememberSaveable { mutableStateOf(false) }
     val groupInfoSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isCopySheetVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingCopyRequest by remember { mutableStateOf<PendingBudgetCopy?>(null) }
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
@@ -357,6 +387,21 @@ private fun BudgetAndRecurringContent(
                                         isGroupInfoSheetVisible = true
                                     }
                                 )
+                            }
+                        }
+
+                        item {
+                            if (uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth) {
+                                GatedAction(
+                                    feature = Feature.BUDGET_COPY_PREVIOUS_MONTH,
+                                    displayName = stringResource(id = R.string.title_copy_previous_month_budgets),
+                                    onAction = { isCopySheetVisible = true }
+                                ) { status, onClick ->
+                                    CopyPreviousMonthBudgetsAction(
+                                        isLocked = status !is AccessStatus.Granted,
+                                        onClick = onClick
+                                    )
+                                }
                             }
                         }
 
@@ -525,6 +570,64 @@ private fun BudgetAndRecurringContent(
             onSave = { frequency, installments ->
                 onUpdateRecurringRule(rule.id, frequency, installments)
                 editingRecurringRule = null
+            }
+        )
+    }
+
+    if (isCopySheetVisible) {
+        val currentMonthHasBudgets =
+            uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth && uiState.categoryBudgets.isNotEmpty()
+        CopyPreviousMonthBudgetsSheet(
+            candidates = uiState.previousMonthBudgets,
+            availableCategories = availableCategories,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            previousMonthLabel = uiState.previousMonthLabel,
+            currentMonthLabel = uiState.summary.monthLabel,
+            onDismiss = { isCopySheetVisible = false },
+            onCreateBudget = {
+                isCopySheetVisible = false
+                editingBudgetId = null
+                budgetEditorSessionKey = System.currentTimeMillis()
+                isBudgetEditorVisible = true
+            },
+            onCopyAll = {
+                if (currentMonthHasBudgets) {
+                    pendingCopyRequest = PendingBudgetCopy(
+                        mode = BudgetCopyMode.All,
+                        budgetIds = uiState.previousMonthBudgets.map { it.id }
+                    )
+                } else {
+                    isCopySheetVisible = false
+                    onCopyAllBudgets()
+                }
+            },
+            onCopySelected = { ids ->
+                if (currentMonthHasBudgets) {
+                    pendingCopyRequest = PendingBudgetCopy(
+                        mode = BudgetCopyMode.Selected,
+                        budgetIds = ids
+                    )
+                } else {
+                    isCopySheetVisible = false
+                    onCopySelectedBudgets(ids)
+                }
+            }
+        )
+    }
+
+    val pendingCopy = pendingCopyRequest
+    if (pendingCopy != null) {
+        ConfirmCopyBudgetsDialog(
+            monthLabel = uiState.summary.monthLabel,
+            onDismiss = { pendingCopyRequest = null },
+            onConfirm = {
+                pendingCopyRequest = null
+                isCopySheetVisible = false
+                when (pendingCopy.mode) {
+                    BudgetCopyMode.All -> onCopyAllBudgets()
+                    BudgetCopyMode.Selected -> onCopySelectedBudgets(pendingCopy.budgetIds)
+                }
             }
         )
     }
@@ -2167,7 +2270,9 @@ private fun BudgetAndRecurringScreenPreview() {
             onSelectPeriod = {},
             onSelectCustomMonth = {},
             onSaveBudget = { _, _, _, _, _ -> },
-            onDeleteBudget = {}
+            onDeleteBudget = {},
+            onCopyAllBudgets = {},
+            onCopySelectedBudgets = {}
         )
     }
 }
@@ -2512,4 +2617,351 @@ private fun BudgetGroupInfoSheet(
             }
         }
     }
+}
+
+@Composable
+private fun CopyPreviousMonthBudgetsAction(
+    isLocked: Boolean,
+    onClick: () -> Unit
+) {
+    val contentColor = if (isLocked) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val borderColor = if (isLocked) {
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isLocked) {
+            val lockColor = MaterialTheme.colorScheme.featureGateLock
+            AppIconBox(
+                icon = Icons.Rounded.Lock,
+                contentDescription = stringResource(id = R.string.title_copy_previous_month_budgets),
+                size = 34.dp,
+                iconSize = 18.dp,
+                tint = lockColor,
+                backgroundColor = lockColor.copy(alpha = 0.14f)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = stringResource(id = R.string.title_copy_previous_month_budgets),
+                tint = contentColor,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = stringResource(id = R.string.title_copy_previous_month_budgets),
+            color = contentColor,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                letterSpacing = 1.1.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun CopyPreviousMonthBudgetsSheet(
+    candidates: List<BudgetCopyCandidateUi>,
+    availableCategories: List<CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    previousMonthLabel: String,
+    currentMonthLabel: String,
+    onDismiss: () -> Unit,
+    onCreateBudget: () -> Unit,
+    onCopyAll: () -> Unit,
+    onCopySelected: (List<String>) -> Unit
+) {
+    var checkedIds by remember(candidates.map { it.id }) { mutableStateOf(emptySet<String>()) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 4.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = stringResource(id = R.string.title_copy_previous_month_budgets),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                )
+                Text(
+                    text = stringResource(
+                        id = R.string.msg_copy_previous_budgets_context,
+                        previousMonthLabel,
+                        currentMonthLabel
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (candidates.isEmpty()) {
+                CopyPreviousMonthEmptyState(onCreateBudget = onCreateBudget)
+            } else {
+                Button(
+                    onClick = onCopyAll,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ContentCopy,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_copy_all),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(items = candidates, key = { it.id }) { candidate ->
+                        CopyBudgetRow(
+                            candidate = candidate,
+                            isChecked = candidate.id in checkedIds,
+                            availableCategories = availableCategories,
+                            currencyId = currencyId,
+                            amountFormatPreferences = amountFormatPreferences,
+                            onCheckedChange = { isChecked ->
+                                checkedIds = if (isChecked) {
+                                    checkedIds + candidate.id
+                                } else {
+                                    checkedIds - candidate.id
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = { onCopySelected(checkedIds.toList()) },
+                    enabled = checkedIds.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.action_copy_selected),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CopyBudgetRow(
+    candidate: BudgetCopyCandidateUi,
+    isChecked: Boolean,
+    availableCategories: List<CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val firstCategory = candidate.categoryIds.firstOrNull()?.let { categoryId ->
+        availableCategories.firstOrNull { it.id == categoryId }
+    }
+    val title = when {
+        candidate.name.isNotBlank() -> candidate.name
+        candidate.categoryIds.size == 1 -> firstCategory?.name
+            ?: stringResource(id = R.string.label_budget_group)
+        candidate.categoryIds.size > 1 && firstCategory != null ->
+            "${firstCategory.name} (+${candidate.categoryIds.size - 1})"
+        else -> stringResource(id = R.string.label_budget_group)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .border(
+                width = 1.dp,
+                color = if (isChecked) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                },
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable { onCheckedChange(!isChecked) }
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = { onCheckedChange(it) },
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.primary,
+                checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+                uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = firstCategory?.icon ?: Icons.Filled.DateRange,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = formatCurrencyValue(
+                    amount = candidate.limitAmount,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun CopyPreviousMonthEmptyState(
+    onCreateBudget: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.ContentCopy,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.size(42.dp)
+        )
+
+        Text(
+            text = stringResource(id = R.string.empty_copy_previous_month_title),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+            )
+        )
+
+        Text(
+            text = stringResource(id = R.string.msg_copy_previous_month_empty),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Button(
+            onClick = onCreateBudget,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.action_create_budget),
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConfirmCopyBudgetsDialog(
+    monthLabel: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.title_copy_budgets_confirmation),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Text(stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(id = R.string.action_copy))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_cancel_1))
+            }
+        }
+    )
 }
