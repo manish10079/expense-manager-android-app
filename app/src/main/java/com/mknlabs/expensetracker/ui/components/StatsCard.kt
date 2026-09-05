@@ -71,8 +71,14 @@ fun StatsCard(
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
 
-    // Background matching GoalItem card from GoalsScreen (MaterialTheme.colorScheme.surface)
-    val cardBg = colorScheme.surface
+    // Theme-aware gradient background (same as SmallHomeCard / Spent Today,
+    // My Goals cards) instead of the plain surface color.
+    val cardBrush = if (isDark) {
+        Brush.linearGradient(listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd))
+    } else {
+        Brush.linearGradient(listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd))
+    }
+
     val borderBrush = remember(colorScheme.primary) {
         Brush.linearGradient(
             colors = listOf(
@@ -99,7 +105,7 @@ fun StatsCard(
             )
             .clip(cardShape)
             .clickable(onClick = onToggleVisibility)
-            .background(cardBg)
+            .background(brush = cardBrush)
             .border(width = 1.dp, brush = borderBrush, shape = cardShape)
             .padding(16.dp)
     ) {

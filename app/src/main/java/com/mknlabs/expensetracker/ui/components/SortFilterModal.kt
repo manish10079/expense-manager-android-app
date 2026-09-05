@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -279,34 +280,22 @@ fun FilterBottomSheet(
                             onAction = { showDatePicker = true }
                         ) { status, gatedOnClick ->
                             val isLocked = status !is AccessStatus.Granted
-                            Box {
-                                val customRangeText = if (selectedDateRange == KEY_CUSTOM_RANGE && selectedCustomStartDate != null && selectedCustomEndDate != null) {
-                                    com.mknlabs.expensetracker.ui.viewmodels.formatCustomRangeLabel(
-                                        selectedCustomStartDate..selectedCustomEndDate
-                                    )
-                                } else {
-                                    stringResource(R.string.label_custom_range)
-                                }
-                                FilterChip(
-                                    title = customRangeText,
-                                    icon = Icons.Default.DateRange,
-                                    selected = selectedDateRange == KEY_CUSTOM_RANGE,
-                                    selectedBrush = chipSelectedBrush,
-                                    unselectedBrush = chipUnselectedBrush,
-                                    onClick = { if (isLocked) gatedOnClick() else showDatePicker = true }
+                            val customRangeText = if (selectedDateRange == KEY_CUSTOM_RANGE && selectedCustomStartDate != null && selectedCustomEndDate != null) {
+                                com.mknlabs.expensetracker.ui.viewmodels.formatCustomRangeLabel(
+                                    selectedCustomStartDate..selectedCustomEndDate
                                 )
-                                if (isLocked) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Lock,
-                                        contentDescription = stringResource(R.string.desc_locked),
-                                        tint = colorScheme.featureGateLock,
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .offset(x = (-4).dp, y = 4.dp)
-                                            .size(12.dp)
-                                    )
-                                }
+                            } else {
+                                stringResource(R.string.label_custom_range)
                             }
+                            FilterChip(
+                                title = customRangeText,
+                                icon = Icons.Default.DateRange,
+                                selected = selectedDateRange == KEY_CUSTOM_RANGE,
+                                selectedBrush = chipSelectedBrush,
+                                unselectedBrush = chipUnselectedBrush,
+                                locked = isLocked,
+                                onClick = { if (isLocked) gatedOnClick() else showDatePicker = true }
+                            )
                         }
                     }
                     
@@ -390,7 +379,7 @@ fun FilterBottomSheet(
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
-                                FilterGroup(title = stringResource(R.string.label_expense_categories)) {
+                                FilterGroup(title = stringResource(R.string.label_expense_categories), locked = isLocked) {
                                     FlowRow(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -417,7 +406,7 @@ fun FilterBottomSheet(
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
-                                FilterGroup(title = stringResource(R.string.label_income_categories)) {
+                                FilterGroup(title = stringResource(R.string.label_income_categories), locked = isLocked) {
                                     FlowRow(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -440,7 +429,7 @@ fun FilterBottomSheet(
 
                         if ((isExpenseExpanded && expenseCategories.isEmpty()) || (isIncomeExpanded && incomeCategories.isEmpty())) {
                             if (expenseCategories.isEmpty() && incomeCategories.isEmpty()) {
-                                FilterGroup(title = stringResource(R.string.label_categories)) {
+                                FilterGroup(title = stringResource(R.string.label_categories), locked = isLocked) {
                                     Text(
                                         text = stringResource(R.string.desc_no_categories),
                                         style = MaterialTheme.typography.bodyMedium,
@@ -458,7 +447,7 @@ fun FilterBottomSheet(
                     feature = Feature.ADVANCED_SEARCH_SCOPE,
                     displayName = stringResource(R.string.label_payment_mode)
                 ) { isLocked, onClick ->
-                    FilterGroup(title = stringResource(R.string.label_payment_mode)) {
+                    FilterGroup(title = stringResource(R.string.label_payment_mode), locked = isLocked) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -522,7 +511,7 @@ fun FilterBottomSheet(
                         onReset()
                     },
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(2f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     border = androidx.compose.foundation.BorderStroke(
@@ -550,7 +539,7 @@ fun FilterBottomSheet(
                 Button(
                     onClick = onApply,
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(3f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -568,7 +557,10 @@ fun FilterBottomSheet(
                         text = stringResource(R.string.label_apply_filters),
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold
-                        )
+                        ),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Clip
                     )
                 }
             }
@@ -579,16 +571,28 @@ fun FilterBottomSheet(
 @Composable
 private fun FilterGroup(
     title: String,
+    locked: Boolean = false,
     content: @Composable () -> Unit
 ) {
     Column {
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.SemiBold
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
+            if (locked) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Rounded.Lock,
+                    contentDescription = stringResource(R.string.desc_locked),
+                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(10.dp))
         content()
     }
@@ -605,63 +609,7 @@ private fun GatedFilterGroup(
         displayName = displayName,
         onAction = { /* Handled via content onClick */ }
     ) { status, onClick ->
-        val isLocked = status !is AccessStatus.Granted
-        Box {
-            content(isLocked, onClick)
-            if (isLocked) {
-                Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = stringResource(R.string.desc_locked),
-                    tint = MaterialTheme.colorScheme.featureGateLock,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(start = (displayName.length * 7).dp) // Rough estimate for title width
-                        .offset(x = 12.dp, y = 2.dp)
-                        .size(14.dp)
-                )
-            }
-        }
-    }
-}
-
-/**
- * Enhanced GatedFilterGroup with better Lock positioning
- */
-@Composable
-private fun GatedFilterGroup(
-    feature: Feature,
-    displayName: String,
-    title: String,
-    content: @Composable (Boolean, () -> Unit) -> Unit
-) {
-    GatedAction(
-        feature = feature,
-        displayName = displayName,
-        onAction = { /* Handled via content onClick */ }
-    ) { status, onClick ->
-        val isLocked = status !is AccessStatus.Granted
-        Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = title,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-                if (isLocked) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.Filled.Lock,
-                        contentDescription = stringResource(R.string.desc_locked),
-                        tint = MaterialTheme.colorScheme.featureGateLock,
-                        modifier = Modifier.size(14.dp).padding(bottom = 2.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            content(isLocked, onClick)
-        }
+        content(status !is AccessStatus.Granted, onClick)
     }
 }
 
@@ -673,7 +621,8 @@ private fun FilterChip(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     selectedBrush: Brush? = null,
-    unselectedBrush: Brush? = null
+    unselectedBrush: Brush? = null,
+    locked: Boolean = false
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -713,6 +662,16 @@ private fun FilterChip(
             ),
             color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant
         )
+
+        if (locked) {
+            Spacer(modifier = Modifier.width(6.dp))
+            Icon(
+                imageVector = Icons.Filled.Lock,
+                contentDescription = stringResource(R.string.desc_locked),
+                tint = MaterialTheme.colorScheme.featureGateLock,
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
 }
 

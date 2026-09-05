@@ -20,6 +20,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -244,6 +245,40 @@ fun TransactionScreen(
     )
 }
 
+/**
+ * Header icon action styled like [AppHeader]'s back button: a 48dp touch
+ * target wrapping a 40dp visible circular background. A plain [IconButton]
+ * can never shrink below its enforced 48dp minimum interactive size, which
+ * made these circles render larger than the back chevron's.
+ */
+@Composable
+private fun HeaderCircleActionButton(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    contentDescription: String
+) {
+    Box(
+        modifier = Modifier.size(48.dp), // Outer padding for accessibility
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp) // The visible circle — matches AppHeader back button
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .clickable(onClick = onClick), // Ripple now limited to 40dp
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun TransactionScreenContent(
@@ -437,24 +472,16 @@ private fun TransactionScreenContent(
                         title = stringResource(R.string.title_transactions),
                         onBackClick = onBackClick,
                         actions = {
-                            IconButton(
+                            HeaderCircleActionButton(
                                 onClick = { isSearchExpanded = true },
-                                modifier = Modifier
-                                    .size(26.dp)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Search,
-                                    contentDescription = stringResource(R.string.desc_search_transactions),
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
+                                icon = Icons.Filled.Search,
+                                contentDescription = stringResource(R.string.desc_search_transactions)
+                            )
 
-                            Spacer(modifier = Modifier.width(30.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             Box {
-                                IconButton(
+                                HeaderCircleActionButton(
                                     onClick = {
                                         closeSearchBar(
                                             focusManager = focusManager,
@@ -463,22 +490,16 @@ private fun TransactionScreenContent(
                                         )
                                         showBottomSheet = true
                                     },
-                                    modifier = Modifier
-                                        .size(26.dp)
-                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
-                                ) {
-                                    Icon(
-                                        imageVector = if (uiState.isFilterActive) Icons.Rounded.FilterAlt else Icons.Outlined.FilterAlt,
-                                        contentDescription = stringResource(R.string.label_sort_filter),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                // Tiny purple dot indicator when any filter/sort is active
+                                    icon = if (uiState.isFilterActive) Icons.Rounded.FilterAlt else Icons.Outlined.FilterAlt,
+                                    contentDescription = stringResource(R.string.label_sort_filter)
+                                )
+                                // Tiny purple dot indicator when any filter/sort is active,
+                                // anchored to the 40dp circle's corner.
                                 if (uiState.isFilterActive) {
                                     Box(
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
+                                            .padding(4.dp)
                                             .size(7.dp)
                                             .background(
                                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),

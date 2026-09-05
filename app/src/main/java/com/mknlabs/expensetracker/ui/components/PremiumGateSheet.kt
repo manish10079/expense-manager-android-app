@@ -33,7 +33,7 @@ fun PremiumGateSheet(
     onUpgradeClick: () -> Unit,
     onRedeemClick: (() -> Unit)? = null
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val selectedCopy = remember { PremiumCopyOptions.random() }
 
     ModalBottomSheet(
@@ -59,9 +59,12 @@ fun PremiumGateSheet(
                 .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Copy area scrolls if the sheet runs out of room, while the action
+            // buttons below stay pinned and always visible.
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1f, fill = false)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
