@@ -135,6 +135,7 @@ class SettingsViewModelTest {
         override val isSyncEnabled: StateFlow<Boolean> = MutableStateFlow(false)
         override val maxSyncDevices: StateFlow<Int> = MutableStateFlow(0)
         override val googleSheetsFeedbackUrl: StateFlow<String> = MutableStateFlow("")
+        override val isProGatingEnabled: StateFlow<Boolean> = MutableStateFlow(false)
         override fun fetchAndActivate() {}
         override fun isUpdateRequired(): Boolean = false
     }

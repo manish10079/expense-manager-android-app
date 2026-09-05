@@ -311,6 +311,7 @@ class TransactionsViewModelTest {
         )
         viewModel.updateInputs(
             categories = emptyList(),
+            paymentMethods = emptyList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
@@ -331,6 +332,7 @@ class TransactionsViewModelTest {
         fakeRepository.stubTransactions = transactions
         viewModel.updateInputs(
             categories = emptyList(),
+            paymentMethods = emptyList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
@@ -391,7 +393,14 @@ class TransactionsViewModelTest {
         var stubTransactions: List<Transaction> = emptyList()
 
         override fun observeActiveTransactions(): Flow<List<Transaction>> = flowOf(stubTransactions)
-        override fun observeHomeSummary(): Flow<TransactionSummary> = flowOf(TransactionSummary(0,0,0,0,0))
+        override fun observeHomeSummary(
+            currentMonthStartMillis: Long,
+            currentMonthEndMillis: Long,
+            previousMonthStartMillis: Long,
+            previousMonthEndMillis: Long,
+            todayStartMillis: Long,
+            todayEndMillis: Long
+        ): Flow<TransactionSummary> = flowOf(TransactionSummary(0, 0, 0, 0, 0))
         override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> = flowOf(emptyList())
         override fun observeActiveTransactionCount(): Flow<Int> = flowOf(stubTransactions.size)
         override suspend fun getTransactionById(id: String): Transaction? = null

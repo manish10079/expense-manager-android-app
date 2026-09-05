@@ -1,12 +1,15 @@
 package com.mknlabs.expensetracker.ui.viewmodels
 
+import com.mknlabs.expensetracker.domain.repository.GoalFundEntryRepository
 import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.models.Goal
+import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -34,7 +37,10 @@ class GoalsViewModelTest {
     @Before
     fun setup() {
         fakeRepository = FakeGoalRepository()
-        viewModel = GoalsViewModel(goalRepository = fakeRepository)
+        viewModel = GoalsViewModel(
+            goalRepository = fakeRepository,
+            goalFundEntryRepository = FakeGoalFundEntryRepository()
+        )
     }
 
     @Test
@@ -170,6 +176,15 @@ class GoalsViewModelTest {
             updatedAt = System.currentTimeMillis(),
             syncState = SyncState.PENDING_UPLOAD
         )
+    }
+
+    private class FakeGoalFundEntryRepository : GoalFundEntryRepository {
+        override fun observeEntriesByGoalId(goalId: String): Flow<List<GoalFundEntry>> =
+            flowOf(emptyList())
+
+        override suspend fun insertEntry(entry: GoalFundEntry) = Unit
+
+        override suspend fun deleteEntry(id: String) = Unit
     }
 
     private class FakeGoalRepository : GoalRepository {

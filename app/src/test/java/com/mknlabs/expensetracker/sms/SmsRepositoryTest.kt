@@ -107,7 +107,15 @@ class SmsRepositoryTest {
         override suspend fun getActiveTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getAllTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getById(id: String): TransactionEntity? = error("unexpected")
-        override fun observeHomeSummary(): Flow<HomeSummaryRow> = error("unexpected")
+        override fun observeHomeSummary(
+            currentMonthStartMillis: Long,
+            currentMonthEndMillis: Long,
+            previousMonthStartMillis: Long,
+            previousMonthEndMillis: Long,
+            todayStartMillis: Long,
+            todayEndMillis: Long
+        ): Flow<HomeSummaryRow> = error("unexpected")
+        override suspend fun getTodayExpenseMinor(dayStr: String): Long = error("unexpected")
         override fun observeRecentTransactions(limit: Int): Flow<List<HomeRecentTransactionRow>> = error("unexpected")
         override fun observeActiveTransactionCount(): Flow<Int> = error("unexpected")
         override suspend fun countAll(): Int = error("unexpected")
@@ -146,7 +154,14 @@ class SmsRepositoryTest {
         val upserted = mutableListOf<Transaction>()
 
         override fun observeActiveTransactions(): Flow<List<Transaction>> = error("unexpected")
-        override fun observeHomeSummary(): Flow<TransactionSummary> = error("unexpected")
+        override fun observeHomeSummary(
+            currentMonthStartMillis: Long,
+            currentMonthEndMillis: Long,
+            previousMonthStartMillis: Long,
+            previousMonthEndMillis: Long,
+            todayStartMillis: Long,
+            todayEndMillis: Long
+        ): Flow<TransactionSummary> = error("unexpected")
         override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> = error("unexpected")
         override fun observeActiveTransactionCount(): Flow<Int> = error("unexpected")
         override suspend fun getTransactionById(id: String): Transaction? = error("unexpected")

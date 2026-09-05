@@ -6,6 +6,7 @@ import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
+import com.mknlabs.expensetracker.models.FontMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,5 +80,12 @@ class PreferencesViewModelTest {
         override suspend fun updateCurrencyDecimalPlaces(decimalPlaces: Int) {
             settings.value = settings.value.copy(currencyDecimalPlaces = decimalPlaces)
         }
+
+        override suspend fun updateFontMode(fontMode: FontMode) = Unit
+        override suspend fun setActiveCustomFont(fileName: String?) = Unit
+        override suspend fun addImportedFont(fileName: String) = Unit
+        override suspend fun removeImportedFont(fileName: String) = Unit
+        override suspend fun addAndActivateFont(fileName: String) = Unit
+        override suspend fun updateMonthStartDay(day: Int) = Unit
     }
 }

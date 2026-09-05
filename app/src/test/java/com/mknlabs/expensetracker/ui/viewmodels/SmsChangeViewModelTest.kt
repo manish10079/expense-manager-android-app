@@ -16,6 +16,7 @@ import com.mknlabs.expensetracker.domain.repository.TransactionSummary
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
+import com.mknlabs.expensetracker.models.FontMode
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsConfidence
@@ -224,7 +225,15 @@ class SmsChangeViewModelTest {
         override suspend fun getActiveTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getAllTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getById(id: String): TransactionEntity? = error("unexpected")
-        override fun observeHomeSummary(): Flow<HomeSummaryRow> = error("unexpected")
+        override fun observeHomeSummary(
+            currentMonthStartMillis: Long,
+            currentMonthEndMillis: Long,
+            previousMonthStartMillis: Long,
+            previousMonthEndMillis: Long,
+            todayStartMillis: Long,
+            todayEndMillis: Long
+        ): Flow<HomeSummaryRow> = error("unexpected")
+        override suspend fun getTodayExpenseMinor(dayStr: String): Long = error("unexpected")
         override fun observeRecentTransactions(limit: Int): Flow<List<HomeRecentTransactionRow>> = error("unexpected")
         override fun observeActiveTransactionCount(): Flow<Int> = error("unexpected")
         override suspend fun countAll(): Int = error("unexpected")
@@ -263,7 +272,14 @@ class SmsChangeViewModelTest {
         val upserted = mutableListOf<Transaction>()
 
         override fun observeActiveTransactions(): Flow<List<Transaction>> = error("unexpected")
-        override fun observeHomeSummary(): Flow<TransactionSummary> = error("unexpected")
+        override fun observeHomeSummary(
+            currentMonthStartMillis: Long,
+            currentMonthEndMillis: Long,
+            previousMonthStartMillis: Long,
+            previousMonthEndMillis: Long,
+            todayStartMillis: Long,
+            todayEndMillis: Long
+        ): Flow<TransactionSummary> = error("unexpected")
         override fun observeRecentTransactions(limit: Int): Flow<List<RecentTransaction>> = error("unexpected")
         override fun observeActiveTransactionCount(): Flow<Int> = error("unexpected")
         override suspend fun getTransactionById(id: String): Transaction? = error("unexpected")
@@ -294,5 +310,11 @@ class SmsChangeViewModelTest {
         override suspend fun updateThemeMode(themeMode: AppThemeMode) = Unit
         override suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle) = Unit
         override suspend fun updateCurrencyDecimalPlaces(decimalPlaces: Int) = Unit
+        override suspend fun updateFontMode(fontMode: FontMode) = Unit
+        override suspend fun setActiveCustomFont(fileName: String?) = Unit
+        override suspend fun addImportedFont(fileName: String) = Unit
+        override suspend fun removeImportedFont(fileName: String) = Unit
+        override suspend fun addAndActivateFont(fileName: String) = Unit
+        override suspend fun updateMonthStartDay(day: Int) = Unit
     }
 }
