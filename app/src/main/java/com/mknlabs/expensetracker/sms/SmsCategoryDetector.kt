@@ -122,6 +122,25 @@ object SmsCategoryDetector {
             }
         }
 
+        // Deep Merchant Dictionary Extraction via MerchantExtractor
+        MerchantExtractor.extract(body)?.let { merchantInfo ->
+            val categoryName = merchantInfo.categoryName
+            val categoryId = if (categoryName != null) resolveCategoryId(categoryName, transactionTypeId) else null
+            if (categoryId != null) {
+                return CategoryDetection(
+                    categoryId = categoryId,
+                    confidence = SmsConfidence.HIGH,
+                    merchant = merchantInfo.cleanedName
+                )
+            } else if (merchantInfo.cleanedName.isNotBlank()) {
+                return CategoryDetection(
+                    categoryId = resolveCategoryId("Other", transactionTypeId) ?: FALLBACK_CATEGORY_ID,
+                    confidence = SmsConfidence.MEDIUM,
+                    merchant = merchantInfo.cleanedName
+                )
+            }
+        }
+
         // No reliable signal → "Other" for the transaction type, low confidence.
         return CategoryDetection(
             categoryId = resolveCategoryId("Other", transactionTypeId) ?: FALLBACK_CATEGORY_ID,

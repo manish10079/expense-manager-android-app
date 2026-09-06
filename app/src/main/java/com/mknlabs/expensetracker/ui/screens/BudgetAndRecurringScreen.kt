@@ -798,141 +798,135 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
                 shape = RoundedCornerShape(24.dp)
             )
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        // Line 1 — month (left) + total budget (right) on a single row.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.label_monthly_budget),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 1.1.sp
-                )
-            )
-
-            Text(
                 text = summary.monthLabel,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                )
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
             )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = summary.totalBudgetLabel,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    maxLines = 1
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = stringResource(id = R.string.label_month),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
         }
 
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = summary.totalBudgetLabel,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = stringResource(id = R.string.label_month),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
-                )
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            BudgetMetricCard(
-                modifier = Modifier.weight(1f),
+        // Line 2 — Spent and Remaining, each on its own row.
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            BudgetInlineRow(
                 title = stringResource(id = R.string.title_spent),
                 value = summary.spentLabel,
                 valueColor = MaterialTheme.colorScheme.expense
             )
 
-            BudgetMetricCard(
-                modifier = Modifier.weight(1f),
+            BudgetInlineRow(
                 title = if (summary.remainingAmount >= 0.0) stringResource(id = R.string.label_remaining) else stringResource(id = R.string.label_over),
                 value = summary.remainingLabel.asString(),
                 valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = summary.usageLabel.asString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        letterSpacing = 0.9.sp
-                    )
-                )
-
-                if (summary.dailyAllowanceLabel != null) {
-                    Text(
-                        text = summary.dailyAllowanceLabel.asString(),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = 0.5.sp
-                        )
-                    )
-                }
-
-                Text(
-                    text = summary.limitLabel.asString(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        letterSpacing = 0.7.sp
-                    )
-                )
-            }
+        // Line 3 — usage %, progress bar, and daily allowance / limit inline.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = summary.usageLabel.asString(),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.6.sp
+                ),
+                maxLines = 1
+            )
 
             BudgetProgressBar(
                 progress = summary.usageFraction,
-                accent = brandGradient()
+                accent = brandGradient(),
+                modifier = Modifier.weight(1f)
+            )
+
+            val trailingLabel = summary.dailyAllowanceLabel?.asString() ?: summary.limitLabel.asString()
+            Text(
+                text = trailingLabel,
+                color = if (summary.dailyAllowanceLabel != null) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                },
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
 @Composable
-private fun BudgetMetricCard(
-    modifier: Modifier = Modifier,
+private fun BudgetInlineRow(
     title: String,
     value: String,
     valueColor: Color
 ) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(18.dp)
-            )
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                letterSpacing = 0.9.sp
-            )
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.8.sp
+            ),
+            maxLines = 1
         )
+
+        Spacer(modifier = Modifier.width(12.dp))
 
         Text(
             text = value,
-            color = valueColor,                style = MaterialTheme.typography.titleMedium,
+            color = valueColor,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -1968,7 +1962,8 @@ private fun BudgetCardAction(
 @Composable
 private fun BudgetProgressBar(
     progress: Float,
-    accent: Brush
+    accent: Brush,
+    modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),
@@ -1977,7 +1972,7 @@ private fun BudgetProgressBar(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(12.dp)
             .clip(CircleShape)
