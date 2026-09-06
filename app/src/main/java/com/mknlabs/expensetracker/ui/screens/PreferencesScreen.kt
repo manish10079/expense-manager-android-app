@@ -203,8 +203,8 @@ private fun PreferencesScreenContent(
             ) {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                contentPadding = PaddingValues(bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Group 1: Currency & Formats
                 item {
@@ -251,7 +251,7 @@ private fun PreferencesScreenContent(
                     }
                 }
 
-                // Group 2: Date & Time
+                // Group 2: Date & Time (now includes Theme for consistent spacing)
                 item {
                     SettingsGroup {
                         SettingsItemCard(
@@ -287,12 +287,7 @@ private fun PreferencesScreenContent(
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.MonthStartDay) }
                         )
-                    }
-                }
-
-                // Group 3: Appearance
-                item {
-                    SettingsGroup {
+                        SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_theme),
                             subtitle = stringResource(R.string.label_theme_subtitle),
@@ -302,7 +297,18 @@ private fun PreferencesScreenContent(
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.ThemeMode) }
                         )
-                        SettingsGroupDivider()
+                    }
+                }
+
+                item {
+                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                    }
+                }
+
+                // Group 3: Font
+                item {
+                    SettingsGroup {
                         SettingsItemCard(
                             title = stringResource(R.string.title_font),
                             subtitle = stringResource(R.string.label_font_subtitle),
@@ -321,12 +327,6 @@ private fun PreferencesScreenContent(
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.Font) }
                         )
-                    }
-                }
-
-                item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                     }
                 }
             }
