@@ -65,7 +65,7 @@ fun StatsCard(
     isBalanceHidden: Boolean = false,
     onToggleVisibility: () -> Unit = {}
 ) {
-    val cardShape = RoundedCornerShape(30.dp)
+    val cardShape = RoundedCornerShape(20.dp)
     val currentDateLabel = getCurrentDateLabel()
 
     val colorScheme = MaterialTheme.colorScheme

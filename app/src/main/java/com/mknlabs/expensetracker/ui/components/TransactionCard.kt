@@ -117,7 +117,7 @@ fun TransactionCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(20.dp))
             .then(
                 if (isSelected) {
                     Modifier.background(MaterialTheme.colorScheme.primaryContainer)
@@ -127,7 +127,7 @@ fun TransactionCard(
             )
             .border(
                 border = cardBorder,
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(20.dp)
             )
             .combinedClickable(
                 onClick = onClick,

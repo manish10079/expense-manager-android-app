@@ -44,9 +44,48 @@ fun ProPassRedeemDialog(
 ) {
     var code by remember { mutableStateOf("") }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
+    val userTier by viewModel.userTier.collectAsStateWithLifecycle()
     val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
     val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
+
+    // If Pro Pass is currently active, show pop up informing user to try after expiry
+    if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.ConfirmationNumber,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.title_pro_pass_already_active),
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(id = R.string.msg_pro_pass_already_active),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(onClick = onDismiss) {
+                    Text(text = stringResource(id = R.string.btn_ok))
+                }
+            },
+            shape = RoundedCornerShape(20.dp)
+        )
+        return
+    }
 
     // If email is not verified, show verification prompt instead of redemption form
     if (!isEmailVerified) {

@@ -42,7 +42,7 @@ fun TodaySpendingCard(
     onClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(Dimens.CardRadius)
+    val shape = RoundedCornerShape(20.dp)
 
     Box(
         modifier = modifier

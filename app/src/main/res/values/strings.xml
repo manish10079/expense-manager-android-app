@@ -200,7 +200,7 @@
     <string name="title_income">Income</string>
     <string name="title_incomeexpense_labels">Income/Expense labels</string>
     <string name="title_larger_amounts_take_priority_i">Larger amounts take priority in the list.</string>
-    <string name="title_manage_category">Manage Category</string>
+    <string name="title_manage_category">Manage Categories</string>
     <string name="title_recurring_expenses">Recurring Expenses</string>
     <string name="title_show_category_icon">Show Category Icon</string>
     <string name="title_show_transaction_date">Show Transaction Date</string>
@@ -218,12 +218,17 @@
     <string name="desc_profile_photo">Profile photo</string>
     <string name="desc_profile_placeholder">Profile placeholder</string>
     <string name="desc_settings">Settings</string>
+    <string name="title_settings">Settings</string>
+    <string name="header_account_and_security">ACCOUNT &amp; SECURITY</string>
+    <string name="header_membership">MEMBERSHIP</string>
+    <string name="header_preferences">PREFERENCES</string>
+    <string name="header_system_and_data">SYSTEM &amp; DATA</string>
     <string name="label_card_settings">Card Settings</string>
     <string name="title_app_preferences">App Preferences</string>
     <string name="title_data_management">Data Management</string>
     <string name="title_data_management_1">DATA MANAGEMENT</string>
     <string name="title_notification_settings">Notifications</string>
-    <string name="title_notifications">NOTIFICATIONS</string>
+    <string name="title_notifications">Notifications</string>
     <string name="title_notifications_1">Notifications</string>
     <string name="title_preference">PREFERENCE</string>
     <string name="title_profile">Profile</string>
@@ -232,6 +237,7 @@
     <string name="title_customize_caps">CUSTOMIZE</string>
     <string name="title_monetization_caps">MONETIZATION</string>
     <string name="label_remove_all_ads">Remove All Ads</string>
+    <string name="label_remove_all_ads_subtitle">One-time purchase for ad-free experience</string>
     <string name="msg_watch_ad_for_ad_free">Try Pro Features &amp; Ad-Free Ui for 1 hour</string>
     <string name="label_ad_free_active">Ad-Free Access Active</string>
     <string name="msg_ad_free_duration_remaining">You are currently enjoying pro-level features and ad-free UI.</string>
@@ -241,14 +247,17 @@
     <string name="title_session">SESSION</string>
     <string name="title_about_caps">ABOUT</string>
     <string name="label_edit_profile">Edit Profile</string>
-    <string name="label_edit_profile_subtitle">Update your name, avatar etc.</string>
-    <string name="label_app_preferences_subtitle">Customize app settings</string>
-    <string name="label_transaction_card_subtitle">Adjust transaction display</string>
-    <string name="label_manage_category_subtitle">Add or edit categories</string>
-    <string name="label_security_privacy_subtitle">Protect your data and access</string>
-    <string name="label_data_management_subtitle">Backup and manage data</string>
+    <string name="label_edit_profile_subtitle">Update name, avatar, email</string>
+    <string name="desc_cloud_sync_devices_subtitle">Sync data across devices</string>
+    <string name="label_security_privacy_subtitle">Biometrics, passcode, app lock</string>
+    <string name="label_manage_category_subtitle">Add, edit, or color-code categories</string>
+    <string name="label_app_preferences_subtitle">Theme, currency, language</string>
+    <string name="label_transaction_card_subtitle">Configure quick-add widgets</string>
+    <string name="label_data_management_subtitle">Backup, restore, export CSV</string>
+    <string name="label_about_subtitle">Version, license, terms of service</string>
+    <string name="label_about_app_subtitle">Version, license, terms of service</string>
     <string name="label_notifications_subtitle">Control alerts and reminders</string>
-    <string name="label_about_subtitle">App info and details</string>
+    <string name="desc_settings_icon">Settings icon</string>
     <string name="title_connect_on_linkedin">Connect on LinkedIn</string>
     <string name="label_connect_on_linkedin_subtitle">Follow Manish on LinkedIn</string>
     <string name="label_val_min">%1$d min</string>
@@ -1625,9 +1634,12 @@
         <item quantity="other">%1$d upcoming transactions</item>
     </plurals>
     <!-- ProPass / Redemption -->
-    <string name="title_redeem_pro_pass">Pro Access Code</string>
-    <string name="label_redeem_pro_pass_subtitle">Enter code to unlock Pro features</string>
+    <string name="title_redeem_pro_pass">Redeem Pro Pass</string>
+    <string name="label_redeem_pro_pass_subtitle">Enter promo code or pass key</string>
     <string name="title_activate_pro_pass">Activate ProPass</string>
+    <string name="title_pro_pass_already_active">Pro Pass Active</string>
+    <string name="msg_pro_pass_already_active">Your Pro Pass is currently active. Please try redeeming a new code after your current Pro Pass expires.</string>
+    <string name="btn_ok">OK</string>
     <string name="msg_enter_pro_pass_code">Enter your unique alphanumeric ProPass code below.</string>
     <string name="placeholder_pro_pass_code">e.g. PASS-1234-ABCD</string>
     <string name="btn_activate_pro">Activate Pro</string>

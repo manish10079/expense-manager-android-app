@@ -1105,6 +1105,11 @@ fun MainScreen(
                     },
                         onLogoutClick = { showLogoutDialog = true },
                         onDirectSignOut = { authViewModel.signOut() },
+                        onAdFreeAccessClick = {
+                            if (activity != null) {
+                                monetizationViewModel.onWatchAdFreeClicked(activity)
+                            }
+                        },
                         onShowUpgradeSheet = { showPremiumSheet = true },
                         // External activities (photo/file pickers, browser, system
                         // settings) background the app; arm the lock suppression so

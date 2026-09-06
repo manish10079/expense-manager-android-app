@@ -57,7 +57,7 @@ fun SmallHomeCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
-    val shape = RoundedCornerShape(Dimens.CardRadius)
+    val shape = RoundedCornerShape(20.dp)
 
     // Theme-aware gradient background (same as StatsCard)
     val gradientBrush = if (isDark) {
