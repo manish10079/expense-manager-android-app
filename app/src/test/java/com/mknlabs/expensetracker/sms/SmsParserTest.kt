@@ -139,6 +139,17 @@ class SmsParserTest {
     }
 
     @Test
+    fun parses_bare_amount_preceding_credited_verb() {
+        val body = "35000.00 credited to A/c XX7812 on 06-Sep-2026. Info: SALARY SEPT-2026 TECHSOL PVT LTD. Avl Bal: 56723.18"
+        val parsed = SmsParser.parse(body, sender = "HDFCBK", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(35_000_00L, parsed!!.amountMinor)
+        assertEquals(1, parsed.transactionTypeId) // Income
+        assertEquals(101, parsed.categoryId) // Salary
+    }
+
+    @Test
     fun parses_kotak_income_with_rs_prefix() {
         val body = "Received Rs.797.00 in your Kotak Bank AC 3773 from Manish Kumar Nayak on 24-08-26.UPI Ref:000101953226"
         val parsed = SmsParser.parse(body, sender = "KOTAK", smsTimestamp = 0L)
@@ -146,5 +157,27 @@ class SmsParserTest {
         assertNotNull(parsed)
         assertEquals(79_700L, parsed!!.amountMinor)
         assertEquals(1, parsed.transactionTypeId) // Income
+    }
+
+    @Test
+    fun detects_merchant_via_merchant_extractor() {
+        val body = "Rs 245 paid to swiggy@ybl via UPI. UPI Ref 625817263514"
+        val parsed = SmsParser.parse(body, sender = "YESBANK", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(24_500L, parsed!!.amountMinor)
+        assertEquals("Swiggy", parsed.merchant)
+        assertEquals(1, parsed.categoryId) // Food
+    }
+
+    @Test
+    fun detects_quick_commerce_groceries_merchant() {
+        val body = "INR 450 spent at Blinkit on 06-Sep"
+        val parsed = SmsParser.parse(body, sender = "HDFCBK", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(45_000L, parsed!!.amountMinor)
+        assertEquals("Blinkit", parsed.merchant)
+        assertEquals(8, parsed.categoryId) // Groceries
     }
 }

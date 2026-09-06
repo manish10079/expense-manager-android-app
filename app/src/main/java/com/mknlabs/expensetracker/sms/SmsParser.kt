@@ -61,7 +61,10 @@ object SmsParser {
     private fun extractAmountMinor(body: String, currencySymbol: String? = "₹"): Long {
         val amountRegex = SmsRegex.getAmountRegex(currencySymbol)
         val match = amountRegex.find(body) ?: SmsRegex.BARE_AMOUNT.find(body) ?: return 0L
-        val digits = match.groupValues.getOrNull(1)?.replace(",", "") ?: return 0L
+        val rawDigits = match.groupValues.getOrNull(1)?.takeIf { it.isNotBlank() }
+            ?: match.groupValues.getOrNull(2)?.takeIf { it.isNotBlank() }
+            ?: return 0L
+        val digits = rawDigits.replace(",", "")
         return digits.toDoubleOrNull()?.toMinorUnits() ?: 0L
     }
 

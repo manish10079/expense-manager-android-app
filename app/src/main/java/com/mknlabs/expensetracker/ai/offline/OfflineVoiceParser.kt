@@ -50,47 +50,32 @@ class OfflineVoiceParser @Inject constructor(
      * - 500 (bare number after keywords like "for", "of", "on")
      */
     private val amountPatterns = listOf(
-        // $45, $45.50, $1,234.56
-        Regex("""\$\s*(\d[\d,]*(?:\.\d{1,2})?)"""),
-        // 45 dollars, 45.50 dollars
-        Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*dollars?""", RegexOption.IGNORE_CASE),
-        // Rs 500, Rs. 500, INR 500, ₹500
-        Regex("""(?:\bRs\.?|\bINR\.?|₹)\s*(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
-        // 500 rupees
-        Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*rupees?""", RegexOption.IGNORE_CASE),
-        // 500 inr
-        Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*inr""", RegexOption.IGNORE_CASE),
-        // Bare number after spending keywords: "for 45", "of 500", "on 20"
-        Regex("""(?:for|of|on|amount|price|cost|worth)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
-        // Bare number after income/spending verbs: "Paid 350", "Received 5000", "Earned 300"
-        Regex("""(?:spent|paid|bought|ordered|booked|charged|sent|transferred|recharged|received|earned|got|refund(?:ed)?|cashback|deposited|credited|add|record|log|track|create)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
-        // Verb + word + number: "Received salary 75000", "Paid bill 500"
-        Regex("""(?:spent|paid|bought|received|earned|add|record|log|track|create|refund(?:ed)?|cashback)\s+\w+\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // $45, $45.50, $1,234.56, €45, £45, ₹500, RM50
+        Regex("""(?:\$|€|£|₹|\u20B9|RM|AED)\s*(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // 45 dollars, 45.50 euros, 500 rupees, 50 pounds, 100 dirhams, 50 ringgit
+        Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*(?:dollars?|euros?|rupees?|pounds?|dirhams?|ringgits?|inr|usd|eur|gbp)""", RegexOption.IGNORE_CASE),
+        // Rs 500, Rs. 500, INR 500
+        Regex("""(?:\bRs\.?|\bINR\.?)\s*(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // Multilingual prepositions: "for 45", "por 45", "pour 45", "ke liye 500", "ko 500"
+        Regex("""(?:for|of|on|at|por|para|pour|ke liye|ko|ka|ki)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // Multilingual verbs: English, Hinglish, Spanish, French
+        // "spent 350", "diye 500", "compré 20", "payé 50", "gaya 300"
+        Regex("""(?:spent|paid|bought|ordered|charged|sent|received|earned|got|refund|cashback|diye|diya|liya|live|kharcha|kharch|compré|pagué|payé|acheté)\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        Regex("""(?:spent|paid|bought|received|earned|refund|cashback|add|record|log|track|diye|diya|compré|payé)\s+\w+\s+(\d[\d,]*(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
     )
 
-    /**
-     * Bare number at the end of a short utterance as a last resort.
-     * e.g. "groceries 500" or "coffee 5"
-     */
     private val bareNumberAtEnd = Regex("""(\d[\d,]*(?:\.\d{1,2})?)\s*$""")
-
-    /**
-     * Bare number at the beginning of a short utterance.
-     * e.g. "45 groceries" or "500 rent"
-     */
     private val bareNumberAtStart = Regex("""^(\d[\d,]*(?:\.\d{1,2})?)\s+""")
+    private val bareNumberAnywhere = Regex("""\b(\d[\d,]*(?:\.\d{1,2})?)\b""")
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Transaction type detection
-    // ──────────────────────────────────────────────────────────────────────
-
+    // Multilingual income/expense detection
     private val incomeKeywords = Regex(
-        pattern = """\b(?:received|earned|salary|income|got|refund(?:ed)?|cashback|deposit(?:ed)?|credit(?:ed)?|payment received|freelance|business income|investment return)\b""",
+        pattern = """\b(?:received|earned|salary|income|got|refund(?:ed)?|cashback|deposit(?:ed)?|credit(?:ed)?|freelance|milla|mili|gaya|recibí|reçu|ingreso)\b""",
         option = RegexOption.IGNORE_CASE
     )
 
     private val expenseKeywords = Regex(
-        pattern = """\b(?:spent|paid|bought|purchased|booked|ordered|charged|sent|transferred|recharged|topped up|subscription|bill|rent|fee|tip|donation)\b""",
+        pattern = """\b(?:spent|paid|bought|purchased|booked|ordered|charged|sent|transferred|recharged|diye|diya|kharcha|kharch|compré|pagué|acheté|payé|gasto)\b""",
         option = RegexOption.IGNORE_CASE
     )
 
@@ -145,14 +130,14 @@ class OfflineVoiceParser @Inject constructor(
     private val stripPatterns = listOf(
         Regex("""\b(?:add|new|record|log|track|create)\b""", RegexOption.IGNORE_CASE),
         Regex("""\b(?:expense|transaction|payment|purchase)\b""", RegexOption.IGNORE_CASE),
-        Regex("""\b(?:for|of|on|at|from|to|amount|price|cost|worth)\b""", RegexOption.IGNORE_CASE),
-        Regex("""\b(?:dollars?|rupees?|inr|usd)\b""", RegexOption.IGNORE_CASE),
+        Regex("""\b(?:dollars?|rupees?|inr|usd|euros?|pounds?)\b""", RegexOption.IGNORE_CASE),
         Regex("""\b(?:today|yesterday|tomorrow|last\s+\w+|\d+\s+days?\s+ago|\d+\s+weeks?\s+ago|this\s+\w+)\b""", RegexOption.IGNORE_CASE),
+        Regex("""\b(?:for|at|on|from|to|in|with)\b""", RegexOption.IGNORE_CASE),
         Regex("""\$[\d,]+(?:\.\d{1,2})?"""),
         Regex("""\bRs\.?\s*[\d,]+(?:\.\d{1,2})?"""),
         Regex("""\b₹[\d,]+(?:\.\d{1,2})?"""),
         Regex("""\bINR\s*[\d,]+(?:\.\d{1,2})?"""),
-        Regex("""\b\d[\d,]*(?:\.\d{1,2})?\s*(?:dollars?|rupees?|inr)"""),
+        Regex("""\b\d[\d,]*(?:\.\d{1,2})?\s*(?:dollars?|rupees?|inr|euros?|pounds?)?"""),
     )
 
     // ──────────────────────────────────────────────────────────────────────
@@ -240,6 +225,13 @@ class OfflineVoiceParser @Inject constructor(
         val bareStartMatch = bareNumberAtStart.find(text)
         if (bareStartMatch != null) {
             val digits = bareStartMatch.groupValues[1].replace(",", "")
+            val value = digits.toDoubleOrNull()
+            if (value != null && value > 0) return value
+        }
+        // Bare number anywhere
+        val bareAnyMatch = bareNumberAnywhere.find(text)
+        if (bareAnyMatch != null) {
+            val digits = bareAnyMatch.groupValues[1].replace(",", "")
             val value = digits.toDoubleOrNull()
             if (value != null && value > 0) return value
         }

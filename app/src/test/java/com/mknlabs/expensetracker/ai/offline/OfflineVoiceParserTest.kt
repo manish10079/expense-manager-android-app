@@ -641,6 +641,24 @@ class OfflineVoiceParserTest {
         assertEquals(101, transaction.categoryId) // Salary
     }
 
+    @Test
+    fun parses_hinglish_voice_input() {
+        val result = parser.parse("dost ko 500 rupees diye")
+        assertSuccess(result)
+        val transaction = (result as VoiceParseResult.Success).transaction
+        assertEquals(50_000L, transaction.amountMinor)
+        assertEquals(2, transaction.transactionTypeId) // Expense
+    }
+
+    @Test
+    fun parses_spanish_voice_input() {
+        val result = parser.parse("compré 50 euros groceries")
+        assertSuccess(result)
+        val transaction = (result as VoiceParseResult.Success).transaction
+        assertEquals(5_000L, transaction.amountMinor)
+        assertEquals(2, transaction.transactionTypeId) // Expense
+    }
+
     // ──────────────────────────────────────────────────────────────────────
     // Helper
     // ──────────────────────────────────────────────────────────────────────

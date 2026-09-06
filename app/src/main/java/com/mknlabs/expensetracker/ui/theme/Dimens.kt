@@ -43,7 +43,7 @@ object Dimens {
     val PaddingCompact = spacingCompact
     val PaddingMedium = spacingDefault
     val ScreenPadding = spacingMedium
-    val HeaderSpacing = 10.dp  // Migrated from legacy; prefer spacingCompact
+    val HeaderSpacing = 4.dp  // Tight gap below statusBarsPadding()
     val PaddingLarge = spacingLarge
     val PaddingXL = spacingXL
 
@@ -79,7 +79,7 @@ data class AppSpacing(
 /** Compact (phone portrait) values — identical to the historical hardcoded ones. */
 val CompactSpacing = AppSpacing(
     screenPadding = 20.dp,
-    headerSpacing = 10.dp,
+    headerSpacing = 4.dp,
     paddingTiny = 4.dp,
     paddingSmall = 8.dp,
     paddingCompact = 12.dp,
@@ -109,7 +109,7 @@ val MediumSpacing = CompactSpacing.copy(
 /** Expanded and wider — roomier padding, larger cards, wider sheets. */
 val ExpandedSpacing = CompactSpacing.copy(
     screenPadding = 32.dp,
-    headerSpacing = 12.dp,
+    headerSpacing = 6.dp,
     paddingLarge = 32.dp,
     paddingXL = 48.dp,
     cardRadius = 28.dp,
