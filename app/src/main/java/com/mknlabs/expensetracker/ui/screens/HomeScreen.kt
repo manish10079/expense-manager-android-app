@@ -19,7 +19,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -316,6 +318,11 @@ private fun HomeScreenContent(
     // True on tablets/foldables/desktop (width ≥ 600dp); drives the large native-ad variant.
     val isWide = LocalAppWindowInfo.current.isWide
 
+    // Primary scroll surface (recent-transactions list). Its scroll direction
+    // drives the standalone add FAB's auto-hide behavior on compact portrait.
+    val transactionsListState = rememberLazyListState()
+    rememberBindAddFabToScroll(transactionsListState)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -374,6 +381,7 @@ private fun HomeScreenContent(
                             uiState = uiState,
                             isProUser = isProUser,
                             onTransactionClick = onTransactionClick,
+                            state = transactionsListState,
                             bottomPadding = 24.dp
                         )
                     }
@@ -408,6 +416,7 @@ private fun HomeScreenContent(
                     uiState = uiState,
                     isProUser = isProUser,
                     onTransactionClick = onTransactionClick,
+                    state = transactionsListState,
                     bottomPadding = 88.dp
                 )
             }
@@ -882,9 +891,11 @@ private fun ColumnScope.HomeTransactionsList(
     uiState: HomeScreenUiState,
     isProUser: Boolean,
     onTransactionClick: (Transaction) -> Unit,
+    state: LazyListState,
     bottomPadding: androidx.compose.ui.unit.Dp
 ) {
     LazyColumn(
+        state = state,
         modifier = Modifier
             .fillMaxWidth()
             .weight(1f),
