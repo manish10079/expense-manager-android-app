@@ -141,8 +141,8 @@ fun SettingsItemCard(
                 ) {
                     updatedOnClick?.invoke()
                 }
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .heightIn(min = 52.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .heightIn(min = 48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
@@ -283,6 +283,7 @@ fun SettingsItemCard(
         Surface(
             modifier = modifier
                 .fillMaxWidth()
+                .padding(vertical = 2.dp)
                 .then(
                     if (isHighlight) {
                         Modifier.background(
