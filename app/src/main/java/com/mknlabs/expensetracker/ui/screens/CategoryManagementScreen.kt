@@ -346,14 +346,14 @@ private fun CategoryManagementCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(
                 brush = standardCardGradient()
             )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(20.dp)
             )
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
