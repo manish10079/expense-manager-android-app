@@ -155,6 +155,8 @@ fun MainScreen(
     initialNavDestination: String? = null,
     initialAddTransactionAmount: String? = null,
     initialAddTransactionNote: String? = null,
+    initialAddTransactionCategoryId: Int? = null,
+    initialAddTransactionTypeId: Int? = null,
     initialParsedSms: ParsedSms? = null,
     notificationIntent: Intent? = null,
     isRecoveryPerformed: Boolean = false,
@@ -483,7 +485,7 @@ fun MainScreen(
             // tap of the same notification after onNewIntent — e.g. dismissing the
             // Change sheet and tapping Change again — re-triggers this block even
             // when the ParsedSms extras are value-equal to the previous one.
-            LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialParsedSms) {
+            LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialAddTransactionCategoryId, initialAddTransactionTypeId, initialParsedSms) {
                 // Notification analytics: the type extra is present only when
                 // the app was opened by tapping a local notification, so this
                 // fires once per tap (cold start or onNewIntent).
@@ -496,9 +498,11 @@ fun MainScreen(
                 when (initialNavDestination) {
                     NotificationHelper.DESTINATION_ADD_TRANSACTION -> {
                         // Smart SMS Import "Open" action: prefill the Add Transaction draft
-                        // (amount + note = sender · SMS body) before navigating (plan §8).
+                        // (amount + note + category + type) before navigating (plan §8).
                         initialAddTransactionAmount?.let { navigationState.updateAddTransactionDraftAmount(it) }
                         initialAddTransactionNote?.let { navigationState.updateAddTransactionDraftNote(it) }
+                        initialAddTransactionCategoryId?.let { navigationState.updateAddTransactionDraftCategoryId(it) }
+                        initialAddTransactionTypeId?.let { navigationState.updateAddTransactionDraftTypeId(it) }
                         navigationState.navigateTo(AppRoute.AddTransaction)
                         navigationState.updateBottomBarVisibility(false)
                     }
