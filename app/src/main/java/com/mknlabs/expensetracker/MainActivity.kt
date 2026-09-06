@@ -221,9 +221,15 @@ class MainActivity : AppCompatActivity() {
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
-        // Smart SMS Import "Open" action prefill (plan §8) — amount + note draft.
+        // Smart SMS Import "Open" action prefill (plan §8) — amount + note + category + type draft.
         val initialAddTransactionAmount = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_AMOUNT)
         val initialAddTransactionNote = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_NOTE)
+        val initialAddTransactionCategoryId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID) == true) {
+            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID, 0)
+        } else null
+        val initialAddTransactionTypeId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID) == true) {
+            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID, 0)
+        } else null
 
         // Smart SMS Import "Change" action payload (plan §8 / Phase 4) — the
         // full ParsedSms rides in PendingIntent extras and is consumed by the
@@ -346,6 +352,8 @@ class MainActivity : AppCompatActivity() {
                                 initialNavDestination = initialNavDestination,
                                 initialAddTransactionAmount = initialAddTransactionAmount,
                                 initialAddTransactionNote = initialAddTransactionNote,
+                                initialAddTransactionCategoryId = initialAddTransactionCategoryId,
+                                initialAddTransactionTypeId = initialAddTransactionTypeId,
                                 initialParsedSms = initialParsedSms,
                                 notificationIntent = intent,
                                 isRecoveryPerformed = recoveryPerformed,

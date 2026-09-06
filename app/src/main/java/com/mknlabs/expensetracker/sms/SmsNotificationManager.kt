@@ -51,6 +51,8 @@ object SmsNotificationManager {
     /** "Open" action prefill keys — consumed by MainActivity/MainScreen. */
     const val EXTRA_OPEN_AMOUNT = "sms.open_amount"
     const val EXTRA_OPEN_NOTE = "sms.open_note"
+    const val EXTRA_OPEN_CATEGORY_ID = "sms.open_category_id"
+    const val EXTRA_OPEN_TRANSACTION_TYPE_ID = "sms.open_transaction_type_id"
 
     const val KEY_TEXT_REPLY = "extra_sms_note"
 
@@ -366,6 +368,8 @@ object SmsNotificationManager {
                     parsed.body
                 )
             )
+            putExtra(EXTRA_OPEN_CATEGORY_ID, parsed.categoryId)
+            putExtra(EXTRA_OPEN_TRANSACTION_TYPE_ID, parsed.transactionTypeId)
         }
     }
 

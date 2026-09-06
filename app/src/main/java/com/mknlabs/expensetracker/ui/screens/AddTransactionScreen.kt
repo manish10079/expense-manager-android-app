@@ -207,6 +207,8 @@ fun AddTransactionScreen(
     allRecurringRules: List<RecurringTransactionRule> = emptyList(),
     initialAmountInput: String? = null,
     initialNote: String? = null,
+    initialCategoryId: Int? = null,
+    initialTransactionTypeId: Int? = null,
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
@@ -418,6 +420,18 @@ fun AddTransactionScreen(
             if (initialNote != null && initialNote != note) {
                 note = initialNote
                 noteDraft = initialNote
+            }
+        }
+
+        LaunchedEffect(initialCategoryId) {
+            if (initialCategoryId != null && initialCategoryId != selectedCategoryId && initialCategoryId != 0) {
+                selectedCategoryId = initialCategoryId
+            }
+        }
+
+        LaunchedEffect(initialTransactionTypeId) {
+            if (initialTransactionTypeId != null && initialTransactionTypeId != selectedTransactionTypeId && initialTransactionTypeId != 0) {
+                selectedTransactionTypeId = initialTransactionTypeId
             }
         }
 

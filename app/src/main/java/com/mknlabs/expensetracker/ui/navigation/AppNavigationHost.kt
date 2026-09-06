@@ -61,6 +61,8 @@ fun AppNavigationHost(
     selectedTransaction: Transaction?,
     addTransactionDraftAmount: String?,
     addTransactionDraftNote: String?,
+    addTransactionDraftCategoryId: Int? = null,
+    addTransactionDraftTypeId: Int? = null,
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -621,6 +623,8 @@ fun AppNavigationHost(
                         allRecurringRules = recurringRules,
                         initialAmountInput = addTransactionDraftAmount,
                         initialNote = addTransactionDraftNote,
+                        initialCategoryId = addTransactionDraftCategoryId,
+                        initialTransactionTypeId = addTransactionDraftTypeId,
                         onBackClick = {
                             exitAddTransactionScreen(previousRoute)
                         },

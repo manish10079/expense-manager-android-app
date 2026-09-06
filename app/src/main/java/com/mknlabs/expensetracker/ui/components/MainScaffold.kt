@@ -54,6 +54,8 @@ fun MainScaffold(
     selectedTransaction: Transaction?,
     addTransactionDraftAmount: String?,
     addTransactionDraftNote: String?,
+    addTransactionDraftCategoryId: Int? = null,
+    addTransactionDraftTypeId: Int? = null,
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -96,6 +98,8 @@ fun MainScaffold(
     onSelectedTransactionChange: (Transaction?) -> Unit,
     onAddTransactionDraftAmountChange: (String?) -> Unit,
     onAddTransactionDraftNoteChange: (String?) -> Unit,
+    onAddTransactionDraftCategoryIdChange: (Int?) -> Unit = {},
+    onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
@@ -172,6 +176,8 @@ fun MainScaffold(
             onSelectedTransactionChange(null)
             onAddTransactionDraftAmountChange(null)
             onAddTransactionDraftNoteChange(null)
+            onAddTransactionDraftCategoryIdChange(null)
+            onAddTransactionDraftTypeIdChange(null)
         }
         if (currentRoute != AppRoute.Transactions) {
             transactionsViewModel.clearSelection()
