@@ -176,8 +176,7 @@ private fun RailNavItem(
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
                 brush = if (selected) gradientBrush else null
-            ),
-            maxLines = 1
+            )
         )
     }
 }

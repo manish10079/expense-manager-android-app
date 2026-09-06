@@ -14,10 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
@@ -38,9 +42,9 @@ import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainScaffold(
@@ -170,6 +174,11 @@ fun MainScaffold(
     )
     val colorScheme = MaterialTheme.colorScheme
 
+    // Shared visibility controller for the standalone AddTransactionFab. Tab
+    // screens flip this from their list's scroll direction; the slot composable
+    // reads only this value so bar flips stay scoped.
+    val addFabVisibility = remember { mutableStateOf(true) }
+
     LaunchedEffect(currentRoute) {
         if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
             saveableStateHolder.removeState(AppRoute.AddTransaction)
@@ -201,15 +210,13 @@ fun MainScaffold(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorScheme.background)
-            // Foldable/notch safety: keep the rail and content out from under a
-            // hinge or display cutout in landscape (horizontal only — the status
-            // and navigation bars are already padded by each screen).
-            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
-    ) {
+    CompositionLocalProvider(LocalAddFabVisibility provides addFabVisibility) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorScheme.background)
+                .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+        ) {
         PreloadSecondaryScreenData(
             transactions = transactions,
             categories = categories,
@@ -355,21 +362,30 @@ fun MainScaffold(
                 }
             )
         } else if (showFixedBottomNavBar) {
+            // Floating capsule bottom bar — margins handled internally (12dp).
             AppBottomBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+                modifier = Modifier.align(Alignment.BottomCenter),
                 currentRoute = currentRoute,
                 onItemClick = { route ->
                     onBottomBarVisibilityChange(false)
                     onRouteChange(route)
-                },
-                onAddClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange(AppRoute.AddTransaction)
                 }
             )
+
+            // Standard 56dp FAB floating above the bar's top-right corner.
+            // Auto-hides while the user scrolls down and reappears on scroll up
+            // (bound per screen via rememberBindAddFabToScroll).
+            AddTransactionFabSlot(
+                onClick = {
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 108.dp, end = 16.dp)
+            )
         }
+    }
     }
 }
 

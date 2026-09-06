@@ -1,143 +1,86 @@
 package com.mknlabs.expensetracker.ui.components
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import androidx.compose.ui.res.stringResource
-import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.theme.brandGradient
 
-private val BottomBarContainerHeight = 72.dp
-private val BottomBarCenterActionSize = 40.dp
-private val BottomBarCenterSpacerWidth = 44.dp
-private val BottomBarBottomPadding = 0.dp
-
+/**
+ * Floating capsule bottom navigation bar matching the Telegram/Xiaomi design.
+ *
+ * - 72.dp height capsule with RoundedCornerShape(32.dp)
+ * - 12.dp horizontal margins from parent edges
+ * - Pill-shaped active indicator behind the selected tab
+ * - 24.dp icons with LabelSmall labels underneath
+ */
 @Composable
 fun AppBottomBar(
     currentRoute: AppRoute?,
     onItemClick: (AppRoute) -> Unit,
-    onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shellShape = RoundedCornerShape(34.dp)
-    val leftItems = bottomNavBarItems.take(2)
-    val rightItems = bottomNavBarItems.drop(2)
+    val capsuleShape = RoundedCornerShape(32.dp)
+    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(bottom = BottomBarBottomPadding),
+            .padding(bottom = 12.dp, start = 12.dp, end = 12.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(BottomBarContainerHeight)
-                    .shadow(
-                        elevation = 32.dp,
-                        shape = shellShape,
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
-                    )
-                    .clip(shellShape)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.04f))
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
-                        shape = shellShape
-                    )
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NavItemGroup(
-                    items = leftItems,
-                    currentRoute = currentRoute,
-                    onItemClick = onItemClick,
-                    modifier = Modifier.weight(1f)
+        Row(
+            modifier = Modifier
+                .heightIn(min = 72.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = capsuleShape,
+                    ambientColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                 )
-
-                Spacer(modifier = Modifier.width(BottomBarCenterSpacerWidth))
-
-                NavItemGroup(
-                    items = rightItems,
-                    currentRoute = currentRoute,
-                    onItemClick = onItemClick,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(BottomBarCenterActionSize)
-                    // Touch target stays at the 48dp accessibility minimum even
-                    // though the visual pill is only 40dp.
-                    .minimumInteractiveComponentSize()
-                    .shadow(
-                        elevation = 22.dp,
-                        shape = CircleShape,
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
-                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
-                    )
-                    .clip(CircleShape)
-                    .background(brush = brandGradient())
-                    .clickable(onClick = onAddClick),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.desc_add_transaction),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(18.dp)
+                .clip(capsuleShape)
+                .background(containerColor)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            bottomNavBarItems.forEach { item ->
+                FloatingCapsuleNavItem(
+                    item = item,
+                    selected = currentRoute == item.route,
+                    onClick = { onItemClick(item.route) }
                 )
             }
         }
@@ -145,102 +88,74 @@ fun AppBottomBar(
 }
 
 @Composable
-private fun NavItemGroup(
-    items: List<BottomNavBarItem>,
-    currentRoute: AppRoute?,
-    onItemClick: (AppRoute) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        items.forEach { item ->
-            VaultNavItem(
-                item = item,
-                selected = currentRoute == item.route,
-                onClick = { onItemClick(item.route) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun VaultNavItem(
+private fun FloatingCapsuleNavItem(
     item: BottomNavBarItem,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
+    val indicatorWidth = 72.dp
+    val indicatorMinHeight = 56.dp
+    val indicatorShape = RoundedCornerShape(20.dp)
+
+    val animatedIndicatorOffset by animateDpAsState(
+        targetValue = if (selected) 0.dp else indicatorWidth,
+        animationSpec = spring(),
+        label = "indicator_offset"
+    )
+
     val iconTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
+        else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "bottom_bar_icon_tint"
     )
+
     val labelColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+        targetValue = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
+        else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "bottom_bar_label_tint"
     )
-    val iconContainerSize by animateDpAsState(
-        targetValue = if (selected) 40.dp else 34.dp,
-        label = "bottom_bar_icon_size"
-    )
 
-    val gradientBrush = brandGradient()
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier
+            .width(indicatorWidth)
+            .heightIn(min = indicatorMinHeight)
+            .clip(indicatorShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(iconContainerSize)
-                .clip(CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            AnimatedContent(
-                targetState = selected,
-                transitionSpec = {
-                    val enter = fadeIn(tween(220)) +
-                        scaleIn(initialScale = 0.82f, animationSpec = tween(220))
-                    val exit = fadeOut(tween(120)) +
-                        scaleOut(targetScale = 0.82f, animationSpec = tween(120))
-                    enter.togetherWith(exit)
-                },
-                label = "bottom_bar_icon_fill"
-            ) { isSelected ->
-                Icon(
-                    imageVector = if (isSelected) item.selectedIcon else item.icon,
-                    contentDescription = stringResource(item.titleRes),
-                    tint = iconTint,
-                    modifier = Modifier
-                        .size(38.dp)
-                        .graphicsLayer(alpha = 0.99f)
-                        .drawWithCache {
-                            onDrawWithContent {
-                                drawContent()
-                                if (isSelected) {
-                                    drawRect(gradientBrush, blendMode = BlendMode.SrcAtop)
-                                }
-                            }
-                        }
-                )
-            }
+        // Active pill indicator
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(indicatorShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            )
         }
 
-        Text(
-            text = if (selected) stringResource(item.titleRes).uppercase() else " ",
-            color = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0f) else labelColor,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                brush = if (selected) gradientBrush else null
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .width(indicatorWidth)
+                .heightIn(min = indicatorMinHeight)
+        ) {
+            Icon(
+                imageVector = if (selected) item.selectedIcon else item.icon,
+                contentDescription = stringResource(item.titleRes),
+                tint = iconTint,
+                modifier = Modifier.size(24.dp)
             )
-        )
+
+            Text(
+                text = stringResource(item.titleRes),
+                color = labelColor,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                ),
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -257,7 +172,6 @@ private fun AppBottomBarPreview() {
             AppBottomBar(
                 currentRoute = AppRoute.Budget,
                 onItemClick = {},
-                onAddClick = {},
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
