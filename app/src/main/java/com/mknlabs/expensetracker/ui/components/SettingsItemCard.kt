@@ -141,8 +141,8 @@ fun SettingsItemCard(
                 ) {
                     updatedOnClick?.invoke()
                 }
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-                .heightIn(min = 48.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .heightIn(min = 56.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
@@ -247,7 +247,7 @@ fun SettingsItemCard(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = stringResource(R.string.label_open),
                             tint = primary.copy(alpha = 0.8f),
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
 
