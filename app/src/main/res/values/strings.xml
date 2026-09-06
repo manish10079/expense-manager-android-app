@@ -232,7 +232,7 @@
     <string name="title_customize_caps">CUSTOMIZE</string>
     <string name="title_monetization_caps">MONETIZATION</string>
     <string name="label_remove_all_ads">Remove All Ads</string>
-    <string name="msg_watch_ad_for_ad_free">Try pro features &amp; ad-free UI for 1 hour by watching a short ad.</string>
+    <string name="msg_watch_ad_for_ad_free">Try Pro Features &amp; Ad-Free Ui for 1 hour</string>
     <string name="label_ad_free_active">Ad-Free Access Active</string>
     <string name="msg_ad_free_duration_remaining">You are currently enjoying pro-level features and ad-free UI.</string>
     <string name="label_active_caps">ACTIVE</string>
@@ -1463,7 +1463,7 @@
     <string name="label_dont_show_again">Don\'t show this dialog again</string>
     <string name="label_notifications">Notifications</string>
     <string name="label_logout">Sign Out</string>
-    <string name="desc_logout_subtitle">Sign out of your account and stop cloud sync.</string>
+    <string name="desc_logout_subtitle">Sign Out of Your Account</string>
     <string name="msg_logout_confirm">Are you sure you want to sign out? Your cloud data will stop syncing until you sign back in.</string>
     <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
     <string name="error_no_google_accounts">No Google accounts found on this device. Please use your email to sign up.</string>
