@@ -35,7 +35,7 @@ object Dimens {
     val spacingXL = 32.dp
 
     // ── Layout ─────────────────────────────────────────────────────────
-    val CardRadius = 24.dp
+    val CardRadius = 20.dp
 
     // ── Legacy aliases (kept for backward compatibility) ────────────────
     val PaddingTiny = spacingTiny
@@ -86,7 +86,7 @@ val CompactSpacing = AppSpacing(
     paddingMedium = 16.dp,
     paddingLarge = 24.dp,
     paddingXL = 32.dp,
-    cardRadius = 24.dp,
+    cardRadius = 20.dp,
     statsCardHeight = 190.dp,
     chartRowHeight = 170.dp,
     sheetMaxWidth = 560.dp,

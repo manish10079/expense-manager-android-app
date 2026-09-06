@@ -155,6 +155,7 @@ fun AppNavigationHost(
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onDirectSignOut: () -> Unit = {},
+    onAdFreeAccessClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
@@ -371,6 +372,7 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.ConnectedDevices)
                         },
+                        onAdFreeAccessClick = onAdFreeAccessClick,
                         onShowUpgradeSheet = onShowUpgradeSheet,
                         onMembershipClick = {
                             onBottomBarVisibilityChange(false)

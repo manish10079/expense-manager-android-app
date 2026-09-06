@@ -153,6 +153,7 @@ fun MainScaffold(
     onLinkAccountClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onDirectSignOut: () -> Unit = {},
+    onAdFreeAccessClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
     onPrepareForExternalActivity: () -> Unit
 ) {
@@ -343,6 +344,7 @@ fun MainScaffold(
             onLinkAccountClick = onLinkAccountClick,
             onLogoutClick = onLogoutClick,
             onDirectSignOut = onDirectSignOut,
+            onAdFreeAccessClick = onAdFreeAccessClick,
             onShowUpgradeSheet = onShowUpgradeSheet,
             onPrepareForExternalActivity = onPrepareForExternalActivity
             )

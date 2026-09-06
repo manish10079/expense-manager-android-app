@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.outlined.Info
@@ -82,7 +84,7 @@ fun SettingsItemCard(
     val colorScheme = MaterialTheme.colorScheme
     val finalEnabled = isEnabled && !isLocked
     val isGated = isLocked && accessLevel != AccessLevel.FREE
-    val containerShape = RoundedCornerShape(28.dp)
+    val containerShape = RoundedCornerShape(20.dp)
 
     val updatedOnClick by rememberUpdatedState(onClick)
     val updatedOnCheckedChange by rememberUpdatedState(onCheckedChange)
@@ -92,17 +94,7 @@ fun SettingsItemCard(
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     val danger = colorScheme.error
-    
-    // Fix: Use opaque color to prevent gradient bleed through the card
-    val containerColor = colorScheme.surface
-    
-    val borderColor = if (isHighlight) {
-        Color.Transparent // We use a gradient border instead
-    } else {
-        colorScheme.outlineVariant.copy(
-            alpha = if (finalEnabled) 0.4f else 0.2f
-        )
-    }
+    val containerColor = colorScheme.surfaceContainerLow
 
     val lockColor = colorScheme.featureGateLock
 
@@ -115,7 +107,9 @@ fun SettingsItemCard(
 
     val iconBackground = when {
         isGated -> lockColor.copy(alpha = 0.12f)
-        else -> primary.copy(alpha = 0.1f)
+        !finalEnabled -> onSurfaceVariant.copy(alpha = 0.12f)
+        isDanger -> danger.copy(alpha = 0.12f)
+        else -> primary.copy(alpha = 0.12f)
     }
 
     val titleColor = when {
@@ -134,6 +128,7 @@ fun SettingsItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = 72.dp)
                 .clickable(
                     enabled = (finalEnabled && type != SettingsItemType.Toggle) || isLocked,
                     interactionSource = interactionSource,
@@ -141,32 +136,29 @@ fun SettingsItemCard(
                 ) {
                     updatedOnClick?.invoke()
                 }
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .heightIn(min = 52.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
                 icon = if (isGated) Icons.Rounded.Lock else icon,
                 contentDescription = title,
-                size = 44.dp,
-                iconSize = 22.dp,
+                size = 40.dp,
+                iconSize = 24.dp,
                 tint = iconTint,
                 backgroundColor = iconBackground
             )
 
-            Spacer(modifier = Modifier.width(14.dp))
-
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp, end = 8.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = title,
                         color = titleColor,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
+                        style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -201,7 +193,7 @@ fun SettingsItemCard(
                     Text(
                         text = subtitle,
                         color = subtitleColor,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -245,22 +237,33 @@ fun SettingsItemCard(
 
                     SettingsItemType.Navigation -> {
                         Icon(
-                            imageVector = Icons.Rounded.ChevronRight,
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                             contentDescription = stringResource(R.string.label_open),
-                            tint = primary.copy(alpha = 0.8f),
-                            modifier = Modifier.size(40.dp)
+                            tint = onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 
                     SettingsItemType.Value -> {
                         if (!valueText.isNullOrEmpty()) {
                             val isTimer = valueText.contains(":")
-                            Text(
-                                text = valueText,
-                                color = if (isTimer) primary else onSurfaceVariant,
-                                style = if (isTimer) MaterialTheme.typography.titleMedium
-                                       else MaterialTheme.typography.bodyMedium
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = valueText,
+                                    color = if (isTimer) primary else onSurfaceVariant,
+                                    style = if (isTimer) MaterialTheme.typography.titleMedium
+                                           else MaterialTheme.typography.bodyMedium
+                                )
+                                if (updatedOnClick != null) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                                        contentDescription = stringResource(R.string.label_open),
+                                        tint = onSurfaceVariant,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -271,7 +274,8 @@ fun SettingsItemCard(
                         ) {
                             Text(
                                 text = valueText ?: stringResource(R.string.label_action),
-                                color = primary
+                                color = if (isDanger) danger else primary,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -282,20 +286,11 @@ fun SettingsItemCard(
 
     if (standalone) {
         Surface(
-            modifier = modifier
-                .fillMaxWidth()
-                .then(
-                    if (isHighlight) {
-                        Modifier.background(
-                            brush = com.mknlabs.expensetracker.ui.theme.brandGradient(),
-                            shape = containerShape
-                        ).padding(2.dp)
-                    } else Modifier
-                ),
+            modifier = modifier.fillMaxWidth(),
             shape = containerShape,
             color = containerColor,
-            border = if (isHighlight) null else BorderStroke(width = 1.dp, color = borderColor),
-            shadowElevation = if (isHighlight) 16.dp else 8.dp
+            tonalElevation = 1.dp,
+            shadowElevation = 0.dp
         ) {
             itemContent()
         }

@@ -1,79 +1,89 @@
 package com.mknlabs.expensetracker.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Logout
-import androidx.compose.material.icons.rounded.Category
-import androidx.compose.material.icons.rounded.CloudSync
-import androidx.compose.material.icons.rounded.ConfirmationNumber
-import androidx.compose.material.icons.rounded.CreditCard
-import androidx.compose.material.icons.rounded.Dns
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.NotificationAdd
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.SettingsSuggest
-import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.LocalOffer
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.data.constants.DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED
-import com.mknlabs.expensetracker.data.constants.DEFAULT_MISSED_ENTRY_REMINDER_ENABLED
-import com.mknlabs.expensetracker.data.constants.DEFAULT_NOTIFICATIONS_ENABLED
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
-import com.mknlabs.expensetracker.ui.components.ProfileCard
+import com.mknlabs.expensetracker.monetization.AdPlacement
+import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.components.ProfileCard
+import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.models.SettingsItemType
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsActionId
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsItemUi
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsSectionUi
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsToggleId
-import androidx.compose.ui.res.stringResource
-
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
-import com.mknlabs.expensetracker.monetization.AdPlacement
-import com.mknlabs.expensetracker.ui.components.SettingsGroup
-import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
-import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
-import com.mknlabs.expensetracker.ui.components.AdaptiveContent
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 
+private const val DEFAULT_NOTIFICATIONS_ENABLED = true
+private const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true
+private const val DEFAULT_MISSED_ENTRY_REMINDER_ENABLED = true
+
+/**
+ * Route composable for the Settings Screen.
+ * Handles ViewModel injection, state observation, and top-level callbacks.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    modifier: Modifier = Modifier,
     userProfile: UserProfile = defaultUserProfile,
-    userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE,
+    userTier: UserTier = UserTier.FREE,
     isCloudSyncEnabled: Boolean = true,
     isDailyReminderEnabled: Boolean = DEFAULT_NOTIFICATIONS_ENABLED,
     isBudgetLimitAlertsEnabled: Boolean = DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED,
@@ -83,40 +93,40 @@ fun SettingsScreen(
     onBudgetLimitAlertsChange: (Boolean) -> Unit = {},
     onMissedEntryReminderChange: (Boolean) -> Unit = {},
     onProfileClick: () -> Unit = {},
-    onPreferencesClick: () -> Unit = {},
+    onCloudSyncDevicesClick: () -> Unit = {},
+    onConnectedDevicesClick: () -> Unit = onCloudSyncDevicesClick,
     onSecurityPrivacyClick: () -> Unit = {},
-    onPrivacyOptionsClick: () -> Unit = {},
+    onMembershipClick: () -> Unit = {},
+    onAdFreeAccessClick: () -> Unit = {},
+    onRedeemProPassClick: () -> Unit = {},
+    onManageCategoryClick: () -> Unit = {},
+    onAppPreferencesClick: () -> Unit = {},
+    onPreferencesClick: () -> Unit = onAppPreferencesClick,
+    onNotificationsClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
-    onNotificationsClick: () -> Unit = {},
-    onManageCategoryClick: () -> Unit = {},
-    onGoalsClick: () -> Unit = {},
-    onLinkAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onConnectedDevicesClick: () -> Unit = {},
+    onLinkAccountClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit = {},
-    onMembershipClick: () -> Unit = {},
+    onGoalsClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val context = androidx.compose.ui.platform.LocalContext.current
-
-    val effectiveUserTier = userTier
 
     LaunchedEffect(
-        transactionCount, isAdsEnabled, effectiveUserTier, isCloudSyncEnabled, userProfile
+        transactionCount, isAdsEnabled, userTier, isCloudSyncEnabled, userProfile
     ) {
         settingsViewModel.updateInputs(
-            transactionCount = transactionCount, 
+            transactionCount = transactionCount,
             isAdsEnabled = isAdsEnabled,
-            userTier = effectiveUserTier,
+            userTier = userTier,
             isCloudSyncEnabled = isCloudSyncEnabled
         )
     }
-    val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+
     var showRedeemDialog by remember { mutableStateOf(false) }
 
     if (showRedeemDialog) {
@@ -127,79 +137,54 @@ fun SettingsScreen(
     }
 
     SettingsScreenContent(
+        modifier = modifier,
         userProfile = userProfile,
-        userTier = effectiveUserTier,
-        settingsSections = uiState.settingsSections,
+        userTier = userTier,
         isAdsEnabled = isAdsEnabled,
-        isDailyReminderEnabled = isDailyReminderEnabled,
-        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-        onDailyReminderChange = onDailyReminderChange,
-        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-        onMissedEntryReminderChange = onMissedEntryReminderChange,
         onProfileClick = onProfileClick,
-        onMembershipClick = onMembershipClick,
-        onPreferencesClick = onPreferencesClick,
+        onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
+        onAdFreeAccessClick = onAdFreeAccessClick,
+        onRedeemProPassClick = { showRedeemDialog = true },
+        onManageCategoryClick = onManageCategoryClick,
+        onAppPreferencesClick = onPreferencesClick,
+        onNotificationsClick = onNotificationsClick,
         onTransactionCardCustomizeClick = onTransactionCardCustomizeClick,
         onDataManagementClick = onDataManagementClick,
         onAboutClick = onAboutClick,
-        onNotificationsClick = onNotificationsClick,
-        onManageCategoryClick = onManageCategoryClick,
-        onGoalsClick = onGoalsClick,
-        onLinkAccountClick = onLinkAccountClick,
         onLogoutClick = onLogoutClick,
-        onConnectedDevicesClick = onConnectedDevicesClick,
-        onShowUpgradeSheet = onShowUpgradeSheet,
-        onRedeemProPassClick = { showRedeemDialog = true },            onAdFreeAccessClick = {
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    monetizationViewModel.onWatchAdFreeClicked(activity)
-                }
-            },
-            onPrivacyOptionsClick = {
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    monetizationViewModel.showPrivacyOptionsForm(activity)
-                }
-            },
-            onBackClick = onBackClick
-        )
+        onBackClick = onBackClick
+    )
 }
 
+/**
+ * Previewable Content composable for the Settings Screen.
+ * Pure UI with no ViewModel dependency.
+ */
 @Composable
-private fun SettingsScreenContent(
-    userProfile: UserProfile,
-    userTier: com.mknlabs.expensetracker.models.UserTier,
-    settingsSections: List<SettingsSectionUi>,
-    isAdsEnabled: Boolean,
-    isDailyReminderEnabled: Boolean,
-    isBudgetLimitAlertsEnabled: Boolean,
-    isMissedEntryReminderEnabled: Boolean,
-    onDailyReminderChange: (Boolean) -> Unit,
-    onBudgetLimitAlertsChange: (Boolean) -> Unit,
-    onMissedEntryReminderChange: (Boolean) -> Unit,
-    onProfileClick: () -> Unit,
-    onMembershipClick: () -> Unit,
-    onPreferencesClick: () -> Unit,
-    onSecurityPrivacyClick: () -> Unit,
-    onPrivacyOptionsClick: () -> Unit,
-    onTransactionCardCustomizeClick: () -> Unit,
-    onDataManagementClick: () -> Unit,
-    onAboutClick: () -> Unit,
-    onNotificationsClick: () -> Unit,
-    onManageCategoryClick: () -> Unit,
-    onGoalsClick: () -> Unit,
-    onLinkAccountClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onConnectedDevicesClick: () -> Unit,
-    onShowUpgradeSheet: () -> Unit,
-    onRedeemProPassClick: () -> Unit,
-    onAdFreeAccessClick: () -> Unit,
-    onBackClick: () -> Unit
+fun SettingsScreenContent(
+    modifier: Modifier = Modifier,
+    userProfile: UserProfile = defaultUserProfile,
+    userTier: UserTier = UserTier.FREE,
+    isAdsEnabled: Boolean = false,
+    onProfileClick: () -> Unit = {},
+    onCloudSyncDevicesClick: () -> Unit = {},
+    onSecurityPrivacyClick: () -> Unit = {},
+    onAdFreeAccessClick: () -> Unit = {},
+    onRedeemProPassClick: () -> Unit = {},
+    onManageCategoryClick: () -> Unit = {},
+    onAppPreferencesClick: () -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
+    onTransactionCardCustomizeClick: () -> Unit = {},
+    onDataManagementClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
+    val isProUser = userTier == UserTier.PREMIUM
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
@@ -212,7 +197,10 @@ private fun SettingsScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
-            AppHeader(title = stringResource(R.string.desc_settings), onBackClick = onBackClick)
+            AppHeader(
+                title = stringResource(R.string.title_settings),
+                onBackClick = onBackClick
+            )
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -220,345 +208,372 @@ private fun SettingsScreenContent(
                 maxWidth = 640.dp,
                 modifier = Modifier.weight(1f)
             ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                item {
-                    ProfileCard(
-                        name = userProfile.fullName,
-                        email = userProfile.emailAddress,
-                        gender = userProfile.gender,
-                        photoUri = userProfile.photoUri,
-                        userTier = userTier,
-                        isAnonymous = userProfile.authProvider == "anonymous",
-                    )
-                }
-
-                if (isAdsEnabled) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
                     item {
-                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                        ProfileCard(
+                            name = userProfile.fullName,
+                            email = userProfile.emailAddress,
+                            gender = userProfile.gender,
+                            photoUri = userProfile.photoUri,
+                            userTier = userTier,
+                            isAnonymous = userProfile.authProvider == "anonymous",
+                            onClick = onProfileClick
+                        )
                     }
-                }
 
-                settingsSections.forEach { section ->
-                    if (section.titleRes == R.string.title_database && isAdsEnabled) {
+                    if (isAdsEnabled) {
                         item {
+                            Spacer(modifier = Modifier.height(12.dp))
                             NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
                         }
                     }
 
-                    item(key = section.titleRes) {
-                        SettingsSection(
-                            section = section,
-                            isDailyReminderEnabled = isDailyReminderEnabled,
-                            isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                            isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                            onItemClick = { item ->
-                                when (item.actionId) {
-                                    SettingsActionId.EditProfile -> onProfileClick()
-                                    SettingsActionId.MyMembership -> onMembershipClick()
-                                    SettingsActionId.AppPreferences -> onPreferencesClick()
-                                    SettingsActionId.SecurityPrivacy -> onSecurityPrivacyClick()
-                                    SettingsActionId.PrivacyOptions -> onPrivacyOptionsClick()
-                                    SettingsActionId.TransactionCardCustomize -> onTransactionCardCustomizeClick()
-                                    SettingsActionId.DataManagement -> onDataManagementClick()
-                                    SettingsActionId.About -> onAboutClick()
-                                    SettingsActionId.Notifications -> onNotificationsClick()
-                                    SettingsActionId.ManageCategories -> onManageCategoryClick()
-                                    SettingsActionId.Goals -> onGoalsClick()
-                                    SettingsActionId.AdFreeAccess -> onAdFreeAccessClick()
-                                    SettingsActionId.LinkAccount -> onLinkAccountClick()
-                                    SettingsActionId.ConnectedDevices -> {
-                                        if (item.isLocked) {
-                                            onShowUpgradeSheet()
-                                        } else {
-                                            onConnectedDevicesClick()
-                                        }
-                                    }
-                                    SettingsActionId.Logout -> onLogoutClick()
-                                    SettingsActionId.RedeemProPass -> onRedeemProPassClick()
+                    // Section 1: ACCOUNT & SECURITY
+                    item {
+                        SettingsSectionContainer(
+                            headerRes = R.string.header_account_and_security,
+                            items = listOf(
+                                SettingsRowData(
+                                    titleRes = R.string.label_edit_profile,
+                                    subtitleRes = R.string.label_edit_profile_subtitle,
+                                    icon = Icons.Filled.Person,
+                                    onClick = onProfileClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_cloud_sync_devices,
+                                    subtitleRes = R.string.desc_cloud_sync_devices_subtitle,
+                                    icon = Icons.Filled.Cloud,
+                                    onClick = if (isProUser) onCloudSyncDevicesClick else { {} },
+                                    isEnabled = isProUser
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_security_privacy,
+                                    subtitleRes = R.string.label_security_privacy_subtitle,
+                                    icon = Icons.Filled.Shield,
+                                    onClick = onSecurityPrivacyClick
+                                )
+                            )
+                        )
+                    }
 
-                                    else -> Unit
-                                }
-                            },
-                            onDailyReminderChange = onDailyReminderChange,
-                            onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-                            onMissedEntryReminderChange = onMissedEntryReminderChange
+                    // Section 2: MEMBERSHIP
+                    item {
+                        SettingsSectionContainer(
+                            headerRes = R.string.header_membership,
+                            items = listOf(
+                                SettingsRowData(
+                                    titleRes = R.string.label_remove_all_ads,
+                                    subtitleRes = if (isProUser) R.string.label_ad_free_active else R.string.label_remove_all_ads_subtitle,
+                                    icon = Icons.Filled.Star,
+                                    onClick = if (isProUser) { {} } else onAdFreeAccessClick,
+                                    isEnabled = !isProUser
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_redeem_pro_pass,
+                                    subtitleRes = R.string.label_redeem_pro_pass_subtitle,
+                                    icon = Icons.Rounded.LocalOffer,
+                                    onClick = onRedeemProPassClick
+                                )
+                            )
+                        )
+                    }
+
+                    // Section 3: PREFERENCES
+                    item {
+                        SettingsSectionContainer(
+                            headerRes = R.string.header_preferences,
+                            items = listOf(
+                                SettingsRowData(
+                                    titleRes = R.string.title_manage_category,
+                                    subtitleRes = R.string.label_manage_category_subtitle,
+                                    icon = Icons.Filled.Category,
+                                    onClick = onManageCategoryClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_app_preferences,
+                                    subtitleRes = R.string.label_app_preferences_subtitle,
+                                    icon = Icons.Filled.Tune,
+                                    onClick = onAppPreferencesClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_notifications,
+                                    subtitleRes = R.string.label_notifications_subtitle,
+                                    icon = Icons.Filled.Notifications,
+                                    onClick = onNotificationsClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_transaction_card,
+                                    subtitleRes = R.string.label_transaction_card_subtitle,
+                                    icon = Icons.Filled.CreditCard,
+                                    onClick = onTransactionCardCustomizeClick
+                                )
+                            )
+                        )
+                    }
+
+                    // Section 4: SYSTEM & DATA
+                    item {
+                        SettingsSectionContainer(
+                            headerRes = R.string.header_system_and_data,
+                            items = listOf(
+                                SettingsRowData(
+                                    titleRes = R.string.title_data_management,
+                                    subtitleRes = R.string.label_data_management_subtitle,
+                                    icon = Icons.Filled.Storage,
+                                    onClick = onDataManagementClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_about_app,
+                                    subtitleRes = R.string.label_about_app_subtitle,
+                                    icon = Icons.Filled.Info,
+                                    onClick = onAboutClick
+                                )
+                            )
+                        )
+                    }
+
+                    // Isolated Action: Logout (No Card Container)
+                    item {
+                        SettingsIsolatedLogoutRow(onClick = onLogoutClick)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Section container component grouping multiple settings rows into a single Card/Surface.
+ */
+@Composable
+private fun SettingsSectionContainer(
+    headerRes: Int,
+    items: List<SettingsRowData>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(headerRes),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 6.dp)
+        )
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 1.dp,
+            shadowElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                items.forEachIndexed { index, item ->
+                    SettingsRowItemView(data = item)
+
+                    if (index < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 72.dp, end = 16.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                         )
                     }
                 }
-
-                item {
-                    Spacer(modifier = Modifier.height(40.dp))
-                }
-            }
             }
         }
     }
 }
 
+/**
+ * Single Row Item inside a Section Card.
+ */
 @Composable
-private fun SettingsSection(
-    section: SettingsSectionUi,
-    isDailyReminderEnabled: Boolean,
-    isBudgetLimitAlertsEnabled: Boolean,
-    isMissedEntryReminderEnabled: Boolean,
-    onItemClick: (SettingsItemUi) -> Unit,
-    onDailyReminderChange: (Boolean) -> Unit,
-    onBudgetLimitAlertsChange: (Boolean) -> Unit,
-    onMissedEntryReminderChange: (Boolean) -> Unit
+private fun SettingsRowItemView(
+    data: SettingsRowData,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    val isEnabled = data.isEnabled
+    val colorScheme = MaterialTheme.colorScheme
+
+    val iconTint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val iconBg = if (isEnabled) colorScheme.primary.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f)
+    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 72.dp)
+            .then(
+                if (isEnabled) Modifier.clickable(onClick = data.onClick)
+                else Modifier
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        val nonHighlightItems = section.items.filter { !it.isHighlight }
-        val highlightItems = section.items.filter { it.isHighlight }
-
-        // Render Highlight items first (Standalone)
-        highlightItems.forEach { item ->
-            SettingsItemContent(
-                item = item,
-                standalone = true,
-                isDailyReminderEnabled = isDailyReminderEnabled,
-                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                onItemClick = onItemClick,
-                onDailyReminderChange = onDailyReminderChange,
-                onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-                onMissedEntryReminderChange = onMissedEntryReminderChange
+        // Leading Icon Box (40dp with centered 24dp icon)
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = iconBg,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = data.icon,
+                contentDescription = stringResource(data.titleRes),
+                tint = iconTint,
+                modifier = Modifier.size(24.dp)
             )
         }
 
-        // Render non-highlight items as standalone cards for now so every item
-        // has the same card chrome as the Security & Privacy standalone card.
-        nonHighlightItems.forEach { item ->
-            SettingsItemContent(
-                item = item,
-                standalone = true,
-                isDailyReminderEnabled = isDailyReminderEnabled,
-                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                onItemClick = onItemClick,
-                onDailyReminderChange = onDailyReminderChange,
-                onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-                onMissedEntryReminderChange = onMissedEntryReminderChange
+        // Title and Subtitle Text Block
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 8.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(data.titleRes),
+                style = MaterialTheme.typography.titleMedium,
+                color = titleColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = stringResource(data.subtitleRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = subtitleColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        if (isEnabled) {
+            // Trailing Chevron Icon
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                tint = colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
 }
 
+/**
+ * Isolated Logout action row without a card container.
+ */
 @Composable
-private fun SettingsItemContent(
-    item: SettingsItemUi,
-    standalone: Boolean,
-    isDailyReminderEnabled: Boolean,
-    isBudgetLimitAlertsEnabled: Boolean,
-    isMissedEntryReminderEnabled: Boolean,
-    onItemClick: (SettingsItemUi) -> Unit,
-    onDailyReminderChange: (Boolean) -> Unit,
-    onBudgetLimitAlertsChange: (Boolean) -> Unit,
-    onMissedEntryReminderChange: (Boolean) -> Unit
+private fun SettingsIsolatedLogoutRow(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val toggleState = when (item.toggleId) {
-        SettingsToggleId.DailyReminder -> isDailyReminderEnabled
-        SettingsToggleId.BudgetLimitAlerts -> isBudgetLimitAlertsEnabled
-        SettingsToggleId.MissedEntryReminder -> isMissedEntryReminderEnabled
-        else -> null
-    }
-    val itemType = when {
-        toggleState != null -> SettingsItemType.Toggle
-        !item.trailing.isNullOrEmpty() && !item.showChevron -> SettingsItemType.Value
-        item.showChevron -> SettingsItemType.Navigation
-        else -> SettingsItemType.Value
-    }
-
-    SettingsItemCard(
-        icon = item.icon,
-        title = stringResource(item.titleRes),
-        subtitle = item.subtitleRes?.let { stringResource(it) },
-        type = itemType,
-        valueText = item.trailing,
-        isEnabled = true,
-        isChecked = toggleState ?: false,
-        isHighlight = item.isHighlight,
-        isLocked = item.isLocked,
-        standalone = standalone,
-        onCheckedChange = { isChecked ->
-            when (item.toggleId) {
-                SettingsToggleId.DailyReminder -> onDailyReminderChange(isChecked)
-                SettingsToggleId.BudgetLimitAlerts -> onBudgetLimitAlertsChange(isChecked)
-                SettingsToggleId.MissedEntryReminder -> onMissedEntryReminderChange(isChecked)
-                null -> Unit
-                else -> Unit
-            }
-        },
-        onClick = {
-            onItemClick(item)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .defaultMinSize(minHeight = 72.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Leading Icon Box with Error Tint Container
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                contentDescription = stringResource(R.string.label_logout),
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(24.dp)
+            )
         }
-    )
-}
 
- 
+        // Title & Subtitle
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 8.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.label_logout),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
-@Preview(
-    name = "Settings Screen Preview",
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 1600
-)
-@Composable
-private fun SettingsScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        SettingsScreenContent(
-            userProfile = defaultUserProfile,
-            userTier = com.mknlabs.expensetracker.models.UserTier.FREE,
-            settingsSections = listOf(
-                // 1. Account Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_account,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.label_edit_profile,
-                            subtitleRes = R.string.label_edit_profile_subtitle,
-                            icon = Icons.Rounded.Person,
-                            actionId = SettingsActionId.EditProfile
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_cloud_sync_devices,
-                            subtitleRes = R.string.desc_sync_premium_subtitle,
-                            icon = Icons.Rounded.CloudSync,
-                            actionId = SettingsActionId.ConnectedDevices,
-                            isLocked = true
-                        )
-                    )
-                ),
-                // 2. Monetization Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_monetization_caps,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.label_remove_all_ads,
-                            subtitleRes = R.string.msg_watch_ad_for_ad_free,
-                            icon = Icons.Rounded.CreditCard,
-                            actionId = SettingsActionId.AdFreeAccess
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_redeem_pro_pass,
-                            subtitleRes = R.string.label_redeem_pro_pass_subtitle,
-                            icon = Icons.Rounded.ConfirmationNumber,
-                            actionId = SettingsActionId.RedeemProPass
-                        )
-                    )
-                ),
-                // 3. Security Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_security_privacy_1,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_security_privacy,
-                            subtitleRes = R.string.label_security_privacy_subtitle,
-                            icon = Icons.Rounded.Security,
-                            actionId = SettingsActionId.SecurityPrivacy
-                        )
-                    )
-                ),
-                // 4. Workspace / Configuration Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_preference,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_manage_category,
-                            subtitleRes = R.string.label_manage_category_subtitle,
-                            icon = Icons.Rounded.Category,
-                            actionId = SettingsActionId.ManageCategories
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_app_preferences,
-                            subtitleRes = R.string.label_app_preferences_subtitle,
-                            icon = Icons.Rounded.SettingsSuggest,
-                            actionId = SettingsActionId.AppPreferences
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_notifications_1,
-                            subtitleRes = R.string.label_notifications_subtitle,
-                            icon = Icons.Rounded.NotificationAdd,
-                            actionId = SettingsActionId.Notifications
-                        ),
-                        SettingsItemUi(
-                            titleRes = R.string.title_transaction_card,
-                            subtitleRes = R.string.label_transaction_card_subtitle,
-                            icon = Icons.Rounded.Tune,
-                            actionId = SettingsActionId.TransactionCardCustomize
-                        )
-                    )
-                ),
-                // 5. Data Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_database,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_data_management,
-                            subtitleRes = R.string.label_data_management_subtitle,
-                            icon = Icons.Rounded.Dns,
-                            actionId = SettingsActionId.DataManagement
-                        )
-                    )
-                ),
-                // 6. Session Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_session,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.label_logout,
-                            subtitleRes = R.string.desc_logout_subtitle,
-                            icon = Icons.AutoMirrored.Rounded.Logout,
-                            actionId = SettingsActionId.Logout,
-                            showChevron = false
-                        )
-                    )
-                ),
-                // 7. About Section
-                SettingsSectionUi(
-                    titleRes = R.string.title_about_caps,
-                    items = listOf(
-                        SettingsItemUi(
-                            titleRes = R.string.title_about,
-                            subtitleRes = R.string.label_about_subtitle,
-                            icon = Icons.Rounded.Info,
-                            actionId = SettingsActionId.About
-                        ),
+            Text(
+                text = stringResource(R.string.desc_logout_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 
-                    )
-                )
-            ),
-            isAdsEnabled = false,
-            isDailyReminderEnabled = true,
-            isBudgetLimitAlertsEnabled = true,
-            isMissedEntryReminderEnabled = false,
-            onDailyReminderChange = {},
-            onBudgetLimitAlertsChange = {},
-            onMissedEntryReminderChange = {},
-            onProfileClick = {},
-            onMembershipClick = {},
-            onPreferencesClick = {},
-            onSecurityPrivacyClick = {},
-            onPrivacyOptionsClick = {},
-            onTransactionCardCustomizeClick = {},
-            onDataManagementClick = {},
-            onAboutClick = {},
-            onNotificationsClick = {},
-            onManageCategoryClick = {},
-            onGoalsClick = {},
-            onLinkAccountClick = {},
-            onLogoutClick = {},
-            onConnectedDevicesClick = {},
-            onShowUpgradeSheet = {},
-            onRedeemProPassClick = {},
-            onAdFreeAccessClick = {},
-            onBackClick = {}
+        // Trailing Chevron Icon with Error tint
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(20.dp)
         )
     }
 }
+
+/**
+ * Data model representing a single row within a Settings Section.
+ */
+private data class SettingsRowData(
+    val titleRes: Int,
+    val subtitleRes: Int,
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+    val isEnabled: Boolean = true
+)
+
+@Preview(
+    name = "Settings Screen Light Preview",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1000
+)
+@Composable
+private fun SettingsScreenLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        SettingsScreenContent()
+    }
+}
+
+@Preview(
+    name = "Settings Screen Dark Preview",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1000
+)
+@Composable
+private fun SettingsScreenDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        SettingsScreenContent()
+    }
+}
+
+
