@@ -142,7 +142,7 @@ fun SettingsItemCard(
                     updatedOnClick?.invoke()
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .heightIn(min = 56.dp),
+                .heightIn(min = 52.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIconBox(
@@ -157,7 +157,8 @@ fun SettingsItemCard(
             Spacer(modifier = Modifier.width(14.dp))
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -247,7 +248,7 @@ fun SettingsItemCard(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = stringResource(R.string.label_open),
                             tint = primary.copy(alpha = 0.8f),
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(40.dp)
                         )
                     }
 
@@ -283,7 +284,6 @@ fun SettingsItemCard(
         Surface(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 2.dp)
                 .then(
                     if (isHighlight) {
                         Modifier.background(

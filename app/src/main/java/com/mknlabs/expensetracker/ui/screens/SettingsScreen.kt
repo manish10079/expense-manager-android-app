@@ -332,26 +332,20 @@ private fun SettingsSection(
             )
         }
 
-        // Render non-highlight items in a Grouped Card
-        if (nonHighlightItems.isNotEmpty()) {
-            SettingsGroup {
-                nonHighlightItems.forEachIndexed { index, item ->
-                    if (index > 0) {
-                        SettingsGroupDivider()
-                    }
-                    SettingsItemContent(
-                        item = item,
-                        standalone = false,
-                        isDailyReminderEnabled = isDailyReminderEnabled,
-                        isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
-                        isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
-                        onItemClick = onItemClick,
-                        onDailyReminderChange = onDailyReminderChange,
-                        onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
-                        onMissedEntryReminderChange = onMissedEntryReminderChange
-                    )
-                }
-            }
+        // Render non-highlight items as standalone cards for now so every item
+        // has the same card chrome as the Security & Privacy standalone card.
+        nonHighlightItems.forEach { item ->
+            SettingsItemContent(
+                item = item,
+                standalone = true,
+                isDailyReminderEnabled = isDailyReminderEnabled,
+                isBudgetLimitAlertsEnabled = isBudgetLimitAlertsEnabled,
+                isMissedEntryReminderEnabled = isMissedEntryReminderEnabled,
+                onItemClick = onItemClick,
+                onDailyReminderChange = onDailyReminderChange,
+                onBudgetLimitAlertsChange = onBudgetLimitAlertsChange,
+                onMissedEntryReminderChange = onMissedEntryReminderChange
+            )
         }
     }
 }
