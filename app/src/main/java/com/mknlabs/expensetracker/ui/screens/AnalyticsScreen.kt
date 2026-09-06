@@ -6,6 +6,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,6 +50,7 @@ import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.ui.components.DialogModeSelector
@@ -184,6 +187,11 @@ fun AnalyticsScreenContent(
     // period navigator, hero chart, and stat row stay full-width.
     val isWide = LocalAppWindowInfo.current.isWide
 
+    // Primary scroll surface for the whole analytics screen; its scroll
+    // direction drives the standalone add FAB's auto-hide on compact portrait.
+    val analyticsListState = rememberLazyListState()
+    rememberBindAddFabToScroll(analyticsListState)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -199,6 +207,7 @@ fun AnalyticsScreenContent(
         }
 
         LazyColumn(
+            state = analyticsListState,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)

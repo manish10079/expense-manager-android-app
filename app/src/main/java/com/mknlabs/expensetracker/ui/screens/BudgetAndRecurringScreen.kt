@@ -26,7 +26,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -141,6 +143,7 @@ import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 
@@ -253,6 +256,15 @@ private fun BudgetAndRecurringContent(
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
+    // Per-tab scroll states for the two pager pages (Budgets / Recurring). The
+    // current page's scroll direction drives the standalone add FAB's auto-hide
+    // on compact portrait.
+    val budgetsListState = rememberLazyListState()
+    val recurringListState = rememberLazyListState()
+    rememberBindAddFabToScroll(
+        if (pagerState.currentPage == 0) budgetsListState else recurringListState
+    )
+
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
         val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Recurring
@@ -326,6 +338,7 @@ private fun BudgetAndRecurringContent(
                 verticalAlignment = Alignment.Top
             ) { page ->
                 LazyColumn(
+                    state = if (page == 0) budgetsListState else recurringListState,
                     modifier = Modifier
                         .fillMaxSize()
                         .navigationBarsPadding(),

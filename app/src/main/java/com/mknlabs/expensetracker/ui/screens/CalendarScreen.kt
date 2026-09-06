@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -97,6 +99,7 @@ import com.mknlabs.expensetracker.ui.models.TabItem
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import java.util.Calendar
@@ -192,6 +195,11 @@ private fun CalendarScreenContent(
     // Medium+ windows get the month grid and selected-day transactions side-by-side.
     val isWide = LocalAppWindowInfo.current.isWide
 
+    // Primary scroll surface for the calendar screen; its scroll direction
+    // drives the standalone add FAB's auto-hide on compact portrait.
+    val calendarListState = rememberLazyListState()
+    rememberBindAddFabToScroll(calendarListState)
+
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -209,6 +217,7 @@ private fun CalendarScreenContent(
                 }
 
                 LazyColumn(
+                    state = calendarListState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
