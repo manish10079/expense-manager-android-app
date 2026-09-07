@@ -153,6 +153,7 @@ fun SettingsScreen(
         onDataManagementClick = onDataManagementClick,
         onAboutClick = onAboutClick,
         onLogoutClick = onLogoutClick,
+        onLinkAccountClick = onLinkAccountClick,
         onBackClick = onBackClick
     )
 }
@@ -179,9 +180,11 @@ fun SettingsScreenContent(
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onLinkAccountClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val isProUser = userTier == UserTier.PREMIUM
+    val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
 
     Box(
         modifier = modifier
@@ -219,8 +222,8 @@ fun SettingsScreenContent(
                             gender = userProfile.gender,
                             photoUri = userProfile.photoUri,
                             userTier = userTier,
-                            isAnonymous = userProfile.authProvider == "anonymous",
-                            onClick = onProfileClick
+                            isAnonymous = isAnonymous,
+                            onClick = if (isAnonymous) onLinkAccountClick else onProfileClick
                         )
                     }
 
@@ -233,29 +236,49 @@ fun SettingsScreenContent(
 
                     // Section 1: ACCOUNT & SECURITY
                     item {
-                        SettingsSectionContainer(
-                            headerRes = R.string.header_account_and_security,
-                            items = listOf(
+                        val accountSecurityItems = mutableListOf<SettingsRowData>()
+
+                        if (isAnonymous) {
+                            accountSecurityItems.add(
+                                SettingsRowData(
+                                    titleRes = R.string.title_protect_your_data,
+                                    subtitleRes = R.string.msg_link_account_desc,
+                                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                                    onClick = onLinkAccountClick
+                                )
+                            )
+                        } else {
+                            accountSecurityItems.add(
                                 SettingsRowData(
                                     titleRes = R.string.label_edit_profile,
                                     subtitleRes = R.string.label_edit_profile_subtitle,
                                     icon = Icons.Filled.Person,
                                     onClick = onProfileClick
-                                ),
+                                )
+                            )
+                            accountSecurityItems.add(
                                 SettingsRowData(
                                     titleRes = R.string.title_cloud_sync_devices,
                                     subtitleRes = R.string.desc_cloud_sync_devices_subtitle,
                                     icon = Icons.Filled.Cloud,
                                     onClick = if (isProUser) onCloudSyncDevicesClick else { {} },
                                     isEnabled = isProUser
-                                ),
-                                SettingsRowData(
-                                    titleRes = R.string.title_security_privacy,
-                                    subtitleRes = R.string.label_security_privacy_subtitle,
-                                    icon = Icons.Filled.Shield,
-                                    onClick = onSecurityPrivacyClick
                                 )
                             )
+                        }
+
+                        accountSecurityItems.add(
+                            SettingsRowData(
+                                titleRes = R.string.title_security_privacy,
+                                subtitleRes = R.string.label_security_privacy_subtitle,
+                                icon = Icons.Filled.Shield,
+                                onClick = onSecurityPrivacyClick
+                            )
+                        )
+
+                        SettingsSectionContainer(
+                            headerRes = R.string.header_account_and_security,
+                            items = accountSecurityItems
                         )
                     }
 
@@ -335,9 +358,11 @@ fun SettingsScreenContent(
                         )
                     }
 
-                    // Isolated Action: Logout (No Card Container)
-                    item {
-                        SettingsIsolatedLogoutRow(onClick = onLogoutClick)
+                    // Isolated Action: Logout (No Card Container) - shown only for signed in users
+                    if (!isAnonymous) {
+                        item {
+                            SettingsIsolatedLogoutRow(onClick = onLogoutClick)
+                        }
                     }
                 }
             }

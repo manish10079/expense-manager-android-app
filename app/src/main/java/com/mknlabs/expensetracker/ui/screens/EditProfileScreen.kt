@@ -259,7 +259,7 @@ private fun ProfileScreenContent(
                 },
                 onPrepareForExternalActivity = onPrepareForExternalActivity,
                 userTier = userTier,
-                isAnonymous = userProfile.authProvider == "anonymous"
+                isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
             )
 
             Spacer(modifier = Modifier.height(24.dp))

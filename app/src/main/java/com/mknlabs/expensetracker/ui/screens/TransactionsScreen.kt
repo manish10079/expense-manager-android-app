@@ -138,6 +138,7 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.components.ActiveFilter
 import com.mknlabs.expensetracker.ui.components.ActiveFilterBar
 import com.mknlabs.expensetracker.ui.components.AdContainer
+import com.mknlabs.expensetracker.ui.components.AddTransactionFabSlot
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.FilterBottomSheet
 import com.mknlabs.expensetracker.ui.components.FilterPillType
@@ -149,6 +150,7 @@ import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
 import com.mknlabs.expensetracker.ui.components.TransactionPeriodNavigator
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.ui.horizontalSwipe
 import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.ui.theme.Dimens
@@ -321,6 +323,7 @@ private fun TransactionScreenContent(
     val searchFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
+    rememberBindAddFabToScroll(lazyListState)
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
 
     // Scroll-to-load: trigger next page when user scrolls near the bottom of the list
@@ -949,6 +952,15 @@ private fun TransactionScreenContent(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 80.dp)
         )
+
+        if (!uiState.isSelectionMode) {
+            AddTransactionFabSlot(
+                onClick = onAddTransactionClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 76.dp, end = 16.dp)
+            )
+        }
     }
 
     // Period date-jump picker
