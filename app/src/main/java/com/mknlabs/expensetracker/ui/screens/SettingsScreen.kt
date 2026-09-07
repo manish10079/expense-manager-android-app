@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.rounded.LocalOffer
+import androidx.compose.material.icons.rounded.WorkspacePremium
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -144,6 +145,7 @@ fun SettingsScreen(
         onProfileClick = onProfileClick,
         onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
+        onMembershipClick = onMembershipClick,
         onAdFreeAccessClick = onAdFreeAccessClick,
         onRedeemProPassClick = { showRedeemDialog = true },
         onManageCategoryClick = onManageCategoryClick,
@@ -171,6 +173,7 @@ fun SettingsScreenContent(
     onProfileClick: () -> Unit = {},
     onCloudSyncDevicesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
+    onMembershipClick: () -> Unit = {},
     onAdFreeAccessClick: () -> Unit = {},
     onRedeemProPassClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
@@ -287,6 +290,12 @@ fun SettingsScreenContent(
                         SettingsSectionContainer(
                             headerRes = R.string.header_membership,
                             items = listOf(
+                                SettingsRowData(
+                                    titleRes = R.string.title_membership,
+                                    subtitleRes = if (isProUser) R.string.label_pro_active else R.string.label_free_tier,
+                                    icon = Icons.Rounded.WorkspacePremium,
+                                    onClick = onMembershipClick
+                                ),
                                 SettingsRowData(
                                     titleRes = R.string.label_remove_all_ads,
                                     subtitleRes = if (isProUser) R.string.label_ad_free_active else R.string.label_remove_all_ads_subtitle,
