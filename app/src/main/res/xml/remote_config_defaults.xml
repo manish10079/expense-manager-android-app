@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  In-app default values for every Firebase Remote Config parameter the app
+  reads. These are the fallback values used before (or when) the Remote
+  Config backend cannot be reached. Keep this file in sync with
+  remote_config.json (the publish template used by update_remote_config.sh).
+
+  New parameters MUST be added here first, then published to the backend.
+-->
+<defaultsMap>
+    <!-- App update notifications (in-app update system) -->
+    <entry>
+        <key>latest_version</key>
+        <value></value>
+    </entry>
+    <entry>
+        <key>latest_version_code</key>
+        <value>0</value>
+    </entry>
+    <entry>
+        <key>force_update</key>
+        <value>false</value>
+    </entry>
+    <entry>
+        <key>update_title</key>
+        <value></value>
+    </entry>
+    <entry>
+        <key>update_message</key>
+        <value></value>
+    </entry>
+
+    <!-- Legacy force-update gate (full-screen, driven by SplashViewModel) -->
+    <entry>
+        <key>min_required_version</key>
+        <value>1</value>
+    </entry>
+
+    <!-- Maintenance / availability -->
+    <entry>
+        <key>is_under_maintenance</key>
+        <value>false</value>
+    </entry>
+
+    <!-- Monetization & features -->
+    <entry>
+        <key>is_pro_pass_enabled</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>pro_gating_enabled</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>current_promo_code</key>
+        <value></value>
+    </entry>
+
+    <!-- Cloud sync -->
+    <entry>
+        <key>is_sync_enabled</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>max_sync_devices</key>
+        <value>4</value>
+    </entry>
+    <entry>
+        <key>google_sheets_feedback_url</key>
+        <value></value>
+    </entry>
+
+    <!-- Gemini voice parsing model -->
+    <entry>
+        <key>gemini_voice_model</key>
+        <value>gemini-3.7-flash</value>
+    </entry>
+</defaultsMap>

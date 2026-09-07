@@ -6,6 +6,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.mknlabs.expensetracker.BuildConfig
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,18 +60,10 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
             minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
-        remoteConfig.setDefaultsAsync(
-            mapOf(
-                "min_required_version" to 1,
-                "is_under_maintenance" to false,
-                "current_promo_code" to "",
-                "is_pro_pass_enabled" to true,
-                "is_sync_enabled" to true,
-                "max_sync_devices" to 4,
-                "google_sheets_feedback_url" to "",
-                "pro_gating_enabled" to true
-            )
-        )
+        // All in-app defaults live in one place: res/xml/remote_config_defaults.xml.
+        // UpdateRepositoryImpl loads the same file, so defaults are consistent
+        // regardless of which singleton initializes first.
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         fetchAndActivate()
         startPeriodicRefresh()
     }

@@ -90,6 +90,24 @@ com.mkn0079.expensetracker/
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `Bumped version to <versionName>`.
 - **README Sync:** Whenever `versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header (line 7) and the `| **Version** | <name> |` row in the feature table. Never leave README.md on an older version.
 - **Verification:** Before finalizing the commit, verify the updated version is reflected in both `app/build.gradle.kts` and `README.md`.
+- **Remote Config Sync (MANDATORY after every version bump):** Every time `versionCode` and/or `versionName` is bumped in `app/build.gradle.kts`, the new version MUST be pushed to Firebase Remote Config so the in-app update dialog advertises the latest release.
+    - Run this single command from the repo root (AFTER bumping the version — it reads the values straight from `app/build.gradle.kts`):
+      ```bash
+      ./update_remote_config.sh
+      ```
+    - What the script does (never hand-edit around it):
+        1. Parses `versionCode` and `versionName` from `app/build.gradle.kts`.
+        2. Pulls the CURRENT live Remote Config template (`firebase remoteconfig:get`) and MERGES — it only adds/updates the update parameters and never drops or overwrites unrelated parameters (e.g. `min_required_version`, `gemini_voice_model`, `is_under_maintenance`).
+        3. Forces `latest_version` = versionName and `latest_version_code` = versionCode from the build file (these two are NEVER edited by hand).
+        4. Publishes via `firebase deploy --only remoteconfig` (the template path is wired in `firebase.json` → `remoteconfig.template` = `remote_config.json`).
+    - `force_update`, `update_title`, and `update_message` are edited in `remote_config.json` and are picked up the next time the script runs — do not type them into the console unless you know what you are doing.
+    - Prerequisites: Firebase CLI installed and authenticated (`firebase login`). The script deploys to the project listed in `.firebaserc` (`expense-tracker-2ea00`). If the agent cannot authenticate, it MUST tell the developer to run the script and must never claim Remote Config was updated when it was not.
+    - Timing rule: publish AFTER the bumped build is actually available on the Play Store (or at least rolled out to the test track). Advertising a version that is not downloadable yet breaks the in-app update dialog, especially with `force_update = true`.
+    - Verification: after publishing, confirm with:
+      ```bash
+      firebase remoteconfig:get -o /tmp/rc_check.json && cat /tmp/rc_check.json
+      ```
+      `latest_version` and `latest_version_code` must equal the bumped values from `app/build.gradle.kts`.
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
 - **No AI-Attribution Footer:** Never append AI-attribution or credit lines to commit messages. In particular, never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar "Generated with ..." / "Co-Authored-By ..." signatures from any tool or model. Commit messages contain only the subject line and the change description.
 
