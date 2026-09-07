@@ -1,16 +1,30 @@
 {
   "parameters": {
-    "pro_gating_enabled": {
+    "latest_version_code": {
       "defaultValue": {
-        "value": "true"
-      },
-      "valueType": "BOOLEAN"
+        "value": "223"
+      }
+    },
+    "update_message": {
+      "defaultValue": {
+        "value": "A new version of Expense Tracker is available. Update now to enjoy the latest features and improvements."
+      }
+    },
+    "force_update": {
+      "defaultValue": {
+        "value": "false"
+      }
     },
     "is_under_maintenance": {
       "defaultValue": {
         "value": "false"
       },
       "valueType": "BOOLEAN"
+    },
+    "update_title": {
+      "defaultValue": {
+        "value": "A New Version Is Available"
+      }
     },
     "google_sheets_feedback_url": {
       "defaultValue": {
@@ -30,29 +44,15 @@
       },
       "valueType": "NUMBER"
     },
+    "pro_gating_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "valueType": "BOOLEAN"
+    },
     "latest_version": {
       "defaultValue": {
-        "value": "2.94.2"
-      }
-    },
-    "latest_version_code": {
-      "defaultValue": {
-        "value": "223"
-      }
-    },
-    "force_update": {
-      "defaultValue": {
-        "value": "false"
-      }
-    },
-    "update_title": {
-      "defaultValue": {
-        "value": "A New Version Is Available"
-      }
-    },
-    "update_message": {
-      "defaultValue": {
-        "value": "A new version of Expense Tracker is available. Update now to enjoy the latest features and improvements."
+        "value": "2.95.0"
       }
     }
   }
