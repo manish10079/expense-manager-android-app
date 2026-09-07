@@ -108,11 +108,14 @@ class SettingsViewModel @Inject constructor(
     private var isProPassEnabled: Boolean = true
     private var userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
     private var isCloudSyncEnabled: Boolean = true
-    private var adFreeRemainingTime: String? = null
     private var isPrivacyOptionsRequired: Boolean = false
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState())
     val uiState: StateFlow<SettingsScreenUiState> = _uiState.asStateFlow()
+
+    // Live countdown of the remaining ad-free pass (MM:SS), or null when no pass is active.
+    private val _adFreeRemainingTime = MutableStateFlow<String?>(null)
+    val adFreeRemainingTime: StateFlow<String?> = _adFreeRemainingTime.asStateFlow()
 
     init {
         authRepository.currentUser
@@ -157,7 +160,7 @@ class SettingsViewModel @Inject constructor(
                 }
             }
             .onEach { time ->
-                adFreeRemainingTime = time
+                _adFreeRemainingTime.value = time
                 rebuildUiState()
             }
             .launchIn(viewModelScope)
@@ -190,7 +193,7 @@ class SettingsViewModel @Inject constructor(
                     isProPassEnabled = isProPassEnabled,
                     userTier = userTier,
                     isCloudSyncEnabled = isCloudSyncEnabled,
-                    adFreeRemainingTime = adFreeRemainingTime,
+                    adFreeRemainingTime = _adFreeRemainingTime.value,
                     privacyOptionsRequired = isPrivacyOptionsRequired
                 )
             )
