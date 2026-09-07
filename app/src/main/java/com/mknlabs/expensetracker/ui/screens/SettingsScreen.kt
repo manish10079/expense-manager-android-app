@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
@@ -117,6 +119,8 @@ fun SettingsScreen(
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
 
+    val adFreeRemainingTime by settingsViewModel.adFreeRemainingTime.collectAsStateWithLifecycle()
+
     LaunchedEffect(
         transactionCount, isAdsEnabled, userTier, isCloudSyncEnabled, userProfile
     ) {
@@ -142,6 +146,7 @@ fun SettingsScreen(
         userProfile = userProfile,
         userTier = userTier,
         isAdsEnabled = isAdsEnabled,
+        adFreeRemainingTime = adFreeRemainingTime,
         onProfileClick = onProfileClick,
         onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
@@ -170,6 +175,7 @@ fun SettingsScreenContent(
     userProfile: UserProfile = defaultUserProfile,
     userTier: UserTier = UserTier.FREE,
     isAdsEnabled: Boolean = false,
+    adFreeRemainingTime: String? = null,
     onProfileClick: () -> Unit = {},
     onCloudSyncDevicesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
@@ -187,6 +193,7 @@ fun SettingsScreenContent(
     onBackClick: () -> Unit = {}
 ) {
     val isProUser = userTier == UserTier.PREMIUM
+    val isAdPassActive = !isProUser && adFreeRemainingTime != null
     val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
 
     Box(
@@ -297,11 +304,18 @@ fun SettingsScreenContent(
                                     onClick = onMembershipClick
                                 ),
                                 SettingsRowData(
-                                    titleRes = R.string.label_remove_all_ads,
-                                    subtitleRes = if (isProUser) R.string.label_ad_free_active else R.string.label_remove_all_ads_subtitle,
+                                    titleRes = if (isAdPassActive) R.string.label_ad_free_active else R.string.label_remove_all_ads,
+                                    subtitleRes = if (isProUser) {
+                                        R.string.label_ad_free_active
+                                    } else if (isAdPassActive) {
+                                        R.string.msg_ad_free_duration_remaining
+                                    } else {
+                                        R.string.label_remove_all_ads_subtitle
+                                    },
                                     icon = Icons.Filled.Star,
-                                    onClick = if (isProUser) { {} } else onAdFreeAccessClick,
-                                    isEnabled = !isProUser
+                                    onClick = if (isProUser || isAdPassActive) { {} } else onAdFreeAccessClick,
+                                    isEnabled = !isProUser && !isAdPassActive,
+                                    trailing = if (isAdPassActive) adFreeRemainingTime else null
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_redeem_pro_pass,
@@ -492,7 +506,19 @@ private fun SettingsRowItemView(
             )
         }
 
+        // Trailing countdown (e.g. ad-free pass timer)
+        if (data.trailing != null) {
+            Text(
+                text = data.trailing,
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.primary,
+                maxLines = 1
+            )
+        }
+
         if (isEnabled) {
+            Spacer(modifier = Modifier.width(4.dp))
+
             // Trailing Chevron Icon
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
@@ -581,7 +607,8 @@ private data class SettingsRowData(
     val subtitleRes: Int,
     val icon: ImageVector,
     val onClick: () -> Unit,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val trailing: String? = null
 )
 
 @Preview(
