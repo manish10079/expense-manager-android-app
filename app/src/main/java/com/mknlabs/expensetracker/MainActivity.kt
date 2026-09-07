@@ -45,6 +45,10 @@ import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.ui.screens.SplashOverlay
 import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
 import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
+import com.mknlabs.expensetracker.ui.components.UpdateDialog
+import com.mknlabs.expensetracker.ui.viewmodels.UpdateViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.UpdateUiState
+import com.mknlabs.expensetracker.utils.PlayStoreLink
 import android.net.Uri
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.ui.adaptive.LocalFontScaleInfo
@@ -218,6 +222,8 @@ class MainActivity : AppCompatActivity() {
         val authViewModel: AuthViewModel = hiltViewModel()
         val monetizationViewModel: MonetizationViewModel = hiltViewModel()
         val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+        val updateViewModel: UpdateViewModel = hiltViewModel()
+        val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
@@ -441,6 +447,23 @@ class MainActivity : AppCompatActivity() {
                             SplashOverlay(viewModel = splashViewModel)
                         }
                     }
+                }
+
+                // In-app update dialog (Firebase Remote Config driven). Optional
+                // updates show once per launch; force updates cannot be dismissed.
+                // Suppressed while the app lock overlay is active so the lock's
+                // own dialog window always stays on top.
+                val updateAvailable = updateState as? UpdateUiState.UpdateAvailable
+                if (isReady && updateAvailable != null && appLockState is AppLockState.Unlocked) {
+                    UpdateDialog(
+                        info = updateAvailable.info,
+                        force = updateAvailable.force,
+                        onUpdateNow = {
+                            PlayStoreLink.openPlayStore(context)
+                            updateViewModel.onUpdateNow()
+                        },
+                        onLater = updateViewModel::onLater
+                    )
                 }
             }
             }

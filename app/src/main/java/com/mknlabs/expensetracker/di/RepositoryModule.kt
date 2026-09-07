@@ -13,6 +13,7 @@ import com.mknlabs.expensetracker.data.repository.TransactionRepository as Trans
 import com.mknlabs.expensetracker.data.repository.SecurityRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ConfigurationRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ProPassRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.UpdateRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.SyncRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CountryCodeRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.FcmTokenRepositoryImpl
@@ -129,4 +130,10 @@ abstract class RepositoryModule {
     abstract fun bindProPassRepository(
         impl: ProPassRepositoryImpl
     ): ProPassRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUpdateRepository(
+        impl: UpdateRepositoryImpl
+    ): UpdateRepository
 }
