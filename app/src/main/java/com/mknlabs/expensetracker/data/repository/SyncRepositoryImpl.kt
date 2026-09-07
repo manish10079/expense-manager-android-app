@@ -541,6 +541,11 @@ class SyncRepositoryImpl @Inject constructor(
             proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp,
             isSubscription = snapshot.getBoolean("isSubscription") ?: localProfile.isSubscription,
             photoUri = snapshot.getString("photoUri") ?: (if (localProfile.photoUri == null) authUser?.photoUrl?.toString() else null) ?: localProfile.photoUri,
+            authProvider = snapshot.getString("authProvider") ?: localProfile.authProvider.ifBlank {
+                if (authUser?.isAnonymous == true) "anonymous" else {
+                    authUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
+                }
+            },
             updatedAtMillis = remoteUpdatedAt
         )
 
