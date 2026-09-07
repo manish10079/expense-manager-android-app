@@ -907,77 +907,6 @@ fun AddTransactionScreen(
             }
         }
 
-        // Floating action button — quick-add from anywhere on the form
-        AddTransactionFab(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .navigationBarsPadding()
-                .padding(end = 22.dp, bottom = 28.dp),
-            enabled = canSubmit,
-            onClick = {
-                val category = selectedCategory ?: return@AddTransactionFab
-                val payment = selectedPayment ?: return@AddTransactionFab
-                val amount = amountInput.toDoubleOrNull() ?: return@AddTransactionFab
-                val transaction = Transaction(
-                    id = existingTransaction?.id.orEmpty(),
-                    note = note.trim(),
-                    createdAt = selectedDateMillis,
-                    amountMinor = amount.toMinorUnits(),
-                    transactionTypeId = selectedTransactionTypeId,
-                    paymentTypeId = payment.id,
-                    categoryId = category.id,
-                    contentHash = existingTransaction?.contentHash,
-                    syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
-                    isDeleted = false,
-                    updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
-                    sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
-                )
-                val recurringDraft = if (
-                    isRecurringEnabled &&
-                    recurringCount != null &&
-                    recurringCount > 0
-                ) {
-                    RecurringTransactionDraft(
-                        frequency = selectedRecurringFrequency,
-                        repeatCount = recurringCount
-                    )
-                } else {
-                    null
-                }
-                // Duplicate detection: check if a rule with same category + amount + frequency exists
-                if (recurringDraft != null && !isEditMode) {
-                    val amount = amountInput.toDoubleOrNull() ?: 0.0
-                    val duplicate = allRecurringRules.firstOrNull { rule ->
-                        !rule.isDeleted &&
-                        rule.frequency == recurringDraft.frequency &&
-                        rule.transactionId != transaction.id &&
-                        // Match by category (from the rule's linked transaction)
-                        transactions.any { t ->
-                            t.id == rule.transactionId &&
-                            t.categoryId == category.id &&
-                            t.amountMinor == transaction.amountMinor
-                        }
-                    }
-                    if (duplicate != null) {
-                        val categoryName = availableCategories.firstOrNull { it.id == category.id }?.name ?: "this category"
-                        val freqLabel = selectedRecurringFrequency.label
-                        val amountFormatted = formatCurrencyValue(transaction.amountMinor / 100.0, currencyId)
-                        duplicateWarningMessage = context.getString(R.string.msg_duplicate_recurring_rule, categoryName, amountFormatted, freqLabel)
-                        pendingSaveTransaction = transaction
-                        pendingSaveDraft = recurringDraft
-                        showDuplicateWarning = true
-                        return@AddTransactionFab
-                    }
-                }
-                keyboardController?.hide()
-                // Learn merchant → payment method association
-                if (note.isNotBlank()) {
-                    paymentMethodPredictorViewModel.learn(note, payment.id)
-                }
-                onSaveClick(transaction, recurringDraft)
-            }
-        )
-
         if (isDatePickerVisible) {
             WheelDateTimePickerModal(
                 mode = WheelPickerMode.SINGLE_DATE,
@@ -1972,58 +1901,6 @@ private fun AddTransactionButton(
             )
 
 
-        }
-    }
-}
-
-@Composable
-private fun AddTransactionFab(
-    modifier: Modifier = Modifier,
-    enabled: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .size(88.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                        )
-                    ),
-                    shape = CircleShape
-                )
-        )
-
-        Box(
-            modifier = Modifier
-                .size(66.dp)
-                .shadow(
-                    elevation = 22.dp,
-                    shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
-                    spotColor = MaterialTheme.colorScheme.secondary.copy(0.30f)
-                )
-                .clip(CircleShape)
-                .background(
-                    brush = brandGradient()
-                )
-                .alpha(if (enabled) 1f else 0.55f)
-                .clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.desc_add_transaction),
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(26.dp)
-            )
         }
     }
 }

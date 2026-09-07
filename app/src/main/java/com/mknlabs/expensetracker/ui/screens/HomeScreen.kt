@@ -595,7 +595,7 @@ private fun HomeHeaderRow(
                 SettingsButton(onClick = onSettingsClick)
             }
 
-            val isAnonymous = userProfile.authProvider == "anonymous"
+            val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
             val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
                 !isAnonymous
 

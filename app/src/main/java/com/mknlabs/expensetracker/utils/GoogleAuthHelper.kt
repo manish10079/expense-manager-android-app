@@ -95,13 +95,8 @@ class GoogleAuthHelper @Inject constructor(
             return stage1 ?: Result.failure(NoCredentialException())
         }
 
-        // ── Explicit sign-in: Stage 1 → Stage 2 (bottom sheet) ──
-        Log.d("AUTH", "GoogleAuthHelper: Explicit sign-in — Stage 1 (silent)")
-        val stage1 = tryStage(context, buildSilentRequest())
-        if (stage1 != null) return stage1
-
-        // Stage 1 failed (NoCredentialException) → show bottom sheet with all accounts
-        Log.d("AUTH", "GoogleAuthHelper: Stage 1 failed — launching Stage 2 (bottom sheet with all accounts)")
+        // ── Explicit sign-in: Stage 2 only (always show Google account picker bottom sheet) ──
+        Log.d("AUTH", "GoogleAuthHelper: Explicit sign-in — Stage 2 (always launch account picker bottom sheet)")
         val stage2 = tryStage(context, buildAllAccountsRequest())
         return stage2 ?: Result.failure(NoCredentialException())
     }
