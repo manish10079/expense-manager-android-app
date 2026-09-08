@@ -1,13 +1,13 @@
 package com.mknlabs.expensetracker.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,15 +29,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.delay
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import kotlinx.coroutines.delay
 
 /**
  * Shared visibility controller for the standalone add-transaction FAB rendered
@@ -71,12 +72,18 @@ fun AddTransactionFab(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = fadeIn(animationSpec = tween(220)) +
-            slideInVertically(animationSpec = tween(220)) { it / 2 } +
-            scaleIn(initialScale = 0.9f, animationSpec = tween(220)),
-        exit = fadeOut(animationSpec = tween(160)) +
-            slideOutVertically(animationSpec = tween(160)) { it / 2 } +
-            scaleOut(targetScale = 0.9f, animationSpec = tween(160)),
+        enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
+            scaleIn(
+                initialScale = 0f,
+                transformOrigin = TransformOrigin.Center,
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+            ),
+        exit = fadeOut(animationSpec = tween(durationMillis = 350, easing = FastOutLinearInEasing)) +
+            scaleOut(
+                targetScale = 0f,
+                transformOrigin = TransformOrigin.Center,
+                animationSpec = tween(durationMillis = 350, easing = FastOutLinearInEasing)
+            ),
         label = "add_transaction_fab_visibility"
     ) {
         FloatingActionButton(
@@ -108,13 +115,14 @@ fun AddTransactionFab(
 @Composable
 fun AddTransactionFabSlot(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    visible: Boolean = true
 ) {
-    val visibility = LocalAddFabVisibility.current
+    val scrollVisibility = LocalAddFabVisibility.current.value
     AddTransactionFab(
         onClick = onClick,
         modifier = modifier,
-        visible = visibility.value
+        visible = visible && scrollVisibility
     )
 }
 

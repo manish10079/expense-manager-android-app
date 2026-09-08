@@ -16,4 +16,7 @@ interface CalculatorHistoryRepository {
 
     /** Removes every recorded history entry. */
     suspend fun clearHistory()
+
+    /** Removes a specific history entry. */
+    suspend fun deleteEntry(timestampMillis: Long)
 }

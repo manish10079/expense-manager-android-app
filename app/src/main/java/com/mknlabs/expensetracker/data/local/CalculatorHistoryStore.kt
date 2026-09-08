@@ -63,6 +63,14 @@ class CalculatorHistoryStore @Inject constructor(
         dataStore.edit { it.remove(ENTRIES_KEY) }
     }
 
+    /** Removes a single entry matching the given timestamp. */
+    suspend fun deleteEntry(timestampMillis: Long) {
+        dataStore.edit { preferences ->
+            val updated = decode(preferences[ENTRIES_KEY]).filterNot { it.timestampMillis == timestampMillis }
+            preferences[ENTRIES_KEY] = encode(updated)
+        }
+    }
+
     private fun encode(entries: List<CalculatorHistoryEntry>): String {
         // Entries are tab-delimited so newlines/commas inside expressions and
         // formatted results never interfere with the on-disk format.

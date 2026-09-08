@@ -38,6 +38,7 @@ data class ItemizedCalculatorUiState(
     val descriptionInput: String = "",
     val amountInput: String = "",
     val normalDisplay: String = "0",
+    val normalRawExpression: String = "",
     val normalStoredValue: Double? = null,
     val normalPendingOperator: String? = null,
     val shouldResetNormalDisplay: Boolean = false,
@@ -151,59 +152,163 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     fun handleNormalAction(action: String) {
         val state = _uiState.value
-        val expressionBeforeEquals = if (action == "=" &&
-            state.normalStoredValue != null &&
-            state.normalPendingOperator != null
-        ) {
-            buildHistoryExpression(
-                storedValue = state.normalStoredValue!!,
-                operator = state.normalPendingOperator!!,
-                rightDisplay = state.normalDisplay
-            )
-        } else {
-            null
-        }
-        val result = handleNormalCalculatorAction(
-            action = action,
-            currentDisplay = state.normalDisplay,
-            storedValue = state.normalStoredValue,
-            pendingOperator = state.normalPendingOperator,
-            shouldResetDisplay = state.shouldResetNormalDisplay
-        )
-        _uiState.update { 
-            it.copy(
-                normalDisplay = result.display,
-                normalStoredValue = result.storedValue,
-                normalPendingOperator = result.pendingOperator,
-                shouldResetNormalDisplay = result.shouldResetDisplay
-            )
-        }
-        expressionBeforeEquals?.let { expression ->
-            if (result.display != "Error") {
-                viewModelScope.launch {
-                    calculatorHistoryRepository.addEntry(expression = expression, result = result.display)
+        var rawExpr = state.normalRawExpression
+        var display = state.normalDisplay
+        var shouldReset = state.shouldResetNormalDisplay
+
+        when (action) {
+            "AC" -> {
+                rawExpr = ""
+                display = "0"
+                shouldReset = false
+            }
+            "BACKSPACE" -> {
+                if (shouldReset) {
+                    rawExpr = ""
+                    display = "0"
+                    shouldReset = false
+                } else if (rawExpr.isNotEmpty()) {
+                    val trimmed = rawExpr.trimEnd()
+                    rawExpr = if (trimmed.length > 1) trimmed.dropLast(1).trimEnd() else ""
+                    val eval = CalculatorExpressionEvaluator.evaluate(rawExpr)
+                    display = if (rawExpr.isEmpty()) "0" else formatNormalCalculatorValue(eval ?: 0.0)
+                } else if (display.length > 1) {
+                    display = display.dropLast(1)
+                } else {
+                    display = "0"
+                }
+            }
+            "=" -> {
+                val exprToEval = if (rawExpr.isNotBlank()) rawExpr else display
+                if (exprToEval.isNotBlank()) {
+                    val eval = CalculatorExpressionEvaluator.evaluate(exprToEval)
+                    if (eval != null && eval.isFinite()) {
+                        val resultStr = formatNormalCalculatorValue(eval)
+                        val historyExpr = formatDisplayExpression(if (rawExpr.isNotBlank()) rawExpr else display)
+                        val hasOperator = rawExpr.any { it in "×÷−+-*/%" }
+                        if (resultStr != "Error" && historyExpr.isNotBlank() && hasOperator) {
+                            viewModelScope.launch {
+                                calculatorHistoryRepository.addEntry(expression = historyExpr, result = resultStr)
+                            }
+                        }
+                        display = resultStr
+                        shouldReset = true
+                    } else {
+                        display = "Error"
+                        shouldReset = true
+                    }
+                }
+            }
+            "%" -> {
+                val eval = CalculatorExpressionEvaluator.evaluate(if (rawExpr.isNotBlank()) rawExpr else display)
+                if (eval != null && eval.isFinite()) {
+                    val pct = eval / 100.0
+                    display = formatNormalCalculatorValue(pct)
+                    rawExpr = display
+                    shouldReset = true
+                }
+            }
+            "+", "-", "*", "/" -> {
+                val symbol = when (action) {
+                    "*" -> "×"
+                    "/" -> "÷"
+                    "-" -> "−"
+                    else -> action
+                }
+                if (shouldReset) {
+                    rawExpr = "$display $symbol "
+                    shouldReset = false
+                } else if (rawExpr.isBlank()) {
+                    rawExpr = "$display $symbol "
+                } else {
+                    val trimmed = rawExpr.trimEnd()
+                    val lastChar = trimmed.lastOrNull()
+                    if (lastChar != null && lastChar in "×÷−+-") {
+                        val base = trimmed.dropLast(1).trimEnd()
+                        rawExpr = "$base $symbol "
+                    } else {
+                        rawExpr = "$rawExpr $symbol "
+                    }
+                }
+                val eval = CalculatorExpressionEvaluator.evaluate(rawExpr)
+                if (eval != null && eval.isFinite()) {
+                    display = formatNormalCalculatorValue(eval)
+                }
+            }
+            "(", ")" -> {
+                if (shouldReset) {
+                    rawExpr = if (action == "(") "(" else ""
+                    shouldReset = false
+                } else {
+                    rawExpr = if (rawExpr.isEmpty()) action else "$rawExpr $action"
+                }
+                val eval = CalculatorExpressionEvaluator.evaluate(rawExpr)
+                if (eval != null && eval.isFinite()) {
+                    display = formatNormalCalculatorValue(eval)
+                }
+            }
+            "." -> {
+                if (shouldReset) {
+                    rawExpr = "0."
+                    display = "0."
+                    shouldReset = false
+                } else {
+                    rawExpr = if (rawExpr.isEmpty()) "0." else "$rawExpr."
+                }
+            }
+            else -> { // Digits 0-9
+                if (shouldReset) {
+                    rawExpr = action
+                    display = action
+                    shouldReset = false
+                } else {
+                    rawExpr = if (rawExpr == "0") action else rawExpr + action
+                    val eval = CalculatorExpressionEvaluator.evaluate(rawExpr)
+                    display = if (eval != null && eval.isFinite()) formatNormalCalculatorValue(eval) else rawExpr
                 }
             }
         }
+
+        _uiState.update {
+            it.copy(
+                normalDisplay = display,
+                normalRawExpression = rawExpr,
+                shouldResetNormalDisplay = shouldReset
+            )
+        }
     }
 
-    /** Builds the "left op right" text for a calculation about to complete with "=". */
-    private fun buildHistoryExpression(
-        storedValue: Double,
-        operator: String,
-        rightDisplay: String
-    ): String {
-        val operatorSymbol = when (operator) {
-            "*" -> "×"
-            "/" -> "÷"
-            "-" -> "−"
-            else -> operator
+    fun selectHistoryResult(result: String) {
+        val cleanResult = result.replace(",", "")
+        _uiState.update {
+            it.copy(
+                normalDisplay = cleanResult,
+                normalRawExpression = "",
+                shouldResetNormalDisplay = true
+            )
         }
-        return listOf(
-            formatNormalCalculatorValue(storedValue),
-            operatorSymbol,
-            rightDisplay
-        ).joinToString(" ")
+    }
+
+    /**
+     * Restores a full calculation expression into the active normal calculator state.
+     */
+    fun restoreHistoryExpression(expression: String) {
+        val clean = expression.trim()
+        val eval = CalculatorExpressionEvaluator.evaluate(clean)
+        val displayVal = if (eval != null && eval.isFinite()) formatNormalCalculatorValue(eval) else "0"
+        _uiState.update {
+            it.copy(
+                normalRawExpression = clean,
+                normalDisplay = displayVal,
+                shouldResetNormalDisplay = false
+            )
+        }
+    }
+
+    fun deleteHistoryEntry(timestampMillis: Long) {
+        viewModelScope.launch {
+            calculatorHistoryRepository.deleteEntry(timestampMillis)
+        }
     }
 
     fun clearHistory() {
@@ -241,93 +346,6 @@ class ItemizedCalculatorViewModel @Inject constructor(
         return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
     }
 
-    // Normal Calculator Logic moved from Screen
-    private fun handleNormalCalculatorAction(
-        action: String,
-        currentDisplay: String,
-        storedValue: Double?,
-        pendingOperator: String?,
-        shouldResetDisplay: Boolean
-    ): NormalCalculatorResult {
-        if (currentDisplay == "Error" && action !in setOf("AC", "BACKSPACE")) {
-            return handleNormalCalculatorAction(action, "0", null, null, false)
-        }
-
-        return when (action) {
-            "AC" -> NormalCalculatorResult("0", null, null, false)
-            "BACKSPACE" -> {
-                val updated = if (shouldResetDisplay || currentDisplay.length <= 1) {
-                    "0"
-                } else {
-                    currentDisplay.dropLast(1)
-                }
-                NormalCalculatorResult(updated, storedValue, pendingOperator, false)
-            }
-            "%" -> {
-                val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-                NormalCalculatorResult(
-                    display = formatNormalCalculatorValue(currentValue / 100.0),
-                    storedValue = storedValue,
-                    pendingOperator = pendingOperator,
-                    shouldResetDisplay = true
-                )
-            }
-            "+", "-", "*", "/" -> {
-                val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-                val updatedStoredValue = if (storedValue != null && pendingOperator != null && !shouldResetDisplay) {
-                    performNormalCalculation(storedValue, currentValue, pendingOperator)
-                } else {
-                    storedValue ?: currentValue
-                }
-                NormalCalculatorResult(
-                    display = formatNormalCalculatorValue(updatedStoredValue),
-                    storedValue = updatedStoredValue,
-                    pendingOperator = action,
-                    shouldResetDisplay = true
-                )
-            }
-            "=" -> {
-                if (storedValue == null || pendingOperator == null) {
-                    NormalCalculatorResult(currentDisplay, null, null, true)
-                } else {
-                    val currentValue = currentDisplay.toDoubleOrNull() ?: 0.0
-                    val result = performNormalCalculation(storedValue, currentValue, pendingOperator)
-                    NormalCalculatorResult(
-                        display = formatNormalCalculatorValue(result),
-                        storedValue = null,
-                        pendingOperator = null,
-                        shouldResetDisplay = true
-                    )
-                }
-            }
-            "." -> {
-                when {
-                    shouldResetDisplay -> NormalCalculatorResult("0.", storedValue, pendingOperator, false)
-                    currentDisplay.contains(".") -> NormalCalculatorResult(currentDisplay, storedValue, pendingOperator, false)
-                    else -> NormalCalculatorResult("$currentDisplay.", storedValue, pendingOperator, false)
-                }
-            }
-            else -> {
-                val updatedDisplay = if (shouldResetDisplay || currentDisplay == "0") {
-                    action
-                } else {
-                    currentDisplay + action
-                }
-                NormalCalculatorResult(updatedDisplay, storedValue, pendingOperator, false)
-            }
-        }
-    }
-
-    private fun performNormalCalculation(left: Double, right: Double, operator: String): Double {
-        return when (operator) {
-            "+" -> left + right
-            "-" -> left - right
-            "*" -> left * right
-            "/" -> if (right == 0.0) Double.NaN else left / right
-            else -> right
-        }
-    }
-
     private fun formatNormalCalculatorValue(value: Double): String {
         return if (value.isFinite()) {
             normalCalculatorFormatter.format(value)
@@ -339,27 +357,126 @@ class ItemizedCalculatorViewModel @Inject constructor(
     fun calculatePreview(): String {
         val state = _uiState.value
         if (state.normalDisplay == "Error") return "Error"
-        val currentValue = state.normalDisplay.toDoubleOrNull()
-        return when {
-            state.normalStoredValue != null && state.normalPendingOperator != null && currentValue != null && !state.shouldResetNormalDisplay ->
-                formatNormalCalculatorValue(performNormalCalculation(state.normalStoredValue, currentValue, state.normalPendingOperator))
-            currentValue != null -> formatNormalCalculatorValue(currentValue)
-            state.normalStoredValue != null -> formatNormalCalculatorValue(state.normalStoredValue)
-            else -> "0"
-        }
+        return state.normalDisplay
     }
     
     fun buildExpression(): String? {
         val state = _uiState.value
-        if (state.normalStoredValue == null || state.normalPendingOperator == null) return null
-        val leftValue = formatNormalCalculatorValue(state.normalStoredValue)
-        val operatorSymbol = when (state.normalPendingOperator) {
-            "*" -> "×"
-            "/" -> "÷"
-            "-" -> "−"
-            else -> state.normalPendingOperator
-        }
-        val rightValue = if (state.shouldResetNormalDisplay) "" else state.normalDisplay
-        return listOf(leftValue, operatorSymbol, rightValue).filter { it.isNotBlank() }.joinToString(" ")
+        if (state.normalRawExpression.isBlank()) return null
+        return formatDisplayExpression(state.normalRawExpression)
+    }
+
+    private fun formatDisplayExpression(raw: String): String {
+        return raw.replace("*", "×").replace("/", "÷").replace("-", "−")
     }
 }
+
+private object CalculatorExpressionEvaluator {
+    fun evaluate(expression: String): Double? {
+        val tokens = tokenize(expression)
+        if (tokens.isEmpty()) return null
+        val rpn = toRPN(tokens) ?: return null
+        return evalRPN(rpn)
+    }
+
+    private fun tokenize(expr: String): List<String> {
+        val sanitized = expr.replace("×", "*").replace("÷", "/").replace("−", "-").replace(",", "")
+        val result = mutableListOf<String>()
+        var i = 0
+        while (i < sanitized.length) {
+            val c = sanitized[i]
+            when {
+                c.isWhitespace() -> i++
+                c.isDigit() || c == '.' -> {
+                    val sb = StringBuilder()
+                    while (i < sanitized.length && (sanitized[i].isDigit() || sanitized[i] == '.')) {
+                        sb.append(sanitized[i])
+                        i++
+                    }
+                    result.add(sb.toString())
+                }
+                c in "+-*/()" -> {
+                    if (c == '-' && (result.isEmpty() || result.last() in "+-*/(")) {
+                        val sb = StringBuilder("-")
+                        i++
+                        while (i < sanitized.length && (sanitized[i].isDigit() || sanitized[i] == '.')) {
+                            sb.append(sanitized[i])
+                            i++
+                        }
+                        if (sb.length > 1) {
+                            result.add(sb.toString())
+                        } else {
+                            result.add("-")
+                        }
+                    } else {
+                        result.add(c.toString())
+                        i++
+                    }
+                }
+                else -> i++
+            }
+        }
+        return result
+    }
+
+    private fun precedence(op: String?): Int = when (op) {
+        "+", "-" -> 1
+        "*", "/" -> 2
+        else -> 0
+    }
+
+    private fun toRPN(tokens: List<String>): List<String>? {
+        val output = mutableListOf<String>()
+        val stack = java.util.ArrayDeque<String>()
+
+        for (token in tokens) {
+            val num = token.toDoubleOrNull()
+            if (num != null) {
+                output.add(token)
+            } else if (token in listOf("+", "-", "*", "/")) {
+                while (!stack.isEmpty() && stack.peek() != "(" && precedence(stack.peek()) >= precedence(token)) {
+                    output.add(stack.pop())
+                }
+                stack.push(token)
+            } else if (token == "(") {
+                stack.push(token)
+            } else if (token == ")") {
+                while (!stack.isEmpty() && stack.peek() != "(") {
+                    output.add(stack.pop())
+                }
+                if (stack.isEmpty() || stack.peek() != "(") return null
+                stack.pop()
+            }
+        }
+        while (!stack.isEmpty()) {
+            val top = stack.pop()
+            if (top == "(" || top == ")") return null
+            output.add(top)
+        }
+        return output
+    }
+
+    private fun evalRPN(tokens: List<String>): Double? {
+        val stack = java.util.ArrayDeque<Double>()
+        for (token in tokens) {
+            val num = token.toDoubleOrNull()
+            if (num != null) {
+                stack.push(num)
+            } else if (token in listOf("+", "-", "*", "/")) {
+                if (stack.size < 2) return null
+                val b = stack.pop()
+                val a = stack.pop()
+                val res = when (token) {
+                    "+" -> a + b
+                    "-" -> a - b
+                    "*" -> a * b
+                    "/" -> if (b == 0.0) Double.NaN else a / b
+                    else -> 0.0
+                }
+                stack.push(res)
+            }
+        }
+        return if (stack.size == 1) stack.pop() else null
+    }
+}
+

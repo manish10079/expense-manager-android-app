@@ -953,14 +953,13 @@ private fun TransactionScreenContent(
                 .padding(bottom = 80.dp)
         )
 
-        if (!uiState.isSelectionMode) {
-            AddTransactionFabSlot(
-                onClick = onAddTransactionClick,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 76.dp, end = 16.dp)
-            )
-        }
+        AddTransactionFabSlot(
+            onClick = onAddTransactionClick,
+            visible = !uiState.isSelectionMode && snackbarHostState.currentSnackbarData == null,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 76.dp, end = 16.dp)
+        )
     }
 
     // Period date-jump picker
