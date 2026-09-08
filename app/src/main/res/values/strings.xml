@@ -687,6 +687,12 @@
     <string name="msg_clear_history_confirm">Clear all calculator history? This action cannot be undone.</string>
     <string name="label_clear_history">Clear History</string>
     <string name="toast_history_copied">Calculation copied to clipboard</string>
+    <string name="label_copy_expression">Copy Expression</string>
+    <string name="label_copy_result">Copy Result</string>
+    <string name="label_delete_entry">Delete Entry</string>
+    <string name="toast_expression_copied">Expression copied to clipboard</string>
+    <string name="toast_result_copied">Result copied to clipboard</string>
+    <string name="toast_entry_deleted">Entry deleted</string>
     <string name="label_items_count_formatted">%1$d ITEMS</string>
     <string name="label_description_caps">DESCRIPTION</string>
     <string name="label_amount_caps">AMOUNT</string>

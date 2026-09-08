@@ -37,15 +37,15 @@ class ItemizedCalculatorViewModelTest {
     }
 
     @Test
-    fun `pressEquals on real calculation records single history entry`() = runTest {
-        // Act: 12 + 5 =
-        listOf("1", "2", "+", "5", "=").forEach { viewModel.handleNormalAction(it) }
+    fun `pressEquals on multi operand calculation records full expression`() = runTest {
+        // Act: 1 + 2 + 3 =
+        listOf("1", "+", "2", "+", "3", "=").forEach { viewModel.handleNormalAction(it) }
 
         // Assert
         assertEquals(1, historyRepository.entries.size)
         val entry = historyRepository.entries.single()
-        assertEquals("12 + 5", entry.expression)
-        assertEquals("17", entry.result)
+        assertEquals("1 + 2 + 3", entry.expression)
+        assertEquals("6", entry.result)
     }
 
     @Test
@@ -84,6 +84,24 @@ class ItemizedCalculatorViewModelTest {
 
         assertTrue(historyRepository.entries.isEmpty())
     }
+
+    @Test
+    fun `restoreHistoryExpression restores full expression string and evaluates display`() = runTest {
+        viewModel.restoreHistoryExpression("1,250 × 450")
+
+        assertEquals("1,250 × 450", viewModel.uiState.value.normalRawExpression)
+        assertEquals("562,500", viewModel.uiState.value.normalDisplay)
+    }
+
+    @Test
+    fun `deleteHistoryEntry removes matching entry`() = runTest {
+        historyRepository.addEntry("12 + 5", "17")
+        val entry = historyRepository.entries.first()
+
+        viewModel.deleteHistoryEntry(entry.timestampMillis)
+
+        assertTrue(historyRepository.entries.isEmpty())
+    }
 }
 
 private class FakeCalculatorHistoryRepository : CalculatorHistoryRepository {
@@ -101,5 +119,10 @@ private class FakeCalculatorHistoryRepository : CalculatorHistoryRepository {
     override suspend fun clearHistory() {
         entries.clear()
         _history.value = emptyList()
+    }
+
+    override suspend fun deleteEntry(timestampMillis: Long) {
+        entries.removeAll { it.timestampMillis == timestampMillis }
+        _history.value = entries.toList()
     }
 }

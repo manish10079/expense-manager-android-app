@@ -1,8 +1,11 @@
 package com.mknlabs.expensetracker.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,12 +31,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -51,7 +56,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.Alignment
@@ -126,17 +137,6 @@ fun ItemizedCalculatorScreen(
     val context = LocalContext.current
     var showHistorySheet by rememberSaveable { mutableStateOf(false) }
 
-    val copyHistoryEntry: (CalculatorHistoryEntry) -> Unit = { entry ->
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(
-            ClipData.newPlainText(
-                context.getString(R.string.label_history),
-                "${entry.expression} = ${entry.result}"
-            )
-        )
-        Toast.makeText(context, context.getString(R.string.toast_history_copied), Toast.LENGTH_SHORT).show()
-    }
-
     LaunchedEffect(initialNote) {
         viewModel.initialize(initialNote)
     }
@@ -163,7 +163,14 @@ fun ItemizedCalculatorScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding()
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp)
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { _, dragAmount ->
+                    if (dragAmount < -40f) {
+                        showHistorySheet = true
+                    }
+                }
+            },
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         AppHeader(
@@ -236,7 +243,23 @@ fun ItemizedCalculatorScreen(
             dateFormatPattern = dateFormatPattern,
             timeFormat = timeFormat,
             onDismiss = { showHistorySheet = false },
-            onCopyEntry = copyHistoryEntry,
+            onTapExpression = { expression ->
+                viewModel.restoreHistoryExpression(expression)
+                showHistorySheet = false
+            },
+            onTapResult = { result ->
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(
+                    ClipData.newPlainText(
+                        context.getString(R.string.label_history),
+                        result
+                    )
+                )
+                Toast.makeText(context, context.getString(R.string.toast_history_copied), Toast.LENGTH_SHORT).show()
+                viewModel.selectHistoryResult(result)
+                showHistorySheet = false
+            },
+            onDeleteEntry = viewModel::deleteHistoryEntry,
             onClearHistory = viewModel::clearHistory
         )
     }
@@ -435,17 +458,17 @@ private fun CalculatorKeypad(
     onAction: (String) -> Unit
 ) {
     val rowSpacing = if (compact) 8.dp else 12.dp
-    val innerRowSpacing = if (compact) 8.dp else 12.dp
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(rowSpacing)
     ) {
+        // Row 1: AC, ⌫, %, ×
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 72.dp),
+                .heightIn(min = if (compact) 32.dp else 64.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
@@ -471,11 +494,12 @@ private fun CalculatorKeypad(
             )
         }
 
+        // Row 2: 7, 8, 9, −
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 72.dp),
+                .heightIn(min = if (compact) 32.dp else 64.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("7", "8", "9").forEach { value ->
@@ -493,11 +517,12 @@ private fun CalculatorKeypad(
             )
         }
 
+        // Row 3: 4, 5, 6, +
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 72.dp),
+                .heightIn(min = if (compact) 32.dp else 64.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("4", "5", "6").forEach { value ->
@@ -515,60 +540,53 @@ private fun CalculatorKeypad(
             )
         }
 
+        // Row 4: 1, 2, 3, .
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(2f)
-                .heightIn(min = if (compact) 64.dp else 144.dp),
+                .weight(1f)
+                .heightIn(min = if (compact) 32.dp else 64.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(innerRowSpacing)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .heightIn(min = if (compact) 24.dp else 72.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    listOf("1", "2", "3").forEach { value ->
-                        CalculatorKeyButton(
-                            modifier = Modifier.weight(1f),
-                            label = value,
-                            onClick = { onAction(value) }
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .heightIn(min = if (compact) 24.dp else 72.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    CalculatorKeyButton(
-                        modifier = Modifier.weight(2f),
-                        label = "0",
-                        pill = true,
-                        onClick = { onAction("0") }
-                    )
-                    CalculatorKeyButton(
-                        modifier = Modifier.weight(1f),
-                        label = ".",
-                        onClick = { onAction(".") }
-                    )
-                }
+            listOf("1", "2", "3").forEach { value ->
+                CalculatorKeyButton(
+                    modifier = Modifier.weight(1f),
+                    label = value,
+                    onClick = { onAction(value) }
+                )
             }
-
             CalculatorKeyButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                modifier = Modifier.weight(1f),
+                label = ".",
+                onClick = { onAction(".") }
+            )
+        }
+
+        // Row 5: 0, (, ), =
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .heightIn(min = if (compact) 32.dp else 64.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "0",
+                onClick = { onAction("0") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = "(",
+                onClick = { onAction("(") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = ")",
+                onClick = { onAction(")") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
                 label = "=",
                 primary = true,
                 onClick = { onAction("=") }
@@ -584,6 +602,16 @@ private fun NormalCalculatorDisplay(
     expression: String?,
     compact: Boolean = false
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val rawExprText = expression ?: resultValue
+    val expressionText = if (rawExprText == "0" || rawExprText.isBlank()) {
+        "0"
+    } else if (rawExprText.startsWith("=")) {
+        rawExprText
+    } else {
+        "= $rawExprText"
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -595,25 +623,13 @@ private fun NormalCalculatorDisplay(
                 shape = RoundedCornerShape(30.dp)
             )
             .padding(horizontal = if (compact) 16.dp else 22.dp, vertical = if (compact) 16.dp else 28.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.CenterEnd
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.End
         ) {
-            Text(
-                text = resultValue,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 28.sp else 40.sp
-                ),
-                maxLines = 1,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(if (compact) 6.dp else 10.dp))
-
+            // TOP: Full Expression Line
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -624,20 +640,43 @@ private fun NormalCalculatorDisplay(
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
                         shape = RoundedCornerShape(22.dp)
                     )
+                    .clickable { focusRequester.requestFocus() }
                     .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.CenterEnd
             ) {
-                Text(
-                    text = expression ?: resultValue,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.headlineSmall.copy(
+                BasicTextField(
+                    value = expressionText,
+                    onValueChange = {},
+                    readOnly = true,
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = if (compact) 18.sp else MaterialTheme.typography.headlineSmall.fontSize
+                        fontSize = if (compact) 18.sp else MaterialTheme.typography.headlineSmall.fontSize,
+                        textAlign = TextAlign.End
                     ),
-                    maxLines = 1,
-                    textAlign = TextAlign.Center
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
                 )
             }
+
+            Spacer(modifier = Modifier.height(if (compact) 6.dp else 10.dp))
+
+            // BOTTOM: Final Result Line
+            Text(
+                text = resultValue,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (compact) 28.sp else 40.sp,
+                    textAlign = TextAlign.End
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -1120,18 +1159,22 @@ private fun ApplyToNoteButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun CalculatorHistorySheet(
     entries: List<CalculatorHistoryEntry>,
     dateFormatPattern: String,
     timeFormat: String,
     onDismiss: () -> Unit,
-    onCopyEntry: (CalculatorHistoryEntry) -> Unit,
+    onTapExpression: (String) -> Unit,
+    onTapResult: (String) -> Unit,
+    onDeleteEntry: (Long) -> Unit,
     onClearHistory: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
+    var selectedLongPressEntry by remember { mutableStateOf<CalculatorHistoryEntry?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1161,13 +1204,11 @@ private fun CalculatorHistorySheet(
                 )
 
                 if (entries.isNotEmpty()) {
-                    TextButton(onClick = { showDeleteConfirm = true }) {
-                        Text(
-                            text = stringResource(id = R.string.label_delete_all),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            )
+                    IconButton(onClick = { showDeleteConfirm = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = stringResource(id = R.string.label_clear_history),
+                            tint = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -1198,7 +1239,9 @@ private fun CalculatorHistorySheet(
                             entry = entry,
                             dateFormatPattern = dateFormatPattern,
                             timeFormat = timeFormat,
-                            onClick = { onCopyEntry(entry) }
+                            onTapExpression = onTapExpression,
+                            onTapResult = onTapResult,
+                            onLongPress = { selectedLongPressEntry = it }
                         )
                     }
                 }
@@ -1246,14 +1289,101 @@ private fun CalculatorHistorySheet(
             }
         )
     }
+
+    if (selectedLongPressEntry != null) {
+        val entry = selectedLongPressEntry!!
+        AlertDialog(
+            onDismissRequest = { selectedLongPressEntry = null },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "${entry.expression} = ${entry.result}",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    TextButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_expression), entry.expression))
+                            Toast.makeText(context, context.getString(R.string.toast_expression_copied), Toast.LENGTH_SHORT).show()
+                            selectedLongPressEntry = null
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(stringResource(R.string.label_copy_expression), color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+
+                    TextButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_result), entry.result))
+                            Toast.makeText(context, context.getString(R.string.toast_result_copied), Toast.LENGTH_SHORT).show()
+                            selectedLongPressEntry = null
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(stringResource(R.string.label_copy_result), color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+
+                    TextButton(
+                        onClick = {
+                            onDeleteEntry(entry.timestampMillis)
+                            Toast.makeText(context, context.getString(R.string.toast_entry_deleted), Toast.LENGTH_SHORT).show()
+                            selectedLongPressEntry = null
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(stringResource(R.string.label_delete_entry), color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CalculatorHistoryEntryRow(
     entry: CalculatorHistoryEntry,
     dateFormatPattern: String,
     timeFormat: String,
-    onClick: () -> Unit
+    onTapExpression: (String) -> Unit,
+    onTapResult: (String) -> Unit,
+    onLongPress: (CalculatorHistoryEntry) -> Unit
 ) {
     val shape = RoundedCornerShape(24.dp)
 
@@ -1262,7 +1392,10 @@ private fun CalculatorHistoryEntryRow(
             .fillMaxWidth()
             .clip(shape)
             .background(standardCardGradient())
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = { onTapResult(entry.result) },
+                onLongClick = { onLongPress(entry) }
+            )
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1275,10 +1408,18 @@ private fun CalculatorHistoryEntryRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onTapExpression(entry.expression) }
+                    .padding(vertical = 2.dp, horizontal = 4.dp)
             )
 
             Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onTapResult(entry.result) }
+                    .padding(vertical = 2.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -1308,12 +1449,17 @@ private fun CalculatorHistoryEntryRow(
             )
         }
 
-        Icon(
-            imageVector = Icons.Filled.ContentCopy,
-            contentDescription = stringResource(id = R.string.content_desc_copy_history),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
+        IconButton(
+            onClick = { onTapResult(entry.result) },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = stringResource(id = R.string.content_desc_copy_history),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 

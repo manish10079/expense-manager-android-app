@@ -22,4 +22,8 @@ class CalculatorHistoryRepositoryImpl @Inject constructor(
     override suspend fun clearHistory() {
         store.clearHistory()
     }
+
+    override suspend fun deleteEntry(timestampMillis: Long) {
+        store.deleteEntry(timestampMillis)
+    }
 }

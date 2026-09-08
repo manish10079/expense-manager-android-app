@@ -376,16 +376,18 @@ fun MainScaffold(
 
             // Standard 56dp FAB floating above the bar's top-right corner.
             // Auto-hides while the user scrolls down and reappears on scroll up
-            // (bound per screen via rememberBindAddFabToScroll).
-            AddTransactionFabSlot(
-                onClick = {
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange(AppRoute.AddTransaction)
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 108.dp, end = 16.dp)
-            )
+            // (bound per screen via rememberBindAddFabToScroll). Shown only on Home tab.
+            if (currentRoute == AppRoute.Home) {
+                AddTransactionFabSlot(
+                    onClick = {
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange(AppRoute.AddTransaction)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 112.dp, end = 35.dp)
+                )
+            }
         }
     }
     }
