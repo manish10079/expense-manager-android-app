@@ -665,6 +665,8 @@ fun AppNavigationHost(
                         viewModel = calculatorViewModel,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
                         initialNote = addTransactionDraftNote ?: selectedTransaction?.note,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)

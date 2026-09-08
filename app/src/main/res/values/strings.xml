@@ -680,6 +680,13 @@
     <string name="label_full_control">Full Control</string>
     <string name="label_zero">0</string>
     <!-- Itemized Calculator -->
+    <string name="label_history">History</string>
+    <string name="content_desc_calculator_history">Open calculator history</string>
+    <string name="content_desc_copy_history">Copy calculation</string>
+    <string name="msg_calculator_history_empty">No calculations yet</string>
+    <string name="msg_clear_history_confirm">Clear all calculator history? This action cannot be undone.</string>
+    <string name="label_clear_history">Clear History</string>
+    <string name="toast_history_copied">Calculation copied to clipboard</string>
     <string name="label_items_count_formatted">%1$d ITEMS</string>
     <string name="label_description_caps">DESCRIPTION</string>
     <string name="label_amount_caps">AMOUNT</string>
