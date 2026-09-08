@@ -50,7 +50,11 @@ fun UpdateDialog(
         },
         title = {
             Text(
-                text = info.updateTitle.ifBlank { stringResource(R.string.title_update_available) },
+                text = when {
+                    info.updateTitle.isNotBlank() -> info.updateTitle
+                    info.latestVersion.isNotBlank() -> stringResource(R.string.title_update_available_version, info.latestVersion)
+                    else -> stringResource(R.string.title_update_available)
+                },
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
