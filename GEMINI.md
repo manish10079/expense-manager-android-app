@@ -90,7 +90,8 @@ com.mkn0079.expensetracker/
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `Bumped version to <versionName>`.
 - **README Sync:** Whenever `versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header (line 7) and the `| **Version** | <name> |` row in the feature table. Never leave README.md on an older version.
 - **Verification:** Before finalizing the commit, verify the updated version is reflected in both `app/build.gradle.kts` and `README.md`.
-- **Remote Config Sync (MANDATORY after every version bump):** Every time `versionCode` and/or `versionName` is bumped in `app/build.gradle.kts`, the new version MUST be pushed to Firebase Remote Config so the in-app update dialog advertises the latest release.
+- Before proceeding with the Remote Config update, mandatory confirmation is required.Please confirm:Should we proceed with the Remote Config update?Which track is this build being pushed to on the Play Store? (Internal / Closed / Open / Production)We will update the Remote Config only after your confirmation from the User.
+- **Remote Config Sync :** Every time `versionCode` and/or `versionName` is bumped in `app/build.gradle.kts`, the new version MUST be pushed to Firebase Remote Config so the in-app update dialog advertises the latest release.  
     - Run this single command from the repo root (AFTER bumping the version — it reads the values straight from `app/build.gradle.kts`):
       ```bash
       ./update_remote_config.sh

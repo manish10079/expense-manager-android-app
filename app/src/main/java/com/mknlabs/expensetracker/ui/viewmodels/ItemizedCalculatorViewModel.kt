@@ -2,15 +2,19 @@ package com.mknlabs.expensetracker.ui.viewmodels
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mknlabs.expensetracker.domain.repository.CalculatorHistoryRepository
 import com.mknlabs.expensetracker.domain.usecase.BuildBreakdownNoteUseCase
 import com.mknlabs.expensetracker.domain.usecase.ParseBreakdownNoteUseCase
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CalculatorHistoryEntry
 import com.mknlabs.expensetracker.models.CalculatorLineItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -38,13 +42,15 @@ data class ItemizedCalculatorUiState(
     val normalPendingOperator: String? = null,
     val shouldResetNormalDisplay: Boolean = false,
     val totalAmount: Double = 0.0,
-    val canAddItem: Boolean = false
+    val canAddItem: Boolean = false,
+    val historyEntries: List<CalculatorHistoryEntry> = emptyList()
 )
 
 @HiltViewModel
 class ItemizedCalculatorViewModel @Inject constructor(
     private val parseBreakdownNoteUseCase: ParseBreakdownNoteUseCase,
     private val buildBreakdownNoteUseCase: BuildBreakdownNoteUseCase,
+    private val calculatorHistoryRepository: CalculatorHistoryRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -52,6 +58,14 @@ class ItemizedCalculatorViewModel @Inject constructor(
     val uiState: StateFlow<ItemizedCalculatorUiState> = _uiState.asStateFlow()
 
     private val normalCalculatorFormatter = DecimalFormat("#,##0.########")
+
+    init {
+        viewModelScope.launch {
+            calculatorHistoryRepository.observeHistory().collect { entries ->
+                _uiState.update { it.copy(historyEntries = entries) }
+            }
+        }
+    }
 
     fun initialize(initialNote: String?) {
         val restoredItems = parseBreakdownNoteUseCase(initialNote)
@@ -137,6 +151,18 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     fun handleNormalAction(action: String) {
         val state = _uiState.value
+        val expressionBeforeEquals = if (action == "=" &&
+            state.normalStoredValue != null &&
+            state.normalPendingOperator != null
+        ) {
+            buildHistoryExpression(
+                storedValue = state.normalStoredValue!!,
+                operator = state.normalPendingOperator!!,
+                rightDisplay = state.normalDisplay
+            )
+        } else {
+            null
+        }
         val result = handleNormalCalculatorAction(
             action = action,
             currentDisplay = state.normalDisplay,
@@ -151,6 +177,38 @@ class ItemizedCalculatorViewModel @Inject constructor(
                 normalPendingOperator = result.pendingOperator,
                 shouldResetNormalDisplay = result.shouldResetDisplay
             )
+        }
+        expressionBeforeEquals?.let { expression ->
+            if (result.display != "Error") {
+                viewModelScope.launch {
+                    calculatorHistoryRepository.addEntry(expression = expression, result = result.display)
+                }
+            }
+        }
+    }
+
+    /** Builds the "left op right" text for a calculation about to complete with "=". */
+    private fun buildHistoryExpression(
+        storedValue: Double,
+        operator: String,
+        rightDisplay: String
+    ): String {
+        val operatorSymbol = when (operator) {
+            "*" -> "×"
+            "/" -> "÷"
+            "-" -> "−"
+            else -> operator
+        }
+        return listOf(
+            formatNormalCalculatorValue(storedValue),
+            operatorSymbol,
+            rightDisplay
+        ).joinToString(" ")
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            calculatorHistoryRepository.clearHistory()
         }
     }
 

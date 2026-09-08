@@ -18,6 +18,7 @@ import com.mknlabs.expensetracker.data.repository.SyncRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CountryCodeRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.FcmTokenRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.FeedbackRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.CalculatorHistoryRepositoryImpl
 import com.mknlabs.expensetracker.domain.repository.*
 import dagger.Binds
 import dagger.Module
@@ -28,6 +29,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindCalculatorHistoryRepository(
+        impl: CalculatorHistoryRepositoryImpl
+    ): CalculatorHistoryRepository
 
     @Binds
     @Singleton

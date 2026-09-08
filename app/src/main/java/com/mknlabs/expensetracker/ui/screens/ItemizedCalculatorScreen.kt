@@ -27,18 +27,30 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
@@ -55,6 +67,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,10 +75,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CalculatorHistoryEntry
 import com.mknlabs.expensetracker.models.CalculatorLineItem
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.AppHeader
@@ -76,6 +96,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.CalculatorMode
 import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.getDateTime
 
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -89,6 +110,8 @@ fun ItemizedCalculatorScreen(
     viewModel: ItemizedCalculatorViewModel,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
     initialNote: String? = null,
     onBackClick: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
@@ -100,6 +123,19 @@ fun ItemizedCalculatorScreen(
         initialPage = modes.indexOf(uiState.selectedMode).coerceAtLeast(0),
         pageCount = { modes.size }
     )
+    val context = LocalContext.current
+    var showHistorySheet by rememberSaveable { mutableStateOf(false) }
+
+    val copyHistoryEntry: (CalculatorHistoryEntry) -> Unit = { entry ->
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(
+            ClipData.newPlainText(
+                context.getString(R.string.label_history),
+                "${entry.expression} = ${entry.result}"
+            )
+        )
+        Toast.makeText(context, context.getString(R.string.toast_history_copied), Toast.LENGTH_SHORT).show()
+    }
 
     LaunchedEffect(initialNote) {
         viewModel.initialize(initialNote)
@@ -132,7 +168,12 @@ fun ItemizedCalculatorScreen(
     ) {
         AppHeader(
             title = stringResource(id = R.string.label_itemized_calculator),
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            actions = {
+                CalculatorHistoryHeaderIcon(
+                    onClick = { showHistorySheet = true }
+                )
+            }
         )
 
         AnimatedTabSwitcher(
@@ -186,6 +227,44 @@ fun ItemizedCalculatorScreen(
                     )
                 }
             }
+        }
+    }
+
+    if (showHistorySheet) {
+        CalculatorHistorySheet(
+            entries = uiState.historyEntries,
+            dateFormatPattern = dateFormatPattern,
+            timeFormat = timeFormat,
+            onDismiss = { showHistorySheet = false },
+            onCopyEntry = copyHistoryEntry,
+            onClearHistory = viewModel::clearHistory
+        )
+    }
+}
+
+@Composable
+private fun CalculatorHistoryHeaderIcon(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.History,
+                contentDescription = stringResource(id = R.string.content_desc_calculator_history),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -1038,6 +1117,203 @@ private fun ApplyToNoteButton(
                 style = MaterialTheme.typography.titleLarge
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CalculatorHistorySheet(
+    entries: List<CalculatorHistoryEntry>,
+    dateFormatPattern: String,
+    timeFormat: String,
+    onDismiss: () -> Unit,
+    onCopyEntry: (CalculatorHistoryEntry) -> Unit,
+    onClearHistory: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
+        dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.label_history),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                if (entries.isNotEmpty()) {
+                    TextButton(onClick = { showDeleteConfirm = true }) {
+                        Text(
+                            text = stringResource(id = R.string.label_delete_all),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+            }
+
+            if (entries.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.msg_calculator_history_empty),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 420.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(entries) { entry ->
+                        CalculatorHistoryEntryRow(
+                            entry = entry,
+                            dateFormatPattern = dateFormatPattern,
+                            timeFormat = timeFormat,
+                            onClick = { onCopyEntry(entry) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = stringResource(id = R.string.label_clear_history),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(id = R.string.msg_clear_history_confirm),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                    onClearHistory()
+                }) {
+                    Text(
+                        text = stringResource(id = R.string.label_delete_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(
+                        text = stringResource(id = R.string.label_cancel_confirm),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun CalculatorHistoryEntryRow(
+    entry: CalculatorHistoryEntry,
+    dateFormatPattern: String,
+    timeFormat: String,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(24.dp)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(standardCardGradient())
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = entry.expression,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelLarge
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "=",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Text(
+                    text = entry.result,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
+            Text(
+                text = getDateTime(entry.timestampMillis, dateFormatPattern, timeFormat),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Filled.ContentCopy,
+            contentDescription = stringResource(id = R.string.content_desc_copy_history),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 
