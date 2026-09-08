@@ -568,7 +568,8 @@ class SyncRepositoryImpl @Inject constructor(
             )
         }
         
-        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, finalProfile.proExpiryTimestamp)
+        // Pro Pass users do not use temporary ad-pass expiry; ensure it is cleared (0L)
+        com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(context, 0L)
 
         // If we downgraded locally, push the "FREE" status back to Firestore immediately
         if (isExpired) {

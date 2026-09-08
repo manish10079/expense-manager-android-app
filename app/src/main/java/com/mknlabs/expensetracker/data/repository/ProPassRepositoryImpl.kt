@@ -55,12 +55,8 @@ class ProPassRepositoryImpl @Inject constructor(
                 appContext, com.mknlabs.expensetracker.models.UserTier.PREMIUM
             )
 
-            // 5. Update local state (Ad-free)
-            monetizationRepository.grantTemporaryAccess(
-                feature = Feature.AD_FREE_GLOBAL,
-                optionId = null,
-                durationMillis = newExpiry - System.currentTimeMillis()
-            )
+            // 5. Clear any temporary ad-pass timer since user is now a full Pro / Premium user
+            com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(appContext, 0L)
 
             Result.success(durationDays)
         } catch (e: Exception) {

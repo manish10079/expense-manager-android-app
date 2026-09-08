@@ -148,9 +148,16 @@ class SettingsViewModel @Inject constructor(
                     while (true) {
                         val remaining = expiry - System.currentTimeMillis()
                         if (remaining > 0) {
-                            val minutes = (remaining / 1000) / 60
-                            val seconds = (remaining / 1000) % 60
-                            emit(String.format("%02d:%02d", minutes, seconds))
+                            val totalSeconds = remaining / 1000
+                            val hours = totalSeconds / 3600
+                            val minutes = (totalSeconds % 3600) / 60
+                            val seconds = totalSeconds % 60
+                            val formatted = if (hours > 0) {
+                                String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                            } else {
+                                String.format("%02d:%02d", minutes, seconds)
+                            }
+                            emit(formatted)
                             delay(1000)
                         } else {
                             emit(null)
