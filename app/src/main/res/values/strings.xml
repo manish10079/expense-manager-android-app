@@ -1455,6 +1455,7 @@
     <string name="btn_update_now">Update Now</string>
     <!-- In-app update notification (Firebase Remote Config) -->
     <string name="title_update_available">A New Version Is Available</string>
+    <string name="title_update_available_version">Version %s Is Available</string>
     <string name="msg_update_available">A new version of Expense Tracker is available. Update now to enjoy the latest features and improvements.</string>
     <string name="title_system_maintenance">System Maintenance</string>
     <string name="msg_maintenance_desc">We are currently performing scheduled maintenance to improve our services. We\'ll be back shortly. Thank you for your patience!</string>
