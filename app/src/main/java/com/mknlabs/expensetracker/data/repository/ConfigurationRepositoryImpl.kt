@@ -2,7 +2,10 @@ package com.mknlabs.expensetracker.data.repository
 
 import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.ConfigUpdate
+import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.mknlabs.expensetracker.BuildConfig
@@ -57,7 +60,7 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
 
     init {
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
+            minimumFetchIntervalInSeconds = 0
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         // All in-app defaults live in one place: res/xml/remote_config_defaults.xml.
@@ -65,7 +68,25 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
         // regardless of which singleton initializes first.
         remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         fetchAndActivate()
+        listenForRealtimeUpdates()
         startPeriodicRefresh()
+    }
+
+    private fun listenForRealtimeUpdates() {
+        remoteConfig.addOnConfigUpdateListener(object : ConfigUpdateListener {
+            override fun onUpdate(configUpdate: ConfigUpdate) {
+                Log.d("ConfigRepo", "Real-time Remote Config updated keys: ${configUpdate.updatedKeys}")
+                remoteConfig.activate().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        updateState()
+                    }
+                }
+            }
+
+            override fun onError(error: FirebaseRemoteConfigException) {
+                Log.w("ConfigRepo", "Real-time Remote Config listener error", error)
+            }
+        })
     }
 
     /**

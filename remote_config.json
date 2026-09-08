@@ -2,7 +2,7 @@
   "parameters": {
     "latest_version_code": {
       "defaultValue": {
-        "value": "223"
+        "value": "225"
       }
     },
     "update_message": {
@@ -52,7 +52,7 @@
     },
     "latest_version": {
       "defaultValue": {
-        "value": "2.95.0"
+        "value": "2.95.2"
       }
     }
   }

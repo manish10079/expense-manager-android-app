@@ -49,7 +49,7 @@ class FirebaseGeminiParser @Inject constructor(
         FirebaseRemoteConfig.getInstance().apply {
             setConfigSettingsAsync(
                 FirebaseRemoteConfigSettings.Builder()
-                    .setMinimumFetchIntervalInSeconds(3600)
+                    .setMinimumFetchIntervalInSeconds(0)
                     .build()
             )
             setDefaultsAsync(mapOf(REMOTE_CONFIG_KEY_MODEL to DEFAULT_MODEL))
