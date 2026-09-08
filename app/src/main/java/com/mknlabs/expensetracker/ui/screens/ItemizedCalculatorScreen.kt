@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -79,6 +81,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -230,6 +233,7 @@ fun ItemizedCalculatorScreen(
                         display = uiState.normalDisplay,
                         previewResult = viewModel.calculatePreview(),
                         expression = viewModel.buildExpression(),
+                        isEvaluated = uiState.shouldResetNormalDisplay,
                         onAction = viewModel::handleNormalAction
                     )
                 }
@@ -396,6 +400,7 @@ private fun NormalCalculatorContent(
     display: String,
     previewResult: String,
     expression: String?,
+    isEvaluated: Boolean = false,
     onAction: (String) -> Unit
 ) {
     // Landscape / short windows: stack display and keypad SIDE BY SIDE so the
@@ -414,6 +419,7 @@ private fun NormalCalculatorContent(
                     .fillMaxHeight(),
                 resultValue = previewResult,
                 expression = expression,
+                isEvaluated = isEvaluated,
                 compact = true
             )
             CalculatorKeypad(
@@ -431,7 +437,8 @@ private fun NormalCalculatorContent(
         ) {
             NormalCalculatorDisplay(
                 resultValue = previewResult,
-                expression = expression
+                expression = expression,
+                isEvaluated = isEvaluated
             )
             CalculatorKeypad(
                 modifier = Modifier
@@ -600,9 +607,13 @@ private fun NormalCalculatorDisplay(
     modifier: Modifier = Modifier,
     resultValue: String,
     expression: String?,
+    isEvaluated: Boolean = false,
     compact: Boolean = false
 ) {
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var isFocused by remember { mutableStateOf(false) }
+
     val rawExprText = expression ?: resultValue
     val expressionText = if (rawExprText == "0" || rawExprText.isBlank()) {
         "0"
@@ -611,6 +622,50 @@ private fun NormalCalculatorDisplay(
     } else {
         "= $rawExprText"
     }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused) {
+            keyboardController?.hide()
+        }
+    }
+
+    val exprFontSizeFloat by animateFloatAsState(
+        targetValue = if (isEvaluated) {
+            if (compact) 16f else 22f
+        } else {
+            if (compact) 22f else 32f
+        },
+        label = "ExprFontSize"
+    )
+    val exprFontSize = exprFontSizeFloat.sp
+
+    val exprColor by animateColorAsState(
+        targetValue = if (isEvaluated) {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        label = "ExprColor"
+    )
+
+    val resultFontSizeFloat by animateFloatAsState(
+        targetValue = if (isEvaluated) {
+            if (compact) 28f else 40f
+        } else {
+            if (compact) 18f else 24f
+        },
+        label = "ResultFontSize"
+    )
+    val resultFontSize = resultFontSizeFloat.sp
+
+    val resultColor by animateColorAsState(
+        targetValue = if (isEvaluated) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        },
+        label = "ResultColor"
+    )
 
     Box(
         modifier = modifier
@@ -647,18 +702,21 @@ private fun NormalCalculatorDisplay(
                 BasicTextField(
                     value = expressionText,
                     onValueChange = {},
-                    readOnly = true,
+                    readOnly = false,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = if (compact) 18.sp else MaterialTheme.typography.headlineSmall.fontSize,
+                        color = exprColor,
+                        fontWeight = if (isEvaluated) FontWeight.Normal else FontWeight.SemiBold,
+                        fontSize = exprFontSize,
                         textAlign = TextAlign.End
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                        }
                 )
             }
 
@@ -667,10 +725,10 @@ private fun NormalCalculatorDisplay(
             // BOTTOM: Final Result Line
             Text(
                 text = resultValue,
-                color = MaterialTheme.colorScheme.primary,
+                color = resultColor,
                 style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 28.sp else 40.sp,
+                    fontWeight = if (isEvaluated) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = resultFontSize,
                     textAlign = TextAlign.End
                 ),
                 maxLines = 1,
