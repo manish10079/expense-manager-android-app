@@ -280,6 +280,7 @@ fun HomeScreen(
         onMiuiSetupCardOpenAppSettings = { openAppDetailsSettings() },
         onMiuiSetupCardBatterySettings = { requestBatteryExemption() },
         onMiuiSetupCardDismiss = { dismissMiuiSetupCard() },
+        onPeriodChanged = homeViewModel::onPeriodChanged,
         isLockOverlayActive = isLockOverlayActive
     )
 }
@@ -303,6 +304,7 @@ private fun HomeScreenContent(
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
     onMiuiSetupCardDismiss: () -> Unit = {},
+    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false
 ) {
     val context = LocalContext.current
@@ -366,6 +368,7 @@ private fun HomeScreenContent(
                             onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                             onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
                             onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+                            onPeriodChanged = onPeriodChanged,
                             isWide = isWide
                         )
                     }
@@ -406,6 +409,7 @@ private fun HomeScreenContent(
                     onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                     onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
                     onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+                    onPeriodChanged = onPeriodChanged,
                     isLockOverlayActive = isLockOverlayActive,
                     isWide = isWide
                 )
@@ -446,6 +450,7 @@ private fun HomeTopSection(
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
     onMiuiSetupCardDismiss: () -> Unit = {},
+    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false,
     isWide: Boolean = false
 ) {
@@ -472,6 +477,7 @@ private fun HomeTopSection(
         onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
         onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
         onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
+        onPeriodChanged = onPeriodChanged,
         isWide = isWide
     )
 }
@@ -636,6 +642,7 @@ private fun HomeStatsSection(
     onMiuiSetupCardOpenAppSettings: () -> Unit,
     onMiuiSetupCardBatterySettings: () -> Unit,
     onMiuiSetupCardDismiss: () -> Unit,
+    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
     // Wide windows (tablets/foldables/desktop) render the tall media-first native ad;
     // phones keep the compact banner row.
     isWide: Boolean = false
@@ -693,7 +700,12 @@ private fun HomeStatsSection(
         income = uiState.totalIncome,
         netBalance = uiState.totalBalance,
         isBalanceHidden = uiState.isBalanceHidden,
-        onToggleVisibility = onToggleBalanceVisibility
+        onToggleVisibility = onToggleBalanceVisibility,
+        selectedPeriod = uiState.selectedPeriod,
+        onPeriodChanged = onPeriodChanged,
+        yearExpense = uiState.yearTotalExpense,
+        yearIncome = uiState.yearTotalIncome,
+        yearNetBalance = uiState.yearTotalBalance
     )
 
     Spacer(modifier = Modifier.height(7.dp))

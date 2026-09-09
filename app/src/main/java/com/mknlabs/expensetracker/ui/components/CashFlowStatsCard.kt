@@ -16,17 +16,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -45,16 +50,31 @@ import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
+import com.mknlabs.expensetracker.ui.theme.ExpenseRed
+import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod
+import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 /**
- * Home-screen "Cash Flow" stats card: this month's SPENDING / INCOME and the
- * Net Balance, laid out per the product spec (20dp rounded card, 16dp padding,
- * 16dp vertical rhythm, "This Month" pill header, equal-width metric columns,
- * and a Net Balance inner container with a thin dashed underline).
+ * Returns the current date formatted as "12 Sep 2026".
+ */
+private fun currentDateString(): String {
+    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    return sdf.format(Date())
+}
+
+/**
+ * Home-screen "Cash Flow" stats card: the current date as the header,
+ * This Month / This Year period selector, expense/income metrics, and
+ * the Net Balance inner container.
  *
  * [isBalanceHidden] / [onToggleVisibility] preserve the existing privacy
  * auto-hide behavior: amounts are masked with "****" while hidden and the
- * whole card toggles visibility when tapped (same as the previous card).
+ * whole card toggles visibility when tapped.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -62,12 +82,25 @@ fun CashFlowStatsCard(
     income: String,
     netBalance: String,
     isBalanceHidden: Boolean = false,
-    onToggleVisibility: () -> Unit = {}
+    onToggleVisibility: () -> Unit = {},
+    selectedPeriod: CashFlowPeriod = CashFlowPeriod.THIS_MONTH,
+    onPeriodChanged: (CashFlowPeriod) -> Unit = {},
+    yearExpense: String = "",
+    yearIncome: String = "",
+    yearNetBalance: String = ""
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    // Theme-aware gradient background (same visual language as the previous
-    // StatsCard / SmallHomeCard / Today's Spending cards).
+    // Dynamic current date that updates every minute
+    var currentDate by remember { mutableStateOf(currentDateString()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentDate = currentDateString()
+            delay(60_000L) // refresh every minute
+        }
+    }
+
+    // Theme-aware gradient background
     val cardBrush = if (colorScheme.isDark) {
         Brush.linearGradient(listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd))
     } else {
@@ -82,6 +115,25 @@ fun CashFlowStatsCard(
             )
         )
     }
+
+    // Decide which values to show based on selected period
+    val displayExpense = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) {
+        if (isBalanceHidden) "****" else yearExpense
+    } else {
+        if (isBalanceHidden) "****" else expense
+    }
+    val displayIncome = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) {
+        if (isBalanceHidden) "****" else yearIncome
+    } else {
+        if (isBalanceHidden) "****" else income
+    }
+    val displayBalance = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) {
+        if (isBalanceHidden) "****" else yearNetBalance
+    } else {
+        if (isBalanceHidden) "****" else netBalance
+    }
+
+    var dropdownExpanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -100,62 +152,108 @@ fun CashFlowStatsCard(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header Row: CASH FLOW title + "This Month" pill
+            // Header Row: Current date + Period dropdown pill
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(R.string.title_cash_flow),
-                    color = colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        letterSpacing = 1.sp
-                    )
-                )
-
+                // Dynamic current date pill
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = colorScheme.surfaceVariant.copy(alpha = 0.6f),
                     contentColor = colorScheme.onSurfaceVariant
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.label_this_month_cash_flow),
-                            style = MaterialTheme.typography.labelMedium
+                    Text(
+                        text = currentDate,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            letterSpacing = 1.sp
                         )
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
+                    )
+                }
+
+                // Period selector pill
+                Box {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        contentColor = colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable { dropdownExpanded = true }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = if (selectedPeriod == CashFlowPeriod.THIS_YEAR)
+                                    stringResource(R.string.label_this_year_cash_flow)
+                                else
+                                    stringResource(R.string.label_this_month_cash_flow),
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.label_this_month_cash_flow)) },
+                            onClick = {
+                                onPeriodChanged(CashFlowPeriod.THIS_MONTH)
+                                dropdownExpanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = if (selectedPeriod == CashFlowPeriod.THIS_MONTH)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.label_this_year_cash_flow)) },
+                            onClick = {
+                                onPeriodChanged(CashFlowPeriod.THIS_YEAR)
+                                dropdownExpanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = if (selectedPeriod == CashFlowPeriod.THIS_YEAR)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            )
                         )
                     }
                 }
             }
 
-            // Metrics Row: EXPENSE | INCOME (two equal halves)
+            // Metrics Row: Expense | Income (two equal halves)
             Row(modifier = Modifier.fillMaxWidth()) {
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_spending_cash_flow),
-                    amount = if (isBalanceHidden) "****" else expense,
-                    labelColor = Color(0xFFE53935),
-                    amountColor = Color(0xFFE53935),
+                    label = stringResource(R.string.label_expense_cash_flow),
+                    amount = displayExpense,
+                    labelColor = ExpenseRed,
+                    amountColor = ExpenseRed,
                     textAlign = TextAlign.Start
                 )
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_income),
-                    amount = if (isBalanceHidden) "****" else income,
-                    labelColor = Color(0xFF43A047),
-                    amountColor = Color(0xFF43A047),
+                    label = stringResource(R.string.label_income_cash_flow),
+                    amount = displayIncome,
+                    labelColor = IncomeGreen,
+                    amountColor = IncomeGreen,
                     textAlign = TextAlign.End
                 )
             }
@@ -173,38 +271,17 @@ fun CashFlowStatsCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // "Net Balance" with a thin dashed underline directly below it
                     Text(
                         text = stringResource(R.string.label_net_balance_cash_flow),
                         color = colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
-                        ),
-                        modifier = Modifier.drawWithContent {
-                            drawContent()
-                            val dashWidth = 4.dp.toPx()
-                            val dashGap = 3.dp.toPx()
-                            val strokeWidth = 1.dp.toPx()
-                            val lineY = size.height - strokeWidth / 2f
-                            var x = 0f
-                            while (x < size.width) {
-                                val endX = (x + dashWidth).coerceAtMost(size.width)
-                                if (endX > x) {
-                                    drawLine(
-                                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
-                                        start = Offset(x, lineY),
-                                        end = Offset(endX, lineY),
-                                        strokeWidth = strokeWidth
-                                    )
-                                }
-                                x += dashWidth + dashGap
-                            }
-                        }
+                        )
                     )
 
                     Text(
-                        text = if (isBalanceHidden) "****" else netBalance,
+                        text = displayBalance,
                         color = colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
@@ -265,7 +342,10 @@ private fun CashFlowStatsCardDarkPreview() {
             CashFlowStatsCard(
                 expense = "₹1,200",
                 income = "₹0.00",
-                netBalance = "-₹1,200"
+                netBalance = "-₹1,200",
+                yearExpense = "₹15,000",
+                yearIncome = "₹50,000",
+                yearNetBalance = "₹35,000"
             )
         }
     }
@@ -279,7 +359,10 @@ private fun CashFlowStatsCardLightPreview() {
             CashFlowStatsCard(
                 expense = "₹1,200",
                 income = "₹0.00",
-                netBalance = "-₹1,200"
+                netBalance = "-₹1,200",
+                yearExpense = "₹15,000",
+                yearIncome = "₹50,000",
+                yearNetBalance = "₹35,000"
             )
         }
     }
