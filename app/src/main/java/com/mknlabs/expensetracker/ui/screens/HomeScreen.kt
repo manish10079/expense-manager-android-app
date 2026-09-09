@@ -688,11 +688,10 @@ private fun HomeStatsSection(
         modifier = Modifier.padding(bottom = 8.dp)
     )
 
-    StatsCard(
-        totalBalance = uiState.totalBalance,
-        previousMonthBalance = uiState.previousMonthBalance,
+    CashFlowStatsCard(
+        spending = uiState.totalExpense,
         income = uiState.totalIncome,
-        expense = uiState.totalExpense,
+        netBalance = uiState.totalBalance,
         isBalanceHidden = uiState.isBalanceHidden,
         onToggleVisibility = onToggleBalanceVisibility
     )
