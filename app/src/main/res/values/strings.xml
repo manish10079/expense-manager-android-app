@@ -456,7 +456,7 @@
     <string name="label_total_balance">TOTAL BALANCE</string>
     <string name="title_cash_flow">CASH FLOW</string>
     <string name="label_this_month_cash_flow">This Month</string>
-    <string name="label_spending_cash_flow">SPENDING</string>
+    <string name="label_spending_cash_flow">EXPENSE</string>
     <string name="label_net_balance_cash_flow">Net Balance</string>
     <string name="label_track_every_move_with_confiden">Track every move with confidence.</string>
     <string name="label_upgrade_to_pro">Upgrade to Pro</string>

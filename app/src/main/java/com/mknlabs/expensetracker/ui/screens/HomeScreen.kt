@@ -689,7 +689,7 @@ private fun HomeStatsSection(
     )
 
     CashFlowStatsCard(
-        spending = uiState.totalExpense,
+        expense = uiState.totalExpense,
         income = uiState.totalIncome,
         netBalance = uiState.totalBalance,
         isBalanceHidden = uiState.isBalanceHidden,
