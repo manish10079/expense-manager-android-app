@@ -65,6 +65,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.Alignment
@@ -699,10 +701,17 @@ private fun NormalCalculatorDisplay(
                     .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
+                val textFieldValue = remember(expressionText) {
+                    TextFieldValue(
+                        text = expressionText,
+                        selection = TextRange(expressionText.length)
+                    )
+                }
+
                 BasicTextField(
-                    value = expressionText,
+                    value = textFieldValue,
                     onValueChange = {},
-                    readOnly = false,
+                    readOnly = true,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = exprColor,
