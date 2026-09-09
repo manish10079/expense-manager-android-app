@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,7 @@ import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
  */
 @Composable
 fun CashFlowStatsCard(
-    spending: String,
+    expense: String,
     income: String,
     netBalance: String,
     isBalanceHidden: Boolean = false,
@@ -139,17 +140,23 @@ fun CashFlowStatsCard(
                 }
             }
 
-            // Metrics Row: SPENDING | INCOME (two equal halves)
+            // Metrics Row: EXPENSE | INCOME (two equal halves)
             Row(modifier = Modifier.fillMaxWidth()) {
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_spending_cash_flow),
-                    amount = if (isBalanceHidden) "****" else spending
+                    amount = if (isBalanceHidden) "****" else expense,
+                    labelColor = Color(0xFFE53935),
+                    amountColor = Color(0xFFE53935),
+                    textAlign = TextAlign.Start
                 )
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_income),
-                    amount = if (isBalanceHidden) "****" else income
+                    amount = if (isBalanceHidden) "****" else income,
+                    labelColor = Color(0xFF43A047),
+                    amountColor = Color(0xFF43A047),
+                    textAlign = TextAlign.End
                 )
             }
 
@@ -216,12 +223,19 @@ fun CashFlowStatsCard(
 private fun CashFlowMetric(
     modifier: Modifier = Modifier,
     label: String,
-    amount: String
+    amount: String,
+    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    amountColor: Color = MaterialTheme.colorScheme.onSurface,
+    textAlign: TextAlign = TextAlign.Start
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = if (textAlign == TextAlign.End) Alignment.End else Alignment.Start
+    ) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = labelColor,
+            textAlign = textAlign,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 11.sp,
@@ -231,7 +245,8 @@ private fun CashFlowMetric(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = amount,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = amountColor,
+            textAlign = textAlign,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
@@ -248,7 +263,7 @@ private fun CashFlowStatsCardDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Box(modifier = Modifier.padding(16.dp)) {
             CashFlowStatsCard(
-                spending = "₹1,200",
+                expense = "₹1,200",
                 income = "₹0.00",
                 netBalance = "-₹1,200"
             )
@@ -262,7 +277,7 @@ private fun CashFlowStatsCardLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
         Box(modifier = Modifier.padding(16.dp)) {
             CashFlowStatsCard(
-                spending = "₹1,200",
+                expense = "₹1,200",
                 income = "₹0.00",
                 netBalance = "-₹1,200"
             )
