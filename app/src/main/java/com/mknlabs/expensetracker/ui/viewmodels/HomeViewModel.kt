@@ -67,6 +67,12 @@ data class UpcomingRecurringUi(
 // Home UI State
 // ──────────────────────────────────────────────────────────
 
+/** Period filter for the Cash Flow card. */
+enum class CashFlowPeriod {
+    THIS_MONTH,
+    THIS_YEAR
+}
+
 @Immutable
 data class HomeScreenUiState(
     val greetingName: String = defaultUserProfile.firstName(),
@@ -91,7 +97,12 @@ data class HomeScreenUiState(
     // Current period indicator
     val currentPeriodStartMillis: Long = 0L,
     val currentPeriodEndMillis: Long = 0L,
-    val monthStartDay: Int = 1
+    val monthStartDay: Int = 1,
+    // Cash Flow card period filter
+    val selectedPeriod: CashFlowPeriod = CashFlowPeriod.THIS_MONTH,
+    val yearTotalIncome: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val yearTotalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val yearTotalBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID)
 )
 
 private data class HomeInputState(
@@ -219,6 +230,7 @@ class HomeViewModel @Inject constructor(
 
     private var smartHideJob: Job? = null
     private var currentMonthStartDay: Int = 1
+    private val _selectedPeriod = MutableStateFlow(CashFlowPeriod.THIS_MONTH)
 
     init {
         startDataObservation()
@@ -425,6 +437,62 @@ class HomeViewModel @Inject constructor(
         val absoluteValue = formatter.format(abs(value))
         val prefixRes = if (value >= 0f) R.string.label_plus else R.string.label_minus
         return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
+    }
+
+    fun onPeriodChanged(period: CashFlowPeriod) {
+        _selectedPeriod.value = period
+        _uiState.update { it.copy(selectedPeriod = period) }
+        if (period == CashFlowPeriod.THIS_YEAR) {
+            refreshYearSummary()
+        }
+    }
+
+    private fun refreshYearSummary() {
+        viewModelScope.launch {
+            val now = java.util.Calendar.getInstance()
+            val yearStart = java.util.Calendar.getInstance().apply {
+                timeInMillis = now.timeInMillis
+                set(java.util.Calendar.MONTH, java.util.Calendar.JANUARY)
+                set(java.util.Calendar.DAY_OF_MONTH, 1)
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            val yearEnd = java.util.Calendar.getInstance().apply {
+                timeInMillis = now.timeInMillis
+                set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER)
+                set(java.util.Calendar.DAY_OF_MONTH, 31)
+                set(java.util.Calendar.HOUR_OF_DAY, 23)
+                set(java.util.Calendar.MINUTE, 59)
+                set(java.util.Calendar.SECOND, 59)
+                set(java.util.Calendar.MILLISECOND, 999)
+            }.timeInMillis
+            val summary = transactionRepository.getRangeSummary(yearStart, yearEnd)
+            val inputs = inputState.value
+            val yearIncome = formatCurrencyValue(
+                summary.totalIncomeMinor.toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            val yearExpense = formatCurrencyValue(
+                summary.totalExpenseMinor.toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            val yearBalance = formatCurrencyValue(
+                (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            _uiState.update {
+                it.copy(
+                    yearTotalIncome = yearIncome,
+                    yearTotalExpense = yearExpense,
+                    yearTotalBalance = yearBalance
+                )
+            }
+        }
     }
 
     fun toggleBalanceVisibility() {
