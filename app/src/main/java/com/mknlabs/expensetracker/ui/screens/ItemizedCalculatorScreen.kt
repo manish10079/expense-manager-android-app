@@ -118,6 +118,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 
@@ -627,6 +628,12 @@ private fun NormalCalculatorDisplay(
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
+            // The field stays EDITABLE so the cursor is visible when tapped, but
+            // the native soft keyboard must never appear — the calculator has its
+            // own keypad. Hide right on focus and again after the frame the IME
+            // would normally animate in, so it cannot pop up.
+            keyboardController?.hide()
+            delay(100)
             keyboardController?.hide()
         }
     }
@@ -698,7 +705,7 @@ private fun NormalCalculatorDisplay(
                 BasicTextField(
                     value = textFieldValue,
                     onValueChange = {},
-                    readOnly = true,
+                    readOnly = false,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = exprColor,
