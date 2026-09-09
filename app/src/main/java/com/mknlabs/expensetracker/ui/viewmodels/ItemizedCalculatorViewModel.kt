@@ -164,13 +164,15 @@ class ItemizedCalculatorViewModel @Inject constructor(
             }
             "BACKSPACE" -> {
                 if (shouldReset) {
-                    rawExpr = ""
-                    display = "0"
+                    // After "=" the expression stays editable: backspace removes
+                    // the last character of the completed expression (entering
+                    // edit mode) instead of wiping the whole calculation.
                     shouldReset = false
-                } else if (rawExpr.isNotEmpty()) {
+                }
+                if (rawExpr.isNotEmpty()) {
                     val trimmed = rawExpr.trimEnd()
                     rawExpr = if (trimmed.length > 1) trimmed.dropLast(1).trimEnd() else ""
-                    val eval = CalculatorExpressionEvaluator.evaluate(rawExpr)
+                    val eval = previewExpressionValue(rawExpr)
                     display = if (rawExpr.isEmpty()) "0" else formatNormalCalculatorValue(eval ?: 0.0)
                 } else if (display.length > 1) {
                     display = display.dropLast(1)
@@ -352,6 +354,22 @@ class ItemizedCalculatorViewModel @Inject constructor(
         } else {
             "Error"
         }
+    }
+
+    /**
+     * Best-effort live preview for a possibly-incomplete expression (e.g. one
+     * that ends with an operator): evaluates the full expression first, and if
+     * that fails, keeps dropping trailing characters until a value is found.
+     * Keeps the running total visible while the user edits the expression.
+     */
+    private fun previewExpressionValue(expression: String): Double? {
+        var candidate = expression.trimEnd()
+        while (candidate.isNotEmpty()) {
+            val eval = CalculatorExpressionEvaluator.evaluate(candidate)
+            if (eval != null && eval.isFinite()) return eval
+            candidate = candidate.dropLast(1).trimEnd()
+        }
+        return null
     }
     
     fun calculatePreview(): String {

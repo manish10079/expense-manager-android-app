@@ -56,6 +56,41 @@ class ItemizedCalculatorViewModelTest {
     }
 
     @Test
+    fun `backspace after equals edits the expression instead of wiping it`() = runTest {
+        listOf("1", "0", "+", "5", "=").forEach { viewModel.handleNormalAction(it) }
+        assertEquals("15", viewModel.uiState.value.normalDisplay)
+        assertTrue(viewModel.uiState.value.shouldResetNormalDisplay)
+
+        viewModel.handleNormalAction("BACKSPACE")
+
+        assertEquals("10 +", viewModel.uiState.value.normalRawExpression)
+        assertEquals("10", viewModel.uiState.value.normalDisplay)
+        assertTrue(!viewModel.uiState.value.shouldResetNormalDisplay)
+    }
+
+    @Test
+    fun `backspace after equals then editing the expression evaluates correctly`() = runTest {
+        listOf("1", "0", "+", "5", "=").forEach { viewModel.handleNormalAction(it) }
+
+        viewModel.handleNormalAction("BACKSPACE") // 10 + 5 -> 10 +
+        viewModel.handleNormalAction("7")        // 10 + 7
+        viewModel.handleNormalAction("=")
+
+        assertEquals("17", viewModel.uiState.value.normalDisplay)
+    }
+
+    @Test
+    fun `operator after equals continues from the result`() = runTest {
+        listOf("1", "0", "+", "5", "=").forEach { viewModel.handleNormalAction(it) }
+
+        viewModel.handleNormalAction("+")
+        viewModel.handleNormalAction("3")
+        viewModel.handleNormalAction("=")
+
+        assertEquals("18", viewModel.uiState.value.normalDisplay)
+    }
+
+    @Test
     fun `divide by zero records nothing`() = runTest {
         listOf("8", "/", "0", "=").forEach { viewModel.handleNormalAction(it) }
 

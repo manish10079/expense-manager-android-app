@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
@@ -121,6 +120,8 @@ private fun AboutScreenContent(
 ) {
     val scrollState = rememberScrollState()
     val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
+    val termsConditionsUrl = stringResource(R.string.url_terms_conditions)
+    val rateAppUrl = stringResource(R.string.url_rate_app)
 
     Column(
         modifier = Modifier
@@ -212,7 +213,7 @@ private fun AboutScreenContent(
                 AboutActionItem(
                     icon = Icons.Filled.Star,
                     title = stringResource(R.string.title_rate_app),
-                    onClick = { /* Handle rate app */ }
+                    onClick = { onOpenUrl(rateAppUrl) }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Email,
@@ -239,12 +240,7 @@ private fun AboutScreenContent(
                 AboutActionItem(
                     icon = Icons.Filled.Description,
                     title = stringResource(R.string.title_terms_conditions),
-                    onClick = { onOpenUrl("https://expense-tracker-2ea00.web.app/") }
-                )
-                AboutActionItem(
-                    icon = Icons.AutoMirrored.Filled.ListAlt,
-                    title = stringResource(R.string.title_open_source_licenses),
-                    onClick = { /* Show licenses */ }
+                    onClick = { onOpenUrl(termsConditionsUrl) }
                 )
             }
 
