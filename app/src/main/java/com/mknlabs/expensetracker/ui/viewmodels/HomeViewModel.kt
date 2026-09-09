@@ -34,11 +34,13 @@ import com.mknlabs.expensetracker.utils.toMajorUnits
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
@@ -222,10 +224,40 @@ class HomeViewModel @Inject constructor(
         startDataObservation()
     }
 
+    /**
+     * Emits once at start and again whenever the local calendar day rolls over
+     * (midnight), so the period bounds driving the home queries (Spend Today,
+     * current/previous month ranges) are recomputed while the app stays in
+     * memory across days. Between emissions it simply sleeps until the next
+     * local midnight, so it costs nothing when the day does not change.
+     */
+    private fun dayChangeTicker(): Flow<Unit> = flow {
+        while (true) {
+            val now = System.currentTimeMillis()
+            val nextDayStart = java.util.Calendar.getInstance().apply {
+                timeInMillis = now
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+                add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }.timeInMillis
+            emit(Unit)
+            // Small overshoot guarantees we wake strictly after the boundary
+            // even if the clock ticks between the two reads. If the device was
+            // asleep past midnight, the deferred delay fires on wake and the
+            // loop recomputes from the current time.
+            delay((nextDayStart - now).coerceAtLeast(1000L))
+        }
+    }
+
     private fun startDataObservation() {
         viewModelScope.launch {
-            com.mknlabs.expensetracker.data.local.AppSettingsDataStore
-                .getAppSettingsFlow(application)
+            combine(
+                com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+                    .getAppSettingsFlow(application),
+                dayChangeTicker()
+            ) { settings, _ -> settings }
                 .flatMapLatest { settings ->
                     currentMonthStartDay = settings.monthStartDay
                     val now = System.currentTimeMillis()

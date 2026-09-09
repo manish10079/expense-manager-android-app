@@ -1,6 +1,11 @@
 package com.mknlabs.expensetracker.ui.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.RocketLaunch
@@ -33,6 +38,8 @@ fun UpdateDialog(
     onUpdateNow: () -> Unit,
     onLater: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
     AlertDialog(
         onDismissRequest = if (force) ({}) else onLater,
         properties = DialogProperties(
@@ -60,12 +67,20 @@ fun UpdateDialog(
             )
         },
         text = {
-            Text(
-                text = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 260.dp)
+                    .verticalScroll(scrollState)
+            ) {
+                Text(
+                    text = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         },
         confirmButton = {
             Button(onClick = onUpdateNow) {

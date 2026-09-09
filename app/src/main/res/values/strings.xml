@@ -508,13 +508,14 @@
     <string name="title_maintenance">MAINTENANCE</string>
     <string name="title_missed_entry_reminder">Missed Entry Reminder</string>
     <string name="title_number_format">Number Format</string>
-    <string name="title_open_source_licenses">Open Source Licenses</string>
     <string name="title_order">Order</string>
     <string name="title_payment_method">PAYMENT METHOD</string>
     <string name="title_payment_mode">Payment Mode</string>
     <string name="title_premium_by_designnprivate_by_n">Premium by Design,\nPrivate by Nature</string>
     <string name="title_privacy_policy">Privacy Policy</string>
     <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
     <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
     <string name="title_rate_app">Rate App</string>
     <string name="title_report_bug">Report Bug</string>

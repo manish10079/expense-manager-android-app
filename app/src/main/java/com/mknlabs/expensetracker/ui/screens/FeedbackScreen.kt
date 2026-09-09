@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -40,6 +41,12 @@ fun FeedbackRoute(
     viewModel: FeedbackViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // System back must return to the previous screen (About), not send the
+    // app to the background — same convention as every other route.
+    BackHandler {
+        onBackClick()
+    }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {

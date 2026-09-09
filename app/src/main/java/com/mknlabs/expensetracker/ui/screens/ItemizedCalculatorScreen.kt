@@ -631,24 +631,11 @@ private fun NormalCalculatorDisplay(
         }
     }
 
-    val exprFontSizeFloat by animateFloatAsState(
-        targetValue = if (isEvaluated) {
-            if (compact) 16f else 22f
-        } else {
-            if (compact) 22f else 32f
-        },
-        label = "ExprFontSize"
-    )
-    val exprFontSize = exprFontSizeFloat.sp
-
-    val exprColor by animateColorAsState(
-        targetValue = if (isEvaluated) {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        },
-        label = "ExprColor"
-    )
+    // The expression line always keeps its normal editing style — it must
+    // never look locked/disabled after "=". Only the result line swaps
+    // emphasis once the calculation is evaluated.
+    val exprFontSize = if (compact) 22.sp else 32.sp
+    val exprColor = MaterialTheme.colorScheme.onSurface
 
     val resultFontSizeFloat by animateFloatAsState(
         targetValue = if (isEvaluated) {
@@ -715,7 +702,7 @@ private fun NormalCalculatorDisplay(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = exprColor,
-                        fontWeight = if (isEvaluated) FontWeight.Normal else FontWeight.SemiBold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = exprFontSize,
                         textAlign = TextAlign.End
                     ),
