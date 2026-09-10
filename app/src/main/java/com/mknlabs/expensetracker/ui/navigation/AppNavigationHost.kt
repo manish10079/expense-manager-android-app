@@ -611,7 +611,6 @@ fun AppNavigationHost(
                 AppRoute.AddTransaction -> {
                     val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
                     val favorites by mainViewModel.favorites.collectAsStateWithLifecycle()
-                    val isFavoriteToggled by mainViewModel.isFavoriteToggled.collectAsStateWithLifecycle()
                     val favoritesContext = LocalContext.current
                     
                     androidx.compose.runtime.LaunchedEffect(Unit) {
@@ -655,9 +654,6 @@ fun AppNavigationHost(
                         onAmountInputChange = onAddTransactionDraftAmountChange,
                         onNoteChange = onAddTransactionDraftNoteChange,
                         favorites = favorites,
-                        isFavoriteToggled = isFavoriteToggled,
-                        onToggleFavorite = mainViewModel::toggleFavoriteIcon,
-                        onFavoriteSelected = mainViewModel::resetFavoriteToggle,
                         onRemoveFavorite = { id ->
                             mainViewModel.removeFavorite(id)
                             Toast.makeText(
@@ -679,17 +675,6 @@ fun AppNavigationHost(
                                 draftTransaction.copy(id = selectedTransaction.id)
                             } else {
                                 draftTransaction
-                            }
-                            // The star toggle is read inside MainViewModel.saveTransaction,
-                            // which persists the favorite template with the newly assigned
-                            // transaction id (deduped via the transaction_id unique index)
-                            // and clears the toggle. Only the confirmation toast lives here.
-                            if (mainViewModel.isFavoriteToggled.value && selectedTransaction == null) {
-                                Toast.makeText(
-                                    favoritesContext,
-                                    favoritesContext.getString(R.string.msg_favorite_added),
-                                    Toast.LENGTH_SHORT
-                                ).show()
                             }
                             onSaveTransaction(
                                 transactionToSave,

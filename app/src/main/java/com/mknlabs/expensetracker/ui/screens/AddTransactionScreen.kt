@@ -111,7 +111,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -225,9 +224,6 @@ fun AddTransactionScreen(
     autoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     favorites: List<FavoriteTransaction> = emptyList(),
-    isFavoriteToggled: Boolean = false,
-    onToggleFavorite: () -> Unit = {},
-    onFavoriteSelected: () -> Unit = {},
     onRemoveFavorite: (String) -> Unit = {},
     onSaveExistingAsFavorite: (Transaction) -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -507,7 +503,6 @@ fun AddTransactionScreen(
             selectedPaymentId = favorite.paymentTypeId
             note = favorite.note
             noteDraft = favorite.note
-            onFavoriteSelected()
             Toast.makeText(context, context.getString(R.string.msg_favorite_copied), Toast.LENGTH_SHORT).show()
         }
 
@@ -764,27 +759,27 @@ fun AddTransactionScreen(
                             )
                         }
 
-                        // Favorite template star: toggles save-as-favorite in add
-                        // mode; immediately persists the current values in edit mode.
-                        Box(
-                            modifier = Modifier
-                                .size(if (compact) 40.dp else 44.dp)
-                                .shadow(
-                                    elevation = 6.dp,
-                                    shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
-                                )
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
-                                .border(
-                                    width = 1.dp,
-                                    color = micBorderColor,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .clickable(onClick = {
-                                    keyboardController?.hide()
-                                    if (isEditMode) {
+                        // Favorite template star (edit mode only): immediately
+                        // persists the current values as a favorite template.
+                        if (isEditMode) {
+                            Box(
+                                modifier = Modifier
+                                    .size(if (compact) 40.dp else 44.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = RoundedCornerShape(16.dp),
+                                        ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                        spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    )
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(SolidColor(Color.Transparent))
+                                    .border(
+                                        width = 1.dp,
+                                        color = micBorderColor,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .clickable(onClick = {
+                                        keyboardController?.hide()
                                         val category = selectedCategory
                                         val payment = selectedPayment
                                         val amount = amountInput.toDoubleOrNull()
@@ -806,26 +801,16 @@ fun AddTransactionScreen(
                                                 )
                                             )
                                         }
-                                    } else {
-                                        onToggleFavorite()
-                                    }
-                                }),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = if (isEditMode || isFavoriteToggled) {
-                                    Icons.Filled.Star
-                                } else {
-                                    Icons.Outlined.Star
-                                },
-                                contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                tint = if (isEditMode || isFavoriteToggled) {
-                                    colorScheme.primary
-                                } else {
-                                    colorScheme.onSurfaceVariant
-                                },
-                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
-                            )
+                                    }),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                    tint = colorScheme.primary,
+                                    modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                                )
+                            }
                         }
                     }
                 }
