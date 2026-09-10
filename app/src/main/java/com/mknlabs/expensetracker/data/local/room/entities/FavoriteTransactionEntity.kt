@@ -9,12 +9,15 @@ import com.mknlabs.expensetracker.models.FavoriteTransaction
 @Entity(
     tableName = "favorite_transactions",
     indices = [
-        Index(value = ["is_pinned", "title"])
+        Index(value = ["is_pinned", "title"]),
+        Index(value = ["transaction_id"], unique = true)
     ]
 )
 data class FavoriteTransactionEntity(
     @PrimaryKey
     val id: String,
+    @ColumnInfo(name = "transaction_id")
+    val transactionId: String? = null,
     val title: String,
     @ColumnInfo(name = "amount_minor")
     val amountMinor: Long,
@@ -32,6 +35,7 @@ data class FavoriteTransactionEntity(
 ) {
     fun toDomain(): FavoriteTransaction = FavoriteTransaction(
         id = id,
+        transactionId = transactionId,
         title = title,
         amountMinor = amountMinor,
         transactionTypeId = transactionTypeId,
@@ -45,6 +49,7 @@ data class FavoriteTransactionEntity(
     companion object {
         fun fromDomain(domain: FavoriteTransaction): FavoriteTransactionEntity = FavoriteTransactionEntity(
             id = domain.id,
+            transactionId = domain.transactionId,
             title = domain.title,
             amountMinor = domain.amountMinor,
             transactionTypeId = domain.transactionTypeId,
