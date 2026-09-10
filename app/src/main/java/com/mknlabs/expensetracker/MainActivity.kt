@@ -242,6 +242,25 @@ class MainActivity : AppCompatActivity() {
         // lightweight Change bottom sheet. Null for every other launch path.
         val initialParsedSms: ParsedSms? = intent?.toParsedSms()
 
+        // Handle App Shortcut Intents
+        val shortcutAction = intent?.action
+        val shortcutTransactionTypeId = intent?.let {
+            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)) {
+                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID, 0)
+                if (intVal != 0) intVal
+                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)?.toIntOrNull()
+            } else null
+        }
+        val shortcutCategoryId = intent?.let {
+            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)) {
+                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID, 0)
+                if (intVal != 0) intVal
+                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)?.toIntOrNull()
+            } else null
+        }
+        val shortcutAmount = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_AMOUNT)
+        val shortcutNote = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_NOTE)
+
         // Handle Magic Link Intent
         LaunchedEffect(intent) {
             intent?.data?.let { data ->
@@ -364,6 +383,11 @@ class MainActivity : AppCompatActivity() {
                                 notificationIntent = intent,
                                 isRecoveryPerformed = recoveryPerformed,
                                 onRecoveryConsumed = { appLockViewModel.consumeRecovery() },
+                                shortcutAction = shortcutAction,
+                                shortcutTransactionTypeId = shortcutTransactionTypeId,
+                                shortcutCategoryId = shortcutCategoryId,
+                                shortcutAmount = shortcutAmount,
+                                shortcutNote = shortcutNote,
                                 // Suppress MainScreen's root-level bottom sheets/dialogs while
                                 // the cold-start/auto-lock overlay is active: any dialog window
                                 // created AFTER the lock's own window would cover the lock.

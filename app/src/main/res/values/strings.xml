@@ -1842,4 +1842,16 @@
     <string name="label_select_all">Select All</string>
     <string name="label_select_unbudgeted">Select Available Only</string>
     <string name="label_add">Add</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_add_expense">Add Expense</string>
+    <string name="shortcut_add_expense_long">Add Expense</string>
+    <string name="shortcut_add_income">Add Income</string>
+    <string name="shortcut_add_income_long">Add Income</string>
+    <string name="shortcut_month_summary">Current Month Spent</string>
+    <string name="shortcut_month_summary_long">Current Month Spent</string>
+    <string name="shortcut_speak_to_add">Speak To Add</string>
+    <string name="shortcut_speak_to_add_long">Speak To Add</string>
+    <string name="shortcut_copy_budget">Copy Budget</string>
+    <string name="shortcut_copy_budget_long">Copy Budget</string>
 </resources>

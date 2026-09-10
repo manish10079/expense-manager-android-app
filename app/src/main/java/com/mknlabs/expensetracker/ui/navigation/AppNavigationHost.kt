@@ -63,6 +63,8 @@ fun AppNavigationHost(
     addTransactionDraftNote: String?,
     addTransactionDraftCategoryId: Int? = null,
     addTransactionDraftTypeId: Int? = null,
+    addTransactionDraftAutoStartVoice: Boolean = false,
+    onVoiceAutoStarted: () -> Unit = {},
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -627,6 +629,8 @@ fun AppNavigationHost(
                         initialNote = addTransactionDraftNote,
                         initialCategoryId = addTransactionDraftCategoryId,
                         initialTransactionTypeId = addTransactionDraftTypeId,
+                        autoStartVoice = addTransactionDraftAutoStartVoice,
+                        onVoiceAutoStarted = onVoiceAutoStarted,
                         onBackClick = {
                             exitAddTransactionScreen(previousRoute)
                         },
