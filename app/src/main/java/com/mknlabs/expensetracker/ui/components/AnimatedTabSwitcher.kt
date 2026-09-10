@@ -62,7 +62,8 @@ fun <T> AnimatedTabSwitcher(
     val containerPadding = if (compact) 2.dp else 4.dp
     val pillRadius = if (compact) 10.dp else 20.dp
     val innerRadius = if (compact) 10.dp else 18.dp
-    val verticalPadding = if (compact) 6.dp else 12.dp
+    // ~5% slimmer than the previous 12dp variant, applied on every screen.
+    val verticalPadding = if (compact) 6.dp else 11.dp
     val fontSize = if (compact) 10.sp else 15.sp
 
     Box(
