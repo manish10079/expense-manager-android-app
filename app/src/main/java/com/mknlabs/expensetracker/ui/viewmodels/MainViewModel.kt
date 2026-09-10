@@ -95,9 +95,6 @@ class MainViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    private val _isFavoriteToggled = MutableStateFlow(false)
-    val isFavoriteToggled: StateFlow<Boolean> = _isFavoriteToggled.asStateFlow()
-    
     private val _uiEvent = MutableSharedFlow<MainUiEvent>()
     val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()
 
@@ -233,14 +230,6 @@ class MainViewModel @Inject constructor(
         observeTransactions.value = enabled
     }
 
-    fun toggleFavoriteIcon() {
-        _isFavoriteToggled.value = !_isFavoriteToggled.value
-    }
-
-    fun resetFavoriteToggle() {
-        _isFavoriteToggled.value = false
-    }
-
     /**
      * Persists [transaction] as a quick-entry favorite template. The display
      * title prefers the note (merchant/description) and falls back to the
@@ -295,13 +284,6 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
-            // Add-mode star toggle: persist the favorite template now that the
-            // transaction has its real id (deduped via the transaction_id unique
-            // index), then clear the toggle for the next entry.
-            if (_isFavoriteToggled.value && transaction.id.isBlank()) {
-                _isFavoriteToggled.value = false
-                favoriteTransactionRepository.saveFavorite(toFavorite(savedTransaction))
-            }
             when {
                 recurringDraft != null -> {
                     val initialNextRun = calculateInitialNextRun(
