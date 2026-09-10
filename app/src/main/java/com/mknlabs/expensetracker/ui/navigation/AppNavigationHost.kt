@@ -666,6 +666,14 @@ fun AppNavigationHost(
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
+                        onSaveExistingAsFavorite = { transaction ->
+                            mainViewModel.saveAsFavorite(transaction)
+                            Toast.makeText(
+                                favoritesContext,
+                                favoritesContext.getString(R.string.msg_favorite_added),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
                         onSaveClick = { draftTransaction, recurringDraft ->
                             val transactionToSave = if (selectedTransaction != null) {
                                 draftTransaction.copy(id = selectedTransaction.id)

@@ -229,6 +229,7 @@ fun AddTransactionScreen(
     onToggleFavorite: () -> Unit = {},
     onFavoriteSelected: () -> Unit = {},
     onRemoveFavorite: (String) -> Unit = {},
+    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
@@ -545,8 +546,40 @@ fun AddTransactionScreen(
                     onBackClick()
                 },
                 actions = {
-                    // Delete transaction icon (matches SelectionHeader style)
+                    // Save-as-favorite star (edit mode): captures the current
+                    // form values and persists them as a favorite template.
                     if (isEditMode) {
+                        IconButton(
+                            onClick = {
+                                keyboardController?.hide()
+                                val category = selectedCategory ?: return@IconButton
+                                val payment = selectedPayment ?: return@IconButton
+                                val amount = amountInput.toDoubleOrNull() ?: return@IconButton
+                                onSaveExistingAsFavorite(
+                                    Transaction(
+                                        id = existingTransaction?.id.orEmpty(),
+                                        note = note.trim(),
+                                        createdAt = selectedDateMillis,
+                                        amountMinor = amount.toMinorUnits(),
+                                        transactionTypeId = selectedTransactionTypeId,
+                                        paymentTypeId = payment.id,
+                                        categoryId = category.id,
+                                        contentHash = existingTransaction?.contentHash,
+                                        syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
+                                        isDeleted = false,
+                                        updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
+                                        sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
+                                    )
+                                )
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        // Delete transaction icon (matches SelectionHeader style)
                         IconButton(
                             onClick = {
                                 keyboardController?.hide()
