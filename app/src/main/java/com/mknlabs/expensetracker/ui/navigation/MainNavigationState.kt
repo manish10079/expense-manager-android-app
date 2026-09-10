@@ -42,6 +42,9 @@ class MainNavigationState(
     var addTransactionDraftTypeId by mutableStateOf<Int?>(null)
         private set
 
+    var addTransactionDraftAutoStartVoice by mutableStateOf(false)
+        private set
+
     fun navigateTo(route: AppRoute) {
         if (route == AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
             previousRoute = currentRoute
@@ -77,12 +80,17 @@ class MainNavigationState(
         addTransactionDraftTypeId = typeId
     }
 
+    fun updateAddTransactionDraftAutoStartVoice(autoStart: Boolean) {
+        addTransactionDraftAutoStartVoice = autoStart
+    }
+
     fun clearTransactionDraftContext() {
         selectedTransaction = null
         addTransactionDraftAmount = null
         addTransactionDraftNote = null
         addTransactionDraftCategoryId = null
         addTransactionDraftTypeId = null
+        addTransactionDraftAutoStartVoice = false
     }
 
     /**

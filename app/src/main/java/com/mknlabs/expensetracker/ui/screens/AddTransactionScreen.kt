@@ -211,6 +211,8 @@ fun AddTransactionScreen(
     initialNote: String? = null,
     initialCategoryId: Int? = null,
     initialTransactionTypeId: Int? = null,
+    autoStartVoice: Boolean = false,
+    onVoiceAutoStarted: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
@@ -241,11 +243,11 @@ fun AddTransactionScreen(
         }
         val isEditMode = existingTransaction != null
 
-        var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id) {
-            mutableIntStateOf(existingTransaction?.transactionTypeId ?: DEFAULT_TRANSACTION_TYPE_ID)
+        var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id, initialTransactionTypeId) {
+            mutableIntStateOf(existingTransaction?.transactionTypeId ?: initialTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_ID)
         }
-        var selectedCategoryId by rememberSaveable(existingTransaction?.id) {
-            mutableIntStateOf(existingTransaction?.categoryId ?: 0)
+        var selectedCategoryId by rememberSaveable(existingTransaction?.id, initialCategoryId) {
+            mutableIntStateOf(existingTransaction?.categoryId ?: initialCategoryId ?: 0)
         }
         var selectedPaymentId by rememberSaveable(existingTransaction?.id) {
             mutableIntStateOf(
@@ -254,14 +256,14 @@ fun AddTransactionScreen(
                     ?: (paymentMethods.firstOrNull()?.id ?: 0)
             )
         }
-        var amountInput by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf(existingTransaction?.amount?.let(::formatEditableAmount).orEmpty().ifBlank { "0" })
+        var amountInput by rememberSaveable(existingTransaction?.id, initialAmountInput) {
+            mutableStateOf(existingTransaction?.amount?.let(::formatEditableAmount).orEmpty().ifBlank { initialAmountInput ?: "0" })
         }
         var selectedDateMillis by rememberSaveable(existingTransaction?.id) {
             mutableLongStateOf(existingTransaction?.createdAt ?: System.currentTimeMillis())
         }
-        var note by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf(existingTransaction?.note.orEmpty())
+        var note by rememberSaveable(existingTransaction?.id, initialNote) {
+            mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
         }
 
         // Payment method prediction
@@ -284,8 +286,8 @@ fun AddTransactionScreen(
             }
         }
 
-        var noteDraft by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf(existingTransaction?.note.orEmpty())
+        var noteDraft by rememberSaveable(existingTransaction?.id, initialNote) {
+            mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
         }
         var isRecurringEnabled by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingRecurringRule != null)
@@ -328,6 +330,18 @@ fun AddTransactionScreen(
             } else {
                 voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
                 isVoiceSheetVisible = true
+            }
+        }
+
+        LaunchedEffect(autoStartVoice) {
+            if (autoStartVoice) {
+                onVoiceAutoStarted()
+                if (micPermissionGranted) {
+                    voiceViewModel.resetToListening()
+                    isVoiceSheetVisible = true
+                } else {
+                    micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
             }
         }
 

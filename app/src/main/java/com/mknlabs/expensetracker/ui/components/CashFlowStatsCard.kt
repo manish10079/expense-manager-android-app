@@ -42,20 +42,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.isDark
-import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
+import com.mknlabs.expensetracker.ui.theme.IncomeGreen
 import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkCenter
 import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
-import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
-import com.mknlabs.expensetracker.ui.theme.ExpenseRed
-import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.ui.theme.isDark
 import com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -161,15 +160,15 @@ fun CashFlowStatsCard(
                 // Dynamic current date pill
                 Surface(
                     shape = RoundedCornerShape(50),
-                    color = colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                    contentColor = colorScheme.onSurfaceVariant
+                    color = Color.Transparent,
+                    contentColor = colorScheme.primary
                 ) {
                     Text(
                         text = currentDate,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(start = 10.dp, top = 6.dp, bottom = 6.dp),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
+                            fontSize = 10.sp,
                             letterSpacing = 1.sp
                         )
                     )
@@ -315,7 +314,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
+                fontSize = 13.sp,
                 letterSpacing = 0.5.sp
             )
         )
@@ -326,7 +325,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 22.sp
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

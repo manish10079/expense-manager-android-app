@@ -161,6 +161,12 @@ fun MainScreen(
     notificationIntent: Intent? = null,
     isRecoveryPerformed: Boolean = false,
     onRecoveryConsumed: () -> Unit = {},
+    // App Shortcut parameters
+    shortcutAction: String? = null,
+    shortcutTransactionTypeId: Int? = null,
+    shortcutCategoryId: Int? = null,
+    shortcutAmount: String? = null,
+    shortcutNote: String? = null,
     // True while the cold-start / auto-lock overlay (hosted by MainActivity) is
     // active. While set, MainScreen suppresses its root-level bottom sheets and
     // dialogs so no window can ever be created on top of the lock.
@@ -536,6 +542,34 @@ fun MainScreen(
                 }
             }
 
+            // Handle App Shortcut Intents
+            LaunchedEffect(shortcutAction, shortcutTransactionTypeId, shortcutCategoryId, shortcutAmount, shortcutNote, notificationIntent) {
+                when (shortcutAction) {
+                    com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_ADD_TRANSACTION -> {
+                        // Prefill the Add Transaction draft from shortcut extras
+                        shortcutAmount?.let { navigationState.updateAddTransactionDraftAmount(it) }
+                        shortcutNote?.let { navigationState.updateAddTransactionDraftNote(it) }
+                        shortcutCategoryId?.let { navigationState.updateAddTransactionDraftCategoryId(it) }
+                        shortcutTransactionTypeId?.let { navigationState.updateAddTransactionDraftTypeId(it) }
+                        navigationState.navigateTo(AppRoute.AddTransaction)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+                    com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_VIEW_ANALYTICS -> {
+                        navigationState.navigateTo(AppRoute.Analytics)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+                    com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_SPEAK_TO_ADD -> {
+                        navigationState.updateAddTransactionDraftAutoStartVoice(true)
+                        navigationState.navigateTo(AppRoute.AddTransaction)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+                    com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_COPY_BUDGET -> {
+                        navigationState.navigateTo(AppRoute.Budget)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+                }
+            }
+
             LaunchedEffect(isRecoveryPerformed) {
                 if (isRecoveryPerformed) {
                     navigationState.navigateTo(AppRoute.Home)
@@ -739,6 +773,10 @@ fun MainScreen(
                         selectedTransaction = navigationState.selectedTransaction,
                         addTransactionDraftAmount = navigationState.addTransactionDraftAmount,
                         addTransactionDraftNote = navigationState.addTransactionDraftNote,
+                        addTransactionDraftCategoryId = navigationState.addTransactionDraftCategoryId,
+                        addTransactionDraftTypeId = navigationState.addTransactionDraftTypeId,
+                        addTransactionDraftAutoStartVoice = navigationState.addTransactionDraftAutoStartVoice,
+                        onVoiceAutoStarted = { navigationState.updateAddTransactionDraftAutoStartVoice(false) },
                         categories = mainUiState.categories,
                         paymentMethods = mainUiState.paymentMethods,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,
