@@ -651,19 +651,19 @@ fun AddTransactionScreen(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .heightIn(min = if (compact) 48.dp else 56.dp)
+                                .heightIn(min = if (compact) 40.dp else 44.dp)
                                 .shadow(
                                     elevation = 6.dp,
-                                    shape = RoundedCornerShape(20.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     ambientColor = colorScheme.primary.copy(alpha = 0.06f),
                                     spotColor = colorScheme.secondary.copy(alpha = 0.06f)
                                 )
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(SolidColor(Color.Transparent))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
-                                    shape = RoundedCornerShape(20.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                                 .clickable(onClick = {
                                     noteDraft = note
@@ -701,19 +701,19 @@ fun AddTransactionScreen(
 
                         Box(
                             modifier = Modifier
-                                .size(if (compact) 48.dp else 56.dp)
+                                .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
                                     elevation = 6.dp,
-                                    shape = RoundedCornerShape(20.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     ambientColor = colorScheme.primary.copy(alpha = 0.06f),
                                     spotColor = colorScheme.secondary.copy(alpha = 0.06f)
                                 )
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(SolidColor(Color.Transparent))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
-                                    shape = RoundedCornerShape(20.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                                 .clickable(onClick = {
                                     keyboardController?.hide()
@@ -730,25 +730,25 @@ fun AddTransactionScreen(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
                                 tint = colorScheme.primary.copy(alpha = 0.8f),
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
 
                         Box(
                             modifier = Modifier
-                                .size(if (compact) 48.dp else 56.dp)
+                                .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
                                     elevation = 6.dp,
-                                    shape = RoundedCornerShape(20.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     ambientColor = colorScheme.primary.copy(alpha = 0.06f),
                                     spotColor = colorScheme.secondary.copy(alpha = 0.06f)
                                 )
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(SolidColor(Color.Transparent))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
-                                    shape = RoundedCornerShape(20.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                                 .clickable(onClick = {
                                     keyboardController?.hide()
@@ -760,7 +760,7 @@ fun AddTransactionScreen(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
                                 tint = colorScheme.primary.copy(alpha = 0.8f),
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
 
@@ -768,19 +768,19 @@ fun AddTransactionScreen(
                         // mode; immediately persists the current values in edit mode.
                         Box(
                             modifier = Modifier
-                                .size(if (compact) 48.dp else 56.dp)
+                                .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
                                     elevation = 6.dp,
-                                    shape = RoundedCornerShape(20.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     ambientColor = colorScheme.primary.copy(alpha = 0.06f),
                                     spotColor = colorScheme.secondary.copy(alpha = 0.06f)
                                 )
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(SolidColor(Color.Transparent))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
-                                    shape = RoundedCornerShape(20.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                                 .clickable(onClick = {
                                     keyboardController?.hide()
@@ -824,7 +824,7 @@ fun AddTransactionScreen(
                                 } else {
                                     colorScheme.onSurfaceVariant
                                 },
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
                     }
@@ -1568,7 +1568,7 @@ private fun CurrencyAmountCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = if (compact) 120.dp else 140.dp) // Tightened height
+            .heightIn(min = if (compact) 104.dp else 122.dp) // Tightened height
             .shadow(
                 elevation = 8.dp,
                 shape = shape,
@@ -1589,7 +1589,7 @@ private fun CurrencyAmountCard(
                 .fillMaxWidth()
                 .padding(
                     horizontal = if (compact) 16.dp else 20.dp, // Tightened horizontal padding
-                    vertical = if (compact) 12.dp else 16.dp    // Tightened vertical padding
+                    vertical = if (compact) 10.dp else 12.dp    // Tightened vertical padding
                 )
                 .matchParentSize(),
             verticalArrangement = Arrangement.SpaceBetween
@@ -1640,8 +1640,8 @@ private fun CurrencyAmountCard(
                         color = Color.Transparent,
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 42.sp else 50.sp,
-                            lineHeight = if (compact) 46.sp else 54.sp
+                            fontSize = if (compact) 40.sp else 48.sp,
+                            lineHeight = if (compact) 44.sp else 52.sp
                         ),
                         maxLines = 1
                     )
@@ -1675,8 +1675,8 @@ private fun CurrencyAmountCard(
                             .fillMaxWidth(),
                         textStyle = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 42.sp else 50.sp,
-                            lineHeight = if (compact) 46.sp else 54.sp,
+                            fontSize = if (compact) 40.sp else 48.sp,
+                            lineHeight = if (compact) 44.sp else 52.sp,
                             color = amountColor,
                             textAlign = TextAlign.Center
                         ),
