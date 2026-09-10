@@ -122,6 +122,24 @@
     <string name="label_what_is_this_for">What\'s this for?</string>
     <string name="placeholder_add_note">Add a note...</string>
     <string name="desc_clear_fields">Clear fields</string>
+
+    <!-- Favorite Transactions -->
+    <string name="title_quick_favorites">QUICK FAVORITES</string>
+    <string name="label_all_favorites">All</string>
+    <string name="title_favorite_templates">Favorite Templates</string>
+    <string name="placeholder_search_favorites">Search templates...</string>
+    <string name="msg_no_favorites_yet">No favorite transactions yet.</string>
+    <string name="msg_no_favorites_hint">Mark your frequently used transactions as favorites for one-tap entry later.</string>
+    <string name="label_copy">Copy</string>
+    <string name="msg_favorite_added">Transaction added to favorites.</string>
+    <string name="msg_favorite_copied">Favorite transaction copied successfully.</string>
+    <string name="msg_favorite_removed">Removed from favorites.</string>
+    <string name="desc_toggle_favorite">Toggle favorite for this transaction</string>
+    <string name="desc_open_all_favorites">Open all favorites</string>
+    <string name="desc_delete_favorite">Delete favorite</string>
+    <string name="desc_select_favorite">Apply favorite to form</string>
+    <string name="desc_favorite_icon">Favorite</string>
+
     <string name="desc_clear_note">Clear note</string>
     <string name="desc_close">Close</string>
     <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>

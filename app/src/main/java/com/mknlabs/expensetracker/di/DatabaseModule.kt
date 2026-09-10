@@ -42,4 +42,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCountryCodeDao(database: ExpenseTrackerDatabase) = database.countryCodeDao()
+
+    @Provides
+    fun provideFavoriteTransactionDao(database: ExpenseTrackerDatabase) = database.favoriteTransactionDao()
 }
