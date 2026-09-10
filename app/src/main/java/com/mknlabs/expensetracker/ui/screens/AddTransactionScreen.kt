@@ -350,6 +350,12 @@ fun AddTransactionScreen(
         LaunchedEffect(autoStartVoice) {
             if (autoStartVoice) {
                 onVoiceAutoStarted()
+                // The amount field is auto-focused and the keyboard is shown on
+                // screen entry. An open IME can make the SpeechRecognizer fail
+                // immediately ("try again" error), so dismiss both before the
+                // voice sheet starts listening — same as the mic button tap.
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
                 if (micPermissionGranted) {
                     voiceViewModel.resetToListening()
                     isVoiceSheetVisible = true
@@ -440,10 +446,14 @@ fun AddTransactionScreen(
             }
         }
 
-        // Auto-focus amount field and open keyboard on screen entry
+        // Auto-focus amount field and open keyboard on screen entry. Skipped when
+        // launched via the Speak-to-Add shortcut so the IME can't break the
+        // SpeechRecognizer right as the voice sheet opens.
         LaunchedEffect(Unit) {
-            amountFocusRequester.requestFocus()
-            keyboardController?.show()
+            if (!autoStartVoice) {
+                amountFocusRequester.requestFocus()
+                keyboardController?.show()
+            }
         }
 
         LaunchedEffect(initialNote) {
