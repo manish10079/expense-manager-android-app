@@ -680,11 +680,11 @@ fun AppNavigationHost(
                             } else {
                                 draftTransaction
                             }
-                            // Persist the quick-entry favorite template alongside the
-                            // transaction when the header star was toggled on.
+                            // The star toggle is read inside MainViewModel.saveTransaction,
+                            // which persists the favorite template with the newly assigned
+                            // transaction id (deduped via the transaction_id unique index)
+                            // and clears the toggle. Only the confirmation toast lives here.
                             if (mainViewModel.isFavoriteToggled.value && selectedTransaction == null) {
-                                mainViewModel.saveAsFavorite(transactionToSave)
-                                mainViewModel.resetFavoriteToggle()
                                 Toast.makeText(
                                     favoritesContext,
                                     favoritesContext.getString(R.string.msg_favorite_added),

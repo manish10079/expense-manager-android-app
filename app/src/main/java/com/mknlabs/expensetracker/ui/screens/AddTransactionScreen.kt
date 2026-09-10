@@ -546,40 +546,8 @@ fun AddTransactionScreen(
                     onBackClick()
                 },
                 actions = {
-                    // Save-as-favorite star (edit mode): captures the current
-                    // form values and persists them as a favorite template.
+                    // Delete transaction icon (matches SelectionHeader style)
                     if (isEditMode) {
-                        IconButton(
-                            onClick = {
-                                keyboardController?.hide()
-                                val category = selectedCategory ?: return@IconButton
-                                val payment = selectedPayment ?: return@IconButton
-                                val amount = amountInput.toDoubleOrNull() ?: return@IconButton
-                                onSaveExistingAsFavorite(
-                                    Transaction(
-                                        id = existingTransaction?.id.orEmpty(),
-                                        note = note.trim(),
-                                        createdAt = selectedDateMillis,
-                                        amountMinor = amount.toMinorUnits(),
-                                        transactionTypeId = selectedTransactionTypeId,
-                                        paymentTypeId = payment.id,
-                                        categoryId = category.id,
-                                        contentHash = existingTransaction?.contentHash,
-                                        syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
-                                        isDeleted = false,
-                                        updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
-                                        sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
-                                    )
-                                )
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Star,
-                                contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        // Delete transaction icon (matches SelectionHeader style)
                         IconButton(
                             onClick = {
                                 keyboardController?.hide()
@@ -597,20 +565,8 @@ fun AddTransactionScreen(
                             )
                         }
                     }
-                    // Star toggle: save this transaction as a favorite template (only in add mode)
+                    // Reset form icon (only in add mode)
                     if (!isEditMode) {
-                        IconButton(onClick = onToggleFavorite) {
-                            Icon(
-                                imageVector = if (isFavoriteToggled) Icons.Filled.Star else Icons.Outlined.Star,
-                                contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                tint = if (isFavoriteToggled) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
-                        }
-                        // Reset form icon (only in add mode)
                         IconButton(onClick = {
                             selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
                             selectedCategoryId = 0
@@ -807,6 +763,70 @@ fun AddTransactionScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
+
+                        // Favorite template star: toggles save-as-favorite in add
+                        // mode; immediately persists the current values in edit mode.
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 48.dp else 56.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    if (isEditMode) {
+                                        val category = selectedCategory
+                                        val payment = selectedPayment
+                                        val amount = amountInput.toDoubleOrNull()
+                                        if (category != null && payment != null && amount != null) {
+                                            onSaveExistingAsFavorite(
+                                                Transaction(
+                                                    id = existingTransaction?.id.orEmpty(),
+                                                    note = note.trim(),
+                                                    createdAt = selectedDateMillis,
+                                                    amountMinor = amount.toMinorUnits(),
+                                                    transactionTypeId = selectedTransactionTypeId,
+                                                    paymentTypeId = payment.id,
+                                                    categoryId = category.id,
+                                                    contentHash = existingTransaction?.contentHash,
+                                                    syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
+                                                    isDeleted = false,
+                                                    updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
+                                                    sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
+                                                )
+                                            )
+                                        }
+                                    } else {
+                                        onToggleFavorite()
+                                    }
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isEditMode || isFavoriteToggled) {
+                                    Icons.Filled.Star
+                                } else {
+                                    Icons.Outlined.Star
+                                },
+                                contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                tint = if (isEditMode || isFavoriteToggled) {
+                                    colorScheme.primary
+                                } else {
+                                    colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
 
@@ -868,6 +888,19 @@ fun AddTransactionScreen(
                     }
                 }
 
+                // Quick-entry favorites carousel, shown just above the note row
+                // (add mode only).
+                val quickFavoritesBlock: @Composable () -> Unit = {
+                    if (!isEditMode) {
+                        QuickFavoritesRow(
+                            favorites = favorites,
+                            currencyId = currencyId,
+                            onSelectFavorite = applyFavorite,
+                            onOpenAllSheet = { isFavoritesSheetVisible = true }
+                        )
+                    }
+                }
+
                 if (wide) {
                     // Two-pane: left = tabs, amount, category + payment pickers;
                     // right = note, date + recurring. Each pane scrolls on its own.
@@ -895,6 +928,7 @@ fun AddTransactionScreen(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
                         ) {
+                            quickFavoritesBlock()
                             noteBlock()
                             dateRecurringBlock()
                         }
@@ -908,23 +942,12 @@ fun AddTransactionScreen(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
                     ) {
                         tabAndAmountBlock()
+                        quickFavoritesBlock()
                         noteBlock()
                         categoryBlock()
                         paymentBlock()
                         dateRecurringBlock()
                     }
-                }
-
-                if (!isEditMode) {
-                    // Quick-entry favorites carousel, anchored just above the Add
-                    // button for thumb reachability.
-                    QuickFavoritesRow(
-                        favorites = favorites,
-                        currencyId = currencyId,
-                        onSelectFavorite = applyFavorite,
-                        onOpenAllSheet = { isFavoritesSheetVisible = true }
-                    )
-                    Spacer(modifier = Modifier.height(if (dense) 8.dp else 10.dp))
                 }
 
                 Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))

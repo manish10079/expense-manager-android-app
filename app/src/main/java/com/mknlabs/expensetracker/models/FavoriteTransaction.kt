@@ -4,6 +4,7 @@ import java.util.UUID
 
 data class FavoriteTransaction(
     val id: String = UUID.randomUUID().toString(),
+    val transactionId: String? = null,
     val title: String,
     val amountMinor: Long,
     val transactionTypeId: Int = 2,

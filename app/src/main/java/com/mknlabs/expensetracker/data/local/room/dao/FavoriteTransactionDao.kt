@@ -13,7 +13,9 @@ interface FavoriteTransactionDao {
     @Query("SELECT * FROM favorite_transactions ORDER BY is_pinned DESC, title ASC")
     fun getAllFavorites(): Flow<List<FavoriteTransactionEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // IGNORE: the transaction_id unique index makes re-favoriting the same
+    // transaction a no-op (keeps the original id, pin, and createdAt).
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFavorite(favorite: FavoriteTransactionEntity)
 
     @Delete

@@ -246,27 +246,40 @@ class MainViewModel @Inject constructor(
      * title prefers the note (merchant/description) and falls back to the
      * category name, then the category id — so a blank-note favorite is still
      * recognizable in the carousel.
+     *
+     * Used by the edit-screen star (the transaction already has its real id).
+     * The add-mode star is handled inside [saveTransaction] instead, so the
+     * favorite is created only after the transaction received its assigned id.
      */
     fun saveAsFavorite(transaction: Transaction) {
         viewModelScope.launch {
-            val categoryName = _uiState.value.categories
-                .firstOrNull { it.id == transaction.categoryId }
-                ?.name.orEmpty()
-            val title = transaction.note.trim()
-                .ifBlank { categoryName.ifBlank { transaction.categoryId.toString() } }
-            favoriteTransactionRepository.saveFavorite(
-                FavoriteTransaction(
-                    title = title,
-                    amountMinor = transaction.amountMinor,
-                    transactionTypeId = transaction.transactionTypeId,
-                    categoryId = transaction.categoryId,
-                    paymentTypeId = transaction.paymentTypeId,
-                    note = transaction.note,
-                    isPinned = true,
-                    createdAt = System.currentTimeMillis()
-                )
-            )
+            favoriteTransactionRepository.saveFavorite(toFavorite(transaction))
         }
+    }
+
+    /**
+     * Maps a transaction to its favorite template. [FavoriteTransaction.transactionId]
+     * links the favorite to the source transaction — the unique index on it dedupes
+     * re-favoriting. A blank id is stored as null so unsaved/legacy favorites never
+     * collide with real ones (SQLite unique indexes treat NULLs as distinct).
+     */
+    private fun toFavorite(transaction: Transaction): FavoriteTransaction {
+        val categoryName = _uiState.value.categories
+            .firstOrNull { it.id == transaction.categoryId }
+            ?.name.orEmpty()
+        val title = transaction.note.trim()
+            .ifBlank { categoryName.ifBlank { transaction.categoryId.toString() } }
+        return FavoriteTransaction(
+            title = title,
+            amountMinor = transaction.amountMinor,
+            transactionTypeId = transaction.transactionTypeId,
+            categoryId = transaction.categoryId,
+            paymentTypeId = transaction.paymentTypeId,
+            note = transaction.note,
+            transactionId = transaction.id.takeIf { it.isNotBlank() },
+            isPinned = true,
+            createdAt = System.currentTimeMillis()
+        )
     }
 
     fun removeFavorite(id: String) {
@@ -282,6 +295,13 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
+            // Add-mode star toggle: persist the favorite template now that the
+            // transaction has its real id (deduped via the transaction_id unique
+            // index), then clear the toggle for the next entry.
+            if (_isFavoriteToggled.value && transaction.id.isBlank()) {
+                _isFavoriteToggled.value = false
+                favoriteTransactionRepository.saveFavorite(toFavorite(savedTransaction))
+            }
             when {
                 recurringDraft != null -> {
                     val initialNextRun = calculateInitialNextRun(
