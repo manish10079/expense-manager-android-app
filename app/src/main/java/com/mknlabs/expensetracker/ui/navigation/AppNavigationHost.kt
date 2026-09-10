@@ -1,12 +1,15 @@
 package com.mknlabs.expensetracker.ui.navigation
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
@@ -607,6 +610,9 @@ fun AppNavigationHost(
 
                 AppRoute.AddTransaction -> {
                     val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
+                    val favorites by mainViewModel.favorites.collectAsStateWithLifecycle()
+                    val isFavoriteToggled by mainViewModel.isFavoriteToggled.collectAsStateWithLifecycle()
+                    val favoritesContext = LocalContext.current
                     
                     androidx.compose.runtime.LaunchedEffect(Unit) {
                         mainViewModel.uiEvent.collect { event ->
@@ -648,11 +654,34 @@ fun AppNavigationHost(
                         },
                         onAmountInputChange = onAddTransactionDraftAmountChange,
                         onNoteChange = onAddTransactionDraftNoteChange,
+                        favorites = favorites,
+                        isFavoriteToggled = isFavoriteToggled,
+                        onToggleFavorite = mainViewModel::toggleFavoriteIcon,
+                        onFavoriteSelected = mainViewModel::resetFavoriteToggle,
+                        onRemoveFavorite = { id ->
+                            mainViewModel.removeFavorite(id)
+                            Toast.makeText(
+                                favoritesContext,
+                                favoritesContext.getString(R.string.msg_favorite_removed),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
                         onSaveClick = { draftTransaction, recurringDraft ->
                             val transactionToSave = if (selectedTransaction != null) {
                                 draftTransaction.copy(id = selectedTransaction.id)
                             } else {
                                 draftTransaction
+                            }
+                            // Persist the quick-entry favorite template alongside the
+                            // transaction when the header star was toggled on.
+                            if (mainViewModel.isFavoriteToggled.value && selectedTransaction == null) {
+                                mainViewModel.saveAsFavorite(transactionToSave)
+                                mainViewModel.resetFavoriteToggle()
+                                Toast.makeText(
+                                    favoritesContext,
+                                    favoritesContext.getString(R.string.msg_favorite_added),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             onSaveTransaction(
                                 transactionToSave,

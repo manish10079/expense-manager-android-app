@@ -15,8 +15,10 @@ import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.domain.repository.SecurityRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.domain.repository.FavoriteTransactionRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.FavoriteTransaction
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
@@ -27,10 +29,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -75,13 +79,24 @@ class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val monetizationRepository: MonetizationRepository,
     private val configurationRepository: com.mknlabs.expensetracker.domain.repository.ConfigurationRepository,
-    private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase
+    private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase,
+    private val favoriteTransactionRepository: FavoriteTransactionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()
     
     val isProPassEnabled: StateFlow<Boolean> = configurationRepository.isProPassEnabled
+
+    val favorites: StateFlow<List<FavoriteTransaction>> = favoriteTransactionRepository.getAllFavorites()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    private val _isFavoriteToggled = MutableStateFlow(false)
+    val isFavoriteToggled: StateFlow<Boolean> = _isFavoriteToggled.asStateFlow()
     
     private val _uiEvent = MutableSharedFlow<MainUiEvent>()
     val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()
@@ -216,6 +231,48 @@ class MainViewModel @Inject constructor(
 
     fun setTransactionObservationEnabled(enabled: Boolean) {
         observeTransactions.value = enabled
+    }
+
+    fun toggleFavoriteIcon() {
+        _isFavoriteToggled.value = !_isFavoriteToggled.value
+    }
+
+    fun resetFavoriteToggle() {
+        _isFavoriteToggled.value = false
+    }
+
+    /**
+     * Persists [transaction] as a quick-entry favorite template. The display
+     * title prefers the note (merchant/description) and falls back to the
+     * category name, then the category id — so a blank-note favorite is still
+     * recognizable in the carousel.
+     */
+    fun saveAsFavorite(transaction: Transaction) {
+        viewModelScope.launch {
+            val categoryName = _uiState.value.categories
+                .firstOrNull { it.id == transaction.categoryId }
+                ?.name.orEmpty()
+            val title = transaction.note.trim()
+                .ifBlank { categoryName.ifBlank { transaction.categoryId.toString() } }
+            favoriteTransactionRepository.saveFavorite(
+                FavoriteTransaction(
+                    title = title,
+                    amountMinor = transaction.amountMinor,
+                    transactionTypeId = transaction.transactionTypeId,
+                    categoryId = transaction.categoryId,
+                    paymentTypeId = transaction.paymentTypeId,
+                    note = transaction.note,
+                    isPinned = true,
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
+    fun removeFavorite(id: String) {
+        viewModelScope.launch {
+            favoriteTransactionRepository.removeFavoriteById(id)
+        }
     }
 
     fun saveTransaction(

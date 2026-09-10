@@ -107,6 +107,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import android.widget.Toast
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import com.mknlabs.expensetracker.models.FavoriteTransaction
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -213,6 +224,11 @@ fun AddTransactionScreen(
     initialTransactionTypeId: Int? = null,
     autoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
+    favorites: List<FavoriteTransaction> = emptyList(),
+    isFavoriteToggled: Boolean = false,
+    onToggleFavorite: () -> Unit = {},
+    onFavoriteSelected: () -> Unit = {},
+    onRemoveFavorite: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
@@ -301,6 +317,7 @@ fun AddTransactionScreen(
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
+        var isFavoritesSheetVisible by rememberSaveable { mutableStateOf(false) }
         var showDuplicateWarning by rememberSaveable { mutableStateOf(false) }
         var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
@@ -480,6 +497,19 @@ fun AddTransactionScreen(
             selectedPayment != null &&
             (!isRecurringEnabled || (recurringCount != null && recurringCount > 0))
 
+        // Prefills the form from a tapped favorite template and notifies the
+        // caller (which resets the star toggle) before confirming to the user.
+        val applyFavorite: (FavoriteTransaction) -> Unit = { favorite ->
+            amountInput = formatEditableAmount(favorite.amountMinor.toMajorUnits())
+            selectedTransactionTypeId = favorite.transactionTypeId
+            selectedCategoryId = favorite.categoryId
+            selectedPaymentId = favorite.paymentTypeId
+            note = favorite.note
+            noteDraft = favorite.note
+            onFavoriteSelected()
+            Toast.makeText(context, context.getString(R.string.msg_favorite_copied), Toast.LENGTH_SHORT).show()
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -534,8 +564,20 @@ fun AddTransactionScreen(
                             )
                         }
                     }
-                    // Reset form icon (only in add mode)
+                    // Star toggle: save this transaction as a favorite template (only in add mode)
                     if (!isEditMode) {
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (isFavoriteToggled) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                tint = if (isFavoriteToggled) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
+                        // Reset form icon (only in add mode)
                         IconButton(onClick = {
                             selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
                             selectedCategoryId = 0
@@ -840,6 +882,18 @@ fun AddTransactionScreen(
                     }
                 }
 
+                if (!isEditMode) {
+                    // Quick-entry favorites carousel, anchored just above the Add
+                    // button for thumb reachability.
+                    QuickFavoritesRow(
+                        favorites = favorites,
+                        currencyId = currencyId,
+                        onSelectFavorite = applyFavorite,
+                        onOpenAllSheet = { isFavoritesSheetVisible = true }
+                    )
+                    Spacer(modifier = Modifier.height(if (dense) 8.dp else 10.dp))
+                }
+
                 Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
 
                 Row(
@@ -1061,6 +1115,21 @@ fun AddTransactionScreen(
                     }) {
                         Text(stringResource(R.string.label_no), fontWeight = FontWeight.Bold)
                     }
+                }
+            )
+        }
+
+        if (isFavoritesSheetVisible) {
+            FavoritesBottomSheet(
+                favorites = favorites,
+                currencyId = currencyId,
+                availableCategories = availableCategories,
+                availablePaymentMethods = availablePaymentMethods,
+                onDismiss = { isFavoritesSheetVisible = false },
+                onSelect = applyFavorite,
+                onDelete = { id ->
+                    onRemoveFavorite(id)
+                    Toast.makeText(context, context.getString(R.string.msg_favorite_removed), Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -1872,6 +1941,253 @@ private fun KeypadKey(
                     fontWeight = FontWeight.Medium,
                     fontSize = if (compact) 24.sp else 26.sp
                 )
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickFavoritesRow(
+    favorites: List<FavoriteTransaction>,
+    currencyId: Int,
+    onSelectFavorite: (FavoriteTransaction) -> Unit,
+    onOpenAllSheet: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.title_quick_favorites),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item(key = "all_favorites") {
+                FilterChip(
+                    selected = false,
+                    onClick = onOpenAllSheet,
+                    label = {
+                        Text(
+                            text = stringResource(R.string.label_all_favorites),
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        labelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+            items(favorites, key = { it.id }) { favorite ->
+                SuggestionChip(
+                    onClick = { onSelectFavorite(favorite) },
+                    label = {
+                        Text(
+                            text = "${favorite.title} • ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    )
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FavoritesBottomSheet(
+    favorites: List<FavoriteTransaction>,
+    currencyId: Int,
+    availableCategories: List<CategoryType>,
+    availablePaymentMethods: List<PaymentType>,
+    onDismiss: () -> Unit,
+    onSelect: (FavoriteTransaction) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val filteredList = remember(favorites, searchQuery) {
+        if (searchQuery.isBlank()) {
+            favorites
+        } else {
+            favorites.filter { it.title.contains(searchQuery, ignoreCase = true) }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.85f)
+                .padding(horizontal = 16.dp)
+                .navigationBarsPadding()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.title_favorite_templates),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.desc_close),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(stringResource(R.string.placeholder_search_favorites)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (filteredList.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.msg_no_favorites_yet),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.msg_no_favorites_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredList, key = { it.id }) { favorite ->
+                        FavoriteTemplateRow(
+                            favorite = favorite,
+                            currencyId = currencyId,
+                            availableCategories = availableCategories,
+                            availablePaymentMethods = availablePaymentMethods,
+                            onSelect = {
+                                onSelect(favorite)
+                                onDismiss()
+                            },
+                            onDelete = { onDelete(favorite.id) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoriteTemplateRow(
+    favorite: FavoriteTransaction,
+    currencyId: Int,
+    availableCategories: List<CategoryType>,
+    availablePaymentMethods: List<PaymentType>,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val categoryLabel = availableCategories.firstOrNull { it.id == favorite.categoryId }?.name
+    val paymentLabel = availablePaymentMethods.firstOrNull { it.id == favorite.paymentTypeId }?.name
+    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" • ")
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = favorite.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        Text(
+            text = formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 8.dp, end = 4.dp)
+        )
+
+        Button(
+            onClick = onSelect,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(stringResource(R.string.label_copy))
+        }
+
+        IconButton(onClick = onDelete) {
+            Icon(
+                imageVector = Icons.Rounded.Delete,
+                contentDescription = stringResource(R.string.desc_delete_favorite),
+                tint = MaterialTheme.colorScheme.error
             )
         }
     }
