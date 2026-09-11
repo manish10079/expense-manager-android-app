@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -86,7 +87,8 @@ fun CashFlowStatsCard(
     onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     yearExpense: String = "",
     yearIncome: String = "",
-    yearNetBalance: String = ""
+    yearNetBalance: String = "",
+    dropdownExpanded: Boolean = false
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -132,7 +134,7 @@ fun CashFlowStatsCard(
         if (isBalanceHidden) "****" else netBalance
     }
 
-    var dropdownExpanded by remember { mutableStateOf(false) }
+    var dropdownExpanded by remember { mutableStateOf(dropdownExpanded) }
 
     Box(
         modifier = Modifier
@@ -205,14 +207,29 @@ fun CashFlowStatsCard(
 
                     DropdownMenu(
                         expanded = dropdownExpanded,
-                        onDismissRequest = { dropdownExpanded = false }
+                        onDismissRequest = { dropdownExpanded = false },
+                        modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .clip(RoundedCornerShape(24.dp))
                     ) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.label_this_month_cash_flow)) },
+                            text = {
+                                Box(modifier = Modifier.padding(start = 16.dp, top = 0.dp, bottom = 0.dp)) {
+                                    Text(
+                                        stringResource(R.string.label_this_month_cash_flow),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            },
                             onClick = {
                                 onPeriodChanged(CashFlowPeriod.THIS_MONTH)
                                 dropdownExpanded = false
                             },
+                            contentPadding = PaddingValues(0.dp),
                             colors = MenuDefaults.itemColors(
                                 textColor = if (selectedPeriod == CashFlowPeriod.THIS_MONTH)
                                     MaterialTheme.colorScheme.primary
@@ -221,11 +238,19 @@ fun CashFlowStatsCard(
                             )
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.label_this_year_cash_flow)) },
+                            text = {
+                                Box(modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 2.dp)) {
+                                    Text(
+                                        stringResource(R.string.label_this_year_cash_flow),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            },
                             onClick = {
                                 onPeriodChanged(CashFlowPeriod.THIS_YEAR)
                                 dropdownExpanded = false
                             },
+                            contentPadding = PaddingValues(0.dp),
                             colors = MenuDefaults.itemColors(
                                 textColor = if (selectedPeriod == CashFlowPeriod.THIS_YEAR)
                                     MaterialTheme.colorScheme.primary
@@ -362,6 +387,24 @@ private fun CashFlowStatsCardLightPreview() {
                 yearExpense = "₹15,000",
                 yearIncome = "₹50,000",
                 yearNetBalance = "₹35,000"
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Cash Flow Stats Card - Dropdown Open")
+@Composable
+private fun CashFlowStatsCardDropdownPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            CashFlowStatsCard(
+                expense = "₹1,200",
+                income = "₹500",
+                netBalance = "-₹700",
+                yearExpense = "₹15,000",
+                yearIncome = "₹50,000",
+                yearNetBalance = "₹35,000",
+                dropdownExpanded = true
             )
         }
     }

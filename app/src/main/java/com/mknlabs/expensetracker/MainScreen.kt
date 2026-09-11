@@ -1,8 +1,17 @@
 package com.mknlabs.expensetracker
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -39,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +82,8 @@ import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.ui.components.MainScaffold
 import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
@@ -83,7 +95,10 @@ import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.ui.screens.OnboardingScreen
 import com.mknlabs.expensetracker.ui.screens.SmsChangeRoute
+import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.ui.viewmodels.MainViewModel
+import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import com.mknlabs.expensetracker.ui.screens.AuthRoute
@@ -95,6 +110,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
+import java.util.UUID
 import com.mknlabs.expensetracker.workers.AutoBackupScheduler
 import com.mknlabs.expensetracker.utils.DeviceIntegrityUtils
 import com.mknlabs.expensetracker.utils.AppRestartUtils
@@ -559,9 +575,9 @@ fun MainScreen(
                         navigationState.updateBottomBarVisibility(false)
                     }
                     com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_SPEAK_TO_ADD -> {
-                        navigationState.updateAddTransactionDraftAutoStartVoice(true)
-                        navigationState.navigateTo(AppRoute.AddTransaction)
+                        navigationState.navigateTo(AppRoute.Home)
                         navigationState.updateBottomBarVisibility(false)
+                        navigationState.updateShowVoiceInputSheet(true)
                     }
                     com.mknlabs.expensetracker.utils.AppShortcutManager.ACTION_COPY_BUDGET -> {
                         navigationState.navigateTo(AppRoute.Budget)
@@ -1399,6 +1415,130 @@ fun MainScreen(
                     SmsNotificationManager.cancel(context)
                     smsChangeRequest = null
                     showToast(context.getString(R.string.toast_sms_transaction_saved))
+                }
+            )
+        }
+
+        // ── Voice Input Sheet (Speak-to-Add shortcut) ──
+        if (navigationState.showVoiceInputSheet && isUiInteractive) {
+            val voiceViewModel: VoiceAddViewModel = hiltViewModel()
+            val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
+
+            val hasMicPermission = remember {
+                ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                    PackageManager.PERMISSION_GRANTED
+            }
+            var micPermissionGranted by remember { mutableStateOf(hasMicPermission) }
+
+            val voicePermissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+            ) { granted ->
+                micPermissionGranted = granted
+                if (granted) {
+                    voiceViewModel.resetToListening()
+                } else {
+                    voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
+                }
+            }
+
+            // SpeechRecognizer for voice capture
+            val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+            DisposableEffect(speechRecognizer) {
+                onDispose { speechRecognizer.destroy() }
+            }
+
+            // Auto-start listening when sheet opens
+            LaunchedEffect(navigationState.showVoiceInputSheet) {
+                if (navigationState.showVoiceInputSheet) {
+                    if (micPermissionGranted) {
+                        voiceViewModel.resetToListening()
+                    } else {
+                        voicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                }
+            }
+
+            // Start speech recognizer when state is LISTENING
+            LaunchedEffect(voiceUiState.sheetState) {
+                if (voiceUiState.sheetState == VoiceSheetState.LISTENING) {
+                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                        putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                    }
+                    speechRecognizer.setRecognitionListener(object : RecognitionListener {
+                        override fun onReadyForSpeech(params: Bundle?) {}
+                        override fun onBeginningOfSpeech() {}
+                        override fun onRmsChanged(rmsdB: Float) {}
+                        override fun onBufferReceived(buffer: ByteArray?) {}
+                        override fun onEndOfSpeech() {}
+                        override fun onError(error: Int) {
+                            val errorResId = when (error) {
+                                SpeechRecognizer.ERROR_NO_MATCH,
+                                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
+                                SpeechRecognizer.ERROR_NETWORK,
+                                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
+                                SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
+                                else -> R.string.msg_voice_error_recognizer
+                            }
+                            voiceViewModel.onRecognizerError(errorResId)
+                        }
+                        override fun onResults(results: Bundle?) {
+                            val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                                ?.firstOrNull().orEmpty()
+                            voiceViewModel.onSpeechResult(text)
+                        }
+                        override fun onPartialResults(partialResults: Bundle?) {
+                            val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                                ?.firstOrNull().orEmpty()
+                            voiceViewModel.onPartialResult(text)
+                        }
+                        override fun onEvent(eventType: Int, params: Bundle?) {}
+                    })
+                    speechRecognizer.startListening(intent)
+                }
+            }
+
+            val currencySymbol = remember(selectedCurrencyId) {
+                com.mknlabs.expensetracker.utils.getCurrency(selectedCurrencyId).currencySymbol
+            }
+
+            VoiceInputSheet(
+                sheetState = voiceUiState.sheetState,
+                transcript = voiceUiState.transcript,
+                parsedTransaction = voiceUiState.parsedTransaction,
+                errorMessage = voiceUiState.errorMessageResId?.let { context.getString(it) },
+                currencySymbol = currencySymbol,
+                onDismissRequest = {
+                    speechRecognizer.cancel()
+                    voiceViewModel.dismiss()
+                    navigationState.updateShowVoiceInputSheet(false)
+                },
+                onConfirm = { parsed ->
+                    val now = System.currentTimeMillis()
+                    val transaction = Transaction(
+                        id = UUID.randomUUID().toString(),
+                        note = parsed.note,
+                        createdAt = now,
+                        amountMinor = parsed.amountMinor,
+                        transactionTypeId = parsed.transactionTypeId,
+                        paymentTypeId = parsed.paymentTypeId ?: 1,
+                        categoryId = parsed.categoryId,
+                        contentHash = null,
+                        syncState = SyncState.PENDING_UPLOAD,
+                        isDeleted = false,
+                        updatedAt = now,
+                        sourceRecurringRuleId = null
+                    )
+                    mainViewModel.saveTransaction(transaction, null, null)
+                    speechRecognizer.cancel()
+                    voiceViewModel.dismiss()
+                    navigationState.updateShowVoiceInputSheet(false)
+                    showToast(context.getString(R.string.toast_sms_transaction_saved))
+                },
+                onRetry = {
+                    speechRecognizer.cancel()
+                    voiceViewModel.resetToListening()
                 }
             )
         }
