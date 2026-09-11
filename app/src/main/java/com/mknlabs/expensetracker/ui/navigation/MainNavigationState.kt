@@ -45,6 +45,9 @@ class MainNavigationState(
     var addTransactionDraftAutoStartVoice by mutableStateOf(false)
         private set
 
+    var showVoiceInputSheet by mutableStateOf(false)
+        private set
+
     fun navigateTo(route: AppRoute) {
         if (route == AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
             previousRoute = currentRoute
@@ -84,6 +87,10 @@ class MainNavigationState(
         addTransactionDraftAutoStartVoice = autoStart
     }
 
+    fun updateShowVoiceInputSheet(show: Boolean) {
+        showVoiceInputSheet = show
+    }
+
     fun clearTransactionDraftContext() {
         selectedTransaction = null
         addTransactionDraftAmount = null
@@ -91,6 +98,7 @@ class MainNavigationState(
         addTransactionDraftCategoryId = null
         addTransactionDraftTypeId = null
         addTransactionDraftAutoStartVoice = false
+        showVoiceInputSheet = false
     }
 
     /**

@@ -356,6 +356,10 @@ fun AddTransactionScreen(
                 // voice sheet starts listening — same as the mic button tap.
                 focusManager.clearFocus(force = true)
                 keyboardController?.hide()
+                // Give the keyboard time to fully dismiss before the
+                // SpeechRecognizer starts — otherwise it races with the
+                // animation and fails with the "try again" error.
+                kotlinx.coroutines.delay(300)
                 if (micPermissionGranted) {
                     voiceViewModel.resetToListening()
                     isVoiceSheetVisible = true
