@@ -1653,20 +1653,35 @@ private fun CurrencyAmountCard(
                             )
                         )
                     }
-                    // Sync when text changes externally (e.g. delete button, load existing)
+                    // Sync text from parent while preserving the cursor position
+                    // so mid-text insertion keeps working after validation.
                     LaunchedEffect(amountText) {
                         if (textFieldValue.text != amountText) {
+                            val cursorPos = textFieldValue.selection.start
+                                .coerceAtMost(amountText.length)
                             textFieldValue = TextFieldValue(
                                 text = amountText,
-                                selection = TextRange(amountText.length)
+                                selection = TextRange(cursorPos)
                             )
                         }
                     }
                     BasicTextField(
                         value = textFieldValue,
                         onValueChange = { newValue ->
-                            textFieldValue = newValue
-                            onAmountChange(newValue.text)
+                            val validated = validateAmountChange(
+                                newValue.text, textFieldValue.text
+                            )
+                            val cursorPos = newValue.selection.start
+                                .coerceAtMost(validated.length)
+                            // Always update so cursor taps are honoured
+                            textFieldValue = TextFieldValue(
+                                text = validated,
+                                selection = TextRange(cursorPos)
+                            )
+                            // Only propagate when the text actually changed
+                            if (validated != amountText) {
+                                onAmountChange(validated)
+                            }
                         },
                         modifier = Modifier
                             .focusRequester(focusRequester)
