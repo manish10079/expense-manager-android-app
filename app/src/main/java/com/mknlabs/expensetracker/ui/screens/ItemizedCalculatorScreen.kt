@@ -118,7 +118,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 
@@ -237,7 +236,9 @@ fun ItemizedCalculatorScreen(
                         previewResult = viewModel.calculatePreview(),
                         expression = viewModel.buildExpression(),
                         isEvaluated = uiState.shouldResetNormalDisplay,
-                        onAction = viewModel::handleNormalAction
+                        onAction = viewModel::handleNormalAction,
+                        onCursorMoved = viewModel::setCursorPositionFromDisplay,
+                        cursorDisplayPosition = viewModel.getDisplayPositionFromCursor()
                     )
                 }
             }
@@ -404,7 +405,9 @@ private fun NormalCalculatorContent(
     previewResult: String,
     expression: String?,
     isEvaluated: Boolean = false,
-    onAction: (String) -> Unit
+    onAction: (String) -> Unit,
+    onCursorMoved: (Int) -> Unit = {},
+    cursorDisplayPosition: Int = 0
 ) {
     // Landscape / short windows: stack display and keypad SIDE BY SIDE so the
     // keypad keeps its full height instead of being pushed off-screen by the
@@ -423,7 +426,9 @@ private fun NormalCalculatorContent(
                 resultValue = previewResult,
                 expression = expression,
                 isEvaluated = isEvaluated,
-                compact = true
+                compact = true,
+                onCursorMoved = onCursorMoved,
+                cursorDisplayPosition = cursorDisplayPosition
             )
             CalculatorKeypad(
                 modifier = Modifier
@@ -441,7 +446,9 @@ private fun NormalCalculatorContent(
             NormalCalculatorDisplay(
                 resultValue = previewResult,
                 expression = expression,
-                isEvaluated = isEvaluated
+                isEvaluated = isEvaluated,
+                onCursorMoved = onCursorMoved,
+                cursorDisplayPosition = cursorDisplayPosition
             )
             CalculatorKeypad(
                 modifier = Modifier
@@ -572,7 +579,7 @@ private fun CalculatorKeypad(
             )
         }
 
-        // Row 5: 0, (, ), =
+        // Row 5: 0, (), =  — MIUI-style single smart bracket key
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -581,19 +588,15 @@ private fun CalculatorKeypad(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(2f),
                 label = "0",
                 onClick = { onAction("0") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "(",
-                onClick = { onAction("(") }
-            )
-            CalculatorKeyButton(
-                modifier = Modifier.weight(1f),
-                label = ")",
-                onClick = { onAction(")") }
+                label = "()",
+                pill = true,
+                onClick = { onAction("BRACKET") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
@@ -602,6 +605,7 @@ private fun CalculatorKeypad(
                 onClick = { onAction("=") }
             )
         }
+
     }
 }
 
@@ -611,11 +615,20 @@ private fun NormalCalculatorDisplay(
     resultValue: String,
     expression: String?,
     isEvaluated: Boolean = false,
-    compact: Boolean = false
+    compact: Boolean = false,
+    onCursorMoved: (Int) -> Unit = {},
+    cursorDisplayPosition: Int = 0
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
+
+    // Hide the soft keyboard immediately whenever the field gains focus.
+    // The field is readOnly=false so the cursor blinks, but we never want
+    // the native keyboard — the calculator has its own keypad.
+    LaunchedEffect(isFocused) {
+        if (isFocused) keyboardController?.hide()
+    }
 
     val rawExprText = expression ?: resultValue
     val expressionText = if (rawExprText == "0" || rawExprText.isBlank()) {
@@ -624,18 +637,6 @@ private fun NormalCalculatorDisplay(
         rawExprText
     } else {
         "= $rawExprText"
-    }
-
-    LaunchedEffect(isFocused) {
-        if (isFocused) {
-            // The field stays EDITABLE so the cursor is visible when tapped, but
-            // the native soft keyboard must never appear — the calculator has its
-            // own keypad. Hide right on focus and again after the frame the IME
-            // would normally animate in, so it cannot pop up.
-            keyboardController?.hide()
-            delay(100)
-            keyboardController?.hide()
-        }
     }
 
     // The expression line always keeps its normal editing style — it must
@@ -695,16 +696,40 @@ private fun NormalCalculatorDisplay(
                     .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                val textFieldValue = remember(expressionText) {
-                    TextFieldValue(
-                        text = expressionText,
-                        selection = TextRange(expressionText.length)
+                // Keep a persistent TextFieldValue so the cursor position is
+                // preserved across recompositions (tap-to-position works).
+                var textFieldValue by remember {
+                    mutableStateOf(
+                        TextFieldValue(
+                            text = expressionText,
+                            selection = TextRange(expressionText.length)
+                        )
                     )
+                }
+                // Sync text from the ViewModel while keeping the cursor position.
+                if (textFieldValue.text != expressionText) {
+                    textFieldValue = textFieldValue.copy(text = expressionText)
+                }
+                // When the ViewModel cursor changes (e.g. after a keypad press),
+                // move the BasicTextField cursor to match.
+                LaunchedEffect(cursorDisplayPosition) {
+                    if (textFieldValue.selection.start != cursorDisplayPosition) {
+                        textFieldValue = textFieldValue.copy(
+                            selection = TextRange(cursorDisplayPosition)
+                        )
+                    }
                 }
 
                 BasicTextField(
                     value = textFieldValue,
-                    onValueChange = {},
+                    onValueChange = { newValue ->
+                        // The only change we care about is cursor movement;
+                        // text edits come from the ViewModel, not the keyboard.
+                        if (newValue.selection != textFieldValue.selection) {
+                            onCursorMoved(newValue.selection.start)
+                        }
+                        textFieldValue = newValue
+                    },
                     readOnly = false,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
