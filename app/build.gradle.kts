@@ -29,6 +29,14 @@ android {
         }
     }
 
+    // Load local properties for secrets (gitignored)
+    val localPropertiesFile = rootProject.file("localProperties.properties")
+    val localProperties = Properties().apply {
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { load(it) }
+        }
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
@@ -52,6 +60,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // RevenueCat API key from local properties (kept secret)
+            buildConfigField("String", "REVENUE_CAT_API_KEY",
+                "\"${localProperties.getProperty('revenueCatApiKey', '').replace('\"', '\\\"')}\"")
         }
         // Macrobenchmark target variant: a release-equivalent build (non-debuggable,
         // minified) signed with the debug key. Official docs: create a copy of the
@@ -64,6 +75,19 @@ android {
             // instrumentation runner's startup dependencies resolve inside the app process
             // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
             proguardFiles("benchmark-rules.pro")
+        }
+        // Debug build type
+        debug {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            // Keep androidx.tracing/test/benchmark in the target APK so the Macrobenchmark
+            // instrumentation runner's startup dependencies resolve inside the app process
+            // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
+            proguardFiles("benchmark-rules.pro")
+            // RevenueCat API key from local properties (kept secret)
+            buildConfigField("String", "REVENUE_CAT_API_KEY",
+                "\"${localProperties.getProperty('revenueCatApiKey', '').replace('\"', '\\\"')}\"")
         }
     }
     compileOptions {
@@ -137,6 +161,9 @@ dependencies {
     // Paging 3
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
+
+    // RevenueCat
+    implementation("com.revenuecat.purchases:purchases:6.+")
 
     // Hilt
     implementation(libs.hilt.android)
