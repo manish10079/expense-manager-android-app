@@ -1669,8 +1669,13 @@ private fun CurrencyAmountCard(
                             val validated = validateAmountChange(
                                 newValue.text, textFieldValue.text
                             )
-                            val cursorPos = newValue.selection.start
-                                .coerceAtMost(validated.length)
+                            // Special case: if the field became "0" after validation
+                            // (e.g., user deleted the last digit), place cursor at the end
+                            val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
+                                validated.length
+                            } else {
+                                newValue.selection.start.coerceAtMost(validated.length)
+                            }
                             // Always update so cursor taps are honoured
                             textFieldValue = TextFieldValue(
                                 text = validated,
