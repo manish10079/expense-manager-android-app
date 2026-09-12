@@ -682,6 +682,8 @@ private fun NormalCalculatorDisplay(
             horizontalAlignment = Alignment.End
         ) {
             // TOP: Full Expression Line
+            // No clickable on the parent Box — let BasicTextField handle taps
+            // directly so the cursor lands exactly where the user touched.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -692,7 +694,6 @@ private fun NormalCalculatorDisplay(
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
                         shape = RoundedCornerShape(22.dp)
                     )
-                    .clickable { focusRequester.requestFocus() }
                     .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
@@ -723,8 +724,8 @@ private fun NormalCalculatorDisplay(
                 BasicTextField(
                     value = textFieldValue,
                     onValueChange = { newValue ->
-                        // The only change we care about is cursor movement;
-                        // text edits come from the ViewModel, not the keyboard.
+                        // Always update so cursor taps are honoured,
+                        // even when only the selection changes.
                         if (newValue.selection != textFieldValue.selection) {
                             onCursorMoved(newValue.selection.start)
                         }
@@ -739,6 +740,11 @@ private fun NormalCalculatorDisplay(
                         textAlign = TextAlign.End
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox = { innerTextField ->
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            innerTextField()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
