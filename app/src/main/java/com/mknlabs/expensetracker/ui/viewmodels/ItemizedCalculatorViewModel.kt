@@ -346,7 +346,13 @@ class ItemizedCalculatorViewModel @Inject constructor(
     }
 
     private fun handleOperator(op: String, ts: NormalCalculatorTokenState): NormalCalculatorTokenState {
-        val base      = clearIfEvaluated(ts)
+        // After pressing "=", keep the result and continue with the operator
+        // (e.g. 5 + 3 = 8, press + → 8 +, type 7 → 8 + 7)
+        val base = if (ts.isEvaluated) {
+            ts.copy(isEvaluated = false, previewResult = "")
+        } else {
+            ts
+        }
         val newToken  = toOperatorToken(op)
         val lastToken = if (base.cursorPosition > 0) base.tokens[base.cursorPosition - 1] else null
         return when {

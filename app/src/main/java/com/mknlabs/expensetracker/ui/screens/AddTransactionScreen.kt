@@ -562,9 +562,7 @@ fun AddTransactionScreen(
                                 keyboardController?.hide()
                                 onDeleteClick()
                             },
-                            modifier = Modifier
-                                .size(28.dp)
-                                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f), CircleShape)
+                            modifier = Modifier.size(28.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Delete,

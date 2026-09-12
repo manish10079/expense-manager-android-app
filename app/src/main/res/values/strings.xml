@@ -1684,7 +1684,7 @@
     <string name="msg_pro_pass_already_active">Your Pro Pass is currently active. Please try redeeming a new code after your current Pro Pass expires.</string>
     <string name="btn_ok">OK</string>
     <string name="msg_enter_pro_pass_code">Enter your unique alphanumeric ProPass code below.</string>
-    <string name="placeholder_pro_pass_code">e.g. PASS-1234-ABCD</string>
+    <string name="placeholder_pro_pass_code">e.g. EXPN-T0C3-HG41-NM1</string>
     <string name="btn_activate_pro">Activate Pro</string>
     <string name="msg_pro_pass_activated">ProPass Activated! You now have %1$d days of premium access.</string>
     <string name="error_invalid_pro_pass">Invalid or expired ProPass code.</string>
