@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.ui.viewmodels
 
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.mknlabs.expensetracker.data.constants.defaultAppSettings
 import com.mknlabs.expensetracker.data.local.FakePreferencesDataStore
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
@@ -8,11 +11,14 @@ import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
 import com.mknlabs.expensetracker.data.local.room.query.HomeSummaryRow
 import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.TransactionTotalsRow
 import com.mknlabs.expensetracker.data.local.room.query.TopCategoryRow
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
+import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
+import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
@@ -257,13 +263,9 @@ class SmsChangeViewModelTest {
         override suspend fun updateSyncStates(ids: List<String>, syncState: String) = error("unexpected")
         override suspend fun deleteAll() = error("unexpected")
         override suspend fun purgeOldDeleted(threshold: Long) = error("unexpected")
-        override suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
-        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
-        override suspend fun getActiveTransactionsPagedForYear(yearStartMillis: Long, yearEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
-        override suspend fun getActiveTransactionsPagedForMonth(monthStartMillis: Long, monthEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
-        override suspend fun getActiveTransactionsPagedForDay(dayStartMillis: Long, dayEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity> = error("unexpected")
-        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int = error("unexpected")
-        override suspend fun countActiveTransactions(): Int = error("unexpected")
+        override fun getTransactionsPagingSource(query: SupportSQLiteQuery): PagingSource<Int, TransactionEntity> = error("unexpected")
+        override suspend fun getTransactionIds(query: SupportSQLiteQuery): List<String> = error("unexpected")
+        override fun observeTransactionTotals(query: SupportSQLiteQuery): Flow<TransactionTotalsRow> = error("unexpected")
         override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean = error("unexpected")
     }
 
@@ -291,10 +293,9 @@ class SmsChangeViewModelTest {
         override suspend fun softDeleteTransaction(id: String) = error("unexpected")
         override suspend fun softDeleteTransactions(ids: List<String>) = error("unexpected")
         override suspend fun deleteAllTransactions() = error("unexpected")
-        override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> = error("unexpected")
-        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, pageSize: Int, pageNumber: Int): List<Transaction> = error("unexpected")
-        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int = error("unexpected")
-        override suspend fun countActiveTransactions(): Int = error("unexpected")
+        override fun getTransactionsPaging(query: TransactionQuery): Flow<PagingData<Transaction>> = error("unexpected")
+        override suspend fun getTransactionIds(query: TransactionQuery): List<String> = error("unexpected")
+        override fun observeTransactionTotals(query: TransactionQuery): Flow<TransactionTotals> = error("unexpected")
         override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary = error("unexpected")
         override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean = error("unexpected")
     }
