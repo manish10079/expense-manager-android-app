@@ -120,12 +120,16 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
@@ -153,6 +157,7 @@ import com.mknlabs.expensetracker.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.ui.horizontalSwipe
 import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
+import com.mknlabs.expensetracker.ui.models.buildTransactionsFeed
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -210,9 +215,82 @@ fun TransactionScreen(
         )
     }
     val uiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
+    val pagingItems = transactionsViewModel.transactions.collectAsLazyPagingItems()
+
+    // Paging 3 gives the screen the loaded pages; the feed builder turns them into
+    // the grouped list (date headers, summaries, ads) the LazyColumn renders.
+    val loadedTransactions = pagingItems.itemSnapshotList.items
+    val paymentTypeNames = remember(paymentMethods) {
+        paymentTypeMap.mapValues { it.value.name } + paymentMethods.associate { it.id to it.name }
+    }
+    val todayLabel = stringResource(R.string.label_today)
+    val yesterdayLabel = stringResource(R.string.label_yesterday)
+    val tomorrowLabel = stringResource(R.string.label_tomorrow)
+    val fallbackCategoryName = stringResource(R.string.label_other)
+
+    val transactionsFeed = remember(
+        loadedTransactions,
+        uiState.selectedPeriodFilter,
+        uiState.appliedSortType,
+        uiState.isFilterActive,
+        uiState.summaryIncomeMinor,
+        uiState.summaryExpenseMinor,
+        uiState.customizationSettings,
+        currencyId,
+        amountFormatPreferences,
+        dateFormatPattern,
+        timeFormat,
+        paymentTypeNames,
+        categories,
+        fallbackCategoryName,
+        todayLabel,
+        yesterdayLabel,
+        tomorrowLabel
+    ) {
+        buildTransactionsFeed(
+            transactions = loadedTransactions,
+            periodFilter = uiState.selectedPeriodFilter,
+            sortType = uiState.appliedSortType,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            dateFormatPattern = dateFormatPattern,
+            timeFormat = timeFormat,
+            paymentTypeNames = paymentTypeNames,
+            categories = categories,
+            customizationSettings = uiState.customizationSettings,
+            isFilterActive = uiState.isFilterActive,
+            pinnedIncomeMinor = uiState.summaryIncomeMinor,
+            pinnedExpenseMinor = uiState.summaryExpenseMinor,
+            fallbackCategoryName = fallbackCategoryName,
+            todayLabel = todayLabel,
+            yesterdayLabel = yesterdayLabel,
+            tomorrowLabel = tomorrowLabel
+        )
+    }
+
+    val loadedTransactionIds = remember(transactionsFeed) {
+        transactionsFeed.items
+            .filterIsInstance<TransactionListItemUi.TransactionRow>()
+            .map { it.card.id }
+            .toSet()
+    }
+    val pagingIndexById = remember(loadedTransactions) {
+        loadedTransactions.mapIndexed { index, transaction -> transaction.id to index }.toMap()
+    }
 
     TransactionScreenContent(
         uiState = uiState,
+        transactionItems = transactionsFeed.items,
+        pinnedSummary = transactionsFeed.pinnedSummary,
+        pagingItems = pagingItems,
+        pagingIndexById = pagingIndexById,
+        isRefreshing = pagingItems.loadState.refresh is LoadState.Loading,
+        isAppending = pagingItems.loadState.append is LoadState.Loading,
+        isRefreshError = pagingItems.loadState.refresh is LoadState.Error,
+        isAppendError = pagingItems.loadState.append is LoadState.Error,
+        onRetry = { pagingItems.retry() },
+        isSummaryLoading = uiState.isSummaryLoading,
+        loadedCount = pagingItems.itemCount,
         isAdsEnabled = isAdsEnabled,
         isProUser = isProUser,
         onBackClick = onBackClick,
@@ -223,7 +301,7 @@ fun TransactionScreen(
         onDeleteTransaction = onDeleteTransaction,
         onRestoreTransaction = onRestoreTransaction,
         clearSelection = transactionsViewModel::clearSelection,
-        selectAll = transactionsViewModel::selectAll,
+        selectAll = { transactionsViewModel.selectAll(loadedTransactionIds) },
         toggleSelection = transactionsViewModel::toggleSelection,
         enterSelectionMode = transactionsViewModel::enterSelectionMode,
         updateSearchQuery = transactionsViewModel::updateSearchQuery,
@@ -242,7 +320,6 @@ fun TransactionScreen(
         applyFilters = transactionsViewModel::applyFilters,
         resetFilters = transactionsViewModel::resetFilters,
         deleteSelectedTransactions = transactionsViewModel::deleteSelectedTransactions,
-        loadNextPage = transactionsViewModel::loadNextPage,
         selectAllInQuery = transactionsViewModel::selectAllInQuery
     )
 }
@@ -285,6 +362,17 @@ private fun HeaderCircleActionButton(
 @Composable
 private fun TransactionScreenContent(
     uiState: TransactionsScreenUiState,
+    transactionItems: List<TransactionListItemUi> = emptyList(),
+    pinnedSummary: TransactionListItemUi.SummaryCard? = null,
+    pagingItems: LazyPagingItems<Transaction>? = null,
+    pagingIndexById: Map<String, Int> = emptyMap(),
+    isRefreshing: Boolean = false,
+    isAppending: Boolean = false,
+    isRefreshError: Boolean = false,
+    isAppendError: Boolean = false,
+    onRetry: () -> Unit = {},
+    isSummaryLoading: Boolean = false,
+    loadedCount: Int = 0,
     isAdsEnabled: Boolean,
     isProUser: Boolean = false,
     onBackClick: () -> Unit,
@@ -314,7 +402,6 @@ private fun TransactionScreenContent(
     applyFilters: () -> Unit,
     resetFilters: () -> Unit,
     deleteSelectedTransactions: () -> Unit,
-    loadNextPage: () -> Unit,
     selectAllInQuery: () -> Unit
 ) {
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -326,22 +413,9 @@ private fun TransactionScreenContent(
     rememberBindAddFabToScroll(lazyListState)
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
 
-    // Scroll-to-load: trigger next page when user scrolls near the bottom of the list
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
-            val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: 0
-            val totalItems = lazyListState.layoutInfo.totalItemsCount
-            totalItems > 0 && lastVisibleIndex >= (totalItems - 8).coerceAtLeast(0) &&
-                !uiState.pagination.isLoading && uiState.pagination.hasMore
-        }
-    }
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            loadNextPage()
-        }
-    }
-    
+    // Paging 3 loads the next page automatically once the list scrolls near the
+    // end of the loaded data, so there is no scroll listener here anymore.
+
     val emptyTransactionMessages = stringArrayResource(R.array.empty_transaction_messages).toList()
 
     val emptyTransactionMessage = remember(
@@ -677,17 +751,42 @@ private fun TransactionScreenContent(
 
             Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 
-            // Pinned summary rendered above the lazy list (out of the scrollable area)
-            uiState.pinnedSummary?.let { summary ->
+            // Pinned summary rendered above the lazy list (out of the scrollable
+            // area). While the totals are still being computed the same composable
+            // renders placeholders, so the card keeps its height and the list below
+            // never jumps when the numbers arrive.
+            pinnedSummary?.let { summary ->
                 TransactionSummaryCard(
-                    income = summary.totalIncome,
-                    expense = summary.totalExpense,
+                    income = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalIncome,
+                    expense = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalExpense,
                     periodLabel = summary.periodLabel
                 )
                 Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
             }
 
-            if (uiState.transactionItems.isEmpty()) {
+            if (transactionItems.isEmpty() && isRefreshError) {
+                // A failed query must not fall through to the "no transactions"
+                // state, which would tell the user they have no data when the load
+                // actually broke.
+                TransactionListErrorState(
+                    onRetry = onRetry,
+                    modifier = Modifier.weight(1f)
+                )
+            } else if (transactionItems.isEmpty() && isRefreshing) {
+                // First load (or a filter change) — Paging is still fetching page 1.
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(28.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 2.dp
+                    )
+                }
+            } else if (transactionItems.isEmpty()) {
                 var isEmptyMessageVisible by remember { mutableStateOf(false) }
 
                 LaunchedEffect(emptyTransactionMessage) {
@@ -745,24 +844,21 @@ private fun TransactionScreenContent(
                     contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                         items(
-                            items = uiState.transactionItems,
-                            key = { item ->
-                                when (item) {
-                                    is TransactionListItemUi.Header -> item.id
-                                    is TransactionListItemUi.TransactionRow -> item.card.id
-                                    is TransactionListItemUi.SummaryCard -> item.id
-                                    is TransactionListItemUi.Ad -> item.id
-                                }
-                            },
-                            contentType = { item ->
-                                when (item) {
-                                    is TransactionListItemUi.Header -> "header"
-                                    is TransactionListItemUi.TransactionRow -> "transaction"
-                                    is TransactionListItemUi.SummaryCard -> "summary"
-                                    is TransactionListItemUi.Ad -> "ad"
+                            count = transactionItems.size,
+                            key = { index -> transactionItems[index].stableKey },
+                            contentType = { index -> transactionItems[index].contentType }
+                        ) { index ->
+                            val item = transactionItems[index]
+                            // Touch the backing Paging item for the rows the user has
+                            // scrolled to. That is how Paging learns the viewport moved
+                            // and prefetches the next page.
+                            if (item is TransactionListItemUi.TransactionRow) {
+                                pagingItems?.let { items ->
+                                    pagingIndexById[item.card.id]?.let { pagingIndex ->
+                                        items[pagingIndex]
+                                    }
                                 }
                             }
-                        ) { item ->
                             // Modifier.animateItem() keeps every item keyed stably
                             // (transaction id), so when one is removed the remaining
                             // cards animate upward to close the gap instead of
@@ -872,8 +968,28 @@ private fun TransactionScreenContent(
                             }
                         }
 
-                        // Loading indicator at the bottom when fetching next page
-                        if (uiState.pagination.isLoading) {
+                        // Bottom slot: a retry affordance if the next page failed,
+                        // otherwise a spinner while Paging appends.
+                        if (isAppendError) {
+                            item(key = "append_error") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(Dimens.PaddingMedium),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    TextButton(onClick = onRetry) {
+                                        Text(
+                                            text = stringResource(R.string.label_retry),
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+                        } else if (isAppending) {
                             item(key = "loading_indicator") {
                                 Box(
                                     modifier = Modifier
@@ -895,8 +1011,8 @@ private fun TransactionScreenContent(
             // "Select all N in this view" link — only when selection mode is active
             // and not all items are loaded yet
             val showSelectAllLink = uiState.isSelectionMode
-                && uiState.pagination.loadedCount < uiState.pagination.totalCount
-                && uiState.pagination.totalCount > 0
+                && loadedCount < uiState.totalTransactionCount
+                && uiState.totalTransactionCount > 0
 
             AnimatedVisibility(
                 visible = showSelectAllLink,
@@ -914,7 +1030,7 @@ private fun TransactionScreenContent(
                         Text(
                             text = stringResource(
                                 R.string.label_select_all_in_view,
-                                uiState.pagination.totalCount
+                                uiState.totalTransactionCount
                             ),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.SemiBold
@@ -1470,7 +1586,6 @@ private fun TransactionsScreenEmptyStatePreviewLight() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {},
             selectAllInQuery = {}
         )
     }
@@ -1515,7 +1630,6 @@ private fun TransactionsScreenEmptyStatePreviewDark() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {},
             selectAllInQuery = {}
         )
     }
@@ -1560,7 +1674,6 @@ private fun TransactionsScreenMultiConfigPreview() {
             applyFilters = {},
             resetFilters = {},
             deleteSelectedTransactions = {},
-            loadNextPage = {},
             selectAllInQuery = {}
         )
     }
@@ -1724,6 +1837,64 @@ private fun TypewriterText(
         softWrap = softWrap
     )
 }
+
+/**
+ * Shown when Paging fails to load the first page of the current query. Replaces
+ * the empty state, which would otherwise claim there is no data, and offers a
+ * retry through `LazyPagingItems.retry()`.
+ */
+@Composable
+private fun TransactionListErrorState(
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 28.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(R.string.msg_transactions_load_failed),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
+            TextButton(onClick = onRetry) {
+                Text(
+                    text = stringResource(R.string.label_retry),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+/** Placeholder shown in the pinned summary while the totals are being computed. */
+private const val SUMMARY_PLACEHOLDER = "—"
+
+/** Stable LazyColumn key for a feed item (unchanged from the list-entry ids). */
+private val TransactionListItemUi.stableKey: String
+    get() = when (this) {
+        is TransactionListItemUi.Header -> id
+        is TransactionListItemUi.TransactionRow -> card.id
+        is TransactionListItemUi.SummaryCard -> id
+        is TransactionListItemUi.Ad -> id
+    }
+
+/** Recyclable content type so Compose reuses the right item composables. */
+private val TransactionListItemUi.contentType: String
+    get() = when (this) {
+        is TransactionListItemUi.Header -> "header"
+        is TransactionListItemUi.TransactionRow -> "transaction"
+        is TransactionListItemUi.SummaryCard -> "summary"
+        is TransactionListItemUi.Ad -> "ad"
+    }
 
 
 

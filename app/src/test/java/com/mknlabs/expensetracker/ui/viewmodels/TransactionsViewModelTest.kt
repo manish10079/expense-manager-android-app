@@ -4,22 +4,20 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
+import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
 import com.mknlabs.expensetracker.monetization.AccessStatus
-import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
-import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
-import java.util.Calendar
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +27,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import androidx.lifecycle.viewModelScope
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -71,7 +69,9 @@ class TransactionsViewModelTest {
             transactionRepository = fakeRepository,
             observeAccessStatusUseCase = observeAccessStatusUseCase
         )
-        
+        // Run filter updates without a debounce delay.
+        viewModel.filterDebounceMillis = 0
+
         // Start collecting the flow to keep it active during tests
         viewModel.viewModelScope.launch(UnconfinedTestDispatcher()) {
             viewModel.uiState.collect { }
@@ -162,189 +162,138 @@ class TransactionsViewModelTest {
     }
 
     @Test
-    fun `daily view pins summary above the lazy list`() {
-        // Arrange
-        val now = System.currentTimeMillis()
-        updateInputsWithSummaries(
-            transactions = listOf(
-                transaction("t_income", now, 1_000L, typeId = 1),
-                transaction("t_expense", now, 4_000L, typeId = 2)
-            )
-        )
-        viewModel.updatePeriodFilter(TransactionPeriodFilter.DAILY)
-
+    fun `selectAll selects every loaded id and selecting again clears`() {
         // Act
-        awaitPinnedSummary("summary_daily", expectedRows = 2)
+        viewModel.selectAll(setOf("a", "b"))
 
-        // Assert: summary is pinned (out of the lazy list), no summary inside the list
-        val state = viewModel.uiState.value
-        assertNotNull(state.pinnedSummary)
-        assertEquals("summary_daily", state.pinnedSummary?.id)
-        assertTrue(state.transactionItems.none { it is TransactionListItemUi.SummaryCard })
-        assertEquals(2, state.transactionItems.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
+        // Assert
+        assertEquals(setOf("a", "b"), viewModel.uiState.value.selectedTransactionIds)
+        assertTrue(viewModel.uiState.value.isSelectionMode)
+
+        // Act: selecting the same set again toggles off
+        viewModel.selectAll(setOf("a", "b"))
+
+        // Assert
+        assertTrue(viewModel.uiState.value.selectedTransactionIds.isEmpty())
+        assertFalse(viewModel.uiState.value.isSelectionMode)
     }
 
     @Test
-    fun `monthly view pins summary above the lazy list`() {
+    fun `selectAllInQuery selects ids returned by the repository query`() {
         // Arrange
-        val now = System.currentTimeMillis()
-        updateInputsWithSummaries(
-            transactions = listOf(
-                transaction("t_income", now, 2_000L, typeId = 1),
-                transaction("t_expense", now, 3_000L, typeId = 2)
-            )
+        fakeRepository.stubTransactions = listOf(
+            transaction("t_1", System.currentTimeMillis()),
+            transaction("t_2", System.currentTimeMillis())
         )
+
+        // Act
+        viewModel.selectAllInQuery()
+
+        // Assert
+        awaitUiState { it.selectedTransactionIds == setOf("t_1", "t_2") }
+        assertTrue(viewModel.uiState.value.isSelectionMode)
+    }
+
+    // ─── Query pushdown ───────────────────────────────────────────────
+
+    @Test
+    fun `search query is pushed into the paging query`() {
+        viewModel.updateSearchQuery("coffee")
+
+        awaitQuery { it.search == "coffee" }
+    }
+
+    @Test
+    fun `category filter is pushed into the paging query`() {
+        viewModel.toggleCategory(7)
+
+        awaitQuery { it.categoryIds == listOf(7) }
+    }
+
+    @Test
+    fun `amount range is pushed into the paging query in minor units`() {
+        viewModel.updateMinAmount("10")
+        viewModel.updateMaxAmount("25.5")
+
+        awaitQuery { it.minAmountMinor == 1_000L && it.maxAmountMinor == 2_550L }
+    }
+
+    @Test
+    fun `monthly period bounds the query window`() {
         viewModel.updatePeriodFilter(TransactionPeriodFilter.MONTHLY)
 
-        // Act
-        awaitPinnedSummary("summary_monthly", expectedRows = 2)
-
-        // Assert: summary is pinned, not inside the lazy list
-        val state = viewModel.uiState.value
-        assertNotNull(state.pinnedSummary)
-        assertEquals("summary_monthly", state.pinnedSummary?.id)
-        assertTrue(state.transactionItems.none { it is TransactionListItemUi.SummaryCard })
-        assertEquals(2, state.transactionItems.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
-    }
-
-    @Test
-    fun `yearly view pins per-year summary and keeps per-month summaries in the list`() {
-        // Arrange
-        val now = System.currentTimeMillis()
-        // Use a second-month timestamp that is guaranteed to stay within the current year
-        // (a fixed -5 days offset could cross into the previous year when run in early January).
-        val previousMonthTimestamp = previousMonthInCurrentYear()
-        updateInputsWithSummaries(
-            transactions = listOf(
-                transaction("t_income", now, 2_000L, typeId = 1),
-                transaction("t_expense", now, 3_000L, typeId = 2),
-                transaction("t_old_expense", previousMonthTimestamp, 1_500L, typeId = 2)
-            )
-        )
-        viewModel.updatePeriodFilter(TransactionPeriodFilter.YEARLY)
-
-        // Act
-        awaitPinnedSummary("summary_yearly", expectedRows = 3)
-
-        // Assert: per-year summary is pinned, per-month summaries still inside the list
-        val state = viewModel.uiState.value
-        assertNotNull(state.pinnedSummary)
-        assertEquals("summary_yearly", state.pinnedSummary?.id)
-        assertTrue(state.transactionItems.any { it is TransactionListItemUi.SummaryCard })
-        assertEquals(3, state.transactionItems.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
-    }
-
-    @Test
-    fun `ad items are injected after every 5th transaction row with stable keys and alternating placements`() {
-        // Arrange: 25 transactions spanning multiple months -> ad slots after rows 5..25
-        val now = System.currentTimeMillis()
-        val previousMonth = previousMonthInCurrentYear()
-        updateInputsWithSummaries(
-            transactions = (1..25).map { i ->
-                transaction(
-                    id = "t_$i",
-                    createdAt = if (i % 2 == 0) previousMonth else now,
-                    amountMinor = (i * 1_000L),
-                    typeId = 2
-                )
-            }
-        )
-        viewModel.updatePeriodFilter(TransactionPeriodFilter.YEARLY)
-
-        // Act
-        awaitUiState { it.transactionItems.any { item -> item is TransactionListItemUi.Ad } }
-
-        // Assert: Ad items are own list entries with stable keys, placed after every 5th row
-        val state = viewModel.uiState.value
-        val items = state.transactionItems
-        val adSlots = items.filterIsInstance<TransactionListItemUi.Ad>()
-        assertEquals(listOf("ad_5", "ad_10", "ad_15", "ad_20", "ad_25"), adSlots.map { it.id })
-        // The two list placements alternate (list1, list2, list1, ...) so both AdMob units serve equally
-        assertEquals(
-            listOf(
-                AdPlacement.TRANSACTIONS_LIST,
-                AdPlacement.TRANSACTIONS_LIST_2,
-                AdPlacement.TRANSACTIONS_LIST,
-                AdPlacement.TRANSACTIONS_LIST_2,
-                AdPlacement.TRANSACTIONS_LIST
-            ),
-            adSlots.map { it.placement }
-        )
-        assertEquals(25, items.filterIsInstance<TransactionListItemUi.TransactionRow>().size)
-
-        // The list order interleaves ads after every 5th transaction row
-        var rowCount = 0
-        items.forEach { item ->
-            when (item) {
-                is TransactionListItemUi.TransactionRow -> rowCount++
-                is TransactionListItemUi.Ad -> assertTrue(rowCount in listOf(5, 10, 15, 20, 25))
-                else -> Unit
-            }
+        awaitQuery {
+            it.startMillis != TransactionQuery.NO_START && it.endMillis != TransactionQuery.NO_END
         }
     }
 
-    /** Returns a timestamp in a month before the current one, guaranteed to be in the current year. */
-    private fun previousMonthInCurrentYear(): Long {
-        val calendar = Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH)
-        return Calendar.getInstance().apply {
-            set(Calendar.YEAR, currentYear)
-            set(
-                Calendar.MONTH,
-                if (currentMonth == Calendar.JANUARY) currentMonth else currentMonth - 1
-            )
-            set(Calendar.DAY_OF_MONTH, 15)
-            set(Calendar.HOUR_OF_DAY, 12)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+    @Test
+    fun `all period leaves the query window unbounded`() {
+        viewModel.updatePeriodFilter(TransactionPeriodFilter.ALL)
+
+        awaitQuery {
+            it.startMillis == TransactionQuery.NO_START && it.endMillis == TransactionQuery.NO_END
+        }
     }
 
     @Test
-    fun `summaries disabled leaves pinned summary null`() {
-        // Arrange: summaries disabled (default settings)
-        val now = System.currentTimeMillis()
+    fun `total count comes from the repository aggregate`() {
         fakeRepository.stubTransactions = listOf(
-            transaction("t_expense", now, 4_000L, typeId = 2)
+            transaction("t_1", System.currentTimeMillis()),
+            transaction("t_2", System.currentTimeMillis())
         )
-        viewModel.updateInputs(
-            categories = emptyList(),
-            paymentMethods = emptyList(),
-            currencyId = DEFAULT_CURRENCY_ID,
-            amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
-            timeFormat = DEFAULT_TIME_FORMAT,
-            customizationSettings = TransactionCardCustomizationSettings(showTransactionListSummaries = false)
-        )
-        viewModel.updatePeriodFilter(TransactionPeriodFilter.MONTHLY)
+        viewModel.updateSearchQuery("x")
 
-        // Act
-        awaitUiState { it.transactionItems.isNotEmpty() }
-
-        // Assert
-        assertNull(viewModel.uiState.value.pinnedSummary)
-        assertTrue(viewModel.uiState.value.transactionItems.none { it is TransactionListItemUi.SummaryCard })
+        awaitUiState { it.totalTransactionCount == 2 }
     }
 
-    private fun updateInputsWithSummaries(transactions: List<Transaction>) {
-        fakeRepository.stubTransactions = transactions
-        viewModel.updateInputs(
-            categories = emptyList(),
-            paymentMethods = emptyList(),
-            currencyId = DEFAULT_CURRENCY_ID,
-            amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
-            timeFormat = DEFAULT_TIME_FORMAT,
-            customizationSettings = TransactionCardCustomizationSettings(showTransactionListSummaries = true)
-        )
+    @Test
+    fun `summary totals come from the repository aggregate not the loaded rows`() {
+        // The repository reports totals for the whole filtered set; the loaded rows
+        // are deliberately different so a page-summing bug would be caught here.
+        fakeRepository.stubTransactions = listOf(transaction("t_1", System.currentTimeMillis(), 9_999L))
+        fakeRepository.stubIncomeMinor = 5_000L
+        fakeRepository.stubExpenseMinor = 2_500L
+
+        viewModel.updateSearchQuery("x")
+
+        awaitUiState {
+            it.summaryIncomeMinor == 5_000L &&
+                it.summaryExpenseMinor == 2_500L &&
+                it.totalTransactionCount == 1 &&
+                !it.isSummaryLoading
+        }
+    }
+
+    @Test
+    fun `free text filters are debounced`() {
+        // A delay this long never elapses under the test scheduler, so the query
+        // must still be the one from before the keystroke.
+        viewModel.filterDebounceMillis = 60_000L
+
+        viewModel.updateSearchQuery("coffee")
+
+        // The text field (and its chip) update straight away...
+        assertEquals("coffee", viewModel.uiState.value.searchQuery)
+        // ...while the query rebuild waits for the user to stop typing.
+        assertTrue(fakeRepository.lastQuery?.search != "coffee")
+    }
+
+    @Test
+    fun `resetFilters restores the default query`() {
+        viewModel.updateSearchQuery("coffee")
+        viewModel.toggleCategory(7)
+        awaitQuery { it.search == "coffee" && it.categoryIds == listOf(7) }
+
+        viewModel.resetFilters()
+
+        awaitQuery { it.search == null && it.categoryIds.isEmpty() && it.transactionTypeIds == listOf(1, 2) }
     }
 
     private fun transaction(
         id: String,
         createdAt: Long,
-        amountMinor: Long,
+        amountMinor: Long = 1_000L,
         typeId: Int = 2
     ): Transaction {
         return Transaction(
@@ -359,14 +308,20 @@ class TransactionsViewModelTest {
         )
     }
 
-    /** Rebuilds run on Dispatchers.Default asynchronously, so poll the state until the summary appears. */
-    private fun awaitPinnedSummary(expectedId: String, expectedRows: Int, timeoutMs: Long = 5_000) {
-        awaitUiState(
-            timeoutMs = timeoutMs,
-            condition = { 
-                it.pinnedSummary?.id == expectedId && 
-                it.transactionItems.filterIsInstance<TransactionListItemUi.TransactionRow>().size == expectedRows 
-            }
+    /**
+     * Query updates are published from a `Dispatchers.IO` coroutine, so poll until
+     * the repository has seen the expected query.
+     */
+    private fun awaitQuery(timeoutMs: Long = 5_000, predicate: (TransactionQuery) -> Boolean) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            val query = fakeRepository.lastQuery
+            if (query != null && predicate(query)) return
+            Thread.sleep(10)
+        }
+        assertTrue(
+            "Query condition not met within ${timeoutMs}ms (last=${fakeRepository.lastQuery})",
+            fakeRepository.lastQuery?.let(predicate) == true
         )
     }
 
@@ -379,18 +334,12 @@ class TransactionsViewModelTest {
         assertTrue("UI state condition not met within ${timeoutMs}ms", condition(viewModel.uiState.value))
     }
 
-    @Test
-    fun `selectAll selects all visible transaction rows`() {
-        // Act
-        viewModel.selectAll()
-
-        // Assert
-        assertTrue(viewModel.uiState.value.selectedTransactionIds.isEmpty())
-    }
-
     // Manual Fake implementation
     private class FakeTransactionRepository : TransactionRepository {
         var stubTransactions: List<Transaction> = emptyList()
+        var stubIncomeMinor: Long = 0L
+        var stubExpenseMinor: Long = 0L
+        var lastQuery: TransactionQuery? = null
 
         override fun observeActiveTransactions(): Flow<List<Transaction>> = flowOf(stubTransactions)
         override fun observeHomeSummary(
@@ -408,27 +357,38 @@ class TransactionsViewModelTest {
         override suspend fun softDeleteTransaction(id: String) {}
         override suspend fun softDeleteTransactions(ids: List<String>) {}
         override suspend fun deleteAllTransactions() {}
-        override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> {
-            val start = pageNumber * pageSize
-            return stubTransactions.drop(start).take(pageSize)
+
+        override fun getTransactionsPaging(query: TransactionQuery): Flow<PagingData<Transaction>> {
+            lastQuery = query
+            return flowOf(PagingData.from(stubTransactions))
         }
-        override suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, pageSize: Int, pageNumber: Int): List<Transaction> {
-            val filtered = stubTransactions.filter { it.createdAt in startMillis until endMillis }
-            val start = pageNumber * pageSize
-            return filtered.drop(start).take(pageSize)
+
+        override suspend fun getTransactionIds(query: TransactionQuery): List<String> {
+            lastQuery = query
+            return stubTransactions.map { it.id }
         }
-        override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int {
-            return stubTransactions.count { it.createdAt in startMillis until endMillis }
+
+        override fun observeTransactionTotals(query: TransactionQuery): Flow<TransactionTotals> {
+            lastQuery = query
+            return flowOf(
+                TransactionTotals(
+                    incomeMinor = stubIncomeMinor,
+                    expenseMinor = stubExpenseMinor,
+                    totalCount = stubTransactions.size
+                )
+            )
         }
-        override suspend fun countActiveTransactions(): Int = stubTransactions.size
-        override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary = TransactionSummary(0,0,0,0,0)
+
+        override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary =
+            TransactionSummary(0, 0, 0, 0, 0)
+
         override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean {
             return stubTransactions.any { it.createdAt in startMillis until endMillis }
         }
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {
-        override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> = 
+        override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> =
             flowOf(AccessStatus.Granted)
         override suspend fun grantTemporaryAccess(feature: Feature, optionId: String?, durationMillis: Long) {}
         override suspend fun becomePremium() {}

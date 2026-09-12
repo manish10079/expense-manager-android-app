@@ -1,12 +1,16 @@
 package com.mknlabs.expensetracker.data.local.room.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Upsert
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.data.local.room.query.HomeRecentTransactionRow
 import com.mknlabs.expensetracker.data.local.room.query.HomeSummaryRow
 import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
+import com.mknlabs.expensetracker.data.local.room.query.TransactionTotalsRow
 import com.mknlabs.expensetracker.data.local.room.query.TopCategoryRow
 import kotlinx.coroutines.flow.Flow
 
@@ -19,80 +23,36 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
     suspend fun getActiveTransactions(): List<TransactionEntity>
 
-    /**
-     * Paged query for the Transactions screen. Returns a window of [limit] rows
-     * starting at [offset], ordered by occurred_at DESC.
-     */
-    @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC LIMIT :limit OFFSET :offset")
-    suspend fun getActiveTransactionsPaged(limit: Int, offset: Int): List<TransactionEntity>
+    // ============================================================================
+    // Paging 3
+    //
+    // One dynamic query drives the Transactions screen. The repository builds the
+    // WHERE clause (period, search, type/category/payment/amount filters) and the
+    // ORDER BY, so filtering, sorting and counting all happen in SQLite and stay
+    // consistent across pages.
+    // ============================================================================
 
     /**
-     * Paged query filtered to a specific time range [startMillis] to [endMillis].
+     * Paging 3: active transactions matching the repository-built query.
+     * `observedEntities` lets Room invalidate the paging stream automatically
+     * whenever the transactions table changes.
      */
-    @Query("""
-        SELECT * FROM transactions
-        WHERE is_deleted = 0
-          AND occurred_at >= :startMillis
-          AND occurred_at < :endMillis
-        ORDER BY occurred_at DESC
-        LIMIT :limit OFFSET :offset
-    """)
-    suspend fun getActiveTransactionsPagedInRange(startMillis: Long, endMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
+    @RawQuery(observedEntities = [TransactionEntity::class])
+    fun getTransactionsPagingSource(query: SupportSQLiteQuery): PagingSource<Int, TransactionEntity>
+
+    /** Ids of every active transaction matching the query (for "select all in view"). */
+    @RawQuery(observedEntities = [TransactionEntity::class])
+    suspend fun getTransactionIds(query: SupportSQLiteQuery): List<String>
 
     /**
-     * Paged query filtered to a specific year. [yearStartMillis] and [yearEndMillis]
-     * are the epoch-millis boundaries of the year (inclusive start, exclusive end).
+     * Income, expense and row count for every active transaction matching the
+     * query — not just the pages Paging has loaded.
+     *
+     * Observed, so the summary card and "select all N in this view" are re-derived
+     * whenever the transactions table changes (add / edit / delete / sync).
      */
-    @Query("""
-        SELECT * FROM transactions
-        WHERE is_deleted = 0
-          AND occurred_at >= :yearStartMillis
-          AND occurred_at < :yearEndMillis
-        ORDER BY occurred_at DESC
-        LIMIT :limit OFFSET :offset
-    """)
-    suspend fun getActiveTransactionsPagedForYear(yearStartMillis: Long, yearEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
-
-    /**
-     * Paged query filtered to a specific month. [monthStartMillis] and [monthEndMillis]
-     * are the epoch-millis boundaries of the month (inclusive start, exclusive end).
-     */
-    @Query("""
-        SELECT * FROM transactions
-        WHERE is_deleted = 0
-          AND occurred_at >= :monthStartMillis
-          AND occurred_at < :monthEndMillis
-        ORDER BY occurred_at DESC
-        LIMIT :limit OFFSET :offset
-    """)
-    suspend fun getActiveTransactionsPagedForMonth(monthStartMillis: Long, monthEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
-
-    /**
-     * Paged query filtered to a specific day. [dayStartMillis] and [dayEndMillis]
-     * are the epoch-millis boundaries of the day (inclusive start, exclusive end).
-     */
-    @Query("""
-        SELECT * FROM transactions
-        WHERE is_deleted = 0
-          AND occurred_at >= :dayStartMillis
-          AND occurred_at < :dayEndMillis
-        ORDER BY occurred_at DESC
-        LIMIT :limit OFFSET :offset
-    """)
-    suspend fun getActiveTransactionsPagedForDay(dayStartMillis: Long, dayEndMillis: Long, limit: Int, offset: Int): List<TransactionEntity>
-
-    /** Count of active transactions in a time range. */
-    @Query("""
-        SELECT COUNT(*) FROM transactions
-        WHERE is_deleted = 0
-          AND occurred_at >= :startMillis
-          AND occurred_at < :endMillis
-    """)
-    suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int
-
-    /** Count of all active transactions (no time filter). */
-    @Query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0")
-    suspend fun countActiveTransactions(): Int
+    @RawQuery(observedEntities = [TransactionEntity::class])
+    fun observeTransactionTotals(query: SupportSQLiteQuery): Flow<TransactionTotalsRow>
 
     /** Check whether any active transaction exists in a time range. */
     @Query("""
