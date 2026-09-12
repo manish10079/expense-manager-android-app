@@ -278,11 +278,9 @@ fun AppLockScreen(
                     // shows without waiting for the next 1s poll tick.
                     refreshLockoutSeconds()
                     if (isLockedOut) {
-                        // Lockout active: don't chain into forgot-recovery or the
-                        // "try again" message — the countdown message already shows.
+                        // Lockout active: don't show the "try again" message,
+                        // the countdown message already shows.
                         enteredPin = ""
-                    } else if (failedUnlockAttempts >= 3) {
-                        triggerForgotRecovery()
                     } else {
                         enteredPin = ""
                         message = incorrectPinMsg

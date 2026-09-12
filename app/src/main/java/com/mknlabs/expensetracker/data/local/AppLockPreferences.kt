@@ -33,7 +33,6 @@ private const val KEY_LAST_UNLOCKED_AT_MILLIS = "last_unlocked_at_millis"
 private const val KEY_APP_LOCK_PIN_ITERATIONS = "app_lock_pin_iterations"
 private const val KEY_SECURITY_ANSWER_ITERATIONS = "security_answer_iterations"
 private const val KEY_FAILED_ATTEMPT_COUNT = "failed_attempt_count"
-private const val KEY_LOCKOUT_BLOCK_INDEX = "lockout_block_index"
 private const val KEY_LOCKOUT_UNTIL_MILLIS = "lockout_until_millis"
 private const val KEY_STORAGE_MIGRATION_COMPLETE = "storage_migration_complete"
 
@@ -44,12 +43,13 @@ private const val HASH_VERSION_PBKDF2_SHA1_V1 = "pbkdf2_sha1_v1"
 private const val PBKDF2_ALGORITHM_SHA256 = "PBKDF2WithHmacSHA256"
 private const val PBKDF2_ALGORITHM_SHA1 = "PBKDF2WithHmacSHA1"
 private const val SALT_LENGTH_BYTES = 16
-private const val PBKDF2_ITERATIONS = 120_000
+private const val PBKDF2_ITERATIONS = 10_000
 private const val PBKDF2_KEY_LENGTH_BITS = 256
 
-// Brute-force lockout: 5 failures -> 30s, doubling per subsequent 5-failure block, capped at 15 min.
-private const val MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT = 5
-private const val LOCKOUT_INITIAL_MILLIS = 30_000L
+// Brute-force lockout: first 3 attempts free, then each wrong attempt triggers escalating lockout.
+// 4th wrong -> 1min, 5th wrong -> 2min, 6th wrong -> 4min, ... capped at 15 min.
+private const val FREE_ATTEMPTS_BEFORE_LOCKOUT = 3
+private const val LOCKOUT_INITIAL_MILLIS = 60_000L
 private const val LOCKOUT_MAX_MILLIS = 15 * 60_000L
 
 // In-memory only: the window during which an external activity (photo/file picker,
@@ -531,11 +531,11 @@ object AppLockPreferences {
     }
 
     /**
-     * Records one failed PIN/answer attempt. Every [MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT]
-     * consecutive failures arms the next lockout window: block 0 -> 30s, block 1 -> 60s,
-     * block 2 -> 120s, ... capped at 15 min. The counter + block index are persisted so
-     * the escalation survives app restarts, and attempts made DURING a lockout window are
-     * ignored (they neither extend it nor advance the counter).
+     * Records one failed PIN/answer attempt. First 3 attempts are free. Starting from
+     * the 4th wrong attempt, each failure triggers immediate exponential lockout:
+     * 4th -> 1min, 5th -> 2min, 6th -> 4min, ... capped at 15 min.
+     * The counter is persisted so the escalation survives app restarts, and attempts
+     * made DURING a lockout window are ignored (they neither extend it nor advance the counter).
      */
     fun registerFailedAttempt(
         context: Context,
@@ -548,34 +548,32 @@ object AppLockPreferences {
 
         val newCount = preferences.getInt(KEY_FAILED_ATTEMPT_COUNT, 0) + 1
         val editor = preferences.edit().putInt(KEY_FAILED_ATTEMPT_COUNT, newCount)
-        if (newCount >= MAX_FAILED_ATTEMPTS_BEFORE_LOCKOUT) {
-            val blockIndex = preferences.getInt(KEY_LOCKOUT_BLOCK_INDEX, 0)
-            editor
-                .putLong(
-                    KEY_LOCKOUT_UNTIL_MILLIS,
-                    currentTimeMillis + computeLockoutDurationMillis(blockIndex)
-                )
-                .putInt(KEY_FAILED_ATTEMPT_COUNT, 0)
-                .putInt(KEY_LOCKOUT_BLOCK_INDEX, blockIndex + 1)
+
+        // After the first 3 free attempts, each subsequent failure triggers immediate lockout
+        if (newCount > FREE_ATTEMPTS_BEFORE_LOCKOUT) {
+            // Calculate lockout block index: 4th attempt = block 0, 5th = block 1, etc.
+            val lockoutBlockIndex = newCount - FREE_ATTEMPTS_BEFORE_LOCKOUT - 1
+            editor.putLong(
+                KEY_LOCKOUT_UNTIL_MILLIS,
+                currentTimeMillis + computeLockoutDurationMillis(lockoutBlockIndex)
+            )
         }
         // commit() (not apply()): the lockout is the "persist across restarts"
         // enforcement — an async write could be lost to a process kill right after
-        // the 5th failure, silently clearing the lockout.
+        // a failure, silently clearing the lockout.
         editor.commit()
     }
 
     /**
-     * Clears the failed-attempt counter, the lockout escalation block, and any
-     * active lockout window.
+     * Clears the failed-attempt counter and any active lockout window.
      */
     fun resetFailedAttempts(context: Context) {
         prefs(context)
             .edit()
             .remove(KEY_FAILED_ATTEMPT_COUNT)
-            .remove(KEY_LOCKOUT_BLOCK_INDEX)
             .remove(KEY_LOCKOUT_UNTIL_MILLIS)
             // commit(): clearing the counter is also security-relevant (it re-arms
-            // the escalation from block 0), so it must survive a process kill.
+            // the escalation from attempt 1), so it must survive a process kill.
             .commit()
     }
 
@@ -588,8 +586,9 @@ object AppLockPreferences {
     }
 
     /**
-     * Lockout duration for a given lockout block index: block 0 -> 30s, block 1 -> 60s,
-     * block 2 -> 120s, ... capped at [LOCKOUT_MAX_MILLIS] (15 min).
+     * Lockout duration for a given lockout block index:
+     * block 0 (4th attempt) -> 1min, block 1 (5th) -> 2min, block 2 (6th) -> 4min,
+     * ... capped at [LOCKOUT_MAX_MILLIS] (15 min).
      */
     internal fun computeLockoutDurationMillis(
         lockoutBlockIndex: Int,
@@ -647,7 +646,6 @@ object AppLockPreferences {
             .remove(KEY_APP_LOCK_PIN_ITERATIONS)
             .remove(KEY_SECURITY_ANSWER_ITERATIONS)
             .remove(KEY_FAILED_ATTEMPT_COUNT)
-            .remove(KEY_LOCKOUT_BLOCK_INDEX)
             .remove(KEY_LOCKOUT_UNTIL_MILLIS)
             .remove(KEY_LAST_BACKGROUND_AT_MILLIS)
             .remove(KEY_LAST_UNLOCKED_AT_MILLIS)
