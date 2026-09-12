@@ -1873,4 +1873,12 @@
     <string name="shortcut_speak_to_add_long">Speak To Add</string>
     <string name="shortcut_copy_budget">Copy Budget</string>
     <string name="shortcut_copy_budget_long">Copy Budget</string>
+
+    <!-- RevenueCat -->
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <!-- Entitlement Guard -->
+    <string name="msg_feature_locked_pro_required">This feature requires a Pro subscription</string>
+    <string name="msg_subscribe_to_unlock">Subscribe to unlock this feature and support ongoing development</string>
+    <string name="btn_upgrade">Upgrade to Pro</string>
 </resources>
