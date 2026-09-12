@@ -50,6 +50,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +62,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -579,7 +583,7 @@ private fun CalculatorKeypad(
             )
         }
 
-        // Row 5: 0, (), =  — MIUI-style single smart bracket key
+        // Row 5: 0, (, ), =
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -588,15 +592,21 @@ private fun CalculatorKeypad(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
-                modifier = Modifier.weight(2f),
+                modifier = Modifier.weight(1f),
                 label = "0",
                 onClick = { onAction("0") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "()",
+                label = "(",
                 pill = true,
-                onClick = { onAction("BRACKET") }
+                onClick = { onAction("(") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = ")",
+                pill = true,
+                onClick = { onAction(")") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
@@ -622,12 +632,36 @@ private fun NormalCalculatorDisplay(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
-    // Hide the soft keyboard immediately whenever the field gains focus.
-    // The field is readOnly=false so the cursor blinks, but we never want
-    // the native keyboard — the calculator has its own keypad.
+    // SideEffect runs after EVERY successful composition - most aggressive approach
+    SideEffect {
+        if (isFocused) {
+            keyboardController?.hide()
+        }
+    }
+
+    // Aggressively suppress the keyboard: hide it immediately on focus
+    // and keep hiding it whenever the field is focused.
     LaunchedEffect(isFocused) {
-        if (isFocused) keyboardController?.hide()
+        if (isFocused) {
+            keyboardController?.hide()
+        }
+    }
+
+    // Additional layer: continuously suppress keyboard while focused
+    DisposableEffect(Unit) {
+        onDispose {
+            keyboardController?.hide()
+        }
+    }
+
+    // Watch for any interaction and suppress keyboard
+    val isInteractionFocused by interactionSource.collectIsFocusedAsState()
+    LaunchedEffect(isInteractionFocused) {
+        if (isInteractionFocused) {
+            keyboardController?.hide()
+        }
     }
 
     val rawExprText = expression ?: resultValue
@@ -740,6 +774,7 @@ private fun NormalCalculatorDisplay(
                         textAlign = TextAlign.End
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    interactionSource = interactionSource,
                     decorationBox = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterEnd) {
                             innerTextField()
@@ -750,6 +785,10 @@ private fun NormalCalculatorDisplay(
                         .focusRequester(focusRequester)
                         .onFocusChanged { state ->
                             isFocused = state.isFocused
+                            // Immediately hide keyboard on any focus change
+                            if (state.isFocused) {
+                                keyboardController?.hide()
+                            }
                         }
                 )
             }
