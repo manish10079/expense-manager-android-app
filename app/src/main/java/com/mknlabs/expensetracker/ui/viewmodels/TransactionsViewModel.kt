@@ -11,8 +11,6 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
-import com.mknlabs.expensetracker.domain.mapper.buildTransactionListItems
-import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SortType
@@ -23,12 +21,10 @@ import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_30_DAYS
 import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_60_DAYS
 import com.mknlabs.expensetracker.ui.components.FILTER_DATE_LAST_7_DAYS
 import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
-import com.mknlabs.expensetracker.ui.models.PaginationState
-import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getDefaultOrder
-import com.mknlabs.expensetracker.utils.sortTransactions
+import com.mknlabs.expensetracker.utils.toMinorUnits
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -38,17 +34,27 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
-import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 
 import com.mknlabs.expensetracker.utils.UiText
@@ -58,6 +64,8 @@ data class TransactionsScreenUiState(
     val searchQuery: String = "",
     val selectedSort: String = DEFAULT_SORT_BY,
     val selectedOrder: SortType = DEFAULT_SORT_ORDER,
+    /** Sort actually applied to the query; the list groups/orders days by this. */
+    val appliedSortType: SortType = DEFAULT_SORT_ORDER,
     val selectedDateRange: String? = null,
     val selectedCustomStartDate: Long? = null,
     val selectedCustomEndDate: Long? = null,
@@ -73,36 +81,39 @@ data class TransactionsScreenUiState(
     val selectedPeriodLabel: UiText = UiText.dynamic(""),
     val availableCategories: List<CategoryType> = emptyList(),
     val paymentModes: List<PaymentType> = emptyList(),
-    val transactionItems: List<TransactionListItemUi> = emptyList(),
-    val pinnedSummary: TransactionListItemUi.SummaryCard? = null,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     val isSelectionMode: Boolean = false,
     val selectedTransactionIds: Set<String> = emptySet(),
     val isDragging: Boolean = false,
-    val pagination: PaginationState = PaginationState(),
-    val isFilterActive: Boolean = false
+    val isFilterActive: Boolean = false,
+    /** Rows matching the current query, loaded or not. Drives "select all N in this view". */
+    val totalTransactionCount: Int = 0,
+    /** Income total for the whole query — not just the pages loaded in memory. */
+    val summaryIncomeMinor: Long = 0,
+    /** Expense total for the whole query — not just the pages loaded in memory. */
+    val summaryExpenseMinor: Long = 0,
+    /** True while the totals for the current query are still being computed. */
+    val isSummaryLoading: Boolean = true
 )
 
 private const val KEY_CUSTOM_RANGE = "KEY_CUSTOM_RANGE"
+
+/**
+ * Free-text filters (search, min/max amount) wait this long after the last
+ * keystroke before rebuilding the query, so typing does not fire a paging reload
+ * plus a totals aggregate per character.
+ */
+private const val FILTER_DEBOUNCE_MS = 250L
 private const val DEFAULT_MONTH_YEAR_PATTERN = "MMM, yyyy"
 private const val DEFAULT_YEAR_PATTERN = "yyyy"
-private const val FALLBACK_CATEGORY_NAME = "Other"
-private const val FALLBACK_TODAY_LABEL = "Today"
-private const val FALLBACK_YESTERDAY_LABEL = "Yesterday"
-private const val FALLBACK_TOMORROW_LABEL = "Tomorrow"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
     private val application: Application,
     private val transactionRepository: TransactionRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
-
-    /**
-     * Accumulated transactions for the current view. Each page load appends to this list.
-     * Reset to empty when filters, sort, period, or search change.
-     */
-    private val currentTransactions = mutableListOf<Transaction>()
 
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentPaymentMethods: List<PaymentType> = emptyList()
@@ -143,6 +154,21 @@ class TransactionsViewModel @Inject constructor(
 
     private var advancedSearchGranted: Boolean = false
 
+    /** Overridable so tests can exercise the filter path without virtual-time delays. */
+    internal var filterDebounceMillis: Long = FILTER_DEBOUNCE_MS
+
+    private var filterDebounceJob: Job? = null
+
+    // ─── Paging 3 ─────────────────────────────────────────────────────
+    // The screen consumes `transactions` with collectAsLazyPagingItems(); pages load
+    // as the list scrolls and Room invalidates the stream whenever the table
+    // changes, so nothing here swaps pages by hand.
+    private val pagedQuery = MutableStateFlow(buildQuery())
+
+    val transactions: Flow<PagingData<Transaction>> = pagedQuery
+        .flatMapLatest { query -> transactionRepository.getTransactionsPaging(query) }
+        .cachedIn(viewModelScope)
+
     private val _baseUiState = MutableStateFlow(
         TransactionsScreenUiState(
             focusedPeriodTimestamp = focusedPeriodTimestamp,
@@ -170,18 +196,10 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         observeAdvancedSearchAccess()
-        observeTransactionsChange()
-        loadFirstPage()
-    }
-
-    private fun observeTransactionsChange() {
-        viewModelScope.launch {
-            transactionRepository.observeActiveTransactions().collect {
-                // Whenever Room DB active transactions change (added, deleted, restored),
-                // refresh the currently loaded view pages.
-                reloadCurrentPages()
-            }
-        }
+        publishUiState()
+        pagedQuery.value = buildQuery()
+        observeSummaryTotals()
+        refreshNavigationFlags()
     }
 
     private fun observeAdvancedSearchAccess() {
@@ -230,59 +248,77 @@ class TransactionsViewModel @Inject constructor(
 
     fun updateSearchQuery(query: String) {
         searchQuery = query
-        _baseUiState.update { it.copy(searchQuery = query) }
-        resetAndReload()
+        // The text field and search chip update immediately; only the query rebuild
+        // is debounced, so typing stays responsive.
+        publishUiState()
+        applyFiltersDebounced()
     }
 
     fun updateSort(sort: String) {
         selectedSort = sort
         selectedOrder = getDefaultOrder(sort)
-        resetAndReload()
+        applyFilters()
     }
 
     fun updateOrder(order: SortType) {
         selectedOrder = order
-        resetAndReload()
+        applyFilters()
     }
 
     fun updateDateRange(dateRange: String?) {
         selectedDateRange = dateRange
-        resetAndReload()
+        applyFilters()
     }
 
     fun updateCustomDateRange(start: Long?, end: Long?) {
         customStartDate = start
         customEndDate = end ?: start
         selectedDateRange = KEY_CUSTOM_RANGE
-        resetAndReload()
+        applyFilters()
     }
 
     fun toggleTransactionTypeFilter(transactionTypeId: Int) {
         selectedTransactionTypeIds = selectedTransactionTypeIds.toggle(transactionTypeId)
         selectedCategoryIds = emptySet()
-        resetAndReload()
+        applyFilters()
     }
 
     fun toggleCategory(categoryId: Int) {
         selectedCategoryIds = selectedCategoryIds.toggle(categoryId)
-        resetAndReload()
+        applyFilters()
     }
 
     fun togglePaymentMode(paymentTypeId: Int) {
         selectedPaymentTypeIds = selectedPaymentTypeIds.toggle(paymentTypeId)
-        resetAndReload()
+        applyFilters()
     }
 
     fun updateMinAmount(amount: String) {
         selectedMinAmount = amount
-        resetAndReload()
+        publishUiState()
+        applyFiltersDebounced()
     }
 
     fun updateMaxAmount(amount: String) {
         selectedMaxAmount = amount
-        resetAndReload()
+        publishUiState()
+        applyFiltersDebounced()
     }
 
+    /** Commits the current filter state once the user stops typing. */
+    private fun applyFiltersDebounced() {
+        filterDebounceJob?.cancel()
+        filterDebounceJob = viewModelScope.launch {
+            delay(filterDebounceMillis)
+            applyFilters()
+        }
+    }
+
+    /**
+     * Commits the draft filter selection to the active query. Every filter action
+     * funnels through here, so what the chips show and what SQL filters are always
+     * the same thing.
+     */
     fun applyFilters() {
         appliedSortType = selectedOrder
         appliedDateRange = selectedDateRange
@@ -297,6 +333,9 @@ class TransactionsViewModel @Inject constructor(
     }
 
     fun resetFilters() {
+        // "Clear all" on the filter chips also clears the search pill, so reset the
+        // search text too.
+        searchQuery = ""
         selectedSort = DEFAULT_SORT_BY
         selectedOrder = DEFAULT_SORT_ORDER
         selectedDateRange = null
@@ -365,96 +404,37 @@ class TransactionsViewModel @Inject constructor(
     }
 
     /**
-     * Selects all currently loaded transactions (the visible batch).
-     * Used by the top-bar select-all button.
+     * Selects (or, when everything is already selected, clears) the transactions
+     * the screen currently has loaded. The screen owns the loaded pages, so it
+     * passes their ids in.
      */
-    fun selectAll() {
-        val allIds = _baseUiState.value.transactionItems
-            .filterIsInstance<TransactionListItemUi.TransactionRow>()
-            .map { it.card.id }
-            .toSet()
-
+    fun selectAll(loadedIds: Set<String>) {
+        if (loadedIds.isEmpty()) return
         val currentlySelected = _selectedTransactionIds.value
-
-        if (currentlySelected.size >= allIds.size && allIds.isNotEmpty()) {
+        if (currentlySelected.isNotEmpty() && currentlySelected.containsAll(loadedIds)) {
             clearSelection()
         } else {
-            _selectedTransactionIds.value = allIds
-            _isSelectionMode.value = allIds.isNotEmpty()
-        }
-    }
-
-    private fun selectAllEveryLoadedItem() {
-        val allIds = _baseUiState.value.transactionItems
-            .filterIsInstance<TransactionListItemUi.TransactionRow>()
-            .map { it.card.id }
-            .toSet()
-
-        if (allIds.isNotEmpty()) {
-            _selectedTransactionIds.value = allIds
+            _selectedTransactionIds.value = loadedIds
             _isSelectionMode.value = true
         }
     }
 
     /**
-     * Loads ALL remaining pages from Room, then selects every transaction.
-     * Called by the "Select all N in this view" link above the period navigator.
+     * Selects every transaction matching the current query, including rows that
+     * have not been paged in yet. Backed by a dedicated id-only SQL query, so it
+     * does not have to walk every page through Paging.
      */
     fun selectAllInQuery() {
-        val current = _baseUiState.value.pagination
-        if (current.isLoading) return
-
-        // If everything is already loaded, select all loaded items without toggling off
-        if (!current.hasMore) {
-            selectAllEveryLoadedItem()
-            return
-        }
-
+        val query = pagedQuery.value
         viewModelScope.launch {
-            _baseUiState.update { it.copy(pagination = it.pagination.copy(isLoading = true)) }
+            val ids = withContext(Dispatchers.IO) {
+                transactionRepository.getTransactionIds(query)
+            }.toSet()
 
-            val range = computePeriodRange()
-            var pageNumber = current.currentPage + 1
-
-            // Load remaining pages one by one
-            while (true) {
-                val page = withContext(Dispatchers.IO) {
-                    if (range != null) {
-                        transactionRepository.getActiveTransactionsPagedInRange(
-                            startMillis = range.first,
-                            endMillis = range.second,
-                            pageSize = current.pageSize,
-                            pageNumber = pageNumber
-                        )
-                    } else {
-                        transactionRepository.getActiveTransactionsPaged(
-                            pageSize = current.pageSize,
-                            pageNumber = pageNumber
-                        )
-                    }
-                }
-
-                if (page.isEmpty()) break
-                currentTransactions.addAll(page)
-                pageNumber++
-
-                if (page.size < current.pageSize) break
+            if (ids.isNotEmpty()) {
+                _selectedTransactionIds.value = ids
+                _isSelectionMode.value = true
             }
-
-            val updatedPagination = current.copy(
-                currentPage = pageNumber - 1,
-                hasMore = false,
-                isLoading = false,
-                loadedCount = currentTransactions.size
-            )
-
-            val newState = withContext(Dispatchers.Default) {
-                calculateNewUiState(updatedPagination)
-            }
-            _baseUiState.value = newState
-
-            // Ensure selection mode is ON and all transaction IDs in this view are selected
-            selectAllEveryLoadedItem()
         }
     }
 
@@ -464,509 +444,235 @@ class TransactionsViewModel @Inject constructor(
 
         viewModelScope.launch {
             transactionRepository.softDeleteTransactions(idsToDelete)
-            // Remove deleted items from current page and rebuild
-            currentTransactions.removeAll { it.id in idsToDelete }
             clearSelection()
-            rebuildUiState()
+            // Both the list and the totals refresh through Room invalidation.
         }
     }
 
-    fun selectRange(fromId: String, toId: String) {
-        val transactionsInList = _baseUiState.value.transactionItems
-            .filterIsInstance<TransactionListItemUi.TransactionRow>()
-            .map { it.card.id }
+    // ─── Query & State ────────────────────────────────────────────────
 
-        val startIndex = transactionsInList.indexOf(fromId)
-        val endIndex = transactionsInList.indexOf(toId)
-
-        if (startIndex == -1 || endIndex == -1) return
-
-        val rangeIds = if (startIndex <= endIndex) {
-            transactionsInList.subList(startIndex, endIndex + 1)
-        } else {
-            transactionsInList.subList(endIndex, startIndex + 1)
-        }
-
-        _selectedTransactionIds.value = _selectedTransactionIds.value + rangeIds
-        _isSelectionMode.value = true
-    }
-
-    // ─── Pagination ───────────────────────────────────────────────────
-
-    /**
-     * Resets pagination state and loads the first page from Room.
-     * Called whenever filters, sort, period, or search change.
-     */
+    /** Publishes filter/summary state and swaps the Paging source to the new query. */
     private fun resetAndReload() {
-        currentTransactions.clear()
+        publishUiState()
+        pagedQuery.value = buildQuery()
+        refreshNavigationFlags()
+    }
+
+    private fun publishUiState() {
         _baseUiState.update {
-            it.copy(pagination = PaginationState(isLoading = true))
-        }
-        loadFirstPage()
-    }
-
-    /**
-     * Loads page 0 from Room and rebuilds the UI state.
-     */
-    private fun loadFirstPage() {
-        viewModelScope.launch {
-            val pageSize = PaginationState.PAGE_SIZE_DEFAULT
-            val range = computePeriodRange()
-
-            val totalCount = withContext(Dispatchers.IO) {
-                if (range != null) {
-                    transactionRepository.countActiveTransactionsInRange(range.first, range.second)
-                } else {
-                    transactionRepository.countActiveTransactions()
-                }
-            }
-
-            val page = withContext(Dispatchers.IO) {
-                if (range != null) {
-                    transactionRepository.getActiveTransactionsPagedInRange(
-                        startMillis = range.first,
-                        endMillis = range.second,
-                        pageSize = pageSize,
-                        pageNumber = 0
-                    )
-                } else {
-                    transactionRepository.getActiveTransactionsPaged(
-                        pageSize = pageSize,
-                        pageNumber = 0
-                    )
-                }
-            }
-
-            currentTransactions.clear()
-            currentTransactions.addAll(page)
-
-            val pagination = PaginationState(
-                currentPage = 0,
-                pageSize = pageSize,
-                hasMore = page.size >= pageSize,
-                isLoading = false,
-                loadedCount = page.size,
-                totalCount = totalCount
+            it.copy(
+                searchQuery = searchQuery,
+                selectedSort = selectedSort,
+                selectedOrder = selectedOrder,
+                appliedSortType = appliedSortType,
+                selectedDateRange = selectedDateRange,
+                selectedCustomStartDate = customStartDate,
+                selectedCustomEndDate = customEndDate,
+                selectedTransactionTypeIds = selectedTransactionTypeIds,
+                selectedCategoryIds = selectedCategoryIds,
+                selectedPaymentTypeIds = selectedPaymentTypeIds,
+                selectedMinAmount = selectedMinAmount,
+                selectedMaxAmount = selectedMaxAmount,
+                selectedPeriodFilter = selectedPeriodFilter,
+                focusedPeriodTimestamp = focusedPeriodTimestamp,
+                selectedPeriodLabel = buildPeriodLabel(
+                    timestamp = focusedPeriodTimestamp,
+                    filter = selectedPeriodFilter,
+                    dateFormatPattern = currentDateFormatPattern
+                ),
+                availableCategories = currentCategories
+                    .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
+                    .sortedBy { it.name },
+                paymentModes = paymentTypeMap.values.toList(),
+                customizationSettings = currentCustomizationSettings,
+                isFilterActive = computeIsFilterActive()
             )
-
-            rebuildUiState(pagination)
         }
     }
 
-    /**
-     * Loads the next page from Room and appends to the current list.
-     * Called by the UI when the user scrolls near the bottom.
-     */
-    fun loadNextPage() {
-        val current = _baseUiState.value.pagination
-        if (current.isLoading || !current.hasMore) return
-
-        viewModelScope.launch {
-            _baseUiState.update { it.copy(pagination = it.pagination.copy(isLoading = true)) }
-
-            val nextPage = current.currentPage + 1
-            val range = computePeriodRange()
-
-            val page = withContext(Dispatchers.IO) {
-                if (range != null) {
-                    transactionRepository.getActiveTransactionsPagedInRange(
-                        startMillis = range.first,
-                        endMillis = range.second,
-                        pageSize = current.pageSize,
-                        pageNumber = nextPage
-                    )
-                } else {
-                    transactionRepository.getActiveTransactionsPaged(
-                        pageSize = current.pageSize,
-                        pageNumber = nextPage
-                    )
-                }
-            }
-
-            currentTransactions.addAll(page)
-
-            val updatedPagination = current.copy(
-                currentPage = nextPage,
-                hasMore = page.size >= current.pageSize,
-                isLoading = false,
-                loadedCount = currentTransactions.size
-            )
-
-            rebuildUiState(updatedPagination)
-        }
-    }
-
-    /**
-     * Re-queries all currently loaded pages from Room and updates the UI state.
-     * Keeps the currently loaded page count intact so the scroll position is preserved.
-     */
-    private fun reloadCurrentPages() {
-        val current = _baseUiState.value.pagination
-        val pagesToFetch = (current.currentPage + 1).coerceAtLeast(1)
-        val limit = pagesToFetch * current.pageSize
-
-        viewModelScope.launch {
-            val range = computePeriodRange()
-
-            val totalCount = withContext(Dispatchers.IO) {
-                if (range != null) {
-                    transactionRepository.countActiveTransactionsInRange(range.first, range.second)
-                } else {
-                    transactionRepository.countActiveTransactions()
-                }
-            }
-
-            val loadedItems = withContext(Dispatchers.IO) {
-                if (range != null) {
-                    transactionRepository.getActiveTransactionsPagedInRange(
-                        startMillis = range.first,
-                        endMillis = range.second,
-                        pageSize = limit,
-                        pageNumber = 0
-                    )
-                } else {
-                    transactionRepository.getActiveTransactionsPaged(
-                        pageSize = limit,
-                        pageNumber = 0
-                    )
-                }
-            }
-
-            currentTransactions.clear()
-            currentTransactions.addAll(loadedItems)
-
-            val updatedPagination = current.copy(
-                hasMore = loadedItems.size >= limit,
-                isLoading = false,
-                loadedCount = loadedItems.size,
-                totalCount = totalCount
-            )
-
-            rebuildUiState(updatedPagination)
-        }
-    }
-
-    // ─── Core State Builder ───────────────────────────────────────────
-
-    private fun rebuildUiState(pagination: PaginationState = _baseUiState.value.pagination) {
-        viewModelScope.launch {
-            val newState = withContext(Dispatchers.Default) {
-                calculateNewUiState(pagination)
-            }
-            _baseUiState.update { newState }
-        }
-    }
-
-    private fun calculateNewUiState(pagination: PaginationState): TransactionsScreenUiState {
-        // Snapshot mutable lists to avoid ConcurrentModificationException
-        // when other coroutines modify them concurrently
-        val snapshotTransactions = currentTransactions.toList()
-        val snapshotCategories = currentCategories.toList()
-        val snapshotPaymentMethods = currentPaymentMethods.toList()
-
-        val availableCategories = snapshotCategories
-            .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
-            .sortedBy { it.name }
-
-        val appliedMinAmountValue = appliedMinAmount.toDoubleOrNull()
-        val appliedMaxAmountValue = appliedMaxAmount.toDoubleOrNull()
-        val categoryNames = snapshotCategories.associate { it.id to it.name }
-        val paymentTypeNames = paymentTypeMap.mapValues { it.value.name } + snapshotPaymentMethods.associate { it.id to it.name }
-        val normalizedQuery = searchQuery.trim()
-
-        // Apply in-memory filters to the currently loaded page
-        val filteredTransactions = sortTransactions(
-            snapshotTransactions.filter { transaction ->
-                val paymentName = paymentTypeNames[transaction.paymentTypeId].orEmpty()
-                val categoryName = categoryNames[transaction.categoryId].orEmpty()
-                val matchesSearchQuery = normalizedQuery.isBlank() ||
-                    transaction.note.contains(normalizedQuery, ignoreCase = true) ||
-                    transaction.amount.toString().contains(normalizedQuery, ignoreCase = true) ||
-                    (advancedSearchGranted && (paymentName.contains(normalizedQuery, ignoreCase = true) ||
-                    categoryName.contains(normalizedQuery, ignoreCase = true)))
-
-                matchesSearchQuery &&
-                    matchesQuickDateFilter(
-                        transactionTimestamp = transaction.createdAt,
-                        selectedDateRange = appliedDateRange,
-                        anchorTimestamp = System.currentTimeMillis(),
-                        customStart = appliedCustomStartDate,
-                        customEnd = appliedCustomEndDate
-                    ) &&
-                    matchesTransactionTypeFilter(
-                        transactionTypeId = transaction.transactionTypeId,
-                        selectedTransactionTypeIds = appliedTransactionTypeIds
-                    ) &&
-                    matchesCategoryFilter(
-                        categoryId = transaction.categoryId,
-                        selectedCategoryIds = appliedCategoryIds
-                    ) &&
-                    matchesPaymentModeFilter(
-                        paymentTypeId = transaction.paymentTypeId,
-                        selectedPaymentTypeIds = appliedPaymentTypeIds
-                    ) &&
-                    matchesAmountRangeFilter(
-                        amount = transaction.amount,
-                        minAmount = appliedMinAmountValue,
-                        maxAmount = appliedMaxAmountValue
-                    )
-            },
-            appliedSortType
-        )
-
-        val isFilterApplied = appliedDateRange != null ||
+    private fun computeIsFilterActive(): Boolean {
+        return appliedDateRange != null ||
             appliedCategoryIds.isNotEmpty() ||
             appliedPaymentTypeIds.isNotEmpty() ||
             appliedMinAmount.isNotBlank() ||
             appliedMaxAmount.isNotBlank() ||
-            appliedTransactionTypeIds.size < 2
+            appliedTransactionTypeIds.size < 2 ||
+            searchQuery.trim().isNotEmpty()
+    }
 
-        val isSearchActive = searchQuery.trim().isNotEmpty()
-        val isFilterActive = isFilterApplied || isSearchActive
-        val isFilteredOrSearchApplied = isFilterActive
-
-        val formatVal = { value: Double ->
-            com.mknlabs.expensetracker.utils.formatCurrencyValue(
-                amount = value,
-                currencyId = currentCurrencyId,
-                amountFormatPreferences = currentAmountFormatPreferences
-            )
-        }
-
-        val mappedCardItems = filteredTransactions.map { transaction ->
-            transaction.toTransactionCardItemUi(
-                currencyId = currentCurrencyId,
-                amountFormatPreferences = currentAmountFormatPreferences,
-                dateFormatPattern = currentDateFormatPattern,
-                timeFormat = currentTimeFormat,
-                paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
-                categories = currentCategories,
-                fallbackCategoryName = application.getString(R.string.label_other) ?: FALLBACK_CATEGORY_NAME
-            )
-        }
-
-        val shouldGroupTransactions = currentCustomizationSettings.showDateSeparators &&
-            selectedPeriodFilter != TransactionPeriodFilter.DAILY
-
-        val showSummaries = currentCustomizationSettings.showTransactionListSummaries
-        val transactionItems = mutableListOf<TransactionListItemUi>()
-        var pinnedSummary: TransactionListItemUi.SummaryCard? = null
-
-        if (isFilteredOrSearchApplied) {
-            val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
-            val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
-            if (showSummaries) {
-                pinnedSummary = TransactionListItemUi.SummaryCard(
-                    id = "summary_filtered_search",
-                    totalIncome = formatVal(totalIncome),
-                    totalExpense = formatVal(totalExpense),
-                    periodLabel = null
-                )
-            }
-            transactionItems.addAll(
-                buildTransactionListItems(
-                    transactions = mappedCardItems,
-                    groupByDate = shouldGroupTransactions,
-                    sortType = appliedSortType,
-                    todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
-                    yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
-                    tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
-                )
-            )
-        } else {
-            when (selectedPeriodFilter) {
-                TransactionPeriodFilter.DAILY -> {
-                    val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
-                    val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
-                    if (showSummaries) {
-                        pinnedSummary = TransactionListItemUi.SummaryCard(
-                            id = "summary_daily",
-                            totalIncome = formatVal(totalIncome),
-                            totalExpense = formatVal(totalExpense),
-                            periodLabel = null
-                        )
-                    }
-                    transactionItems.addAll(
-                        buildTransactionListItems(
-                            transactions = mappedCardItems,
-                            groupByDate = false,
-                            sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
-                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
-                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
-                        )
-                    )
+    /**
+     * Keeps the summary card and "select all N in this view" honest.
+     *
+     * The totals come from a single aggregate over the same SQL the list uses, so
+     * they cover the whole filtered set rather than the pages Paging has loaded.
+     *
+     * `flatMapLatest` restarts the aggregate whenever the query changes, so
+     * `onStart` gives a real loading signal per query change — while a plain table
+     * write re-emits on the same flow and updates the numbers in place, with no
+     * loading flash.
+     */
+    private fun observeSummaryTotals() {
+        viewModelScope.launch {
+            pagedQuery
+                .flatMapLatest { query ->
+                    transactionRepository.observeTransactionTotals(query)
+                        .map<TransactionTotals, TransactionTotals?> { it }
+                        .onStart { emit(null) }
                 }
-                TransactionPeriodFilter.MONTHLY -> {
-                    val totalIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
-                    val totalExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
-                    if (showSummaries) {
-                        pinnedSummary = TransactionListItemUi.SummaryCard(
-                            id = "summary_monthly",
-                            totalIncome = formatVal(totalIncome),
-                            totalExpense = formatVal(totalExpense),
-                            periodLabel = null
-                        )
-                    }
-                    transactionItems.addAll(
-                        buildTransactionListItems(
-                            transactions = mappedCardItems,
-                            groupByDate = shouldGroupTransactions,
-                            sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
-                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
-                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
-                        )
-                    )
-                }
-                TransactionPeriodFilter.YEARLY -> {
-                    val yearIncome = filteredTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
-                    val yearExpense = filteredTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.amount }
-                    if (showSummaries) {
-                        pinnedSummary = TransactionListItemUi.SummaryCard(
-                            id = "summary_yearly",
-                            totalIncome = formatVal(yearIncome),
-                            totalExpense = formatVal(yearExpense),
-                            periodLabel = null
-                        )
-                    }
-                    val cal = Calendar.getInstance()
-                    val groupedByMonth = mappedCardItems.groupBy { item ->
-                        cal.timeInMillis = item.transaction.createdAt
-                        cal.get(Calendar.MONTH)
-                    }
-
-                    val sortedMonthKeys = if (appliedSortType == SortType.OLDEST) {
-                        groupedByMonth.keys.sorted()
+                .collect { totals ->
+                    if (totals == null) {
+                        _baseUiState.update { it.copy(isSummaryLoading = true) }
                     } else {
-                        groupedByMonth.keys.sortedDescending()
-                    }
-
-                    sortedMonthKeys.forEach { monthKey ->
-                        val monthTransactions = groupedByMonth[monthKey].orEmpty()
-                        val monthIncome = monthTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.transaction.amount }
-                        val monthExpense = monthTransactions.filter { it.transactionTypeId != 1 }.sumOf { it.transaction.amount }
-
-                        cal.set(Calendar.MONTH, monthKey)
-                        val monthLabel = SimpleDateFormat("MMM", Locale.getDefault()).format(cal.time)
-
-                        if (showSummaries) {
-                            transactionItems.add(
-                                TransactionListItemUi.SummaryCard(
-                                    id = "summary_yearly_month_$monthKey",
-                                    totalIncome = formatVal(monthIncome),
-                                    totalExpense = formatVal(monthExpense),
-                                    periodLabel = monthLabel
-                                )
+                        _baseUiState.update {
+                            it.copy(
+                                isSummaryLoading = false,
+                                summaryIncomeMinor = totals.incomeMinor,
+                                summaryExpenseMinor = totals.expenseMinor,
+                                totalTransactionCount = totals.totalCount
                             )
                         }
-
-                        transactionItems.addAll(
-                            buildTransactionListItems(
-                                transactions = monthTransactions,
-                                groupByDate = shouldGroupTransactions,
-                                sortType = appliedSortType,
-                                todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
-                                yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
-                                tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
-                            )
-                        )
+                        // A write can also add or remove the only row of an adjacent
+                        // period, so re-derive the arrows alongside the totals.
+                        refreshNavigationFlags()
                     }
                 }
-                TransactionPeriodFilter.ALL -> {
-                    transactionItems.addAll(
-                        buildTransactionListItems(
-                            transactions = mappedCardItems,
-                            groupByDate = shouldGroupTransactions,
-                            sortType = appliedSortType,
-                            todayLabel = application.getString(R.string.label_today) ?: FALLBACK_TODAY_LABEL,
-                            yesterdayLabel = application.getString(R.string.label_yesterday) ?: FALLBACK_YESTERDAY_LABEL,
-                            tomorrowLabel = application.getString(R.string.label_tomorrow) ?: FALLBACK_TOMORROW_LABEL
-                        )
-                    )
-                }
-            }
         }
+    }
 
-        // Ad injection: insert ads after every 5th transaction row.
-        val itemsWithAds = ArrayList<TransactionListItemUi>(transactionItems.size + transactionItems.size / 5 + 1)
-        var rowIndex = 0
-        var adCount = 0
-        transactionItems.forEach { item ->
-            itemsWithAds.add(item)
-            if (item is TransactionListItemUi.TransactionRow) {
-                rowIndex++
-                if (rowIndex % 5 == 0) {
-                    adCount++
-                    val placement = if (adCount % 2 == 1) {
-                        AdPlacement.TRANSACTIONS_LIST
-                    } else {
-                        AdPlacement.TRANSACTIONS_LIST_2
-                    }
-                    itemsWithAds.add(TransactionListItemUi.Ad(id = "ad_$rowIndex", placement = placement))
-                }
-            }
-        }
+    /** Whether the periods either side of the focused one contain any transactions. */
+    private fun refreshNavigationFlags() {
+        viewModelScope.launch {
+            val canNavigateBackward = withContext(Dispatchers.IO) { hasTransactionsInPeriod(-1) }
+            val canNavigateForward = withContext(Dispatchers.IO) { hasTransactionsInPeriod(1) }
 
-        // Period navigation check — use hasMore from pagination for "next" direction,
-        // and check if there are any items for "previous".
-        val canNavigateForward = pagination.hasMore ||
-            snapshotTransactions.any {
-                matchesSelectedPeriod(
-                    transactionTimestamp = it.createdAt,
-                    focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, 1),
-                    filter = selectedPeriodFilter
+            _baseUiState.update {
+                it.copy(
+                    canNavigateBackward = canNavigateBackward,
+                    canNavigateForward = canNavigateForward
                 )
             }
-        val canNavigateBackward = snapshotTransactions.any {
-            matchesSelectedPeriod(
-                transactionTimestamp = it.createdAt,
-                focusedTimestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, -1),
-                filter = selectedPeriodFilter
-            )
         }
+    }
 
-        return _baseUiState.value.copy(
-            searchQuery = searchQuery,
-            selectedSort = selectedSort,
-            selectedOrder = selectedOrder,
-            selectedDateRange = selectedDateRange,
-            selectedCustomStartDate = customStartDate,
-            selectedCustomEndDate = customEndDate,
-            selectedTransactionTypeIds = selectedTransactionTypeIds,
-            selectedCategoryIds = selectedCategoryIds,
-            selectedPaymentTypeIds = selectedPaymentTypeIds,
-            selectedMinAmount = selectedMinAmount,
-            selectedMaxAmount = selectedMaxAmount,
-            selectedPeriodFilter = selectedPeriodFilter,
-            focusedPeriodTimestamp = focusedPeriodTimestamp,
-            canNavigateBackward = canNavigateBackward,
-            canNavigateForward = canNavigateForward,
-            selectedPeriodLabel = buildPeriodLabel(
-                timestamp = focusedPeriodTimestamp,
-                filter = selectedPeriodFilter,
-                dateFormatPattern = currentDateFormatPattern
-            ),
-            availableCategories = availableCategories,
-            paymentModes = paymentTypeMap.values.toList(),
-            transactionItems = itemsWithAds,
-            pinnedSummary = pinnedSummary,
-            customizationSettings = currentCustomizationSettings,
-            pagination = pagination,
-            isFilterActive = isFilterActive
+    private suspend fun hasTransactionsInPeriod(step: Int): Boolean {
+        val range = periodRange(
+            timestamp = shiftPeriod(focusedPeriodTimestamp, selectedPeriodFilter, step),
+            filter = selectedPeriodFilter
+        ) ?: return false
+        return transactionRepository.hasTransactionsInRange(range.first, range.second)
+    }
+
+    /**
+     * Builds the SQL-backed query from the committed filters. Search is matched in
+     * SQL against the note and amount; when advanced search is granted, names of
+     * matching categories/payment methods are resolved to ids and OR-ed in.
+     */
+    private fun buildQuery(): TransactionQuery {
+        val window = currentQueryWindow()
+        val searchText = searchQuery.trim()
+        val advancedSearch = searchText.isNotEmpty() && advancedSearchGranted
+
+        return TransactionQuery(
+            startMillis = window?.first ?: TransactionQuery.NO_START,
+            endMillis = window?.second ?: TransactionQuery.NO_END,
+            search = searchText.takeIf { it.isNotEmpty() },
+            searchCategoryIds = if (advancedSearch) {
+                currentCategories
+                    .filter { it.name.contains(searchText, ignoreCase = true) }
+                    .map { it.id }
+            } else {
+                emptyList()
+            },
+            searchPaymentTypeIds = if (advancedSearch) {
+                (paymentTypeMap.values.toList() + currentPaymentMethods)
+                    .filter { it.name.contains(searchText, ignoreCase = true) }
+                    .map { it.id }
+                    .distinct()
+            } else {
+                emptyList()
+            },
+            transactionTypeIds = appliedTransactionTypeIds.toList().sorted(),
+            categoryIds = appliedCategoryIds.toList().sorted(),
+            paymentTypeIds = appliedPaymentTypeIds.toList().sorted(),
+            minAmountMinor = appliedMinAmount.toDoubleOrNull()?.toMinorUnits(),
+            maxAmountMinor = appliedMaxAmount.toDoubleOrNull()?.toMinorUnits(),
+            sort = appliedSortType
         )
     }
 
     /**
-     * Computes the time range boundaries for the current period filter.
-     * Returns null for ALL filter (no range restriction).
+     * Effective `occurred_at` window: the period filter intersected with the quick
+     * date-range filter. Null means unbounded.
      */
-    private fun computePeriodRange(): Pair<Long, Long>? {
-        return when (selectedPeriodFilter) {
+    private fun currentQueryWindow(): Pair<Long, Long>? {
+        val period = periodRange(focusedPeriodTimestamp, selectedPeriodFilter)
+        val quick = quickDateRangeWindow()
+        return when {
+            period == null -> quick
+            quick == null -> period
+            else -> Pair(maxOf(period.first, quick.first), minOf(period.second, quick.second))
+        }
+    }
+
+    private fun quickDateRangeWindow(): Pair<Long, Long>? {
+        if (appliedDateRange == KEY_CUSTOM_RANGE) {
+            val start = appliedCustomStartDate ?: return null
+            val end = appliedCustomEndDate ?: start
+            val startCalendar = Calendar.getInstance().apply {
+                timeInMillis = start
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val endCalendar = Calendar.getInstance().apply {
+                timeInMillis = end
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }
+            // +1 makes the inclusive end day half-open, matching the query bounds.
+            return Pair(startCalendar.timeInMillis, endCalendar.timeInMillis + 1)
+        }
+
+        val rangeDays = when (appliedDateRange) {
+            FILTER_DATE_LAST_7_DAYS -> 7
+            FILTER_DATE_LAST_15_DAYS -> 15
+            FILTER_DATE_LAST_30_DAYS -> 30
+            FILTER_DATE_LAST_60_DAYS -> 60
+            else -> return null
+        }
+
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        val end = calendar.timeInMillis + 1
+        calendar.add(Calendar.DAY_OF_YEAR, -(rangeDays - 1))
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return Pair(calendar.timeInMillis, end)
+    }
+
+    /**
+     * Half-open boundaries for [filter] anchored on [timestamp].
+     * Returns null for ALL (no range restriction).
+     */
+    private fun periodRange(
+        timestamp: Long,
+        filter: TransactionPeriodFilter
+    ): Pair<Long, Long>? {
+        return when (filter) {
             TransactionPeriodFilter.ALL -> null
             TransactionPeriodFilter.DAILY -> {
                 val cal = Calendar.getInstance().apply {
-                    timeInMillis = focusedPeriodTimestamp
+                    timeInMillis = timestamp
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
@@ -978,7 +684,7 @@ class TransactionsViewModel @Inject constructor(
             }
             TransactionPeriodFilter.MONTHLY -> {
                 val cal = Calendar.getInstance().apply {
-                    timeInMillis = focusedPeriodTimestamp
+                    timeInMillis = timestamp
                     set(Calendar.DAY_OF_MONTH, 1)
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
@@ -991,7 +697,7 @@ class TransactionsViewModel @Inject constructor(
             }
             TransactionPeriodFilter.YEARLY -> {
                 val cal = Calendar.getInstance().apply {
-                    timeInMillis = focusedPeriodTimestamp
+                    timeInMillis = timestamp
                     set(Calendar.MONTH, Calendar.JANUARY)
                     set(Calendar.DAY_OF_MONTH, 1)
                     set(Calendar.HOUR_OF_DAY, 0)
@@ -1018,119 +724,6 @@ class TransactionsViewModel @Inject constructor(
             TransactionPeriodFilter.DAILY -> UiText.dynamic(formatDate(timestamp, dateFormatPattern))
             TransactionPeriodFilter.MONTHLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_month_year_comma) ?: DEFAULT_MONTH_YEAR_PATTERN, Locale.getDefault()).format(date))
             TransactionPeriodFilter.YEARLY -> UiText.dynamic(SimpleDateFormat(application.getString(R.string.date_pattern_year) ?: DEFAULT_YEAR_PATTERN, Locale.getDefault()).format(date))
-        }
-    }
-}
-
-private fun matchesQuickDateFilter(
-    transactionTimestamp: Long,
-    selectedDateRange: String?,
-    anchorTimestamp: Long,
-    customStart: Long? = null,
-    customEnd: Long? = null
-): Boolean {
-    if (selectedDateRange == KEY_CUSTOM_RANGE && customStart != null && customEnd != null) {
-        val startCal = Calendar.getInstance().apply {
-            timeInMillis = customStart
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        val endCal = Calendar.getInstance().apply {
-            timeInMillis = customEnd
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-            set(Calendar.MILLISECOND, 999)
-        }
-        return transactionTimestamp in startCal.timeInMillis..endCal.timeInMillis
-    }
-
-    val rangeDays = when (selectedDateRange) {
-        FILTER_DATE_LAST_7_DAYS -> 7
-        FILTER_DATE_LAST_15_DAYS -> 15
-        FILTER_DATE_LAST_30_DAYS -> 30
-        FILTER_DATE_LAST_60_DAYS -> 60
-        null -> return true
-        else -> return true
-    }
-
-    val calendar = Calendar.getInstance().apply {
-        timeInMillis = anchorTimestamp
-        set(Calendar.HOUR_OF_DAY, 23)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 59)
-        set(Calendar.MILLISECOND, 999)
-    }
-    val endTimestamp = calendar.timeInMillis
-    calendar.add(Calendar.DAY_OF_YEAR, -(rangeDays - 1))
-    calendar.set(Calendar.HOUR_OF_DAY, 0)
-    calendar.set(Calendar.MINUTE, 0)
-    calendar.set(Calendar.SECOND, 0)
-    calendar.set(Calendar.MILLISECOND, 0)
-    val startTimestamp = calendar.timeInMillis
-
-    return transactionTimestamp in startTimestamp..endTimestamp
-}
-
-private fun matchesTransactionTypeFilter(
-    transactionTypeId: Int,
-    selectedTransactionTypeIds: Set<Int>
-): Boolean {
-    return selectedTransactionTypeIds.contains(transactionTypeId)
-}
-
-private fun matchesCategoryFilter(
-    categoryId: Int,
-    selectedCategoryIds: Set<Int>
-): Boolean {
-    return selectedCategoryIds.isEmpty() || selectedCategoryIds.contains(categoryId)
-}
-
-private fun matchesPaymentModeFilter(
-    paymentTypeId: Int,
-    selectedPaymentTypeIds: Set<Int>
-): Boolean {
-    return selectedPaymentTypeIds.isEmpty() || selectedPaymentTypeIds.contains(paymentTypeId)
-}
-
-private fun matchesAmountRangeFilter(
-    amount: Double,
-    minAmount: Double?,
-    maxAmount: Double?
-): Boolean {
-    val matchesMin = minAmount == null || amount >= minAmount
-    val matchesMax = maxAmount == null || amount <= maxAmount
-    return matchesMin && matchesMax
-}
-
-private fun matchesSelectedPeriod(
-    transactionTimestamp: Long,
-    focusedTimestamp: Long,
-    filter: TransactionPeriodFilter
-): Boolean {
-    if (filter == TransactionPeriodFilter.ALL) {
-        return true
-    }
-
-    val transactionCalendar = Calendar.getInstance().apply { timeInMillis = transactionTimestamp }
-    val focusedCalendar = Calendar.getInstance().apply { timeInMillis = focusedTimestamp }
-
-    return when (filter) {
-        TransactionPeriodFilter.ALL -> true
-        TransactionPeriodFilter.DAILY -> {
-            transactionCalendar.get(Calendar.YEAR) == focusedCalendar.get(Calendar.YEAR) &&
-                transactionCalendar.get(Calendar.DAY_OF_YEAR) == focusedCalendar.get(Calendar.DAY_OF_YEAR)
-        }
-
-        TransactionPeriodFilter.MONTHLY -> {
-            transactionCalendar.get(Calendar.YEAR) == focusedCalendar.get(Calendar.YEAR) &&
-                transactionCalendar.get(Calendar.MONTH) == focusedCalendar.get(Calendar.MONTH)
-        }
-
-        TransactionPeriodFilter.YEARLY -> {
-            transactionCalendar.get(Calendar.YEAR) == focusedCalendar.get(Calendar.YEAR)
         }
     }
 }

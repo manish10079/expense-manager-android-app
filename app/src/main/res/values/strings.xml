@@ -1523,6 +1523,7 @@
     <string name="msg_google_accounts_not_found">No Google accounts were detected. Please add a Google account in your device settings, then try again.</string>
     <string name="label_add_account">Add Account</string>
     <string name="label_retry">Retry</string>
+    <string name="msg_transactions_load_failed">Couldn\'t load transactions.</string>
     <string name="error_auth_user_not_found">Account not found. Please sign up first.</string>
     <string name="error_auth_wrong_password">Incorrect password. Please try again.</string>
     <string name="error_auth_invalid_credentials">Invalid email or password.</string>
