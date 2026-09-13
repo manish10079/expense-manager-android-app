@@ -1,5 +1,9 @@
 package com.mknlabs.expensetracker.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import androidx.room.withTransaction
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.toDomain
@@ -9,7 +13,9 @@ import com.mknlabs.expensetracker.data.local.room.query.RangeSummaryRow
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.RecentTransaction
+import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
+import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository as DomainTransactionRepository
 import com.mknlabs.expensetracker.domain.usecase.CheckLargeTransactionUseCase
 import com.mknlabs.expensetracker.models.SyncState
@@ -28,6 +34,57 @@ class TransactionRepository @Inject constructor(
     private val recurringRuleDao: RecurringRuleDao,
     private val checkLargeTransactionUseCase: CheckLargeTransactionUseCase
 ) : DomainTransactionRepository {
+
+    companion object {
+        /**
+         * Paging 3 configuration: 30 items per page, prefetch 10 items before end.
+         * This ensures smooth scrolling with minimal memory usage.
+         */
+        private const val PAGE_SIZE = 30
+        private const val PREFETCH_DISTANCE = 10
+        private const val INITIAL_LOAD_SIZE = 60 // 2x page size for faster initial load
+    }
+
+    // ============================================================================
+    // Paging 3 Implementation
+    // ============================================================================
+
+    override fun getTransactionsPaging(query: TransactionQuery): Flow<PagingData<Transaction>> {
+        return Pager(
+            config = pagingConfig(),
+            pagingSourceFactory = {
+                dao.getTransactionsPagingSource(
+                    TransactionQuerySql.toSQLiteQuery(TransactionQuerySql.paging(query))
+                )
+            }
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toDomain() }
+        }
+    }
+
+    override suspend fun getTransactionIds(query: TransactionQuery): List<String> =
+        withContext(Dispatchers.IO) {
+            dao.getTransactionIds(TransactionQuerySql.toSQLiteQuery(TransactionQuerySql.ids(query)))
+        }
+
+    override fun observeTransactionTotals(query: TransactionQuery): Flow<TransactionTotals> {
+        return dao.observeTransactionTotals(
+            TransactionQuerySql.toSQLiteQuery(TransactionQuerySql.totals(query))
+        ).map { row ->
+            TransactionTotals(
+                incomeMinor = row.incomeMinor,
+                expenseMinor = row.expenseMinor,
+                totalCount = row.totalCount
+            )
+        }
+    }
+
+    private fun pagingConfig() = PagingConfig(
+        pageSize = PAGE_SIZE,
+        prefetchDistance = PREFETCH_DISTANCE,
+        initialLoadSize = INITIAL_LOAD_SIZE,
+        enablePlaceholders = false
+    )
 
     override fun observeActiveTransactions(): Flow<List<Transaction>> {
         return dao.observeActiveTransactions().map { entities ->
@@ -119,36 +176,6 @@ class TransactionRepository @Inject constructor(
             recurringRuleDao.deleteAll()
             dao.deleteAll()
         }
-    }
-
-    override suspend fun getActiveTransactionsPaged(pageSize: Int, pageNumber: Int): List<Transaction> =
-        withContext(Dispatchers.IO) {
-            val offset = pageNumber * pageSize
-            dao.getActiveTransactionsPaged(limit = pageSize, offset = offset).map { it.toDomain() }
-        }
-
-    override suspend fun getActiveTransactionsPagedInRange(
-        startMillis: Long,
-        endMillis: Long,
-        pageSize: Int,
-        pageNumber: Int
-    ): List<Transaction> = withContext(Dispatchers.IO) {
-        val offset = pageNumber * pageSize
-        dao.getActiveTransactionsPagedInRange(
-            startMillis = startMillis,
-            endMillis = endMillis,
-            limit = pageSize,
-            offset = offset
-        ).map { it.toDomain() }
-    }
-
-    override suspend fun countActiveTransactionsInRange(startMillis: Long, endMillis: Long): Int =
-        withContext(Dispatchers.IO) {
-            dao.countActiveTransactionsInRange(startMillis, endMillis)
-        }
-
-    override suspend fun countActiveTransactions(): Int = withContext(Dispatchers.IO) {
-        dao.countActiveTransactions()
     }
 
     override suspend fun getRangeSummary(startMillis: Long, endMillis: Long): TransactionSummary =
