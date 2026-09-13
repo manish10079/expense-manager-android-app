@@ -16,18 +16,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -42,7 +46,12 @@ import com.mknlabs.expensetracker.ui.adaptive.AppWindowHeight
 import com.mknlabs.expensetracker.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.ui.adaptive.AppWindowInfo
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.ui.theme.PurplePrimary
+import kotlinx.coroutines.launch
 
 // ── Responsive helpers ─────────────────────────────────────────────────
 
@@ -151,7 +160,10 @@ fun UpdateDialog(
             )
         },
         text = {
-            MessageBody(info = info, maxHeight = metrics.messageMaxHeight)
+            MessageBody(
+                info = info,
+                maxHeight = metrics.messageMaxHeight
+            )
         },
         confirmButton = {
             Button(onClick = onUpdateNow) {
@@ -172,21 +184,57 @@ fun UpdateDialog(
 // ── Extracted content ──────────────────────────────────────────────────
 
 @Composable
-private fun MessageBody(info: UpdateInfo, maxHeight: Dp) {
+private fun MessageBody(
+    info: UpdateInfo,
+    maxHeight: Dp
+) {
+    val content = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) }
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = maxHeight)
-            .verticalScroll(scrollState)
     ) {
-        Text(
-            text = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+        ) {
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (scrollState.canScrollForward) {
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+        }
+
+        if (scrollState.canScrollForward) {
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(scrollState.maxValue)
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 4.dp)
+                    .background(PurplePrimary, CircleShape)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDownward,
+                    contentDescription = stringResource(R.string.label_show_more),
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
 }
 
