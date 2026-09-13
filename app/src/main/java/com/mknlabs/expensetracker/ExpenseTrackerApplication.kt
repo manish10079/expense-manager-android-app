@@ -5,10 +5,6 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.facebook.react.ReactInstanceManager
-import com.facebook.react.ReactNativeHost
-import com.facebook.react.ReactPackage
-import com.facebook.react.shell.MainReactPackage
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
@@ -25,8 +21,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import com.revenuecat.purchases.Purchases
-import com.revenuecat.purchases.LogLevel
 
 @HiltAndroidApp
 class ExpenseTrackerApplication : Application(), Configuration.Provider {

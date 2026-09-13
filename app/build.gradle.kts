@@ -17,7 +17,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 229
-        versionName = "2.101.0"
+        versionName = "2.101.1"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,6 +36,7 @@ android {
             localPropertiesFile.inputStream().use { load(it) }
         }
     }
+    val rcKey = localProperties.getProperty("revenueCatApiKey", "")
 
     signingConfigs {
         create("release") {
@@ -61,8 +62,7 @@ android {
                 "proguard-rules.pro"
             )
             // RevenueCat API key from local properties (kept secret)
-            buildConfigField("String", "REVENUE_CAT_API_KEY",
-                "\"${localProperties.getProperty('revenueCatApiKey', '').replace('\"', '\\\"')}\"")
+            buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
         }
         // Macrobenchmark target variant: a release-equivalent build (non-debuggable,
         // minified) signed with the debug key. Official docs: create a copy of the
@@ -86,8 +86,7 @@ android {
             // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
             proguardFiles("benchmark-rules.pro")
             // RevenueCat API key from local properties (kept secret)
-            buildConfigField("String", "REVENUE_CAT_API_KEY",
-                "\"${localProperties.getProperty('revenueCatApiKey', '').replace('\"', '\\\"')}\"")
+            buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
         }
     }
     compileOptions {
