@@ -1,19 +1,32 @@
 package com.mknlabs.expensetracker.data.repository
 
+import android.app.Activity
 import android.app.Application
 import android.util.Log
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.data.local.AppLockPreferences
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
-import com.revenuecat.purchases.*
-import com.revenuecat.purchases.interfaces.PurchasesUpdatedListener
+import com.revenuecat.purchases.CustomerInfo
+import com.revenuecat.purchases.LogLevel
+import com.revenuecat.purchases.Offerings
+import com.revenuecat.purchases.Package
+import com.revenuecat.purchases.PurchaseParams
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.PurchasesConfiguration
+import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import com.revenuecat.purchases.logInWith
+import com.revenuecat.purchases.logOutWith
+import com.revenuecat.purchases.purchaseWith
+import com.revenuecat.purchases.restorePurchasesWith
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisor
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,16 +85,17 @@ class BillingManager @Inject constructor(
             // Configure RevenueCat
             Purchases.configure(
                 PurchasesConfiguration.Builder(app, apiKey)
-                    .setObserverMode(false)
-                    .setUsesAmazonIapV2(false)
                     .build()
             )
 
-            // Set log level for debugging (remove in production)
-            Purchases.setLogLevel(LogLevel.DEBUG)
+            // Set log level for debugging
+            Purchases.logLevel = LogLevel.DEBUG
 
             // Set updated listener to get real-time CustomerInfo updates
-            Purchases.sharedInstance().setPurchasesUpdatedListener(purchasesUpdatedListener)
+            Purchases.sharedInstance.updatedCustomerInfoListener = UpdatedCustomerInfoListener { customerInfo ->
+                Log.d(TAG, "Received updated CustomerInfo from RevenueCat")
+                updateCustomerInfo(customerInfo)
+            }
 
             // Fetch initial offerings
             fetchOfferings()
@@ -111,14 +125,16 @@ class BillingManager @Inject constructor(
     private fun logInToRevenueCat(uid: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance().logIn(uid) { customerInfo, created, error ->
-                    if (error != null) {
-                        Log.e(TAG, "Error logging in to RevenueCat: ${error.message}", error)
-                    } else {
+                Purchases.sharedInstance.logInWith(
+                    appUserID = uid,
+                    onSuccess = { customerInfo, created ->
                         Log.d(TAG, "Logged in to RevenueCat with ID: $uid (new user: $created)")
                         updateCustomerInfo(customerInfo)
+                    },
+                    onError = { error ->
+                        Log.e(TAG, "Error logging in to RevenueCat: ${error.message}")
                     }
-                }
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during RevenueCat login", e)
             }
@@ -128,14 +144,15 @@ class BillingManager @Inject constructor(
     private fun logOutFromRevenueCat() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance().logOut { customerInfo, error ->
-                    if (error != null) {
-                        Log.e(TAG, "Error logging out from RevenueCat: ${error.message}", error)
-                    } else {
+                Purchases.sharedInstance.logOutWith(
+                    onSuccess = { customerInfo ->
                         Log.d(TAG, "Logged out from RevenueCat")
                         updateCustomerInfo(customerInfo)
+                    },
+                    onError = { error ->
+                        Log.e(TAG, "Error logging out from RevenueCat: ${error.message}")
                     }
-                }
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during RevenueCat logout", e)
             }
@@ -148,22 +165,18 @@ class BillingManager @Inject constructor(
         fetchOfferings()
     }
 
-    private val purchasesUpdatedListener: PurchasesUpdatedListener = PurchasesUpdatedListener { customerInfo ->
-        Log.d(TAG, "Received updated CustomerInfo from RevenueCat")
-        updateCustomerInfo(customerInfo)
-    }
-
     fun fetchOfferings() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance().getOfferings { offerings, error ->
-                    if (error != null) {
-                        Log.e(TAG, "Error fetching offerings: ${error.message}", error)
-                    } else {
-                        Log.d(TAG, "Fetched ${offerings?.offeringsMap?.size ?: 0} offerings")
+                Purchases.sharedInstance.getOfferingsWith(
+                    onSuccess = { offerings ->
+                        Log.d(TAG, "Fetched ${offerings.all.size} offerings")
                         _offerings.update { offerings }
+                    },
+                    onError = { error ->
+                        Log.e(TAG, "Error fetching offerings: ${error.message}")
                     }
-                }
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Exception fetching offerings", e)
             }
@@ -174,19 +187,24 @@ class BillingManager @Inject constructor(
 
     fun getOfferings(): Offerings? = _offerings.value
 
-    fun purchasePackage(activity: android.app.Activity, pkg: Package) {
+    fun purchasePackage(activity: Activity, pkg: Package) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance().purchasePackage(activity, pkg) { transaction, customerInfo, error, userCancelled ->
-                    if (error != null) {
-                        Log.e(TAG, "Error purchasing package: ${error.message}", error)
-                    } else if (userCancelled) {
-                        Log.d(TAG, "User cancelled purchase")
-                    } else {
-                        Log.d(TAG, "Successfully purchased package: ${pkg.packageIdentifier}")
+                val params = PurchaseParams.Builder(activity, pkg).build()
+                Purchases.sharedInstance.purchaseWith(
+                    purchaseParams = params,
+                    onSuccess = { storeTransaction, customerInfo ->
+                        Log.d(TAG, "Successfully purchased package: ${pkg.identifier}")
                         updateCustomerInfo(customerInfo)
+                    },
+                    onError = { error, userCancelled ->
+                        if (userCancelled) {
+                            Log.d(TAG, "User cancelled purchase")
+                        } else {
+                            Log.e(TAG, "Error purchasing package: ${error.message}")
+                        }
                     }
-                }
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during purchase", e)
             }
@@ -196,14 +214,15 @@ class BillingManager @Inject constructor(
     fun restorePurchases() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance().restorePurchases { customerInfo, error ->
-                    if (error != null) {
-                        Log.e(TAG, "Error restoring purchases: ${error.message}", error)
-                    } else {
+                Purchases.sharedInstance.restorePurchasesWith(
+                    onSuccess = { customerInfo ->
                         Log.d(TAG, "Successfully restored purchases")
                         updateCustomerInfo(customerInfo)
+                    },
+                    onError = { error ->
+                        Log.e(TAG, "Error restoring purchases: ${error.message}")
                     }
-                }
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Exception restoring purchases", e)
             }
@@ -214,7 +233,7 @@ class BillingManager @Inject constructor(
      * Check if user has active entitlement for given identifier
      */
     fun hasEntitlement(entitlementIdentifier: String): Boolean {
-        return _customerInfo.value?.entitlements?.all[entitlementIdentifier]?.isActive == true
+        return _customerInfo.value?.entitlements?.all?.get(entitlementIdentifier)?.isActive == true
     }
 
     /**
@@ -223,13 +242,13 @@ class BillingManager @Inject constructor(
     fun getActiveEntitlements(): Set<String> {
         return _customerInfo.value?.entitlements?.all
             ?.filterValues { it.isActive }
-            ?.keySet() ?: emptySet()
+            ?.keys ?: emptySet()
     }
 
     /**
      * Clean up resources
      */
     fun cleanup() {
-        Purchases.sharedInstance().setPurchasesUpdatedListener(null)
+        Purchases.sharedInstance.updatedCustomerInfoListener = null
     }
 }
