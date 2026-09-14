@@ -370,30 +370,25 @@ fun MainScaffold(
                 }
             )
         } else if (showFixedBottomNavBar) {
-            // Floating capsule bottom bar — margins handled internally (12dp).
+            // Floating capsule bottom bar with the Add FAB docked into its centre —
+            // a single composable, so the destinations and the FAB can never drift
+            // apart. Margins/insets are handled internally (12dp).
+            // The FAB auto-hides while the visible tab's list scrolls and reappears
+            // when the scroll settles (bound per screen via rememberBindAddFabToScroll).
+            // Screens wider than Compact portrait use AppNavigationRail instead, which
+            // carries the same centred Add action.
             AppBottomBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 currentRoute = currentRoute,
                 onItemClick = { route ->
                     onBottomBarVisibilityChange(false)
                     onRouteChange(route)
+                },
+                onAddClick = {
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
                 }
             )
-
-            // Standard 56dp FAB floating above the bar's top-right corner.
-            // Auto-hides while the user scrolls down and reappears on scroll up
-            // (bound per screen via rememberBindAddFabToScroll). Shown only on Home tab.
-            if (currentRoute == AppRoute.Home) {
-                AddTransactionFabSlot(
-                    onClick = {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange(AppRoute.AddTransaction)
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 112.dp, end = 35.dp)
-                )
-            }
         }
     }
     }

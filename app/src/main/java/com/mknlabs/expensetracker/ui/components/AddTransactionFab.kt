@@ -11,7 +11,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -41,8 +41,14 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import kotlinx.coroutines.delay
 
 /**
+ * Diameter of the add-transaction FAB. Exposed so the shell that docks it (see
+ * [AppBottomBar]) can centre it on an edge without duplicating the number.
+ */
+val AddTransactionFabSize = 56.dp
+
+/**
  * Shared visibility controller for the standalone add-transaction FAB rendered
- * by [MainScaffold] just above the floating bottom navigation bar.
+ * by [MainScaffold] — docked into the centre of the floating bottom navigation bar.
  *
  * Each tab screen binds its primary list's scroll direction to this state via
  * [rememberBindAddFabToScroll], so the FAB auto-hides while the user scrolls
@@ -54,12 +60,11 @@ val LocalAddFabVisibility = staticCompositionLocalOf<MutableState<Boolean>> {
 }
 
 /**
- * Standard 56.dp circular "Add transaction" FAB. Designed to float above
- * the top-right corner of the floating bottom navigation bar (see [MainScaffold]).
+ * Standard circular "Add transaction" FAB ([AddTransactionFabSize]).
  *
  * @param onClick Navigates to the Add Transaction screen.
- * @param modifier Applied to the [AnimatedVisibility] wrapper — callers align it
- *   with `Alignment.BottomEnd` and pad it `bottom = 108.dp, end = 16.dp`.
+ * @param modifier Applied to the [AnimatedVisibility] wrapper. Callers own the
+ *   placement — [AppBottomBar] centres it on the capsule's top edge.
  * @param visible Drives the show/hide animation; screens flip it from the
  *   current list's scroll state via [LocalAddFabVisibility].
  */
@@ -95,7 +100,7 @@ fun AddTransactionFab(
                 defaultElevation = 8.dp,
                 pressedElevation = 12.dp
             ),
-            modifier = Modifier.size(56.dp)
+            modifier = Modifier.size(AddTransactionFabSize)
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
@@ -175,8 +180,8 @@ private fun AddTransactionFabPreview() {
             AddTransactionFab(
                 onClick = {},
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 108.dp, end = 16.dp)
+                    .align(Alignment.BottomCenter)
+                    .offset(y = -(AddTransactionFabSize / 2))
             )
         }
     }
