@@ -471,6 +471,23 @@ fun MainScreen(
                         val now = System.currentTimeMillis()
                         // 1. Update Profile (Initializing creation time if it's 0)
                         UserProfileDataStore.updateUserProfile(context) { profile ->
+                            val resolvedAuthProvider = when {
+                                firebaseUser?.isAnonymous == true -> "anonymous"
+                                firebaseUser != null -> {
+                                    // Authenticated user — derive provider from Firebase data
+                                    firebaseUser?.providerData
+                                        ?.firstOrNull { it.providerId != "firebase" }
+                                        ?.providerId
+                                        ?: "email"
+                                }
+                                else -> {
+                                    // Firebase sign-in hasn't completed yet (async race condition).
+                                    // Keep the existing authProvider so we don't incorrectly stamp
+                                    // "email" on a guest user whose anonymous sign-in is still in flight.
+                                    // The LaunchedEffect(firebaseUser) will update it once auth settles.
+                                    profile.authProvider
+                                }
+                            }
                             profile.copy(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
@@ -478,9 +495,7 @@ fun MainScreen(
                                 financialGoal = financialGoal,
                                 accountCreatedMillis = if (profile.accountCreatedMillis == 0L) now else profile.accountCreatedMillis,
                                 updatedAtMillis = now,
-                                authProvider = if (firebaseUser?.isAnonymous == true) "anonymous" else {
-                                    firebaseUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
-                                }
+                                authProvider = resolvedAuthProvider
                             )
                         }
 
