@@ -145,6 +145,7 @@
     <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>
     <string name="desc_add_category">Add category</string>
     <string name="desc_add_transaction">Add transaction</string>
+    <string name="desc_show_navigation_bar">Show navigation bar</string>
     <string name="desc_confirm_val_transaction">Confirm %1$s transaction</string>
     <string name="desc_collapse_keypad">Collapse keypad</string>
     <string name="desc_expand_keypad">Expand keypad</string>
