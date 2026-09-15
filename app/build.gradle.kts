@@ -1,4 +1,6 @@
 import java.util.Properties
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,11 +18,13 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 230
+        versionCode = 232
         versionName = "2.102.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+
     // Load signing credentials from keystore.properties (gitignored)
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties().apply {
@@ -40,13 +44,23 @@ android {
         }
     }
 
+    // Set custom base file name without extensions
+    val vName = defaultConfig.versionName ?: "1.0.0"
+    val vCode = defaultConfig.versionCode ?: 1
+    val current = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")
+    val timestamp = current.format(formatter)
+    base.archivesName.set("ExpenseTracker-v${vName}-vc${vCode}-${timestamp}")
+
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            optimization {
+                enable = true // Enables code and resource optimizations.
+            }
             signingConfig = signingConfigs.getByName("release")
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                // Generates symbol files for native libraries (.so)
+                debugSymbolLevel = "FULL" // Options: "FULL" or "SYMBOL_TABLE"
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -87,6 +101,7 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+    ndkVersion = "30.0.16248370"
 }
 
 ksp {
