@@ -18,8 +18,8 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 232
-        versionName = "2.102.0"
+        versionCode = 233
+        versionName = "2.103.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,6 +97,10 @@ android {
                 )
             }
         }
+        // Room migration tests read the exported schema JSONs from assets.
+        getByName("androidTest") {
+            assets.srcDirs("$projectDir/schemas")
+        }
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
@@ -147,6 +151,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+    // Room 2.8.4's schema parser (room-migration, via room-testing) is compiled
+    // against kotlinx-serialization 1.8+, but the app's transitive version is
+    // pinned to 1.7.3 by datastore. AGP's consistent resolution mirrors the app
+    // classpath into androidTest, so the bump has to live here — otherwise the
+    // v14->v15 migration tests crash with AbstractMethodError on
+    // GeneratedSerializer.typeParametersSerializers().
+    implementation(libs.kotlinx.serialization.json)
     ksp(libs.androidx.room.compiler)
 
     // Paging 3
@@ -185,6 +196,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
