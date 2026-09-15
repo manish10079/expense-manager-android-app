@@ -49,6 +49,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val budgetDao: BudgetDao,
     private val paymentMethodDao: PaymentMethodDao,
     private val recurringRuleDao: RecurringRuleDao,
+    private val installmentOccurrenceDao: com.mknlabs.expensetracker.data.local.room.dao.InstallmentOccurrenceDao,
     private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
     private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : SyncRepository {
@@ -251,6 +252,7 @@ class SyncRepositoryImpl @Inject constructor(
                     goalDao.purgeOldDeleted(threshold)
                     budgetDao.purgeOldDeleted(threshold)
                     recurringRuleDao.purgeOldDeleted(threshold)
+                    installmentOccurrenceDao.purgeOldDeleted(threshold)
                 }
                 android.util.Log.i("Sync", "Successfully purged local synced deleted records older than 30 days.")
             } catch (e: Exception) {
@@ -306,6 +308,7 @@ class SyncRepositoryImpl @Inject constructor(
                 db.execSQL("UPDATE payment_methods SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
                 db.execSQL("UPDATE recurring_rules SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
                 db.execSQL("UPDATE goals SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
+                db.execSQL("UPDATE installment_occurrences SET sync_state = 'PENDING_UPLOAD' WHERE sync_state = 'SYNCED'")
             }
 
             // 3. Trigger immediate sync
@@ -596,8 +599,12 @@ class SyncRepositoryImpl @Inject constructor(
             allTasks.add(SyncTask.BudgetTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
         }
-        recurringRuleDao.getUnsynced().forEach { 
-            allTasks.add(SyncTask.RecurringRuleTask(it)) 
+        recurringRuleDao.getUnsynced().forEach {
+            allTasks.add(SyncTask.RecurringRuleTask(it))
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        installmentOccurrenceDao.getUnsynced().forEach {
+            allTasks.add(SyncTask.InstallmentOccurrenceTask(it))
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
         }
         goalDao.getUnsynced().forEach { 
@@ -642,6 +649,9 @@ class SyncRepositoryImpl @Inject constructor(
 
                 val rrIds = chunk.filterIsInstance<SyncTask.RecurringRuleTask>().map { it.entity.id }
                 if (rrIds.isNotEmpty()) recurringRuleDao.updateSyncStates(rrIds, SyncState.SYNCED.name)
+
+                val occIds = chunk.filterIsInstance<SyncTask.InstallmentOccurrenceTask>().map { it.entity.id }
+                if (occIds.isNotEmpty()) installmentOccurrenceDao.updateSyncStates(occIds, SyncState.SYNCED.name)
 
                 val goalIds = chunk.filterIsInstance<SyncTask.GoalTask>().map { it.entity.id }
                 if (goalIds.isNotEmpty()) goalDao.updateSyncStates(goalIds, SyncState.SYNCED.name)
@@ -711,6 +721,13 @@ class SyncRepositoryImpl @Inject constructor(
                 recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, rrMax)
+
+            // After recurring_rules on purpose: occurrences carry an FK to the
+            // rule, so the parent must already exist locally.
+            val occMax = pullCollection(userDoc, "installment_occurrences", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity ->
+                installmentOccurrenceDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+            }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, occMax)
 
             val budgetMax = pullCollection(userDoc, "budgets", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity ->
                 budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
@@ -862,6 +879,17 @@ class SyncRepositoryImpl @Inject constructor(
                             val isEnabled = doc.getBoolean("isEnabled") ?: true
                             val notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true
                             val lastNotifiedWindowDays = doc.getLong("lastNotifiedWindowDays")?.toInt()
+                            val recurringTypeStr = doc.getString("recurringType")
+                            val recurringType = try {
+                                com.mknlabs.expensetracker.models.RecurringType.valueOf(recurringTypeStr.orEmpty())
+                            } catch (e: Exception) {
+                                // Pre-installment docs (and any unknown value) are plain repeating rules.
+                                com.mknlabs.expensetracker.models.RecurringType.REGULAR
+                            }
+                            val installmentStatusStr = doc.getString("installmentStatus")
+                            val installmentStatus = installmentStatusStr?.let { raw ->
+                                com.mknlabs.expensetracker.models.InstallmentStatus.entries.firstOrNull { it.name == raw }
+                            }
                             val createdAt = doc.getLong("createdAt") ?: 0L
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
@@ -872,7 +900,34 @@ class SyncRepositoryImpl @Inject constructor(
                                 lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt, isEnabled = isEnabled,
                                 notificationsEnabled = notificationsEnabled,
                                 lastNotifiedWindowDays = lastNotifiedWindowDays,
+                                recurringType = recurringType,
+                                installmentTotalMinor = doc.getLong("installmentTotalMinor"),
+                                installmentAmountMinor = doc.getLong("installmentAmountMinor"),
+                                installmentTotalCount = doc.getLong("installmentTotalCount")?.toInt(),
+                                installmentStatus = installmentStatus,
                                 createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val statusStr = doc.getString("status").orEmpty()
+                            val status = try {
+                                com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus.valueOf(statusStr)
+                            } catch (e: Exception) {
+                                com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus.PENDING
+                            }
+                            com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity(
+                                id = id,
+                                ruleId = doc.getString("ruleId").orEmpty(),
+                                installmentIndex = doc.getLong("installmentIndex")?.toInt() ?: 0,
+                                dueAt = doc.getLong("dueAt") ?: 0L,
+                                amountMinor = doc.getLong("amountMinor") ?: 0L,
+                                paidAt = doc.getLong("paidAt"),
+                                status = status,
+                                transactionId = doc.getString("transactionId"),
+                                createdAt = doc.getLong("createdAt") ?: 0L,
+                                updatedAt = doc.getLong("updatedAt") ?: 0L,
+                                isDeleted = doc.getBoolean("isDeleted") ?: false
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity::class -> {
@@ -968,6 +1023,22 @@ class SyncRepositoryImpl @Inject constructor(
                 "lastRunAt" to entity.lastRunAt, "lastNotifiedOccurrenceAt" to entity.lastNotifiedOccurrenceAt,
                 "notificationsEnabled" to entity.notificationsEnabled,
                 "lastNotifiedWindowDays" to entity.lastNotifiedWindowDays,
+                "recurringType" to entity.recurringType.name,
+                "installmentTotalMinor" to entity.installmentTotalMinor,
+                "installmentAmountMinor" to entity.installmentAmountMinor,
+                "installmentTotalCount" to entity.installmentTotalCount,
+                "installmentStatus" to entity.installmentStatus?.name,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
+            )
+        }
+        data class InstallmentOccurrenceTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "installment_occurrences"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "ruleId" to entity.ruleId, "installmentIndex" to entity.installmentIndex,
+                "dueAt" to entity.dueAt, "amountMinor" to entity.amountMinor, "paidAt" to entity.paidAt,
+                "status" to entity.status.name, "transactionId" to entity.transactionId,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
             )
         }
