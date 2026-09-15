@@ -13,6 +13,13 @@ interface InstallmentOccurrenceDao {
     @Query("SELECT * FROM installment_occurrences WHERE rule_id = :ruleId AND is_deleted = 0 ORDER BY installment_index ASC")
     fun observeByRule(ruleId: String): Flow<List<InstallmentOccurrenceEntity>>
 
+    /**
+     * Every live occurrence, for screens that show many plans at once
+     * (recurring list progress). Grouped by caller.
+     */
+    @Query("SELECT * FROM installment_occurrences WHERE is_deleted = 0 ORDER BY installment_index ASC")
+    fun observeAll(): Flow<List<InstallmentOccurrenceEntity>>
+
     @Query("SELECT * FROM installment_occurrences WHERE rule_id = :ruleId AND is_deleted = 0 ORDER BY installment_index ASC")
     suspend fun getByRule(ruleId: String): List<InstallmentOccurrenceEntity>
 

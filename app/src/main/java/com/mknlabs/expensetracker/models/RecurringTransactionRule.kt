@@ -95,7 +95,23 @@ data class RecurringTransactionRule(
 @Immutable
 data class RecurringTransactionDraft(
     val frequency: RecurringFrequency,
-    val repeatCount: Int
+    val repeatCount: Int,
+    /** Non-null when the rule is created as an EMI plan (Add Transaction screen). */
+    val plan: RecurringPlanEdit? = null
+)
+
+/**
+ * A user-entered EMI plan, before it is materialized. Used both when creating
+ * an installment rule from Add Transaction and when editing one from the
+ * recurring list; the repository turns it into slots via
+ * `RecurringRuleRepository.convertToInstallment`.
+ */
+@Immutable
+data class RecurringPlanEdit(
+    val totalAmountMinor: Long,
+    val installmentAmountMinor: Long,
+    val totalInstallments: Int,
+    val firstDueAt: Long
 )
 
 /**
@@ -108,6 +124,7 @@ data class RecurringTransactionDraft(
  * @param totalInstallments Number of installments in the plan.
  * @param paidInstallments Installments already paid (counted, not stored).
  * @param skippedInstallments Installments the user deliberately skipped.
+ * @param totalPaidMinor Sum of every PAID installment's amount (counted).
  * @param remainingAmountMinor [totalAmountMinor] minus everything paid so far.
  * @param status Plan lifecycle, including auto-COMPLETED once fully paid.
  * @param nextDueAt Due date of the next unpaid installment, or null when done.
@@ -119,6 +136,7 @@ data class InstallmentPlan(
     val totalInstallments: Int,
     val paidInstallments: Int,
     val skippedInstallments: Int,
+    val totalPaidMinor: Long,
     val remainingAmountMinor: Long,
     val status: InstallmentStatus,
     val nextDueAt: Long?

@@ -88,6 +88,12 @@ class RecurringRuleRepository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
+    override fun observeAllOccurrences(): Flow<List<InstallmentOccurrence>> {
+        return occurrenceDao.observeAll().map { entities ->
+            entities.map { it.toDomain() }
+        }.flowOn(Dispatchers.IO)
+    }
+
     override suspend fun getOccurrences(ruleId: String): List<InstallmentOccurrence> = withContext(Dispatchers.IO) {
         occurrenceDao.getByRule(ruleId).map { it.toDomain() }
     }
@@ -118,6 +124,7 @@ class RecurringRuleRepository @Inject constructor(
             totalInstallments = totalCount,
             paidInstallments = paid,
             skippedInstallments = skipped,
+            totalPaidMinor = paidAmount,
             // Clamped: an overpayment (or a plan whose terms were edited down)
             // must never report a negative balance.
             remainingAmountMinor = (total - paidAmount).coerceAtLeast(0L),
