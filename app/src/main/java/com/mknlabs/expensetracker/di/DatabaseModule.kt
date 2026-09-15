@@ -32,6 +32,9 @@ object DatabaseModule {
     fun provideRecurringRuleDao(database: ExpenseTrackerDatabase) = database.recurringRuleDao()
 
     @Provides
+    fun provideInstallmentOccurrenceDao(database: ExpenseTrackerDatabase) = database.installmentOccurrenceDao()
+
+    @Provides
     fun provideGoalDao(database: ExpenseTrackerDatabase) = database.goalDao()
 
     @Provides

@@ -2,7 +2,10 @@ package com.mknlabs.expensetracker.data.local.room
 
 import androidx.room.TypeConverter
 import com.mknlabs.expensetracker.models.BudgetPeriod
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
 
 class RoomConverters {
@@ -29,6 +32,46 @@ class RoomConverters {
     @TypeConverter
     fun toBudgetPeriod(value: String): BudgetPeriod {
         return BudgetPeriod.entries.firstOrNull { it.name == value } ?: BudgetPeriod.MONTHLY
+    }
+
+    /**
+     * Recurring rule kind. The fallback is deliberately [RecurringType.REGULAR]:
+     * every row written before installments existed has no value, and a value
+     * pushed by a newer client must never be mistaken for a loan. Falling back to
+     * REGULAR degrades to exactly the pre-installment behavior.
+     */
+    @TypeConverter
+    fun fromRecurringType(value: RecurringType): String = value.name
+
+    @TypeConverter
+    fun toRecurringType(value: String): RecurringType {
+        return RecurringType.entries.firstOrNull { it.name == value } ?: RecurringType.REGULAR
+    }
+
+    /**
+     * Plan lifecycle. Nullable on purpose — a REGULAR rule has no plan at all, so
+     * the column and this converter both pass null through rather than inventing
+     * a status for a rule that has no installments.
+     */
+    @TypeConverter
+    fun fromInstallmentStatus(value: InstallmentStatus?): String? = value?.name
+
+    @TypeConverter
+    fun toInstallmentStatus(value: String?): InstallmentStatus? =
+        value?.let { raw -> InstallmentStatus.entries.firstOrNull { it.name == raw } }
+
+    /**
+     * Occurrence state. OVERDUE is a presentation-only derivation and is never
+     * persisted, but parsing it is harmless if a future client writes it;
+     * anything unrecognised falls back to PENDING rather than losing the slot.
+     */
+    @TypeConverter
+    fun fromInstallmentOccurrenceStatus(value: InstallmentOccurrenceStatus): String = value.name
+
+    @TypeConverter
+    fun toInstallmentOccurrenceStatus(value: String): InstallmentOccurrenceStatus {
+        return InstallmentOccurrenceStatus.entries.firstOrNull { it.name == value }
+            ?: InstallmentOccurrenceStatus.PENDING
     }
 
     @TypeConverter
