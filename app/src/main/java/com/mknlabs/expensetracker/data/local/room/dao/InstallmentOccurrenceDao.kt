@@ -65,11 +65,20 @@ interface InstallmentOccurrenceDao {
     @Query("UPDATE installment_occurrences SET is_deleted = 0, sync_state = :syncState, updated_at = :updatedAt WHERE rule_id = :ruleId")
     suspend fun reviveByRule(ruleId: String, syncState: String, updatedAt: Long)
 
-    @Query("SELECT * FROM installment_occurrences WHERE sync_state != 'SYNCED' AND is_deleted = 0")
+    /**
+     * Includes soft-deleted rows: a conversion's is_deleted flip must propagate
+     * to other devices exactly like any other change (the recurring-rules
+     * unsynced query does the same), and a revive back to is_deleted = 0 is
+     * uploaded too.
+     */
+    @Query("SELECT * FROM installment_occurrences WHERE sync_state != 'SYNCED'")
     suspend fun getUnsynced(): List<InstallmentOccurrenceEntity>
 
     @Query("UPDATE installment_occurrences SET sync_state = :syncState WHERE id IN (:ids)")
     suspend fun updateSyncStates(ids: List<String>, syncState: String)
+
+    @Query("DELETE FROM installment_occurrences WHERE is_deleted = 1 AND sync_state = 'SYNCED' AND updated_at < :threshold")
+    suspend fun purgeOldDeleted(threshold: Long)
 
     @Query("DELETE FROM installment_occurrences WHERE rule_id = :ruleId")
     suspend fun deleteByRule(ruleId: String)
