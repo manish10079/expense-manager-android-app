@@ -9,16 +9,22 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.domain.repository.BudgetRepository
+import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.InstallmentOccurrence
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.toMajorUnits
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -91,6 +97,17 @@ data class BudgetCategoryBudgetUi(
 )
 
 @Immutable
+data class InstallmentSlotUi(
+    val id: String,
+    val index: Int,
+    val dueAt: Long,
+    val amountLabel: String,
+    /** Derived with [InstallmentOccurrence.statusAt] — OVERDUE is never stored. */
+    val status: InstallmentOccurrenceStatus,
+    val paidAt: Long?
+)
+
+@Immutable
 data class BudgetRecurringExpenseUi(
     val id: String,
     val transactionId: String,
@@ -109,7 +126,21 @@ data class BudgetRecurringExpenseUi(
     val accent: BudgetAccent,
     val nextDueAt: Long,
     val isEnabled: Boolean,
-    val notificationsEnabled: Boolean = true
+    val notificationsEnabled: Boolean = true,
+    // ── Installment (EMI) plan — defaults keep every REGULAR rule unchanged ──
+    val isInstallment: Boolean = false,
+    val recurringType: RecurringType = RecurringType.REGULAR,
+    /** Loan principal + interest in major units, for prefilling the editor. */
+    val installmentTotalAmount: Double = 0.0,
+    /** Per-installment amount in major units, for prefilling the editor. */
+    val installmentPerAmount: Double = 0.0,
+    val installmentPaidCount: Int = 0,
+    val installmentRemainingLabel: String = "",
+    val installmentProgressFraction: Float = 0f,
+    val installmentPlanStatus: InstallmentStatus? = null,
+    /** First scheduled slot's due date (0 when the plan has no slots yet). */
+    val firstDueAt: Long = 0L,
+    val slots: List<InstallmentSlotUi> = emptyList()
 )
 
 @Immutable
@@ -162,12 +193,18 @@ private data class RecurringEntry(
     val repeatCount: Int,
     val isEnabled: Boolean,
     val notificationsEnabled: Boolean = true,
-    val nextRunAt: Long = 0L
+    val nextRunAt: Long = 0L,
+    val recurringType: RecurringType = RecurringType.REGULAR,
+    val installmentTotalMinor: Long? = null,
+    val installmentAmountMinor: Long? = null,
+    val installmentTotalCount: Int? = null,
+    val installmentStatus: InstallmentStatus? = null
 )
 
 @HiltViewModel
 class BudgetAndRecurringViewModel @Inject constructor(
-    private val budgetRepository: BudgetRepository
+    private val budgetRepository: BudgetRepository,
+    recurringRuleRepository: RecurringRuleRepository
 ) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
@@ -175,6 +212,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
     private var currentRecurringEntries: List<RecurringEntry> = emptyList()
+    /** Live occurrences of every installment rule, grouped by rule id. */
+    private var currentOccurrencesByRule: Map<String, List<InstallmentOccurrence>> = emptyMap()
     private var anchorMonthStart: Long = startOfMonth(System.currentTimeMillis())
     private var selectedPeriod: BudgetPeriodFilter = BudgetPeriodFilter.ThisMonth
     private var customMonthStart: Long = anchorMonthStart
@@ -187,6 +226,12 @@ class BudgetAndRecurringViewModel @Inject constructor(
         viewModelScope.launch {
             budgetRepository.observeActiveBudgets().collect { budgets ->
                 budgetEntries = budgets.map(Budget::toBudgetEntry)
+                rebuildUiState()
+            }
+        }
+        viewModelScope.launch {
+            recurringRuleRepository.observeAllOccurrences().collect { occurrences ->
+                currentOccurrencesByRule = occurrences.groupBy { it.ruleId }
                 rebuildUiState()
             }
         }
@@ -216,7 +261,12 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 repeatCount = rule.repeatCount,
                 isEnabled = rule.isEnabled,
                 notificationsEnabled = rule.notificationsEnabled,
-                nextRunAt = rule.nextRunAt
+                nextRunAt = rule.nextRunAt,
+                recurringType = rule.recurringType,
+                installmentTotalMinor = rule.installmentTotalMinor,
+                installmentAmountMinor = rule.installmentAmountMinor,
+                installmentTotalCount = rule.installmentTotalCount,
+                installmentStatus = rule.installmentStatus
             )
         }
         anchorMonthStart = resolveAnchorMonthStart(transactions, currentMonthStartDay)
@@ -407,12 +457,15 @@ class BudgetAndRecurringViewModel @Inject constructor(
         )
         val allRecurring = buildRecurringExpenses(
             recurringEntries = currentRecurringEntries,
+            occurrencesByRule = currentOccurrencesByRule,
             transactions = currentTransactions,
             categories = currentCategories,
             currencyId = currentCurrencyId,
             amountFormatPreferences = currentAmountFormatPreferences
         )
-        val activeRecurring = allRecurring.filter { it.currentInstallment <= it.totalInstallments }
+        val activeRecurring = allRecurring.filter {
+            it.isInstallment || it.currentInstallment <= it.totalInstallments
+        }
 
         val categoryTrackedMap = mutableMapOf<Int, MutableList<String>>()
         monthlyBudgets.forEach { budgetEntry ->
@@ -648,6 +701,7 @@ private fun buildCategoryBudgets(
 
 private fun buildRecurringExpenses(
     recurringEntries: List<RecurringEntry>,
+    occurrencesByRule: Map<String, List<InstallmentOccurrence>>,
     transactions: List<Transaction>,
     categories: Map<Int, CategoryType>,
     currencyId: Int,
@@ -660,45 +714,26 @@ private fun buildRecurringExpenses(
                 it.id == recurringEntry.transactionId && it.transactionTypeId != 1
             } ?: return@mapNotNull null
             val category = categories[transaction.categoryId] ?: return@mapNotNull null
-            // Prefer the rule's real schedule over re-deriving it from the anchor:
-            // the tab then shows an occurrence as due until the worker has actually
-            // added it, and only advances to the next date after the add. This keeps
-            // the screen in sync with the background worker (and the backfill) so a
-            // missed/overdue occurrence is visible instead of showing a future date.
-            val anchorDerived = calculateNextInstallmentInfo(
-                baseTimestamp = transaction.createdAt,
-                frequency = recurringEntry.frequency,
-                referenceTime = referenceTime
-            )
-            val nextDueAt = recurringEntry.nextRunAt.takeIf { it > 0L } ?: anchorDerived.first
-            val nextIndex = anchorDerived.second
-            val accent = recurringAccent(
-                isEnabled = recurringEntry.isEnabled,
-                frequency = recurringEntry.frequency,
-                nextDueAt = nextDueAt,
-                referenceTime = referenceTime
-            )
-
-            BudgetRecurringExpenseUi(
-                id = recurringEntry.id,
-                transactionId = transaction.id,
-                title = transaction.note.ifBlank { category.name },
-                amountLabel = "${formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences)} / ${recurringEntry.frequency.periodUnit}",
-                categoryLabel = category.name.uppercase(Locale.getDefault()),
-                frequency = recurringEntry.frequency,
-                frequencyLabel = recurringEntry.frequency.label.uppercase(Locale.getDefault()),
-                repeatCount = recurringEntry.repeatCount,
-                currentInstallment = nextIndex,
-                totalInstallments = recurringEntry.repeatCount,
-                sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
-                dueLabel = dueLabelFor(nextDueAt, referenceTime),
-                dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
-                icon = category.icon,
-                accent = accent,
-                nextDueAt = nextDueAt,
-                isEnabled = recurringEntry.isEnabled,
-                notificationsEnabled = recurringEntry.notificationsEnabled
-            )
+            if (recurringEntry.recurringType == RecurringType.INSTALLMENT) {
+                buildInstallmentExpense(
+                    recurringEntry = recurringEntry,
+                    occurrences = occurrencesByRule[recurringEntry.id].orEmpty(),
+                    transaction = transaction,
+                    category = category,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences,
+                    referenceTime = referenceTime
+                )
+            } else {
+                buildRegularExpense(
+                    recurringEntry = recurringEntry,
+                    transaction = transaction,
+                    category = category,
+                    currencyId = currencyId,
+                    amountFormatPreferences = amountFormatPreferences,
+                    referenceTime = referenceTime
+                )
+            }
         }
         .sortedWith(
             compareBy<BudgetRecurringExpenseUi> { !it.isEnabled }
@@ -706,6 +741,157 @@ private fun buildRecurringExpenses(
                 .thenBy { it.nextDueAt }
                 .thenBy { it.title.lowercase(Locale.getDefault()) }
         )
+}
+
+/** Plain repeating rule — the original, unchanged presentation path. */
+private fun buildRegularExpense(
+    recurringEntry: RecurringEntry,
+    transaction: Transaction,
+    category: CategoryType,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    referenceTime: Long
+): BudgetRecurringExpenseUi {
+    // Prefer the rule's real schedule over re-deriving it from the anchor:
+    // the tab then shows an occurrence as due until the worker has actually
+    // added it, and only advances to the next date after the add. This keeps
+    // the screen in sync with the background worker (and the backfill) so a
+    // missed/overdue occurrence is visible instead of showing a future date.
+    val anchorDerived = calculateNextInstallmentInfo(
+        baseTimestamp = transaction.createdAt,
+        frequency = recurringEntry.frequency,
+        referenceTime = referenceTime
+    )
+    val nextDueAt = recurringEntry.nextRunAt.takeIf { it > 0L } ?: anchorDerived.first
+    val nextIndex = anchorDerived.second
+    val accent = recurringAccent(
+        isEnabled = recurringEntry.isEnabled,
+        frequency = recurringEntry.frequency,
+        nextDueAt = nextDueAt,
+        referenceTime = referenceTime
+    )
+
+    return BudgetRecurringExpenseUi(
+        id = recurringEntry.id,
+        transactionId = transaction.id,
+        title = transaction.note.ifBlank { category.name },
+        amountLabel = "${formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences)} / ${recurringEntry.frequency.periodUnit}",
+        categoryLabel = category.name.uppercase(Locale.getDefault()),
+        frequency = recurringEntry.frequency,
+        frequencyLabel = recurringEntry.frequency.label.uppercase(Locale.getDefault()),
+        repeatCount = recurringEntry.repeatCount,
+        currentInstallment = nextIndex,
+        totalInstallments = recurringEntry.repeatCount,
+        sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
+        dueLabel = dueLabelFor(nextDueAt, referenceTime),
+        dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
+        icon = category.icon,
+        accent = accent,
+        nextDueAt = nextDueAt,
+        isEnabled = recurringEntry.isEnabled,
+        notificationsEnabled = recurringEntry.notificationsEnabled
+    )
+}
+
+/**
+ * EMI rule — progress is counted from the live occurrence rows (paid count,
+ * paid sum) rather than from any stored counter, and the next due date is the
+ * earliest PENDING slot, falling back to the rule's schedule when the plan is
+ * fully settled.
+ */
+private fun buildInstallmentExpense(
+    recurringEntry: RecurringEntry,
+    occurrences: List<InstallmentOccurrence>,
+    transaction: Transaction,
+    category: CategoryType,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    referenceTime: Long
+): BudgetRecurringExpenseUi {
+    val totalCount = recurringEntry.installmentTotalCount ?: occurrences.size
+    val totalMinor = recurringEntry.installmentTotalMinor
+    val perMinor = recurringEntry.installmentAmountMinor
+
+    val paidSlots = occurrences.filter { it.status == InstallmentOccurrenceStatus.PAID }
+    val paidCount = paidSlots.size
+    val paidMinor = paidSlots.sumOf { it.amountMinor }
+    val remainingMinor = ((totalMinor ?: 0L) - paidMinor).coerceAtLeast(0L)
+
+    val nextPendingDueAt = occurrences
+        .filter { it.status == InstallmentOccurrenceStatus.PENDING }
+        .minOfOrNull { it.dueAt }
+    val nextDueAt = nextPendingDueAt ?: recurringEntry.nextRunAt
+
+    val planStatus = recurringEntry.installmentStatus
+    val isDone = planStatus == InstallmentStatus.COMPLETED ||
+        (totalCount > 0 && paidCount >= totalCount)
+    val accent = when {
+        !recurringEntry.isEnabled -> BudgetAccent.Disabled
+        isDone -> BudgetAccent.Primary
+        else -> recurringAccent(
+            isEnabled = true,
+            frequency = recurringEntry.frequency,
+            nextDueAt = nextDueAt,
+            referenceTime = referenceTime
+        )
+    }
+
+    // An unsettled slot past its due date reads OVERDUE for the badge — the
+    // same derivation the ledger uses; it is never persisted.
+    val hasOverdueSlot = occurrences.any {
+        it.status == InstallmentOccurrenceStatus.PENDING && it.dueAt < referenceTime
+    }
+
+    val perAmount = perMinor?.toMajorUnits() ?: transaction.amount
+    val remainingLabel = formatCurrencyValue(remainingMinor.toMajorUnits(), currencyId, amountFormatPreferences)
+    val dueLabel = when {
+        isDone -> UiText.res(R.string.label_all_settled)
+        hasOverdueSlot -> UiText.res(R.string.label_emis_overdue)
+        else -> dueLabelFor(nextDueAt, referenceTime)
+    }
+
+    return BudgetRecurringExpenseUi(
+        id = recurringEntry.id,
+        transactionId = transaction.id,
+        title = transaction.note.ifBlank { category.name },
+        amountLabel = "${formatCurrencyValue(perAmount, currencyId, amountFormatPreferences)} / ${recurringEntry.frequency.periodUnit}",
+        categoryLabel = category.name.uppercase(Locale.getDefault()),
+        frequency = recurringEntry.frequency,
+        frequencyLabel = recurringEntry.frequency.label.uppercase(Locale.getDefault()),
+        repeatCount = totalCount,
+        currentInstallment = paidCount,
+        totalInstallments = totalCount,
+        sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
+        dueLabel = dueLabel,
+        dueAmountLabel = formatCurrencyValue(perAmount, currencyId, amountFormatPreferences),
+        icon = category.icon,
+        accent = accent,
+        nextDueAt = nextDueAt,
+        isEnabled = recurringEntry.isEnabled,
+        notificationsEnabled = recurringEntry.notificationsEnabled,
+        isInstallment = true,
+        recurringType = RecurringType.INSTALLMENT,
+        installmentTotalAmount = totalMinor?.toMajorUnits() ?: (perAmount * totalCount),
+        installmentPerAmount = perAmount,
+        installmentPaidCount = paidCount,
+        installmentRemainingLabel = remainingLabel,
+        installmentProgressFraction = if (totalCount <= 0) 0f
+        else (paidCount.toFloat() / totalCount).coerceIn(0f, 1f),
+        installmentPlanStatus = if (isDone) InstallmentStatus.COMPLETED else planStatus,
+        firstDueAt = occurrences.minOfOrNull { it.dueAt } ?: recurringEntry.nextRunAt,
+        slots = occurrences.sortedBy { it.installmentIndex }.map { occurrence ->
+            InstallmentSlotUi(
+                id = occurrence.id,
+                index = occurrence.installmentIndex,
+                dueAt = occurrence.dueAt,
+                amountLabel = formatCurrencyValue(
+                    occurrence.amountMinor.toMajorUnits(), currencyId, amountFormatPreferences
+                ),
+                status = occurrence.statusAt(referenceTime),
+                paidAt = occurrence.paidAt
+            )
+        }
+    )
 }private fun recurringAccent(
     isEnabled: Boolean,
     frequency: RecurringFrequency,

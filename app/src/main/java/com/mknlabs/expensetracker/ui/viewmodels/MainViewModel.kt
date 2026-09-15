@@ -21,6 +21,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.FavoriteTransaction
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
@@ -290,7 +291,7 @@ class MainViewModel @Inject constructor(
                         savedTransaction.createdAt,
                         recurringDraft.frequency
                     )
-                    recurringRuleRepository.upsertRule(
+                    val rule = recurringRuleRepository.upsertRule(
                         RecurringTransactionRule(
                             id = existingRule?.id.orEmpty(),
                             transactionId = savedTransaction.id,
@@ -308,6 +309,17 @@ class MainViewModel @Inject constructor(
                             isDeleted = false
                         )
                     )
+                    // EMI drafts additionally materialize the installment plan on
+                    // the rule just created (deterministic slots, idempotent).
+                    recurringDraft.plan?.let { plan ->
+                        recurringRuleRepository.convertToInstallment(
+                            ruleId = rule.id,
+                            totalAmountMinor = plan.totalAmountMinor,
+                            installmentAmountMinor = plan.installmentAmountMinor,
+                            totalInstallments = plan.totalInstallments,
+                            firstDueAt = plan.firstDueAt
+                        )
+                    }
                 }
 
                 existingRule != null -> recurringRuleRepository.deleteRule(existingRule.id)
@@ -467,6 +479,45 @@ class MainViewModel @Inject constructor(
                     updatedAt = System.currentTimeMillis()
                 )
             )
+        }
+    }
+
+    /**
+     * Save (or re-save) an EMI plan on an existing rule. The rule's schedule is
+     * updated first because slot materialization reads the rule's frequency —
+     * convertToInstallment then (re)builds the occurrence list from the plan
+     * terms, reviving slots of a previously converted plan with paid state intact.
+     */
+    fun saveRecurringPlan(
+        ruleId: String,
+        frequency: RecurringFrequency,
+        plan: RecurringPlanEdit
+    ) {
+        viewModelScope.launch {
+            val existingRule = _uiState.value.recurringRules.find { it.id == ruleId } ?: return@launch
+            recurringRuleRepository.upsertRule(
+                existingRule.copy(
+                    frequency = frequency,
+                    repeatCount = plan.totalInstallments
+                )
+            )
+            recurringRuleRepository.convertToInstallment(
+                ruleId = ruleId,
+                totalAmountMinor = plan.totalAmountMinor,
+                installmentAmountMinor = plan.installmentAmountMinor,
+                totalInstallments = plan.totalInstallments,
+                firstDueAt = plan.firstDueAt
+            )
+            // Reconcile immediately so an already-due first installment does not
+            // wait for the next heartbeat.
+            com.mknlabs.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
+        }
+    }
+
+    /** Hide an EMI plan (soft-delete the schedule, keep terms — fully reversible). */
+    fun convertRecurringToRegular(ruleId: String) {
+        viewModelScope.launch {
+            recurringRuleRepository.convertToRegular(ruleId)
         }
     }
 

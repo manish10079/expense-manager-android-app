@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
@@ -120,6 +121,8 @@ fun AppNavigationHost(
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit = { _, _, _ -> },
+    onConvertRecurringToRegular: (String) -> Unit = {},
     onCreateCustomCategory: (String, String, Int) -> Unit,
     onCreateCustomPaymentType: (String, String) -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
@@ -265,6 +268,8 @@ fun AppNavigationHost(
                         onRecurringEnabledChange = onRecurringEnabledChange,
                         onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
                         onUpdateRecurringRule = onUpdateRecurringRule,
+                        onSaveRecurringPlan = onSaveRecurringPlan,
+                        onConvertRecurringToRegular = onConvertRecurringToRegular,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)

@@ -25,6 +25,12 @@ interface RecurringRuleRepository {
     /** Scheduled installments of a rule, in plan order. */
     fun observeOccurrences(ruleId: String): Flow<List<InstallmentOccurrence>>
 
+    /**
+     * Every live occurrence across all rules — for screens that show several
+     * plans at once (recurring list progress). Group by [InstallmentOccurrence.ruleId].
+     */
+    fun observeAllOccurrences(): Flow<List<InstallmentOccurrence>>
+
     suspend fun getOccurrences(ruleId: String): List<InstallmentOccurrence>
 
     /**

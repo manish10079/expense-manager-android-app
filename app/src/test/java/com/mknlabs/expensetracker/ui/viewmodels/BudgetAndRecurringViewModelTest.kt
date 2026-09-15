@@ -2,8 +2,11 @@ package com.mknlabs.expensetracker.ui.viewmodels
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.domain.repository.BudgetRepository
+import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.BudgetPeriod
+import com.mknlabs.expensetracker.models.InstallmentOccurrence
+import com.mknlabs.expensetracker.models.InstallmentPlan
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.utils.CustomMonthUtils
@@ -11,6 +14,7 @@ import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -34,7 +38,10 @@ class BudgetAndRecurringViewModelTest {
     @Before
     fun setup() {
         fakeRepository = FakeBudgetRepository()
-        viewModel = BudgetAndRecurringViewModel(budgetRepository = fakeRepository)
+        viewModel = BudgetAndRecurringViewModel(
+            budgetRepository = fakeRepository,
+            recurringRuleRepository = FakeRecurringRuleRepository()
+        )
         viewModel.updateInputs(
             transactions = emptyList(),
             categories = emptyList(),
@@ -181,6 +188,33 @@ class BudgetAndRecurringViewModelTest {
             editCount = 0,
             isDeleted = false
         )
+    }
+
+    private class FakeRecurringRuleRepository : RecurringRuleRepository {
+        override fun observeActiveRecurringRules(): Flow<List<RecurringTransactionRule>> = flowOf(emptyList())
+        override suspend fun getActiveRules(): List<RecurringTransactionRule> = emptyList()
+        override suspend fun getActiveByTransactionId(transactionId: String): RecurringTransactionRule? = null
+        override suspend fun upsertRule(rule: RecurringTransactionRule): RecurringTransactionRule = rule
+        override suspend fun setEnabled(id: String, enabled: Boolean) = Unit
+        override suspend fun setNotificationsEnabled(id: String, enabled: Boolean) = Unit
+        override suspend fun deleteRule(id: String) = Unit
+        override fun observeOccurrences(ruleId: String): Flow<List<InstallmentOccurrence>> = flowOf(emptyList())
+        override fun observeAllOccurrences(): Flow<List<InstallmentOccurrence>> = flowOf(emptyList())
+        override suspend fun getOccurrences(ruleId: String): List<InstallmentOccurrence> = emptyList()
+        override suspend fun getInstallmentPlan(ruleId: String): InstallmentPlan? = null
+        override suspend fun convertToInstallment(
+            ruleId: String,
+            totalAmountMinor: Long,
+            installmentAmountMinor: Long,
+            totalInstallments: Int,
+            firstDueAt: Long
+        ): RecurringTransactionRule? = null
+        override suspend fun convertToRegular(ruleId: String): RecurringTransactionRule? = null
+        override suspend fun payInstallment(occurrenceId: String, paidAt: Long): InstallmentOccurrence? = null
+        override suspend fun payInstallments(occurrenceIds: List<String>, paidAt: Long): Int = 0
+        override suspend fun skipInstallment(occurrenceId: String): InstallmentOccurrence? = null
+        override suspend fun undoInstallment(occurrenceId: String): InstallmentOccurrence? = null
+        override suspend fun reconcileDueInstallments(ruleId: String, now: Long): List<String> = emptyList()
     }
 
     private class FakeBudgetRepository : BudgetRepository {
