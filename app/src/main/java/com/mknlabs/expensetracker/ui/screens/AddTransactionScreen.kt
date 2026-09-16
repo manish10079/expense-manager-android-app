@@ -42,6 +42,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -128,8 +129,10 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.CurrencyPosition
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -311,6 +314,21 @@ fun AddTransactionScreen(
         var recurringCountInput by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingRecurringRule?.repeatCount?.toString() ?: "12")
         }
+        // EMI creation is offered only while creating: an existing plan is
+        // changed from the recurring list editor, which can show the plan's real
+        // first-due date (it lives on the slot ledger, not on the rule).
+        val canCreateInstallment = !isEditMode
+        var selectedRecurringType by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(RecurringType.REGULAR)
+        }
+        var emiTotalInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        // Null until the user picks one — an unpicked plan starts on the
+        // transaction date, so changing that date still moves the plan start.
+        var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf<Long?>(null)
+        }
+        var isEmiFirstDuePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
@@ -503,10 +521,29 @@ fun AddTransactionScreen(
             paymentMethods.firstOrNull { it.id == selectedPaymentId }
         }
         val recurringCount = recurringCountInput.toIntOrNull()
+
+        // ── Recurring draft (built once, so the Add button and the save path
+        // can never disagree about what is about to be persisted) ─────────────
+        val isEmiSelected = canCreateInstallment && selectedRecurringType == RecurringType.INSTALLMENT
+        val effectiveFirstDueAt = emiFirstDueAtPicked ?: selectedDateMillis
+        val recurringDraft = buildRecurringDraft(
+            isRecurringEnabled = isRecurringEnabled,
+            frequency = selectedRecurringFrequency,
+            repeatCount = recurringCount,
+            isInstallmentSelected = isEmiSelected,
+            totalAmount = emiTotalInput.toDoubleOrNull() ?: 0.0,
+            installmentAmount = emiInstallmentInput.toDoubleOrNull() ?: 0.0,
+            firstDueAt = effectiveFirstDueAt
+        )
+
         val canSubmit = (amountInput.toDoubleOrNull() ?: 0.0) > 0 &&
             selectedCategory != null &&
             selectedPayment != null &&
-            (!isRecurringEnabled || (recurringCount != null && recurringCount > 0))
+            // An EMI with terms that do not add up (or that is still half-filled)
+            // stays unsaveable rather than silently falling back to a plain
+            // recurring rule.
+            (!isRecurringEnabled ||
+                (recurringDraft != null && (!isEmiSelected || recurringDraft.plan != null)))
 
         // Prefills the form from a tapped favorite template and notifies the
         // caller (which resets the star toggle) before confirming to the user.
@@ -879,6 +916,7 @@ fun AddTransactionScreen(
                             modifier = Modifier.weight(1f),
                             isEnabled = isRecurringEnabled,
                             frequency = selectedRecurringFrequency,
+                            isInstallment = isEmiSelected,
                             compact = compact,
                             onClick = { isRecurringModalVisible = true }
                         )
@@ -977,18 +1015,6 @@ fun AddTransactionScreen(
                                 updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
                                 sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
                             )
-                            val recurringDraft = if (
-                                isRecurringEnabled &&
-                                recurringCount != null &&
-                                recurringCount > 0
-                            ) {
-                                RecurringTransactionDraft(
-                                    frequency = selectedRecurringFrequency,
-                                    repeatCount = recurringCount
-                                )
-                            } else {
-                                null
-                            }
                             // Duplicate detection: check if a rule with same category + amount + frequency exists
                             if (recurringDraft != null && !isEditMode) {
                                 val amount = amountInput.toDoubleOrNull() ?: 0.0
@@ -1104,6 +1130,7 @@ fun AddTransactionScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         .padding(bottom = 32.dp)
                 ) {
                     RecurringTransactionSection(
@@ -1113,9 +1140,24 @@ fun AddTransactionScreen(
                         compact = compact,
                         activeRecurringRuleCount = activeRecurringRuleCount,
                         isEditMode = isEditMode,
+                        canCreateInstallment = canCreateInstallment,
+                        selectedType = selectedRecurringType,
+                        emiTotalInput = emiTotalInput,
+                        emiInstallmentInput = emiInstallmentInput,
+                        emiFirstDueText = formatTransactionDate(effectiveFirstDueAt, dateFormatPattern),
+                        isEmiPlanValid = recurringDraft?.plan != null,
                         onEnabledChange = { isRecurringEnabled = it },
                         onFrequencySelected = { selectedRecurringFrequency = it },
-                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) }
+                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) },
+                        onTypeSelected = { selectedRecurringType = it },
+                        onEmiTotalChange = { emiTotalInput = it },
+                        onEmiInstallmentChange = { emiInstallmentInput = it },
+                        // The wheel picker is itself a modal sheet, so it cannot
+                        // open on top of this one: step out to it and come back.
+                        onEmiFirstDueClick = {
+                            isRecurringModalVisible = false
+                            isEmiFirstDuePickerVisible = true
+                        }
                     )
                 }
             }
@@ -1172,6 +1214,24 @@ fun AddTransactionScreen(
             )
         }
 
+        // The recurring section steps out of its sheet so this picker (itself a
+        // sheet) can open; confirming or cancelling returns to the plan form.
+        if (isEmiFirstDuePickerVisible) {
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_DATE,
+                initialStartMillis = effectiveFirstDueAt,
+                onDismissRequest = {
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                },
+                onConfirm = { start, _ ->
+                    emiFirstDueAtPicked = start
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                }
+            )
+        }
+
         if (isFavoritesSheetVisible) {
             FavoritesBottomSheet(
                 favorites = favorites,
@@ -1197,10 +1257,24 @@ private fun RecurringTransactionSection(
     compact: Boolean,
     activeRecurringRuleCount: Int = 0,
     isEditMode: Boolean = false,
+    canCreateInstallment: Boolean = false,
+    selectedType: RecurringType = RecurringType.REGULAR,
+    emiTotalInput: String = "",
+    emiInstallmentInput: String = "",
+    emiFirstDueText: String = "",
+    isEmiPlanValid: Boolean = false,
     onEnabledChange: (Boolean) -> Unit,
     onFrequencySelected: (RecurringFrequency) -> Unit,
-    onRepeatCountChange: (String) -> Unit
+    onRepeatCountChange: (String) -> Unit,
+    onTypeSelected: (RecurringType) -> Unit = {},
+    onEmiTotalChange: (String) -> Unit = {},
+    onEmiInstallmentChange: (String) -> Unit = {},
+    onEmiFirstDueClick: () -> Unit = {}
 ) {
+    // INSTALLMENT is only offered while creating; the recurring-list editor owns
+    // changing an existing rule's plan.
+    val isInstallment = canCreateInstallment && selectedType == RecurringType.INSTALLMENT
+    val planCount = repeatCountInput.toIntOrNull() ?: 0
     val context = LocalContext.current
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     var showPremiumSheet by remember { mutableStateOf(false) }
@@ -1291,6 +1365,31 @@ private fun RecurringTransactionSection(
 
         if (isEnabled) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (canCreateInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_recurring_type))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            FilterChip(
+                                selected = !isInstallment,
+                                onClick = { onTypeSelected(RecurringType.REGULAR) },
+                                label = { Text(stringResource(R.string.label_type_regular)) }
+                            )
+                            FilterChip(
+                                selected = isInstallment,
+                                onClick = { onTypeSelected(RecurringType.INSTALLMENT) },
+                                label = { Text(stringResource(R.string.label_type_emi)) }
+                            )
+                        }
+                        if (isInstallment) {
+                            Text(
+                                text = stringResource(R.string.desc_emi_plan_toggle),
+                                color = colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+
                 // Frequency Selector (Sliding Pill)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     SectionHeader(title = stringResource(R.string.title_frequency))
@@ -1378,6 +1477,62 @@ private fun RecurringTransactionSection(
                     }
                 }
 
+                // Plan terms — only the count below is shared with REGULAR.
+                if (isInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_total_amount))
+                        EmiAmountField(
+                            value = emiTotalInput,
+                            onValueChange = onEmiTotalChange,
+                            supportingText = stringResource(R.string.desc_emi_total_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_installment_amount))
+                        EmiAmountField(
+                            value = emiInstallmentInput,
+                            onValueChange = onEmiInstallmentChange,
+                            supportingText = stringResource(R.string.desc_emi_installment_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_first_due))
+                        OutlinedTextField(
+                            value = emiFirstDueText,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = onEmiFirstDueClick),
+                            enabled = false,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = colorScheme.onSurface,
+                                disabledBorderColor = colorScheme.outlineVariant,
+                                disabledContainerColor = colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+
+                    // A half-filled plan is not an error yet — only an inconsistent
+                    // one is, exactly as in the recurring-list editor.
+                    if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
+                        Text(
+                            text = stringResource(R.string.msg_emi_amount_mismatch),
+                            color = colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+
                 // Installments Picker
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     SectionHeader(title = stringResource(R.string.label_total_installments))
@@ -1452,7 +1607,14 @@ private fun RecurringTransactionSection(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = stringResource(R.string.msg_installment_info),
+                            text = if (isInstallment) {
+                                stringResource(
+                                    R.string.msg_emi_create_info,
+                                    (planCount - 1).coerceAtLeast(0)
+                                )
+                            } else {
+                                stringResource(R.string.msg_installment_info)
+                            },
                             color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 lineHeight = 14.sp,
@@ -2357,6 +2519,84 @@ private fun formatEditableAmount(amount: Double): String {
     return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
 }
 
+/**
+ * The recurring rule an Add Transaction save persists, or null when recurring is
+ * off or the repeat count is unusable.
+ *
+ * An EMI is materialized only when its terms are internally consistent
+ * (`total = installment × count`, the invariant the recurring-list editor also
+ * enforces), compared in minor units so float noise on values like
+ * `1234.56 × 3` cannot reject a plan the user entered correctly. A half-filled or
+ * inconsistent plan therefore yields a draft with `plan == null`, which callers
+ * must treat as unsaveable instead of persisting it as an ordinary recurring
+ * rule.
+ */
+internal fun buildRecurringDraft(
+    isRecurringEnabled: Boolean,
+    frequency: RecurringFrequency,
+    repeatCount: Int?,
+    isInstallmentSelected: Boolean,
+    totalAmount: Double,
+    installmentAmount: Double,
+    firstDueAt: Long
+): RecurringTransactionDraft? {
+    if (!isRecurringEnabled || repeatCount == null || repeatCount <= 0) return null
+
+    val totalMinor = totalAmount.toMinorUnits()
+    val installmentMinor = installmentAmount.toMinorUnits()
+    val plan = if (isInstallmentSelected && totalMinor > 0L && installmentMinor > 0L &&
+        totalMinor == installmentMinor * repeatCount
+    ) {
+        RecurringPlanEdit(
+            totalAmountMinor = totalMinor,
+            installmentAmountMinor = installmentMinor,
+            totalInstallments = repeatCount,
+            firstDueAt = firstDueAt
+        )
+    } else {
+        null
+    }
+
+    return RecurringTransactionDraft(
+        frequency = frequency,
+        repeatCount = repeatCount,
+        plan = plan
+    )
+}
+
+/** Major-unit amount input for the EMI plan fields (digits and one decimal point only). */
+@Composable
+private fun EmiAmountField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    supportingText: String? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { input ->
+            // Same 12-character ceiling as the transaction amount field, which
+            // also keeps the minor-unit conversion far away from Long overflow.
+            if (input.length <= 12 &&
+                (input.isEmpty() || (input.all { it.isDigit() || it == '.' } && input.count { it == '.' } <= 1))
+            ) {
+                onValueChange(input)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        supportingText = supportingText?.let { { Text(it) } },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+}
+
 private fun validateAmountChange(newValue: String, current: String): String {
     if (newValue.isEmpty()) return "0"
     if (newValue.length > 12) return current
@@ -2398,14 +2638,20 @@ private fun RecurringCompactCard(
     modifier: Modifier = Modifier,
     isEnabled: Boolean,
     frequency: RecurringFrequency,
+    isInstallment: Boolean = false,
     compact: Boolean,
     onClick: () -> Unit
 ) {
+    val frequencyLabel = stringResource(recurringModeOptions.first { it.frequency == frequency }.label)
     SelectionInfoCard(
         modifier = modifier,
         leadingIcon = Icons.Default.CalendarMonth,
         label = stringResource(R.string.label_recurring),
-        value = if (isEnabled) stringResource(recurringModeOptions.first { it.frequency == frequency }.label) else stringResource(R.string.label_off),
+        value = when {
+            !isEnabled -> stringResource(R.string.label_off)
+            isInstallment -> stringResource(R.string.label_emi_frequency_format, frequencyLabel)
+            else -> frequencyLabel
+        },
         isPlaceholder = !isEnabled,
         highlighted = isEnabled,
         compact = compact,
