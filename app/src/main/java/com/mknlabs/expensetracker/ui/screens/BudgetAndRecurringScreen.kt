@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
@@ -110,6 +112,7 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringType
@@ -137,10 +140,12 @@ import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCopyCandidateUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
+import com.mknlabs.expensetracker.ui.viewmodels.InstallmentSlotUi
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -177,6 +182,9 @@ fun BudgetAndRecurringScreen(
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
     onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit = { _, _, _ -> },
     onConvertRecurringToRegular: (String) -> Unit = {},
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
@@ -209,6 +217,9 @@ fun BudgetAndRecurringScreen(
         onUpdateRecurringRule = onUpdateRecurringRule,
         onSaveRecurringPlan = onSaveRecurringPlan,
         onConvertRecurringToRegular = onConvertRecurringToRegular,
+        onPayInstallments = onPayInstallments,
+        onSkipInstallment = onSkipInstallment,
+        onUndoInstallment = onUndoInstallment,
         onBackClick = onBackClick,
         onSelectTab = { budgetViewModel.selectTab(it) },
         onSelectPeriod = { budgetViewModel.selectPeriod(it) },
@@ -242,6 +253,9 @@ private fun BudgetAndRecurringContent(
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
     onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit,
     onConvertRecurringToRegular: (String) -> Unit,
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
     onBackClick: () -> Unit,
     onSelectTab: (BudgetTab) -> Unit,
     onSelectPeriod: (BudgetPeriodFilter) -> Unit,
@@ -263,6 +277,9 @@ private fun BudgetAndRecurringContent(
     var infoBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var isGroupInfoSheetVisible by rememberSaveable { mutableStateOf(false) }
     val groupInfoSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Id of the EMI rule whose installment ledger is open (tap-through from a card).
+    var ledgerRuleId by rememberSaveable { mutableStateOf<String?>(null) }
+    val ledgerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCopySheetVisible by rememberSaveable { mutableStateOf(false) }
     var pendingCopyRequest by remember { mutableStateOf<PendingBudgetCopy?>(null) }
 
@@ -483,6 +500,11 @@ private fun BudgetAndRecurringContent(
                                         onEditClick = { editingRecurringRule = expense },
                                         onDeleteClick = {
                                             pendingDeleteRecurringId = expense.id
+                                        },
+                                        onLedgerClick = if (expense.isInstallment && expense.slots.isNotEmpty()) {
+                                            { ledgerRuleId = expense.id }
+                                        } else {
+                                            null
                                         }
                                     )
                                 }
@@ -604,6 +626,21 @@ private fun BudgetAndRecurringContent(
                 onConvertRecurringToRegular(rule.id)
                 editingRecurringRule = null
             }
+        )
+    }
+
+    // A plan converted back to REGULAR (or deleted) while its ledger is open has
+    // no slots left to show — the sheet closes with it.
+    val ledgerExpense = uiState.recurringExpenses
+        .firstOrNull { it.id == ledgerRuleId && it.isInstallment }
+    if (ledgerExpense != null) {
+        InstallmentLedgerSheet(
+            expense = ledgerExpense,
+            sheetState = ledgerSheetState,
+            onDismiss = { ledgerRuleId = null },
+            onPay = onPayInstallments,
+            onSkip = onSkipInstallment,
+            onUndo = onUndoInstallment
         )
     }
 
@@ -2072,7 +2109,9 @@ private fun RecurringExpenseCard(
     onEnabledChange: (Boolean) -> Unit,
     onNotificationsEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    /** Non-null only for an EMI rule with slots — opens the installment ledger. */
+    onLedgerClick: (() -> Unit)? = null
 ) {
     val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
     
@@ -2208,6 +2247,15 @@ private fun RecurringExpenseCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                if (onLedgerClick != null) {
+                    BudgetCardAction(
+                        icon = Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(id = R.string.action_view_installments),
+                        accent = budgetAccentColor(expense.accent),
+                        onClick = onLedgerClick
+                    )
+                }
+
                 BudgetCardAction(
                     icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                     contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
@@ -2279,6 +2327,239 @@ private fun RecurringMetaChip(
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
+/**
+ * Installment ledger for one EMI rule: every scheduled slot with what it is
+ * worth, what happened to it, and the three settlement actions.
+ *
+ * Paying is per slot and multi-selectable — the selected slots go up in one
+ * action, and the repository's per-slot idempotency makes a double submission
+ * (or a slot the worker settled meanwhile) harmless. Skipping waives the cycle
+ * without withdrawing the money owed, and undo returns either kind of settled
+ * slot to PENDING (withdrawing the transaction a payment had generated).
+ *
+ * Selection state is dropped whenever a slot stops being payable, so the
+ * "Pay selected" count can never contain a slot that is no longer pending.
+ */
+@Composable
+private fun InstallmentLedgerSheet(
+    expense: BudgetRecurringExpenseUi,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onPay: (List<String>) -> Unit,
+    onSkip: (String) -> Unit,
+    onUndo: (String) -> Unit
+) {
+    val accent = budgetAccentColor(expense.accent)
+    val progressLabel = stringResource(
+        R.string.label_emi_paid_progress,
+        expense.installmentPaidCount,
+        expense.totalInstallments
+    )
+    val remainingLabel = stringResource(
+        R.string.label_emi_remaining_format,
+        expense.installmentRemainingLabel
+    )
+    var selectedIds by remember(expense.id) { mutableStateOf(emptySet<String>()) }
+    val payableIds = remember(expense.slots) {
+        expense.slots
+            .filter { it.status == InstallmentOccurrenceStatus.PENDING }
+            .map { it.id }
+            .toSet()
+    }
+    // A slot may be settled by the worker (or undone) while the sheet is open:
+    // keep only selections that are still payable.
+    LaunchedEffect(payableIds) {
+        selectedIds = selectedIds intersect payableIds
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.List,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.title_emis_for_format, expense.title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "$progressLabel • $remainingLabel",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                RecurringMetaChip(
+                    label = expense.frequencyLabel,
+                    accent = accent
+                )
+                RecurringMetaChip(
+                    label = expense.dueLabel.asString(),
+                    accent = accent
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 340.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(expense.slots, key = { it.id }) { slot ->
+                    InstallmentSlotRow(
+                        slot = slot,
+                        accent = accent,
+                        selected = slot.id in selectedIds,
+                        onSelectedChange = { checked ->
+                            selectedIds = if (checked) selectedIds + slot.id else selectedIds - slot.id
+                        },
+                        onPay = { onPay(listOf(slot.id)) },
+                        onSkip = { onSkip(slot.id) },
+                        onUndo = { onUndo(slot.id) }
+                    )
+                }
+            }
+
+            if (selectedIds.isNotEmpty()) {
+                Button(
+                    onClick = { onPay(selectedIds.toList()) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_pay_selected_format, selectedIds.size),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstallmentSlotRow(
+    slot: InstallmentSlotUi,
+    accent: Color,
+    selected: Boolean,
+    onSelectedChange: (Boolean) -> Unit,
+    onPay: () -> Unit,
+    onSkip: () -> Unit,
+    onUndo: () -> Unit
+) {
+    val isPending = slot.status == InstallmentOccurrenceStatus.PENDING
+    val statusColor = when (slot.status) {
+        InstallmentOccurrenceStatus.PAID -> MaterialTheme.colorScheme.primary
+        InstallmentOccurrenceStatus.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
+        InstallmentOccurrenceStatus.OVERDUE -> MaterialTheme.colorScheme.error
+        InstallmentOccurrenceStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val statusLabel = stringResource(
+        when (slot.status) {
+            InstallmentOccurrenceStatus.PAID -> R.string.label_paid_caps
+            InstallmentOccurrenceStatus.SKIPPED -> R.string.label_skipped_caps
+            InstallmentOccurrenceStatus.OVERDUE -> R.string.label_overdue_caps
+            InstallmentOccurrenceStatus.PENDING -> R.string.label_pending_caps
+        }
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Multi-select only ever applies to slots that can still be paid — a
+        // settled slot changes through UNDO instead.
+        if (isPending) {
+            Checkbox(
+                checked = selected,
+                onCheckedChange = onSelectedChange,
+                colors = CheckboxDefaults.colors(checkedColor = accent)
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.label_slot_index_format, slot.index) +
+                    "  " + formatDate(slot.dueAt),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = slot.paidAt?.let { paidAt ->
+                    slot.amountLabel + " • " + formatDate(paidAt)
+                } ?: slot.amountLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            RecurringMetaChip(label = statusLabel, accent = statusColor)
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            if (isPending) {
+                BudgetCardAction(
+                    label = stringResource(R.string.action_pay_caps),
+                    contentDescription = stringResource(R.string.action_pay_caps),
+                    accent = accent,
+                    onClick = onPay
+                )
+                TextButton(onClick = onSkip) {
+                    Text(
+                        text = stringResource(R.string.action_skip_caps),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            } else {
+                TextButton(onClick = onUndo) {
+                    Text(
+                        text = stringResource(R.string.action_undo_caps),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun BudgetAndRecurringScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {

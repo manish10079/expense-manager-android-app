@@ -804,6 +804,7 @@
     <string name="label_paid_caps">PAID</string>
     <string name="label_pending_caps">PENDING</string>
     <string name="label_skipped_caps">SKIPPED</string>
+    <string name="action_pay_caps">PAY</string>
     <string name="action_skip_caps">SKIP</string>
     <string name="action_undo_caps">UNDO</string>
     <string name="label_pay_selected_format">Pay selected (%1$d)</string>
@@ -817,6 +818,9 @@
     <string name="desc_emi_total_amount">Total amount you are paying off (principal + interest)</string>
     <string name="desc_emi_installment_amount">Amount due for each installment</string>
     <string name="msg_emi_amount_mismatch">Total must equal installment amount × number of installments</string>
+    <!-- Create-time EMI plan (Add Transaction screen) -->
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+    <string name="msg_emi_create_info">This transaction is installment #1. The remaining %1$d are tracked in the plan — pay, skip, or settle them from the recurring list.</string>
     <string name="label_save_changes_caps">SAVE CHANGES</string>
     <string name="label_cancel_caps">CANCEL</string>
     <string name="label_category_1">Category</string>
