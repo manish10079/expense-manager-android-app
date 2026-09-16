@@ -205,13 +205,80 @@ class RecurringRuleRepository @Inject constructor(
             syncState = SyncState.PENDING_UPLOAD
         )
         dao.upsert(updated.toEntity())
-        updated
+        // Adopt the ledger as the schedule: alerts and the worker now follow the
+        // plan's next unpaid slot (and a plan created fully-settled, e.g. from
+        // revived paid slots, closes itself immediately).
+        syncInstallmentSchedule(ruleId)
+        dao.getById(ruleId)?.toDomain() ?: updated
+    }
+
+    /**
+     * Re-derive an installment rule's schedule fields from its slot ledger, so
+     * every settlement path (pay / skip / undo / reconcile / conversion) keeps
+     * the rule coherent with what is actually owed:
+     *
+     * - [RecurringTransactionRule.nextRunAt] becomes the earliest PENDING slot —
+     *   advance alerts then fire at real slot dates. When nothing is pending the
+     *   plan is fully settled: nextRunAt parks on the final slot's (past) date
+     *   and the rule disables itself, which is what stops the worker's alert
+     *   windows from ever firing for a closed loan.
+     * - [RecurringTransactionRule.remainingCount] counts unsettled slots.
+     * - [RecurringTransactionRule.lastNotifiedWindowDays] resets whenever the
+     *   tracked pending slot changes: the new occurrence starts un-notified,
+     *   exactly like the legacy advance loop does.
+     * - A rule disabled BY THE SETTLEMENT (remainingCount == 0) is re-enabled
+     *   when an undo re-opens a slot; a rule the user muted manually (slots
+     *   still pending) is never resurrected.
+     *
+     * A no-op for REGULAR rules — their schedule fields belong to the worker's
+     * advance loop; plan columns retained on a converted-to-REGULAR rule stay
+     * inert until it is converted back. The worker never fights this sync: its
+     * advance loop cannot start while nextRunAt points at a future slot, and it
+     * skips disabled rules entirely once the plan closes.
+     */
+    private suspend fun syncInstallmentSchedule(ruleId: String) {
+        val entity = dao.getById(ruleId) ?: return
+        val rule = entity.toDomain()
+        if (!rule.isInstallment) return
+
+        val live = occurrenceDao.getByRule(ruleId)
+        val pending = live.filter { it.status == InstallmentOccurrenceStatus.PENDING }
+        val nextRunAt = pending.minOfOrNull { it.dueAt }
+            ?: live.maxOfOrNull { it.dueAt }
+            ?: System.currentTimeMillis()
+        val settled = pending.isEmpty() && live.isNotEmpty()
+        // Only rewrite the alert marker when the tracked slot actually changed,
+        // so the current occurrence's already-fired windows survive.
+        val trackedChanged = entity.nextRunAt != nextRunAt
+        val synced = rule.copy(
+            nextRunAt = nextRunAt,
+            remainingCount = pending.size,
+            isEnabled = if (settled) false else (rule.isEnabled || entity.remainingCount == 0),
+            lastNotifiedWindowDays = if (trackedChanged) null else entity.lastNotifiedWindowDays,
+            updatedAt = System.currentTimeMillis(),
+            syncState = SyncState.PENDING_UPLOAD
+        )
+        if (synced.nextRunAt != entity.nextRunAt ||
+            synced.remainingCount != entity.remainingCount ||
+            synced.isEnabled != entity.isEnabled ||
+            synced.lastNotifiedWindowDays != entity.lastNotifiedWindowDays
+        ) {
+            dao.upsert(synced.toEntity())
+        }
     }
 
     override suspend fun convertToRegular(ruleId: String): RecurringTransactionRule? = withContext(Dispatchers.IO) {
         val existing = dao.getById(ruleId) ?: return@withContext null
         val rule = existing.toDomain()
         val now = System.currentTimeMillis()
+
+        // Freeze the ledger-derived schedule onto the rule BEFORE the slots go
+        // away, so a mid-plan convert-back keeps running as a plain recurring
+        // rule from the next unpaid date with the right number of payments left
+        // (a fully-settled plan stays closed). Doing this after the soft-delete
+        // would read an empty ledger and wrongly close the series.
+        syncInstallmentSchedule(ruleId)
+        val scheduled = dao.getById(ruleId)?.toDomain() ?: rule
 
         // Soft-delete the schedule rather than deleting it: the plan terms stay on
         // the rule and the occurrences stay in the table, so converting back is a
@@ -224,7 +291,7 @@ class RecurringRuleRepository @Inject constructor(
             updatedAt = now
         )
 
-        val updated = rule.copy(
+        val updated = scheduled.copy(
             recurringType = RecurringType.REGULAR,
             installmentStatus = null,
             updatedAt = now,
@@ -266,6 +333,11 @@ class RecurringRuleRepository @Inject constructor(
                 syncState = SyncState.PENDING_UPLOAD.name,
                 updatedAt = now
             )
+            // The skipped slot leaves the ledger, so the tracked due date moves
+            // to the next unsent slot (resetting its alert marker) and the
+            // remaining count drops — a plan whose every slot is skipped closes
+            // itself rather than alerting forever on money the user waived.
+            syncInstallmentSchedule(occurrence.ruleId)
             occurrenceDao.getById(occurrenceId)?.toDomain()
         }
     /**
@@ -309,6 +381,10 @@ class RecurringRuleRepository @Inject constructor(
                     )
                 }
             }
+            // The re-opened slot may be the earliest one again and the plan may
+            // have been closed by the settlement we just undid — re-derive the
+            // schedule (and re-enable the rule) from the restored ledger.
+            syncInstallmentSchedule(occurrence.ruleId)
             occurrenceDao.getById(occurrenceId)?.toDomain()
         }
 
@@ -362,11 +438,44 @@ class RecurringRuleRepository @Inject constructor(
                 sourceRecurringRuleId = rule.id
             )
         )
+        markOccurrencePaid(occurrenceId, paidAt, occurrence.id, rule)
+        return occurrenceDao.getById(occurrenceId)?.toDomain()
+    }
+
+    override suspend fun settleOccurrenceWithTransaction(
+        occurrenceId: String,
+        transactionId: String,
+        paidAt: Long
+    ): InstallmentOccurrence? = withContext(Dispatchers.IO) {
+        val occurrence = occurrenceDao.getById(occurrenceId)
+            ?.takeIf { !it.isDeleted && it.status == InstallmentOccurrenceStatus.PENDING }
+            ?: return@withContext null
+        val rule = dao.getById(occurrence.ruleId)?.toDomain() ?: return@withContext null
+        // Nothing is written to `transactions` here: the payment the user entered
+        // already exists (the Add Transaction screen saved it before the plan was
+        // materialized), so the slot is only pointed at it.
+        markOccurrencePaid(occurrenceId, paidAt, transactionId, rule)
+        occurrenceDao.getById(occurrenceId)?.toDomain()
+    }
+
+    /**
+     * Shared tail of every settlement: flip the slot to PAID against
+     * [transactionId], persist auto-completion on the rule, then re-derive the
+     * rule's schedule from the ledger (tracked due date, remaining count, alert
+     * marker, and closing the series once the last installment is paid).
+     */
+    private suspend fun markOccurrencePaid(
+        occurrenceId: String,
+        paidAt: Long,
+        transactionId: String,
+        rule: RecurringTransactionRule
+    ) {
+        val now = System.currentTimeMillis()
         occurrenceDao.updateStatus(
             id = occurrenceId,
             status = InstallmentOccurrenceStatus.PAID.name,
             paidAt = paidAt,
-            transactionId = occurrence.id,
+            transactionId = transactionId,
             syncState = SyncState.PENDING_UPLOAD.name,
             updatedAt = now
         )
@@ -385,6 +494,6 @@ class RecurringRuleRepository @Inject constructor(
                 ).toEntity()
             )
         }
-        return occurrenceDao.getById(occurrenceId)?.toDomain()
+        syncInstallmentSchedule(rule.id)
     }
 }

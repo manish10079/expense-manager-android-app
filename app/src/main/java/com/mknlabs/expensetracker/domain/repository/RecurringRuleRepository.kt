@@ -103,6 +103,29 @@ interface RecurringRuleRepository {
     suspend fun payInstallments(occurrenceIds: List<String>, paidAt: Long): Int
 
     /**
+     * Adopt an already-recorded transaction as the settlement of [occurrenceId].
+     *
+     * Used when a plan is created *together with* its first payment: the Add
+     * Transaction screen has already saved the transaction that the user means as
+     * installment #1, so unlike [payInstallment] nothing is created here — the
+     * slot is only linked to it (and the plan's tracked due date, remaining count
+     * and completion follow the ledger as usual). Without this, an EMI created
+     * with a first due date on the transaction's own date would be paid twice:
+     * once by the transaction the user entered and again by the worker's due
+     * reconciliation for the same slot.
+     *
+     * Idempotent like the other mutations: a slot that is missing, soft-deleted or
+     * already settled is left untouched.
+     *
+     * @return the updated occurrence, or null when nothing changed.
+     */
+    suspend fun settleOccurrenceWithTransaction(
+        occurrenceId: String,
+        transactionId: String,
+        paidAt: Long
+    ): InstallmentOccurrence?
+
+    /**
      * Mark a PENDING installment as deliberately skipped: no transaction is
      * created and the amount stays owed on the plan's remaining balance.
      *

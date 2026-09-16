@@ -242,6 +242,139 @@ class InstallmentRepositoryTest {
         assertEquals(2, rest.size)
     }
 
+    @Test
+    fun everySettlementPathKeepsRuleScheduleInSyncWithTheLedger() = runTest {
+        convertToPlan(count = 3)
+        val dueDates = repository.getOccurrences(RULE_ID).associate { it.installmentIndex to it.dueAt }
+
+        suspend fun rule() = repository.getActiveRules().first { it.id == RULE_ID }
+
+        // Conversion adopts the ledger as the schedule.
+        assertEquals(dueDates[1], rule().nextRunAt)
+        assertEquals(3, rule().remainingCount)
+        assertTrue(rule().isEnabled)
+
+        // Paying the tracked slot advances the tracked due date to the next one.
+        repository.payInstallment("${RULE_ID}_occ_1", paidAt = dueDates[1]!!)
+        assertEquals(dueDates[2], rule().nextRunAt)
+        assertEquals(2, rule().remainingCount)
+
+        // A skip leaves the ledger too, so the plan waits on the following slot.
+        repository.skipInstallment("${RULE_ID}_occ_2")
+        assertEquals(dueDates[3], rule().nextRunAt)
+        assertEquals(1, rule().remainingCount)
+
+        // Settling the last slot closes the plan: nothing remains owed, so the
+        // rule disables itself and stops alerting on a finished loan.
+        repository.payInstallment("${RULE_ID}_occ_3", paidAt = dueDates[3]!!)
+        assertEquals(0, rule().remainingCount)
+        assertFalse("a fully settled plan must not keep alerting", rule().isEnabled)
+
+        // Undo re-opens the slot: the schedule follows it back and the rule we
+        // auto-disabled is revived (a manually muted rule would not be).
+        repository.undoInstallment("${RULE_ID}_occ_3")
+        assertEquals(dueDates[3], rule().nextRunAt)
+        assertEquals(1, rule().remainingCount)
+        assertTrue(rule().isEnabled)
+
+        // Converting back mid-plan keeps the ledger-derived schedule, so the
+        // series continues on the remaining payment rather than restarting.
+        val converted = repository.convertToRegular(RULE_ID)!!
+        assertEquals("REGULAR", converted.recurringType.name)
+        assertEquals(dueDates[3], converted.nextRunAt)
+        assertEquals(1, converted.remainingCount)
+        assertTrue(converted.isEnabled)
+    }
+
+    @Test
+    fun reTimingALoanReDatesPendingSlotsAndKeepsSettledOnes() = runTest {
+        convertToPlan(count = 3)
+        repository.payInstallment("${RULE_ID}_occ_1", paidAt = anchor)
+
+        // The same sequence AddTransaction's save runs when the user re-times an
+        // EMI rule: the rule's frequency is written first, then the plan is
+        // rebuilt from the retained terms with the earliest slot as its anchor.
+        repository.upsertRule(
+            repository.getActiveRules().first { it.id == RULE_ID }.copy(frequency = RecurringFrequency.Weekly)
+        )
+        val converted = repository.convertToInstallment(
+            ruleId = RULE_ID,
+            // total = per × count, the invariant the EMI editor enforces.
+            totalAmountMinor = 20_000L,
+            installmentAmountMinor = 10_000L,
+            totalInstallments = 2,
+            firstDueAt = repository.getOccurrences(RULE_ID).minOf { it.dueAt }
+        )
+
+        val occurrences = repository.getOccurrences(RULE_ID)
+        assertEquals("the shorter plan drops the leftover slot", 2, occurrences.size)
+        val slot1 = occurrences.first { it.installmentIndex == 1 }
+        assertEquals("the paid slot is revived, not reset", "PAID", slot1.status.name)
+        assertEquals(anchor, slot1.paidAt)
+        assertEquals("${RULE_ID}_occ_1", slot1.transactionId)
+        assertEquals("settled money is still counted", 10_000L, repository.getInstallmentPlan(RULE_ID)!!.totalPaidMinor)
+
+        // The pending slot follows the NEW frequency from the same first due date.
+        val slot2 = occurrences.first { it.installmentIndex == 2 }
+        assertEquals(anchor + 7 * dayMillis, slot2.dueAt)
+        assertEquals("the ledger drives the schedule", slot2.dueAt, converted!!.nextRunAt)
+        assertEquals(1, converted.remainingCount)
+        assertEquals(2, converted.installmentTotalCount)
+        assertEquals("INSTALLMENT", converted.recurringType.name)
+    }
+
+    @Test
+    fun reconcileClosesThePlanOnceTheFinalOverdueSlotIsPaid() = runTest {
+        convertToPlan(count = 2)
+
+        repository.reconcileDueInstallments(RULE_ID, now = anchor + 365 * dayMillis)
+
+        val rule = repository.getActiveRules().first { it.id == RULE_ID }
+        assertEquals("COMPLETED", rule.installmentStatus!!.name)
+        assertEquals(0, rule.remainingCount)
+        assertFalse(rule.isEnabled)
+    }
+
+    @Test
+    fun creatingAPlanAdoptsTheSavedTransactionAsInstallmentOne() = runTest {
+        // The Add Transaction create-EMI path, end to end: the transaction is
+        // saved first, the plan is materialized with its first due date on the
+        // transaction's own date, and slot 1 is then linked to that transaction.
+        convertToPlan(count = 3)
+        val slot1Id = "${RULE_ID}_occ_1"
+
+        val adopted = repository.settleOccurrenceWithTransaction(
+            occurrenceId = slot1Id,
+            transactionId = TEMPLATE_ID,
+            paidAt = anchor
+        )
+
+        assertNotNull(adopted)
+        assertEquals("PAID", adopted!!.status.name)
+        assertEquals(anchor, adopted.paidAt)
+        // Pointed at the transaction the user already recorded — not a copy of it.
+        assertEquals(TEMPLATE_ID, adopted.transactionId)
+        assertEquals(1, db.transactionDao().getAllTransactions().size)
+        assertEquals(60_000L, db.transactionDao().getById(TEMPLATE_ID)!!.amountMinor)
+
+        val plan = repository.getInstallmentPlan(RULE_ID)!!
+        assertEquals(1, plan.paidInstallments)
+        assertEquals(20_000L, plan.remainingAmountMinor)
+
+        // The ledger drives the schedule, and nothing is left due on the day the
+        // transaction was recorded — so the worker's run right after the save
+        // cannot pay the same installment a second time.
+        val dueDates = repository.getOccurrences(RULE_ID).associate { it.installmentIndex to it.dueAt }
+        val rule = repository.getActiveRules().first { it.id == RULE_ID }
+        assertEquals(dueDates[2], rule.nextRunAt)
+        assertEquals(2, rule.remainingCount)
+        assertTrue(repository.reconcileDueInstallments(RULE_ID, now = anchor).isEmpty())
+
+        // Idempotent: the adopted slot never settles twice.
+        assertNull(repository.settleOccurrenceWithTransaction(slot1Id, TEMPLATE_ID, anchor))
+        assertNull(repository.settleOccurrenceWithTransaction("${RULE_ID}_occ_9", TEMPLATE_ID, anchor))
+    }
+
     companion object {
         private const val RULE_ID = "rule-test-1"
         private const val TEMPLATE_ID = "tx-template-1"
