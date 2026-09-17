@@ -10,6 +10,7 @@ enum class Feature(val id: String, val displayName: String) {
     RECURRING_FREQUENCY_DAILY("recurring_frequency_daily", "Daily Frequency"),
     RECURRING_FREQUENCY_WEEKLY("recurring_frequency_weekly", "Weekly Frequency"),
     RECURRING_FREQUENCY_YEARLY("recurring_frequency_yearly", "Yearly Frequency"),
+    RECURRING_FREQUENCY_MONTHLY("recurring_frequency_monthly", "Monthly Frequency"),
     AUTO_BACKUP("auto_backup", "Auto Backup"),
     DATA_EXPORT("data_export", "Data Export"),
     BUDGET_CUSTOM_MONTH("budget_custom_month", "Custom Budget Month"),
@@ -66,6 +67,7 @@ object FeatureRegistry {
         Feature.RECURRING_FREQUENCY_DAILY to AccessLevel.AD_SUPPORTED,
         Feature.RECURRING_FREQUENCY_WEEKLY to AccessLevel.AD_SUPPORTED,
         Feature.RECURRING_FREQUENCY_YEARLY to AccessLevel.PREMIUM,
+        Feature.RECURRING_FREQUENCY_MONTHLY to AccessLevel.FREE, // default frequency, never gated
         Feature.AUTO_BACKUP to mapOf(
             "1" to AccessLevel.PREMIUM,
             "7" to AccessLevel.FREE,
