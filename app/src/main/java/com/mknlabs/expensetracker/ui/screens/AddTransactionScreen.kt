@@ -1128,7 +1128,8 @@ fun AddTransactionScreen(
                 onDismissRequest = { isRecurringModalVisible = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
+                // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
+                tonalElevation = 0.dp
             ) {
                 Column(
                     modifier = Modifier
