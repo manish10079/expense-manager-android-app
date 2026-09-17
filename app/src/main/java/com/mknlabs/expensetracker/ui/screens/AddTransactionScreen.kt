@@ -135,8 +135,11 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.RecurringGateResolver
+import com.mknlabs.expensetracker.monetization.RecurringRuleTier
 import com.mknlabs.expensetracker.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
@@ -1139,7 +1142,7 @@ fun AddTransactionScreen(
                         repeatCountInput = recurringCountInput,
                         compact = compact,
                         activeRecurringRuleCount = activeRecurringRuleCount,
-                        isEditMode = isEditMode,
+                        hasExistingRule = existingRecurringRule != null,
                         canCreateInstallment = canCreateInstallment,
                         selectedType = selectedRecurringType,
                         emiTotalInput = emiTotalInput,
@@ -1256,7 +1259,7 @@ private fun RecurringTransactionSection(
     repeatCountInput: String,
     compact: Boolean,
     activeRecurringRuleCount: Int = 0,
-    isEditMode: Boolean = false,
+    hasExistingRule: Boolean = false,
     canCreateInstallment: Boolean = false,
     selectedType: RecurringType = RecurringType.REGULAR,
     emiTotalInput: String = "",
@@ -1281,13 +1284,21 @@ private fun RecurringTransactionSection(
     var showAdDialog by remember { mutableStateOf(false) }
     var pendingFrequencyForAd by remember { mutableStateOf<RecurringFrequency?>(null) }
 
-    // Determine rule count gate: 1-3 free, 4-6 ad, 7+ pro
-    val ruleCountGate = when {
-        isEditMode -> AccessStatus.Granted
-        activeRecurringRuleCount < 3 -> AccessStatus.Granted
-        activeRecurringRuleCount < 6 -> AccessStatus.DeniedAd
-        else -> AccessStatus.DeniedPremium
+    // Access is resolved by the monetization layer, which owns the Pro bypass and the
+    // pro_gating_enabled kill switch. This section only asks; it never decides.
+    val enableFeature = RecurringGateResolver.enableFeature(
+        activeRuleCount = activeRecurringRuleCount,
+        hasExistingRule = hasExistingRule
+    )
+    val ruleCountGate: AccessStatus = if (enableFeature != null) {
+        monetizationViewModel.getAccessStatus(enableFeature).collectAsStateWithLifecycle().value
+    } else {
+        AccessStatus.Granted
     }
+
+    // Pro users are gated nowhere, so the ladder would be noise for them.
+    val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+    val showRuleLadder = userTier != UserTier.PREMIUM
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (isEnabled) Color.Transparent 
@@ -1363,6 +1374,46 @@ private fun RecurringTransactionSection(
             )
         }
 
+        // Informational only: it explains the ladder before a gate ever fires.
+        if (showRuleLadder) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorScheme.primary.copy(alpha = 0.06f))
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.desc_recurring_rule_ladder),
+                    color = colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    text = when (RecurringGateResolver.ruleTier(activeRecurringRuleCount)) {
+                        RecurringRuleTier.FREE -> stringResource(
+                            R.string.desc_recurring_rules_used_free,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.FREE_RULE_LIMIT
+                        )
+                        RecurringRuleTier.AD -> stringResource(
+                            R.string.desc_recurring_rules_used_ad,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.AD_RULE_LIMIT
+                        )
+                        RecurringRuleTier.PREMIUM -> stringResource(
+                            R.string.desc_recurring_rules_used_premium,
+                            activeRecurringRuleCount
+                        )
+                    },
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+        }
+
         if (isEnabled) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (canCreateInstallment) {
@@ -1434,6 +1485,15 @@ private fun RecurringTransactionSection(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             recurringModeOptions.forEach { option ->
                                 val selected = option.frequency == selectedFrequency
+                                // Frequency access comes from the monetization layer, so a Pro user is
+                                // never asked to watch an ad and the kill switch still applies.
+                                val frequencyFeature = RecurringGateResolver.frequencyFeature(option.frequency)
+                                val freqGate: AccessStatus = if (frequencyFeature != null) {
+                                    monetizationViewModel.getAccessStatus(frequencyFeature)
+                                        .collectAsStateWithLifecycle().value
+                                } else {
+                                    AccessStatus.Granted
+                                }
                                 val animatedColor by animateColorAsState(
                                     targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
                                     label = "recurring_freq_text_color"
@@ -1443,13 +1503,6 @@ private fun RecurringTransactionSection(
                                         .weight(1f)
                                         .clip(RoundedCornerShape(16.dp))
                                         .clickable {
-                                        // Frequency gating: Daily/Weekly = ad, Yearly = pro
-                                        val freqGate = when (option.frequency) {
-                                            RecurringFrequency.Daily -> AccessStatus.DeniedAd
-                                            RecurringFrequency.Weekly -> AccessStatus.DeniedAd
-                                            RecurringFrequency.Yearly -> AccessStatus.DeniedPremium
-                                            RecurringFrequency.Monthly -> AccessStatus.Granted
-                                        }
                                         if (freqGate !is AccessStatus.Granted) {
                                             pendingFrequencyForAd = option.frequency
                                             when (freqGate) {
@@ -1697,7 +1750,7 @@ private fun featureForFrequency(freq: RecurringFrequency): Feature = when (freq)
     RecurringFrequency.Daily -> Feature.RECURRING_FREQUENCY_DAILY
     RecurringFrequency.Weekly -> Feature.RECURRING_FREQUENCY_WEEKLY
     RecurringFrequency.Yearly -> Feature.RECURRING_FREQUENCY_YEARLY
-    RecurringFrequency.Monthly -> Feature.RECURRING_RULES_MULTI // fallback, should be FREE
+    RecurringFrequency.Monthly -> Feature.RECURRING_FREQUENCY_MONTHLY
 }
 
 
