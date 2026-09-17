@@ -96,10 +96,11 @@ private val NavItemMinHeight = 56.dp
  */
 private val RevealHandleSize = 48.dp
 
-/** How long the bar peeks on arrival before sliding away on its own. */
-private const val INITIAL_PEEK_MILLIS = 2_000L
-
-/** How long the bar stays open after the user reveals it from the handle. */
+/**
+ * How long the bar stays open after any show — an arrival, a nav-bar tap or a
+ * reveal from the handle. A single window covers every trigger, so the countdown
+ * always restarts at a full 5s from the most recent interaction.
+ */
 private const val IDLE_HIDE_MILLIS = 5_000L
 
 /** Slide/fade duration for the bar and its handle. */
@@ -124,13 +125,13 @@ private fun capsuleMinHeight(tier: FontScaleTier): Dp = when (tier) {
  * into its centre — one composable owning both, so the destinations and the FAB
  * can never drift apart or disagree about the bar's height.
  *
- * Auto-hide lifecycle:
- * - Arriving at a destination shows the bar for [INITIAL_PEEK_MILLIS]; it then
+ * Auto-hide lifecycle — one window for every trigger:
+ * - Arriving at a destination shows the bar for [IDLE_HIDE_MILLIS]; it then
  *   slides down out of view, leaving the reveal handle in its place.
- * - Tapping that handle slides the bar back up and keeps it open for
- *   [IDLE_HIDE_MILLIS].
- * - Any tap on a destination navigates, which counts as a fresh arrival and
- *   restarts the peek.
+ * - Tapping that handle slides the bar back up and restarts the window.
+ * - Tapping any destination, or the docked FAB, restarts it too — including the
+ *   destination already selected, which changes no route and would otherwise
+ *   leave the previous countdown running.
  *
  * This composable owns only the show/hide state and its timers; the visuals live
  * in [AppBottomBarContent] so they stay previewable without a ViewModel.
@@ -150,21 +151,19 @@ fun AppBottomBar(
     modifier: Modifier = Modifier
 ) {
     var barVisible by remember { mutableStateOf(true) }
-    var revealRequests by remember { mutableIntStateOf(0) }
 
-    // Arrival at a destination: peek, then slide away. Keyed on the route, so a
-    // tap on a destination restarts the peek — using the bar never leaves it
-    // stranded open, and it never races a pending hide from an earlier arrival.
+    // Every event that should (re)start the hide countdown bumps this counter: an
+    // arrival, a reveal from the handle, or a tap on any nav-bar control. Keying
+    // the timer on a counter instead of the route is what makes re-tapping the
+    // already-selected destination restart the window — the route does not change,
+    // so a route-keyed effect would leave the earlier countdown running.
+    var showRequests by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(currentRoute) {
-        barVisible = true
-        delay(INITIAL_PEEK_MILLIS)
-        barVisible = false
+        showRequests++
     }
 
-    // Revealed from the handle: stay open for the full idle window.
-    LaunchedEffect(revealRequests) {
-        // Skip the initial composition — the arrival peek owns the first show.
-        if (revealRequests == 0) return@LaunchedEffect
+    LaunchedEffect(showRequests) {
         barVisible = true
         delay(IDLE_HIDE_MILLIS)
         barVisible = false
@@ -172,10 +171,16 @@ fun AppBottomBar(
 
     AppBottomBarContent(
         currentRoute = currentRoute,
-        onItemClick = onItemClick,
-        onAddClick = onAddClick,
+        onItemClick = { route ->
+            showRequests++
+            onItemClick(route)
+        },
+        onAddClick = {
+            showRequests++
+            onAddClick()
+        },
         barVisible = barVisible,
-        onRevealClick = { revealRequests++ },
+        onRevealClick = { showRequests++ },
         modifier = modifier
     )
 }
