@@ -19,8 +19,10 @@ import com.mknlabs.expensetracker.domain.repository.FavoriteTransactionRepositor
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.FavoriteTransaction
+import com.mknlabs.expensetracker.models.InstallmentOccurrence
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
@@ -52,6 +54,9 @@ import kotlin.math.min
 
 sealed class MainUiEvent {
     object TransactionOperationCompleted : MainUiEvent()
+
+    /** Installments genuinely settled by the ledger sheet, for the confirmation toast. */
+    data class InstallmentsPaid(val count: Int) : MainUiEvent()
     data class ShowAdExpiryWarning(val minutesRemaining: Int) : MainUiEvent()
 }
 
@@ -290,24 +295,102 @@ class MainViewModel @Inject constructor(
                         savedTransaction.createdAt,
                         recurringDraft.frequency
                     )
-                    recurringRuleRepository.upsertRule(
-                        RecurringTransactionRule(
-                            id = existingRule?.id.orEmpty(),
-                            transactionId = savedTransaction.id,
-                            frequency = recurringDraft.frequency,
-                            repeatCount = recurringDraft.repeatCount,
-                            isEnabled = existingRule?.isEnabled ?: true,
-                            intervalCount = existingRule?.intervalCount ?: 1,
-                            remainingCount = recurringDraft.repeatCount - 1, // First one is already saved
-                            anchorAt = existingRule?.anchorAt ?: savedTransaction.createdAt,
-                            nextRunAt = existingRule?.nextRunAt ?: initialNextRun,
-                            lastRunAt = existingRule?.lastRunAt ?: savedTransaction.createdAt,
-                            createdAt = existingRule?.createdAt ?: System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis(),
-                            syncState = existingRule?.syncState ?: savedTransaction.syncState,
-                            isDeleted = false
+                    val rule = if (existingRule == null) {
+                        recurringRuleRepository.upsertRule(
+                            RecurringTransactionRule(
+                                id = "",
+                                transactionId = savedTransaction.id,
+                                frequency = recurringDraft.frequency,
+                                repeatCount = recurringDraft.repeatCount,
+                                isEnabled = true,
+                                remainingCount = recurringDraft.repeatCount - 1, // First one is already saved
+                                anchorAt = savedTransaction.createdAt,
+                                nextRunAt = initialNextRun,
+                                lastRunAt = savedTransaction.createdAt,
+                                createdAt = System.currentTimeMillis(),
+                                updatedAt = System.currentTimeMillis(),
+                                syncState = savedTransaction.syncState,
+                                isDeleted = false
+                            )
                         )
-                    )
+                    } else {
+                        // copy() rather than a fresh rule: everything this screen
+                        // does not edit has to survive the save — the EMI plan
+                        // terms, the per-rule notification mute, the fired-alert
+                        // marker. Re-saving the template must never downgrade a
+                        // loan to REGULAR.
+                        recurringRuleRepository.upsertRule(
+                            existingRule.copy(
+                                transactionId = savedTransaction.id,
+                                frequency = recurringDraft.frequency,
+                                repeatCount = recurringDraft.repeatCount,
+                                // An EMI rule's remaining count and next run come
+                                // from its slot ledger, re-derived below — never
+                                // from the repeat count.
+                                remainingCount = if (existingRule.isInstallment) {
+                                    existingRule.remainingCount
+                                } else {
+                                    recurringDraft.repeatCount - 1
+                                },
+                                lastRunAt = existingRule.lastRunAt ?: savedTransaction.createdAt,
+                                updatedAt = System.currentTimeMillis(),
+                                isDeleted = false
+                            )
+                        )
+                    }
+
+                    when {
+                        // An EMI draft (Add Transaction) materializes the plan on
+                        // the rule just created (deterministic slots, idempotent),
+                        // then adopts the transaction the user just saved as
+                        // installment #1: the plan's first due date defaults to that
+                        // transaction's date, so without this the worker's due
+                        // reconciliation would immediately pay the same installment a
+                        // second time with a transaction of its own.
+                        recurringDraft.plan != null -> recurringDraft.plan.let { plan ->
+                            val converted = recurringRuleRepository.convertToInstallment(
+                                ruleId = rule.id,
+                                totalAmountMinor = plan.totalAmountMinor,
+                                installmentAmountMinor = plan.installmentAmountMinor,
+                                totalInstallments = plan.totalInstallments,
+                                firstDueAt = plan.firstDueAt
+                            )
+                            if (converted != null) {
+                                recurringRuleRepository.settleOccurrenceWithTransaction(
+                                    occurrenceId = InstallmentOccurrence.idFor(converted.id, 1),
+                                    transactionId = savedTransaction.id,
+                                    paidAt = savedTransaction.createdAt
+                                )
+                            }
+                        }
+
+                        // Re-timing an existing loan: rebuild the slots from the
+                        // retained terms so the ledger matches the new frequency
+                        // instead of silently disagreeing with the rule. Paid and
+                        // skipped slots are revived by their deterministic ids,
+                        // so only the pending dates move.
+                        rule.isInstallment && existingRule != null &&
+                            (rule.frequency != existingRule.frequency ||
+                                rule.repeatCount != existingRule.repeatCount) -> {
+                            val perInstallment = rule.installmentAmountMinor
+                            // First due date lives on the slots, not the rule: the
+                            // earliest one keeps the plan's start where it was.
+                            val firstDueAt = recurringRuleRepository.getOccurrences(rule.id)
+                                .minOfOrNull { it.dueAt }
+                            if (perInstallment != null && firstDueAt != null && rule.repeatCount > 0) {
+                                recurringRuleRepository.convertToInstallment(
+                                    ruleId = rule.id,
+                                    // The editor's invariant is total = per × count,
+                                    // so a changed count re-derives the total rather
+                                    // than keeping a now-inconsistent one.
+                                    totalAmountMinor = perInstallment * rule.repeatCount,
+                                    installmentAmountMinor = perInstallment,
+                                    totalInstallments = rule.repeatCount,
+                                    firstDueAt = firstDueAt
+                                )
+                            }
+                        }
+                    }
                 }
 
                 existingRule != null -> recurringRuleRepository.deleteRule(existingRule.id)
@@ -467,6 +550,80 @@ class MainViewModel @Inject constructor(
                     updatedAt = System.currentTimeMillis()
                 )
             )
+        }
+    }
+
+    /**
+     * Save (or re-save) an EMI plan on an existing rule. The rule's schedule is
+     * updated first because slot materialization reads the rule's frequency —
+     * convertToInstallment then (re)builds the occurrence list from the plan
+     * terms, reviving slots of a previously converted plan with paid state intact.
+     */
+    fun saveRecurringPlan(
+        ruleId: String,
+        frequency: RecurringFrequency,
+        plan: RecurringPlanEdit
+    ) {
+        viewModelScope.launch {
+            val existingRule = _uiState.value.recurringRules.find { it.id == ruleId } ?: return@launch
+            recurringRuleRepository.upsertRule(
+                existingRule.copy(
+                    frequency = frequency,
+                    repeatCount = plan.totalInstallments
+                )
+            )
+            recurringRuleRepository.convertToInstallment(
+                ruleId = ruleId,
+                totalAmountMinor = plan.totalAmountMinor,
+                installmentAmountMinor = plan.installmentAmountMinor,
+                totalInstallments = plan.totalInstallments,
+                firstDueAt = plan.firstDueAt
+            )
+            // Reconcile immediately so an already-due first installment does not
+            // wait for the next heartbeat.
+            com.mknlabs.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
+        }
+    }
+
+    /** Hide an EMI plan (soft-delete the schedule, keep terms — fully reversible). */
+    fun convertRecurringToRegular(ruleId: String) {
+        viewModelScope.launch {
+            recurringRuleRepository.convertToRegular(ruleId)
+        }
+    }
+
+    // ── Installment (EMI) ledger actions ────────────────────────────────────
+
+    /**
+     * Settle the installments selected in the ledger sheet. Every slot goes
+     * through the repository, which is idempotent per slot — one already settled
+     * by the worker (or by a second tap) is skipped rather than double-paid, and
+     * only genuinely new payments are reported for the toast.
+     */
+    fun payInstallments(occurrenceIds: List<String>) {
+        if (occurrenceIds.isEmpty()) return
+        viewModelScope.launch {
+            val paid = recurringRuleRepository.payInstallments(
+                occurrenceIds = occurrenceIds,
+                paidAt = System.currentTimeMillis()
+            )
+            if (paid > 0) {
+                _uiEvent.emit(MainUiEvent.InstallmentsPaid(paid))
+            }
+        }
+    }
+
+    /** Waive a pending installment for this cycle: no transaction, amount stays owed. */
+    fun skipInstallment(occurrenceId: String) {
+        viewModelScope.launch {
+            recurringRuleRepository.skipInstallment(occurrenceId)
+        }
+    }
+
+    /** Return a settled installment to pending — undoing a payment withdraws its transaction. */
+    fun undoInstallment(occurrenceId: String) {
+        viewModelScope.launch {
+            recurringRuleRepository.undoInstallment(occurrenceId)
         }
     }
 

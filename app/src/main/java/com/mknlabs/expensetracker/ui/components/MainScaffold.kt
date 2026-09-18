@@ -26,6 +26,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
@@ -115,6 +116,11 @@ fun MainScaffold(
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit = { _, _, _ -> },
+    onConvertRecurringToRegular: (String) -> Unit = {},
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
     onCreateCustomCategory: (String, String, Int) -> Unit,
     onCreateCustomPaymentType: (String, String) -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
@@ -310,6 +316,11 @@ fun MainScaffold(
             onRecurringEnabledChange = onRecurringEnabledChange,
             onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
             onUpdateRecurringRule = onUpdateRecurringRule,
+            onSaveRecurringPlan = onSaveRecurringPlan,
+            onConvertRecurringToRegular = onConvertRecurringToRegular,
+            onPayInstallments = onPayInstallments,
+            onSkipInstallment = onSkipInstallment,
+            onUndoInstallment = onUndoInstallment,
             onCreateCustomCategory = onCreateCustomCategory,
             onCreateCustomPaymentType = onCreateCustomPaymentType,
             onDeleteCustomCategory = onDeleteCustomCategory,

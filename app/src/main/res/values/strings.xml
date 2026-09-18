@@ -786,6 +786,41 @@
     <string name="title_edit_recurring">Edit Recurring Expense</string>
     <string name="label_frequency_capitalized">Frequency</string>
     <string name="label_total_installments">Total Installments</string>
+    <!-- Recurring EMI / installment plan -->
+    <string name="label_recurring_type">Recurring Type</string>
+    <string name="label_type_regular">Regular</string>
+    <string name="label_type_emi">EMI / Installments</string>
+    <string name="label_emi_total_amount">Total Amount</string>
+    <string name="label_emi_installment_amount">Installment Amount</string>
+    <string name="label_emi_first_due">First Due Date</string>
+    <string name="msg_convert_to_regular_info">Your plan terms stay saved — switching back restores the same installments with paid history intact.</string>
+    <string name="label_emi_paid_progress">Paid %1$d of %2$d</string>
+    <string name="label_emi_remaining_format">Remaining %1$s</string>
+    <string name="label_all_settled">ALL SETTLED</string>
+    <string name="label_emis_overdue">EMIs OVERDUE</string>
+    <string name="label_overdue_caps">OVERDUE</string>
+    <string name="action_view_installments">View Installments</string>
+    <string name="title_emis_for_format">Installments — %1$s</string>
+    <string name="label_paid_caps">PAID</string>
+    <string name="label_pending_caps">PENDING</string>
+    <string name="label_skipped_caps">SKIPPED</string>
+    <string name="action_pay_caps">PAY</string>
+    <string name="action_skip_caps">SKIP</string>
+    <string name="action_undo_caps">UNDO</string>
+    <string name="label_pay_selected_format">Pay selected (%1$d)</string>
+    <string name="label_slot_index_format">#%1$d</string>
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d installment paid</item>
+        <item quantity="other">%1$d installments paid</item>
+    </plurals>
+    <string name="label_emi_plan_section">EMI / Loan plan</string>
+    <string name="desc_emi_plan_toggle">Track this recurring expense as a loan with fixed installments.</string>
+    <string name="desc_emi_total_amount">Total amount you are paying off (principal + interest)</string>
+    <string name="desc_emi_installment_amount">Amount due for each installment</string>
+    <string name="msg_emi_amount_mismatch">Total must equal installment amount × number of installments</string>
+    <!-- Create-time EMI plan (Add Transaction screen) -->
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+    <string name="msg_emi_create_info">This transaction is installment #1. The remaining %1$d are tracked in the plan — pay, skip, or settle them from the recurring list.</string>
     <string name="label_save_changes_caps">SAVE CHANGES</string>
     <string name="label_cancel_caps">CANCEL</string>
     <string name="label_category_1">Category</string>
@@ -1350,6 +1385,10 @@
     <string name="desc_financial_insights">Smart spending trends and forecasts.</string>
     <string name="title_recurring_alerts">Recurring Alerts</string>
     <string name="desc_recurring_alerts">Reminders for your recurring bills and payments.</string>
+    <string name="desc_recurring_rule_ladder">Rules 1-3 free · 4-6 watch an ad · 7+ upgrade to Pro</string>
+    <string name="desc_recurring_rules_used_free">%1$d of %2$d free rules used</string>
+    <string name="desc_recurring_rules_used_ad">%1$d of %2$d ad-supported rules used</string>
+    <string name="desc_recurring_rules_used_premium">%1$d rules · upgrade to Pro for unlimited</string>
     <string name="title_cloud_security_alerts">Cloud &amp; Security Alerts</string>
     <string name="desc_cloud_security_alerts">Alerts about sync, backups and account security.</string>
     <string name="desc_info">Info</string>

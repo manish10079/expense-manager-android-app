@@ -703,6 +703,15 @@ fun MainScreen(
                             adExpiryMinutesRemaining = event.minutesRemaining
                             showAdExpiryWarningDialog = true
                         }
+                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.InstallmentsPaid -> {
+                            showToast(
+                                context.resources.getQuantityString(
+                                    R.plurals.toast_installments_paid,
+                                    event.count,
+                                    event.count
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -872,6 +881,11 @@ fun MainScreen(
                         onRecurringEnabledChange = mainViewModel::setRecurringEnabled,
                         onRecurringNotificationsEnabledChange = mainViewModel::setRecurringNotificationsEnabled,
                         onUpdateRecurringRule = mainViewModel::updateRecurringRule,
+                        onSaveRecurringPlan = mainViewModel::saveRecurringPlan,
+                        onConvertRecurringToRegular = mainViewModel::convertRecurringToRegular,
+                        onPayInstallments = mainViewModel::payInstallments,
+                        onSkipInstallment = mainViewModel::skipInstallment,
+                        onUndoInstallment = mainViewModel::undoInstallment,
                         onCreateCustomCategory = mainViewModel::createCustomCategory,
                         onCreateCustomPaymentType = mainViewModel::createCustomPaymentMethod,
                         onDeleteCustomCategory = mainViewModel::deleteCustomCategory,

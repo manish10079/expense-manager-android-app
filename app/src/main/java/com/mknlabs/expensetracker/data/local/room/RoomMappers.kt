@@ -5,12 +5,14 @@ import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
+import com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
+import com.mknlabs.expensetracker.models.InstallmentOccurrence
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
@@ -191,6 +193,11 @@ fun RecurringRuleEntity.toDomain(): RecurringTransactionRule {
         lastNotifiedOccurrenceAt = lastNotifiedOccurrenceAt,
         notificationsEnabled = notificationsEnabled,
         lastNotifiedWindowDays = lastNotifiedWindowDays,
+        recurringType = recurringType,
+        installmentTotalMinor = installmentTotalMinor,
+        installmentAmountMinor = installmentAmountMinor,
+        installmentTotalCount = installmentTotalCount,
+        installmentStatus = installmentStatus,
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,
@@ -213,6 +220,45 @@ fun RecurringTransactionRule.toEntity(): RecurringRuleEntity {
         isEnabled = isEnabled,
         notificationsEnabled = notificationsEnabled,
         lastNotifiedWindowDays = lastNotifiedWindowDays,
+        recurringType = recurringType,
+        installmentTotalMinor = installmentTotalMinor,
+        installmentAmountMinor = installmentAmountMinor,
+        installmentTotalCount = installmentTotalCount,
+        installmentStatus = installmentStatus,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        syncState = syncState,
+        isDeleted = isDeleted
+    )
+}
+
+fun InstallmentOccurrenceEntity.toDomain(): InstallmentOccurrence {
+    return InstallmentOccurrence(
+        id = id,
+        ruleId = ruleId,
+        installmentIndex = installmentIndex,
+        dueAt = dueAt,
+        amountMinor = amountMinor,
+        paidAt = paidAt,
+        status = status,
+        transactionId = transactionId,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        syncState = syncState,
+        isDeleted = isDeleted
+    )
+}
+
+fun InstallmentOccurrence.toEntity(): InstallmentOccurrenceEntity {
+    return InstallmentOccurrenceEntity(
+        id = id,
+        ruleId = ruleId,
+        installmentIndex = installmentIndex,
+        dueAt = dueAt,
+        amountMinor = amountMinor,
+        paidAt = paidAt,
+        status = status,
+        transactionId = transactionId,
         createdAt = createdAt,
         updatedAt = updatedAt,
         syncState = syncState,

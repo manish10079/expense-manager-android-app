@@ -11,6 +11,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
 import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.data.local.room.dao.GoalDao
 import com.mknlabs.expensetracker.data.local.room.dao.GoalFundEntryDao
+import com.mknlabs.expensetracker.data.local.room.dao.InstallmentOccurrenceDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
@@ -19,6 +20,7 @@ import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
+import com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
@@ -37,9 +39,10 @@ import java.io.File
         GoalEntity::class,
         GoalFundEntryEntity::class,
         CountryCodeEntity::class,
-        FavoriteTransactionEntity::class
+        FavoriteTransactionEntity::class,
+        InstallmentOccurrenceEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -54,6 +57,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun goalFundEntryDao(): GoalFundEntryDao
     abstract fun countryCodeDao(): CountryCodeDao
     abstract fun favoriteTransactionDao(): FavoriteTransactionDao
+    abstract fun installmentOccurrenceDao(): InstallmentOccurrenceDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -68,8 +72,57 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        /**
+         * Recurring + EMI decoupling (additive, fully backward compatible).
+         *
+         * - Every existing rule becomes [RecurringType.REGULAR] via the column
+         *   default, so behavior is byte-for-byte what it was before: the worker
+         *   keeps generating occurrences from the template transaction.
+         * - The installment columns are nullable and stay NULL for legacy rules,
+         *   so nothing has to be backfilled and no rule needs rewriting.
+         * - No data is moved, copied or deleted, so the migration is O(1) in the
+         *   number of rules and cannot fail partway on a large table.
+         *
+         * The `DEFAULT 'REGULAR'` on a NOT NULL column is what makes the ALTER
+         * legal on a table that already has rows — the same approach
+         * MIGRATION_8_9 used for `notifications_enabled`.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN recurring_type TEXT NOT NULL DEFAULT 'REGULAR'")
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN installment_total_minor INTEGER")
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN installment_amount_minor INTEGER")
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN installment_total_count INTEGER")
+                db.execSQL("ALTER TABLE recurring_rules ADD COLUMN installment_status TEXT")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `installment_occurrences` (
+                        `id` TEXT NOT NULL,
+                        `rule_id` TEXT NOT NULL,
+                        `installment_index` INTEGER NOT NULL,
+                        `due_at` INTEGER NOT NULL,
+                        `amount_minor` INTEGER NOT NULL,
+                        `paid_at` INTEGER,
+                        `status` TEXT NOT NULL,
+                        `transaction_id` TEXT,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL,
+                        `sync_state` TEXT NOT NULL,
+                        `is_deleted` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`),
+                        FOREIGN KEY(`rule_id`) REFERENCES `recurring_rules`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_rule_id_due_at` ON `installment_occurrences` (`rule_id`, `due_at`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_rule_id_status` ON `installment_occurrences` (`rule_id`, `status`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_transaction_id` ON `installment_occurrences` (`transaction_id`)")
             }
         }
 
