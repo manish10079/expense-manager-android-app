@@ -51,6 +51,11 @@
         <key>pro_gating_enabled</key>
         <value>true</value>
     </entry>
+    <!-- Length of the global ad pass granted by watching a rewarded ad, in minutes. -->
+    <entry>
+        <key>ad_pass_duration_minutes</key>
+        <value>60</value>
+    </entry>
     <entry>
         <key>current_promo_code</key>
         <value></value>

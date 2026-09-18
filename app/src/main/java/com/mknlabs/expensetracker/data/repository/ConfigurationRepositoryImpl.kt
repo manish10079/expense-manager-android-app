@@ -52,22 +52,37 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
     private val _isProGatingEnabled = MutableStateFlow(true)
     override val isProGatingEnabled: StateFlow<Boolean> = _isProGatingEnabled.asStateFlow()
 
+    private val _adPassDurationMinutes = MutableStateFlow(DEFAULT_AD_PASS_DURATION_MINUTES)
+    override val adPassDurationMinutes: StateFlow<Int> = _adPassDurationMinutes.asStateFlow()
+
     /** Process-lifetime scope for periodic Remote Config refreshes. */
     private val configScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     /** Interval between periodic Remote Config fetches (15 minutes). */
     private val PERIODIC_REFRESH_MILLIS = 15 * 60 * 1000L
 
+    /** 0 = every fetch hits the network. Mirrored in [UpdateRepositoryImpl]. */
+    private val MIN_FETCH_INTERVAL_SECONDS = 0L
+
     init {
+        // `setConfigSettingsAsync` / `setDefaultsAsync` apply asynchronously, so fetching
+        // straight after them races both — the request can go out under the SDK's default
+        // 12-hour interval, come back throttled, and still report success while serving the
+        // cached template. Chain them so both are in effect before the first fetch.
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 0
+            minimumFetchIntervalInSeconds = MIN_FETCH_INTERVAL_SECONDS
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
-        // All in-app defaults live in one place: res/xml/remote_config_defaults.xml.
-        // UpdateRepositoryImpl loads the same file, so defaults are consistent
-        // regardless of which singleton initializes first.
-        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
-        fetchAndActivate()
+            // All in-app defaults live in one place: res/xml/remote_config_defaults.xml.
+            // UpdateRepositoryImpl loads the same file, so defaults are consistent
+            // regardless of which singleton initializes first.
+            .continueWithTask { remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults) }
+            .addOnCompleteListener {
+                // Publish the in-app defaults before the network answers, so flags like
+                // `pro_gating_enabled` have a real value instead of a hardcoded guess.
+                updateState()
+                fetchAndActivate()
+            }
         listenForRealtimeUpdates()
         startPeriodicRefresh()
     }
@@ -106,12 +121,20 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
     override fun fetchAndActivate() {
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("ConfigRepo", "Remote Config updated successfully")
-                    updateState()
-                } else {
-                    Log.e("ConfigRepo", "Remote Config fetch failed")
+                if (!task.isSuccessful) {
+                    Log.e("ConfigRepo", "Remote Config fetch failed", task.exception)
+                    return@addOnCompleteListener
                 }
+                // Throttled fetches complete successfully while serving the cached template,
+                // so distinguish them from a real refresh instead of always claiming success.
+                if (remoteConfig.info.lastFetchStatus ==
+                    FirebaseRemoteConfig.LAST_FETCH_STATUS_THROTTLED
+                ) {
+                    Log.w("ConfigRepo", "Remote Config fetch throttled — serving cached values")
+                } else {
+                    Log.d("ConfigRepo", "Remote Config updated successfully")
+                }
+                updateState()
             }
     }
 
@@ -124,9 +147,23 @@ class ConfigurationRepositoryImpl @Inject constructor() : ConfigurationRepositor
         _maxSyncDevices.value = remoteConfig.getLong("max_sync_devices").toInt()
         _googleSheetsFeedbackUrl.value = remoteConfig.getString("google_sheets_feedback_url")
         _isProGatingEnabled.value = remoteConfig.getBoolean("pro_gating_enabled")
+        // Guard the lower bound: an expiry in the past would mean the user watches an ad and
+        // gets no pass at all. A missing/blank server value falls back to the in-app default.
+        _adPassDurationMinutes.value = remoteConfig.getLong("ad_pass_duration_minutes")
+            .toInt()
+            .coerceAtLeast(1)
     }
 
     override fun isUpdateRequired(): Boolean {
         return BuildConfig.VERSION_CODE < minRequiredVersion.value
+    }
+
+    companion object {
+        /**
+         * Rewarded-ad pass length used until Remote Config answers (or when it can't be
+         * reached). Mirrors the `ad_pass_duration_minutes` entry in
+         * `res/xml/remote_config_defaults.xml`.
+         */
+        const val DEFAULT_AD_PASS_DURATION_MINUTES = 60
     }
 }

@@ -4,7 +4,7 @@
 
 **An elegant, offline-first personal finance app for Android — built with Jetpack Compose & Material 3.**
 
-![Version](https://img.shields.io/badge/version-2.106.1-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
+![Version](https://img.shields.io/badge/version-2.107.0-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
  ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
 
 <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="App icon" />
@@ -22,7 +22,7 @@
 | | |
 |---|---|
 | **Application ID** | `com.mknlabs.expensetracker` |
-| **Version** | 2.106.1 |
+| **Version** | 2.107.0 |
 | **Min SDK / Target SDK** | 24 / 36 |
 | **Language** | 100% Kotlin |
 | **UI** | Jetpack Compose (Material 3) |
@@ -86,7 +86,7 @@
 ### 👑 Monetization
 - **AdMob** (native, interstitial, rewarded) with **UMP** consent management
 - **Pro membership** (server-verified Pro Pass redemption) unlocking: ad-free UI, advanced analytics, recurring rules, cloud sync & auto backup
-- Watch-a-rewarded-ad to unlock 1-hour ad-free Pro access
+- Watch-a-rewarded-ad to unlock temporary ad-free Pro access (length is set by the `ad_pass_duration_minutes` Remote Config parameter, so the app never advertises a fixed duration)
 
 ---
 

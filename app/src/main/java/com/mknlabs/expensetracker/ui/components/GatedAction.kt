@@ -7,13 +7,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import android.app.Activity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.utils.findFragmentActivity
 
 /**
  * A reactive wrapper component that gates actions based on monetization status.
@@ -74,11 +74,16 @@ fun GatedAction(
     }
 
     if (showAdDialog) {
+        val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
         AdRewardDialog(
             featureName = actualDisplayName,
+            durationMinutes = adPassMinutes,
             onDismiss = { showAdDialog = false },
             onWatchAdClick = {
-                val activity = context as? Activity
+                // Gated content can live in its own dialog window (e.g. a bottom sheet),
+                // where LocalContext is a ContextThemeWrapper rather than the Activity —
+                // a plain `as? Activity` cast would be null and no ad would ever load.
+                val activity = context.findFragmentActivity()
                 if (activity != null) {
                     monetizationViewModel.onAdWatched(activity, feature, optionId)
                 }

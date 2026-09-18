@@ -50,6 +50,12 @@
       },
       "valueType": "BOOLEAN"
     },
+    "ad_pass_duration_minutes": {
+      "defaultValue": {
+        "value": "60"
+      },
+      "valueType": "NUMBER"
+    },
     "latest_version": {
       "defaultValue": {
         "value": "2.95.4"

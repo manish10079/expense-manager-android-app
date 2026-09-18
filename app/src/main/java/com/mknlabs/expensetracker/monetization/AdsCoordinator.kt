@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
@@ -422,11 +424,25 @@ class AdsCoordinator @Inject constructor(
 
     fun showRewardedAd(activity: Activity, placement: RewardedPlacement, onUserEarnedReward: () -> Unit) {
         rewardedAds[placement]?.let { ad ->
+            // A rewarded ad is single-use. Clearing the cache on dismiss (not only on
+            // reward) keeps a consumed ad from being handed out again: re-showing one
+            // just silently does nothing, so the user taps "Watch ad" and sees no ad.
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d("AdsCoordinator", "Rewarded ad ($placement) was dismissed.")
+                    rewardedAds[placement] = null
+                    loadRewardedAd(placement) // Preload the next one
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    Log.e("AdsCoordinator", "Rewarded ad ($placement) failed to show: code=${adError.code}, domain=${adError.domain}, message=${adError.message}")
+                    rewardedAds[placement] = null
+                    loadRewardedAd(placement)
+                }
+            }
             ad.show(activity) { rewardItem ->
                 // User earned the reward!
                 onUserEarnedReward()
-                rewardedAds[placement] = null
-                loadRewardedAd(placement) // Preload the next one
             }
         } ?: run {
             Log.d("AdsCoordinator", "The rewarded ad ($placement) wasn't ready yet.")

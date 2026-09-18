@@ -12,6 +12,7 @@ import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.RewardedPlacement
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
+import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository
 import com.mknlabs.expensetracker.models.UserTier
@@ -44,6 +45,7 @@ class MonetizationViewModel @Inject constructor(
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
     private val becomePremiumUseCase: BecomePremiumUseCase,
+    private val configurationRepository: ConfigurationRepository,
     private val adsCoordinator: AdsCoordinator
 ) : ViewModel() {
 
@@ -67,6 +69,13 @@ class MonetizationViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UserTier.FREE
         )
+
+    /**
+     * Length of the pass a rewarded ad grants, in minutes — Remote Config
+     * (`ad_pass_duration_minutes`). Gating UI copy must read this instead of stating a fixed
+     * duration, so the promise and the grant can never disagree.
+     */
+    val adPassDurationMinutes: StateFlow<Int> = configurationRepository.adPassDurationMinutes
 
     private val _isAdLoading = MutableStateFlow(false)
     val isAdLoading: StateFlow<Boolean> = _isAdLoading.asStateFlow()
@@ -136,8 +145,18 @@ class MonetizationViewModel @Inject constructor(
     /**
      * Shows a rewarded ad and grants temporary access upon completion.
      * Includes a 5-second grace period: if ad isn't ready in 5s, access is granted for free.
+     *
+     * [onAccessGranted] fires once access has actually been granted — after the reward is
+     * earned, or after the grace period when no ad could be shown. Callers that gate a UI
+     * action (e.g. the recurring-rule switch) must apply that action from here instead of
+     * doing it up front: granting eagerly would unlock the feature without ever showing an ad.
      */
-    fun onAdWatched(activity: Activity, feature: Feature, optionId: String? = null) {
+    fun onAdWatched(
+        activity: Activity,
+        feature: Feature,
+        optionId: String? = null,
+        onAccessGranted: () -> Unit = {}
+    ) {
         val placement = if (feature == Feature.AD_FREE_GLOBAL) {
             RewardedPlacement.AD_FREE_ACCESS
         } else {
@@ -146,7 +165,7 @@ class MonetizationViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (adsCoordinator.isRewardedAdReady(placement)) {
-                showAdAndGrantAccess(activity, placement, feature, optionId)
+                showAdAndGrantAccess(activity, placement, feature, optionId, onAccessGranted)
             } else {
                 _isAdLoading.value = true
                 
@@ -168,27 +187,38 @@ class MonetizationViewModel @Inject constructor(
                 _isAdLoading.value = false
 
                 if (adLoaded || adsCoordinator.isRewardedAdReady(placement)) {
-                    showAdAndGrantAccess(activity, placement, feature, optionId)
+                    showAdAndGrantAccess(activity, placement, feature, optionId, onAccessGranted)
                 } else {
                     // Grace period over: Grant for free
                     grantAccess(feature, optionId)
+                    onAccessGranted()
                 }
             }
         }
     }
 
-    private fun showAdAndGrantAccess(activity: Activity, placement: RewardedPlacement, feature: Feature, optionId: String?) {
+    private fun showAdAndGrantAccess(
+        activity: Activity,
+        placement: RewardedPlacement,
+        feature: Feature,
+        optionId: String?,
+        onAccessGranted: () -> Unit
+    ) {
         adsCoordinator.showRewardedAd(activity, placement) {
             grantAccess(feature, optionId)
+            onAccessGranted()
         }
     }
 
     private fun grantAccess(feature: Feature, optionId: String?) {
         viewModelScope.launch {
+            // Pass length is remote-configurable (`ad_pass_duration_minutes`) so it can be
+            // tuned from the console without shipping a build; defaults to 60 minutes.
+            val durationMinutes = configurationRepository.adPassDurationMinutes.value
             grantTemporaryAccessUseCase.execute(
                 feature = feature,
                 optionId = optionId,
-                durationMillis = 1 * 60 * 60 * 1000
+                durationMillis = durationMinutes * 60_000L
             )
         }
     }

@@ -41,7 +41,7 @@
     <string name="desc_unlock_advanced_search">Unlock Advanced Search</string>
     <string name="desc_use_biometric">Use biometric</string>
     <string name="label_unlock_pro_features">Unlock Your Financial Zen</string>
-    <string name="label_watch_a_short_video_to_unlock">Watch a quick story to enjoy 1 hour of total focus and peace.</string>
+    <string name="label_watch_a_short_video_to_unlock">Watch a quick story to unlock %1$s for %2$s.</string>
     <string name="label_watch_ad_unlock">Watch &amp; Unlock Peace</string>
     <string name="msg_biometric_authentication_is_no">Biometric authentication is not available right now.</string>
     <string name="msg_biometric_hardware_is_currentl">Biometric hardware is currently unavailable.</string>
@@ -257,7 +257,8 @@
     <string name="title_monetization_caps">MONETIZATION</string>
     <string name="label_remove_all_ads">Remove All Ads</string>
     <string name="label_remove_all_ads_subtitle">One-time purchase for ad-free experience</string>
-    <string name="msg_watch_ad_for_ad_free">Try Pro Features &amp; Ad-Free Ui for 1 hour</string>
+    <string name="msg_watch_ad_for_ad_free">Try Pro Features &amp; Ad-Free Ui</string>
+    <string name="desc_ad_free_pass_duration">Watch a short ad for %1$s of Pro features &amp; ad-free UI</string>
     <string name="label_ad_free_active">Ad-Free Access Active</string>
     <string name="msg_ad_free_duration_remaining">You are currently enjoying pro-level features and ad-free UI.</string>
     <string name="label_active_caps">ACTIVE</string>
@@ -336,7 +337,16 @@
     <string name="label_12hour">12-hour</string>
     <string name="label_248">+24.8%</string>
     <string name="label_24hour">24-hour</string>
-    <string name="label_1_hour_access">1-Hour Full Access</string>
+    <string name="label_full_access_for_duration">Full Access for %1$s</string>
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
     <string name="label_about">About</string>
     <string name="label_ac">AC</string>
     <string name="label_accuracy">ACCURACY</string>
@@ -1596,7 +1606,7 @@
     <string name="title_upgrade_for_sync">Upgrade for Cloud Sync</string>
     <string name="desc_upgrade_for_sync">Unlock automatic cloud backup and sync your data across 4 devices.</string>
     <string name="title_ad_expiry_warning">Convenience Ending Soon</string>
-    <string name="msg_ad_expiry_warning">Your ad-free convenience pass will expire in %1$d minutes. Watch another ad now to keep your settings for another hour?</string>
+    <string name="msg_ad_expiry_warning">Your ad-free convenience pass will expire in %1$d minutes. Watch another ad now to keep your settings for another %2$s?</string>
     <string name="btn_extend_now">Extend Now</string>
     <string name="btn_maybe_later">Maybe Later</string>
     <string name="label_custom_minutes">Custom Minutes</string>

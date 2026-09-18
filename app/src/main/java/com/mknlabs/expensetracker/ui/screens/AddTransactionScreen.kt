@@ -163,6 +163,7 @@ import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getRankedCategories
 import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
+import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
@@ -1703,27 +1704,43 @@ private fun RecurringTransactionSection(
 
     // Ad dialog for frequency gating and rule count gating
     if (showAdDialog) {
+        val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
+        val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
         AdRewardDialog(
             featureName = pendingFrequencyForAd?.label
                 ?: stringResource(R.string.label_recurring_transaction),
+            durationMinutes = adPassMinutes,
+            isLoading = isAdLoading,
             onDismiss = { showAdDialog = false; pendingFrequencyForAd = null },
             onWatchAdClick = {
-                val activity = context as? android.app.Activity
+                // This section is composed inside the recurring ModalBottomSheet, which is
+                // hosted in its own dialog window — LocalContext there is a
+                // ContextThemeWrapper, not the Activity, so a plain `as? Activity` cast is
+                // null and the rewarded ad is never even requested. Unwrap like MainScreen.
+                val activity = context.findFragmentActivity()
+                // Grant access once it is real — reward earned, or no ad to show. Applying
+                // the pending choice up front would unlock the rule without an ad ever
+                // appearing (frequency gate: select it; rule-count gate: enable it).
+                val applyGrantedChoice = {
+                    pendingFrequencyForAd?.let { onFrequencySelected(it) }
+                    onEnabledChange(true)
+                    showAdDialog = false
+                    pendingFrequencyForAd = null
+                }
                 if (activity != null) {
                     monetizationViewModel.onAdWatched(
                         activity,
                         pendingFrequencyForAd?.let { featureForFrequency(it) }
                             ?: Feature.RECURRING_RULES_MULTI,
-                        null
+                        null,
+                        applyGrantedChoice
                     )
+                } else {
+                    // No host Activity means no ad can ever be shown; don't strand the
+                    // user on a button that can't do anything.
+                    Log.w("AddTransactionScreen", "No host Activity for the recurring ad gate; granting directly.")
+                    applyGrantedChoice()
                 }
-                // Grant access: if it was a frequency gate, select it; if rule count, enable
-                pendingFrequencyForAd?.let {
-                    onFrequencySelected(it)
-                    onEnabledChange(true)
-                } ?: onEnabledChange(true)
-                showAdDialog = false
-                pendingFrequencyForAd = null
             }
         )
     }

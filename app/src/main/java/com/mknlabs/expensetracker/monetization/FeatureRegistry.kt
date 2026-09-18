@@ -94,7 +94,7 @@ object FeatureRegistry {
         Feature.AUTO_LOCK_SETTING to mapOf(
             "0" to AccessLevel.FREE,          // Immediate
             "1" to AccessLevel.FREE,          // 1 minute buffer
-            "5" to AccessLevel.AD_SUPPORTED,   // Convenience (1-hour pass)
+            "5" to AccessLevel.AD_SUPPORTED,   // Convenience (rewarded-ad pass)
             "10" to AccessLevel.AD_SUPPORTED,
             "15" to AccessLevel.AD_SUPPORTED,
             "20" to AccessLevel.PREMIUM,       // Power User Perk

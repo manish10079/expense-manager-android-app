@@ -145,7 +145,12 @@ class MainViewModel @Inject constructor(
                 }
 
                 var hasShownWarning = false
-                
+                // Scale the warning to the pass length (Remote Config). A flat 15 minutes
+                // would fire the moment a pass shorter than that is granted, and
+                // `hasShownWarning` would then suppress any later reminder.
+                val warningAtMinutes =
+                    (configurationRepository.adPassDurationMinutes.value / 2).coerceIn(1, 15)
+
                 while (true) {
                     val remainingMillis = expiry - System.currentTimeMillis()
                     val minutes = (remainingMillis / 1000) / 60
@@ -162,8 +167,8 @@ class MainViewModel @Inject constructor(
                         break
                     }
                     
-                    // 2. 15-Minute Warning Logic
-                    if (minutes <= 15 && !hasShownWarning) {
+                    // 2. Expiry Warning Logic
+                    if (minutes <= warningAtMinutes && !hasShownWarning) {
                         android.util.Log.d("MainVM", "Emitting ShowAdExpiryWarning event.")
                         _uiEvent.emit(MainUiEvent.ShowAdExpiryWarning(minutes.toInt().coerceAtLeast(1)))
                         hasShownWarning = true
