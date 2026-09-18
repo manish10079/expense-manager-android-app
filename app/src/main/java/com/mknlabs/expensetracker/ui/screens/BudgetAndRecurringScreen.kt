@@ -121,8 +121,10 @@ import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
 import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.ui.components.GatedAction
+import com.mknlabs.expensetracker.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.ui.components.tabBadgeCount
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.ui.theme.brandGradient
@@ -186,7 +188,8 @@ fun BudgetAndRecurringScreen(
     onSkipInstallment: (String) -> Unit = {},
     onUndoInstallment: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
-    isAdsEnabled: Boolean = false
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
 ) {
     val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
 
@@ -207,6 +210,9 @@ fun BudgetAndRecurringScreen(
     BudgetAndRecurringContent(
         uiState = uiState,
         isAdsEnabled = isAdsEnabled,
+        // Counts are a Pro perk; the route resolves that once and the content stays
+        // a pure, previewable function.
+        isProUser = isProUser,
         currencyId = currencyId,
         amountFormatPreferences = amountFormatPreferences,
         availableCategories = availableCategories,
@@ -243,6 +249,7 @@ fun BudgetAndRecurringScreen(
 private fun BudgetAndRecurringContent(
     uiState: com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringScreenUiState,
     isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     availableCategories: List<CategoryType>,
@@ -355,6 +362,12 @@ private fun BudgetAndRecurringContent(
             Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
                 BudgetTabRow(
                     selectedTab = uiState.selectedTab,
+                    // Counted from the very lists the tabs render, so the badge can never
+                    // disagree with the cards below it — including the budget tab's
+                    // period filter, which changes how many budgets are on screen.
+                    budgetCount = uiState.categoryBudgets.size,
+                    recurringCount = uiState.recurringExpenses.size,
+                    isProUser = isProUser,
                     onTabSelected = onSelectTab
                 )
             }
@@ -2591,6 +2604,9 @@ private fun BudgetAndRecurringScreenPreview() {
 @Composable
 private fun BudgetTabRow(
     selectedTab: BudgetTab,
+    budgetCount: Int,
+    recurringCount: Int,
+    isProUser: Boolean,
     onTabSelected: (BudgetTab) -> Unit
 ) {
     val tabs = remember { BudgetTab.entries }
@@ -2639,6 +2655,14 @@ private fun BudgetTabRow(
                         BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
                         BudgetTab.Recurring -> stringResource(id = R.string.label_tab_recurring)
                     },
+                    count = tabBadgeCount(
+                        count = when (tab) {
+                            BudgetTab.Budgets -> budgetCount
+                            BudgetTab.Recurring -> recurringCount
+                        },
+                        isSelected = tab == selectedTab,
+                        isProUser = isProUser
+                    ),
                     selected = tab == selectedTab,
                     onClick = { onTabSelected(tab) },
                     modifier = Modifier.weight(1f)
@@ -2651,6 +2675,7 @@ private fun BudgetTabRow(
 @Composable
 private fun BudgetTabChip(
     label: String,
+    count: Int?,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -2667,11 +2692,22 @@ private fun BudgetTabChip(
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label.uppercase(),
-            color = animatedColor,
-            textAlign = TextAlign.Center,                style = MaterialTheme.typography.labelMedium,
-        )
+        // The badge is only ever passed for the selected tab, so whatever is drawn here sits
+        // on the brand-gradient indicator where `onPrimary` is the readable colour. A null
+        // count composes nothing at all, leaving the label exactly where it is today.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label.uppercase(),
+                color = animatedColor,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium,
+            )
+
+            if (count != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                TabCountBadge(count = count)
+            }
+        }
     }
 }
 

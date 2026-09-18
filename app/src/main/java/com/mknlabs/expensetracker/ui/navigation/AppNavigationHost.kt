@@ -261,6 +261,7 @@ fun AppNavigationHost(
                 AppRoute.Budget -> {
                     BudgetAndRecurringScreen(
                         isAdsEnabled = isAdsEnabled,
+                        isProUser = isProUser,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,
