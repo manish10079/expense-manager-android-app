@@ -779,6 +779,13 @@
     <string name="msg_no_recurring_items">No recurring items added yet.</string>
     <string name="label_tab_budgets">Budgets</string>
     <string name="label_tab_recurring">Recurring</string>
+    <!-- Tab count badge. Pro only: the count is never rendered for free users, so these strings have no locked/free-state variant. -->
+    <string name="label_tab_count_short">%1$d</string>
+    <string name="label_tab_count_overflow">%1$d+</string>
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">CUSTOM MONTH</string>
     <string name="label_remaining">REMAINING</string>
