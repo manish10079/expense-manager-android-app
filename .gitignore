@@ -46,6 +46,11 @@ keystore.properties
 app/release/
 local.properties
 
+# Untracked project files
+.ohmyagent/
+strings_ad.patch
+strings_emi.patch
+
 # ===================== Secrets & API config =====================
 # Firebase config — contains your API keys / OAuth client IDs (add your own copy)
 google-services.json

@@ -2,25 +2,42 @@ package com.mknlabs.expensetracker.ui.viewmodels
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.domain.repository.BudgetRepository
+import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.BudgetPeriod
+import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.InstallmentOccurrence
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.InstallmentPlan
+import com.mknlabs.expensetracker.models.InstallmentStatus
+import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.CustomMonthUtils
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.Calendar
 import java.util.UUID
+
+private const val RULE_ID = "rule-1"
+private const val TEMPLATE_ID = "tx-template-1"
+private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BudgetAndRecurringViewModelTest {
@@ -30,11 +47,16 @@ class BudgetAndRecurringViewModelTest {
 
     private lateinit var viewModel: BudgetAndRecurringViewModel
     private lateinit var fakeRepository: FakeBudgetRepository
+    private lateinit var fakeOccurrences: MutableStateFlow<List<InstallmentOccurrence>>
 
     @Before
     fun setup() {
         fakeRepository = FakeBudgetRepository()
-        viewModel = BudgetAndRecurringViewModel(budgetRepository = fakeRepository)
+        fakeOccurrences = MutableStateFlow(emptyList())
+        viewModel = BudgetAndRecurringViewModel(
+            budgetRepository = fakeRepository,
+            recurringRuleRepository = FakeRecurringRuleRepository(fakeOccurrences)
+        )
         viewModel.updateInputs(
             transactions = emptyList(),
             categories = emptyList(),
@@ -147,6 +169,109 @@ class BudgetAndRecurringViewModelTest {
         assertEquals(1, fakeRepository.getAll().size)
     }
 
+    @Test
+    fun `installment card exposes one ledger row per slot with derived status`() = runTest {
+        val now = System.currentTimeMillis()
+        val paidDue = now - 40L * DAY_MILLIS
+        val overdueDue = now - 5L * DAY_MILLIS
+        val upcomingDue = now + 5L * DAY_MILLIS
+
+        val rule = RecurringTransactionRule(
+            id = RULE_ID,
+            transactionId = TEMPLATE_ID,
+            frequency = RecurringFrequency.Monthly,
+            repeatCount = 3,
+            isEnabled = true,
+            remainingCount = 2,
+            anchorAt = paidDue,
+            nextRunAt = overdueDue,
+            recurringType = RecurringType.INSTALLMENT,
+            installmentTotalMinor = 30_000L,
+            installmentAmountMinor = 10_000L,
+            installmentTotalCount = 3,
+            installmentStatus = InstallmentStatus.ACTIVE
+        )
+        fakeOccurrences.value = listOf(
+            occurrence("1", paidDue, InstallmentOccurrenceStatus.PAID, paidAt = paidDue),
+            occurrence("2", upcomingDue, InstallmentOccurrenceStatus.SKIPPED),
+            // Pending and past its date: the ledger must show it as OVERDUE
+            // without that ever being stored.
+            occurrence("3", overdueDue, InstallmentOccurrenceStatus.PENDING)
+        )
+
+        viewModel.updateInputs(
+            transactions = listOf(templateTransaction()),
+            categories = listOf(category()),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            recurringRules = listOf(rule),
+            monthStartDay = 1
+        )
+
+        val card = viewModel.uiState.value.recurringExpenses.single()
+        assertTrue(card.isInstallment)
+        assertEquals(
+            listOf(
+                InstallmentOccurrenceStatus.PAID,
+                InstallmentOccurrenceStatus.SKIPPED,
+                InstallmentOccurrenceStatus.OVERDUE
+            ),
+            card.slots.map { it.status }
+        )
+        assertEquals(listOf(1, 2, 3), card.slots.map { it.index })
+        // The row id is the occurrence id the ledger's pay/skip/undo actions
+        // hand back to the repository — the same one the worker settles by.
+        assertEquals(
+            listOf(1, 2, 3).map { InstallmentOccurrence.idFor(RULE_ID, it) },
+            card.slots.map { it.id }
+        )
+        // Only the paid slot carries a settlement date, which the row shows.
+        assertEquals(paidDue, card.slots[0].paidAt)
+        assertNull(card.slots[1].paidAt)
+        assertTrue(card.slots.all { it.amountLabel.isNotBlank() })
+        // Progress follows the paid slots, not the skipped ones.
+        assertEquals(1, card.installmentPaidCount)
+        assertEquals(3, card.totalInstallments)
+        assertEquals(1f / 3f, card.installmentProgressFraction, 0.0001f)
+        // An unsettled past-due slot headlines the plan as overdue.
+        assertEquals(
+            R.string.label_emis_overdue,
+            (card.dueLabel as UiText.StringResource).resId
+        )
+    }
+
+    private fun occurrence(
+        index: String,
+        dueAt: Long,
+        status: InstallmentOccurrenceStatus,
+        paidAt: Long? = null
+    ): InstallmentOccurrence = InstallmentOccurrence(
+        id = "${RULE_ID}_occ_$index",
+        ruleId = RULE_ID,
+        installmentIndex = index.toInt(),
+        dueAt = dueAt,
+        amountMinor = 10_000L,
+        paidAt = paidAt,
+        status = status
+    )
+
+    private fun templateTransaction(): Transaction = Transaction(
+        id = TEMPLATE_ID,
+        note = "laptop emi",
+        createdAt = System.currentTimeMillis() - 90L * DAY_MILLIS,
+        amountMinor = 60_000L,
+        transactionTypeId = 2,
+        paymentTypeId = 1,
+        categoryId = 1
+    )
+
+    private fun category(): CategoryType = CategoryType(
+        id = 1,
+        name = "EMIs",
+        iconKey = "card",
+        transactionTypeId = 2
+    )
+
     private fun startOfCurrentMonth(): Long =
         CustomMonthUtils.getStartOfCustomMonth(System.currentTimeMillis(), 1)
 
@@ -181,6 +306,40 @@ class BudgetAndRecurringViewModelTest {
             editCount = 0,
             isDeleted = false
         )
+    }
+
+    private class FakeRecurringRuleRepository(
+        private val occurrences: MutableStateFlow<List<InstallmentOccurrence>> = MutableStateFlow(emptyList())
+    ) : RecurringRuleRepository {
+        override fun observeActiveRecurringRules(): Flow<List<RecurringTransactionRule>> = flowOf(emptyList())
+        override suspend fun getActiveRules(): List<RecurringTransactionRule> = emptyList()
+        override suspend fun getActiveByTransactionId(transactionId: String): RecurringTransactionRule? = null
+        override suspend fun upsertRule(rule: RecurringTransactionRule): RecurringTransactionRule = rule
+        override suspend fun setEnabled(id: String, enabled: Boolean) = Unit
+        override suspend fun setNotificationsEnabled(id: String, enabled: Boolean) = Unit
+        override suspend fun deleteRule(id: String) = Unit
+        override fun observeOccurrences(ruleId: String): Flow<List<InstallmentOccurrence>> = occurrences
+        override fun observeAllOccurrences(): Flow<List<InstallmentOccurrence>> = occurrences
+        override suspend fun getOccurrences(ruleId: String): List<InstallmentOccurrence> = emptyList()
+        override suspend fun getInstallmentPlan(ruleId: String): InstallmentPlan? = null
+        override suspend fun convertToInstallment(
+            ruleId: String,
+            totalAmountMinor: Long,
+            installmentAmountMinor: Long,
+            totalInstallments: Int,
+            firstDueAt: Long
+        ): RecurringTransactionRule? = null
+        override suspend fun convertToRegular(ruleId: String): RecurringTransactionRule? = null
+        override suspend fun payInstallment(occurrenceId: String, paidAt: Long): InstallmentOccurrence? = null
+        override suspend fun payInstallments(occurrenceIds: List<String>, paidAt: Long): Int = 0
+        override suspend fun settleOccurrenceWithTransaction(
+            occurrenceId: String,
+            transactionId: String,
+            paidAt: Long
+        ): InstallmentOccurrence? = null
+        override suspend fun skipInstallment(occurrenceId: String): InstallmentOccurrence? = null
+        override suspend fun undoInstallment(occurrenceId: String): InstallmentOccurrence? = null
+        override suspend fun reconcileDueInstallments(ruleId: String, now: Long): List<String> = emptyList()
     }
 
     private class FakeBudgetRepository : BudgetRepository {

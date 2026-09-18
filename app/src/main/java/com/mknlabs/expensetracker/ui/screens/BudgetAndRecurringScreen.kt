@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
@@ -110,7 +112,10 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
@@ -135,10 +140,16 @@ import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetCopyCandidateUi
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
+import com.mknlabs.expensetracker.ui.viewmodels.InstallmentSlotUi
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.toMinorUnits
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
@@ -169,6 +180,11 @@ fun BudgetAndRecurringScreen(
     onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit = { _, _, _ -> },
+    onConvertRecurringToRegular: (String) -> Unit = {},
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
     onBackClick: () -> Unit = {},
     isAdsEnabled: Boolean = false
 ) {
@@ -199,6 +215,11 @@ fun BudgetAndRecurringScreen(
         onRecurringEnabledChange = onRecurringEnabledChange,
         onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
         onUpdateRecurringRule = onUpdateRecurringRule,
+        onSaveRecurringPlan = onSaveRecurringPlan,
+        onConvertRecurringToRegular = onConvertRecurringToRegular,
+        onPayInstallments = onPayInstallments,
+        onSkipInstallment = onSkipInstallment,
+        onUndoInstallment = onUndoInstallment,
         onBackClick = onBackClick,
         onSelectTab = { budgetViewModel.selectTab(it) },
         onSelectPeriod = { budgetViewModel.selectPeriod(it) },
@@ -230,6 +251,11 @@ private fun BudgetAndRecurringContent(
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
     onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit,
+    onConvertRecurringToRegular: (String) -> Unit,
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
     onBackClick: () -> Unit,
     onSelectTab: (BudgetTab) -> Unit,
     onSelectPeriod: (BudgetPeriodFilter) -> Unit,
@@ -251,6 +277,9 @@ private fun BudgetAndRecurringContent(
     var infoBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
     var isGroupInfoSheetVisible by rememberSaveable { mutableStateOf(false) }
     val groupInfoSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Id of the EMI rule whose installment ledger is open (tap-through from a card).
+    var ledgerRuleId by rememberSaveable { mutableStateOf<String?>(null) }
+    val ledgerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCopySheetVisible by rememberSaveable { mutableStateOf(false) }
     var pendingCopyRequest by remember { mutableStateOf<PendingBudgetCopy?>(null) }
 
@@ -471,6 +500,11 @@ private fun BudgetAndRecurringContent(
                                         onEditClick = { editingRecurringRule = expense },
                                         onDeleteClick = {
                                             pendingDeleteRecurringId = expense.id
+                                        },
+                                        onLedgerClick = if (expense.isInstallment && expense.slots.isNotEmpty()) {
+                                            { ledgerRuleId = expense.id }
+                                        } else {
+                                            null
                                         }
                                     )
                                 }
@@ -583,7 +617,30 @@ private fun BudgetAndRecurringContent(
             onSave = { frequency, installments ->
                 onUpdateRecurringRule(rule.id, frequency, installments)
                 editingRecurringRule = null
+            },
+            onSavePlan = { frequency, plan ->
+                onSaveRecurringPlan(rule.id, frequency, plan)
+                editingRecurringRule = null
+            },
+            onConvertToRegular = {
+                onConvertRecurringToRegular(rule.id)
+                editingRecurringRule = null
             }
+        )
+    }
+
+    // A plan converted back to REGULAR (or deleted) while its ledger is open has
+    // no slots left to show — the sheet closes with it.
+    val ledgerExpense = uiState.recurringExpenses
+        .firstOrNull { it.id == ledgerRuleId && it.isInstallment }
+    if (ledgerExpense != null) {
+        InstallmentLedgerSheet(
+            expense = ledgerExpense,
+            sheetState = ledgerSheetState,
+            onDismiss = { ledgerRuleId = null },
+            onPay = onPayInstallments,
+            onSkip = onSkipInstallment,
+            onUndo = onUndoInstallment
         )
     }
 
@@ -2052,7 +2109,9 @@ private fun RecurringExpenseCard(
     onEnabledChange: (Boolean) -> Unit,
     onNotificationsEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    /** Non-null only for an EMI rule with slots — opens the installment ledger. */
+    onLedgerClick: (() -> Unit)? = null
 ) {
     val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
     
@@ -2188,6 +2247,15 @@ private fun RecurringExpenseCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                if (onLedgerClick != null) {
+                    BudgetCardAction(
+                        icon = Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(id = R.string.action_view_installments),
+                        accent = budgetAccentColor(expense.accent),
+                        onClick = onLedgerClick
+                    )
+                }
+
                 BudgetCardAction(
                     icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                     contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
@@ -2259,6 +2327,239 @@ private fun RecurringMetaChip(
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
+/**
+ * Installment ledger for one EMI rule: every scheduled slot with what it is
+ * worth, what happened to it, and the three settlement actions.
+ *
+ * Paying is per slot and multi-selectable — the selected slots go up in one
+ * action, and the repository's per-slot idempotency makes a double submission
+ * (or a slot the worker settled meanwhile) harmless. Skipping waives the cycle
+ * without withdrawing the money owed, and undo returns either kind of settled
+ * slot to PENDING (withdrawing the transaction a payment had generated).
+ *
+ * Selection state is dropped whenever a slot stops being payable, so the
+ * "Pay selected" count can never contain a slot that is no longer pending.
+ */
+@Composable
+private fun InstallmentLedgerSheet(
+    expense: BudgetRecurringExpenseUi,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onPay: (List<String>) -> Unit,
+    onSkip: (String) -> Unit,
+    onUndo: (String) -> Unit
+) {
+    val accent = budgetAccentColor(expense.accent)
+    val progressLabel = stringResource(
+        R.string.label_emi_paid_progress,
+        expense.installmentPaidCount,
+        expense.totalInstallments
+    )
+    val remainingLabel = stringResource(
+        R.string.label_emi_remaining_format,
+        expense.installmentRemainingLabel
+    )
+    var selectedIds by remember(expense.id) { mutableStateOf(emptySet<String>()) }
+    val payableIds = remember(expense.slots) {
+        expense.slots
+            .filter { it.status == InstallmentOccurrenceStatus.PENDING }
+            .map { it.id }
+            .toSet()
+    }
+    // A slot may be settled by the worker (or undone) while the sheet is open:
+    // keep only selections that are still payable.
+    LaunchedEffect(payableIds) {
+        selectedIds = selectedIds intersect payableIds
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.List,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.title_emis_for_format, expense.title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "$progressLabel • $remainingLabel",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                RecurringMetaChip(
+                    label = expense.frequencyLabel,
+                    accent = accent
+                )
+                RecurringMetaChip(
+                    label = expense.dueLabel.asString(),
+                    accent = accent
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 340.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(expense.slots, key = { it.id }) { slot ->
+                    InstallmentSlotRow(
+                        slot = slot,
+                        accent = accent,
+                        selected = slot.id in selectedIds,
+                        onSelectedChange = { checked ->
+                            selectedIds = if (checked) selectedIds + slot.id else selectedIds - slot.id
+                        },
+                        onPay = { onPay(listOf(slot.id)) },
+                        onSkip = { onSkip(slot.id) },
+                        onUndo = { onUndo(slot.id) }
+                    )
+                }
+            }
+
+            if (selectedIds.isNotEmpty()) {
+                Button(
+                    onClick = { onPay(selectedIds.toList()) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_pay_selected_format, selectedIds.size),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstallmentSlotRow(
+    slot: InstallmentSlotUi,
+    accent: Color,
+    selected: Boolean,
+    onSelectedChange: (Boolean) -> Unit,
+    onPay: () -> Unit,
+    onSkip: () -> Unit,
+    onUndo: () -> Unit
+) {
+    val isPending = slot.status == InstallmentOccurrenceStatus.PENDING
+    val statusColor = when (slot.status) {
+        InstallmentOccurrenceStatus.PAID -> MaterialTheme.colorScheme.primary
+        InstallmentOccurrenceStatus.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
+        InstallmentOccurrenceStatus.OVERDUE -> MaterialTheme.colorScheme.error
+        InstallmentOccurrenceStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val statusLabel = stringResource(
+        when (slot.status) {
+            InstallmentOccurrenceStatus.PAID -> R.string.label_paid_caps
+            InstallmentOccurrenceStatus.SKIPPED -> R.string.label_skipped_caps
+            InstallmentOccurrenceStatus.OVERDUE -> R.string.label_overdue_caps
+            InstallmentOccurrenceStatus.PENDING -> R.string.label_pending_caps
+        }
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Multi-select only ever applies to slots that can still be paid — a
+        // settled slot changes through UNDO instead.
+        if (isPending) {
+            Checkbox(
+                checked = selected,
+                onCheckedChange = onSelectedChange,
+                colors = CheckboxDefaults.colors(checkedColor = accent)
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.label_slot_index_format, slot.index) +
+                    "  " + formatDate(slot.dueAt),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = slot.paidAt?.let { paidAt ->
+                    slot.amountLabel + " • " + formatDate(paidAt)
+                } ?: slot.amountLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            RecurringMetaChip(label = statusLabel, accent = statusColor)
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            if (isPending) {
+                BudgetCardAction(
+                    label = stringResource(R.string.action_pay_caps),
+                    contentDescription = stringResource(R.string.action_pay_caps),
+                    accent = accent,
+                    onClick = onPay
+                )
+                TextButton(onClick = onSkip) {
+                    Text(
+                        text = stringResource(R.string.action_skip_caps),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            } else {
+                TextButton(onClick = onUndo) {
+                    Text(
+                        text = stringResource(R.string.action_undo_caps),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun BudgetAndRecurringScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
@@ -2273,6 +2574,8 @@ private fun BudgetAndRecurringScreenPreview() {
             onRecurringEnabledChange = { _, _ -> },
             onRecurringNotificationsEnabledChange = { _, _ -> },
             onUpdateRecurringRule = { _, _, _ -> },
+            onSaveRecurringPlan = { _, _, _ -> },
+            onConvertRecurringToRegular = {},
             onBackClick = {},
             onSelectTab = {},
             onSelectPeriod = {},
@@ -2376,11 +2679,49 @@ private fun BudgetTabChip(
 private fun RecurringRuleEditorModal(
     rule: BudgetRecurringExpenseUi,
     onDismiss: () -> Unit,
-    onSave: (RecurringFrequency, Int) -> Unit
+    onSave: (RecurringFrequency, Int) -> Unit,
+    onSavePlan: (RecurringFrequency, RecurringPlanEdit) -> Unit,
+    onConvertToRegular: () -> Unit
 ) {
+    var selectedType by remember {
+        mutableStateOf(if (rule.isInstallment) RecurringType.INSTALLMENT else RecurringType.REGULAR)
+    }
     var selectedFrequency by remember { mutableStateOf(rule.frequency) }
     var installmentsInput by remember { mutableStateOf(rule.totalInstallments.toString()) }
     var isFrequencyDropdownExpanded by remember { mutableStateOf(false) }
+
+    // EMI fields — prefilled from the rule when it already carries a plan, so
+    // editing an existing loan shows its real terms.
+    var totalInput by remember { mutableStateOf(rule.installmentTotalAmount.formatForInput()) }
+    var installmentInput by remember { mutableStateOf(rule.installmentPerAmount.formatForInput()) }
+    var firstDueAt by remember {
+        mutableStateOf(rule.firstDueAt.takeIf { it > 0L } ?: System.currentTimeMillis())
+    }
+    var isFirstDuePickerVisible by remember { mutableStateOf(false) }
+    var showRegularConfirm by remember { mutableStateOf(false) }
+
+    val count = installmentsInput.toIntOrNull() ?: rule.totalInstallments
+    val totalAmount = totalInput.toDoubleOrNull() ?: 0.0
+    val installmentAmount = installmentInput.toDoubleOrNull() ?: 0.0
+    val planValid = count > 0 && totalAmount > 0.0 && installmentAmount > 0.0
+    // The recurring date is 12:00 local — slot dates inherit it, so "same
+    // total as count × installment" stays exact regardless of month lengths.
+    val planConsistent = totalAmount == installmentAmount * count
+    // Nothing editable changed — saving would rewrite sync timestamps for no
+    // visible reason, so the button stays disabled. (count <= 0 mirrors the old
+    // guard that never let a REGULAR rule save a zero repeat count.)
+    val regularInvalid = selectedType == RecurringType.REGULAR && count <= 0
+    val regularUnchanged = regularInvalid ||
+        (selectedType == RecurringType.REGULAR &&
+            selectedFrequency == rule.frequency && count == rule.totalInstallments)
+    val planUnchanged =
+        selectedType == RecurringType.INSTALLMENT &&
+            selectedFrequency == rule.frequency &&
+            rule.isInstallment &&
+            totalAmount == rule.installmentTotalAmount &&
+            installmentAmount == rule.installmentPerAmount &&
+            count == rule.totalInstallments &&
+            firstDueAt == rule.firstDueAt
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -2409,13 +2750,41 @@ private fun RecurringRuleEditorModal(
                 style = MaterialTheme.typography.titleLarge
             )
 
+            // Type selector — REGULAR stays exactly the legacy editor;
+            // INSTALLMENT swaps the repeat-count row for the plan terms.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(id = R.string.label_recurring_type),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FilterChip(
+                        selected = selectedType == RecurringType.REGULAR,
+                        onClick = {
+                            if (rule.isInstallment && selectedType != RecurringType.REGULAR) {
+                                showRegularConfirm = true
+                            } else {
+                                selectedType = RecurringType.REGULAR
+                            }
+                        },
+                        label = { Text(stringResource(id = R.string.label_type_regular)) }
+                    )
+                    FilterChip(
+                        selected = selectedType == RecurringType.INSTALLMENT,
+                        onClick = { selectedType = RecurringType.INSTALLMENT },
+                        label = { Text(stringResource(id = R.string.label_type_emi)) }
+                    )
+                }
+            }
+
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = stringResource(id = R.string.label_frequency_capitalized),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelLarge
                 )
-                
+
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = selectedFrequency.label,
@@ -2437,7 +2806,7 @@ private fun RecurringRuleEditorModal(
                             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
-                    
+
                     Box(
                         modifier = Modifier
                             .matchParentSize()
@@ -2453,7 +2822,7 @@ private fun RecurringRuleEditorModal(
                     ) {
                         RecurringFrequency.entries.forEach { frequency ->
                             DropdownMenuItem(
-                                text = { 
+                                text = {
                                     Text(
                                         text = frequency.label,
                                         color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
@@ -2469,28 +2838,110 @@ private fun RecurringRuleEditorModal(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(id = R.string.label_total_installments),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelLarge
-                )
-                
-                OutlinedTextField(
-                    value = installmentsInput,
-                    onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            if (selectedType == RecurringType.REGULAR) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_total_installments),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
                     )
-                )
+
+                    OutlinedTextField(
+                        value = installmentsInput,
+                        onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    )
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_emi_total_amount),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    EditorAmountField(
+                        value = totalInput,
+                        onValueChange = { totalInput = it }
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_emi_installment_amount),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    EditorAmountField(
+                        value = installmentInput,
+                        onValueChange = { installmentInput = it }
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_total_installments),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    OutlinedTextField(
+                        value = installmentsInput,
+                        onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_emi_first_due),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    OutlinedTextField(
+                        value = editorDateFormatter.format(Date(firstDueAt)),
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isFirstDuePickerVisible = true },
+                        enabled = false,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    )
+                }
+                if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
+                    Text(
+                        text = stringResource(id = R.string.msg_emi_amount_mismatch),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -2505,24 +2956,115 @@ private fun RecurringRuleEditorModal(
                 ) {
                     Text(stringResource(id = R.string.label_cancel_caps), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                
+
                 TextButton(
                     onClick = {
-                        val count = installmentsInput.toIntOrNull() ?: rule.totalInstallments
-                        if (count > 0) {
-                            onSave(selectedFrequency, count)
+                        when {
+                            selectedType == RecurringType.REGULAR -> onSave(selectedFrequency, count)
+                            planValid -> onSavePlan(
+                                selectedFrequency,
+                                RecurringPlanEdit(
+                                    totalAmountMinor = totalAmount.toMinorUnits(),
+                                    installmentAmountMinor = installmentAmount.toMinorUnits(),
+                                    totalInstallments = count,
+                                    firstDueAt = firstDueAt
+                                )
+                            )
                         }
                     },
+                    enabled = !if (selectedType == RecurringType.REGULAR) regularUnchanged else (planUnchanged || !planValid || !planConsistent),
                     modifier = Modifier
                         .weight(1f)
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                        .background(
+                            MaterialTheme.colorScheme.primary.copy(
+                                alpha = if (
+                                    if (selectedType == RecurringType.REGULAR) regularUnchanged
+                                    else (planUnchanged || !planValid || !planConsistent)
+                                ) 0.4f else 1f
+                            ),
+                            RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Text(stringResource(id = R.string.label_save_changes_caps), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }
     }
+
+    if (isFirstDuePickerVisible) {
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.SINGLE_DATE,
+            initialStartMillis = firstDueAt,
+            onDismissRequest = { isFirstDuePickerVisible = false },
+            onConfirm = { start, _ ->
+                firstDueAt = start
+                isFirstDuePickerVisible = false
+            }
+        )
+    }
+
+    // Switching an EMI rule back to REGULAR is confirmed first: the plan is
+    // only hidden (soft-deleted), and the info line says so, so the user
+    // knows paid history is not at risk.
+    if (showRegularConfirm) {
+        AlertDialog(
+            onDismissRequest = { showRegularConfirm = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(id = R.string.label_type_regular)) },
+            text = { Text(stringResource(id = R.string.msg_convert_to_regular_info)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showRegularConfirm = false
+                    onConvertToRegular()
+                }) {
+                    Text(stringResource(id = R.string.label_save_changes_caps), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRegularConfirm = false }) {
+                    Text(stringResource(id = R.string.label_cancel_caps))
+                }
+            }
+        )
+    }
 }
+
+/** Decimal amount field matching the budget editor's input style. */
+@Composable
+private fun EditorAmountField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    supportingText: String? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { input ->
+            if (input.isEmpty() || (input.all { it.isDigit() || it == '.' } && input.count { it == '.' } <= 1)) {
+                onValueChange(input)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        supportingText = supportingText?.let { { Text(it) } },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+}
+
+/** Strip trailing zeros so 100.0 prefills as "100" but 1234.56 stays exact. */
+private fun Double.formatForInput(): String {
+    val formatted = "%.2f".format(this)
+    return formatted.trimEnd('0').trimEnd('.')
+}
+
+private val editorDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable

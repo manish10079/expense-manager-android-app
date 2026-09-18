@@ -1,4 +1,6 @@
 import java.util.Properties
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,11 +18,13 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 231
-        versionName = "2.103.0"
+        versionCode = 238
+        versionName = "2.106.1"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+
     // Load signing credentials from keystore.properties (gitignored)
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties().apply {
@@ -40,13 +44,23 @@ android {
         }
     }
 
+    // Set custom base file name without extensions
+    val vName = defaultConfig.versionName ?: "1.0.0"
+    val vCode = defaultConfig.versionCode ?: 1
+    val current = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")
+    val timestamp = current.format(formatter)
+    base.archivesName.set("ExpenseTracker-v${vName}-vc${vCode}-${timestamp}")
+
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            optimization {
+                enable = true // Enables code and resource optimizations.
+            }
             signingConfig = signingConfigs.getByName("release")
             ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
+                // Generates symbol files for native libraries (.so)
+                debugSymbolLevel = "FULL" // Options: "FULL" or "SYMBOL_TABLE"
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -83,10 +97,15 @@ android {
                 )
             }
         }
+        // Room migration tests read the exported schema JSONs from assets.
+        getByName("androidTest") {
+            assets.srcDirs("$projectDir/schemas")
+        }
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+    ndkVersion = "30.0.16248370"
 }
 
 ksp {
@@ -132,6 +151,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+    // Room 2.8.4's schema parser (room-migration, via room-testing) is compiled
+    // against kotlinx-serialization 1.8+, but the app's transitive version is
+    // pinned to 1.7.3 by datastore. AGP's consistent resolution mirrors the app
+    // classpath into androidTest, so the bump has to live here — otherwise the
+    // v14->v15 migration tests crash with AbstractMethodError on
+    // GeneratedSerializer.typeParametersSerializers().
+    implementation(libs.kotlinx.serialization.json)
     ksp(libs.androidx.room.compiler)
 
     // Paging 3
@@ -170,6 +196,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)

@@ -42,6 +42,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -128,12 +129,17 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.CurrencyPosition
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.RecurringGateResolver
+import com.mknlabs.expensetracker.monetization.RecurringRuleTier
 import com.mknlabs.expensetracker.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
@@ -311,6 +317,21 @@ fun AddTransactionScreen(
         var recurringCountInput by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingRecurringRule?.repeatCount?.toString() ?: "12")
         }
+        // EMI creation is offered only while creating: an existing plan is
+        // changed from the recurring list editor, which can show the plan's real
+        // first-due date (it lives on the slot ledger, not on the rule).
+        val canCreateInstallment = !isEditMode
+        var selectedRecurringType by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(RecurringType.REGULAR)
+        }
+        var emiTotalInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        // Null until the user picks one — an unpicked plan starts on the
+        // transaction date, so changing that date still moves the plan start.
+        var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf<Long?>(null)
+        }
+        var isEmiFirstDuePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
@@ -503,10 +524,29 @@ fun AddTransactionScreen(
             paymentMethods.firstOrNull { it.id == selectedPaymentId }
         }
         val recurringCount = recurringCountInput.toIntOrNull()
+
+        // ── Recurring draft (built once, so the Add button and the save path
+        // can never disagree about what is about to be persisted) ─────────────
+        val isEmiSelected = canCreateInstallment && selectedRecurringType == RecurringType.INSTALLMENT
+        val effectiveFirstDueAt = emiFirstDueAtPicked ?: selectedDateMillis
+        val recurringDraft = buildRecurringDraft(
+            isRecurringEnabled = isRecurringEnabled,
+            frequency = selectedRecurringFrequency,
+            repeatCount = recurringCount,
+            isInstallmentSelected = isEmiSelected,
+            totalAmount = emiTotalInput.toDoubleOrNull() ?: 0.0,
+            installmentAmount = emiInstallmentInput.toDoubleOrNull() ?: 0.0,
+            firstDueAt = effectiveFirstDueAt
+        )
+
         val canSubmit = (amountInput.toDoubleOrNull() ?: 0.0) > 0 &&
             selectedCategory != null &&
             selectedPayment != null &&
-            (!isRecurringEnabled || (recurringCount != null && recurringCount > 0))
+            // An EMI with terms that do not add up (or that is still half-filled)
+            // stays unsaveable rather than silently falling back to a plain
+            // recurring rule.
+            (!isRecurringEnabled ||
+                (recurringDraft != null && (!isEmiSelected || recurringDraft.plan != null)))
 
         // Prefills the form from a tapped favorite template and notifies the
         // caller (which resets the star toggle) before confirming to the user.
@@ -879,6 +919,7 @@ fun AddTransactionScreen(
                             modifier = Modifier.weight(1f),
                             isEnabled = isRecurringEnabled,
                             frequency = selectedRecurringFrequency,
+                            isInstallment = isEmiSelected,
                             compact = compact,
                             onClick = { isRecurringModalVisible = true }
                         )
@@ -977,18 +1018,6 @@ fun AddTransactionScreen(
                                 updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
                                 sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
                             )
-                            val recurringDraft = if (
-                                isRecurringEnabled &&
-                                recurringCount != null &&
-                                recurringCount > 0
-                            ) {
-                                RecurringTransactionDraft(
-                                    frequency = selectedRecurringFrequency,
-                                    repeatCount = recurringCount
-                                )
-                            } else {
-                                null
-                            }
                             // Duplicate detection: check if a rule with same category + amount + frequency exists
                             if (recurringDraft != null && !isEditMode) {
                                 val amount = amountInput.toDoubleOrNull() ?: 0.0
@@ -1099,11 +1128,13 @@ fun AddTransactionScreen(
                 onDismissRequest = { isRecurringModalVisible = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
+                // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
+                tonalElevation = 0.dp
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         .padding(bottom = 32.dp)
                 ) {
                     RecurringTransactionSection(
@@ -1112,10 +1143,25 @@ fun AddTransactionScreen(
                         repeatCountInput = recurringCountInput,
                         compact = compact,
                         activeRecurringRuleCount = activeRecurringRuleCount,
-                        isEditMode = isEditMode,
+                        hasExistingRule = existingRecurringRule != null,
+                        canCreateInstallment = canCreateInstallment,
+                        selectedType = selectedRecurringType,
+                        emiTotalInput = emiTotalInput,
+                        emiInstallmentInput = emiInstallmentInput,
+                        emiFirstDueText = formatTransactionDate(effectiveFirstDueAt, dateFormatPattern),
+                        isEmiPlanValid = recurringDraft?.plan != null,
                         onEnabledChange = { isRecurringEnabled = it },
                         onFrequencySelected = { selectedRecurringFrequency = it },
-                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) }
+                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) },
+                        onTypeSelected = { selectedRecurringType = it },
+                        onEmiTotalChange = { emiTotalInput = it },
+                        onEmiInstallmentChange = { emiInstallmentInput = it },
+                        // The wheel picker is itself a modal sheet, so it cannot
+                        // open on top of this one: step out to it and come back.
+                        onEmiFirstDueClick = {
+                            isRecurringModalVisible = false
+                            isEmiFirstDuePickerVisible = true
+                        }
                     )
                 }
             }
@@ -1172,6 +1218,24 @@ fun AddTransactionScreen(
             )
         }
 
+        // The recurring section steps out of its sheet so this picker (itself a
+        // sheet) can open; confirming or cancelling returns to the plan form.
+        if (isEmiFirstDuePickerVisible) {
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_DATE,
+                initialStartMillis = effectiveFirstDueAt,
+                onDismissRequest = {
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                },
+                onConfirm = { start, _ ->
+                    emiFirstDueAtPicked = start
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                }
+            )
+        }
+
         if (isFavoritesSheetVisible) {
             FavoritesBottomSheet(
                 favorites = favorites,
@@ -1196,24 +1260,46 @@ private fun RecurringTransactionSection(
     repeatCountInput: String,
     compact: Boolean,
     activeRecurringRuleCount: Int = 0,
-    isEditMode: Boolean = false,
+    hasExistingRule: Boolean = false,
+    canCreateInstallment: Boolean = false,
+    selectedType: RecurringType = RecurringType.REGULAR,
+    emiTotalInput: String = "",
+    emiInstallmentInput: String = "",
+    emiFirstDueText: String = "",
+    isEmiPlanValid: Boolean = false,
     onEnabledChange: (Boolean) -> Unit,
     onFrequencySelected: (RecurringFrequency) -> Unit,
-    onRepeatCountChange: (String) -> Unit
+    onRepeatCountChange: (String) -> Unit,
+    onTypeSelected: (RecurringType) -> Unit = {},
+    onEmiTotalChange: (String) -> Unit = {},
+    onEmiInstallmentChange: (String) -> Unit = {},
+    onEmiFirstDueClick: () -> Unit = {}
 ) {
+    // INSTALLMENT is only offered while creating; the recurring-list editor owns
+    // changing an existing rule's plan.
+    val isInstallment = canCreateInstallment && selectedType == RecurringType.INSTALLMENT
+    val planCount = repeatCountInput.toIntOrNull() ?: 0
     val context = LocalContext.current
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     var showPremiumSheet by remember { mutableStateOf(false) }
     var showAdDialog by remember { mutableStateOf(false) }
     var pendingFrequencyForAd by remember { mutableStateOf<RecurringFrequency?>(null) }
 
-    // Determine rule count gate: 1-3 free, 4-6 ad, 7+ pro
-    val ruleCountGate = when {
-        isEditMode -> AccessStatus.Granted
-        activeRecurringRuleCount < 3 -> AccessStatus.Granted
-        activeRecurringRuleCount < 6 -> AccessStatus.DeniedAd
-        else -> AccessStatus.DeniedPremium
+    // Access is resolved by the monetization layer, which owns the Pro bypass and the
+    // pro_gating_enabled kill switch. This section only asks; it never decides.
+    val enableFeature = RecurringGateResolver.enableFeature(
+        activeRuleCount = activeRecurringRuleCount,
+        hasExistingRule = hasExistingRule
+    )
+    val ruleCountGate: AccessStatus = if (enableFeature != null) {
+        monetizationViewModel.getAccessStatus(enableFeature).collectAsStateWithLifecycle().value
+    } else {
+        AccessStatus.Granted
     }
+
+    // Pro users are gated nowhere, so the ladder would be noise for them.
+    val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+    val showRuleLadder = userTier != UserTier.PREMIUM
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (isEnabled) Color.Transparent 
@@ -1289,8 +1375,73 @@ private fun RecurringTransactionSection(
             )
         }
 
+        // Informational only: it explains the ladder before a gate ever fires.
+        if (showRuleLadder) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorScheme.primary.copy(alpha = 0.06f))
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.desc_recurring_rule_ladder),
+                    color = colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    text = when (RecurringGateResolver.ruleTier(activeRecurringRuleCount)) {
+                        RecurringRuleTier.FREE -> stringResource(
+                            R.string.desc_recurring_rules_used_free,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.FREE_RULE_LIMIT
+                        )
+                        RecurringRuleTier.AD -> stringResource(
+                            R.string.desc_recurring_rules_used_ad,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.AD_RULE_LIMIT
+                        )
+                        RecurringRuleTier.PREMIUM -> stringResource(
+                            R.string.desc_recurring_rules_used_premium,
+                            activeRecurringRuleCount
+                        )
+                    },
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+        }
+
         if (isEnabled) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (canCreateInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_recurring_type))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            FilterChip(
+                                selected = !isInstallment,
+                                onClick = { onTypeSelected(RecurringType.REGULAR) },
+                                label = { Text(stringResource(R.string.label_type_regular)) }
+                            )
+                            FilterChip(
+                                selected = isInstallment,
+                                onClick = { onTypeSelected(RecurringType.INSTALLMENT) },
+                                label = { Text(stringResource(R.string.label_type_emi)) }
+                            )
+                        }
+                        if (isInstallment) {
+                            Text(
+                                text = stringResource(R.string.desc_emi_plan_toggle),
+                                color = colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+
                 // Frequency Selector (Sliding Pill)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     SectionHeader(title = stringResource(R.string.title_frequency))
@@ -1335,6 +1486,15 @@ private fun RecurringTransactionSection(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             recurringModeOptions.forEach { option ->
                                 val selected = option.frequency == selectedFrequency
+                                // Frequency access comes from the monetization layer, so a Pro user is
+                                // never asked to watch an ad and the kill switch still applies.
+                                val frequencyFeature = RecurringGateResolver.frequencyFeature(option.frequency)
+                                val freqGate: AccessStatus = if (frequencyFeature != null) {
+                                    monetizationViewModel.getAccessStatus(frequencyFeature)
+                                        .collectAsStateWithLifecycle().value
+                                } else {
+                                    AccessStatus.Granted
+                                }
                                 val animatedColor by animateColorAsState(
                                     targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
                                     label = "recurring_freq_text_color"
@@ -1344,13 +1504,6 @@ private fun RecurringTransactionSection(
                                         .weight(1f)
                                         .clip(RoundedCornerShape(16.dp))
                                         .clickable {
-                                        // Frequency gating: Daily/Weekly = ad, Yearly = pro
-                                        val freqGate = when (option.frequency) {
-                                            RecurringFrequency.Daily -> AccessStatus.DeniedAd
-                                            RecurringFrequency.Weekly -> AccessStatus.DeniedAd
-                                            RecurringFrequency.Yearly -> AccessStatus.DeniedPremium
-                                            RecurringFrequency.Monthly -> AccessStatus.Granted
-                                        }
                                         if (freqGate !is AccessStatus.Granted) {
                                             pendingFrequencyForAd = option.frequency
                                             when (freqGate) {
@@ -1375,6 +1528,62 @@ private fun RecurringTransactionSection(
                                 }
                             }
                         }
+                    }
+                }
+
+                // Plan terms — only the count below is shared with REGULAR.
+                if (isInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_total_amount))
+                        EmiAmountField(
+                            value = emiTotalInput,
+                            onValueChange = onEmiTotalChange,
+                            supportingText = stringResource(R.string.desc_emi_total_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_installment_amount))
+                        EmiAmountField(
+                            value = emiInstallmentInput,
+                            onValueChange = onEmiInstallmentChange,
+                            supportingText = stringResource(R.string.desc_emi_installment_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_first_due))
+                        OutlinedTextField(
+                            value = emiFirstDueText,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = onEmiFirstDueClick),
+                            enabled = false,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = colorScheme.onSurface,
+                                disabledBorderColor = colorScheme.outlineVariant,
+                                disabledContainerColor = colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+
+                    // A half-filled plan is not an error yet — only an inconsistent
+                    // one is, exactly as in the recurring-list editor.
+                    if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
+                        Text(
+                            text = stringResource(R.string.msg_emi_amount_mismatch),
+                            color = colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
 
@@ -1452,7 +1661,14 @@ private fun RecurringTransactionSection(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = stringResource(R.string.msg_installment_info),
+                            text = if (isInstallment) {
+                                stringResource(
+                                    R.string.msg_emi_create_info,
+                                    (planCount - 1).coerceAtLeast(0)
+                                )
+                            } else {
+                                stringResource(R.string.msg_installment_info)
+                            },
                             color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 lineHeight = 14.sp,
@@ -1535,7 +1751,7 @@ private fun featureForFrequency(freq: RecurringFrequency): Feature = when (freq)
     RecurringFrequency.Daily -> Feature.RECURRING_FREQUENCY_DAILY
     RecurringFrequency.Weekly -> Feature.RECURRING_FREQUENCY_WEEKLY
     RecurringFrequency.Yearly -> Feature.RECURRING_FREQUENCY_YEARLY
-    RecurringFrequency.Monthly -> Feature.RECURRING_RULES_MULTI // fallback, should be FREE
+    RecurringFrequency.Monthly -> Feature.RECURRING_FREQUENCY_MONTHLY
 }
 
 
@@ -2357,6 +2573,84 @@ private fun formatEditableAmount(amount: Double): String {
     return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
 }
 
+/**
+ * The recurring rule an Add Transaction save persists, or null when recurring is
+ * off or the repeat count is unusable.
+ *
+ * An EMI is materialized only when its terms are internally consistent
+ * (`total = installment × count`, the invariant the recurring-list editor also
+ * enforces), compared in minor units so float noise on values like
+ * `1234.56 × 3` cannot reject a plan the user entered correctly. A half-filled or
+ * inconsistent plan therefore yields a draft with `plan == null`, which callers
+ * must treat as unsaveable instead of persisting it as an ordinary recurring
+ * rule.
+ */
+internal fun buildRecurringDraft(
+    isRecurringEnabled: Boolean,
+    frequency: RecurringFrequency,
+    repeatCount: Int?,
+    isInstallmentSelected: Boolean,
+    totalAmount: Double,
+    installmentAmount: Double,
+    firstDueAt: Long
+): RecurringTransactionDraft? {
+    if (!isRecurringEnabled || repeatCount == null || repeatCount <= 0) return null
+
+    val totalMinor = totalAmount.toMinorUnits()
+    val installmentMinor = installmentAmount.toMinorUnits()
+    val plan = if (isInstallmentSelected && totalMinor > 0L && installmentMinor > 0L &&
+        totalMinor == installmentMinor * repeatCount
+    ) {
+        RecurringPlanEdit(
+            totalAmountMinor = totalMinor,
+            installmentAmountMinor = installmentMinor,
+            totalInstallments = repeatCount,
+            firstDueAt = firstDueAt
+        )
+    } else {
+        null
+    }
+
+    return RecurringTransactionDraft(
+        frequency = frequency,
+        repeatCount = repeatCount,
+        plan = plan
+    )
+}
+
+/** Major-unit amount input for the EMI plan fields (digits and one decimal point only). */
+@Composable
+private fun EmiAmountField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    supportingText: String? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { input ->
+            // Same 12-character ceiling as the transaction amount field, which
+            // also keeps the minor-unit conversion far away from Long overflow.
+            if (input.length <= 12 &&
+                (input.isEmpty() || (input.all { it.isDigit() || it == '.' } && input.count { it == '.' } <= 1))
+            ) {
+                onValueChange(input)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        supportingText = supportingText?.let { { Text(it) } },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+}
+
 private fun validateAmountChange(newValue: String, current: String): String {
     if (newValue.isEmpty()) return "0"
     if (newValue.length > 12) return current
@@ -2398,14 +2692,20 @@ private fun RecurringCompactCard(
     modifier: Modifier = Modifier,
     isEnabled: Boolean,
     frequency: RecurringFrequency,
+    isInstallment: Boolean = false,
     compact: Boolean,
     onClick: () -> Unit
 ) {
+    val frequencyLabel = stringResource(recurringModeOptions.first { it.frequency == frequency }.label)
     SelectionInfoCard(
         modifier = modifier,
         leadingIcon = Icons.Default.CalendarMonth,
         label = stringResource(R.string.label_recurring),
-        value = if (isEnabled) stringResource(recurringModeOptions.first { it.frequency == frequency }.label) else stringResource(R.string.label_off),
+        value = when {
+            !isEnabled -> stringResource(R.string.label_off)
+            isInstallment -> stringResource(R.string.label_emi_frequency_format, frequencyLabel)
+            else -> frequencyLabel
+        },
         isPlaceholder = !isEnabled,
         highlighted = isEnabled,
         compact = compact,

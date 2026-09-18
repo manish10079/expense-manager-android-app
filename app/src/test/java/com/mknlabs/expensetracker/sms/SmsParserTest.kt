@@ -150,6 +150,16 @@ class SmsParserTest {
     }
 
     @Test
+    fun parses_kotak_income_with_four_digit_amount_and_upi_ref() {
+        val body = "Received Rs.4804.00 in your Kotak Bank AC 3773 from Manish Kumar Nayak on 17-09-26.UPI Ref:085577413148"
+        val parsed = SmsParser.parse(body, sender = "KOTAK", smsTimestamp = 0L)
+
+        assertNotNull(parsed)
+        assertEquals(480_400L, parsed!!.amountMinor)
+        assertEquals(1, parsed.transactionTypeId) // Income
+    }
+
+    @Test
     fun parses_kotak_income_with_rs_prefix() {
         val body = "Received Rs.797.00 in your Kotak Bank AC 3773 from Manish Kumar Nayak on 24-08-26.UPI Ref:000101953226"
         val parsed = SmsParser.parse(body, sender = "KOTAK", smsTimestamp = 0L)

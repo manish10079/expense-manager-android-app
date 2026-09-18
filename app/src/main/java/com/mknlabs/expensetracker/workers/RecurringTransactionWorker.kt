@@ -15,9 +15,11 @@ import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.models.AppSettings
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.utils.RecurringScheduleCalculator
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.toMajorUnits
@@ -55,7 +57,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
             activeRules.forEach { rule ->
                 Log.d("RecurringWorker", "doWork: Processing rule ${rule.id} for transaction ${rule.transactionId}")
-                
+
                 // 1. Advance alerts at 7 / 3 / 1 days before and on the due date
                 //    (notification spec category 7) — gated by the global
                 //    bill-reminders toggle AND the per-rule notificationsEnabled
@@ -64,16 +66,30 @@ class RecurringTransactionWorker @AssistedInject constructor(
                     maybeFireAdvanceAlert(rule, now, appSettings)
                 }
 
-                // 1.5 Re-create occurrences that were scheduled but never
-                //     materialized (missed backfills from interrupted runs / restores)
-                backfillMissedOccurrences(rule, now) { note ->
-                    transactionsAddedCount++
-                    addedTransactionNotes += note
-                    Log.d("RecurringWorker", "doWork: Backfilled a missed occurrence for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
+                if (rule.isInstallment) {
+                    // Installment rules are driven by their occurrence slots: the
+                    // schedule IS the ledger, so a due slot becomes exactly one
+                    // paid transaction (created by the repository, linked to the
+                    // slot). No template copy, and no backfill pass — a missed
+                    // slot stays PENDING and is settled on the next run.
+                    reconcileInstallments(rule, now) { note ->
+                        transactionsAddedCount++
+                        addedTransactionNotes += note
+                        Log.d("RecurringWorker", "doWork: Settled an installment for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
+                    }
+                } else {
+                    // 1.5 Re-create occurrences that were scheduled but never
+                    //     materialized (missed backfills from interrupted runs / restores)
+                    backfillMissedOccurrences(rule, now) { note ->
+                        transactionsAddedCount++
+                        addedTransactionNotes += note
+                        Log.d("RecurringWorker", "doWork: Backfilled a missed occurrence for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
+                    }
                 }
 
-                // 2. Process due transactions
-                processRule(rule, now) { note ->
+                // 2. Process due transactions — the schedule advance that keeps
+                //    alerts and the plan's next-due derivation coherent.
+                processRule(rule, now, generateTransactions = !rule.isInstallment) { note ->
                     transactionsAddedCount++
                     addedTransactionNotes += note
                     Log.d("RecurringWorker", "doWork: Added a transaction for rule ${rule.id} (${note}). Total so far: $transactionsAddedCount")
@@ -147,8 +163,20 @@ class RecurringTransactionWorker @AssistedInject constructor(
         val originalTransaction = transactionRepository.getTransactionById(rule.transactionId) ?: return
         val amountFormat = appSettings.toAmountFormatPreferences()
         val currencyId = appSettings.currencyId
+        // An installment alert must quote what is actually due next — the
+        // earliest unpaid slot — not the template amount, which can differ
+        // (e.g. a balloon final installment). Falls back to the template when
+        // no slot is pending (plan fully settled but the series still runs).
+        val amountMinor = if (rule.isInstallment) {
+            recurringRuleRepository.getOccurrences(rule.id)
+                .firstOrNull { it.status == InstallmentOccurrenceStatus.PENDING }
+                ?.amountMinor
+                ?: originalTransaction.amountMinor
+        } else {
+            originalTransaction.amountMinor
+        }
         val amountStr = formatCurrencyValue(
-            originalTransaction.amountMinor.toMajorUnits(),
+            amountMinor.toMajorUnits(),
             currencyId,
             amountFormat
         )
@@ -187,6 +215,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
     private suspend fun processRule(
         rule: RecurringTransactionRule,
         referenceTime: Long,
+        generateTransactions: Boolean = true,
         onTransactionAdded: (note: String) -> Unit
     ) {
         var currentRule = rule
@@ -194,30 +223,33 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
         // We process as long as nextRunAt is in the past and we have remaining installments
         while (currentRule.nextRunAt <= referenceTime && (currentRule.remainingCount ?: 1) > 0) {
-            
-            // 1. Create the new transaction
-            val newTransactionDate = currentRule.nextRunAt
-            // Deterministic ID to avoid duplication across devices/runs
-            val newTransactionId = "${currentRule.id}_${newTransactionDate}"
 
-            // The id is deterministic, so an existing row means a previous run
-            // already inserted it (crash after insert, or a concurrent run). Skip
-            // the insert — but still advance the rule below so we never stall —
-            // and only count/notify genuinely new transactions.
-            if (transactionRepository.getTransactionById(newTransactionId) == null) {
-                val newTransaction = originalTransaction.copy(
-                    id = newTransactionId,
-                    createdAt = newTransactionDate,
-                    updatedAt = System.currentTimeMillis(),
-                    sourceRecurringRuleId = currentRule.id
-                )
-                
-                transactionRepository.upsertTransaction(newTransaction)
-                onTransactionAdded(originalTransaction.note)
+            // 1. Create the new transaction (regular rules only — installment
+            //    rules generate their transactions through the occurrence slots)
+            val newTransactionDate = currentRule.nextRunAt
+            if (generateTransactions) {
+                // Deterministic ID to avoid duplication across devices/runs
+                val newTransactionId = "${currentRule.id}_${newTransactionDate}"
+
+                // The id is deterministic, so an existing row means a previous run
+                // already inserted it (crash after insert, or a concurrent run). Skip
+                // the insert — but still advance the rule below so we never stall —
+                // and only count/notify genuinely new transactions.
+                if (transactionRepository.getTransactionById(newTransactionId) == null) {
+                    val newTransaction = originalTransaction.copy(
+                        id = newTransactionId,
+                        createdAt = newTransactionDate,
+                        updatedAt = System.currentTimeMillis(),
+                        sourceRecurringRuleId = currentRule.id
+                    )
+
+                    transactionRepository.upsertTransaction(newTransaction)
+                    onTransactionAdded(originalTransaction.note)
+                }
             }
 
             // 2. Update the rule for the next occurrence
-            val nextInfo = calculateNextRun(currentRule.nextRunAt, currentRule.frequency, originalTransaction.createdAt)
+            val nextInfo = RecurringScheduleCalculator.nextOccurrence(currentRule.nextRunAt, currentRule.frequency, originalTransaction.createdAt)
             
             currentRule = currentRule.copy(
                 lastRunAt = currentRule.nextRunAt,
@@ -265,7 +297,7 @@ class RecurringTransactionWorker @AssistedInject constructor(
         var candidateDate = rule.nextRunAt
 
         repeat(MAX_BACKFILL_SLOTS) {
-            candidateDate = onePeriodBefore(candidateDate, rule.frequency, anchor)
+            candidateDate = RecurringScheduleCalculator.previousOccurrence(candidateDate, rule.frequency, anchor)
 
             // Not due yet, or before the series' first occurrence — nothing to backfill.
             if (candidateDate > now || candidateDate <= anchor) return
@@ -288,61 +320,18 @@ class RecurringTransactionWorker @AssistedInject constructor(
     }
 
     /**
-     * Inverse of [calculateNextRun]: the occurrence date one period before
-     * [currentRunAt], anchored to the same preferred day as [baseAnchor].
+     * Settle every overdue installment of an EMI rule through the repository,
+     * which creates one linked transaction per due slot (idempotent by slot
+     * id) and reports the notes of genuinely new transactions for the
+     * recurring-updated notification.
      */
-    private fun onePeriodBefore(
-        currentRunAt: Long,
-        frequency: RecurringFrequency,
-        baseAnchor: Long
-    ): Long {
-        val baseCalendar = Calendar.getInstance().apply { timeInMillis = baseAnchor }
-        val prevCalendar = Calendar.getInstance().apply { timeInMillis = currentRunAt }
-
-        when (frequency) {
-            RecurringFrequency.Daily -> prevCalendar.add(Calendar.DAY_OF_YEAR, -1)
-            RecurringFrequency.Weekly -> prevCalendar.add(Calendar.WEEK_OF_YEAR, -1)
-            RecurringFrequency.Monthly -> {
-                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
-                prevCalendar.add(Calendar.MONTH, -1)
-                val maxDay = prevCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                prevCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
-            }
-            RecurringFrequency.Yearly -> {
-                prevCalendar.add(Calendar.YEAR, -1)
-                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
-                val maxDay = prevCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                prevCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
-            }
-        }
-        return prevCalendar.timeInMillis
-    }
-
-    private fun calculateNextRun(
-        currentRunAt: Long,
-        frequency: RecurringFrequency,
-        baseAnchor: Long
-    ): Long {
-        val baseCalendar = Calendar.getInstance().apply { timeInMillis = baseAnchor }
-        val nextCalendar = Calendar.getInstance().apply { timeInMillis = currentRunAt }
-
-        when (frequency) {
-            RecurringFrequency.Daily -> nextCalendar.add(Calendar.DAY_OF_YEAR, 1)
-            RecurringFrequency.Weekly -> nextCalendar.add(Calendar.WEEK_OF_YEAR, 1)
-            RecurringFrequency.Monthly -> {
-                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
-                nextCalendar.add(Calendar.MONTH, 1)
-                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
-            }
-            RecurringFrequency.Yearly -> {
-                nextCalendar.add(Calendar.YEAR, 1)
-                val preferredDay = baseCalendar.get(Calendar.DAY_OF_MONTH).coerceIn(1, 28)
-                val maxDay = nextCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                nextCalendar.set(Calendar.DAY_OF_MONTH, min(preferredDay, maxDay))
-            }
-        }
-        return nextCalendar.timeInMillis
+    private suspend fun reconcileInstallments(
+        rule: RecurringTransactionRule,
+        now: Long,
+        onTransactionAdded: (note: String) -> Unit
+    ) {
+        val notes = recurringRuleRepository.reconcileDueInstallments(rule.id, now)
+        notes.forEach { note -> onTransactionAdded(note) }
     }
 
     companion object {
