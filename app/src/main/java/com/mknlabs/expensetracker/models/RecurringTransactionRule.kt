@@ -32,7 +32,7 @@ enum class InstallmentStatus {
     /** Installments remain to be paid. */
     ACTIVE,
 
-    /** Every installment has been paid — the loan is finished. */
+    /** Nothing left to settle — every installment is paid or skipped. */
     COMPLETED,
 
     /** User abandoned the plan; remaining installments are no longer due. */

@@ -240,6 +240,62 @@ class BudgetAndRecurringViewModelTest {
         )
     }
 
+    /**
+     * A plan whose remaining slots were skipped has nothing left to act on, so it
+     * is finished. The data layer only persists COMPLETED for an all-paid plan
+     * and parks the schedule on the last slot's (past) date — which used to leak
+     * into the card as a next due date that could never arrive.
+     */
+    @Test
+    fun `a plan with every slot settled reads ALL SETTLED instead of a next due date`() = runTest {
+        val now = System.currentTimeMillis()
+        val paidDue = now - 90L * DAY_MILLIS
+        val skippedDue = now - 60L * DAY_MILLIS
+
+        val rule = RecurringTransactionRule(
+            id = RULE_ID,
+            transactionId = TEMPLATE_ID,
+            frequency = RecurringFrequency.Monthly,
+            repeatCount = 2,
+            // A settled plan is disabled by the schedule and its remainingCount
+            // is zero, but its persisted status stays ACTIVE.
+            isEnabled = false,
+            remainingCount = 0,
+            anchorAt = paidDue,
+            nextRunAt = skippedDue,
+            recurringType = RecurringType.INSTALLMENT,
+            installmentTotalMinor = 20_000L,
+            installmentAmountMinor = 10_000L,
+            installmentTotalCount = 2,
+            installmentStatus = InstallmentStatus.ACTIVE
+        )
+        fakeOccurrences.value = listOf(
+            occurrence("1", paidDue, InstallmentOccurrenceStatus.PAID, paidAt = paidDue),
+            occurrence("2", skippedDue, InstallmentOccurrenceStatus.SKIPPED)
+        )
+
+        viewModel.updateInputs(
+            transactions = listOf(templateTransaction()),
+            categories = listOf(category()),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            recurringRules = listOf(rule),
+            monthStartDay = 1
+        )
+
+        val card = viewModel.uiState.value.recurringExpenses.single()
+
+        assertEquals(
+            "a fully settled plan must not advertise a next due date",
+            R.string.label_all_settled,
+            (card.dueLabel as UiText.StringResource).resId
+        )
+        assertEquals(InstallmentStatus.COMPLETED, card.installmentPlanStatus)
+        // Settling by skipping is not a payment: progress still counts paid slots.
+        assertEquals(1, card.installmentPaidCount)
+        assertEquals(2, card.totalInstallments)
+    }
+
     private fun occurrence(
         index: String,
         dueAt: Long,

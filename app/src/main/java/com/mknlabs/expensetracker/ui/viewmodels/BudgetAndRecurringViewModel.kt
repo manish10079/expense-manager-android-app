@@ -796,8 +796,8 @@ private fun buildRegularExpense(
 /**
  * EMI rule — progress is counted from the live occurrence rows (paid count,
  * paid sum) rather than from any stored counter, and the next due date is the
- * earliest PENDING slot, falling back to the rule's schedule when the plan is
- * fully settled.
+ * earliest PENDING slot. When no PENDING slot is left the plan is finished, so
+ * the card headlines ALL SETTLED rather than the schedule's parked past date.
  */
 private fun buildInstallmentExpense(
     recurringEntry: RecurringEntry,
@@ -822,8 +822,17 @@ private fun buildInstallmentExpense(
         .minOfOrNull { it.dueAt }
     val nextDueAt = nextPendingDueAt ?: recurringEntry.nextRunAt
 
+    // A plan is finished once there is nothing left to act on — every slot PAID
+    // or SKIPPED. That is the same definition the schedule uses to disable a
+    // settled rule, so the two can never disagree about whether a plan is over.
+    // Completion used to be read off the paid count alone, which left a plan
+    // whose remaining slots were all skipped advertising the rule's parked
+    // (past) date as a next due date it would never actually reach.
+    val allSlotsSettled = occurrences.isNotEmpty() && nextPendingDueAt == null
+
     val planStatus = recurringEntry.installmentStatus
     val isDone = planStatus == InstallmentStatus.COMPLETED ||
+        allSlotsSettled ||
         (totalCount > 0 && paidCount >= totalCount)
     val accent = when {
         !recurringEntry.isEnabled -> BudgetAccent.Disabled
