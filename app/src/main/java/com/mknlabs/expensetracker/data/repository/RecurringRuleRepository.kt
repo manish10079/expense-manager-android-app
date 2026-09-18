@@ -99,10 +99,10 @@ class RecurringRuleRepository @Inject constructor(
     }
 
     /**
-     * Progress is counted from the PAID occurrences rather than read from a
-     * stored counter, so the plan terms and its progress can never disagree —
-     * and a loan completes itself the moment its last installment is paid, with
-     * no separate bookkeeping step that could be missed.
+     * Progress is counted from the settled occurrences (paid or skipped) rather
+     * than read from a stored counter, so the plan terms and its progress can
+     * never disagree — and a loan completes itself the moment its last
+     * installment is settled, with no separate bookkeeping step to be missed.
      */
     override suspend fun getInstallmentPlan(ruleId: String): InstallmentPlan? = withContext(Dispatchers.IO) {
         val rule = dao.getById(ruleId)?.toDomain() ?: return@withContext null
@@ -130,7 +130,10 @@ class RecurringRuleRepository @Inject constructor(
             remainingAmountMinor = (total - paidAmount).coerceAtLeast(0L),
             status = when {
                 rule.installmentStatus == InstallmentStatus.CANCELLED -> InstallmentStatus.CANCELLED
-                totalCount > 0 && paid >= totalCount -> InstallmentStatus.COMPLETED
+                // Settled — nothing left to act on — mirrors the schedule's own
+                // definition, so a plan whose remaining slots were skipped is
+                // finished rather than reported as still running.
+                totalCount > 0 && paid + skipped >= totalCount -> InstallmentStatus.COMPLETED
                 else -> InstallmentStatus.ACTIVE
             },
             nextDueAt = occurrenceDao.getPendingByRule(ruleId).firstOrNull()?.dueAt
