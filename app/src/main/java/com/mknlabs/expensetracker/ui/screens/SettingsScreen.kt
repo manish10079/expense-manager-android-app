@@ -58,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.ui.components.adPassDurationLabel
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
@@ -120,6 +121,11 @@ fun SettingsScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
 
     val adFreeRemainingTime by settingsViewModel.adFreeRemainingTime.collectAsStateWithLifecycle()
+    // The ad-free row advertises the rewarded-ad pass, whose length is Remote Config-driven
+    // (`ad_pass_duration_minutes`). Resolved here and passed down so the previewable Content
+    // composable keeps taking everything through parameters (no ViewModel, no resources lookup).
+    val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
+    val adFreeDurationLabel = adPassDurationLabel(adPassMinutes)
 
     LaunchedEffect(
         transactionCount, isAdsEnabled, userTier, isCloudSyncEnabled, userProfile
@@ -147,6 +153,7 @@ fun SettingsScreen(
         userTier = userTier,
         isAdsEnabled = isAdsEnabled,
         adFreeRemainingTime = adFreeRemainingTime,
+        adFreeDurationLabel = adFreeDurationLabel,
         onProfileClick = onProfileClick,
         onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
@@ -176,6 +183,7 @@ fun SettingsScreenContent(
     userTier: UserTier = UserTier.FREE,
     isAdsEnabled: Boolean = false,
     adFreeRemainingTime: String? = null,
+    adFreeDurationLabel: String = "",
     onProfileClick: () -> Unit = {},
     onCloudSyncDevicesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
@@ -311,6 +319,19 @@ fun SettingsScreenContent(
                                         R.string.msg_ad_free_duration_remaining
                                     } else {
                                         R.string.label_remove_all_ads_subtitle
+                                    },
+                                    // This row plays a rewarded ad for a temporary pass, so the
+                                    // Remote Config duration is stated instead of the
+                                    // "one-time purchase" copy it inherited.
+                                    subtitleText = if (!isProUser && !isAdPassActive &&
+                                        adFreeDurationLabel.isNotEmpty()
+                                    ) {
+                                        stringResource(
+                                            R.string.desc_ad_free_pass_duration,
+                                            adFreeDurationLabel
+                                        )
+                                    } else {
+                                        null
                                     },
                                     icon = Icons.Filled.Star,
                                     onClick = if (isProUser || isAdPassActive) { {} } else onAdFreeAccessClick,
@@ -498,7 +519,7 @@ private fun SettingsRowItemView(
             )
 
             Text(
-                text = stringResource(data.subtitleRes),
+                text = data.subtitleText ?: stringResource(data.subtitleRes),
                 style = MaterialTheme.typography.bodyMedium,
                 color = subtitleColor,
                 maxLines = 1,
@@ -605,6 +626,9 @@ private fun SettingsIsolatedLogoutRow(
 private data class SettingsRowData(
     val titleRes: Int,
     val subtitleRes: Int,
+    /** Pre-formatted subtitle (e.g. a duration interpolated from Remote Config); wins over
+     *  [subtitleRes] when present. */
+    val subtitleText: String? = null,
     val icon: ImageVector,
     val onClick: () -> Unit,
     val isEnabled: Boolean = true,

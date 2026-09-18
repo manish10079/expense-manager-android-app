@@ -85,6 +85,7 @@ import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
+import com.mknlabs.expensetracker.ui.components.adPassDurationLabel
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
 import com.mknlabs.expensetracker.ui.navigation.rememberMainNavigationState
@@ -202,6 +203,8 @@ fun MainScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val isAdsEnabled by monetizationViewModel.isAdsEnabled.collectAsStateWithLifecycle()
     val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
+    val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
+    val adPassDuration = adPassDurationLabel(adPassMinutes)
     var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
@@ -1248,7 +1251,11 @@ fun MainScreen(
                 },
                 text = {
                     Text(
-                        text = stringResource(id = R.string.msg_ad_expiry_warning, adExpiryMinutesRemaining),
+                        text = stringResource(
+                            id = R.string.msg_ad_expiry_warning,
+                            adExpiryMinutesRemaining,
+                            adPassDuration
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyMedium
                     )

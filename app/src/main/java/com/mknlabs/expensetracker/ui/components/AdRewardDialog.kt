@@ -19,9 +19,14 @@ import com.mknlabs.expensetracker.R
 @Composable
 fun AdRewardDialog(
     featureName: String,
+    /** Length of the pass this ad grants, from Remote Config (never hardcode it here). */
+    durationMinutes: Int,
     onDismiss: () -> Unit,
-    onWatchAdClick: () -> Unit
+    onWatchAdClick: () -> Unit,
+    isLoading: Boolean = false
 ) {
+    val durationLabel = adPassDurationLabel(durationMinutes)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -45,7 +50,7 @@ fun AdRewardDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(R.string.label_1_hour_access),
+                    text = stringResource(R.string.label_full_access_for_duration, durationLabel),
                     color = MaterialTheme.colorScheme.secondary, // Gold/Accent color for emphasis
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium
@@ -54,7 +59,7 @@ fun AdRewardDialog(
         },
         text = {
             Text(
-                text = stringResource(R.string.label_watch_a_short_video_to_unlock, featureName),
+                text = stringResource(R.string.label_watch_a_short_video_to_unlock, featureName, durationLabel),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -64,11 +69,22 @@ fun AdRewardDialog(
         confirmButton = {
             Button(
                 onClick = onWatchAdClick,
+                // Loading an ad can take a moment on a cold cache; without this the tap
+                // looks like it did nothing and invites repeat taps.
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(stringResource(R.string.label_watch_ad_unlock), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(stringResource(R.string.label_watch_ad_unlock), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                }
             }
         },
         dismissButton = {

@@ -6,8 +6,9 @@
 #  1. Reads versionCode / versionName from app/build.gradle.kts
 #  2. Pulls the CURRENT live template (`firebase remoteconfig:get`) so the
 #     publish never drops parameters that already exist on the server
-#  3. Overlays the update parameters from remote_config.json — edit
-#     force_update / update_title / update_message there
+#  3. Overlays force_update from remote_config.json (repo-authoritative) and only
+#     *seeds* update_title / update_message when the live template has never had them,
+#     so wording edited in the Firebase console is not reverted on the next publish
 #  4. Forces latest_version / latest_version_code to the app version
 #  5. Publishes via `firebase remoteconfig:publish`
 #
@@ -89,19 +90,22 @@ base.pop("etag", None)
 params = base.setdefault("parameters", {})
 seed_params = seed.get("parameters", {})
 
-# Editable update params come from the committed seed...
-for key in (
-    "latest_version",
-    "latest_version_code",
-    "force_update",
-    "update_title",
-    "update_message",
-):
+# force_update stays repo-authoritative: it is a release-level toggle that must move
+# together with the build being published.
+for key in ("force_update",):
     if key in seed_params:
         params[key] = seed_params[key]
 
-# ...but the version fields are always forced from app/build.gradle.kts so
-# they can never drift from the actual release.
+# update_title / update_message are console-authoritative. They used to be force-overwritten
+# from remote_config.json on every run, which silently replaced any wording set in the
+# Firebase console with the stale seed text (fresh version + old message in the dialog).
+# Now the seed only fills them in when the live template has never defined them.
+for key in ("update_title", "update_message"):
+    if key in seed_params and key not in params:
+        params[key] = seed_params[key]
+
+# The version fields are always forced from app/build.gradle.kts so they can never
+# drift from the actual release.
 latest_version = params.setdefault("latest_version", {}).setdefault("defaultValue", {})
 latest_version["value"] = vn
 latest_version_code = params.setdefault("latest_version_code", {}).setdefault("defaultValue", {})
