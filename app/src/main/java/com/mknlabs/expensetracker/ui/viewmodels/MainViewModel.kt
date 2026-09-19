@@ -85,7 +85,8 @@ class MainViewModel @Inject constructor(
     private val monetizationRepository: MonetizationRepository,
     private val configurationRepository: com.mknlabs.expensetracker.domain.repository.ConfigurationRepository,
     private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase,
-    private val favoriteTransactionRepository: FavoriteTransactionRepository
+    private val favoriteTransactionRepository: FavoriteTransactionRepository,
+    private val attachSmsDetectionToTransaction: com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.AttachSmsDetectionToTransactionUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -284,6 +285,19 @@ class MainViewModel @Inject constructor(
     fun removeFavorite(id: String) {
         viewModelScope.launch {
             favoriteTransactionRepository.removeFavoriteById(id)
+        }
+    }
+
+    /**
+     * Links a detection to the transaction the user saved from it in the Add Transaction
+     * screen, so the inbox stops offering to add what is already in the ledger.
+     *
+     * Deliberately fire-and-forget: the save itself is the user's real intent and must not
+     * be delayed, or rolled back, because a stamp on an inbox row did not land.
+     */
+    fun attachSmsDetection(detectionId: String, transactionId: String) {
+        viewModelScope.launch {
+            attachSmsDetectionToTransaction(detectionId, transactionId)
         }
     }
 

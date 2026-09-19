@@ -27,6 +27,8 @@ import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.CountryCodeEntity
 import com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity
+import com.mknlabs.expensetracker.data.local.room.dao.DetectedSmsNotificationDao
+import com.mknlabs.expensetracker.data.local.room.entities.DetectedSmsNotificationEntity
 import java.io.File
 
 @Database(
@@ -40,9 +42,10 @@ import java.io.File
         GoalFundEntryEntity::class,
         CountryCodeEntity::class,
         FavoriteTransactionEntity::class,
-        InstallmentOccurrenceEntity::class
+        InstallmentOccurrenceEntity::class,
+        DetectedSmsNotificationEntity::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -58,6 +61,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun countryCodeDao(): CountryCodeDao
     abstract fun favoriteTransactionDao(): FavoriteTransactionDao
     abstract fun installmentOccurrenceDao(): InstallmentOccurrenceDao
+    abstract fun detectedSmsNotificationDao(): DetectedSmsNotificationDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -72,7 +76,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
                     .build().also { INSTANCE = it }
             }
         }
@@ -123,6 +127,49 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_rule_id_due_at` ON `installment_occurrences` (`rule_id`, `due_at`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_rule_id_status` ON `installment_occurrences` (`rule_id`, `status`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_installment_occurrences_transaction_id` ON `installment_occurrences` (`transaction_id`)")
+            }
+        }
+
+        /**
+         * SMS detection inbox (detected transaction inbox).
+         *
+         * Purely additive: one new table that nothing else references, so no existing
+         * row is read, moved or rewritten and the migration is O(1) regardless of how
+         * many transactions the user has. The FK to `transactions` is `ON DELETE SET
+         * NULL` on purpose — purging an inbox row can never delete a real expense,
+         * and hard-deleting a transaction only unlinks its detection.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `detected_sms_notifications` (
+                        `id` TEXT NOT NULL,
+                        `sms_hash` TEXT NOT NULL,
+                        `sender` TEXT NOT NULL,
+                        `message_body` TEXT NOT NULL,
+                        `amount_minor` INTEGER NOT NULL,
+                        `transaction_type_id` INTEGER NOT NULL,
+                        `merchant_name` TEXT,
+                        `detected_at` INTEGER NOT NULL,
+                        `notification_created_at` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL,
+                        `linked_transaction_id` TEXT,
+                        `source` TEXT NOT NULL,
+                        `confidence_score` REAL NOT NULL,
+                        `suggested_category_id` INTEGER,
+                        `notification_id` INTEGER,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`),
+                        FOREIGN KEY(`linked_transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_detected_sms_notifications_sms_hash` ON `detected_sms_notifications` (`sms_hash`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_status_detected_at` ON `detected_sms_notifications` (`status`, `detected_at`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_detected_at` ON `detected_sms_notifications` (`detected_at`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_linked_transaction_id` ON `detected_sms_notifications` (`linked_transaction_id`)")
             }
         }
 

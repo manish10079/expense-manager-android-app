@@ -55,6 +55,9 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SMS_INBOX_BELL_RING_DURATION_MS
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxBellButton
+import com.mknlabs.expensetracker.feature.smsinbox.ui.isNewDetectionArrival
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Transaction
@@ -98,6 +101,7 @@ fun HomeScreen(
     onTransactionClick: (Transaction) -> Unit = {},
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onSmsInboxClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {},
     onGoalsClick: () -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
@@ -271,6 +275,7 @@ fun HomeScreen(
         onTransactionClick = onTransactionClick,
         onProfileClick = onProfileClick,
         onSettingsClick = onSettingsClick,
+        onSmsInboxClick = onSmsInboxClick,
         onTodaySpendingClick = onTodaySpendingClick,
         onGoalsClick = onGoalsClick,
         onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility,
@@ -295,6 +300,7 @@ private fun HomeScreenContent(
     onTransactionClick: (Transaction) -> Unit,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSmsInboxClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit,
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
@@ -342,6 +348,7 @@ private fun HomeScreenContent(
                     uiState = uiState,
                     onProfileClick = onProfileClick,
                     onSettingsClick = onSettingsClick,
+                    onSmsInboxClick = onSmsInboxClick,
                     isLockOverlayActive = isLockOverlayActive
                 )
                 Spacer(modifier = Modifier.height(14.dp))
@@ -400,6 +407,7 @@ private fun HomeScreenContent(
                     isAdsEnabled = isAdsEnabled,
                     onProfileClick = onProfileClick,
                     onSettingsClick = onSettingsClick,
+                    onSmsInboxClick = onSmsInboxClick,
                     onTodaySpendingClick = onTodaySpendingClick,
                     onGoalsClick = onGoalsClick,
                     onToggleBalanceVisibility = onToggleBalanceVisibility,
@@ -441,6 +449,7 @@ private fun HomeTopSection(
     isAdsEnabled: Boolean = false,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSmsInboxClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit,
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
@@ -459,6 +468,7 @@ private fun HomeTopSection(
         uiState = uiState,
         onProfileClick = onProfileClick,
         onSettingsClick = onSettingsClick,
+        onSmsInboxClick = onSmsInboxClick,
         isLockOverlayActive = isLockOverlayActive
     )
     Spacer(modifier = Modifier.height(14.dp))
@@ -494,12 +504,16 @@ private fun HomeHeaderRow(
     uiState: HomeScreenUiState,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSmsInboxClick: () -> Unit = {},
     isLockOverlayActive: Boolean
 ) {
     // Shared by the hand wave (inside the greeting Column) and the settings-icon
     // spin (in the sibling Row) below — hence hoisted to this common scope.
     val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
     val settingsRotation = remember { androidx.compose.animation.core.Animatable(0f) }
+    // The detected-transactions bell, ringing in step with the wave. Resting value is 1f, so a
+    // bell that never rings (nothing waiting) simply sits still at rest.
+    val bellRing = remember { androidx.compose.animation.core.Animatable(1f) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -540,6 +554,23 @@ private fun HomeHeaderRow(
 
             LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
                 if (lifecycleResumed && !isLockOverlayActive) {
+                    // Detected transactions bell — rings only when there is a count on it, so a
+                    // quiet inbox never draws attention to an empty bell. It runs on its own
+                    // clock rather than after the greeting wave: it is the one part of this
+                    // entrance carrying information, so it must not wait out two and a half
+                    // seconds of waving first.
+                    if (uiState.smsInboxUnreadCount > 0) {
+                        launch {
+                            bellRing.snapTo(0f)
+                            bellRing.animateTo(
+                                targetValue = 1f,
+                                animationSpec = tween(
+                                    durationMillis = SMS_INBOX_BELL_RING_DURATION_MS,
+                                    easing = LinearEasing
+                                )
+                            )
+                        }
+                    }
                     // Hand wave — ~2.5s total.
                     waveRotation.snapTo(0f)
                     waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
@@ -552,6 +583,32 @@ private fun HomeHeaderRow(
                     // Settings icon — one full 360° spin in 1s.
                     settingsRotation.snapTo(0f)
                     settingsRotation.animateTo(360f, tween(1000, easing = LinearEasing))
+                }
+            }
+
+            // The entrance above covers *arriving* at Home. This covers the other half: a
+            // detection landing while the user is already sitting here. The badge count is
+            // the signal — a fresh detection is always unread, so it can only push the
+            // number up, and a rise is the one change that means "something new just came
+            // in". Reading cards lowers it, which must not ring, or the app would be
+            // nagging the user for tidying up.
+            var lastRungCount by remember { mutableStateOf(uiState.smsInboxUnreadCount) }
+            LaunchedEffect(uiState.smsInboxUnreadCount) {
+                val latest = uiState.smsInboxUnreadCount
+                val arrived = isNewDetectionArrival(previousCount = lastRungCount, newCount = latest)
+                // Recorded before the ring, not after: a second change cancels this effect
+                // mid-animation, and comparing the next one against a stale count would
+                // then fire a ring for a count that had actually gone *down*.
+                lastRungCount = latest
+                if (arrived) {
+                    bellRing.snapTo(0f)
+                    bellRing.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = SMS_INBOX_BELL_RING_DURATION_MS,
+                            easing = LinearEasing
+                        )
+                    )
                 }
             }
 
@@ -593,6 +650,14 @@ private fun HomeHeaderRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Detected bank messages waiting for a decision. Independent of the dialogs below:
+            // the badge is driven by the inbox table, so a dismissed notification still counts.
+            SmsInboxBellButton(
+                unreadCount = uiState.smsInboxUnreadCount,
+                onClick = onSmsInboxClick,
+                ringProgress = bellRing.value
+            )
+
             Box(
                 modifier = Modifier.graphicsLayer {
                     rotationZ = settingsRotation.value

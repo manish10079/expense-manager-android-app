@@ -68,6 +68,11 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Enroll the 15-minute periodic cloud sync (KEEP: no-op if already running)
         com.mknlabs.expensetracker.workers.SyncWorker.schedulePeriodic(this)
 
+        // Arm the daily SMS detection inbox retention pass (30-day policy).
+        // UPDATE keeps an existing schedule's cadence instead of resetting it on
+        // every launch, so the pass actually runs once a day.
+        com.mknlabs.expensetracker.feature.smsinbox.worker.SmsInboxCleanupWorker.schedulePeriodic(this)
+
         // Register App Lifecycle Observer for security lock
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
 

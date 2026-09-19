@@ -30,6 +30,8 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.ui.screens.AboutScreen
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
 import com.mknlabs.expensetracker.ui.screens.FeedbackRoute
 import com.mknlabs.expensetracker.ui.screens.AddTransactionScreen
 import com.mknlabs.expensetracker.ui.screens.AnalyticsScreen
@@ -50,6 +52,7 @@ import com.mknlabs.expensetracker.ui.screens.SettingsScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.ui.screens.TransactionScreen
 import com.mknlabs.expensetracker.ui.screens.MembershipDetailsScreen
+import java.util.UUID
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
 
@@ -69,6 +72,25 @@ fun AppNavigationHost(
     addTransactionDraftTypeId: Int? = null,
     addTransactionDraftAutoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
+    /**
+     * A detected-SMS notification asked for one inbox row: [smsInboxFocusId] is the row,
+     * [smsInboxOpenEditor] says its Edit action was used, and [onSmsInboxFocusConsumed]
+     * releases the request once the inbox has taken it.
+     */
+    smsInboxFocusId: String? = null,
+    smsInboxOpenEditor: Boolean = false,
+    onSmsInboxFocusConsumed: () -> Unit = {},
+    /**
+     * The detection the Add Transaction draft was built from, when the inbox opened it.
+     * Null for every other way into that screen (Home, shortcuts, voice, a notification).
+     */
+    smsInboxDraftDetectionId: String? = null,
+    /** A live detection card was tapped: open the Add Transaction screen prefilled with it. */
+    onSmsInboxReview: (SmsInboxItemUi) -> Unit = {},
+    /** A filed detection card was tapped: open the transaction it created. */
+    onSmsInboxOpenTransaction: (String) -> Unit = {},
+    /** The draft was saved: stamp the detection with the transaction that came out of it. */
+    onSmsDetectionSaved: (String, String) -> Unit = { _, _ -> },
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -228,6 +250,10 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
                         },
+                        onSmsInboxClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.DetectedSms)
+                        },
                         onTodaySpendingClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Calendar)
@@ -281,6 +307,26 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)
                         }
+                    )
+                }
+
+                AppRoute.DetectedSms -> {
+                    // Detected SMS inbox: every bank message that looked like a payment,
+                    // kept independently of the transactions it may become.
+                    SmsInboxRoute(
+                        categories = categories.filter { !it.isDeleted },
+                        currencyId = selectedCurrencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Home)
+                        },
+                        focusDetectionId = smsInboxFocusId,
+                        focusOpenEditor = smsInboxOpenEditor,
+                        onFocusConsumed = onSmsInboxFocusConsumed,
+                        onReviewInAddTransaction = onSmsInboxReview,
+                        onOpenFiledTransaction = onSmsInboxOpenTransaction
                     )
                 }
 
@@ -683,16 +729,30 @@ fun AppNavigationHost(
                             ).show()
                         },
                         onSaveClick = { draftTransaction, recurringDraft ->
-                            val transactionToSave = if (selectedTransaction != null) {
-                                draftTransaction.copy(id = selectedTransaction.id)
-                            } else {
-                                draftTransaction
+                            val isEdit = selectedTransaction != null
+                            // Only a draft that came from the inbox carries a detection.
+                            val detectionId = if (isEdit) null else smsInboxDraftDetectionId
+                            // Linking that detection to this save needs the transaction's
+                            // id at the moment it is written, and the repository would
+                            // otherwise invent one out of the caller's reach — so it is
+                            // settled here, with the same expression the repository uses.
+                            val transactionToSave = when {
+                                isEdit -> draftTransaction.copy(id = selectedTransaction.id)
+                                detectionId != null && draftTransaction.id.isBlank() ->
+                                    draftTransaction.copy(id = UUID.randomUUID().toString())
+                                else -> draftTransaction
                             }
                             onSaveTransaction(
                                 transactionToSave,
                                 recurringDraft,
                                 selectedRecurringRule
                             )
+                            // Add was pressed, so the detection is now filed: the inbox
+                            // drops its card and the notification goes with it. Backing out
+                            // of this screen instead leaves the detection exactly as it was.
+                            if (detectionId != null) {
+                                onSmsDetectionSaved(detectionId, transactionToSave.id)
+                            }
                         }
                     )
                 }

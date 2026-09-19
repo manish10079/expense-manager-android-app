@@ -34,6 +34,12 @@ object NotificationHelper {
     const val EXTRA_NAV_DESTINATION = "nav_destination"
     const val DESTINATION_ADD_TRANSACTION = "add_transaction"
     const val DESTINATION_SMS_CHANGE = "sms_change"
+
+    /**
+     * The detected-SMS inbox, focused on one detection (carried alongside this
+     * destination in [com.mknlabs.expensetracker.sms.SmsNotificationManager.EXTRA_DETECTION_ID]).
+     */
+    const val DESTINATION_SMS_INBOX = "sms_inbox"
     const val DESTINATION_GOALS = "goals"
     const val DESTINATION_BUDGET = "budget"
     const val DESTINATION_ANALYTICS = "analytics"

@@ -5,6 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.mknlabs.expensetracker.MainActivity
@@ -12,11 +15,9 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.notifications.NotificationHelper
-import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits
-import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicInteger
 import androidx.core.app.RemoteInput
 
@@ -30,11 +31,16 @@ import androidx.core.app.RemoteInput
  * STACK in the shade instead of overwriting the previous one — and they all
  * join one [GROUP_KEY_SMS_IMPORT] group under a single collapsible summary
  * ("N transactions · total") at the fixed summary ID. With three actions:
- *  - [Save]   → [SmsActionReceiver] (one-tap save, app never opens)
- *  - [Change] → app opens targeting [NotificationHelper.DESTINATION_SMS_CHANGE]
- *               (the lightweight category sheet, Phase 4)
- *  - [Open]   → full Add Transaction screen prefilled via the existing draft
- *               mechanism (amount + note = sender · SMS body)
+ *  - [Add]    → [SmsActionReceiver], filing the detection through the inbox use
+ *               case with an optionally typed note: the app never opens, and the
+ *               inbox row is marked ADDED so the bell badge drops too.
+ *  - [Ignore] → [SmsActionReceiver]: records the decision and clears the card.
+ *  - [Edit]   → app opens targeting [NotificationHelper.DESTINATION_SMS_INBOX]
+ *               on this very row, with the correction dialog already open.
+ *
+ * Tapping the notification body opens the inbox on the row as well. Every path
+ * carries the inbox row's id rather than trusting the payload in the shade, so
+ * a decision made here and a decision made in the app are recorded identically.
  */
 object SmsNotificationManager {
 
@@ -56,7 +62,23 @@ object SmsNotificationManager {
 
     const val KEY_TEXT_REPLY = "extra_sms_note"
 
+    /**
+     * The inbox row a notification belongs to. Carried in the action intents that
+     * mutate that row, and in the posted notification's own extras (the group
+     * summary uses it to tell a child from the summary itself).
+     */
+    const val EXTRA_DETECTION_ID = "sms.detection_id"
+
+    /** "Edit" wants the correction dialog up on arrival, not just the row on screen. */
+    const val EXTRA_OPEN_EDITOR = "sms.open_editor"
+
     const val ACTION_SMS_SAVE = "com.mknlabs.expensetracker.action.SMS_SAVE"
+
+    /** Files the detection as a transaction without opening the app. */
+    const val ACTION_SMS_ADD = "com.mknlabs.expensetracker.action.SMS_ADD"
+
+    /** Dismisses the detection and clears its notification. */
+    const val ACTION_SMS_IGNORE = "com.mknlabs.expensetracker.action.SMS_IGNORE"
 
     /** Notification ID rides in the action intent so the receiver can cancel it directly. */
     const val EXTRA_NOTIFICATION_ID = "sms.notification_id"
@@ -103,13 +125,14 @@ object SmsNotificationManager {
     fun showImportNotification(
         context: Context,
         parsed: ParsedSms,
-        frequentCategories: List<CategoryType>
+        detectionId: String,
+        notificationId: Int
     ) {
-        // One unique ID per SMS event (stable across process restarts via the
-        // SMS timestamp) so a second detection never replaces the first in the
-        // shade. The same ID rides in every action intent so the receivers can
-        // cancel/update exactly the notification that belongs to this SMS.
-        val notificationId = notificationIdFor(parsed.smsTimestamp)
+        // The id is resolved by the caller — from the SMS timestamp, so it stays stable
+        // across process restarts and a second detection never replaces the first in
+        // the shade — and handed in rather than recomputed here: the same value rides
+        // in every action intent AND is stored on the inbox row, and deriving it twice
+        // would drift whenever the SMS carries no usable timestamp.
         val requestBase = requestBaseFor(notificationId)
 
         // The parsed amount is in the SMS's own currency (₹/INR by parser design),
@@ -133,22 +156,41 @@ object SmsNotificationManager {
             context.getString(R.string.sms_sender_unknown)
         }
 
-        // e.g. "₹520 Debited · HDFC Bank"
-        val contentText = context.getString(
+        val merchantName = parsed.merchant?.takeIf { it.isNotBlank() }
+
+        // The title states the two things a decision needs — how much, and to whom —
+        // e.g. "₹450 spent at Swiggy". Without a merchant there is nothing better than
+        // the bank line itself, e.g. "₹520 Debited · HDFC Bank".
+        val titleText = merchantName?.let { merchant ->
+            context.getString(
+                if (parsed.transactionTypeId == INCOME_TYPE_ID) {
+                    R.string.notification_format_sms_import_title_received
+                } else {
+                    R.string.notification_format_sms_import_title_spent
+                },
+                amountText,
+                merchant
+            )
+        } ?: context.getString(
             R.string.notification_format_sms_import_content,
             amountText,
             verb,
             senderText
         )
-        val suggestedLine = context.getString(
+
+        // The suggestion is the subtitle: the amount is already the title, so this is
+        // the only other thing worth knowing before tapping Add.
+        val contentText = context.getString(
             R.string.notification_format_sms_import_suggested,
             categoryName
         )
 
+        // Tapping the card opens the inbox on this row (never the Add screen: the row
+        // still has to be filed, and that is exactly what the inbox is for).
         val openPendingIntent = activityPendingIntent(
             context,
             requestCode = requestBase + SLOT_OPEN,
-            intent = openActivityIntent(context, parsed)
+            intent = openInboxIntent(context, detectionId, openEditor = false)
         )
 
         // RemoteInput for adding a note inline in the notification shade
@@ -158,55 +200,102 @@ object SmsNotificationManager {
 
         val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_SMS_IMPORT)
             .setSmallIcon(R.drawable.ic_notification_wallet)
-            .setContentTitle(context.getString(R.string.notification_title_sms_import))
+            .setContentTitle(titleText)
             .setContentText(contentText)
             .setStyle(
-                NotificationCompat.BigTextStyle().bigText("$contentText\n$suggestedLine")
+                NotificationCompat.BigTextStyle().bigText("$titleText\n$contentText")
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(openPendingIntent)
             .setAutoCancel(true)
+            // Read back off the POSTED notification: the amount keeps the group
+            // summary's total honest, and the detection id is how the summary tells a
+            // child apart from the summary itself.
+            .addExtras(
+                Bundle().apply {
+                    putLong(EXTRA_AMOUNT_MINOR, parsed.amountMinor)
+                    putString(EXTRA_DETECTION_ID, detectionId)
+                }
+            )
             // Grouping: all pending SMS imports collapse under one summary entry
             // (children alert normally so every new detection still heads-up).
             .setGroup(GROUP_KEY_SMS_IMPORT)
             .setGroupSummary(false)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
 
-        // Show up to 3 action buttons for frequently chosen categories
-        // Tapping any of these opens the remote input to write a note and saves.
-        val categoriesToShow = frequentCategories.take(3)
-        categoriesToShow.forEachIndexed { index, category ->
-            val saveIntent = Intent(context, SmsActionReceiver::class.java).apply {
-                action = ACTION_SMS_SAVE
-                // Put parsed SMS data, but update the categoryId to this action's category
-                putParsedSms(parsed.copy(categoryId = category.id))
-                // §2: pass the notification ID so the receiver can dismiss it directly
-                putNotificationId(notificationId)
-            }
-            val savePendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestBase + index,
-                saveIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-            )
-            val action = NotificationCompat.Action.Builder(
-                R.drawable.ic_notification_wallet,
-                category.name,
-                savePendingIntent
-            )
-            .addRemoteInput(remoteInput)
-            .build()
-
-            builder.addAction(action)
+        // [Add] Files the detection without opening the app, with a note that can be
+        // typed inline (plan §14 Q2) — the app never has to come to the foreground.
+        val addIntent = Intent(context, SmsActionReceiver::class.java).apply {
+            action = ACTION_SMS_ADD
+            // §2: the notification ID lets the receiver dismiss this exact card.
+            putNotificationId(notificationId)
+            putExtra(EXTRA_DETECTION_ID, detectionId)
+            // The row is the source of truth, but the payload still rides along so a
+            // detection purged by retention between posting and tapping is still
+            // saved rather than silently dropped.
+            putParsedSms(parsed)
         }
+        // MUTABLE because RemoteInput results are written back into the intent.
+        val addPendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestBase + SLOT_ADD,
+            addIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+        builder.addAction(
+            NotificationCompat.Action.Builder(
+                R.drawable.ic_notification_wallet,
+                context.getString(R.string.notification_action_add),
+                addPendingIntent
+            )
+                .addRemoteInput(remoteInput)
+                .build()
+        )
+
+        // [Ignore] The decision is recorded, not just the card removed — ignoring in
+        // the shade and ignoring in the app must leave the same state behind.
+        val ignorePendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestBase + SLOT_IGNORE,
+            Intent(context, SmsActionReceiver::class.java).apply {
+                action = ACTION_SMS_IGNORE
+                putNotificationId(notificationId)
+                putExtra(EXTRA_DETECTION_ID, detectionId)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        builder.addAction(
+            NotificationCompat.Action.Builder(
+                R.drawable.ic_notification_wallet,
+                context.getString(R.string.notification_action_ignore),
+                ignorePendingIntent
+            ).build()
+        )
+
+        // [Edit] Straight into the inbox's correction dialog for this row, so the
+        // amount, note and category can be fixed before anything is written.
+        builder.addAction(
+            NotificationCompat.Action.Builder(
+                R.drawable.ic_notification_wallet,
+                context.getString(R.string.notification_action_edit),
+                activityPendingIntent(
+                    context,
+                    requestCode = requestBase + SLOT_EDIT,
+                    intent = openInboxIntent(context, detectionId, openEditor = true)
+                )
+            ).build()
+        )
 
         with(NotificationManagerCompat.from(context)) {
             try {
                 notify(notificationId, builder.build())
-                // Keep the group summary's count and total in sync with the
-                // newly stacked child.
-                refreshGroupSummary(context)
+                // Keep the group summary's count and total in sync with the newly
+                // stacked child — deferred for the same reason a cancellation is: a
+                // rebuild issued in the same breath can read a snapshot that does not
+                // contain the new child yet, and would then cancel the summary instead
+                // of updating it.
+                scheduleGroupSummaryRefresh(context)
             } catch (e: SecurityException) {
                 // POST_NOTIFICATIONS not granted — the SMS import silently skips.
             }
@@ -224,10 +313,11 @@ object SmsNotificationManager {
         val nm = NotificationManagerCompat.from(context)
         val children = runCatching {
             nm.activeNotifications.filter { child ->
-                // Children carry the group key AND the parsed amount extra;
-                // the summary notification has neither.
+                // Children carry the group key AND their detection id; the summary
+                // carries the group key alone. The detection id is the only marker that
+                // is always present, so it is what tells the two apart.
                 child.notification.group == GROUP_KEY_SMS_IMPORT &&
-                    child.notification.extras?.containsKey(EXTRA_AMOUNT_MINOR) == true
+                    child.notification.extras?.getString(EXTRA_DETECTION_ID) != null
             }
         }.getOrDefault(emptyList())
 
@@ -264,9 +354,15 @@ object SmsNotificationManager {
         // the BigText lines of each child notification.
         val inboxStyle = NotificationCompat.InboxStyle()
         for (child in children) {
+            // One line per transaction, using the same amount/merchant heading the
+            // child itself shows (the subtitle is only a category suggestion, which
+            // would read as noise in a list of transactions).
             val line = child.notification.extras
-                ?.getString(Notification.EXTRA_TEXT)
+                ?.getString(EXTRA_NOTIFICATION_TITLE)
                 ?.takeIf { it.isNotBlank() }
+                ?: child.notification.extras
+                    ?.getString(Notification.EXTRA_TEXT)
+                    ?.takeIf { it.isNotBlank() }
             if (line != null) inboxStyle.addLine(line)
         }
 
@@ -296,6 +392,24 @@ object SmsNotificationManager {
      */
     fun cancel(context: Context, notificationId: Int = NotificationHelper.NOTIFICATION_ID_SMS_IMPORT) {
         NotificationManagerCompat.from(context).cancel(notificationId)
+    }
+
+    /**
+     * Rebuilds the group summary once the notification service has caught up with a
+     * cancellation.
+     *
+     * [cancel] is dispatched asynchronously, so a [refreshGroupSummary] issued in the
+     * same breath still sees the cancelled child in the active-notification snapshot —
+     * and would leave the summary claiming a transaction the user has already decided
+     * on. The receivers can refresh inline (their database write already separates the
+     * two); callers that cancel and rebuild from one thread use this instead.
+     */
+    fun scheduleGroupSummaryRefresh(context: Context) {
+        val appContext = context.applicationContext
+        Handler(Looper.getMainLooper()).postDelayed(
+            { refreshGroupSummary(appContext) },
+            SUMMARY_SETTLE_MS
+        )
     }
 
     /**
@@ -351,25 +465,20 @@ object SmsNotificationManager {
         }
     }
 
-    private fun openActivityIntent(context: Context, parsed: ParsedSms): Intent {
+    /**
+     * Opens the app on the detected-SMS inbox, focused on [detectionId]. Both the
+     * card tap and the [Edit] action use this — the only difference is whether the
+     * correction dialog is already up when the row lands.
+     */
+    private fun openInboxIntent(context: Context, detectionId: String, openEditor: Boolean): Intent {
         return Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via
             // onNewIntent when the app is alive in the background, instead of
             // CLEAR_TASK which force-restarts the activity and replays the splash.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_ADD_TRANSACTION)
-            // Plain digits (no grouping) — AddTransactionScreen parses with toDoubleOrNull().
-            putExtra(EXTRA_OPEN_AMOUNT, editableAmount(parsed.amountMinor))
-            putExtra(
-                EXTRA_OPEN_NOTE,
-                context.getString(
-                    R.string.notification_format_sms_open_note,
-                    parsed.sender,
-                    parsed.body
-                )
-            )
-            putExtra(EXTRA_OPEN_CATEGORY_ID, parsed.categoryId)
-            putExtra(EXTRA_OPEN_TRANSACTION_TYPE_ID, parsed.transactionTypeId)
+            putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_SMS_INBOX)
+            putExtra(EXTRA_DETECTION_ID, detectionId)
+            if (openEditor) putExtra(EXTRA_OPEN_EDITOR, true)
         }
     }
 
@@ -382,16 +491,17 @@ object SmsNotificationManager {
         )
     }
 
-    /** e.g. 52_000 minor → "520"; 15_000_00 minor → "15000"; 52_050 minor → "520.5". */
-    private fun editableAmount(amountMinor: Long): String {
-        return BigDecimal.valueOf(amountMinor.toMajorUnits())
-            .stripTrailingZeros()
-            .toPlainString()
-    }
-
     private const val INCOME_TYPE_ID = 1
     private const val EXPENSE_TYPE_ID = 2
-    /** Slot index for the notification's content (Open) intent. */
+
+    /**
+     * Action slots inside [requestBaseFor]'s block of four. The content intent keeps the
+     * top slot it has always used; the three action buttons each take their own so
+     * "Add" and "Ignore" can never resolve onto one another's extras.
+     */
+    private const val SLOT_ADD = 0
+    private const val SLOT_IGNORE = 1
+    private const val SLOT_EDIT = 2
     private const val SLOT_OPEN = 3
 
     /**
@@ -404,6 +514,13 @@ object SmsNotificationManager {
     /** Offset above the fixed IDs (1-6) used by the other channels. */
     private const val FALLBACK_BASE_ID = 1000
 
+    /**
+     * `Notification.EXTRA_TITLE`. Spelled out rather than referenced through the
+     * platform constant because the field is only public from API 24, while the SMS
+     * import notification runs on older releases too.
+     */
+    private const val EXTRA_NOTIFICATION_TITLE = "android.title"
+
     /** Monotonic fallback when an SMS carries no usable timestamp. */
     private val fallbackCounter = AtomicInteger(0)
 
@@ -412,7 +529,9 @@ object SmsNotificationManager {
      * the same key used for duplicate suppression, so the ID survives process
      * restarts and the Save/Open actions always resolve the right notification.
      */
-    private fun notificationIdFor(smsTimestamp: Long): Int {
+    // Public so the receiver that recorded the detection can persist the same id on
+    // its inbox row, letting the notification's actions resolve that row later.
+    fun notificationIdFor(smsTimestamp: Long): Int {
         if (smsTimestamp > 0) return (smsTimestamp and 0x7FFFFFFFL).toInt()
         return FALLBACK_BASE_ID + fallbackCounter.incrementAndGet()
     }
@@ -435,4 +554,11 @@ object SmsNotificationManager {
      * RemoteInputView, short enough to be imperceptible to the user.
      */
     private const val FORCE_DISMISS_TIMEOUT_MS = 500L
+
+    /**
+     * How long to let the notification service settle before rebuilding the summary
+     * after a cancellation. Long enough for the cancel to land, short enough to be
+     * imperceptible in the shade.
+     */
+    private const val SUMMARY_SETTLE_MS = 400L
 }

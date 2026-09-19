@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
@@ -63,6 +64,23 @@ fun MainScaffold(
     addTransactionDraftTypeId: Int? = null,
     addTransactionDraftAutoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
+    /** Detected-SMS notification focus: inbox row to open, and whether Edit was used. */
+    smsInboxFocusId: String? = null,
+    smsInboxOpenEditor: Boolean = false,
+    onSmsInboxFocusConsumed: () -> Unit = {},
+    /** The detection the Add Transaction draft was built from, when the inbox opened it. */
+    smsInboxDraftDetectionId: String? = null,
+    /** A live card was tapped: review that detection in the Add Transaction screen. */
+    onSmsInboxReview: (SmsInboxItemUi) -> Unit = {},
+    /** A filed card was tapped: open the transaction it created. */
+    onSmsInboxOpenTransaction: (String) -> Unit = {},
+    /**
+     * The detection draft was saved. Carries the row id and the transaction that was
+     * written, so the inbox can record the filing the user actually performed.
+     */
+    onSmsDetectionSaved: (String, String) -> Unit = { _, _ -> },
+    /** The Add Transaction screen was left without saving: drop the detection link. */
+    onSmsInboxDraftConsumed: () -> Unit = {},
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -196,6 +214,9 @@ fun MainScaffold(
             onAddTransactionDraftNoteChange(null)
             onAddTransactionDraftCategoryIdChange(null)
             onAddTransactionDraftTypeIdChange(null)
+            // The draft is gone, so no detection is being reviewed any more. Leaving that
+            // link behind would attach it to whatever gets saved next.
+            onSmsInboxDraftConsumed()
         }
         if (currentRoute != AppRoute.Transactions) {
             transactionsViewModel.clearSelection()
@@ -265,6 +286,13 @@ fun MainScaffold(
             addTransactionDraftTypeId = addTransactionDraftTypeId,
             addTransactionDraftAutoStartVoice = addTransactionDraftAutoStartVoice,
             onVoiceAutoStarted = onVoiceAutoStarted,
+            smsInboxFocusId = smsInboxFocusId,
+            smsInboxOpenEditor = smsInboxOpenEditor,
+            onSmsInboxFocusConsumed = onSmsInboxFocusConsumed,
+            smsInboxDraftDetectionId = smsInboxDraftDetectionId,
+            onSmsInboxReview = onSmsInboxReview,
+            onSmsInboxOpenTransaction = onSmsInboxOpenTransaction,
+            onSmsDetectionSaved = onSmsDetectionSaved,
             categories = categories,
             paymentMethods = paymentMethods,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,

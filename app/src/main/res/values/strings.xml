@@ -786,6 +786,62 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
+    <!-- Detected SMS inbox: every bank message that looked like a payment is kept here,
+         so dismissing the notification never loses it. -->
+    <string name="label_sms_inbox_title">Detected Transactions</string>
+    <string name="label_sms_inbox_search_hint">Search merchant, sender or message</string>
+    <string name="label_sms_inbox_filter_all">All</string>
+    <string name="label_sms_inbox_filter_income">Income</string>
+    <string name="label_sms_inbox_filter_expense">Expense</string>
+    <string name="label_sms_inbox_filter_added">Added</string>
+    <string name="label_sms_inbox_filter_ignored">Ignored</string>
+    <string name="label_sms_inbox_filter_unread">Unread</string>
+    <string name="label_sms_inbox_income">INCOME</string>
+    <string name="label_sms_inbox_expense">EXPENSE</string>
+    <!-- No status words: a card says what it came from, never which stage of its private
+         lifecycle it is in. "Seen" happens by itself once a card is on screen. -->
+    <string name="label_sms_inbox_card_hint">Tap a card to open it in the Add Transaction screen, edit it if needed, then press Add.</string>
+    <string name="label_sms_inbox_category">Suggested category: %1$s</string>
+    <string name="label_sms_inbox_confidence_high">High confidence</string>
+    <string name="label_sms_inbox_confidence_medium">Medium confidence</string>
+    <string name="label_sms_inbox_confidence_low">Low confidence</string>
+    <string name="label_sms_inbox_confidence_high_percent">High confidence (90%)</string>
+    <string name="label_sms_inbox_confidence_medium_percent">Medium confidence (60%)</string>
+    <string name="label_sms_inbox_confidence_low_percent">Low confidence (30%)</string>
+    <string name="label_sms_inbox_selected">%1$d selected</string>
+    <string name="label_sms_inbox_empty_title">No detected transactions yet</string>
+    <string name="label_sms_inbox_empty_filtered_title">Nothing here</string>
+    <string name="label_sms_inbox_empty_body">Bank messages that look like payments appear here — even if you dismiss the notification.</string>
+    <string name="label_sms_inbox_delete_title">Delete detection?</string>
+    <string name="label_sms_inbox_delete_body">This removes the saved message from the inbox. Any transaction you already added stays untouched.</string>
+    <string name="label_sms_inbox_edit_title">Edit before adding</string>
+    <string name="label_sms_inbox_edit_amount">Amount</string>
+    <string name="label_sms_inbox_edit_note">Note (optional)</string>
+    <string name="label_sms_inbox_edit_category">Category</string>
+    <!-- Home bell that opens the inbox. The count itself reuses the shared count-pill formats
+         (label_tab_count_short / label_tab_count_overflow) so both badges cap at 99+. -->
+    <string name="desc_sms_inbox_bell">Detected transactions</string>
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">Detected transactions, %1$d unread</item>
+        <item quantity="other">Detected transactions, %1$d unread</item>
+    </plurals>
+    <string name="action_add">Add</string>
+    <string name="action_add_all">Add all</string>
+    <string name="action_ignore">Ignore</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_delete_selected">Delete selected</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_clear_selection">Clear</string>
+    <string name="action_clear_all">Clear all</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="msg_sms_inbox_added">Added %1$d detected transaction</string>
+    <string name="msg_sms_inbox_added_some">Added %1$d · %2$d already in your ledger</string>
+    <string name="msg_sms_inbox_already_added">Already in your ledger — nothing added</string>
+    <string name="msg_sms_inbox_gone">That detection is no longer available</string>
+    <string name="msg_sms_inbox_ignored">Ignored %1$d detection</string>
+    <string name="msg_sms_inbox_deleted">Deleted</string>
+    <string name="msg_sms_inbox_swiped_away">Deleted %1$d detection</string>
+    <string name="msg_sms_inbox_invalid_amount">Enter an amount greater than zero</string>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">CUSTOM MONTH</string>
     <string name="label_remaining">REMAINING</string>
@@ -1422,6 +1478,11 @@
     <string name="notification_title_sms_import">💳 Transaction Detected</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
+    <string name="notification_format_sms_import_title_spent">%1$s spent at %2$s</string>
+    <string name="notification_format_sms_import_title_received">%1$s received from %2$s</string>
+    <string name="notification_action_add">Add</string>
+    <string name="notification_action_ignore">Ignore</string>
+    <string name="notification_action_edit">Edit</string>
     <string name="notification_format_sms_import_summary">%1$d transactions · %2$s</string>
     <string name="notification_action_save">Save</string>
     <string name="notification_action_change">Change</string>

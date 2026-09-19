@@ -242,6 +242,12 @@ class MainActivity : AppCompatActivity() {
         // lightweight Change bottom sheet. Null for every other launch path.
         val initialParsedSms: ParsedSms? = intent?.toParsedSms()
 
+        // Detected-SMS notification focus (plan §8): the inbox row the card's tap — or
+        // its Edit action — was about. Absent for every other launch path.
+        val initialSmsInboxDetectionId = intent?.getStringExtra(SmsNotificationManager.EXTRA_DETECTION_ID)
+        val initialSmsInboxOpenEditor =
+            intent?.getBooleanExtra(SmsNotificationManager.EXTRA_OPEN_EDITOR, false) == true
+
         // Handle App Shortcut Intents
         val shortcutAction = intent?.action
         val shortcutTransactionTypeId = intent?.let {
@@ -380,6 +386,8 @@ class MainActivity : AppCompatActivity() {
                                 initialAddTransactionCategoryId = initialAddTransactionCategoryId,
                                 initialAddTransactionTypeId = initialAddTransactionTypeId,
                                 initialParsedSms = initialParsedSms,
+                                initialSmsInboxDetectionId = initialSmsInboxDetectionId,
+                                initialSmsInboxOpenEditor = initialSmsInboxOpenEditor,
                                 notificationIntent = intent,
                                 isRecoveryPerformed = recoveryPerformed,
                                 onRecoveryConsumed = { appLockViewModel.consumeRecovery() },

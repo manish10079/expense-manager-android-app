@@ -175,6 +175,8 @@ fun MainScreen(
     initialAddTransactionCategoryId: Int? = null,
     initialAddTransactionTypeId: Int? = null,
     initialParsedSms: ParsedSms? = null,
+    initialSmsInboxDetectionId: String? = null,
+    initialSmsInboxOpenEditor: Boolean = false,
     notificationIntent: Intent? = null,
     isRecoveryPerformed: Boolean = false,
     onRecoveryConsumed: () -> Unit = {},
@@ -223,6 +225,11 @@ fun MainScreen(
     // Smart SMS Import "Change" sheet request — set when the app is opened via
     // the notification's Change action (DESTINATION_SMS_CHANGE, plan §8/Phase 4).
     var smsChangeRequest by remember { mutableStateOf<ParsedSms?>(null) }
+    // Detected-SMS notification focus (card tap / Edit action), held in state so the
+    // inbox can take it exactly once. Re-armed below on every notification intent, so a
+    // second tap on the same card focuses again while simply walking back to the inbox
+    // from the bell does not.
+    var smsInboxFocusId by remember { mutableStateOf<String?>(null) }
 
     val authSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -525,7 +532,7 @@ fun MainScreen(
             // tap of the same notification after onNewIntent — e.g. dismissing the
             // Change sheet and tapping Change again — re-triggers this block even
             // when the ParsedSms extras are value-equal to the previous one.
-            LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialAddTransactionCategoryId, initialAddTransactionTypeId, initialParsedSms) {
+            LaunchedEffect(notificationIntent, initialNavDestination, initialAddTransactionAmount, initialAddTransactionNote, initialAddTransactionCategoryId, initialAddTransactionTypeId, initialParsedSms, initialSmsInboxDetectionId, initialSmsInboxOpenEditor) {
                 // Notification analytics: the type extra is present only when
                 // the app was opened by tapping a local notification, so this
                 // fires once per tap (cold start or onNewIntent).
@@ -552,6 +559,16 @@ fun MainScreen(
                         // lightweight category+note sheet with the parsed payload.
                         initialParsedSms?.let { smsChangeRequest = it }
                         navigationState.navigateTo(AppRoute.Home)
+                        navigationState.updateBottomBarVisibility(false)
+                    }
+
+                    NotificationHelper.DESTINATION_SMS_INBOX -> {
+                        // Detected-SMS notification tapped, or its Edit action: open the
+                        // inbox on the row the card was about. The row id travels down
+                        // to the screen as a draft, exactly like the Add Transaction
+                        // prefill does.
+                        smsInboxFocusId = initialSmsInboxDetectionId
+                        navigationState.navigateTo(AppRoute.DetectedSms)
                         navigationState.updateBottomBarVisibility(false)
                     }
 
@@ -820,6 +837,37 @@ fun MainScreen(
                         addTransactionDraftTypeId = navigationState.addTransactionDraftTypeId,
                         addTransactionDraftAutoStartVoice = navigationState.addTransactionDraftAutoStartVoice,
                         onVoiceAutoStarted = { navigationState.updateAddTransactionDraftAutoStartVoice(false) },
+                        smsInboxFocusId = smsInboxFocusId,
+                        smsInboxOpenEditor = initialSmsInboxOpenEditor,
+                        onSmsInboxFocusConsumed = { smsInboxFocusId = null },
+                        smsInboxDraftDetectionId = navigationState.addTransactionSourceDetectionId,
+                        // Tapping a card fills the Add Transaction screen in; it files
+                        // nothing by itself. The detection only leaves the inbox once the
+                        // user presses Add there, so backing out keeps it where it was.
+                        onSmsInboxReview = { item ->
+                            navigationState.updateSelectedTransaction(null)
+                            navigationState.updateAddTransactionDraftAmount(item.amountInput)
+                            navigationState.updateAddTransactionDraftCategoryId(item.categoryId)
+                            navigationState.updateAddTransactionDraftTypeId(item.transactionTypeId)
+                            navigationState.updateAddTransactionDraftNote(null)
+                            navigationState.updateAddTransactionSourceDetectionId(item.id)
+                            navigationState.updateBottomBarVisibility(false)
+                            navigationState.navigateTo(AppRoute.AddTransaction)
+                        },
+                        // An already-filed card is a shortcut to what it created; a
+                        // detection whose transaction is long gone simply does nothing.
+                        onSmsInboxOpenTransaction = { transactionId ->
+                            mainUiState.transactions
+                                .firstOrNull { transaction -> transaction.id == transactionId }
+                                ?.let { transaction ->
+                                    navigationState.updateAddTransactionSourceDetectionId(null)
+                                    navigationState.updateSelectedTransaction(transaction)
+                                    navigationState.updateBottomBarVisibility(false)
+                                    navigationState.navigateTo(AppRoute.AddTransaction)
+                                }
+                        },
+                        onSmsDetectionSaved = mainViewModel::attachSmsDetection,
+                        onSmsInboxDraftConsumed = navigationState::clearAddTransactionSourceDetectionId,
                         categories = mainUiState.categories,
                         paymentMethods = mainUiState.paymentMethods,
                         transactionCardCustomizationSettings = transactionCardCustomizationSettings,

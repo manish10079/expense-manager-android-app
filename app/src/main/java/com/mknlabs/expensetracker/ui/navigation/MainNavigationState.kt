@@ -45,6 +45,16 @@ class MainNavigationState(
     var addTransactionDraftAutoStartVoice by mutableStateOf(false)
         private set
 
+    /**
+     * The detected SMS the Add Transaction screen was opened from, if any.
+     *
+     * Held next to the draft deliberately: the draft is what that screen shows, and this is
+     * what it is *for*. It survives a rotation like the draft does, so a detection being
+     * reviewed is still linked to the row the user saves after the screen is recreated.
+     */
+    var addTransactionSourceDetectionId by mutableStateOf<String?>(null)
+        private set
+
     var showVoiceInputSheet by mutableStateOf(false)
         private set
 
@@ -87,6 +97,10 @@ class MainNavigationState(
         addTransactionDraftAutoStartVoice = autoStart
     }
 
+    fun updateAddTransactionSourceDetectionId(detectionId: String?) {
+        addTransactionSourceDetectionId = detectionId
+    }
+
     fun updateShowVoiceInputSheet(show: Boolean) {
         showVoiceInputSheet = show
     }
@@ -98,7 +112,18 @@ class MainNavigationState(
         addTransactionDraftCategoryId = null
         addTransactionDraftTypeId = null
         addTransactionDraftAutoStartVoice = false
+        addTransactionSourceDetectionId = null
         showVoiceInputSheet = false
+    }
+
+    /**
+     * Drops only the detection a draft came from, keeping the draft itself.
+     *
+     * Called when the Add Transaction screen is left: a draft the user never saved must
+     * not attach itself to some later, unrelated save.
+     */
+    fun clearAddTransactionSourceDetectionId() {
+        addTransactionSourceDetectionId = null
     }
 
     /**
@@ -111,7 +136,8 @@ class MainNavigationState(
         bottomBarVisible: Boolean,
         selected: Transaction?,
         draftAmount: String?,
-        draftNote: String?
+        draftNote: String?,
+        sourceDetectionId: String?
     ) {
         previousRoute = previous
         profileOriginRoute = profileOrigin
@@ -119,6 +145,7 @@ class MainNavigationState(
         selectedTransaction = selected
         addTransactionDraftAmount = draftAmount
         addTransactionDraftNote = draftNote
+        addTransactionSourceDetectionId = sourceDetectionId
     }
 }
 
@@ -152,7 +179,8 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
                 )
             },
             "addTransactionDraftAmount" to value.addTransactionDraftAmount,
-            "addTransactionDraftNote" to value.addTransactionDraftNote
+            "addTransactionDraftNote" to value.addTransactionDraftNote,
+            "addTransactionSourceDetectionId" to value.addTransactionSourceDetectionId
         )
     }
 
@@ -184,7 +212,8 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
             bottomBarVisible = value["isBottomBarVisible"] as? Boolean ?: false,
             selected = selected,
             draftAmount = value["addTransactionDraftAmount"] as? String,
-            draftNote = value["addTransactionDraftNote"] as? String
+            draftNote = value["addTransactionDraftNote"] as? String,
+            sourceDetectionId = value["addTransactionSourceDetectionId"] as? String
         )
         return state
     }

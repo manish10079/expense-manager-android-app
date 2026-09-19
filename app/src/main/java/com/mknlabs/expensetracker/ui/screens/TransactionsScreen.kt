@@ -1250,10 +1250,12 @@ private const val SWIPE_EXIT_SCALE = 0.98f
  * [TransactionSwipeAction.Delete].
  *
  * Premium swipe exit & gap-collapse (DELETE only): when the delete commits the
- * card does NOT vanish — it keeps flying in the swipe direction toward the
- * screen edge while fading out and shrinking imperceptibly ([SWIPE_EXIT_SCALE]),
- * still occupying its layout slot so a clearly visible temporary gap is left
- * behind. After a short hold ([SWIPE_GAP_HOLD_MS]) the real delete is fired;
+ * card does NOT vanish — it keeps flying in the swipe direction until it has
+ * cleared the screen edge, shrinking imperceptibly ([SWIPE_EXIT_SCALE]) and
+ * deliberately NOT fading, so the card is seen leaving rather than dissolving
+ * short of the edge. It still occupies its layout slot so a clearly visible
+ * temporary gap is left behind. After a short hold ([SWIPE_GAP_HOLD_MS]) the real
+ * delete is fired;
  * the remaining cards then close the gap smoothly via the parent list's
  * [androidx.compose.foundation.lazy.animateItem] placement animation. Gesture
  * state (this composable) stays separate from data state (the ViewModel): the
@@ -1329,7 +1331,7 @@ private fun SwipeableDuplicateCard(
                 .align(Alignment.CenterStart)
                 .padding(start = 20.dp)
                 .graphicsLayer {
-                    alpha = if (isRemoving) 0f else revealAlpha(
+                    alpha = if (isRemoving || isDuplicateCommitting) 0f else revealAlpha(
                         offsetPx = swipeOffset.value,
                         revealsWhenPositive = true,
                         maxRevealPx = maxRevealPx,
@@ -1345,7 +1347,7 @@ private fun SwipeableDuplicateCard(
                 .align(Alignment.CenterEnd)
                 .padding(end = 20.dp)
                 .graphicsLayer {
-                    alpha = if (isRemoving) 0f else revealAlpha(
+                    alpha = if (isRemoving || isDuplicateCommitting) 0f else revealAlpha(
                         offsetPx = swipeOffset.value,
                         revealsWhenPositive = false,
                         maxRevealPx = maxRevealPx,
@@ -1360,15 +1362,25 @@ private fun SwipeableDuplicateCard(
                 .graphicsLayer {
                     if (isRemoving) {
                         // Card is flying out: continue from where the finger left
-                        // it toward the screen edge, fading to 0 and shrinking to
-                        // SWIPE_EXIT_SCALE. All values are driven off one
-                        // Animatable inside graphicsLayer — no recomposition per
-                        // frame, no per-frame object allocation.
+                        // it, all the way past the screen edge, shrinking
+                        // imperceptibly to SWIPE_EXIT_SCALE. All values are driven
+                        // off one Animatable inside graphicsLayer — no
+                        // recomposition per frame, no per-frame allocation.
+                        //
+                        // Deliberately NO fade: the card has to be seen leaving the
+                        // screen, not dissolving short of the edge.
                         val progress = dismissProgress.value
                         translationX = dismissStartX + (dismissTargetX - dismissStartX) * progress
-                        alpha = 1f - progress
+                        alpha = 1f
                         scaleX = 1f - (1f - SWIPE_EXIT_SCALE) * progress
                         scaleY = 1f - (1f - SWIPE_EXIT_SCALE) * progress
+                    } else if (isDuplicateCommitting) {
+                        // Duplicate is on its way out: same undamped travel, so the
+                        // card clears the edge instead of stopping at the reveal point.
+                        translationX = swipeOffset.value
+                        alpha = 1f
+                        scaleX = 1f
+                        scaleY = 1f
                     } else {
                         translationX = dampedTranslation(swipeOffset.value, maxRevealPx)
                         alpha = 1f
@@ -1397,11 +1409,29 @@ private fun SwipeableDuplicateCard(
                     },
                     onSwipeLeft = {
                         if (gesturesEnabled) {
-                            // Duplicate: fire the data operation immediately; the
-                            // original card settles back naturally below and the
-                            // new card fades/places in via the list's animateItem.
+                            // Duplicate: the card leaves the screen exactly as it does
+                            // on a delete — it has to be seen going out — and then
+                            // comes straight back, because a duplicate ADDS a
+                            // transaction: the swiped one is still in the list and
+                            // would otherwise have to snap back from the edge. The
+                            // copy places itself beside it via the list's animateItem.
                             isDuplicateCommitting = true
-                            onSwipe(transactionSwipeAction(isLeftSwipe = true))
+                            val exitTarget = -(cardWidthPx + exitMarginPx)
+                            scope.launch {
+                                swipeOffset.animateTo(
+                                    targetValue = exitTarget,
+                                    animationSpec = tween(
+                                        durationMillis = SWIPE_EXIT_DURATION_MS,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                                onSwipe(transactionSwipeAction(isLeftSwipe = true))
+                                swipeOffset.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                                )
+                                isDuplicateCommitting = false
+                            }
                         }
                     },
                     onSwipeRight = {
@@ -1430,10 +1460,10 @@ private fun SwipeableDuplicateCard(
                         }
                     },
                     onDragEnd = {
-                        // Below-threshold release (or a duplicate commit): spring
-                        // the card back to centre. Skipped while a delete is flying
-                        // out — the exit coroutine owns the card then.
-                        if (!isRemoving) {
+                        // Below-threshold release: spring the card back to centre.
+                        // Skipped while a card is flying out (delete or duplicate) —
+                        // the exit coroutine owns it then.
+                        if (!isRemoving && !isDuplicateCommitting) {
                             scope.launch {
                                 swipeOffset.animateTo(
                                     targetValue = 0f,
@@ -1444,7 +1474,7 @@ private fun SwipeableDuplicateCard(
                         }
                     },
                     onDragCancel = {
-                        if (!isRemoving) {
+                        if (!isRemoving && !isDuplicateCommitting) {
                             scope.launch {
                                 swipeOffset.animateTo(
                                     targetValue = 0f,

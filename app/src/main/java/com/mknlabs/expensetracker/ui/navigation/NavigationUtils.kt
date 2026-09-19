@@ -44,7 +44,10 @@ fun resolveBackNavigationRoute(
         AppRoute.Budget,
         AppRoute.Calendar,
         AppRoute.Transactions,
-        AppRoute.Settings -> AppRoute.Home
+        AppRoute.Settings,
+        // The detected-SMS inbox is opened from the Home bell, so system Back must land back on
+        // Home rather than fall through to `else` and close the app.
+        AppRoute.DetectedSms -> AppRoute.Home
         AppRoute.Preferences,
         AppRoute.SecurityPrivacy,
         AppRoute.TransactionCardCustomize,

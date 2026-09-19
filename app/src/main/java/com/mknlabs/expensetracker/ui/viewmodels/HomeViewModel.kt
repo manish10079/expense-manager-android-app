@@ -16,6 +16,7 @@ import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.GetSmsInboxUnreadCountUseCase
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Goal
@@ -88,6 +89,10 @@ data class HomeScreenUiState(
     val isBalanceHidden: Boolean = true,
     val isSyncing: Boolean = false,
     val userTier: UserTier = UserTier.FREE,
+    // Unread count behind the Home bell badge for the detected-SMS inbox. 0 renders no badge;
+    // it is reported for every tier because the inbox is where a detected bank message survives
+    // a dismissed notification.
+    val smsInboxUnreadCount: Int = 0,
     // Monthly Summary (shown to ad-free/premium users in place of the home ad slot).
     val monthlyNetDisplay: String = "",
     val monthlyNetDeltaPercent: Float = 0f,
@@ -220,7 +225,8 @@ class HomeViewModel @Inject constructor(
     private val goalRepository: GoalRepository,
     private val recurringRuleRepository: RecurringRuleRepository,
     private val syncRepository: SyncRepository,
-    private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
+    private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository,
+    private val getSmsInboxUnreadCount: GetSmsInboxUnreadCountUseCase
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(HomeInputState())
@@ -304,7 +310,10 @@ class HomeViewModel @Inject constructor(
                         recurringRuleRepository.observeActiveRecurringRules(),
                         transactionRepository.observeActiveTransactions(),
                         syncRepository.isSyncing,
-                        inputState
+                        inputState,
+                        // Home consumes the inbox only through its use case, so the badge cannot
+                        // reach into the inbox's tables or DAO directly.
+                        getSmsInboxUnreadCount()
                     ) { flows ->
                         @Suppress("UNCHECKED_CAST")
                         val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
@@ -318,6 +327,7 @@ class HomeViewModel @Inject constructor(
                         val allActiveTransactions = flows[4] as List<Transaction>
                         val isSyncing = flows[5] as Boolean
                         val inputs = flows[6] as HomeInputState
+                        val smsInboxUnreadCount = flows[7] as Int
 
                         val categoriesMap = inputs.categories.associateBy { it.id }
                         val upcomingRecurring = buildUpcomingRecurring(
@@ -395,6 +405,7 @@ class HomeViewModel @Inject constructor(
                             isBalanceHidden = _uiState.value.isBalanceHidden,
                             isSyncing = isSyncing,
                             userTier = inputs.userTier,
+                            smsInboxUnreadCount = smsInboxUnreadCount,
                             currentPeriodStartMillis = currentMonthStart,
                             currentPeriodEndMillis = currentMonthEnd,
                             monthStartDay = currentMonthStartDay

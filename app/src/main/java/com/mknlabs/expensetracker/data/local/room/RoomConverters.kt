@@ -7,6 +7,8 @@ import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsDetectionSource
+import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxStatus
 
 class RoomConverters {
 
@@ -84,4 +86,27 @@ class RoomConverters {
         if (data.isBlank()) return emptyList()
         return data.split(",").mapNotNull { it.trim().toIntOrNull() }
     }
+
+    /**
+     * Detection inbox status. An unrecognised value falls back to NEW rather than
+     * throwing: losing an inbox row because a future client wrote a status this build
+     * does not know would defeat the point of storing detections at all.
+     */
+    @TypeConverter
+    fun fromSmsInboxStatus(value: SmsInboxStatus): String = value.name
+
+    @TypeConverter
+    fun toSmsInboxStatus(value: String): SmsInboxStatus =
+        SmsInboxStatus.entries.firstOrNull { it.name == value } ?: SmsInboxStatus.NEW
+
+    /**
+     * How a detection entered the inbox. Falls back to SMS — the overwhelmingly
+     * common origin, and the one whose behaviour is most conservative.
+     */
+    @TypeConverter
+    fun fromSmsDetectionSource(value: SmsDetectionSource): String = value.name
+
+    @TypeConverter
+    fun toSmsDetectionSource(value: String): SmsDetectionSource =
+        SmsDetectionSource.entries.firstOrNull { it.name == value } ?: SmsDetectionSource.SMS
 }

@@ -10,8 +10,10 @@ import androidx.core.content.ContextCompat
 import com.mknlabs.expensetracker.data.constants.currencyMap
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
-import com.mknlabs.expensetracker.domain.repository.CategoryRepository
-import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
+import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.NewSmsDetection
+import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.RecordSmsOutcome
+import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.SmsInboxRepository
+import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.RecordDetectedSmsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,10 +37,13 @@ class SmsReceiver : BroadcastReceiver() {
     lateinit var smsRepository: SmsRepository
 
     @Inject
-    lateinit var smsLearningStore: SmsLearningStore
+    lateinit var recordDetectedSms: RecordDetectedSmsUseCase
 
     @Inject
-    lateinit var categoryRepository: CategoryRepository
+    lateinit var smsInboxRepository: SmsInboxRepository
+
+    @Inject
+    lateinit var smsLearningStore: SmsLearningStore
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
@@ -84,22 +89,47 @@ class SmsReceiver : BroadcastReceiver() {
                     currencySymbol = currencySymbol
                 ) ?: return@launch
 
+                // Durable capture FIRST. The inbox row is the only copy of this
+                // detection that survives a dismissed notification, a reboot, or the
+                // user ignoring the shade entirely — so it is written before any
+                // branch below is allowed to bail out. Returns a Duplicate outcome
+                // (never a second row) when this message was already captured.
+                val recordOutcome = recordDetectedSms(
+                    NewSmsDetection(
+                        sender = parsed.sender,
+                        body = parsed.body,
+                        amountMinor = parsed.amountMinor,
+                        transactionTypeId = parsed.transactionTypeId,
+                        categoryId = parsed.categoryId,
+                        merchant = parsed.merchant,
+                        confidence = parsed.confidence,
+                        detectedAt = parsed.smsTimestamp,
+                        notificationCreatedAt = System.currentTimeMillis()
+                    )
+                )
+
+                // The amount and timestamp are already accounted for, so there is
+                // nothing left for the user to decide.
                 if (smsRepository.isDuplicate(parsed)) return@launch
 
-                // Fetch top-3 frequently used categories for the detected type,
-                // ranked by usage in the LAST 60 DAYS (matches the Add
-                // Transaction pickers). Falls back to sort_order-ranked defaults
-                // if the user has no recent history.
-                val frequentCategories = categoryRepository.getFrequentlyUsedCategories(
-                    transactionTypeId = parsed.transactionTypeId,
-                    limit = 3,
-                    sinceMillis = System.currentTimeMillis() - USAGE_RANKING_WINDOW_MS
-                )
+                val detectionId = when (recordOutcome) {
+                    is RecordSmsOutcome.Recorded -> recordOutcome.detection.id
+                    is RecordSmsOutcome.Duplicate -> recordOutcome.existing.id
+                }
+
+                // The shade ID is derived ONCE and stored on the row before the card is
+                // posted. Everything else follows from that pairing: the card's
+                // Add/Ignore/Edit actions resolve the row by id, tapping it opens that
+                // row, and the in-app paths know which card to clear. Deriving the id
+                // twice would drift whenever the SMS carries no usable timestamp.
+                val notificationId = SmsNotificationManager.notificationIdFor(parsed.smsTimestamp)
+                smsInboxRepository.attachNotification(detectionId, notificationId)
 
                 SmsNotificationManager.showImportNotification(
                     context.applicationContext,
                     parsed,
-                    frequentCategories
+                    detectionId,
+                    notificationId
                 )
             } catch (e: Exception) {
                 android.util.Log.w("SmsReceiver", "Failed to process SMS broadcast", e)

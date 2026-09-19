@@ -24,7 +24,8 @@ enum class AppRoute(
     AddCategory("add_category", false),
     Goals("goals", false),
     MembershipDetails("membership_details", false),
-    Feedback("feedback", false);
+    Feedback("feedback", false),
+    DetectedSms("detected_sms", false);
 
     companion object {
         fun fromRoute(route: String?): AppRoute? {

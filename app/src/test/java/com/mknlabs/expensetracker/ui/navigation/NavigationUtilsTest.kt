@@ -37,6 +37,19 @@ class NavigationUtilsTest {
     }
 
     @Test
+    fun `resolveBackNavigationRoute returns home for the detected sms inbox`() {
+        // Opened from the Home bell, so Back must go Home. Left unmapped it falls into the
+        // `else -> null` branch, which disables the back handler and closes the whole app.
+        val backRoute = resolveBackNavigationRoute(
+            currentRoute = AppRoute.DetectedSms,
+            profileOriginRoute = AppRoute.Home,
+            previousRoute = AppRoute.Home
+        )
+
+        assertEquals(AppRoute.Home, backRoute)
+    }
+
+    @Test
     fun `isBottomTabSwitch returns true when switching between bottom navigation tabs`() {
         assertTrue(isBottomTabSwitch(AppRoute.Home, AppRoute.Analytics))
         assertTrue(isBottomTabSwitch(AppRoute.Analytics, AppRoute.Budget))
