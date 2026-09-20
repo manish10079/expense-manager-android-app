@@ -228,6 +228,25 @@ class SmsInboxViewModelTest {
     }
 
     @Test
+    fun `add all asks first and only writes after confirmation`() = runTest {
+        repository.items.value = listOf(detection(id = "a"), detection(id = "b"))
+
+        viewModel.onRequestAddAll()
+        assertEquals(setOf("a", "b"), viewModel.uiState.value.pendingAddAllIds)
+        assertTrue("nothing is filed before confirmation", writer.saved.isEmpty())
+
+        viewModel.onCancelAddAll()
+        assertTrue(viewModel.uiState.value.pendingAddAllIds.isEmpty())
+        assertTrue("cancelling writes nothing", writer.saved.isEmpty())
+
+        viewModel.onRequestAddAll()
+        viewModel.onConfirmAddAll()
+
+        assertTrue(viewModel.uiState.value.pendingAddAllIds.isEmpty())
+        assertEquals(2, writer.saved.size)
+    }
+
+    @Test
     fun `a swipe hides the row at once but only deletes it when the undo window closes`() = runTest {
         repository.items.value = listOf(detection(id = "a"))
 

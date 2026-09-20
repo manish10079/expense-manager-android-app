@@ -157,6 +157,11 @@ data class SmsInboxUiState(
     val isWorking: Boolean = false,
     /** Non-empty while a destructive action awaits confirmation. */
     val pendingDeleteIds: Set<String> = emptySet(),
+    /**
+     * Rows a bulk "Add all" would file. Non-empty while the confirmation is on screen,
+     * so the dialog can state the exact count before anything is written.
+     */
+    val pendingAddAllIds: Set<String> = emptySet(),
     /** Non-null while a detection is being corrected before it is added. */
     val editor: SmsEditorState? = null,
     /**
@@ -484,16 +489,38 @@ class SmsInboxViewModel @Inject constructor(
     }
 
     /**
-     * Bulk "Add All". Files the selection plus every actionable row on screen, since
-     * a bulk action on a filtered list should mean "everything I am looking at".
+     * The rows a bulk "Add all" would file: the selection plus every actionable row on
+     * screen, since a bulk action on a filtered list should mean "everything I am looking
+     * at".
      */
-    fun onAddAllActionable() {
-        val ids = buildList {
-            addAll(selectedIds.value)
-            addAll(_uiState.value.detections.filter { it.isActionable }.map { it.id })
-        }.distinct()
+    private fun bulkAddIds(): List<String> = buildList {
+        addAll(selectedIds.value)
+        addAll(_uiState.value.detections.filter { it.isActionable }.map { it.id })
+    }.distinct()
+
+    /**
+     * Bulk "Add All" now asks first.
+     *
+     * It writes real transactions for a whole screen at once and the inbox has no undo for
+     * that, so the count is shown and confirmed before anything is written.
+     */
+    fun onRequestAddAll() {
+        val ids = bulkAddIds()
         if (ids.isEmpty()) return
-        viewModelScope.launch { file(ids, allowOverride = false) }
+        _uiState.update { it.copy(pendingAddAllIds = ids.toSet()) }
+    }
+
+    fun onCancelAddAll() {
+        _uiState.update { it.copy(pendingAddAllIds = emptySet()) }
+    }
+
+    fun onConfirmAddAll() {
+        val ids = _uiState.value.pendingAddAllIds.toList()
+        if (ids.isEmpty()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(pendingAddAllIds = emptySet()) }
+            file(ids, allowOverride = false)
+        }
     }
 
     /**

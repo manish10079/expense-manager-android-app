@@ -314,11 +314,13 @@
     <string name="desc_close_search">Close search</string>
     <string name="desc_custom_range">Custom range</string>
     <string name="desc_delete">Delete</string>
+    <string name="desc_add_all">Add All</string>
     <string name="desc_delete_photo">Delete photo</string>
     <string name="content_desc_email_verified">Email verified</string>
     <string name="desc_delete_selected">Delete Selected</string>
     <string name="desc_delete_val">Delete %1$s</string>
     <string name="desc_delete_val_1">Delete %1$s</string>
+    <string name="desc_deselect_all">Deselect All</string>
     <string name="desc_exit_selection">Exit Selection</string>
     <string name="desc_next_period">Next period</string>
     <string name="desc_next_year">Next year</string>
@@ -807,12 +809,16 @@
     <string name="label_sms_inbox_confidence_high">High confidence</string>
     <string name="label_sms_inbox_confidence_medium">Medium confidence</string>
     <string name="label_sms_inbox_confidence_low">Low confidence</string>
-    <string name="label_sms_inbox_selected">%1$d selected</string>
     <string name="label_sms_inbox_empty_title">No detected transactions yet</string>
     <string name="label_sms_inbox_empty_filtered_title">Nothing here</string>
     <string name="label_sms_inbox_empty_body">Bank messages that look like payments appear here — even if you dismiss the notification.</string>
     <string name="label_sms_inbox_delete_title">Delete detection?</string>
     <string name="label_sms_inbox_delete_body">This removes the saved message from the inbox. Any transaction you already added stays untouched.</string>
+    <plurals name="label_sms_inbox_add_all_title">
+        <item quantity="one">Add %1$d detected transaction?</item>
+        <item quantity="other">Add %1$d detected transactions?</item>
+    </plurals>
+    <string name="label_sms_inbox_add_all_body">Each message is saved as a transaction with the amount, category and date read from it. Ones already in your ledger are skipped, and nothing is removed from this inbox. You can change or delete them later from the Transactions screen.</string>
     <string name="label_sms_inbox_edit_title">Edit before adding</string>
     <string name="label_sms_inbox_edit_amount">Amount</string>
     <string name="label_sms_inbox_edit_note">Note (optional)</string>
@@ -825,12 +831,9 @@
         <item quantity="other">Detected transactions, %1$d unread</item>
     </plurals>
     <string name="action_add">Add</string>
-    <string name="action_add_all">Add all</string>
     <string name="action_ignore">Ignore</string>
     <string name="action_delete">Delete</string>
-    <string name="action_delete_selected">Delete selected</string>
-    <string name="action_select_all">Select all</string>
-    <string name="action_clear_selection">Clear</string>
+    <string name="action_add_all">Add all</string>
     <string name="action_clear_all">Clear all</string>
     <string name="action_cancel">Cancel</string>
     <string name="msg_sms_inbox_added">Added %1$d detected transaction</string>

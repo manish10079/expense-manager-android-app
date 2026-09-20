@@ -32,6 +32,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Deselect
+import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.PlaylistAddCheck
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +45,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -64,7 +70,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.contentDescription
@@ -87,13 +95,13 @@ import com.mknlabs.expensetracker.sms.SmsConfidence
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.TransactionDateHeader
 import com.mknlabs.expensetracker.ui.horizontalSwipe
-import com.mknlabs.expensetracker.ui.theme.AvatarTints
 import com.mknlabs.expensetracker.ui.theme.BadgeExpenseRed
 import com.mknlabs.expensetracker.ui.theme.BadgeIncomeGreen
 import com.mknlabs.expensetracker.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.transparent
 import com.mknlabs.expensetracker.utils.UiText
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -211,7 +219,9 @@ fun SmsInboxRoute(
         onSelectAll = viewModel::onSelectAll,
         onClearSelection = viewModel::onClearSelection,
         onAdd = viewModel::onAddDetection,
-        onAddAll = viewModel::onAddAllActionable,
+        onAddAll = viewModel::onRequestAddAll,
+        onCancelAddAll = viewModel::onCancelAddAll,
+        onConfirmAddAll = viewModel::onConfirmAddAll,
         onEditBeforeAdd = viewModel::onOpenEditor,
         onRequestDelete = viewModel::onRequestDelete,
         onRequestDeleteSelected = viewModel::onRequestDeleteSelected,
@@ -248,6 +258,8 @@ private fun SmsInboxContent(
     onClearSelection: () -> Unit = {},
     onAdd: (String) -> Unit = {},
     onAddAll: () -> Unit = {},
+    onCancelAddAll: () -> Unit = {},
+    onConfirmAddAll: () -> Unit = {},
     onEditBeforeAdd: (SmsInboxItemUi) -> Unit = {},
     onRequestDelete: (String) -> Unit = {},
     onRequestDeleteSelected: () -> Unit = {},
@@ -268,12 +280,15 @@ private fun SmsInboxContent(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (uiState.isSelectionMode) {
+                // Every row on screen counts as selected -> the chip offers deselect-all.
+                val allSelected = uiState.detections.let { it.isNotEmpty() && it.all { row -> row.id in uiState.selectedIds } }
                 BulkActionBar(
                     selectedCount = uiState.selectedIds.size,
-                    onSelectAll = onSelectAll,
+                    allSelected = allSelected,
+                    onClose = onClearSelection,
+                    onToggleSelectAll = { if (allSelected) onClearSelection() else onSelectAll() },
                     onAddAll = onAddAll,
-                    onDelete = onRequestDeleteSelected,
-                    onClear = onClearSelection
+                    onDelete = onRequestDeleteSelected
                 )
             }
         },
@@ -351,6 +366,35 @@ private fun SmsInboxContent(
             },
             dismissButton = {
                 TextButton(onClick = onCancelDelete) {
+                    Text(stringResource(id = R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    // Bulk add writes real transactions for a whole screen at once and has no undo, so the
+    // count and the consequences are confirmed before anything is written.
+    if (uiState.pendingAddAllIds.isNotEmpty()) {
+        val pendingCount = uiState.pendingAddAllIds.size
+        AlertDialog(
+            onDismissRequest = onCancelAddAll,
+            title = {
+                Text(
+                    pluralStringResource(
+                        R.plurals.label_sms_inbox_add_all_title,
+                        pendingCount,
+                        pendingCount
+                    )
+                )
+            },
+            text = { Text(stringResource(id = R.string.label_sms_inbox_add_all_body)) },
+            confirmButton = {
+                TextButton(onClick = onConfirmAddAll) {
+                    Text(stringResource(id = R.string.action_add_all))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onCancelAddAll) {
                     Text(stringResource(id = R.string.action_cancel))
                 }
             }
@@ -860,14 +904,8 @@ private fun DetectionCard(
             .clip(RoundedCornerShape(12.dp))
             .background(rowBackground)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        // The avatar leads the row, so the text column hangs off its top edge.
-        verticalAlignment = Alignment.Top
+            .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
-        SenderAvatar(title = item.title)
-
-        Spacer(modifier = Modifier.width(14.dp))
-
         Column(modifier = Modifier.weight(1f)) {
             // Who it came from, and when. The clock is a time and nothing more: the list is
             // already grouped into days, so a date here would only repeat the separator.
@@ -981,33 +1019,6 @@ private fun DetectionCard(
     }
 }
 
-/**
- * The sender's initial on a pastel disc.
- *
- * There are no merchant logo assets in the project, so the disc is the identifier: its
- * tint is derived from the name, so one sender always looks the same while two senders
- * next to each other usually do not.
- */
-@Composable
-private fun SenderAvatar(title: String) {
-    val initial = title.trim().firstOrNull()?.uppercase() ?: "?"
-    val (tint, onTint) = AvatarTints[avatarTintIndex(title, AvatarTints.size)]
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
-            .background(tint),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initial,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = onTint
-        )
-    }
-}
-
 /** The currency mark beside an amount: money in is green, money out is red. */
 @Composable
 private fun AmountBadge(isIncome: Boolean, symbol: String) {
@@ -1028,61 +1039,120 @@ private fun AmountBadge(isIncome: Boolean, symbol: String) {
 }
 
 /**
- * Which pastel a sender's avatar takes.
- *
- * Derived from the name rather than random, so a row cannot change colour as the list
- * scrolls or as older detections are paged in. Kotlin's `%` keeps the sign of the
- * dividend, so a negative hash is folded back into range rather than indexing below zero.
- */
-internal fun avatarTintIndex(name: String, paletteSize: Int): Int {
-    if (paletteSize <= 0) return 0
-    return ((name.hashCode() % paletteSize) + paletteSize) % paletteSize
-}
-
-/**
  * The bar shown while rows are selected.
  *
  * It only offers what a selection is for now: everything here is either "act on all of
  * these" (add) or destructive (delete). Marking read left the bar along with the status
  * words — a card is read as soon as it is on screen, so there is nothing left to mark.
+ *
+ * Laid out in the same visual language as [SelectionHeader] so bulk selection looks the
+ * same everywhere in the app, with one action the inbox needs on top: "Add all". The
+ * select-all chip is a toggle — once every row on screen is selected it becomes a
+ * deselect-all chip, so one corner both takes and releases the whole list.
  */
 @Composable
 private fun BulkActionBar(
     selectedCount: Int,
-    onSelectAll: () -> Unit,
+    allSelected: Boolean,
+    onClose: () -> Unit,
+    onToggleSelectAll: () -> Unit,
     onAddAll: () -> Unit,
-    onDelete: () -> Unit,
-    onClear: () -> Unit
+    onDelete: () -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
         shadowElevation = 8.dp
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(id = R.string.label_sms_inbox_selected, selectedCount),
-                    style = MaterialTheme.typography.labelLarge
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_exit_selection),
+                    tint = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = onClear) {
-                    Text(stringResource(id = R.string.action_clear_selection))
-                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onSelectAll) {
-                    Text(stringResource(id = R.string.action_select_all))
-                }
-                TextButton(onClick = onAddAll) {
-                    Text(stringResource(id = R.string.action_add_all))
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = onDelete) {
-                    Text(stringResource(id = R.string.action_delete_selected))
-                }
-            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = stringResource(R.string.label_val_selected, selectedCount),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Select all <-> deselect all.
+            BulkActionChip(
+                onClick = onToggleSelectAll,
+                icon = if (allSelected) Icons.Rounded.Deselect else Icons.Rounded.DoneAll,
+                contentDescription = stringResource(
+                    if (allSelected) R.string.desc_deselect_all else R.string.desc_select_all
+                ),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            BulkActionChip(
+                onClick = onAddAll,
+                icon = Icons.Rounded.PlaylistAddCheck,
+                contentDescription = stringResource(R.string.desc_add_all),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            BulkActionChip(
+                onClick = onDelete,
+                icon = Icons.Rounded.Delete,
+                contentDescription = stringResource(R.string.desc_delete_selected),
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.error
+            )
         }
+    }
+}
+
+/**
+ * One circular, tonal icon button in the bulk bar.
+ *
+ * Shared by every action so the three of them are guaranteed to match in size and
+ * rhythm; only the colours differ to say which one is destructive.
+ */
+@Composable
+private fun BulkActionChip(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    contentDescription: String,
+    containerColor: Color,
+    contentColor: Color
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(28.dp)
+            .background(containerColor.copy(alpha = 0.3f), CircleShape)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = contentColor,
+            modifier = Modifier.size(18.dp)
+        )
     }
 }
 
