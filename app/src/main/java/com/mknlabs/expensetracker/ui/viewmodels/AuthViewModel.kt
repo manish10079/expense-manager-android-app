@@ -11,7 +11,6 @@ import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.utils.GoogleAuthHelper
 import com.mknlabs.expensetracker.utils.NetworkMonitor
-import com.mknlabs.expensetracker.utils.ProfilePhotoManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -591,22 +590,18 @@ class AuthViewModel @Inject constructor(
 
     fun signOut() {
         viewModelScope.launch {
-            // 1. Delete profile photo if any
+            // 1. Drop only what the account owned: the email address and the provider that
+            //    marks the app as signed in. The name, photo and gender deliberately stay,
+            //    so the device keeps showing who was using it while the profile card
+            //    invites signing back in. The managed photo file is left on disk for the
+            //    same reason — deleting it would turn the card back into a stranger.
             try {
-                val currentProfile = UserProfileDataStore.getUserProfileFlow(context).first()
-                ProfilePhotoManager.deleteManagedPhoto(currentProfile.photoUri)
+                UserProfileDataStore.clearAccountIdentity(context)
             } catch (e: Exception) {
-                android.util.Log.e("AuthViewModel", "Failed to delete managed profile photo: ${e.message}", e)
+                android.util.Log.e("AuthViewModel", "Failed to clear the account identity: ${e.message}", e)
             }
 
-            // 2. Clear local profile info (sets to defaultUserProfile)
-            try {
-                UserProfileDataStore.clearAll(context)
-            } catch (e: Exception) {
-                android.util.Log.e("AuthViewModel", "Failed to clear UserProfileDataStore: ${e.message}", e)
-            }
-
-            // 3. Reset Tier and Ad Access
+            // 2. Reset Tier and Ad Access
             try {
                 AppSettingsDataStore.updateUserTier(context, com.mknlabs.expensetracker.models.UserTier.FREE)
                 MonetizationDataStore.updateGlobalAdAccessExpiry(context, 0L)
@@ -614,7 +609,7 @@ class AuthViewModel @Inject constructor(
                 android.util.Log.e("AuthViewModel", "Failed to reset Tier/Ad Access: ${e.message}", e)
             }
 
-            // 4. Reset App Settings specific fields: lastSyncTimeMillis = 0L, isCloudSyncEnabled = false
+            // 3. Reset App Settings specific fields: lastSyncTimeMillis = 0L, isCloudSyncEnabled = false
             try {
                 AppSettingsDataStore.updateAppSettings(context) { settings ->
                     settings.copy(
@@ -627,10 +622,10 @@ class AuthViewModel @Inject constructor(
                 android.util.Log.e("AuthViewModel", "Failed to reset app settings: ${e.message}", e)
             }
 
-            // 6. Sign out from Firebase Auth
+            // 4. Sign out from Firebase Auth
             authRepository.signOut()
 
-            // 7. Sign out from Google Auth Helper
+            // 5. Sign out from Google Auth Helper
             try {
                 googleAuthHelper.signOut()
             } catch (e: Exception) {

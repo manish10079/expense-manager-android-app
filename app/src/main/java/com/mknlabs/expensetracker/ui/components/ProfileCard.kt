@@ -37,6 +37,12 @@ import com.mknlabs.expensetracker.utils.toTitleCase
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * The tier chip ("PRO" / "FREE") is drawn at 90% of the label style and padding it borrows,
+ * so it reads as an aside beside the name rather than competing with it.
+ */
+private const val TIER_BADGE_SCALE = 0.9f
+
 @Composable
 fun ProfileCard(
     name: String,
@@ -81,10 +87,13 @@ fun ProfileCard(
         }
     }
 
+    // The sweep is meant to fade into whatever sits behind the card, so its two dark stops
+    // take the theme's background. They used to be a hardcoded black, which read as
+    // "invisible" on the dark palette but drew a black ring around the card in light mode.
     val brandColors = listOf(
         colorScheme.primary,
-        androidx.compose.ui.graphics.Color.Black,
-        androidx.compose.ui.graphics.Color.Black,
+        colorScheme.background,
+        colorScheme.background,
         colorScheme.primary
     )
 
@@ -145,10 +154,9 @@ fun ProfileCard(
                 backgroundColor = colorScheme.primary.copy(alpha = 0.1f),
                 userTier = userTier,
                 isSyncing = isSyncing,
-                isAnonymous = isAnonymous,
-                showBadge = isPremium,
-                badgeIconRes = com.mknlabs.expensetracker.R.drawable.ic_crown,
-                badgeContentDescription = stringResource(com.mknlabs.expensetracker.R.string.label_pro)
+                isAnonymous = isAnonymous
+                // No crown badge: the tier chip beside the name already says "PRO", and two
+                // markers for the same fact on one card is one too many.
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -167,19 +175,33 @@ fun ProfileCard(
                         modifier = Modifier.weight(1f, fill = false)
                     )
 
-                    if (!isAnonymous) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (isPremium) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = if (isPremium) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            Text(
-                                text = if (isPremium) stringResource(com.mknlabs.expensetracker.R.string.label_pro) else stringResource(com.mknlabs.expensetracker.R.string.label_free_tier),
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    // Shown even without an account: the tier is the very thing that changes
+                    // when a Pro user signs out, and hiding the chip hid the change with it.
+                    //
+                    // Glyph and padding both shrink, so the chip stays a true 90% copy of the
+                    // label style instead of a smaller word in a full-size box.
+                    val tierBadgeLabelStyle = MaterialTheme.typography.labelSmall
+                    val tierBadgeTextStyle = tierBadgeLabelStyle.copy(
+                        fontSize = tierBadgeLabelStyle.fontSize * TIER_BADGE_SCALE,
+                        lineHeight = tierBadgeLabelStyle.lineHeight * TIER_BADGE_SCALE
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isPremium) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = if (isPremium) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+                        Text(
+                            // "Pro" / "Free": the short pairing the chip has always used, so a
+                            // guest reads as a tier rather than as an error. Other screens keep
+                            // the longer "Free Tier" wording.
+                            text = if (isPremium) stringResource(com.mknlabs.expensetracker.R.string.label_pro) else stringResource(com.mknlabs.expensetracker.R.string.label_free),
+                            style = tierBadgeTextStyle,
+                            modifier = Modifier.padding(
+                                horizontal = 8.dp * TIER_BADGE_SCALE,
+                                vertical = 2.dp * TIER_BADGE_SCALE
                             )
-                        }
+                        )
                     }
                 }
                 Spacer(Modifier.padding(top = 5.dp))
@@ -194,7 +216,10 @@ fun ProfileCard(
                         text = subtext,
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (isAnonymous) MaterialTheme.colorScheme.primary else colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                        // The invitation is written as two lines of its own, so this is a cap
+                        // rather than a wrap: if a large font scale pushes one line over, the
+                        // card still stops at two instead of growing without limit.
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }

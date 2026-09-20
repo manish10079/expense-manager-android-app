@@ -1894,10 +1894,11 @@
     <string name="btn_change_password">Change Password</string>
 
     <!-- My Membership & Subscription Feature -->
-    <string name="label_tap_to_sync">Tap to back up data &amp; sync</string>
+    <string name="label_tap_to_sync">Sign in / sign up\nBack up &amp; sync</string>
     <string name="title_membership">My Membership</string>
     <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
     <string name="label_pro">Pro</string>
+    <string name="label_free">Free</string>
     <string name="label_pro_active">Pro Member</string>
     <string name="label_membership_benefits">MEMBERSHIP BENEFITS</string>
     <string name="label_pro_subscription_active">Pro Active</string>

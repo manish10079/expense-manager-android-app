@@ -148,4 +148,20 @@ object UserProfileDataStore {
     suspend fun clearAll(context: Context) {
         context.applicationContext.userProfileDataStore.edit { it.clear() }
     }
+
+    /**
+     * Drops only the account-bound part of the profile: the email that identifies the
+     * account and the provider that marks it as signed in.
+     *
+     * Used on sign-out, where the name, photo and gender are deliberately kept — the app
+     * should look like it stopped being backed up, not like it forgot who was using it.
+     * Clearing [Keys.authProvider] is what returns the app to its anonymous state (the
+     * backup invitation on the profile card, and the auth sheet when it is tapped).
+     */
+    suspend fun clearAccountIdentity(context: Context) {
+        context.applicationContext.userProfileDataStore.edit { preferences ->
+            preferences.remove(Keys.emailAddress)
+            preferences.remove(Keys.authProvider)
+        }
+    }
 }

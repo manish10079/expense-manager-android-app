@@ -256,16 +256,10 @@ fun SettingsScreenContent(
                     item {
                         val accountSecurityItems = mutableListOf<SettingsRowData>()
 
-                        if (isAnonymous) {
-                            accountSecurityItems.add(
-                                SettingsRowData(
-                                    titleRes = R.string.title_protect_your_data,
-                                    subtitleRes = R.string.msg_link_account_desc,
-                                    icon = Icons.AutoMirrored.Filled.ExitToApp,
-                                    onClick = onLinkAccountClick
-                                )
-                            )
-                        } else {
+                        // There is no "Sign up / Sign In" row any more: the profile card above
+                        // is the way in — it opens the auth sheet whenever there is no account
+                        // — so a second invitation a few rows down only said it twice.
+                        if (!isAnonymous) {
                             accountSecurityItems.add(
                                 SettingsRowData(
                                     titleRes = R.string.label_edit_profile,
