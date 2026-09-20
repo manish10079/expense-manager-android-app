@@ -73,21 +73,21 @@ class AppLockHardeningTest {
     // --- Lockout duration escalation --------------------------------------
 
     @Test
-    fun lockoutDuration_block0_is30Seconds() {
-        assertEquals(30_000L, AppLockPreferences.computeLockoutDurationMillis(0))
+    fun lockoutDuration_block0_is60Seconds() {
+        assertEquals(60_000L, AppLockPreferences.computeLockoutDurationMillis(0))
     }
 
     @Test
     fun lockoutDuration_doublesPerBlock() {
-        assertEquals(30_000L, AppLockPreferences.computeLockoutDurationMillis(0))
-        assertEquals(60_000L, AppLockPreferences.computeLockoutDurationMillis(1))
-        assertEquals(120_000L, AppLockPreferences.computeLockoutDurationMillis(2))
-        assertEquals(240_000L, AppLockPreferences.computeLockoutDurationMillis(3))
+        assertEquals(60_000L, AppLockPreferences.computeLockoutDurationMillis(0))
+        assertEquals(120_000L, AppLockPreferences.computeLockoutDurationMillis(1))
+        assertEquals(240_000L, AppLockPreferences.computeLockoutDurationMillis(2))
+        assertEquals(480_000L, AppLockPreferences.computeLockoutDurationMillis(3))
     }
 
     @Test
     fun lockoutDuration_capsAt15Minutes() {
-        // 30s << 10 = 30,720s — must be capped at 15 min.
+        // 60s << 10 = 61,440s — must be capped at 15 min.
         assertEquals(15 * 60_000L, AppLockPreferences.computeLockoutDurationMillis(10))
         assertEquals(15 * 60_000L, AppLockPreferences.computeLockoutDurationMillis(50))
     }

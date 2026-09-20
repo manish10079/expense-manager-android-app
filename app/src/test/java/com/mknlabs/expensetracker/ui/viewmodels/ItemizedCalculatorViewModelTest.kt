@@ -56,15 +56,17 @@ class ItemizedCalculatorViewModelTest {
     }
 
     @Test
-    fun `backspace after equals edits the expression instead of wiping it`() = runTest {
+    fun `backspace after equals edits the result and re-enables input`() = runTest {
         listOf("1", "0", "+", "5", "=").forEach { viewModel.handleNormalAction(it) }
         assertEquals("15", viewModel.uiState.value.normalDisplay)
         assertTrue(viewModel.uiState.value.shouldResetNormalDisplay)
 
         viewModel.handleNormalAction("BACKSPACE")
 
-        assertEquals("10 +", viewModel.uiState.value.normalRawExpression)
-        assertEquals("10", viewModel.uiState.value.normalDisplay)
+        // Equals collapses the expression to a single result token ("15"), so
+        // backspace edits that result rather than restoring "10 + 5".
+        assertEquals("1", viewModel.uiState.value.normalRawExpression)
+        assertEquals("1", viewModel.uiState.value.normalDisplay)
         assertTrue(!viewModel.uiState.value.shouldResetNormalDisplay)
     }
 
@@ -124,7 +126,8 @@ class ItemizedCalculatorViewModelTest {
     fun `restoreHistoryExpression restores full expression string and evaluates display`() = runTest {
         viewModel.restoreHistoryExpression("1,250 × 450")
 
-        assertEquals("1,250 × 450", viewModel.uiState.value.normalRawExpression)
+        // normalRawExpression is the evaluator's ASCII form (no separators/spaces).
+        assertEquals("1250*450", viewModel.uiState.value.normalRawExpression)
         assertEquals("562,500", viewModel.uiState.value.normalDisplay)
     }
 
