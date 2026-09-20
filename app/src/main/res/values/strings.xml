@@ -796,8 +796,10 @@
     <string name="label_sms_inbox_filter_added">Added</string>
     <string name="label_sms_inbox_filter_ignored">Ignored</string>
     <string name="label_sms_inbox_filter_unread">Unread</string>
-    <string name="label_sms_inbox_income">INCOME</string>
-    <string name="label_sms_inbox_expense">EXPENSE</string>
+    <string name="label_sms_inbox_income">income</string>
+    <string name="label_sms_inbox_expense">expense</string>
+    <string name="label_sms_inbox_income_amount">%1$s income</string>
+    <string name="label_sms_inbox_expense_amount">%1$s expense</string>
     <!-- No status words: a card says what it came from, never which stage of its private
          lifecycle it is in. "Seen" happens by itself once a card is on screen. -->
     <string name="label_sms_inbox_card_hint">Tap a card to open it in the Add Transaction screen, edit it if needed, then press Add.</string>
@@ -805,9 +807,6 @@
     <string name="label_sms_inbox_confidence_high">High confidence</string>
     <string name="label_sms_inbox_confidence_medium">Medium confidence</string>
     <string name="label_sms_inbox_confidence_low">Low confidence</string>
-    <string name="label_sms_inbox_confidence_high_percent">High confidence (90%)</string>
-    <string name="label_sms_inbox_confidence_medium_percent">Medium confidence (60%)</string>
-    <string name="label_sms_inbox_confidence_low_percent">Low confidence (30%)</string>
     <string name="label_sms_inbox_selected">%1$d selected</string>
     <string name="label_sms_inbox_empty_title">No detected transactions yet</string>
     <string name="label_sms_inbox_empty_filtered_title">Nothing here</string>

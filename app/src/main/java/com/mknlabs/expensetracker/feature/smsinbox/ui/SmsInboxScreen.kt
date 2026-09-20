@@ -8,7 +8,6 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,8 +34,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -70,6 +67,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -88,8 +87,12 @@ import com.mknlabs.expensetracker.sms.SmsConfidence
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.TransactionDateHeader
 import com.mknlabs.expensetracker.ui.horizontalSwipe
+import com.mknlabs.expensetracker.ui.theme.AvatarTints
+import com.mknlabs.expensetracker.ui.theme.BadgeExpenseRed
+import com.mknlabs.expensetracker.ui.theme.BadgeIncomeGreen
+import com.mknlabs.expensetracker.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.ui.theme.transparent
 import com.mknlabs.expensetracker.utils.UiText
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
@@ -109,6 +112,8 @@ fun SmsInboxRoute(
     amountFormatPreferences: AmountFormatPreferences,
     /** The user's own date format, which the day separators follow. */
     dateFormatPattern: String,
+    /** The user's own time format, which each row's own clock follows. */
+    timeFormat: String,
     onBackClick: () -> Unit,
     /**
      * A live detection was tapped: open the Add Transaction screen prefilled with it. The
@@ -133,12 +138,13 @@ fun SmsInboxRoute(
 
     // The ViewModel formats amounts and resolves category names, so it needs the same
     // currency + formatting context the rest of the app renders with.
-    LaunchedEffect(categories, currencyId, amountFormatPreferences, dateFormatPattern) {
+    LaunchedEffect(categories, currencyId, amountFormatPreferences, dateFormatPattern, timeFormat) {
         viewModel.updateDisplayContext(
             categories = categories,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
-            dateFormatPattern = dateFormatPattern
+            dateFormatPattern = dateFormatPattern,
+            timeFormat = timeFormat
         )
     }
 
@@ -730,6 +736,10 @@ private fun SwipeToDeleteCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                // A row is flat, so the hint behind it needs something opaque to hide
+                // behind. The card used to be that; without this the delete label would
+                // show through the row as it slides.
+                .background(MaterialTheme.colorScheme.background)
                 .graphicsLayer {
                     // Undamped while flying out: the card must clear the screen edge,
                     // not stop at the reveal point the drag is limited to.
@@ -788,6 +798,15 @@ private fun SwipeDeleteHint(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * One detection, laid out as a flat row.
+ *
+ * The shape follows the sender rather than the app chrome: a pastel initial disc, then
+ * the name with the clock on the same line, the amount under it with its currency in a
+ * badge, and the parser's guesses — category, then the message itself — below that. No
+ * border, no container and no chips, so the eye runs down the avatar column and the list
+ * reads as one column of text.
+ */
 @Composable
 private fun DetectionCard(
     item: SmsInboxItemUi,
@@ -810,117 +829,139 @@ private fun DetectionCard(
         }
     }
 
-    val container = when {
-        item.isSelected -> MaterialTheme.colorScheme.secondaryContainer
-        isFocused -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surface
+    // The entrance is decided once, at first composition: the ViewModel clears the arrival
+    // flag as soon as the row has been reported seen, so following it live would cut the
+    // animation off on its first frame.
+    val playsArrival = remember { isArriving }
+    val arrival = remember { Animatable(if (playsArrival) 0f else 1f) }
+    LaunchedEffect(Unit) {
+        if (playsArrival) {
+            arrival.animateTo(1f, tween(ARRIVAL_ANIMATION_MS, easing = FastOutSlowInEasing))
+        }
     }
 
-    Card(
+    val rowBackground = when {
+        item.isSelected -> MaterialTheme.colorScheme.secondaryContainer
+        isFocused -> MaterialTheme.colorScheme.primaryContainer
+        else -> transparent
+    }
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
-        colors = CardDefaults.cardColors(containerColor = container),
-        border = if (isFocused) {
-            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-        } else {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Header: Icon + Sender Name & Confidence Level (Left) | Amount & Type Pill (Right)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                MerchantAvatar(title = item.title)
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    // Just under sender number or name: confidence level with percentage
-                    ConfidenceText(confidence = item.confidence)
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = if (item.isIncome) "+${item.amountText}" else "-${item.amountText}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (item.isIncome) IncomeGreen else MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TypeChip(isIncome = item.isIncome)
-                }
+            .graphicsLayer {
+                val entrance = arrival.value
+                alpha = ARRIVAL_START_ALPHA + (1f - ARRIVAL_START_ALPHA) * entrance
+                val scale = ARRIVAL_START_SCALE + (1f - ARRIVAL_START_SCALE) * entrance
+                scaleX = scale
+                scaleY = scale
+                translationY = -ARRIVAL_SLIDE_DP.dp.toPx() * (1f - entrance)
             }
+            .clip(RoundedCornerShape(12.dp))
+            .background(rowBackground)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        // The avatar leads the row, so the text column hangs off its top edge.
+        verticalAlignment = Alignment.Top
+    ) {
+        SenderAvatar(title = item.title)
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
 
-            // Sub-header: Suggested Category & Time
+        Column(modifier = Modifier.weight(1f)) {
+            // Who it came from, and when. The clock is a time and nothing more: the list is
+            // already grouped into days, so a date here would only repeat the separator.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                ) {
-                    Text(
-                        text = item.categoryLabel.asString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = item.timeText,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Message Body: Inset Surface for full message clarity
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+            // The money line: the currency rides in the badge, coloured by which way the
+            // money went, so the number beside it can stay plain text.
+            val amountDescription = stringResource(
+                id = if (item.isIncome) {
+                    R.string.label_sms_inbox_income_amount
+                } else {
+                    R.string.label_sms_inbox_expense_amount
+                },
+                item.amountText
+            )
+            Row(
+                modifier = Modifier.semantics(mergeDescendants = true) {
+                    // Badge, number and verb are one fact when read aloud, and the full
+                    // formatted amount is what it should say — symbol included.
+                    contentDescription = amountDescription
+                },
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                AmountBadge(isIncome = item.isIncome, symbol = item.currencySymbol)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = item.messagePreview,
+                    text = item.amountValueText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = stringResource(
+                        id = if (item.isIncome) {
+                            R.string.label_sms_inbox_income
+                        } else {
+                            R.string.label_sms_inbox_expense
+                        }
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(10.dp)
+                    maxLines = 1
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Action Row: Delete Button
+            // The parser's guess, said plainly: it is a starting point for the Add screen,
+            // not a decision the user has made here.
+            Text(
+                text = item.categoryLabel.asString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = item.messagePreview,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // The row's only button. Adding is what tapping the row does now, and ignoring
+            // lives on the notification; deleting has nowhere else to live.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -940,71 +981,62 @@ private fun DetectionCard(
     }
 }
 
-/** Initial-based avatar: no merchant logo assets exist in the project. */
+/**
+ * The sender's initial on a pastel disc.
+ *
+ * There are no merchant logo assets in the project, so the disc is the identifier: its
+ * tint is derived from the name, so one sender always looks the same while two senders
+ * next to each other usually do not.
+ */
 @Composable
-private fun MerchantAvatar(title: String) {
+private fun SenderAvatar(title: String) {
     val initial = title.trim().firstOrNull()?.uppercase() ?: "?"
+    val (tint, onTint) = AvatarTints[avatarTintIndex(title, AvatarTints.size)]
     Box(
         modifier = Modifier
-            .size(42.dp)
+            .size(56.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer),
+            .background(tint),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = initial,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = onTint
         )
     }
 }
 
+/** The currency mark beside an amount: money in is green, money out is red. */
 @Composable
-private fun TypeChip(isIncome: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = if (isIncome) {
-            IncomeGreen.copy(alpha = 0.15f)
-        } else {
-            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
-        }
+private fun AmountBadge(isIncome: Boolean, symbol: String) {
+    Box(
+        modifier = Modifier
+            .size(18.dp)
+            .clip(CircleShape)
+            .background(if (isIncome) BadgeIncomeGreen else BadgeExpenseRed),
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(
-                id = if (isIncome) R.string.label_sms_inbox_income else R.string.label_sms_inbox_expense
-            ),
+            text = symbol,
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = if (isIncome) {
-                IncomeGreen
-            } else {
-                MaterialTheme.colorScheme.onErrorContainer
-            },
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            color = BadgeOnColor,
+            maxLines = 1
         )
     }
 }
 
-/** Confidence level with percentage text (no pill or progress bar). */
-@Composable
-private fun ConfidenceText(confidence: SmsConfidence) {
-    val labelRes = when (confidence) {
-        SmsConfidence.HIGH -> R.string.label_sms_inbox_confidence_high_percent
-        SmsConfidence.MEDIUM -> R.string.label_sms_inbox_confidence_medium_percent
-        SmsConfidence.LOW -> R.string.label_sms_inbox_confidence_low_percent
-    }
-    val color = when (confidence) {
-        SmsConfidence.HIGH -> MaterialTheme.colorScheme.primary
-        SmsConfidence.MEDIUM -> MaterialTheme.colorScheme.secondary
-        SmsConfidence.LOW -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    Text(
-        text = stringResource(id = labelRes),
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Medium,
-        color = color
-    )
+/**
+ * Which pastel a sender's avatar takes.
+ *
+ * Derived from the name rather than random, so a row cannot change colour as the list
+ * scrolls or as older detections are paged in. Kotlin's `%` keeps the sign of the
+ * dividend, so a negative hash is folded back into range rather than indexing below zero.
+ */
+internal fun avatarTintIndex(name: String, paletteSize: Int): Int {
+    if (paletteSize <= 0) return 0
+    return ((name.hashCode() % paletteSize) + paletteSize) % paletteSize
 }
 
 /**
@@ -1172,8 +1204,10 @@ private val previewItems = listOf(
         id = "1",
         title = "Swiggy",
         amountText = "₹450.00",
+        amountValueText = "450.00",
+        currencySymbol = "₹",
         isIncome = false,
-        timeText = "18 Sep, 9:20 pm",
+        timeText = "9:20 pm",
         messagePreview = "Rs.450 debited from A/c XX1234 to VPA swiggy@ybl. Avl Bal Rs.12,000",
         categoryLabel = UiText.res(R.string.label_sms_inbox_category, "Food"),
         confidence = SmsConfidence.HIGH,
@@ -1192,8 +1226,10 @@ private val previewItems = listOf(
         id = "2",
         title = "VM-HDFCBK",
         amountText = "₹25,000.00",
+        amountValueText = "25,000.00",
+        currencySymbol = "₹",
         isIncome = true,
-        timeText = "18 Sep, 10:02 am",
+        timeText = "10:02 am",
         messagePreview = "Rs.25000 credited to A/c XX1234 by salary",
         categoryLabel = UiText.res(R.string.label_sms_inbox_category, "Salary"),
         confidence = SmsConfidence.MEDIUM,

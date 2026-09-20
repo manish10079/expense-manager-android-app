@@ -26,6 +26,40 @@ val DividerDark = Color(0xFF2A2A2A)
 val IncomeGreen = Color(0xFF81C784)
 val ExpenseRed = Color(0xFFFF7D7D)
 
+// Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
+// themes, which the pastel income/expense tones above are too light to do.
+val BadgeIncomeGreen = Color(0xFF1E8E3E)
+val BadgeExpenseRed = Color(0xFFC5221F)
+
+/** The glyph on those two: fixed white, since the fills are the same in both themes. */
+val BadgeOnColor = Color(0xFFFFFFFF)
+
+// Inbox row avatars: soft tints, each paired with a glyph colour of the same hue that
+// stays readable on it. A row picks by sender, so any one sender keeps its own colour
+// while two senders side by side rarely share one.
+val AvatarPastelPink = Color(0xFFF7D9DE)
+val AvatarPastelPinkOn = Color(0xFF8E2C46)
+val AvatarPastelLavender = Color(0xFFDEDCF8)
+val AvatarPastelLavenderOn = Color(0xFF4B3F9E)
+val AvatarPastelMint = Color(0xFFD2EFE6)
+val AvatarPastelMintOn = Color(0xFF1F6B57)
+val AvatarPastelSand = Color(0xFFF7E6C8)
+val AvatarPastelSandOn = Color(0xFF8A5B12)
+val AvatarPastelSky = Color(0xFFD6E7F8)
+val AvatarPastelSkyOn = Color(0xFF20527F)
+val AvatarPastelPeach = Color(0xFFF9DDCC)
+val AvatarPastelPeachOn = Color(0xFF8C4622)
+
+/** The avatar tints, in the order rows pick from: background first, glyph second. */
+val AvatarTints: List<Pair<Color, Color>> = listOf(
+    AvatarPastelPink to AvatarPastelPinkOn,
+    AvatarPastelLavender to AvatarPastelLavenderOn,
+    AvatarPastelMint to AvatarPastelMintOn,
+    AvatarPastelSand to AvatarPastelSandOn,
+    AvatarPastelSky to AvatarPastelSkyOn,
+    AvatarPastelPeach to AvatarPastelPeachOn
+)
+
 val PurplePrimaryLight = Color(0xFF6A4DFF)
 val PurpleAccentLight = Color(0xFF8C6DFF)
 

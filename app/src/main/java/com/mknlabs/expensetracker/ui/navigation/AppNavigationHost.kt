@@ -318,6 +318,7 @@ fun AppNavigationHost(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Home)

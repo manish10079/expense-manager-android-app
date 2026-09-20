@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.smsinbox.ui
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.DetectedSmsNotification
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.EXPENSE_TRANSACTION_TYPE_ID
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.INCOME_TRANSACTION_TYPE_ID
@@ -82,7 +83,8 @@ class SmsInboxViewModelTest {
             categories = emptyList(),
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = TEST_DATE_PATTERN
+            dateFormatPattern = TEST_DATE_PATTERN,
+            timeFormat = DEFAULT_TIME_FORMAT
         )
     }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.domain.mapper.getStartOfDayTimestamp
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.DetectedSmsNotification
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
@@ -24,13 +25,13 @@ import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.formatNumberValue
+import com.mknlabs.expensetracker.utils.formatTime
+import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getDayName
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -57,6 +58,16 @@ data class SmsInboxItemUi(
     val id: String,
     val title: String,
     val amountText: String,
+    /**
+     * The amount with no currency symbol in it.
+     *
+     * A row's badge already carries the symbol, so prefixing the number with it too would
+     * read as "₹ ₹450". The full [amountText] is what the money line announces to a
+     * screen reader, so the badge's symbol and the number are heard as one amount.
+     */
+    val amountValueText: String,
+    /** The active currency's symbol, as shown in the row's inline amount badge. */
+    val currencySymbol: String,
     val isIncome: Boolean,
     val timeText: String,
     val messagePreview: String,
@@ -324,13 +335,15 @@ class SmsInboxViewModel @Inject constructor(
         categories: List<CategoryType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
-        dateFormatPattern: String
+        dateFormatPattern: String,
+        timeFormat: String
     ) {
         display.value = DisplayContext(
             categoryNames = categories.associate { it.id to it.name },
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
-            dateFormatPattern = dateFormatPattern
+            dateFormatPattern = dateFormatPattern,
+            timeFormat = timeFormat
         )
     }
 
@@ -730,7 +743,8 @@ class SmsInboxViewModel @Inject constructor(
         val categoryNames: Map<Int, String> = emptyMap(),
         val currencyId: Int = DEFAULT_CURRENCY_ID,
         val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
-        val dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
+        val dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+        val timeFormat: String = DEFAULT_TIME_FORMAT
     )
 
     private data class Projection(
@@ -754,8 +768,15 @@ class SmsInboxViewModel @Inject constructor(
             currencyId = context.currencyId,
             amountFormatPreferences = context.amountFormatPreferences
         ),
+        amountValueText = formatNumberValue(
+            amount = kotlin.math.abs(amountMinor.toMajorUnits()),
+            amountFormatPreferences = context.amountFormatPreferences
+        ),
+        currencySymbol = getCurrency(context.currencyId).currencySymbol,
         isIncome = isIncome,
-        timeText = TIME_FORMAT.format(Date(detectedAt)),
+        // The clock only: the list already groups rows by day, so the date would be
+        // repeated on every row of the same separator.
+        timeText = formatTime(detectedAt, context.timeFormat),
         // Collapse the bank's line breaks and padding so the card shows one tidy line.
         messagePreview = messageBody.replace(WHITESPACE, " ").trim(),
         categoryLabel = UiText.res(
@@ -787,9 +808,6 @@ class SmsInboxViewModel @Inject constructor(
 
         /** Used to compare days when naming a date separator. */
         const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
-
-        /** Detection times are shown to the minute; the year adds nothing at a glance. */
-        val TIME_FORMAT = SimpleDateFormat("d MMM, h:mm a", Locale.getDefault())
 
         val WHITESPACE = Regex("""\s+""")
     }
