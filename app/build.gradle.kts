@@ -20,7 +20,7 @@ android {
         targetSdk = 36
         versionCode = 246
 
-        versionName = "2.115.3"
+        versionName = "2.115.4"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -121,7 +121,9 @@ android {
         }
         // Room migration tests read the exported schema JSONs from assets.
         getByName("androidTest") {
-            assets.srcDirs("$projectDir/schemas")
+            assets {
+                directories.add("$projectDir/schemas")
+            }
         }
     }
     testOptions {

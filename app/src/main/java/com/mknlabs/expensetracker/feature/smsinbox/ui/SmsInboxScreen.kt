@@ -1068,7 +1068,7 @@ private fun BulkActionBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .padding(horizontal = 4.dp),
+                .padding(start = 8.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -1082,7 +1082,7 @@ private fun BulkActionBar(
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             Text(
                 text = stringResource(R.string.label_val_selected, selectedCount),
@@ -1100,27 +1100,24 @@ private fun BulkActionBar(
                 contentDescription = stringResource(
                     if (allSelected) R.string.desc_deselect_all else R.string.desc_select_all
                 ),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 contentColor = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             BulkActionChip(
                 onClick = onAddAll,
                 icon = Icons.Rounded.PlaylistAddCheck,
                 contentDescription = stringResource(R.string.desc_add_all),
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                contentColor = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             BulkActionChip(
                 onClick = onDelete,
                 icon = Icons.Rounded.Delete,
                 contentDescription = stringResource(R.string.desc_delete_selected),
-                containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.error
             )
         }
@@ -1128,30 +1125,24 @@ private fun BulkActionBar(
 }
 
 /**
- * One circular, tonal icon button in the bulk bar.
- *
- * Shared by every action so the three of them are guaranteed to match in size and
- * rhythm; only the colours differ to say which one is destructive.
+ * One icon button in the bulk bar (no background container).
  */
 @Composable
 private fun BulkActionChip(
     onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String,
-    containerColor: Color,
     contentColor: Color
 ) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier
-            .size(28.dp)
-            .background(containerColor.copy(alpha = 0.3f), CircleShape)
+        modifier = Modifier.size(36.dp)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = contentColor,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(22.dp)
         )
     }
 }
@@ -1189,9 +1180,6 @@ private fun SmsInboxFilter.label(): String = stringResource(
         SmsInboxFilter.ALL -> R.string.label_sms_inbox_filter_all
         SmsInboxFilter.INCOME -> R.string.label_sms_inbox_filter_income
         SmsInboxFilter.EXPENSE -> R.string.label_sms_inbox_filter_expense
-        SmsInboxFilter.ADDED -> R.string.label_sms_inbox_filter_added
-        SmsInboxFilter.IGNORED -> R.string.label_sms_inbox_filter_ignored
-        SmsInboxFilter.UNREAD -> R.string.label_sms_inbox_filter_unread
     }
 )
 

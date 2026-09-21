@@ -49,19 +49,11 @@ enum class SmsDetectionSource {
 enum class SmsInboxFilter {
     ALL,
     INCOME,
-    EXPENSE,
-    ADDED,
-    IGNORED,
-    UNREAD;
+    EXPENSE;
 
     /** Status constraint for this filter, or null when the filter is not status-based. */
     val status: SmsInboxStatus?
-        get() = when (this) {
-            ADDED -> SmsInboxStatus.ADDED
-            IGNORED -> SmsInboxStatus.IGNORED
-            UNREAD -> SmsInboxStatus.NEW
-            else -> null
-        }
+        get() = null
 
     /** Transaction type constraint for this filter, or null when it is not type-based. */
     val transactionTypeId: Int?
@@ -74,17 +66,9 @@ enum class SmsInboxFilter {
     /**
      * True for the filters that show the inbox's own job: detections still waiting for a
      * decision.
-     *
-     * A filed or ignored detection is no longer part of that job — it is a record, kept
-     * under [ADDED] / [IGNORED] — so the main list does not fill up with cards that have
-     * nothing left to decide. This is also what makes "added it in the Add Transaction
-     * screen" and "ignored it" both remove their card from the list.
      */
     val showsOnlyUndecided: Boolean
-        get() = when (this) {
-            ALL, INCOME, EXPENSE -> true
-            ADDED, IGNORED, UNREAD -> false
-        }
+        get() = true
 }
 
 /**
