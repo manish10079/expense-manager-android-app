@@ -33,6 +33,7 @@ import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -232,6 +233,7 @@ sealed interface SmsInboxEvent {
  * open appears without any manual reconciliation, and a purge that removes rows cannot
  * leave stale entries behind.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SmsInboxViewModel @Inject constructor(
     private val observeInbox: ObserveSmsInboxUseCase,

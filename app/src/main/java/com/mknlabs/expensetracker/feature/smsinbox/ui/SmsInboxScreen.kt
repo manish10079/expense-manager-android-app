@@ -32,11 +32,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAddCheck
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Deselect
 import androidx.compose.material.icons.rounded.DoneAll
-import androidx.compose.material.icons.rounded.PlaylistAddCheck
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -85,7 +85,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.content.Context
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
@@ -1107,7 +1107,7 @@ private fun BulkActionBar(
 
             BulkActionChip(
                 onClick = onAddAll,
-                icon = Icons.Rounded.PlaylistAddCheck,
+                icon = Icons.AutoMirrored.Rounded.PlaylistAddCheck,
                 contentDescription = stringResource(R.string.desc_add_all),
                 contentColor = MaterialTheme.colorScheme.primary
             )

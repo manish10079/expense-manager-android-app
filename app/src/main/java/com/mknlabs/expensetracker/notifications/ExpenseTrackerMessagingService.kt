@@ -30,7 +30,8 @@ class ExpenseTrackerMessagingService : FirebaseMessagingService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    @Suppress("DEPRECATION")
+    @Deprecated("Overriding deprecated member in FirebaseMessagingService")
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         serviceScope.launch {
