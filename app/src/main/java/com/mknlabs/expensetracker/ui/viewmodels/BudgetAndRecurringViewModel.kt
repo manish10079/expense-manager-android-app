@@ -789,7 +789,10 @@ private fun buildRegularExpense(
         accent = accent,
         nextDueAt = nextDueAt,
         isEnabled = recurringEntry.isEnabled,
-        notificationsEnabled = recurringEntry.notificationsEnabled
+        notificationsEnabled = recurringEntry.notificationsEnabled,
+        installmentTotalAmount = transaction.amount * (if (recurringEntry.repeatCount > 0) recurringEntry.repeatCount else 1),
+        installmentPerAmount = transaction.amount,
+        firstDueAt = nextDueAt.takeIf { it > 0L } ?: transaction.createdAt
     )
 }
 

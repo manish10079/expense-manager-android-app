@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -2759,8 +2762,19 @@ private fun RecurringRuleEditorModal(
             count == rule.totalInstallments &&
             firstDueAt == rule.firstDueAt
 
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scrollState = rememberScrollState()
+
+    fun autoCalculateTotal(perInstStr: String, countInt: Int) {
+        val perInst = perInstStr.toDoubleOrNull()
+        if (perInst != null && perInst > 0.0 && countInt > 0) {
+            totalInput = (perInst * countInt).formatForInput()
+        }
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f),
         dragHandle = {
@@ -2776,214 +2790,241 @@ private fun RecurringRuleEditorModal(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 24.dp)
-                .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(22.dp)
+                .navigationBarsPadding()
+                .imePadding()
         ) {
-            Text(
-                text = stringResource(id = R.string.title_edit_recurring),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            // Type selector — REGULAR stays exactly the legacy editor;
-            // INSTALLMENT swaps the repeat-count row for the plan terms.
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
                 Text(
-                    text = stringResource(id = R.string.label_recurring_type),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FilterChip(
-                        selected = selectedType == RecurringType.REGULAR,
-                        onClick = {
-                            if (rule.isInstallment && selectedType != RecurringType.REGULAR) {
-                                showRegularConfirm = true
-                            } else {
-                                selectedType = RecurringType.REGULAR
-                            }
-                        },
-                        label = { Text(stringResource(id = R.string.label_type_regular)) }
-                    )
-                    FilterChip(
-                        selected = selectedType == RecurringType.INSTALLMENT,
-                        onClick = { selectedType = RecurringType.INSTALLMENT },
-                        label = { Text(stringResource(id = R.string.label_type_emi)) }
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(id = R.string.label_frequency_capitalized),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelLarge
+                    text = stringResource(id = R.string.title_edit_recurring),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge
                 )
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = selectedFrequency.label,
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        enabled = false,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                // Type selector — REGULAR stays exactly the legacy editor;
+                // INSTALLMENT swaps the repeat-count row for the plan terms.
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_recurring_type),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { isFrequencyDropdownExpanded = true }
-                    )
-
-                    DropdownMenu(
-                        expanded = isFrequencyDropdownExpanded,
-                        onDismissRequest = { isFrequencyDropdownExpanded = false },
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface)
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
-                    ) {
-                        RecurringFrequency.entries.forEach { frequency ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = frequency.label,
-                                        color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                onClick = {
-                                    selectedFrequency = frequency
-                                    isFrequencyDropdownExpanded = false
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        FilterChip(
+                            selected = selectedType == RecurringType.REGULAR,
+                            onClick = {
+                                if (rule.isInstallment && selectedType != RecurringType.REGULAR) {
+                                    showRegularConfirm = true
+                                } else {
+                                    selectedType = RecurringType.REGULAR
                                 }
+                            },
+                            label = { Text(stringResource(id = R.string.label_type_regular)) }
+                        )
+                        FilterChip(
+                            selected = selectedType == RecurringType.INSTALLMENT,
+                            onClick = {
+                                selectedType = RecurringType.INSTALLMENT
+                                if (totalInput.isBlank() || totalAmount == 0.0) {
+                                    autoCalculateTotal(installmentInput, count)
+                                }
+                            },
+                            label = { Text(stringResource(id = R.string.label_type_emi)) }
+                        )
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_frequency_capitalized),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = selectedFrequency.label,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = false,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { isFrequencyDropdownExpanded = true }
+                        )
+
+                        DropdownMenu(
+                            expanded = isFrequencyDropdownExpanded,
+                            onDismissRequest = { isFrequencyDropdownExpanded = false },
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                        ) {
+                            RecurringFrequency.entries.forEach { frequency ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = frequency.label,
+                                            color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedFrequency = frequency
+                                        isFrequencyDropdownExpanded = false
+                                    }
+                                )
+                            }
                         }
+                    }
+                }
+
+                if (selectedType == RecurringType.REGULAR) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.label_total_installments),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+
+                        OutlinedTextField(
+                            value = installmentsInput,
+                            onValueChange = { input ->
+                                if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                    installmentsInput = input
+                                    autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.label_emi_total_amount),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        EditorAmountField(
+                            value = totalInput,
+                            onValueChange = { totalInput = it }
+                        )
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.label_emi_installment_amount),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        EditorAmountField(
+                            value = installmentInput,
+                            onValueChange = { newInst ->
+                                installmentInput = newInst
+                                autoCalculateTotal(newInst, count)
+                            }
+                        )
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.label_total_installments),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        OutlinedTextField(
+                            value = installmentsInput,
+                            onValueChange = { input ->
+                                if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                    installmentsInput = input
+                                    autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.label_emi_first_due),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        OutlinedTextField(
+                            value = editorDateFormatter.format(Date(firstDueAt)),
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { isFirstDuePickerVisible = true },
+                            enabled = false,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+                    if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
+                        Text(
+                            text = stringResource(id = R.string.msg_emi_amount_mismatch),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }
 
-            if (selectedType == RecurringType.REGULAR) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_total_installments),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-
-                    OutlinedTextField(
-                        value = installmentsInput,
-                        onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_emi_total_amount),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    EditorAmountField(
-                        value = totalInput,
-                        onValueChange = { totalInput = it }
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_emi_installment_amount),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    EditorAmountField(
-                        value = installmentInput,
-                        onValueChange = { installmentInput = it }
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_total_installments),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    OutlinedTextField(
-                        value = installmentsInput,
-                        onValueChange = { if (it.length <= 3 && it.all { char -> char.isDigit() }) installmentsInput = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_emi_first_due),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    OutlinedTextField(
-                        value = editorDateFormatter.format(Date(firstDueAt)),
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { isFirstDuePickerVisible = true },
-                        enabled = false,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-                if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
-                    Text(
-                        text = stringResource(id = R.string.msg_emi_amount_mismatch),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 TextButton(
@@ -3021,7 +3062,13 @@ private fun RecurringRuleEditorModal(
                             RoundedCornerShape(12.dp)
                         )
                 ) {
-                    Text(stringResource(id = R.string.label_save_changes_caps), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(id = R.string.label_save_changes_caps),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
