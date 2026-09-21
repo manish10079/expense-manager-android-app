@@ -13,12 +13,14 @@ import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
-import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.PurchasesException
+import com.revenuecat.purchases.PurchasesTransactionException
+import com.revenuecat.purchases.awaitLogIn
+import com.revenuecat.purchases.awaitLogOut
+import com.revenuecat.purchases.awaitOfferings
+import com.revenuecat.purchases.awaitPurchase
+import com.revenuecat.purchases.awaitRestore
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
-import com.revenuecat.purchases.logInWith
-import com.revenuecat.purchases.logOutWith
-import com.revenuecat.purchases.purchaseWith
-import com.revenuecat.purchases.restorePurchasesWith
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,16 +127,11 @@ class BillingManager @Inject constructor(
     private fun logInToRevenueCat(uid: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance.logInWith(
-                    appUserID = uid,
-                    onSuccess = { customerInfo, created ->
-                        Log.d(TAG, "Logged in to RevenueCat with ID: $uid (new user: $created)")
-                        updateCustomerInfo(customerInfo)
-                    },
-                    onError = { error ->
-                        Log.e(TAG, "Error logging in to RevenueCat: ${error.message}")
-                    }
-                )
+                val result = Purchases.sharedInstance.awaitLogIn(uid)
+                Log.d(TAG, "Logged in to RevenueCat with ID: $uid (new user: ${result.created})")
+                updateCustomerInfo(result.customerInfo)
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error logging in to RevenueCat: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during RevenueCat login", e)
             }
@@ -144,15 +141,11 @@ class BillingManager @Inject constructor(
     private fun logOutFromRevenueCat() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance.logOutWith(
-                    onSuccess = { customerInfo ->
-                        Log.d(TAG, "Logged out from RevenueCat")
-                        updateCustomerInfo(customerInfo)
-                    },
-                    onError = { error ->
-                        Log.e(TAG, "Error logging out from RevenueCat: ${error.message}")
-                    }
-                )
+                val customerInfo = Purchases.sharedInstance.awaitLogOut()
+                Log.d(TAG, "Logged out from RevenueCat")
+                updateCustomerInfo(customerInfo)
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error logging out from RevenueCat: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during RevenueCat logout", e)
             }
@@ -168,15 +161,11 @@ class BillingManager @Inject constructor(
     fun fetchOfferings() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance.getOfferingsWith(
-                    onSuccess = { offerings ->
-                        Log.d(TAG, "Fetched ${offerings.all.size} offerings")
-                        _offerings.update { offerings }
-                    },
-                    onError = { error ->
-                        Log.e(TAG, "Error fetching offerings: ${error.message}")
-                    }
-                )
+                val offerings = Purchases.sharedInstance.awaitOfferings()
+                Log.d(TAG, "Fetched ${offerings.all.size} offerings")
+                _offerings.update { offerings }
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error fetching offerings: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Exception fetching offerings", e)
             }
@@ -191,20 +180,17 @@ class BillingManager @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val params = PurchaseParams.Builder(activity, pkg).build()
-                Purchases.sharedInstance.purchaseWith(
-                    purchaseParams = params,
-                    onSuccess = { storeTransaction, customerInfo ->
-                        Log.d(TAG, "Successfully purchased package: ${pkg.identifier}")
-                        updateCustomerInfo(customerInfo)
-                    },
-                    onError = { error, userCancelled ->
-                        if (userCancelled) {
-                            Log.d(TAG, "User cancelled purchase")
-                        } else {
-                            Log.e(TAG, "Error purchasing package: ${error.message}")
-                        }
-                    }
-                )
+                val result = Purchases.sharedInstance.awaitPurchase(params)
+                Log.d(TAG, "Successfully purchased package: ${pkg.identifier}")
+                updateCustomerInfo(result.customerInfo)
+            } catch (e: PurchasesTransactionException) {
+                if (e.userCancelled) {
+                    Log.d(TAG, "User cancelled purchase")
+                } else {
+                    Log.e(TAG, "Error purchasing package: ${e.message}")
+                }
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error purchasing package: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during purchase", e)
             }
@@ -214,15 +200,11 @@ class BillingManager @Inject constructor(
     fun restorePurchases() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Purchases.sharedInstance.restorePurchasesWith(
-                    onSuccess = { customerInfo ->
-                        Log.d(TAG, "Successfully restored purchases")
-                        updateCustomerInfo(customerInfo)
-                    },
-                    onError = { error ->
-                        Log.e(TAG, "Error restoring purchases: ${error.message}")
-                    }
-                )
+                val customerInfo = Purchases.sharedInstance.awaitRestore()
+                Log.d(TAG, "Successfully restored purchases")
+                updateCustomerInfo(customerInfo)
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error restoring purchases: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Exception restoring purchases", e)
             }
