@@ -40,7 +40,7 @@ import com.mknlabs.expensetracker.ui.navigation.resolveBackNavigationRoute
 import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
+import com.mknlabs.expensetracker.feature.home.ui.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel

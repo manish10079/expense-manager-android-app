@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.home.ui
 
 import android.app.Application
 import androidx.compose.material.icons.Icons

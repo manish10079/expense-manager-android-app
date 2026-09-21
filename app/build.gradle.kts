@@ -20,7 +20,7 @@ android {
         targetSdk = 36
         versionCode = 246
 
-        versionName = "2.115.6"
+        versionName = "2.115.7"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

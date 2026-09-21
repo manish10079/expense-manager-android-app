@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.home.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -75,8 +75,6 @@ import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.income
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.utils.UiText
-import com.mknlabs.expensetracker.ui.viewmodels.HomeViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.HomeScreenUiState
 import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupUiState
 import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupViewModel
 import com.mknlabs.expensetracker.utils.DeviceVendorUtils
@@ -310,7 +308,7 @@ private fun HomeScreenContent(
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
     onMiuiSetupCardDismiss: () -> Unit = {},
-    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
+    onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false
 ) {
     val context = LocalContext.current
@@ -459,7 +457,7 @@ private fun HomeTopSection(
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
     onMiuiSetupCardBatterySettings: () -> Unit = {},
     onMiuiSetupCardDismiss: () -> Unit = {},
-    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
+    onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false,
     isWide: Boolean = false
 ) {
@@ -707,7 +705,7 @@ private fun HomeStatsSection(
     onMiuiSetupCardOpenAppSettings: () -> Unit,
     onMiuiSetupCardBatterySettings: () -> Unit,
     onMiuiSetupCardDismiss: () -> Unit,
-    onPeriodChanged: (com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod) -> Unit = {},
+    onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     // Wide windows (tablets/foldables/desktop) render the tall media-first native ad;
     // phones keep the compact banner row.
     isWide: Boolean = false
@@ -822,7 +820,7 @@ private fun HomeStatsSection(
  */
 @Composable
 private fun UpcomingRecurringCard(
-    upcomingExpenses: List<com.mknlabs.expensetracker.ui.viewmodels.UpcomingRecurringUi>
+    upcomingExpenses: List<UpcomingRecurringUi>
 ) {
     Box(
         modifier = Modifier

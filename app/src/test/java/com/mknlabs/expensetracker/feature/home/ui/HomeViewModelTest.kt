@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.home.ui
 
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.SyncState

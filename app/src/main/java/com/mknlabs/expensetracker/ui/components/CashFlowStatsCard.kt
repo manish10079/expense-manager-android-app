@@ -53,7 +53,7 @@ import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
 import com.mknlabs.expensetracker.ui.theme.isDark
-import com.mknlabs.expensetracker.ui.viewmodels.CashFlowPeriod
+import com.mknlabs.expensetracker.feature.home.ui.CashFlowPeriod
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
