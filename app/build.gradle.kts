@@ -18,8 +18,8 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 242
-        versionName = "2.114.0"
+        versionCode = 244
+        versionName = "2.115.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -187,8 +187,8 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
-    // RevenueCat
-    implementation("com.revenuecat.purchases:purchases:6.+")
+    // RevenueCat (uses Google Play Billing Library 8.x via v10.15.1)
+    implementation(libs.revenuecat.purchases)
 
     // Hilt
     implementation(libs.hilt.android)
