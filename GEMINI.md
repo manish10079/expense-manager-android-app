@@ -4,37 +4,62 @@ This project is a feature-rich personal finance management application built wit
 
 ## 🏗️ Architecture & Frameworks
 
-- **Architecture:** Clean Architecture with clearly defined layers:
-  - **Data Layer:** Room (DB), DataStore (Preferences), and Repository implementations.
-  - **Domain Layer:** Repository interfaces, Use Cases, and Business Logic.
-  - **UI Layer:** ViewModels (State management) and Jetpack Compose (UI).
+- **Architecture:** Feature-First Clean Architecture with MVVM:
+  - **Feature Package Isolation (`feature/<feature-name>/`):** Every feature must be encapsulated inside `com.mknlabs.expensetracker.feature.<feature-name>`. Never place new screens, viewmodels, or feature-specific logic in legacy top-level `ui/screens/` or `ui/viewmodels/`.
+  - **Core Package (`core/`):** Houses shared components, theme, navigation, global models, common repositories, and utility helpers accessible across features.
+  - **Layer Responsibility:**
+    - **Data Layer:** Room DB, DataStore, Firestore, and Repository implementations.
+    - **Domain Layer:** Repository interfaces, Use Cases, and Business Logic models.
+    - **UI Layer:** ViewModels (State management via `StateFlow`) and Jetpack Compose (Material 3).
 - **Dependency Injection:** Hilt (Dagger) is mandatory for all dependency management.
 - **UI Framework:** Jetpack Compose with Material Design 3.
 - **Database:** Room with KSP for schema generation and type safety.
 - **Concurrency:** Kotlin Coroutines and Flow for reactive data streams.
 
-## 📂 Project Structure
+## 📂 Project Structure (Mandatory Feature-First Layout)
 
 ```
-com.mkn0079.expensetracker/
-├── data/                    # Data layer
-│   ├── local/               # Room DB, DAOs, DataStore
-│   ├── repository/          # Repository implementations
-│   └── constants/           # Constants and shared data classes
-├── domain/                  # Domain layer
-│   ├── repository/          # Repository interfaces
-│   ├── usecase/             # Use cases (optional but recommended for complex logic)
-│   └── models/              # Domain/Business models
-├── ui/                      # UI layer
-│   ├── screens/             # Composable screens
-│   ├── viewmodels/          # Hilt-injected ViewModels
-│   ├── components/          # Reusable UI components
-│   ├── theme/               # Material 3 Theme & Styling
-│   └── navigation/          # Navigation graphs and state
-├── di/                      # Hilt Modules
-├── monetization/            # Ad-free access and feature registry logic
-├── notifications/           # WorkManager and Notification management
-└── utils/                   # Helper functions (Currency, Date, Money, etc.)
+com.mknlabs.expensetracker/
+├── core/                               # Shared base across all features
+│   ├── database/                       # Room DB, Shared DAOs
+│   ├── domain/                         # Shared Business Models (Transaction, Category, Budget)
+│   ├── data/                           # DataStore & Common Repositories
+│   ├── ui/                             # Theme, Navigation, Shared UI Components
+│   │   ├── components/                 # Shared UI Composables (AppHeader, MainScaffold, etc.)
+│   │   ├── navigation/                 # Navigation graphs & state (AppRoute, AppNavigationHost)
+│   │   └── theme/                      # Material 3 Theme & Styling
+│   └── utils/                          # Helper functions (Currency, Date, Money, etc.)
+│
+├── feature/                            # Feature-First Modular Packages
+│   ├── home/                           # Home Dashboard feature
+│   │   └── ui/                         # HomeScreen, HomeViewModel
+│   ├── transactions/                   # Transactions & Add/Edit feature
+│   │   ├── ui/                         # TransactionsScreen, AddTransactionScreen, Calculator
+│   │   ├── domain/                     # Transaction filters & calculations
+│   │   └── data/                       # Transaction export/import helpers
+│   ├── analytics/                      # Analytics & Calendar feature
+│   │   └── ui/                         # AnalyticsScreen, CalendarScreen, AnalyticsViewModel
+│   ├── budget/                         # Budgets & Recurring Expenses feature
+│   │   └── ui/                         # BudgetAndRecurringScreen, BudgetViewModel
+│   ├── goals/                          # Savings Goals feature
+│   │   └── ui/                         # GoalsScreen, GoalsViewModel
+│   ├── smsinbox/                       # SMS Detection Inbox feature (Reference implementation)
+│   │   ├── ui/                         # SmsInboxScreen, SmsInboxViewModel, SmsInboxBellButton
+│   │   ├── domain/                     # SMS Detection Use Cases & Models
+│   │   ├── data/                       # Detected SMS DAO & Repository
+│   │   └── worker/                     # SmsInboxCleanupWorker
+│   ├── profile/                        # User Profile & Membership feature
+│   │   └── ui/                         # EditProfileScreen, ProfileViewModel, MembershipScreen
+│   ├── settings/                       # App Settings, Security & Data Management feature
+│   │   └── ui/                         # SettingsScreen, SecurityPrivacyScreen
+│   └── auth/                           # Authentication, Onboarding & App Lock feature
+│       └── ui/                         # AuthContent, OnboardingScreen, AppLockScreen
+│
+├── di/                                 # Global Hilt DI Modules
+├── monetization/                       # Pro access & Billing engine
+├── notifications/                      # WorkManager & Notification management
+├── sms/                                # Background SMS parsing engine
+└── workers/                            # System background workers
 ```
 
 ## 🛠️ Development Guidelines
@@ -131,6 +156,7 @@ com.mkn0079.expensetracker/
 - No hardcoded hex values in Composables.
 - No untested code or business logic in the UI layer.
 - No `hiltViewModel()`, `viewModel()`, or state collection (`collectAsState`/`collectAsStateWithLifecycle`) inside previewable UI/Content composables.
+- No creating new screens, ViewModels, or feature modules in legacy top-level `ui/screens/` or `ui/viewmodels/` directories. All new components MUST be placed in feature-first packages (`feature/<feature-name>/ui/`).
 - No AI-attribution text, banners, or signatures anywhere in the code base (source files, comments, strings, README, docs, config). Never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar credit lines from any tool or model.
 
 ---
