@@ -2854,6 +2854,7 @@ private fun RecurringRuleEditorModal(
                             readOnly = true,
                             modifier = Modifier.fillMaxWidth(),
                             enabled = false,
+                            shape = RoundedCornerShape(14.dp),
                             trailingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
@@ -2917,6 +2918,7 @@ private fun RecurringRuleEditorModal(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -2970,6 +2972,7 @@ private fun RecurringRuleEditorModal(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -2995,6 +2998,7 @@ private fun RecurringRuleEditorModal(
                                 .fillMaxWidth()
                                 .clickable { isFirstDuePickerVisible = true },
                             enabled = false,
+                            shape = RoundedCornerShape(14.dp),
                             trailingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
@@ -3117,7 +3121,8 @@ private fun RecurringRuleEditorModal(
 private fun EditorAmountField(
     value: String,
     onValueChange: (String) -> Unit,
-    supportingText: String? = null
+    supportingText: String? = null,
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp)
 ) {
     OutlinedTextField(
         value = value,
@@ -3128,6 +3133,7 @@ private fun EditorAmountField(
         },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        shape = shape,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         supportingText = supportingText?.let { { Text(it) } },
         colors = OutlinedTextFieldDefaults.colors(
