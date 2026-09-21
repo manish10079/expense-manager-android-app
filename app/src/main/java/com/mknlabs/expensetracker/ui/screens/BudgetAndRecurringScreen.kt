@@ -76,6 +76,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -85,6 +86,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -92,6 +95,13 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -292,6 +302,9 @@ private fun BudgetAndRecurringContent(
     val ledgerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCopySheetVisible by rememberSaveable { mutableStateOf(false) }
     var pendingCopyRequest by remember { mutableStateOf<PendingBudgetCopy?>(null) }
+    // IDs currently playing their exit animation before the real delete fires.
+    val deletingRecurringIds = remember { mutableStateSetOf<String>() }
+
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
@@ -501,32 +514,74 @@ private fun BudgetAndRecurringContent(
                         } else {
                             uiState.recurringExpenses.forEach { expense ->
                                 item(key = expense.id) {
-                                    RecurringExpenseCard(
-                                        expense = expense,
-                                        onEnabledChange = { enabled ->
-                                            onRecurringEnabledChange(expense.id, enabled)
-                                        },
-                                        onNotificationsEnabledChange = { enabled ->
-                                            if (!enabled && !muteDialogDismissed) {
-                                                pendingMuteRecurringId = expense.id
+                                    val isBeingDeleted = expense.id in deletingRecurringIds
+                                    AnimatedVisibility(
+                                        visible = !isBeingDeleted,
+                                        modifier = Modifier.animateItem(
+                                            fadeInSpec = null,
+                                            fadeOutSpec = tween(durationMillis = 300),
+                                            placementSpec = spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessMediumLow
+                                            )
+                                        ),
+                                        enter = expandVertically(
+                                            animationSpec = tween(durationMillis = 260)
+                                        ) + fadeIn(animationSpec = tween(durationMillis = 260)),
+                                        exit = shrinkVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            )
+                                        ) + fadeOut(animationSpec = tween(durationMillis = 220))
+                                    ) {
+                                        RecurringExpenseCard(
+                                            expense = expense,
+                                            onEnabledChange = { enabled ->
+                                                onRecurringEnabledChange(expense.id, enabled)
+                                            },
+                                            onNotificationsEnabledChange = { enabled ->
+                                                if (!enabled && !muteDialogDismissed) {
+                                                    pendingMuteRecurringId = expense.id
+                                                } else {
+                                                    onRecurringNotificationsEnabledChange(expense.id, enabled)
+                                                }
+                                            },
+                                            onEditClick = { editingRecurringRule = expense },
+                                            onDeleteClick = {
+                                                pendingDeleteRecurringId = expense.id
+                                            },
+                                            onLedgerClick = if (expense.isInstallment && expense.slots.isNotEmpty()) {
+                                                { ledgerRuleId = expense.id }
                                             } else {
-                                                onRecurringNotificationsEnabledChange(expense.id, enabled)
+                                                null
                                             }
-                                        },
-                                        onEditClick = { editingRecurringRule = expense },
-                                        onDeleteClick = {
-                                            pendingDeleteRecurringId = expense.id
-                                        },
-                                        onLedgerClick = if (expense.isInstallment && expense.slots.isNotEmpty()) {
-                                            { ledgerRuleId = expense.id }
-                                        } else {
-                                            null
+                                        )
+                                    }
+                                    // Fire the real repository delete once the card has
+                                    // finished its exit animation and collapsed to nothing.
+                                    LaunchedEffect(isBeingDeleted) {
+                                        if (isBeingDeleted) {
+                                            kotlinx.coroutines.delay(350)
+                                            onDeleteRecurring(expense.id)
+                                            deletingRecurringIds.remove(expense.id)
                                         }
-                                    )
+                                    }
                                 }
                                 item(key = "ad_${expense.id}") {
-                                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                                        NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                    val isBeingDeleted = expense.id in deletingRecurringIds
+                                    AnimatedVisibility(
+                                        visible = !isBeingDeleted,
+                                        exit = shrinkVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            )
+                                        ) + fadeOut(animationSpec = tween(durationMillis = 220))
+                                    ) {
+                                        AdContainer(isAdsEnabled = isAdsEnabled) {
+                                            NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                        }
                                     }
                                 }
                             }
@@ -604,7 +659,9 @@ private fun BudgetAndRecurringContent(
             recurringName = pendingDeleteRecurring.title,
             onDismiss = { pendingDeleteRecurringId = null },
             onConfirm = {
-                onDeleteRecurring(pendingDeleteRecurring.id)
+                // Stage for animated exit — the actual delete fires once the
+                // AnimatedVisibility exit animation completes (see list below).
+                deletingRecurringIds.add(pendingDeleteRecurring.id)
                 pendingDeleteRecurringId = null
             }
         )
@@ -2519,11 +2576,28 @@ private fun InstallmentSlotRow(
         // Multi-select only ever applies to slots that can still be paid — a
         // settled slot changes through UNDO instead.
         if (isPending) {
-            Checkbox(
-                checked = selected,
-                onCheckedChange = onSelectedChange,
-                colors = CheckboxDefaults.colors(checkedColor = accent)
-            )
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) accent else Color.Transparent)
+                    .border(
+                        width = 1.5.dp,
+                        color = if (selected) accent else MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+                    .clickable { onSelectedChange(!selected) },
+                contentAlignment = Alignment.Center
+            ) {
+                if (selected) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
         }
 
         Column(modifier = Modifier.weight(1f)) {
@@ -2900,125 +2974,140 @@ private fun RecurringRuleEditorModal(
                     }
                 }
 
-                if (selectedType == RecurringType.REGULAR) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.label_total_installments),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                AnimatedContent(
+                    targetState = selectedType,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                            slideInVertically(animationSpec = tween(220, easing = LinearOutSlowInEasing)) { height -> height / 6 })
+                            .togetherWith(
+                                fadeOut(animationSpec = tween(180)) +
+                                    slideOutVertically(animationSpec = tween(180)) { height -> -height / 6 }
+                            )
+                    },
+                    label = "recurring_type_transition"
+                ) { targetType ->
+                    if (targetType == RecurringType.REGULAR) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = stringResource(id = R.string.label_total_installments),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.labelLarge
+                            )
 
-                        OutlinedTextField(
-                            value = installmentsInput,
-                            onValueChange = { input ->
-                                if (input.length <= 3 && input.all { char -> char.isDigit() }) {
-                                    installmentsInput = input
-                                    autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        )
-                    }
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.label_emi_total_amount),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        EditorAmountField(
-                            value = totalInput,
-                            onValueChange = { totalInput = it }
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.label_emi_installment_amount),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        EditorAmountField(
-                            value = installmentInput,
-                            onValueChange = { newInst ->
-                                installmentInput = newInst
-                                autoCalculateTotal(newInst, count)
-                            }
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.label_total_installments),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        OutlinedTextField(
-                            value = installmentsInput,
-                            onValueChange = { input ->
-                                if (input.length <= 3 && input.all { char -> char.isDigit() }) {
-                                    installmentsInput = input
-                                    autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.label_emi_first_due),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        OutlinedTextField(
-                            value = editorDateFormatter.format(Date(firstDueAt)),
-                            onValueChange = {},
-                            readOnly = true,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { isFirstDuePickerVisible = true },
-                            enabled = false,
-                            shape = RoundedCornerShape(14.dp),
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
+                            OutlinedTextField(
+                                value = installmentsInput,
+                                onValueChange = { input ->
+                                    if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                        installmentsInput = input
+                                        autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(14.dp),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
-                        )
-                    }
-                    if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
-                        Text(
-                            text = stringResource(id = R.string.msg_emi_amount_mismatch),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_total_amount),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                EditorAmountField(
+                                    value = totalInput,
+                                    onValueChange = { totalInput = it }
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_installment_amount),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                EditorAmountField(
+                                    value = installmentInput,
+                                    onValueChange = { newInst ->
+                                        installmentInput = newInst
+                                        autoCalculateTotal(newInst, count)
+                                    }
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_total_installments),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                OutlinedTextField(
+                                    value = installmentsInput,
+                                    onValueChange = { input ->
+                                        if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                            installmentsInput = input
+                                            autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(14.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_first_due),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                OutlinedTextField(
+                                    value = editorDateFormatter.format(Date(firstDueAt)),
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { isFirstDuePickerVisible = true },
+                                    enabled = false,
+                                    shape = RoundedCornerShape(14.dp),
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.DateRange,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                        disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
+                                Text(
+                                    text = stringResource(id = R.string.msg_emi_amount_mismatch),
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     }
                 }
             }

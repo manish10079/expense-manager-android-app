@@ -19,7 +19,8 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 246
-        versionName = "2.115.2"
+
+        versionName = "2.115.3"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -90,15 +91,13 @@ android {
             // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
             proguardFiles("benchmark-rules.pro")
         }
-        // Debug build type
+        // Debug build type — no minification so stack traces are readable and
+        // build times are faster. R8 is strictly release-only.
         debug {
-            initWith(getByName("release"))
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
-            // Keep androidx.tracing/test/benchmark in the target APK so the Macrobenchmark
-            // instrumentation runner's startup dependencies resolve inside the app process
-            // (see benchmark-rules.pro). Benchmark-only — release stays untouched.
-            proguardFiles("benchmark-rules.pro")
             // RevenueCat API key from local properties (kept secret)
             buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
         }
