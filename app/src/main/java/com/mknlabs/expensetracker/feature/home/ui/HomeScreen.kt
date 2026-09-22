@@ -349,7 +349,9 @@ private fun HomeScreenContent(
                     onSmsInboxClick = onSmsInboxClick,
                     isLockOverlayActive = isLockOverlayActive
                 )
-                Spacer(modifier = Modifier.height(14.dp))
+                // 7.dp matches the gap under the Cash Flow card (to the Spent Today /
+                // My Goals row), so the whole header stack reads on one rhythm.
+                Spacer(modifier = Modifier.height(7.dp))
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     Column(
                         modifier = Modifier
@@ -469,7 +471,9 @@ private fun HomeTopSection(
         onSmsInboxClick = onSmsInboxClick,
         isLockOverlayActive = isLockOverlayActive
     )
-    Spacer(modifier = Modifier.height(14.dp))
+    // 7.dp matches the gap under the Cash Flow card (to the Spent Today / My Goals
+    // row), so the whole header stack reads on one rhythm.
+    Spacer(modifier = Modifier.height(7.dp))
     HomeStatsSection(
         userProfile = userProfile,
         appSettings = appSettings,
@@ -713,6 +717,12 @@ private fun HomeStatsSection(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Whether this section opens with a card above the stats. The spacer below uses it
+    // to avoid adding a gap that is only needed when something is actually there.
+    val hasSetupCard = appSettings != null ||
+        smsSetupUiState.showSmsPermissionCard ||
+        smsSetupUiState.showMiuiSetupCard
+
     if (appSettings != null) {
         AccountSetupCard(
             userProfile = userProfile,
@@ -749,7 +759,12 @@ private fun HomeStatsSection(
         )
     }
 
-    Spacer(modifier = Modifier.height(4.dp))
+    // Only when a setup/hint card was actually drawn above: those cards already carry
+    // their own 10.dp gap, and with none of them the 7.dp spacer above the section is
+    // the entire gap between the header row and the Cash Flow card.
+    if (hasSetupCard) {
+        Spacer(modifier = Modifier.height(10.dp))
+    }
 
     CurrentPeriodIndicator(
         startMillis = uiState.currentPeriodStartMillis,

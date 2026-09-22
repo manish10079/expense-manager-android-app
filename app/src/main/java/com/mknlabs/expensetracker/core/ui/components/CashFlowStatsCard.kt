@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,10 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
@@ -208,6 +206,9 @@ fun CashFlowStatsCard(
                     DropdownMenu(
                         expanded = dropdownExpanded,
                         onDismissRequest = { dropdownExpanded = false },
+                        // Lifts the menu clear of the pill it is anchored to: sitting
+                        // flush against it, the two read as one control.
+                        offset = DpOffset(x = 0.dp, y = 10.dp),
                         modifier = Modifier
                             .border(
                                 width = 1.dp,
@@ -216,47 +217,23 @@ fun CashFlowStatsCard(
                             )
                             .clip(RoundedCornerShape(24.dp))
                     ) {
-                        DropdownMenuItem(
-                            text = {
-                                Box(modifier = Modifier.padding(start = 16.dp, top = 0.dp, bottom = 0.dp)) {
-                                    Text(
-                                        stringResource(R.string.label_this_month_cash_flow),
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-                            },
+                        CashFlowPeriodOption(
+                            label = stringResource(R.string.label_this_month_cash_flow),
+                            selected = selectedPeriod == CashFlowPeriod.THIS_MONTH,
                             onClick = {
                                 onPeriodChanged(CashFlowPeriod.THIS_MONTH)
                                 dropdownExpanded = false
                             },
-                            contentPadding = PaddingValues(0.dp),
-                            colors = MenuDefaults.itemColors(
-                                textColor = if (selectedPeriod == CashFlowPeriod.THIS_MONTH)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            )
+                            isFirst = true
                         )
-                        DropdownMenuItem(
-                            text = {
-                                Box(modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 2.dp)) {
-                                    Text(
-                                        stringResource(R.string.label_this_year_cash_flow),
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-                            },
+                        CashFlowPeriodOption(
+                            label = stringResource(R.string.label_this_year_cash_flow),
+                            selected = selectedPeriod == CashFlowPeriod.THIS_YEAR,
                             onClick = {
                                 onPeriodChanged(CashFlowPeriod.THIS_YEAR)
                                 dropdownExpanded = false
                             },
-                            contentPadding = PaddingValues(0.dp),
-                            colors = MenuDefaults.itemColors(
-                                textColor = if (selectedPeriod == CashFlowPeriod.THIS_YEAR)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            )
+                            isLast = true
                         )
                     }
                 }
@@ -318,6 +295,46 @@ fun CashFlowStatsCard(
             }
         }
     }
+}
+
+/**
+ * One option in the period menu.
+ *
+ * Deliberately not a DropdownMenuItem: that enforces a 48.dp minimum row height
+ * meant for full menus, which is a lot of dead space for a two-option selector.
+ *
+ * [isFirst]/[isLast] drop the padding on the menu's outer edges, because
+ * DropdownMenu already adds 8.dp of its own above the first row and below the
+ * last (`MenuKt.DropdownMenuVerticalPadding`). Padding both sides of the same
+ * edge is what made two short rows almost three times the height of the pill
+ * they hang from.
+ */
+@Composable
+private fun CashFlowPeriodOption(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    isFirst: Boolean = false,
+    isLast: Boolean = false
+) {
+    Text(
+        text = label,
+        color = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = if (isFirst) 0.dp else 4.dp,
+                bottom = if (isLast) 0.dp else 4.dp
+            )
+    )
 }
 
 @Composable
