@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.profile.ui
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke

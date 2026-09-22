@@ -45,13 +45,13 @@ import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorScreen
 import com.mknlabs.expensetracker.ui.screens.NotificationSettingsScreen
 import com.mknlabs.expensetracker.ui.screens.PreferencesScreen
-import com.mknlabs.expensetracker.ui.screens.ProfileScreen
+import com.mknlabs.expensetracker.feature.profile.ui.ProfileScreen
 import com.mknlabs.expensetracker.ui.screens.ConnectedDevicesScreen
 import com.mknlabs.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.ui.screens.SettingsScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
-import com.mknlabs.expensetracker.ui.screens.MembershipDetailsScreen
+import com.mknlabs.expensetracker.feature.profile.ui.MembershipDetailsScreen
 import java.util.UUID
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorViewModel

@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.profile.ui
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -57,7 +57,6 @@ import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.ui.viewmodels.ProfileViewModel
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.platform.LocalFocusManager
@@ -395,7 +394,7 @@ private fun ProfileScreenContent(
                 }
 
                 if (showUpdateEmailSheet) {
-                    com.mknlabs.expensetracker.ui.screens.UpdateEmailBottomSheet(
+                    UpdateEmailBottomSheet(
                         currentEmail = userProfile.emailAddress,
                         uiState = updateEmailUiState,
                         onInitiateUpdate = onUpdateEmailInitiate,
