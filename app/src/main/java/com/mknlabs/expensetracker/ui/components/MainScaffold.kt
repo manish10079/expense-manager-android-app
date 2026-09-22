@@ -37,9 +37,9 @@ import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.ui.navigation.resolveBackNavigationRoute
-import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
+import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsViewModel
+import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringViewModel
+import com.mknlabs.expensetracker.feature.calendar.ui.CalendarViewModel
 import com.mknlabs.expensetracker.feature.home.ui.HomeViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel

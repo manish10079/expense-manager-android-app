@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.budget.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange

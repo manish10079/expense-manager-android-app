@@ -34,10 +34,10 @@ import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
 import com.mknlabs.expensetracker.ui.screens.FeedbackRoute
 import com.mknlabs.expensetracker.feature.transactions.ui.AddTransactionScreen
-import com.mknlabs.expensetracker.ui.screens.AnalyticsScreen
-import com.mknlabs.expensetracker.ui.screens.BudgetAndRecurringScreen
+import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsScreen
+import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringScreen
 import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
-import com.mknlabs.expensetracker.ui.screens.CalendarScreen
+import com.mknlabs.expensetracker.feature.calendar.ui.CalendarScreen
 import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
 import com.mknlabs.expensetracker.ui.screens.DataManagementScreen
 import com.mknlabs.expensetracker.ui.screens.GoalsScreen

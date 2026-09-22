@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.calendar.ui
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

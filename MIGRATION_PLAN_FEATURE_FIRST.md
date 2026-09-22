@@ -27,8 +27,10 @@ com.mknlabs.expensetracker/
 │   │   ├── ui/                         # TransactionsScreen, AddTransactionScreen, Calculator
 │   │   ├── domain/                     # Transaction filters, sorting & calculations
 │   │   └── data/                       # Transaction export / import helpers
-│   ├── analytics/                      # Charts, Insights & Calendar
-│   │   └── ui/                         # AnalyticsScreen, CalendarScreen, AnalyticsViewModel
+│   ├── analytics/                      # Charts, Insights & Trends
+│   │   └── ui/                         # AnalyticsScreen, AnalyticsViewModel
+│   ├── calendar/                       # Calendar View & Timeline
+│   │   └── ui/                         # CalendarScreen, CalendarViewModel
 │   ├── budget/                         # Budgets & Recurring Expenses
 │   │   └── ui/                         # BudgetAndRecurringScreen, BudgetViewModel
 │   ├── goals/                          # Savings Goals

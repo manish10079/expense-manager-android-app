@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.calendar.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -90,8 +90,7 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.income
 import com.mknlabs.expensetracker.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.getAmountColor
-import com.mknlabs.expensetracker.ui.viewmodels.CalendarViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.calendarMonthTitle
+
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.WheelDateTimePicker
@@ -175,7 +174,7 @@ fun CalendarScreen(
 
 @Composable
 private fun CalendarScreenContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.CalendarScreenUiState,
+    uiState: CalendarScreenUiState,
     isAdsEnabled: Boolean,
     isProUser: Boolean = false,
     onBackClick: () -> Unit,
@@ -1143,7 +1142,7 @@ private fun YearPickerDialog(
 private fun CalendarScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         CalendarScreenContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.CalendarScreenUiState(),
+            uiState = CalendarScreenUiState(),
             isAdsEnabled = true,
             onBackClick = {},
             onTransactionClick = {},

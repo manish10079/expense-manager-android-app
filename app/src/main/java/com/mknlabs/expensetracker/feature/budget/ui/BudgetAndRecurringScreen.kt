@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.budget.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -147,15 +147,7 @@ import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.income
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetTab
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetPeriodFilter
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetAccent
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetSummaryUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetCategoryBudgetUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetCopyCandidateUi
-import com.mknlabs.expensetracker.ui.viewmodels.BudgetRecurringExpenseUi
-import com.mknlabs.expensetracker.ui.viewmodels.InstallmentSlotUi
+
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -260,7 +252,7 @@ fun BudgetAndRecurringScreen(
 
 @Composable
 private fun BudgetAndRecurringContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringScreenUiState,
+    uiState: BudgetAndRecurringScreenUiState,
     isAdsEnabled: Boolean,
     isProUser: Boolean = false,
     currencyId: Int,
@@ -2654,7 +2646,7 @@ private fun InstallmentSlotRow(
 private fun BudgetAndRecurringScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         BudgetAndRecurringContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.BudgetAndRecurringScreenUiState(),
+            uiState = BudgetAndRecurringScreenUiState(),
             isAdsEnabled = true,
             currencyId = DEFAULT_CURRENCY_ID,
             amountFormatPreferences = defaultAmountFormatPreferences,

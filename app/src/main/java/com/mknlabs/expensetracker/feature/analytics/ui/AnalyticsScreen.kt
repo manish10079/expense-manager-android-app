@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.analytics.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -72,16 +72,7 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsPeriod
-import com.mknlabs.expensetracker.ui.viewmodels.PaymentTypeBreakdownUi
-import com.mknlabs.expensetracker.ui.viewmodels.TopSpendingItemUi
-import com.mknlabs.expensetracker.ui.viewmodels.formatCustomRangeLabel
-import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AnalyticsSnapshotUi
-import com.mknlabs.expensetracker.ui.viewmodels.CategoryBreakdownUi
-import com.mknlabs.expensetracker.ui.viewmodels.SummaryLabelUi
-import com.mknlabs.expensetracker.ui.viewmodels.SmartTipUi
-import com.mknlabs.expensetracker.ui.viewmodels.ChartLabelUi
+
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.ui.components.TransactionCard
@@ -146,7 +137,7 @@ fun AnalyticsScreen(
 
 @Composable
 fun AnalyticsScreenContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState,
+    uiState: AnalyticsScreenUiState,
     isAdsEnabled: Boolean,
     isProUser: Boolean = false,
     transactions: List<Transaction>,
@@ -156,7 +147,7 @@ fun AnalyticsScreenContent(
     amountFormatPreferences: com.mknlabs.expensetracker.models.AmountFormatPreferences,
     dateFormatPattern: String,
     onBackClick: () -> Unit,
-    onDateRangeSelected: (com.mknlabs.expensetracker.ui.viewmodels.AnalyticsPeriod) -> Unit,
+    onDateRangeSelected: (AnalyticsPeriod) -> Unit,
     onCustomRangeApplied: (Long, Long) -> Unit,
     onClearCustomRange: () -> Unit
 ) {
@@ -2207,7 +2198,7 @@ private fun resolveChartLabel(label: ChartLabelUi): String {
 // Preview helpers
 // ──────────────────────────────────────────────
 
-private fun buildPreviewAnalyticsUiState(): com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState {
+private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
     val currencyId = DEFAULT_CURRENCY_ID
     val fmtPrefs = defaultAmountFormatPreferences
 
@@ -2355,7 +2346,7 @@ private fun buildPreviewAnalyticsUiState(): com.mknlabs.expensetracker.ui.viewmo
         hasSpendingData = true
     )
 
-    return com.mknlabs.expensetracker.ui.viewmodels.AnalyticsScreenUiState(
+    return AnalyticsScreenUiState(
         selectedPeriod = AnalyticsPeriod.MONTH,
         activeRange = febStart..febEnd,
         snapshot = snapshot

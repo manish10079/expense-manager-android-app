@@ -281,7 +281,7 @@ fun FilterBottomSheet(
                         ) { status, gatedOnClick ->
                             val isLocked = status !is AccessStatus.Granted
                             val customRangeText = if (selectedDateRange == KEY_CUSTOM_RANGE && selectedCustomStartDate != null && selectedCustomEndDate != null) {
-                                com.mknlabs.expensetracker.ui.viewmodels.formatCustomRangeLabel(
+                                com.mknlabs.expensetracker.feature.analytics.ui.formatCustomRangeLabel(
                                     selectedCustomStartDate..selectedCustomEndDate
                                 )
                             } else {
