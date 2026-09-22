@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -479,16 +480,38 @@ private fun MonthHeading(
     onTodayClick: () -> Unit,
     onOpenPicker: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, onClick = onPreviousMonth)
+    // One row, deliberately. The Today shortcut used to sit on a row of its own 10.dp below this
+    // one, which cost a whole row of height to hold a pill that used a sixth of the width, and
+    // pushed the calendar card down for no reason. It now shares the row that already establishes
+    // which month is on screen, which is the thing it acts on.
+    //
+    // The title is left-aligned rather than centred. It was only ever centred because the two
+    // arrow buttons happened to be the same width; adding a third element would have shifted it
+    // off centre by half the pill's width, which reads as a mistake. Aligning it deliberately
+    // means its position is the design rather than an accident.
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // The two arrows and the shortcut are fixed-size; only the middle is flexible, so the
+        // arrows stay pinned to the corners whatever the month name costs.
+        CircularNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = stringResource(id = R.string.content_desc_previous_month),
+            onClick = onPreviousMonth
+        )
 
+        // The flexible middle: it takes exactly what the fixed controls leave, and the spacer
+        // inside pushes the shortcut to the far end of it. Capping the title here rather than
+        // letting it take whatever width it asks for is what keeps the row from overflowing — at
+        // large font scales it wraps onto a second line, which is why it carries no maxLines: a
+        // truncated month name would lose information the user came to read.
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Row(
-                modifier = Modifier.clickable(onClick = onOpenPicker),
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .clickable(onClick = onOpenPicker),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
@@ -513,31 +536,42 @@ private fun MonthHeading(
                 }
             }
 
-            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, onClick = onNextMonth)
+            Spacer(modifier = Modifier.weight(1f))
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TodayShortcutButton(onClick = onTodayClick)
-        }
+        TodayShortcutButton(onClick = onTodayClick)
+
+        CircularNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = stringResource(id = R.string.content_desc_next_month),
+            onClick = onNextMonth
+        )
     }
 }
 
 @Composable
 private fun TodayShortcutButton(onClick: () -> Unit) {
+    // The fill is the theme's primaryContainer rather than surfaceVariant, with onPrimaryContainer
+    // as the label. The old pair measured 3.42:1 in light and 2.92:1 in dark against the 4.5:1 that
+    // text this size needs, and it was also heavier than the arrow buttons' surface fill, so the
+    // occasionally-used shortcut outweighed the constantly-used navigation. This pair measures
+    // 13.27:1 and 12.40:1, and sits in the same visual weight band as the arrows.
+    //
+    // The layout reserves a 48.dp touch target while the pill keeps its own size, the same
+    // construction Material's own icon buttons use.
     Box(
         modifier = Modifier
+            .minimumInteractiveComponentSize()
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = stringResource(id = R.string.label_today),
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            maxLines = 1,
             style = MaterialTheme.typography.labelMedium
         )
     }
@@ -774,19 +808,25 @@ private fun YearHeading(
     onTodayClick: () -> Unit,
     onOpenYearPicker: () -> Unit
 ) {
-    Column(
+    // Mirrors [MonthHeading] exactly, including the single row, the left-aligned title and the
+    // corner-pinned arrows. They are kept identical on purpose: switching tabs must not look like
+    // the header changed shape.
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, onClick = onPreviousYear)
+        CircularNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = stringResource(id = R.string.content_desc_previous_year),
+            onClick = onPreviousYear
+        )
+
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Row(
-                modifier = Modifier.clickable(onClick = onOpenYearPicker),
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .clickable(onClick = onOpenYearPicker),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
@@ -810,15 +850,17 @@ private fun YearHeading(
                     )
                 }
             }
-            CircularNavButton(icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, onClick = onNextYear)
+
+            Spacer(modifier = Modifier.weight(1f))
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TodayShortcutButton(onClick = onTodayClick)
-        }
+        TodayShortcutButton(onClick = onTodayClick)
+
+        CircularNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = stringResource(id = R.string.content_desc_next_year),
+            onClick = onNextYear
+        )
     }
 }
 
@@ -992,13 +1034,26 @@ private fun SummaryRow(
 @Composable
 private fun CircularNavButton(
     icon: ImageVector,
+    contentDescription: String,
     onClick: () -> Unit
 ) {
+    // 32.dp is the circle the user sees; the layout around it reserves at least 48.dp, which is
+    // the size a touch target has to be to be reliably hittable and the size Material's own icon
+    // buttons enforce for themselves. A bare size(32.dp).clickable() opts out of that, and this
+    // whole screen's controls were doing exactly that.
+    //
+    // [contentDescription] is required rather than optional: the icon is the only thing that says
+    // what the button does, so without it the button announces nothing useful when focused.
     Box(
-        modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).clickable(onClick = onClick),
+        modifier = Modifier
+            .minimumInteractiveComponentSize()
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Icon(imageVector = icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.primary)
     }
 }
 

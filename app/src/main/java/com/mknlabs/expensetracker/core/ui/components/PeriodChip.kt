@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -88,6 +89,10 @@ fun PeriodChip(
 
     Row(
         modifier = modifier
+            // The chip's own height is the label's line plus 20.dp of padding, which is under the
+            // 48.dp a touch target needs. This reserves the rest around it without changing the
+            // chip's appearance, the construction Material's own components use.
+            .minimumInteractiveComponentSize()
             .clip(RoundedCornerShape(18.dp))
             .background(containerColor)
             .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))

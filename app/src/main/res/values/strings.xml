@@ -923,6 +923,10 @@
     <string name="content_desc_month_picker_locked">Month picker locked</string>
     <string name="content_desc_jump_to_year">Jump to year</string>
     <string name="content_desc_year_picker_locked">Year picker locked</string>
+    <string name="content_desc_previous_month">Previous month</string>
+    <string name="content_desc_next_month">Next month</string>
+    <string name="content_desc_previous_year">Previous year</string>
+    <string name="content_desc_next_year">Next year</string>
     <string name="title_choose_month_year">Choose Month &amp; Year</string>
     <!-- Transaction Card Customize Screen -->
     <string name="title_show_category">Show Category</string>
