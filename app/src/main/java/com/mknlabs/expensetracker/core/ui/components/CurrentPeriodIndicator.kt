@@ -19,6 +19,17 @@ import java.util.Date
 import java.util.Locale
 
 /**
+ * Whether [CurrentPeriodIndicator] has anything to draw for [monthStartDay].
+ *
+ * Exposed because a caller that places the indicator as a lazy item has to know
+ * this before adding the item. The indicator draws nothing on a standard calendar
+ * month, but an emitted lazy item is still an item: the list's item spacing applies
+ * on both of its sides, so an invisible one leaves a double gap the user sees as
+ * space under the header rather than as an empty row.
+ */
+fun hasCurrentPeriodIndicator(monthStartDay: Int): Boolean = monthStartDay != 1
+
+/**
  * Displays the current billing period label (e.g. "Aug 15 – Sep 14, 2026").
  *
  * Only visible when [monthStartDay] != 1 (standard calendar month).
@@ -34,7 +45,7 @@ fun CurrentPeriodIndicator(
     monthStartDay: Int,
     modifier: Modifier = Modifier
 ) {
-    if (monthStartDay == 1) return
+    if (!hasCurrentPeriodIndicator(monthStartDay)) return
 
     val periodText = remember(startMillis, endMillis, monthStartDay) {
         val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault())

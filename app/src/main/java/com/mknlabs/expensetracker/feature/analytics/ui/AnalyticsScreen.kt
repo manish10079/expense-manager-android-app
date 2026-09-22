@@ -1,5 +1,13 @@
 package com.mknlabs.expensetracker.feature.analytics.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,6 +47,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,12 +60,11 @@ import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
+import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
-import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Transaction
@@ -203,49 +213,96 @@ fun AnalyticsScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .navigationBarsPadding(),
-            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 18.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
+            // Top inset is the gap under the AppHeader, so it is deliberately smaller
+            // than the 18.dp between cards.
+            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 12.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            item {
-                CurrentPeriodIndicator(
-                    startMillis = uiState.currentPeriodStartMillis,
-                    endMillis = uiState.currentPeriodEndMillis,
-                    monthStartDay = uiState.monthStartDay
-                )
-            }
-            item {
-                GatedAction(
-                    feature = Feature.ANALYTICS_PERIOD_YEAR,
-                    displayName = stringResource(id = R.string.title_yearly_analytics),
-                    onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
-                ) { status, onLockedClick ->
-                    val isYearLocked = status !is AccessStatus.Granted
-
-                    AnimatedTabSwitcher(
-                        items = AnalyticsPeriod.entries.filter { it != AnalyticsPeriod.CUSTOM }.map { period ->
-                            TabItem(
-                                id = period,
-                                label = stringResource(id = period.labelRes),
-                                isLocked = period == AnalyticsPeriod.YEAR && isYearLocked,
-                                onLockedClick = { if (period == AnalyticsPeriod.YEAR && isYearLocked) onLockedClick() }
-                            )
-                        },
-                        selectedItemId = uiState.selectedPeriod,
-                        onItemSelected = { period ->
-                            onDateRangeSelected(period)
-                        }
+            // Only added when it will draw. It is invisible on a standard calendar
+            // month, and an invisible lazy item still costs the item spacing above and
+            // below it, which stacked another 18.dp onto the gap under the header.
+            if (hasCurrentPeriodIndicator(uiState.monthStartDay)) {
+                item {
+                    CurrentPeriodIndicator(
+                        startMillis = uiState.currentPeriodStartMillis,
+                        endMillis = uiState.currentPeriodEndMillis,
+                        monthStartDay = uiState.monthStartDay
                     )
                 }
             }
             item {
-                CustomRangeSelector(
-                    selectedPeriod = uiState.selectedPeriod,
-                    customRange = customRange,
-                    onClick = {
-                        isCustomRangePickerVisible = true
+                // While a custom range is active the other periods are moot, so the row
+                // shows only the range pill (with Clear) and hiding the three switches
+                // leaves nothing to switch between. Clearing the range restores them.
+                //
+                // AnimatedContent rather than fading the three chips out in place, because
+                // the two states are different layouts — four controls spread evenly, or one
+                // pill — and this slides between them instead of snapping. Each direction
+                // slides towards where the eye expects the content to be: the pill arrives
+                // from the end of the row it was already sitting at, and the switches
+                // return from the start.
+                val isCustomRangeActive = uiState.selectedPeriod == AnalyticsPeriod.CUSTOM
+
+                AnimatedContent(
+                    targetState = isCustomRangeActive,
+                    transitionSpec = {
+                        if (targetState) {
+                            (slideInHorizontally(tween(260)) { it / 8 } + fadeIn(tween(200))) togetherWith
+                                (slideOutHorizontally(tween(260)) { -it / 8 } + fadeOut(tween(160)))
+                        } else {
+                            (slideInHorizontally(tween(260)) { -it / 8 } + fadeIn(tween(200))) togetherWith
+                                (slideOutHorizontally(tween(260)) { it / 8 } + fadeOut(tween(160)))
+                        }
                     },
-                    onClear = onClearCustomRange
-                )
+                    label = "analytics_period_row"
+                ) { customRangeActive ->
+                    // Four period controls on one line, spaced evenly across the full width.
+                    // FlowRow rather than a Row because the wrapping is the adaptivity: the
+                    // labels keep their natural width and move onto a second row only when
+                    // all four stop fitting, which is what a large font scale or a narrow
+                    // window does to them. A Row would squeeze or clip instead.
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = EvenlySpacedChips(minGap = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Emitted one chip at a time so the FlowRow sees four siblings to
+                        // space. Wrapping them in an inner Row would make it two children
+                        // and the three periods would stay bunched at one end.
+                        if (!customRangeActive) {
+                            GatedAction(
+                                feature = Feature.ANALYTICS_PERIOD_YEAR,
+                                displayName = stringResource(id = R.string.title_yearly_analytics),
+                                onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
+                            ) { status, onLockedClick ->
+                                val isYearLocked = status !is AccessStatus.Granted
+
+                                AnalyticsPeriod.entries
+                                    .filter { it != AnalyticsPeriod.CUSTOM }
+                                    .forEach { period ->
+                                        val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
+                                        AnalyticsPeriodChip(
+                                            label = stringResource(id = period.labelRes),
+                                            isSelected = period == uiState.selectedPeriod,
+                                            isLocked = isLocked,
+                                            onClick = {
+                                                if (isLocked) onLockedClick() else onDateRangeSelected(period)
+                                            }
+                                        )
+                                    }
+                            }
+                        }
+
+                        CustomRangeSelector(
+                            selectedPeriod = uiState.selectedPeriod,
+                            customRange = customRange,
+                            onClick = {
+                                isCustomRangePickerVisible = true
+                            },
+                            onClear = onClearCustomRange
+                        )
+                    }
+                }
             }
             item { 
                 HeroAnalyticsSection(
@@ -511,6 +568,163 @@ private fun AnalyticsSectionRow(
     }
 }
 
+/**
+ * Spreads items across a line with the gaps equal, but never closer than [minGap].
+ *
+ * `Arrangement.SpaceBetween` has no minimum, so a set of chips that *just* fits would
+ * be laid out touching — and, because FlowRow only wraps when the content genuinely
+ * overflows, it would stay on one line as a solid strip instead of moving to two rows.
+ * Reporting [minGap] as [spacing] is what makes FlowRow count the gaps when it decides
+ * whether the line is full, so the row wraps before the chips touch.
+ *
+ * With the minimum respected, the leftover width is divided evenly between the gaps, so
+ * a row that fits is still spread across the full width rather than packed to one side.
+ *
+ * Internal rather than private so the behaviour can be unit tested.
+ */
+internal class EvenlySpacedChips(private val minGap: Dp) : Arrangement.Horizontal {
+
+    override val spacing: Dp get() = minGap
+
+    override fun Density.arrange(
+        totalSize: Int,
+        sizes: IntArray,
+        layoutDirection: LayoutDirection,
+        outPositions: IntArray
+    ) {
+        evenlySpacedPositions(
+            totalSize = totalSize,
+            sizes = sizes,
+            minGapPx = minGap.roundToPx(),
+            isRtl = layoutDirection == LayoutDirection.Rtl,
+            outPositions = outPositions
+        )
+    }
+}
+
+/**
+ * Writes the start offset of each entry in [sizes] into [outPositions], spreading them
+ * across [totalSize] with equal gaps that never fall below [minGapPx].
+ *
+ * Any width left over after the minimum gaps is shared equally between them, so a set of
+ * chips that fits is spread across the whole line. When there is no width to spare the
+ * gaps stay at the minimum, which is the signal for the wrapping parent to move the last
+ * chips onto a second line.
+ *
+ * Split out from [EvenlySpacedChips] so the arithmetic can be unit tested without a
+ * Compose Density, which a plain JVM test cannot supply.
+ */
+internal fun evenlySpacedPositions(
+    totalSize: Int,
+    sizes: IntArray,
+    minGapPx: Int,
+    isRtl: Boolean,
+    outPositions: IntArray
+) {
+    if (sizes.isEmpty()) return
+
+    val contentSize = sizes.sum()
+    val requiredSize = contentSize + minGapPx * (sizes.size - 1)
+    val gapPx = if (sizes.size > 1 && totalSize > requiredSize) {
+        minGapPx + (totalSize - requiredSize) / (sizes.size - 1)
+    } else {
+        minGapPx
+    }
+
+    var current = 0
+    sizes.forEachIndexed { index, size ->
+        outPositions[index] = if (isRtl) totalSize - current - size else current
+        current += size + gapPx
+    }
+}
+
+/**
+ * One period chip in the custom-range pill's visual language: 18.dp radius, a 1.dp
+ * border, and a primaryContainer fill while it is the active period.
+ *
+ * Deliberately not the shared AnimatedTabSwitcher. That component is a single
+ * container with a sliding indicator, divides its width into equal segments, and is
+ * used by four other screens, so using it here would both restyle them and leave three
+ * short labels sitting in a mostly empty bar. Emitting one chip at a time also lets the
+ * parent FlowRow space all four period controls evenly and wrap them onto two rows.
+ *
+ * The fill animates instead of sliding because separate chips have no shared path for
+ * an indicator to travel along. A colour transition is what keeps the state change
+ * reading as deliberate rather than as a jump.
+ */
+@Composable
+private fun AnalyticsPeriodChip(
+    label: String,
+    isSelected: Boolean,
+    isLocked: Boolean,
+    onClick: () -> Unit
+) {
+    // Flat colours rather than the pill's gradient. That gradient fades primaryContainer
+    // into itself at 80% alpha, so it reads as a solid fill anyway, and a single colour
+    // is what allows the selection to animate.
+    val containerColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        },
+        animationSpec = tween(durationMillis = 180),
+        label = "period_chip_container"
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        },
+        animationSpec = tween(durationMillis = 180),
+        label = "period_chip_border"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        animationSpec = tween(durationMillis = 180),
+        label = "period_chip_content"
+    )
+
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(18.dp))
+            .background(containerColor)
+            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = label,
+            color = contentColor,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+        )
+
+        // Year is Pro-gated; the badge has to stay visible or the gate becomes invisible
+        // until the user taps it.
+        if (isLocked) {
+            Icon(
+                imageVector = Icons.Filled.Lock,
+                // Same wording the shared period switcher uses for its locked tab, so the
+                // gate reads identically whichever control is showing it.
+                contentDescription = stringResource(
+                    id = R.string.content_desc_locked_formatted,
+                    label
+                ),
+                tint = MaterialTheme.colorScheme.featureGateLock,
+                modifier = Modifier.size(12.dp)
+            )
+        }
+    }
+}
+
 @Composable
 private fun CustomRangeSelector(
     selectedPeriod: AnalyticsPeriod,
@@ -518,9 +732,10 @@ private fun CustomRangeSelector(
     onClick: () -> Unit,
     onClear: () -> Unit
 ) {
+    // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
+    // Clear action follows the pill instead of being pushed to the far edge.
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -554,17 +769,19 @@ private fun CustomRangeSelector(
                 
                 Row(
                     modifier = Modifier
-                        .clickable { if (isLocked) gatedOnClick() else onClick() }
+                        .clickable(
+                            // Names the control for screen readers. The calendar icon used to
+                            // carry this label, and with the icon gone the visible text is
+                            // either the selected range or the placeholder, so the action is
+                            // stated here instead of being lost.
+                            onClickLabel = stringResource(id = R.string.desc_custom_range)
+                        ) { if (isLocked) gatedOnClick() else onClick() }
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.DateRange,
-                        contentDescription = stringResource(id = R.string.desc_custom_range),
-                        tint = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    // No calendar icon: it was removed to buy the width that lets this
+                    // pill share a line with the three period chips.
                     Text(
                         text = customRange?.let { formatCustomRangeLabel(it) } ?: stringResource(id = R.string.desc_custom_range),
                         color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
