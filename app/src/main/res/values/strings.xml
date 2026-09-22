@@ -209,7 +209,7 @@
     <string name="title_budget_recurring">Budget &amp; Recurring</string>
     <string name="title_category">Category</string>
     <string name="title_category_1">CATEGORY</string>
-    <string name="title_category_budgets">Category Budgets</string>
+    <string name="title_budget_category">Budget Category</string>
     <string name="title_custom_expense_category">Custom expense category</string>
     <string name="title_custom_income_category">Custom income category</string>
     <string name="title_delete_all_transactions">Delete All Transactions</string>

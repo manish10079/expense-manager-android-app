@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.feature.analytics.ui
+package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.unit.dp
@@ -8,7 +8,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Covers the arrangement that spreads the four analytics period controls across a line:
+ * Covers the arrangement that spreads a row of period chips across a line:
  *  - leftover width is divided equally between the gaps, so the row is spread rather than
  *    packed to one side,
  *  - a gap never falls below the minimum, which is what stops four chips that just fit
@@ -26,7 +26,7 @@ class EvenlySpacedChipsTest {
 
     private val arrangement: Arrangement.Horizontal = EvenlySpacedChips(minGap = minimumGap)
 
-    // Week / Month / Year / Custom Range at natural widths, in px at density 1.
+    // Four chips at natural widths, in px at density 1.
     private val sizes = intArrayOf(60, 70, 60, 130)
 
     private fun positions(totalSize: Int, isRtl: Boolean = false): IntArray {

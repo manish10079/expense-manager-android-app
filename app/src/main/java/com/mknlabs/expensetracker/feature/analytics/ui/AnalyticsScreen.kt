@@ -1,7 +1,6 @@
 package com.mknlabs.expensetracker.feature.analytics.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,9 +46,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,6 +59,8 @@ import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
+import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
@@ -281,7 +279,7 @@ fun AnalyticsScreenContent(
                                     .filter { it != AnalyticsPeriod.CUSTOM }
                                     .forEach { period ->
                                         val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
-                                        AnalyticsPeriodChip(
+                                        PeriodChip(
                                             label = stringResource(id = period.labelRes),
                                             isSelected = period == uiState.selectedPeriod,
                                             isLocked = isLocked,
@@ -568,163 +566,6 @@ private fun AnalyticsSectionRow(
     }
 }
 
-/**
- * Spreads items across a line with the gaps equal, but never closer than [minGap].
- *
- * `Arrangement.SpaceBetween` has no minimum, so a set of chips that *just* fits would
- * be laid out touching — and, because FlowRow only wraps when the content genuinely
- * overflows, it would stay on one line as a solid strip instead of moving to two rows.
- * Reporting [minGap] as [spacing] is what makes FlowRow count the gaps when it decides
- * whether the line is full, so the row wraps before the chips touch.
- *
- * With the minimum respected, the leftover width is divided evenly between the gaps, so
- * a row that fits is still spread across the full width rather than packed to one side.
- *
- * Internal rather than private so the behaviour can be unit tested.
- */
-internal class EvenlySpacedChips(private val minGap: Dp) : Arrangement.Horizontal {
-
-    override val spacing: Dp get() = minGap
-
-    override fun Density.arrange(
-        totalSize: Int,
-        sizes: IntArray,
-        layoutDirection: LayoutDirection,
-        outPositions: IntArray
-    ) {
-        evenlySpacedPositions(
-            totalSize = totalSize,
-            sizes = sizes,
-            minGapPx = minGap.roundToPx(),
-            isRtl = layoutDirection == LayoutDirection.Rtl,
-            outPositions = outPositions
-        )
-    }
-}
-
-/**
- * Writes the start offset of each entry in [sizes] into [outPositions], spreading them
- * across [totalSize] with equal gaps that never fall below [minGapPx].
- *
- * Any width left over after the minimum gaps is shared equally between them, so a set of
- * chips that fits is spread across the whole line. When there is no width to spare the
- * gaps stay at the minimum, which is the signal for the wrapping parent to move the last
- * chips onto a second line.
- *
- * Split out from [EvenlySpacedChips] so the arithmetic can be unit tested without a
- * Compose Density, which a plain JVM test cannot supply.
- */
-internal fun evenlySpacedPositions(
-    totalSize: Int,
-    sizes: IntArray,
-    minGapPx: Int,
-    isRtl: Boolean,
-    outPositions: IntArray
-) {
-    if (sizes.isEmpty()) return
-
-    val contentSize = sizes.sum()
-    val requiredSize = contentSize + minGapPx * (sizes.size - 1)
-    val gapPx = if (sizes.size > 1 && totalSize > requiredSize) {
-        minGapPx + (totalSize - requiredSize) / (sizes.size - 1)
-    } else {
-        minGapPx
-    }
-
-    var current = 0
-    sizes.forEachIndexed { index, size ->
-        outPositions[index] = if (isRtl) totalSize - current - size else current
-        current += size + gapPx
-    }
-}
-
-/**
- * One period chip in the custom-range pill's visual language: 18.dp radius, a 1.dp
- * border, and a primaryContainer fill while it is the active period.
- *
- * Deliberately not the shared AnimatedTabSwitcher. That component is a single
- * container with a sliding indicator, divides its width into equal segments, and is
- * used by four other screens, so using it here would both restyle them and leave three
- * short labels sitting in a mostly empty bar. Emitting one chip at a time also lets the
- * parent FlowRow space all four period controls evenly and wrap them onto two rows.
- *
- * The fill animates instead of sliding because separate chips have no shared path for
- * an indicator to travel along. A colour transition is what keeps the state change
- * reading as deliberate rather than as a jump.
- */
-@Composable
-private fun AnalyticsPeriodChip(
-    label: String,
-    isSelected: Boolean,
-    isLocked: Boolean,
-    onClick: () -> Unit
-) {
-    // Flat colours rather than the pill's gradient. That gradient fades primaryContainer
-    // into itself at 80% alpha, so it reads as a solid fill anyway, and a single colour
-    // is what allows the selection to animate.
-    val containerColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
-        animationSpec = tween(durationMillis = 180),
-        label = "period_chip_container"
-    )
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-        } else {
-            MaterialTheme.colorScheme.outlineVariant
-        },
-        animationSpec = tween(durationMillis = 180),
-        label = "period_chip_border"
-    )
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.onPrimaryContainer
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        animationSpec = tween(durationMillis = 180),
-        label = "period_chip_content"
-    )
-
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(containerColor)
-            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Text(
-            text = label,
-            color = contentColor,
-            maxLines = 1,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
-        )
-
-        // Year is Pro-gated; the badge has to stay visible or the gate becomes invisible
-        // until the user taps it.
-        if (isLocked) {
-            Icon(
-                imageVector = Icons.Filled.Lock,
-                // Same wording the shared period switcher uses for its locked tab, so the
-                // gate reads identically whichever control is showing it.
-                contentDescription = stringResource(
-                    id = R.string.content_desc_locked_formatted,
-                    label
-                ),
-                tint = MaterialTheme.colorScheme.featureGateLock,
-                modifier = Modifier.size(12.dp)
-            )
-        }
-    }
-}
-
 @Composable
 private fun CustomRangeSelector(
     selectedPeriod: AnalyticsPeriod,
@@ -906,7 +747,6 @@ private fun AnalyticsLineChart(
 ) {
     val expenseColor = MaterialTheme.colorScheme.expense
     val incomeColor = MaterialTheme.colorScheme.income
-    val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
     val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
     val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
@@ -984,10 +824,13 @@ private fun AnalyticsLineChart(
                             normalized = normalized,
                             chartHeight = chartHeight,
                             lineColor = expenseColor,
+                            // The fill has to follow the line. It was built from the theme's
+                            // primary colour, so an expense-only chart drew a red line over a
+                            // purple shadow while the income branch below tinted its own fill.
                             fillColors = if (displayMode == HeroDisplayMode.EXPENSE) {
                                 listOf(
-                                    primaryColor.copy(alpha = 0.6f),
-                                    primaryColor.copy(alpha = 0.2f),
+                                    expenseColor.copy(alpha = 0.6f),
+                                    expenseColor.copy(alpha = 0.2f),
                                     backgroundColor.copy(alpha = 0.1f)
                                 )
                             } else null,

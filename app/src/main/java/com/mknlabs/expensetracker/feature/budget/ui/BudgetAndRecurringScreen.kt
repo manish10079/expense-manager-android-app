@@ -133,7 +133,9 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
+import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
@@ -387,12 +389,16 @@ private fun BudgetAndRecurringContent(
                     .weight(1f),
                 verticalAlignment = Alignment.Top
             ) { page ->
+                // Both pages open with content rather than a heading, so they share one inset.
+                // It is tighter than the 18.dp that separates the cards below: on the budgets
+                // page this is the gap to the Budgets/Recurring switcher above, two blocks of
+                // the same weight that read as a pair.
                 LazyColumn(
                     state = if (page == 0) budgetsListState else recurringListState,
                     modifier = Modifier
                         .fillMaxSize()
                         .navigationBarsPadding(),
-                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 20.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 10.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     if (page == 0) {
@@ -417,14 +423,21 @@ private fun BudgetAndRecurringContent(
                         }
 
                         item { BudgetSummaryCard(summary = uiState.summary) }
-                        
-                        item {
-                            AdContainer(isAdsEnabled = isAdsEnabled) {
-                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+
+                        // Guarded by the flag as well as by AdContainer, for the same reason as the
+                        // per-rule slots on the recurring tab: a hidden slot does collapse to zero
+                        // height, but an emitted lazy item still costs the list's item spacing on
+                        // both sides, which doubled the gap between the summary card and the
+                        // heading below it for every ad-free user.
+                        if (isAdsEnabled) {
+                            item {
+                                AdContainer(isAdsEnabled = isAdsEnabled) {
+                                    NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                }
                             }
                         }
 
-                        item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
+                        item { SectionTitle(title = stringResource(id = R.string.title_budget_category)) }
 
                         if (uiState.categoryBudgets.isEmpty()) {
                             item {
@@ -489,8 +502,10 @@ private fun BudgetAndRecurringContent(
                         }
                     } else {
                         // TAB 2: RECURRING
-                        item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
-
+                        // No section heading: the tab above is labelled "Recurring" and carries
+                        // the count, so a "Recurring Expenses" title directly under it only
+                        // repeated the tab and separated nothing. The budget tab's heading stays
+                        // because it sits below the summary card and names the breakdown.
                         if (uiState.recurringExpenses.isEmpty()) {
                             item {
                                 EmptySectionCard(
@@ -560,19 +575,27 @@ private fun BudgetAndRecurringContent(
                                         }
                                     }
                                 }
-                                item(key = "ad_${expense.id}") {
-                                    val isBeingDeleted = expense.id in deletingRecurringIds
-                                    AnimatedVisibility(
-                                        visible = !isBeingDeleted,
-                                        exit = shrinkVertically(
-                                            animationSpec = spring(
-                                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                                stiffness = Spring.StiffnessMedium
-                                            )
-                                        ) + fadeOut(animationSpec = tween(durationMillis = 220))
-                                    ) {
-                                        AdContainer(isAdsEnabled = isAdsEnabled) {
-                                            NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                // Guarded by the flag as well as by AdContainer. A hidden slot does
+                                // collapse to zero height as AdContainer documents, but an emitted
+                                // lazy item still costs the list's item spacing on both of its sides,
+                                // so every ad-free user got a second 18.dp stacked onto the gap
+                                // between two rule cards. The item now simply does not exist for
+                                // them, and is unchanged for everyone seeing ads.
+                                if (isAdsEnabled) {
+                                    item(key = "ad_${expense.id}") {
+                                        val isBeingDeleted = expense.id in deletingRecurringIds
+                                        AnimatedVisibility(
+                                            visible = !isBeingDeleted,
+                                            exit = shrinkVertically(
+                                                animationSpec = spring(
+                                                    dampingRatio = Spring.DampingRatioNoBouncy,
+                                                    stiffness = Spring.StiffnessMedium
+                                                )
+                                            ) + fadeOut(animationSpec = tween(durationMillis = 220))
+                                        ) {
+                                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                            }
                                         }
                                     }
                                 }
@@ -809,107 +832,32 @@ private fun BudgetPeriodRow(
     isCustomMonthLocked: Boolean,
     onPeriodSelected: (BudgetPeriodFilter) -> Unit
 ) {
-    val periods = remember { BudgetPeriodFilter.entries }
-    val selectedIndex = periods.indexOf(selectedPeriod).coerceAtLeast(0)
-    
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(26.dp))
-            .background(standardCardGradient())
-            .padding(4.dp)
+    // Chips rather than the shared AnimatedTabSwitcher bar, matching the period selector on
+    // Analytics. An equal-segment bar divides the whole width between three short labels, so
+    // most of it is empty pill, and the chips also let this row wrap instead of squeezing.
+    //
+    // The label size stays labelSmall, which is what this row already used. These labels are
+    // all caps and longer than the Analytics ones, and at labelLarge three of them no longer
+    // fit on one line on a phone.
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = EvenlySpacedChips(minGap = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "budget_indicator_offset"
-        )
+        BudgetPeriodFilter.entries.forEach { period ->
+            val isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked
 
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(brandGradient())
+            PeriodChip(
+                label = when (period) {
+                    BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
+                    BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
+                    BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
+                },
+                isSelected = period == selectedPeriod,
+                isLocked = isLocked,
+                textStyle = MaterialTheme.typography.labelSmall,
+                onClick = { onPeriodSelected(period) }
             )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            periods.forEach { period ->
-                BudgetPeriodChip(
-                    label = when (period) {
-                        BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
-                        BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
-                        BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
-                    },
-                    selected = period == selectedPeriod,
-                    isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked,
-                    onClick = { onPeriodSelected(period) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BudgetPeriodChip(
-    label: String,
-    selected: Boolean,
-    isLocked: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val animatedColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "budget_text_color"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = label,
-                color = animatedColor,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelSmall,
-            )
-
-            if (isLocked) {
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = stringResource(id = R.string.content_desc_locked_formatted, label),
-                    tint = if (selected) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.featureGateLock
-                    },
-                    modifier = Modifier.size(12.dp)
-                )
-            }
         }
     }
 }
