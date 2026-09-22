@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.Intent
 import android.net.Uri

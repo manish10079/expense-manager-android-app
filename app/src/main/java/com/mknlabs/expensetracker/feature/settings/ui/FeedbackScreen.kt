@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -32,8 +32,6 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.ui.viewmodels.FeedbackUiState
-import com.mknlabs.expensetracker.ui.viewmodels.FeedbackViewModel
 
 @Composable
 fun FeedbackRoute(

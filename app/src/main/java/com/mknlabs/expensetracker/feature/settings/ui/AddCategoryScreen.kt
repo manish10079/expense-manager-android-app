@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,7 +37,6 @@ import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
-import com.mknlabs.expensetracker.ui.viewmodels.AddCategoryViewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
@@ -71,7 +70,7 @@ fun AddCategoryScreen(
 
 @Composable
 private fun AddCategoryScreenContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.AddCategoryUiState,
+    uiState: AddCategoryUiState,
     existingCategories: List<CategoryType>,
     existingPaymentMethods: List<PaymentType>,
     onBackClick: () -> Unit,
@@ -482,7 +481,7 @@ private fun IconSelectionItem(
 private fun AddCategoryScreenContentPreview() {
     com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme {
         AddCategoryScreenContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.AddCategoryUiState(),
+            uiState = AddCategoryUiState(),
             existingCategories = emptyList(),
             existingPaymentMethods = emptyList(),
             onBackClick = {},

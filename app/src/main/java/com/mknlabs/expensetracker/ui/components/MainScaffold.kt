@@ -41,7 +41,7 @@ import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsViewModel
 import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringViewModel
 import com.mknlabs.expensetracker.feature.calendar.ui.CalendarViewModel
 import com.mknlabs.expensetracker.feature.home.ui.HomeViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
+import com.mknlabs.expensetracker.feature.settings.ui.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle

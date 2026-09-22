@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -30,8 +30,6 @@ import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.viewmodels.ConnectedDevicesUiState
-import com.mknlabs.expensetracker.ui.viewmodels.ConnectedDevicesViewModel
 import com.mknlabs.expensetracker.utils.formatDate
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme

@@ -43,11 +43,11 @@ import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.ui.screens.SplashOverlay
-import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
-import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
+import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
 import com.mknlabs.expensetracker.ui.components.UpdateDialog
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateUiState
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
 import com.mknlabs.expensetracker.utils.PlayStoreLink
 import android.net.Uri
 import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo

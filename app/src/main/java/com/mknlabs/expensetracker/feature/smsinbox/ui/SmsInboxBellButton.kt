@@ -108,7 +108,7 @@ internal fun isSmsInboxBadgeOverflow(count: Int): Boolean = count > MAX_SMS_INBO
 /**
  * Bell icon on Home that opens the detected-transaction inbox, with the unread count on it.
  *
- * Sized like [com.mknlabs.expensetracker.ui.screens.SettingsButton] (40dp visual, 48dp touch target)
+ * Sized like [com.mknlabs.expensetracker.feature.home.ui.SettingsButton] (40dp visual, 48dp touch target)
  * so the two sit as peers in the greeting row. The badge is intentionally drawn outside the circular
  * clip — a badge tucked inside the circle has its corner shaved off — and the press indication is
  * off for the same reason the neighbouring settings button has it off: the row is glyph-only, so a

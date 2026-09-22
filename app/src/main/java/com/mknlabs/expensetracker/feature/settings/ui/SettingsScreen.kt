@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,7 +72,6 @@ import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
 private const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true

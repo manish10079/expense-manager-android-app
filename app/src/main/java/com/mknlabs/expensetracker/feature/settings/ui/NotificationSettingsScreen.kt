@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult

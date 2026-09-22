@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,14 +58,12 @@ import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.components.GatedAction
 import com.mknlabs.expensetracker.ui.models.SelectionItem
-import com.mknlabs.expensetracker.ui.viewmodels.PreferencesSheetType
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.AccessLevel
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.viewmodels.PreferencesViewModel
 import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
 
@@ -159,7 +157,7 @@ fun PreferencesScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PreferencesScreenContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.PreferencesScreenUiState,
+    uiState: PreferencesScreenUiState,
     isAdsEnabled: Boolean,
     userTier: com.mknlabs.expensetracker.models.UserTier,
     onManageCategoryClick: () -> Unit,
@@ -809,7 +807,7 @@ private fun FontOptionItem(
 private fun PreferencesScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         PreferencesScreenContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.PreferencesScreenUiState(
+            uiState = PreferencesScreenUiState(
                 currentCurrencyLabel = "INR",
                 currentDecimalPlacesLabel = "2 decimal places",
                 currentGroupingLabelRes = R.string.label_grouping_indian,

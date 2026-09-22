@@ -29,26 +29,26 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
-import com.mknlabs.expensetracker.ui.screens.AboutScreen
+import com.mknlabs.expensetracker.feature.settings.ui.AboutScreen
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
-import com.mknlabs.expensetracker.ui.screens.FeedbackRoute
+import com.mknlabs.expensetracker.feature.settings.ui.FeedbackRoute
 import com.mknlabs.expensetracker.feature.transactions.ui.AddTransactionScreen
 import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsScreen
 import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringScreen
-import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
+import com.mknlabs.expensetracker.feature.settings.ui.AddCategoryScreen
 import com.mknlabs.expensetracker.feature.calendar.ui.CalendarScreen
-import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
-import com.mknlabs.expensetracker.ui.screens.DataManagementScreen
+import com.mknlabs.expensetracker.feature.settings.ui.CategoryManagementScreen
+import com.mknlabs.expensetracker.feature.settings.ui.DataManagementScreen
 import com.mknlabs.expensetracker.feature.goals.ui.GoalsScreen
 import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorScreen
-import com.mknlabs.expensetracker.ui.screens.NotificationSettingsScreen
-import com.mknlabs.expensetracker.ui.screens.PreferencesScreen
+import com.mknlabs.expensetracker.feature.settings.ui.NotificationSettingsScreen
+import com.mknlabs.expensetracker.feature.settings.ui.PreferencesScreen
 import com.mknlabs.expensetracker.feature.profile.ui.ProfileScreen
-import com.mknlabs.expensetracker.ui.screens.ConnectedDevicesScreen
-import com.mknlabs.expensetracker.ui.screens.SecurityPrivacyScreen
-import com.mknlabs.expensetracker.ui.screens.SettingsScreen
+import com.mknlabs.expensetracker.feature.settings.ui.ConnectedDevicesScreen
+import com.mknlabs.expensetracker.feature.settings.ui.SecurityPrivacyScreen
+import com.mknlabs.expensetracker.feature.settings.ui.SettingsScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
 import com.mknlabs.expensetracker.feature.profile.ui.MembershipDetailsScreen
@@ -609,7 +609,7 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.AddCategory -> {
-                    val addCategoryViewModel: com.mknlabs.expensetracker.ui.viewmodels.AddCategoryViewModel = hiltViewModel()
+                    val addCategoryViewModel: com.mknlabs.expensetracker.feature.settings.ui.AddCategoryViewModel = hiltViewModel()
                     androidx.compose.runtime.LaunchedEffect(addingCategoryTargetTab) {
                         addCategoryViewModel.setTargetTab(addingCategoryTargetTab)
                     }

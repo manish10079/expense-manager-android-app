@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,7 +71,6 @@ import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.components.AppIconBox
-import com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementViewModel
 
 
 
@@ -138,7 +137,7 @@ fun CategoryManagementScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryManagementContent(
-    uiState: com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState,
+    uiState: CategoryManagementUiState,
     pagerState: androidx.compose.foundation.pager.PagerState,
     isAdsEnabled: Boolean,
     onBackClick: () -> Unit,
@@ -511,7 +510,7 @@ private fun AddCategoryFab(
 private fun CategoryManagementScreenPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         CategoryManagementContent(
-            uiState = com.mknlabs.expensetracker.ui.viewmodels.CategoryManagementUiState(),
+            uiState = CategoryManagementUiState(),
             pagerState = rememberPagerState(initialPage = 0) { CategoryManagementTab.entries.size },
             isAdsEnabled = true,
             onBackClick = {},

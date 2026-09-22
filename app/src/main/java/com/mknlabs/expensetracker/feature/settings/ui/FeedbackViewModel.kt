@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel

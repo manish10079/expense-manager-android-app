@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import com.google.android.ump.ConsentInformation.PrivacyOptionsRequirementStatus
 import com.google.firebase.auth.FirebaseUser

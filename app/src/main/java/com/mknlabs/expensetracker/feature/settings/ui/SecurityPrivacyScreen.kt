@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
@@ -46,7 +46,6 @@ import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.viewmodels.formatAutoLockDurationLabel
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
