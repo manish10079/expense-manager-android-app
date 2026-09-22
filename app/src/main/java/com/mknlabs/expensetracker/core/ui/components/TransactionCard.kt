@@ -392,6 +392,20 @@ fun TransactionCard(
     }
 }
 
+/**
+ * Small label pill for the card's secondary row (type / category / payment).
+ *
+ * Deliberately carries NO vertical padding: with none, the box hugs the label's own
+ * line box, which is exactly the height of the card's date·time line above it — that
+ * line is a single-line `labelSmall` Text too, so the two match by construction
+ * rather than through a stored dimension. Nothing is converted from sp to dp, so the
+ * match also survives font-scale changes and Android 14+ non-linear font scaling,
+ * where a hardcoded height would drift by a fraction of a dp.
+ *
+ * The corner radius stays a constant *fraction* of the height (4dp on a ~16dp pill is
+ * the same 1:4 ratio the previous 6dp radius had on a ~24dp pill), so the silhouette
+ * is identical rather than visibly rounder at the smaller size.
+ */
 @Composable
 private fun TransactionPill(
     text: String,
@@ -400,8 +414,8 @@ private fun TransactionPill(
 ) {
     Box(
         modifier = Modifier
-            .background(backgroundColor, RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .background(backgroundColor, RoundedCornerShape(4.dp))
+            .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

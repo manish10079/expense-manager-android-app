@@ -66,12 +66,33 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import kotlinx.coroutines.delay
 
 /**
- * Gap reserved between the two destination groups for the docked Add FAB — the
- * FAB's own diameter. Any wider would steal room the destination labels need at
- * narrow widths; any narrower would let the pills collide with the FAB. Derived
- * from [AddTransactionFabSize] so the two can never drift apart.
+ * Gap reserved between the two destination groups for the docked Add FAB.
+ *
+ * Deliberately 8dp NARROWER than the FAB ([AddTransactionFabSize]), i.e. 4dp per
+ * side, so Analytics and Budget sit closer to Add. The slot previously measured
+ * exactly one FAB diameter, which left the two inner pills tangent to the FAB's
+ * *bounding box* — but the FAB is a circle whose widest point rests on the
+ * capsule's top edge, so the space beside its lower half was already empty. That
+ * is the space reclaimed here, which is why the pills can move in without a
+ * collision.
+ *
+ * Measured at the default font scale on a 411dp window, the FAB protrudes over
+ * bare capsule background rather than over any pill content:
+ * - the selected indicator (a 20dp-rounded rect) keeps ~5dp of clearance from the
+ *   circle — its rounded top corner curves away from the circle's widest part;
+ * - the icon keeps ~34dp, and the labels start below the circle's vertical extent
+ *   entirely (the circle reaches 28dp down from the capsule's top edge, the labels
+ *   begin at 48dp), so no glyph is affected at any string length;
+ * - only the pills' raw tap *boxes* intrude (~2.8dp into the circle's bounding
+ *   box) — the transparent, corner-clipped region the FAB is drawn over and owns
+ *   for touch anyway.
+ *
+ * That margin is the budget, so it stays bounded below by the same geometry: at a
+ * 40dp slot (16dp off the FAB) the indicator gap is down to ~1dp and the tap-box
+ * intrusion triples to ~6.8dp, which reads as a collision. Narrowing further would
+ * also steal room the labels need at raised font scales.
  */
-private val AddFabSlotWidth = AddTransactionFabSize
+private val AddFabSlotWidth = AddTransactionFabSize - 8.dp
 
 /** Capsule width cap so the bar stays a capsule rather than stretching edge to
  *  edge if it is ever rendered on a wide window (the rail covers those today). */
