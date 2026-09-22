@@ -405,6 +405,7 @@ class SyncRepositoryImpl @Inject constructor(
         var remoteGender = ""
         var remotePhoneNumber = ""
         var remoteDateOfBirthOn = ""
+        var remoteFinancialGoal = ""
 
         if (!isNewUser) {
             try {
@@ -420,6 +421,7 @@ class SyncRepositoryImpl @Inject constructor(
                     remoteGender = snapshot.getString("gender").orEmpty()
                     remotePhoneNumber = snapshot.getString("phoneNumber").orEmpty()
                     remoteDateOfBirthOn = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn")).orEmpty()
+                    remoteFinancialGoal = snapshot.getString("financialGoal").orEmpty()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("Sync", "Failed to fetch remote profile", e)
@@ -461,6 +463,15 @@ class SyncRepositoryImpl @Inject constructor(
             localProfile.photoUri ?: currentUser?.photoUrl?.toString()
         }
 
+        // A profile with no local date must not clear the stored cloud one: the
+        // previous inline fallback only ran when a date existed but formatted
+        // blank, which is effectively never, so an absent date was pushed as "".
+        val formattedDateOfBirth = localProfile.dateOfBirthMillis
+            ?.takeIf { it != 0L }
+            ?.let { formatDate(it, "dd MMMM yyyy") }
+            .orEmpty()
+            .ifBlank { remoteDateOfBirthOn }
+
         val profileData = mutableMapOf(
             "uid" to uid,
             "fullName" to finalFullName,
@@ -468,9 +479,13 @@ class SyncRepositoryImpl @Inject constructor(
             // Blank local fields fall back to existing cloud values so a fresh
             // install / re-login can never wipe the stored profile.
             "phoneNumber" to localProfile.phoneNumber.ifBlank { remotePhoneNumber },
-            "dateOfBirthOn" to localProfile.dateOfBirthMillis?.takeIf { it != 0L }?.let { formatDate(it, "dd MMMM yyyy") }?.ifBlank { remoteDateOfBirthOn }.orEmpty(),
+            "dateOfBirthOn" to formattedDateOfBirth,
             "gender" to localProfile.gender.ifBlank { remoteGender },
-            "financialGoal" to localProfile.financialGoal,
+            // Guarded like the fields around it: an empty local goal used to be pushed
+            // as-is, which erased the stored goal. That silently cost returning users
+            // the "Welcome back" screen, because the onboarding skip treats a profile
+            // with no goal as incomplete and sends them through the goal page again.
+            "financialGoal" to localProfile.financialGoal.ifBlank { remoteFinancialGoal },
             "photoUri" to finalPhotoUri,
             "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "authProvider" to if (localProfile.authProvider.isNotBlank()) localProfile.authProvider else {

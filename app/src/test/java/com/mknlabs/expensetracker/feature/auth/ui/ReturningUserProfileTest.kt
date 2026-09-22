@@ -7,10 +7,9 @@ import org.junit.Test
 
 /**
  * Covers the onboarding "skip already-completed steps" logic for returning users:
- *  - a financial goal already in Firestore ⇒ skip the goal page,
- *  - name + gender already in Firestore ⇒ skip the setup page,
- *  - all three empty ⇒ show everything (goal + setup),
- *  - all three present ⇒ jump straight to the Welcome Back page.
+ *  - name + gender already in Firestore ⇒ skip straight to the Welcome Back page,
+ *  - either of them missing ⇒ show the setup (name/gender) page,
+ *  - the financial goal never decides the route on its own.
  */
 class ReturningUserProfileTest {
 
@@ -22,7 +21,7 @@ class ReturningUserProfileTest {
         assertFalse(profile.hasGender)
         assertFalse(profile.hasGoal)
         assertFalse(profile.isComplete)
-        assertEquals(ReturningUserStep.FINANCIAL_GOAL, resolveReturningUserStep(profile))
+        assertEquals(ReturningUserStep.SETUP_PROFILE, resolveReturningUserStep(profile))
     }
 
     @Test
@@ -37,44 +36,45 @@ class ReturningUserProfileTest {
     }
 
     @Test
+    fun missingGoal_stillRoutesToWelcomeBack() {
+        // The regression this guards: a stored goal could be erased by a blank local
+        // value, and requiring it then pushed the user back through onboarding instead
+        // of welcoming them. Identity is enough.
+        val profile = ReturningUserProfile("John Doe", "Male", "")
+
+        assertTrue(profile.isComplete)
+        assertEquals(ReturningUserStep.WELCOME_BACK, resolveReturningUserStep(profile))
+    }
+
+    @Test
+    fun missingGender_routesToSetupProfileEvenWithAGoal() {
+        val profile = ReturningUserProfile("John Doe", "", "Home")
+
+        assertTrue(profile.hasGoal)
+        assertFalse(profile.isComplete)
+        assertEquals(ReturningUserStep.SETUP_PROFILE, resolveReturningUserStep(profile))
+    }
+
+    @Test
+    fun missingName_routesToSetupProfile() {
+        assertEquals(
+            ReturningUserStep.SETUP_PROFILE,
+            resolveReturningUserStep(ReturningUserProfile("", "Male", "Home"))
+        )
+    }
+
+    @Test
     fun guestUserName_isNotConsideredARealName() {
         val profile = ReturningUserProfile("Guest User", "Male", "Home")
 
         assertFalse(profile.hasName)
         assertFalse(profile.isComplete)
-    }
-
-    @Test
-    fun missingGoal_routesToFinancialGoalAndSkipsGoalCheck() {
-        // Name + gender exist but no goal ⇒ user must still see the goal page.
-        val profile = ReturningUserProfile("John Doe", "Male", "")
-
-        assertEquals(ReturningUserStep.FINANCIAL_GOAL, resolveReturningUserStep(profile))
-    }
-
-    @Test
-    fun missingNameOrGender_routesToSetupProfile() {
-        assertEquals(
-            ReturningUserStep.SETUP_PROFILE,
-            resolveReturningUserStep(ReturningUserProfile("", "Male", "Home"))
-        )
-        assertEquals(
-            ReturningUserStep.SETUP_PROFILE,
-            resolveReturningUserStep(ReturningUserProfile("John Doe", "", "Home"))
-        )
-    }
-
-    @Test
-    fun onlyNamePresent_stillRoutesToFinancialGoal() {
-        // Name exists but gender and goal are missing: goal first, setup after.
-        val profile = ReturningUserProfile("John Doe", "", "")
-
-        assertEquals(ReturningUserStep.FINANCIAL_GOAL, resolveReturningUserStep(profile))
+        assertEquals(ReturningUserStep.SETUP_PROFILE, resolveReturningUserStep(profile))
     }
 
     @Test
     fun onlyGoalPresent_routesToSetupProfile() {
-        // Goal already chosen on another device ⇒ skip the goal page, ask for name/gender.
+        // Goal already chosen on another device ⇒ ask for the identity fields.
         val profile = ReturningUserProfile("", "", "Home")
 
         assertTrue(profile.hasGoal)

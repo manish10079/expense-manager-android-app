@@ -287,15 +287,9 @@ private fun OnboardingScreenContent(
                 Log.d("Onboarding", "Returning user with complete profile — showing WelcomeBack.")
                 currentPage = 7
             }
-            ReturningUserStep.FINANCIAL_GOAL -> {
-                // Profile exists but no financial goal yet
-                userName = profile.fullName.ifBlank { userName }
-                userGender = profile.gender.ifBlank { userGender }
-                Log.d("Onboarding", "Returning user — missing goal, going to goal page.")
-                currentPage = 5
-            }
             ReturningUserStep.SETUP_PROFILE -> {
-                // Profile exists but name/gender missing
+                // Profile exists but name/gender missing. Carry the goal across so a
+                // returning user is not asked for one they already chose.
                 userFinancialGoal = profile.financialGoal.ifBlank { userFinancialGoal }
                 Log.d("Onboarding", "Returning user — missing name/gender, going to setup page.")
                 currentPage = 6

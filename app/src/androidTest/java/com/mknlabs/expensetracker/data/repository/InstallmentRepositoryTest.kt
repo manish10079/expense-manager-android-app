@@ -550,6 +550,98 @@ class InstallmentRepositoryTest {
         assertNull(slots[3].transactionId)
     }
 
+    @Test
+    fun paymentsThatCannotBeLinked_doNotGetChargedASecondTime() = runTest {
+        // An 8-occurrence series that already ran through 4 months and is then
+        // converted. The payments exist in the ledger but carry no rule tag (added
+        // by hand, or restored from cloud sync), so the conversion cannot link
+        // them. It used to leave every month unsettled, and the worker then charged
+        // all four again and announced them as freshly added.
+        val chargedMonths = (0..3).map { monthAfter(anchor, it) }
+        repository.upsertRule(
+            repository.getActiveRules().first { it.id == RULE_ID }.copy(
+                repeatCount = 8,
+                remainingCount = 4,
+                nextRunAt = monthAfter(anchor, 4),
+                lastRunAt = chargedMonths.last()
+            )
+        )
+        chargedMonths.drop(1).forEach { seedUntaggedPayment(it) }
+
+        repository.convertToInstallment(
+            ruleId = RULE_ID,
+            totalAmountMinor = 80_000L,
+            installmentAmountMinor = 10_000L,
+            totalInstallments = 8,
+            firstDueAt = monthAfter(anchor, 4)
+        )
+
+        val slots = repository.getOccurrences(RULE_ID).sortedBy { it.installmentIndex }
+        assertEquals("the plan still spans the whole series", 8, slots.size)
+
+        // The four months the series ran through are settled, not owed again.
+        chargedMonths.forEachIndexed { index, dueAt ->
+            assertEquals("slot ${index + 1} due date", dueAt, slots[index].dueAt)
+            assertEquals("slot ${index + 1} stays paid", "PAID", slots[index].status.name)
+        }
+        // Occurrence 1 is the payment the rule was created from, so it keeps its
+        // link; the others are settled without inventing a payment to point at.
+        assertEquals(TEMPLATE_ID, slots[0].transactionId)
+        (1..3).forEach { index ->
+            assertNull("slot ${index + 1} must not claim a payment", slots[index].transactionId)
+        }
+        (4..7).forEach { index ->
+            assertEquals("slot ${index + 1} is still to come", "PENDING", slots[index].status.name)
+        }
+
+        // What the worker does on its next run. Only the four months the series
+        // never reached are charged — each once — and the four already-paid months
+        // keep exactly the one payment they had, so nothing is announced twice.
+        val before = db.transactionDao().countAll()
+        val notes = repository.reconcileDueInstallments(RULE_ID, System.currentTimeMillis())
+        val after = db.transactionDao().countAll()
+
+        assertEquals("the four unpaid months are charged", 4, notes.size)
+        assertEquals("and each adds exactly one payment", 4, after - before)
+        // The payments the series already made are untouched — the conversion did
+        // not invent replacements for them.
+        chargedMonths.drop(1).forEach { dueAt ->
+            assertNotNull(
+                "the payment already recorded for month $dueAt is still there",
+                db.transactionDao().getById("tx-manual-$dueAt")
+            )
+        }
+    }
+
+    @Test
+    fun reconcileReportsOnlyPaymentsItActuallyAdded() = runTest {
+        convertToPlan(count = 1)
+        // A payment row already sitting on a pending slot's id — what a leftover
+        // from an earlier run looks like. Settling updates it instead of inserting,
+        // so it must not be announced as a newly added transaction.
+        val slotId = "${RULE_ID}_occ_1"
+        db.transactionDao().upsert(
+            Transaction(
+                id = slotId,
+                note = "laptop emi",
+                createdAt = anchor,
+                amountMinor = 10_000L,
+                transactionTypeId = 2,
+                paymentTypeId = 1,
+                categoryId = 1,
+                syncState = SyncState.SYNCED
+            ).toEntity()
+        )
+        val before = db.transactionDao().countAll()
+
+        val notes = repository.reconcileDueInstallments(RULE_ID, System.currentTimeMillis())
+        val after = db.transactionDao().countAll()
+
+        assertEquals("nothing was added, so nothing is announced", 0, notes.size)
+        assertEquals("no rows were inserted", before, after)
+        assertEquals("PAID", repository.getOccurrences(RULE_ID).first { it.id == slotId }.status.name)
+    }
+
     /**
      * One occurrence the worker generated: the deterministic "{ruleId}_{date}"
      * id and that same date, exactly as `processRule` writes it.
@@ -565,6 +657,25 @@ class InstallmentRepositoryTest {
                 paymentTypeId = 1,
                 categoryId = 1,
                 sourceRecurringRuleId = RULE_ID,
+                syncState = SyncState.SYNCED
+            ).toEntity()
+        )
+    }
+
+    /**
+     * A payment for an occurrence that carries no rule tag — what a hand-added
+     * entry or a cloud-restored row looks like to the conversion.
+     */
+    private suspend fun seedUntaggedPayment(date: Long) {
+        db.transactionDao().upsert(
+            Transaction(
+                id = "tx-manual-$date",
+                note = "laptop emi",
+                createdAt = date,
+                amountMinor = 60_000L,
+                transactionTypeId = 2,
+                paymentTypeId = 1,
+                categoryId = 1,
                 syncState = SyncState.SYNCED
             ).toEntity()
         )

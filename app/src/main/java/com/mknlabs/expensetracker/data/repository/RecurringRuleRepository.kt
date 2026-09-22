@@ -168,11 +168,9 @@ class RecurringRuleRepository @Inject constructor(
         }
         // Only the schedule's legacy "{ruleId}_{date}" rows are adoptable — a
         // slot's own transaction belongs to its slot and is revived by id above.
-        val generated = if (template == null) emptyList() else {
-            transactionDao.getLiveByRecurringRule(ruleId)
-                .filter { it.id != rule.transactionId && it.id !in priorSlots.keys }
-                .sortedBy { it.createdAt }
-        }
+        val generated = transactionDao.getLiveByRecurringRule(ruleId)
+            .filter { it.id != rule.transactionId && it.id !in priorSlots.keys }
+            .sortedBy { it.createdAt }
         // Resuming only applies once the series has actually run: until then this
         // is a brand-new plan and nothing is settled on the user's behalf.
         val resuming = generated.isNotEmpty() && template != null
@@ -180,11 +178,28 @@ class RecurringRuleRepository @Inject constructor(
         // the date the recurring rule was created. Not today, and not whichever
         // transaction currently happens to be the template: an edit can repoint
         // that at a newer transaction, which must not re-date the series.
-        val planStart = if (resuming) {
-            rule.anchorAt.takeIf { it > 0L } ?: firstDueAt
+        val seriesAnchor = rule.anchorAt.takeIf { it > 0L } ?: firstDueAt
+
+        // When none of the series' payments can be found — entries the user added
+        // by hand, or rows restored from cloud sync without the rule tag — the
+        // lookup above is blind, and a plan of unsettled past slots would make the
+        // worker charge for months the series already ran through: duplicate
+        // payments, announced as fresh additions. The schedule's own record is
+        // better evidence in that case: lastRunAt is the occurrence the series last
+        // charged, so everything up to and including it was handled. Those slots
+        // are settled without a link rather than left owed. With payments in hand
+        // the lookup is trusted instead, which is what keeps a payment the user
+        // deleted owed rather than marked paid.
+        val seriesChargedThrough = if (!rule.isInstallment && template != null && generated.isEmpty()) {
+            rule.lastRunAt
         } else {
-            firstDueAt
+            null
         }
+
+        // A plan that resumes — by matching payments or by the series' own progress
+        // — has to start where the series started, so its slots line up with the
+        // months that already happened.
+        val planStart = if (resuming || seriesChargedThrough != null) seriesAnchor else firstDueAt
 
         val dueDates = RecurringScheduleCalculator.occurrencesFrom(
             firstDueAt = planStart,
@@ -203,6 +218,10 @@ class RecurringRuleRepository @Inject constructor(
         // run always resumes rather than restarting at zero.
         val byDate = generated.associateBy { it.createdAt }
         val adoptedBySlot: Map<Int, String> = when {
+            // Blind to the series' payments, but the template is still known: it is
+            // the payment the rule was created from, so it records occurrence 1.
+            seriesChargedThrough != null ->
+                template?.id?.let { mapOf(0 to it) } ?: emptyMap()
             !resuming -> emptyMap()
             dueDates.drop(1).any { byDate.containsKey(it) } -> buildMap {
                 template?.id?.let { put(0, it) }
@@ -232,6 +251,9 @@ class RecurringRuleRepository @Inject constructor(
             // payment that recorded this occurrence, when one was found. A slot
             // with no payment left stays unsettled rather than claiming one.
             val adoptedTransactionId = if (prior != null) null else adoptedBySlot[index]
+            // Occurrences the regular series already ran through, when their
+            // payments cannot be identified (see seriesChargedThrough above).
+            val chargedBySeries = seriesChargedThrough != null && dueAt <= seriesChargedThrough
             InstallmentOccurrenceEntity(
                 id = id,
                 ruleId = ruleId,
@@ -240,10 +262,16 @@ class RecurringRuleRepository @Inject constructor(
                 amountMinor = installmentAmountMinor,
                 // Settled slots are dated at their own occurrence, exactly like
                 // the worker's own reconciliation of a due installment.
-                paidAt = prior?.paidAt ?: adoptedTransactionId?.let { dueAt },
+                paidAt = prior?.paidAt
+                    ?: adoptedTransactionId?.let { dueAt }
+                    ?: dueAt.takeIf { chargedBySeries },
                 status = prior?.status
                     ?: adoptedTransactionId?.let { InstallmentOccurrenceStatus.PAID }
-                    ?: InstallmentOccurrenceStatus.PENDING,
+                    ?: if (chargedBySeries) {
+                        InstallmentOccurrenceStatus.PAID
+                    } else {
+                        InstallmentOccurrenceStatus.PENDING
+                    },
                 transactionId = prior?.transactionId ?: adoptedTransactionId,
                 createdAt = prior?.createdAt ?: now,
                 updatedAt = now,
@@ -459,7 +487,18 @@ class RecurringRuleRepository @Inject constructor(
             // Each slot is dated at its own due date, so the ledger reads as if
             // the payment happened when it was actually due, whatever time the
             // worker ran.
-            val settledCount = dueSlots.count { settleOccurrence(it.id, it.dueAt) != null }
+            //
+            // Only slots that gained a payment are reported. Settling upserts the
+            // slot's own transaction id, so a leftover row from an earlier run
+            // would be updated rather than inserted — and counting that as work
+            // done made the notification announce transactions it never added.
+            var settledCount = 0
+            dueSlots.forEach { slot ->
+                val alreadyHadAPayment = transactionDao.getById(slot.id) != null
+                if (settleOccurrence(slot.id, slot.dueAt) != null && !alreadyHadAPayment) {
+                    settledCount++
+                }
+            }
             if (settledCount == 0) return@withContext emptyList()
 
             // All slots of one plan share the template transaction's note —

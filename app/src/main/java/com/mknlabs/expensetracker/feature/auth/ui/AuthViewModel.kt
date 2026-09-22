@@ -107,7 +107,15 @@ data class ReturningUserProfile(
     val hasName: Boolean get() = fullName.isNotBlank() && fullName != "Guest User"
     val hasGender: Boolean get() = gender.isNotBlank()
     val hasGoal: Boolean get() = financialGoal.isNotBlank()
-    val isComplete: Boolean get() = hasName && hasGender && hasGoal
+
+    /**
+     * Identity only: a name and a gender. The financial goal is deliberately left
+     * out. It is a preference the user can change at any time, and requiring it
+     * meant a returning user whose goal was missing — including one whose stored
+     * goal had been erased by an empty local value — was pushed back through the
+     * goal page instead of being recognised and welcomed.
+     */
+    val isComplete: Boolean get() = hasName && hasGender
 }
 
 /**
@@ -116,27 +124,22 @@ data class ReturningUserProfile(
  * free of any UI (page-index) concerns.
  */
 enum class ReturningUserStep {
-    /** Financial goal not set yet — show the goal page. */
-    FINANCIAL_GOAL,
-
     /** Name/gender missing — show the setup (name/gender) page. */
     SETUP_PROFILE,
 
-    /** Everything is already filled — show the "Welcome back" page. */
+    /** Identity already filled — show the "Welcome back" page. */
     WELCOME_BACK
 }
 
 /**
  * Maps a returning user's cloud profile to the onboarding step to show.
+ *
+ * Only the identity fields decide it — see [ReturningUserProfile.isComplete]. A
+ * missing financial goal is never a reason to re-run onboarding; the goal page
+ * still runs for new and guest users, who start the flow from the beginning.
  */
-fun resolveReturningUserStep(profile: ReturningUserProfile): ReturningUserStep = when {
-    profile.isComplete -> ReturningUserStep.WELCOME_BACK
-    !profile.hasGoal -> ReturningUserStep.FINANCIAL_GOAL
-    !profile.hasName || !profile.hasGender -> ReturningUserStep.SETUP_PROFILE
-    // Unreachable fallback (hasGoal && hasName && hasGender == isComplete) kept
-    // for safety — never show the auth page again for a signed-in returning user.
-    else -> ReturningUserStep.FINANCIAL_GOAL
-}
+fun resolveReturningUserStep(profile: ReturningUserProfile): ReturningUserStep =
+    if (profile.isComplete) ReturningUserStep.WELCOME_BACK else ReturningUserStep.SETUP_PROFILE
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
