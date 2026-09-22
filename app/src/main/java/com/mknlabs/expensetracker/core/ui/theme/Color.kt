@@ -194,3 +194,18 @@ val ColorScheme.isDark: Boolean
 
 val ColorScheme.featureGateLock: Color
     get() = FeatureGateLockGold
+
+/**
+ * Glyph colour for the brand-gradient Add affordances — the docked FAB and the
+ * reveal handle that replaces the bar while it is hidden.
+ *
+ * White in dark mode, black in light mode. Deliberately NOT `onPrimary`, which is
+ * the scheme's own pairing for the flat brand fill: that pairing flips to a dark ink
+ * in dark mode, which leaves the glyph muddy against the saturated gradient this
+ * affordance actually uses. Following the theme's own light/dark polarity instead
+ * keeps the same white-on-purple read the mock calls for in dark mode, and the same
+ * black-on-purple read that stays legible once the light scheme's paler gradient
+ * ends land under it.
+ */
+val ColorScheme.onBrandGradient: Color
+    get() = if (isDark) Color.White else Color.Black

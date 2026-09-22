@@ -32,12 +32,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.fabGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import kotlinx.coroutines.delay
 
 /**
@@ -91,22 +95,44 @@ fun AddTransactionFab(
             ),
         label = "add_transaction_fab_visibility"
     ) {
+        val fabBrush = fabGradient()
+
         FloatingActionButton(
             onClick = onClick,
             shape = CircleShape,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            // The fill is painted by the gradient Box inside, so the container
+            // itself must stay unpainted — otherwise a flat purple slab would sit
+            // behind the gradient and flatten it back out.
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onBrandGradient,
             elevation = FloatingActionButtonDefaults.elevation(
                 defaultElevation = 8.dp,
                 pressedElevation = 12.dp
             ),
-            modifier = Modifier.size(AddTransactionFabSize)
+            modifier = Modifier
+                .size(AddTransactionFabSize)
+                // Brand-tinted glow instead of a neutral drop shadow: the FAB is the
+                // shell's one saturated action, and against the AMOLED background the
+                // default black shadow is effectively invisible at this size.
+                .shadow(
+                    elevation = 12.dp,
+                    shape = CircleShape,
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                )
         ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.desc_add_transaction),
-                modifier = Modifier.size(24.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(brush = fabBrush),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.desc_add_transaction),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }

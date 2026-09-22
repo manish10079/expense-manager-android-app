@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,7 +63,8 @@ import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.fabGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import kotlinx.coroutines.delay
 
 /**
@@ -242,7 +244,18 @@ private fun AppBottomBarContent(
     modifier: Modifier = Modifier
 ) {
     val capsuleShape = RoundedCornerShape(32.dp)
+
+    // Frosted glass. A true backdrop blur is not available here: the bar is a SHARED
+    // sibling of the scrolling content, not its parent, so there is no composable for
+    // a RenderEffect to sample. What is available is translucency — the elevated
+    // surface tone drawn at 80% over whatever is behind it — so live content reads
+    // through the capsule instead of being hidden behind an opaque slab, and the
+    // hairline border gives the pane the edge a glass surface needs to stay legible
+    // against both the app background and a bright card scrolled under it.
     val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        .copy(alpha = 0.80f)
+    val capsuleBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
+
     val capsuleMinHeight = capsuleMinHeight(LocalFontScaleInfo.current.tier)
 
     // Split rather than hardcoding indices, so the centre gap stays in the middle
@@ -325,6 +338,9 @@ private fun AppBottomBarContent(
                             )
                             .clip(capsuleShape)
                             .background(containerColor)
+                            // Drawn after the background so the hairline sits on top
+                            // of it rather than being painted over by it.
+                            .border(1.dp, capsuleBorderColor, capsuleShape)
                             // Tight inner padding: the destination labels need this
                             // room at Huge font scale more than the capsule needs the
                             // breathing space.
@@ -374,11 +390,14 @@ private fun AppBottomBarContent(
  * Deliberately NOT the capsule's `surfaceColorAtElevation` treatment: in both
  * light and dark mode that tone sits almost on top of the screen background, so
  * the handle read as a smudge. A `surface` component can afford to be quiet —
- * this one is the only route back to the destination bar, so it uses the brand
- * gradient with an `onPrimary` chevron and a primary/secondary-tinted shadow.
- * Both ends of the gradient come from [MaterialTheme.colorScheme], so it
- * separates from the background in either theme. Mirrors [AppNavigationRail]'s
- * Add button, which is the same circular action affordance.
+ * this one is the only route back to the destination bar, so it carries a filled
+ * gradient with a primary/secondary-tinted shadow.
+ *
+ * The fill is [fabGradient], the same one the docked FAB uses, and the chevron
+ * takes the same [onBrandGradient] ink — so the affordance the bar collapses into
+ * is visibly the same button as the one it collapsed from, rather than a second
+ * brand surface a shade off it. Both ends of the gradient are derived from
+ * [MaterialTheme.colorScheme], so it separates from the background in either theme.
  */
 @Composable
 private fun BottomBarRevealHandle(onClick: () -> Unit) {
@@ -401,14 +420,14 @@ private fun BottomBarRevealHandle(onClick: () -> Unit) {
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                 )
                 .clip(handleShape)
-                .background(brush = brandGradient())
+                .background(brush = fabGradient())
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
                 contentDescription = stringResource(R.string.desc_show_navigation_bar),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onBrandGradient,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -423,14 +442,23 @@ private fun RowScope.FloatingCapsuleNavItem(
 ) {
     val indicatorShape = RoundedCornerShape(20.dp)
 
+    // Selected = a translucent brand wash with lavender content, which is what makes
+    // the active destination read as lit rather than filled: on the frosted capsule a
+    // solid `secondaryContainer` pill looked like an opaque sticker, and it also
+    // ignored the content showing through around it. Unselected stays on the muted
+    // `onSurfaceVariant`, so the two states differ by hue and weight (the label also
+    // goes bold) rather than by colour alone.
+    val indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+    val selectedContent = MaterialTheme.colorScheme.secondary
+
     val iconTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
+        targetValue = if (selected) selectedContent
         else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "bottom_bar_icon_tint"
     )
 
     val labelColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
+        targetValue = if (selected) selectedContent
         else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "bottom_bar_label_tint"
     )
@@ -451,7 +479,7 @@ private fun RowScope.FloatingCapsuleNavItem(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(indicatorShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .background(indicatorColor)
             )
         }
 

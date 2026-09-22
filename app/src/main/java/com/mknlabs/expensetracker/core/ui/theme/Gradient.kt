@@ -3,6 +3,8 @@ package com.mknlabs.expensetracker.core.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.MaterialTheme
 
 /**
@@ -16,6 +18,28 @@ fun brandGradient(alpha: Float = 1f): Brush {
     return remember(primaryColor, secondaryColor) {
         Brush.linearGradient(
             colors = listOf(primaryColor, secondaryColor)
+        )
+    }
+}
+
+/**
+ * Fill for the Add-transaction FAB: a lit-from-the-top-left violet rather than the
+ * flat brand fill it used to be.
+ *
+ * Both ends are derived from `primary` through [lerp] instead of being new hex
+ * values, so the circle follows the theme — a lighter and a deeper purple in dark
+ * mode, the same relationship in light mode — and the brand hue can never drift
+ * away from a gradient that was tuned by hand. The lighter end sits top-left
+ * because that is where [Brush.linearGradient] starts, which matches the raised
+ * visual language the rest of the app's brand surfaces already use.
+ */
+@Composable
+fun fabGradient(): Brush {
+    val lit = lerp(MaterialTheme.colorScheme.primary, Color.White, 0.22f)
+    val deep = lerp(MaterialTheme.colorScheme.primary, Color.Black, 0.18f)
+    return remember(lit, deep) {
+        Brush.linearGradient(
+            colors = listOf(lit, deep)
         )
     }
 }
