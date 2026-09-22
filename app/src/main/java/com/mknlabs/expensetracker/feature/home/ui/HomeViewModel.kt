@@ -27,7 +27,7 @@ import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.firstName
-import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
+import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue

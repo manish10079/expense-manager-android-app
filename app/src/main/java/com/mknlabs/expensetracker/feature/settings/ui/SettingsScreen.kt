@@ -58,19 +58,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.ui.components.adPassDurationLabel
+import com.mknlabs.expensetracker.core.ui.components.adPassDurationLabel
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.monetization.AdPlacement
-import com.mknlabs.expensetracker.ui.components.AdaptiveContent
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
-import com.mknlabs.expensetracker.ui.components.ProfileCard
-import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.ProfileCard
+import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true

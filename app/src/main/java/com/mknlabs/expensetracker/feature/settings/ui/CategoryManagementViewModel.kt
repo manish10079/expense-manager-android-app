@@ -10,8 +10,8 @@ import com.mknlabs.expensetracker.domain.repository.CategoryRepository
 import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
-import com.mknlabs.expensetracker.ui.models.CategoryManagementItemUi
-import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementItemUi
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow

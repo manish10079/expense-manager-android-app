@@ -50,29 +50,29 @@ import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.models.SettingsItemType
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.AppSelectionSheet
-import com.mknlabs.expensetracker.ui.components.AdaptiveContent
-import com.mknlabs.expensetracker.ui.components.SettingsGroup
-import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
-import com.mknlabs.expensetracker.ui.components.SettingsItemCard
-import com.mknlabs.expensetracker.ui.components.GatedAction
-import com.mknlabs.expensetracker.ui.models.SelectionItem
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppSelectionSheet
+import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.AccessLevel
-import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

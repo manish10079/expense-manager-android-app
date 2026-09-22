@@ -111,3 +111,36 @@ Migrate features one by one using `git mv` to preserve git commit history:
 - **Preserve Git History:** Always use `git mv` or CLI tools when moving files.
 - **Incremental Builds:** Execute `./gradlew testDebugUnitTest` after moving each feature package.
 - **Maintain DI Bindings:** Ensure `@HiltViewModel` annotations and `@Provides` modules in `di/` are updated with new package paths.
+
+---
+
+## ✅ Migration Status
+
+All phases are complete. Both legacy layer-first directories (`ui/screens/`, `ui/viewmodels/`) have been removed and no source file references a legacy package.
+
+| Phase | Status | Commit |
+| :--- | :--- | :--- |
+| Rules — feature-first layout enforced | ✅ Done | `57ca09a` |
+| 2.1 `feature/home` | ✅ Done | `79d696d` |
+| 2.2 `feature/transactions` | ✅ Done | `0f84cdc` |
+| 2.3 `feature/analytics` + `budget` + `calendar` | ✅ Done | `3afa881` |
+| 2.4a `feature/goals` | ✅ Done | `a3ba8be` |
+| 2.4b `feature/profile` | ✅ Done | `2e571a3` |
+| 2.4c `feature/settings` | ✅ Done | `797b72e` |
+| 2.4d `feature/auth` | ✅ Done | `1545aec` |
+| Remaining shared / cross-cutting ViewModels | ✅ Done | `1fa14c3` |
+| 1 Core extraction (`core/ui/*`) | ✅ Done | *(this commit)* |
+| 3 Cleanup & verification | ✅ Done | *(this commit)* |
+
+### Deviations from the original plan
+
+- **Phase 2 ran before Phase 1.** Features were migrated first, then `core/` was extracted in a single sweep.
+- **`calendar` was split out of `analytics`** into its own `feature/calendar/ui` package.
+- **Component co-location was not performed.** All shared UI composables live in `core/ui/components/` regardless of how many features use them, matching the documented tree. Pulling single-feature components (e.g. `TransactionCard`, `ProfileCard`, `UserBadge`) into their owning features remains a possible follow-up.
+- **Files with no listed home** were placed by closest fit: `MainViewModel` → `core/ui/`, `MonetizationViewModel` → `monetization/`, `VoiceAddViewModel` + `VoiceTransactionViewModel` → `voice/`, `PaymentMethodPredictorViewModel` → `feature/transactions/ui/`, `SmsChange*` + `SmsSetupViewModel` → `feature/smsinbox/ui/`, and the app gate screens `MaintenanceScreen` / `UpdateRequiredScreen` → `feature/settings/ui/`.
+- **`MainScreen.kt` and `MainActivity.kt` remain at the package root** as the Android entry point and app shell.
+
+### Verification
+
+- `./gradlew testDebugUnitTest` — **600 tests, 0 failures**
+- `./gradlew assembleDebug` — Hilt DI bindings and Room KSP generation compile cleanly

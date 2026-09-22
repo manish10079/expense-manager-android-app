@@ -68,12 +68,12 @@ import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.monetization.AccessLevel
 import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.SettingsGroup
-import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
-import com.mknlabs.expensetracker.ui.components.SettingsItemCard
-import com.mknlabs.expensetracker.ui.components.WheelDateTimePicker
-import com.mknlabs.expensetracker.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePicker
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatTime
 import com.mknlabs.expensetracker.utils.toMajorUnits
@@ -81,11 +81,11 @@ import com.mknlabs.expensetracker.utils.toMinorUnits
 import com.mknlabs.expensetracker.utils.validateAndCalculateTimestamp
 import java.util.Calendar
 
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 /** ⓘ sheet content for each notification category (spec: one parent per category). */
 private enum class NotificationCategoryInfo(val titleRes: Int, val bodyRes: Int) {

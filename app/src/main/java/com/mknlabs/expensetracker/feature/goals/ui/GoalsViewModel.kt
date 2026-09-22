@@ -7,7 +7,7 @@ import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.models.SyncState
-import com.mknlabs.expensetracker.ui.theme.DEFAULT_GOAL_COLOR_HEX
+import com.mknlabs.expensetracker.core.ui.theme.DEFAULT_GOAL_COLOR_HEX
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

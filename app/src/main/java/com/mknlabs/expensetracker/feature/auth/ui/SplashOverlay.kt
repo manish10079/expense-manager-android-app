@@ -47,9 +47,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import androidx.compose.ui.tooling.preview.Preview
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 private val SplashLogoSize = 132.dp
 

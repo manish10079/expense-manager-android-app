@@ -2,7 +2,7 @@ package com.mknlabs.expensetracker.utils
 
 import android.content.Context
 import android.net.Uri
-import com.mknlabs.expensetracker.ui.models.BackupInfo
+import com.mknlabs.expensetracker.core.ui.models.BackupInfo
 import java.io.File
 
 object BackupFileManager {

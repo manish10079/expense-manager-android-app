@@ -57,26 +57,26 @@ import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
-import com.mknlabs.expensetracker.ui.models.CategoryIconOption
-import com.mknlabs.expensetracker.ui.models.CategoryManagementItemUi
-import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
-import com.mknlabs.expensetracker.ui.models.TabItem
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.theme.surfaceGradient
-import com.mknlabs.expensetracker.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementItemUi
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
+import com.mknlabs.expensetracker.core.ui.models.TabItem
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import androidx.compose.foundation.BorderStroke
-import com.mknlabs.expensetracker.ui.components.AnimatedTabSwitcher
-import com.mknlabs.expensetracker.ui.components.AdaptiveContent
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.AppIconBox
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 
 
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 
 import androidx.compose.foundation.pager.HorizontalPager

@@ -14,7 +14,7 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
-import com.mknlabs.expensetracker.ui.components.TransactionPeriodFilter
+import com.mknlabs.expensetracker.core.ui.components.TransactionPeriodFilter
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData

@@ -14,7 +14,7 @@ import com.mknlabs.expensetracker.ai.offline.OfflineVoiceParser
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
 import com.mknlabs.expensetracker.domain.repository.VoiceParserType
-import com.mknlabs.expensetracker.ui.components.VoiceSheetState
+import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

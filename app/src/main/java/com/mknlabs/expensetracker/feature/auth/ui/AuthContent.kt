@@ -24,13 +24,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
-import com.mknlabs.expensetracker.ui.components.input.InputType
+import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
+import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.ExperimentalFoundationApi
-import com.mknlabs.expensetracker.ui.theme.SurfaceHighlight
+import com.mknlabs.expensetracker.core.ui.theme.SurfaceHighlight
 
 @Composable
 fun AuthRoute(

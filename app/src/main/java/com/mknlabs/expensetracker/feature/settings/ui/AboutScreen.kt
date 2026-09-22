@@ -49,18 +49,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.AdaptiveContent
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.components.AppIconBox
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
 
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
 

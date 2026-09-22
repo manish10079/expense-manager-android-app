@@ -130,23 +130,23 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.Transaction
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.AppIconBox
-import com.mknlabs.expensetracker.ui.components.CurrentPeriodIndicator
-import com.mknlabs.expensetracker.ui.components.GatedAction
-import com.mknlabs.expensetracker.ui.components.TabCountBadge
-import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
-import com.mknlabs.expensetracker.ui.components.WheelPickerMode
-import com.mknlabs.expensetracker.ui.components.tabBadgeCount
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppIconBox
+import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
+import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
-import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.expense
-import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.income
 
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
@@ -159,9 +159,9 @@ import java.util.Date
 import java.util.Locale
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
-import com.mknlabs.expensetracker.ui.components.rememberBindAddFabToScroll
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 

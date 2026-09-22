@@ -8,8 +8,8 @@ import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Currency
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.CurrencyPosition
-import com.mknlabs.expensetracker.ui.theme.expense
-import com.mknlabs.expensetracker.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
 import java.math.BigDecimal
 import java.math.RoundingMode
 

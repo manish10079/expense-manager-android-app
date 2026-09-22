@@ -37,23 +37,23 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.GatedAction
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
-import com.mknlabs.expensetracker.ui.components.SettingsGroup
-import com.mknlabs.expensetracker.ui.components.SettingsGroupDivider
-import com.mknlabs.expensetracker.ui.components.SettingsItemCard
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
-import com.mknlabs.expensetracker.ui.components.input.InputType
+import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
+import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.UpdatePasswordState
 import androidx.compose.ui.tooling.preview.Preview
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 private val presetAutoLockDurations = listOf(1) + (5..60 step 5).toList()
 

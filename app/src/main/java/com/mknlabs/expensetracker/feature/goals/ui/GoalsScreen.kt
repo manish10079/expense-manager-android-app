@@ -47,22 +47,22 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.components.WheelDateTimePickerModal
-import com.mknlabs.expensetracker.ui.components.WheelPickerMode
-import com.mknlabs.expensetracker.ui.models.CategoryIconOption
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.theme.GoalProgressHigh
-import com.mknlabs.expensetracker.ui.theme.GoalProgressLow
-import com.mknlabs.expensetracker.ui.theme.GoalProgressMedium
-import com.mknlabs.expensetracker.ui.theme.isDark
-import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkStart
-import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkCenter
-import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
-import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
-import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
-import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
+import com.mknlabs.expensetracker.core.ui.theme.GoalProgressLow
+import com.mknlabs.expensetracker.core.ui.theme.GoalProgressMedium
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkCenter
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightCenter
+import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightEnd
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -72,7 +72,7 @@ import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate
 import androidx.compose.ui.tooling.preview.Preview
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import java.util.Locale
 
 private const val DAY_MILLIS = 86_400_000L

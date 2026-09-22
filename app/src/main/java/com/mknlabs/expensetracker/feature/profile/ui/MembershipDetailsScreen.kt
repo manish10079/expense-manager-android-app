@@ -54,15 +54,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.theme.PremiumBorder
-import com.mknlabs.expensetracker.ui.theme.PremiumGradientEnd
-import com.mknlabs.expensetracker.ui.theme.PremiumGradientStart
-import com.mknlabs.expensetracker.ui.theme.PremiumGold
-import com.mknlabs.expensetracker.ui.theme.PremiumOnGradient
-import com.mknlabs.expensetracker.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.PremiumBorder
+import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientEnd
+import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
+import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
+import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
+import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 @Composable
@@ -233,7 +233,7 @@ internal fun MembershipDetailsContent(
 
         // Coming Soon Dialog
         if (showComingSoonDialog) {
-            com.mknlabs.expensetracker.ui.components.ComingSoonDialog(
+            com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog(
                 onDismiss = { showComingSoonDialog = false }
             )
         }

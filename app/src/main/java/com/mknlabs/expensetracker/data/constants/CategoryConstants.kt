@@ -3,7 +3,7 @@
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.rounded.*
-import com.mknlabs.expensetracker.ui.models.CategoryIconOption
+import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.R
 
 val categoryIconOptions = listOf(

@@ -13,9 +13,9 @@ import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
-import com.mknlabs.expensetracker.ui.models.CalendarDayUi
-import com.mknlabs.expensetracker.ui.models.CalendarMonthFinancialSummaryUi
-import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
+import com.mknlabs.expensetracker.core.ui.models.CalendarDayUi
+import com.mknlabs.expensetracker.core.ui.models.CalendarMonthFinancialSummaryUi
+import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate

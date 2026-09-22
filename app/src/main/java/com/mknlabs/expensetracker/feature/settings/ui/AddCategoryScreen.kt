@@ -31,12 +31,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
-import com.mknlabs.expensetracker.ui.components.AppHeader
-import com.mknlabs.expensetracker.ui.models.CategoryIconOption
-import com.mknlabs.expensetracker.ui.models.CategoryManagementTab
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.brandGradient
-import com.mknlabs.expensetracker.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
@@ -479,7 +479,7 @@ private fun IconSelectionItem(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun AddCategoryScreenContentPreview() {
-    com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme {
+    com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme {
         AddCategoryScreenContent(
             uiState = AddCategoryUiState(),
             existingCategories = emptyList(),

@@ -45,16 +45,16 @@ import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
 import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
-import com.mknlabs.expensetracker.ui.components.UpdateDialog
+import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
 import com.mknlabs.expensetracker.utils.PlayStoreLink
 import android.net.Uri
-import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
-import com.mknlabs.expensetracker.ui.adaptive.LocalFontScaleInfo
-import com.mknlabs.expensetracker.ui.adaptive.rememberAppWindowInfo
-import com.mknlabs.expensetracker.ui.adaptive.rememberFontScaleInfo
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.DeepLinkUtils
 import com.mknlabs.expensetracker.utils.findFragmentActivity
@@ -65,8 +65,8 @@ import com.mknlabs.expensetracker.feature.auth.ui.InitTask
 import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
-import com.mknlabs.expensetracker.ui.components.AppLockOverlay
-import com.mknlabs.expensetracker.ui.theme.AppLockLoadingBackground
+import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.core.ui.theme.AppLockLoadingBackground
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -332,7 +332,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val dynamicTypography = remember(fontMode, customFontFileName) {
-            com.mknlabs.expensetracker.ui.theme.resolveTypography(fontMode, customFontFamily)
+            com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {

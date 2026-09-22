@@ -35,12 +35,12 @@ import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.avatarInitials
 import com.mknlabs.expensetracker.models.defaultUserProfile
-import com.mknlabs.expensetracker.ui.components.*
-import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
-import com.mknlabs.expensetracker.ui.components.input.InputType
-import com.mknlabs.expensetracker.ui.models.SelectionItem
-import com.mknlabs.expensetracker.ui.theme.Dimens
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.components.*
+import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
+import com.mknlabs.expensetracker.core.ui.components.input.InputType
+import com.mknlabs.expensetracker.core.ui.models.SelectionItem
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
@@ -53,8 +53,8 @@ import kotlinx.coroutines.tasks.await
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.components.AdContainer
-import com.mknlabs.expensetracker.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.text.input.KeyboardType
