@@ -71,7 +71,7 @@ import com.mknlabs.expensetracker.ui.components.ProfileCard
 import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
 private const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true

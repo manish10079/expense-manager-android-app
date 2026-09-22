@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.voice
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.AppShortcutManager
-import com.mknlabs.expensetracker.voice.VoiceRecognitionManager
-import com.mknlabs.expensetracker.voice.VoiceTransactionParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -63,7 +63,7 @@ import com.mknlabs.expensetracker.ui.theme.PremiumGradientStart
 import com.mknlabs.expensetracker.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.ui.theme.PremiumShadowNeutral
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 @Composable
 fun MembershipDetailsScreen(

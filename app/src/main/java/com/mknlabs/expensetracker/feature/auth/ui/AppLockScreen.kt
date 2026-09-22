@@ -86,7 +86,7 @@ import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.ui.components.AppHeader
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.models.UserTier
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring

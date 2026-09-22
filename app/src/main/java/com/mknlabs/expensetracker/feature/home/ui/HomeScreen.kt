@@ -75,8 +75,8 @@ import com.mknlabs.expensetracker.ui.theme.expense
 import com.mknlabs.expensetracker.ui.theme.income
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.utils.UiText
-import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupUiState
-import com.mknlabs.expensetracker.ui.viewmodels.SmsSetupViewModel
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsSetupUiState
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsSetupViewModel
 import com.mknlabs.expensetracker.utils.DeviceVendorUtils
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.monetization
 
 import android.app.Activity
 import android.content.Context
@@ -7,11 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.usecase.BecomePremiumUseCase
 import com.mknlabs.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
-import com.mknlabs.expensetracker.monetization.AccessStatus
-import com.mknlabs.expensetracker.monetization.AdsCoordinator
-import com.mknlabs.expensetracker.monetization.Feature
-import com.mknlabs.expensetracker.monetization.RewardedPlacement
-import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository

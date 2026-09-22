@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.smsinbox.ui
 
 import android.content.Context
 import androidx.compose.runtime.Immutable

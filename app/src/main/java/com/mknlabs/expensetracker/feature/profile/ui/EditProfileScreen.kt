@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement

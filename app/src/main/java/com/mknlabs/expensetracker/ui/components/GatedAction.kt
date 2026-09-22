@@ -12,7 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 
 /**

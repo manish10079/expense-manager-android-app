@@ -33,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.RedemptionState
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.RedemptionState
 
 @Composable
 fun ProPassRedeemDialog(

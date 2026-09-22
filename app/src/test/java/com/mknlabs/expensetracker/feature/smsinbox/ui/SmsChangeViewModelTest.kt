@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.smsinbox.ui
 
 import androidx.paging.PagingData
 import androidx.paging.PagingSource

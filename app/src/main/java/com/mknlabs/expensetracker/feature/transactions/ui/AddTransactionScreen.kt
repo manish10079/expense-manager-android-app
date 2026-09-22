@@ -143,7 +143,7 @@ import com.mknlabs.expensetracker.monetization.RecurringRuleTier
 import com.mknlabs.expensetracker.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import androidx.compose.ui.platform.LocalContext
@@ -172,8 +172,7 @@ import com.mknlabs.expensetracker.domain.models.VoiceConfidence
 import android.util.Log
 import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.ui.components.VoiceSheetState
-import com.mknlabs.expensetracker.ui.viewmodels.PaymentMethodPredictorViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
+import com.mknlabs.expensetracker.voice.VoiceAddViewModel
 import android.Manifest
 import android.content.pm.PackageManager
 import android.speech.RecognitionListener

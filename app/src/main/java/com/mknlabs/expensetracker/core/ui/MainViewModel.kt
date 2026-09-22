@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.core.ui
 
 import android.content.Context
 import android.net.Uri

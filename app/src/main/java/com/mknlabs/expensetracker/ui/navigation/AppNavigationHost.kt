@@ -668,13 +668,13 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.AddTransaction -> {
-                    val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
+                    val mainViewModel: com.mknlabs.expensetracker.core.ui.MainViewModel = hiltViewModel()
                     val favorites by mainViewModel.favorites.collectAsStateWithLifecycle()
                     val favoritesContext = LocalContext.current
                     
                     androidx.compose.runtime.LaunchedEffect(Unit) {
                         mainViewModel.uiEvent.collect { event ->
-                            if (event is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted) {
+                            if (event is com.mknlabs.expensetracker.core.ui.MainUiEvent.TransactionOperationCompleted) {
                                 exitAddTransactionScreen(previousRoute)
                             }
                         }

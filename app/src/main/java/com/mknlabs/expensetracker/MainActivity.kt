@@ -79,7 +79,7 @@ import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.benchmark.BenchmarkHooks

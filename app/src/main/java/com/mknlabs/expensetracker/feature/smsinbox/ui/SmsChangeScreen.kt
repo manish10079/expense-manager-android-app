@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.smsinbox.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -59,8 +59,6 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.ui.viewmodels.SmsChangeUiState
-import com.mknlabs.expensetracker.ui.viewmodels.SmsChangeViewModel
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toMajorUnits

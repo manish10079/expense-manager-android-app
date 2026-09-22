@@ -95,12 +95,12 @@ import com.mknlabs.expensetracker.notifications.NotificationScheduler
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.feature.auth.ui.OnboardingScreen
-import com.mknlabs.expensetracker.ui.screens.SmsChangeRoute
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsChangeRoute
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
-import com.mknlabs.expensetracker.ui.viewmodels.MainViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.core.ui.MainViewModel
+import com.mknlabs.expensetracker.voice.VoiceAddViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AuthRoute
 import com.mknlabs.expensetracker.workers.SyncWorker
@@ -715,15 +715,15 @@ fun MainScreen(
                 mainViewModel.uiEvent.collect { event ->
                     android.util.Log.d("MainScreen", "Received UI Event: $event")
                     when (event) {
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.TransactionOperationCompleted -> {
                             // Handled internally in screens
                         }
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.ShowAdExpiryWarning -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.ShowAdExpiryWarning -> {
                             android.util.Log.d("MainScreen", "Showing Expiry Warning Dialog")
                             adExpiryMinutesRemaining = event.minutesRemaining
                             showAdExpiryWarningDialog = true
                         }
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.InstallmentsPaid -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.InstallmentsPaid -> {
                             showToast(
                                 context.resources.getQuantityString(
                                     R.plurals.toast_installments_paid,

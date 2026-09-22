@@ -34,7 +34,7 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
  * Setup cards for Smart SMS Import (research-backed, GEMINI.md: theme-aware,
  * i18n via strings.xml, icons carry contentDescription).
  *
- * Visibility is decided upstream ([com.mknlabs.expensetracker.ui.viewmodels.SmsSetupViewModel])
+ * Visibility is decided upstream ([com.mknlabs.expensetracker.feature.smsinbox.ui.SmsSetupViewModel])
  * — these composables only render when told to.
  */
 

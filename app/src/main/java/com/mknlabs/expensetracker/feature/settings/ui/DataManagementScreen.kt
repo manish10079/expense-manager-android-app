@@ -31,7 +31,7 @@ import com.mknlabs.expensetracker.ui.components.*
 import com.mknlabs.expensetracker.ui.models.SelectionItem
 import java.time.LocalDate
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.ui.components.AdContainer
 import com.mknlabs.expensetracker.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
@@ -63,7 +63,7 @@ fun DataManagementScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-    val mainViewModel: com.mknlabs.expensetracker.ui.viewmodels.MainViewModel = hiltViewModel()
+    val mainViewModel: com.mknlabs.expensetracker.core.ui.MainViewModel = hiltViewModel()
     val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
     val isAnonymous = currentUser?.isAnonymous ?: true
     val isGoogleAccount = currentUser?.providerData?.any { it.providerId == "google.com" } == true
