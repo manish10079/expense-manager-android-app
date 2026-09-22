@@ -11,6 +11,10 @@ This project is a feature-rich personal finance management application built wit
     - **Data Layer:** Room DB, DataStore, Firestore, and Repository implementations.
     - **Domain Layer:** Repository interfaces, Use Cases, and Business Logic models.
     - **UI Layer:** ViewModels (State management via `StateFlow`) and Jetpack Compose (Material 3).
+  - **Feature Layer Layout (`ui/`, `domain/`, `data/`):** Inside a feature, group code by technical layer — `ui/` for screens, ViewModels and UI state models, `domain/` for feature-specific business rules and use cases, and `data/` for repositories and data sources the feature itself owns. Apply these sub-packages only where the feature genuinely owns that logic; a feature with no feature-specific business rules or data access needs only `ui/`.
+  - **Shared Code Stays Shared:** Do NOT duplicate a shared repository, model or utility into a feature to satisfy the layout, and do NOT move a shared repository into a single feature. Shared repositories, models and helpers belong in the top-level `data/`, `domain/`, `models/` and `utils/` packages or in `core/`, even when only one feature currently consumes them.
+  - **Forbidden Package Paths:** The legacy layer-first root package `com.mknlabs.expensetracker.ui` is retired. No file may declare a package under it — in particular `ui/screens/` and `ui/viewmodels/` must never be recreated, and no root-level `screens/` or `viewmodels/` package may be introduced. Shared UI belongs in `core/ui/`; feature UI belongs in `feature/<name>/ui/`.
+  - **Convention, Not a Mandate:** This layout is this project's chosen convention for maintainability. Google's app architecture guidance recommends a data layer and a UI layer for the app, with the domain layer optional; it does not require a data layer inside every feature. Never restructure correctly-shared layer code on the grounds that a global standard mandates per-feature data layers.
 - **Dependency Injection:** Hilt (Dagger) is mandatory for all dependency management.
 - **UI Framework:** Jetpack Compose with Material Design 3.
 - **Database:** Room with KSP for schema generation and type safety.
