@@ -98,6 +98,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -140,6 +142,7 @@ import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
+import com.mknlabs.expensetracker.core.ui.components.tabBadgeSlotWidth
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -2710,8 +2713,8 @@ private fun BudgetTabChip(
         contentAlignment = Alignment.Center
     ) {
         // The badge is only ever passed for the selected tab, so whatever is drawn here sits
-        // on the brand-gradient indicator where `onPrimary` is the readable colour. A null
-        // count composes nothing at all, leaving the label exactly where it is today.
+        // on the brand-gradient indicator where `onPrimary` is the readable colour. Its slot is
+        // emitted either way, so the label never moves when the badge comes or goes.
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = label.uppercase(),
@@ -2720,8 +2723,45 @@ private fun BudgetTabChip(
                 style = MaterialTheme.typography.labelMedium,
             )
 
+            Spacer(modifier = Modifier.width(6.dp))
+
+            TabBadgeSlot(count = count)
+        }
+    }
+}
+
+/**
+ * The badge's place in a tab pill, occupied whether or not there is a badge to draw.
+ *
+ * Keeping the slot at a fixed width is what stops the label from being re-centred and jumping
+ * sideways every time a badge appears or vanishes, which happens on each tab switch: the count
+ * is only ever supplied for the selected tab. The badge fades into space that is already there.
+ *
+ * The width follows the system font scale, because the badge is text and would otherwise be
+ * clipped at larger scales for the sake of a number that fits at the default one. The fade is
+ * short so it reads as the number arriving, not as a second animation competing with the pill
+ * sliding underneath it.
+ *
+ * Deliberately not inlined into [BudgetTabChip]'s `Row`: inside a row's content lambda Compose
+ * resolves `AnimatedVisibility` to its `RowScope` overload, which is not what is wanted here.
+ */
+@Composable
+private fun TabBadgeSlot(count: Int?) {
+    Box(
+        modifier = Modifier.width(tabBadgeSlotWidth()),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedVisibility(
+            visible = count != null,
+            enter = fadeIn(animationSpec = tween(durationMillis = 160)) +
+                scaleIn(initialScale = 0.7f, animationSpec = tween(durationMillis = 160)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
+                scaleOut(targetScale = 0.7f, animationSpec = tween(durationMillis = 160)),
+            label = "tab_badge"
+        ) {
+            // Only reachable with a count, and it is the same badge the pill drew before: a null
+            // count leaves the reserved slot above empty.
             if (count != null) {
-                Spacer(modifier = Modifier.width(6.dp))
                 TabCountBadge(count = count)
             }
         }

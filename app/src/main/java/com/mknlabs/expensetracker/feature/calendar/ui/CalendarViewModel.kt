@@ -38,6 +38,13 @@ data class CalendarScreenUiState(
     val isYearView: Boolean = false,
     val displayedMonthStart: Long = 0L,
     val selectedDate: Long = 0L,
+    /**
+     * Start of the current day, so the grid can mark today separately from [selectedDate].
+     *
+     * The two coincide until the user picks another day, which is why the grid needs both: a
+     * selection can move anywhere, while today is an anchor that never follows it.
+     */
+    val todayDate: Long = 0L,
     val displayedYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     val monthDays: List<CalendarDayUi> = emptyList(),
     val selectedDayTransactions: List<TransactionCardItemUi> = emptyList(),
@@ -234,6 +241,7 @@ class CalendarViewModel @Inject constructor(
                 isYearView = isYearView,
                 displayedMonthStart = safeDisplayedMonthStart,
                 selectedDate = safeSelectedDate,
+                todayDate = todayDate,
                 displayedYear = displayedYear,
                 monthDays = monthDays,
                 selectedDayTransactions = selectedDayTransactions.map { transaction ->

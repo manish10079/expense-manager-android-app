@@ -9,12 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 
@@ -23,6 +25,30 @@ import com.mknlabs.expensetracker.R
  * three digit number can never widen a tab pill past the label sitting next to it.
  */
 internal const val MAX_TAB_BADGE_COUNT = 99
+
+/**
+ * Width a tab pill reserves for its badge at a font scale of 1, whether or not it draws one.
+ *
+ * A badge appears and disappears on every tab switch, because [tabBadgeCount] only ever returns a
+ * count for the selected tab. Emitting the badge only when it exists would shorten the row of
+ * content inside the pill and re-centre the label beside it, so the label would jump by half the
+ * badge's width each time the user switched tabs. Callers therefore always reserve this slot and
+ * let the badge fade into it, which leaves the label's position untouched.
+ *
+ * Wide enough for the widest badge that can render, `"99+"`: three [labelSmall] glyphs plus the
+ * badge's own 6dp horizontal padding, with room to spare for a two digit count.
+ */
+internal val TAB_BADGE_SLOT_WIDTH = 32.dp
+
+/**
+ * [TAB_BADGE_SLOT_WIDTH] at the current font scale.
+ *
+ * The badge is text, so it grows with the system font size setting; a fixed slot would clip
+ * `"99+"` at the larger scales. The label grows alongside it, so scaling the reserve with it
+ * keeps the two proportionate instead of trading a jump for a clipped number.
+ */
+@Composable
+internal fun tabBadgeSlotWidth(): Dp = TAB_BADGE_SLOT_WIDTH * LocalDensity.current.fontScale
 
 /**
  * The count a tab should display, or `null` when the badge must not exist at all.
@@ -49,6 +75,9 @@ internal fun isTabBadgeOverflow(count: Int): Boolean = count > MAX_TAB_BADGE_COU
 
 /**
  * Small count pill for a tab label.
+ *
+ * Always draw this inside the slot [tabBadgeSlotWidth] reserves, so an appearing or vanishing
+ * badge cannot move the label beside it.
  *
  * Coloured from the theme rather than hardcoded, because it is always drawn on top of the
  * brand-gradient tab indicator and has to stay readable in light and dark mode. Sized entirely

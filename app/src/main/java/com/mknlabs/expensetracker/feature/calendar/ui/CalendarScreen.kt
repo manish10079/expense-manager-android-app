@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.calendar.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -221,7 +222,10 @@ private fun CalendarScreenContent(
                         .fillMaxWidth()
                         .weight(1f)
                         .background(MaterialTheme.colorScheme.background),
-                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 20.dp, bottom = 130.dp),
+                    // Top inset is the gap under the AppHeader, so it is deliberately smaller
+                    // than the 18.dp between cards, and matched to the Analytics list so both
+                    // screens put their first control the same distance below the header.
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 12.dp, bottom = 130.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     item {
@@ -363,6 +367,7 @@ private fun CalendarScreenContent(
                                                 MonthCalendarCard(
                                                     days = uiState.monthDays,
                                                     selectedDate = uiState.selectedDate,
+                                                    todayDate = uiState.todayDate,
                                                     onDaySelected = { day ->
                                                         onSelectDay(day)
                                                     },
@@ -542,6 +547,7 @@ private fun TodayShortcutButton(onClick: () -> Unit) {
 private fun MonthCalendarCard(
     days: List<CalendarDayUi>,
     selectedDate: Long,
+    todayDate: Long,
     onDaySelected: (CalendarDayUi) -> Unit,
     onSwipePrevious: () -> Unit,
     onSwipeNext: () -> Unit
@@ -590,6 +596,7 @@ private fun MonthCalendarCard(
                             modifier = Modifier.weight(1f),
                             day = day,
                             selected = isSameDay(day.timestamp, selectedDate),
+                            isToday = isSameDay(day.timestamp, todayDate),
                             onClick = { onDaySelected(day) }
                         )
                     }
@@ -604,8 +611,14 @@ private fun DayCell(
     modifier: Modifier = Modifier,
     day: CalendarDayUi,
     selected: Boolean,
+    isToday: Boolean,
     onClick: () -> Unit
 ) {
+    // Today keeps its mark after the selection moves off it, otherwise picking any other day
+    // makes the grid forget where today is. The two states are mutually exclusive because a
+    // ring drawn over the selection's own purple fill would not be visible at all.
+    val showTodayRing = showsTodayRing(isToday = isToday, isSelected = selected)
+
     Column(
         modifier = modifier.heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick).padding(vertical = 4.dp),
@@ -614,7 +627,14 @@ private fun DayCell(
     ) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape)
-                .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f)),
+                .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+                .then(
+                    if (showTodayRing) {
+                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    } else {
+                        Modifier
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -913,22 +933,29 @@ private fun MonthSummaryCard(
             if (summary.isProjection || (summary.income == 0.0 && summary.expense == 0.0)) {
                 Spacer(modifier = Modifier.height(38.dp))
             } else {
-                SummaryRow(
-                    icon = Icons.AutoMirrored.Filled.TrendingDown,
-                    label = summary.expenseLabel,
-                    color = getAmountColor(2)
-                )
-                SummaryRow(
-                    icon = Icons.AutoMirrored.Filled.TrendingUp,
-                    label = summary.incomeLabel,
-                    color = getAmountColor(1)
-                )
-                SummaryRow(
-                    icon = Icons.Default.AccountBalanceWallet,
-                    label = summary.netLabel,
-                    color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    isBold = true
-                )
+                // The three amounts are one block of readings, so they sit closer to each other
+                // (4.dp) than to the month label above them, which keeps the 7.dp above. Grouping
+                // them is also what allows that: as siblings of the label they could only be
+                // spaced by the column's one arrangement, which would have tightened the label's
+                // own separation by the same amount.
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    SummaryRow(
+                        icon = Icons.AutoMirrored.Filled.TrendingDown,
+                        label = summary.expenseLabel,
+                        color = getAmountColor(2)
+                    )
+                    SummaryRow(
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
+                        label = summary.incomeLabel,
+                        color = getAmountColor(1)
+                    )
+                    SummaryRow(
+                        icon = Icons.Default.AccountBalanceWallet,
+                        label = summary.netLabel,
+                        color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        isBold = true
+                    )
+                }
             }
         }
     }
@@ -1030,6 +1057,15 @@ private fun createDate(
 private fun isSameDay(first: Long, second: Long): Boolean {
     return startOfDay(first) == startOfDay(second)
 }
+
+/**
+ * Whether a day cell draws the ring that keeps today identifiable.
+ *
+ * Only when today is not the selection: the selected cell already fills with the same colour,
+ * so drawing the ring too would add nothing a user could see. Pure so the rule is testable
+ * without Compose, and shared by every cell rather than repeated at each call site.
+ */
+internal fun showsTodayRing(isToday: Boolean, isSelected: Boolean): Boolean = isToday && !isSelected
 
 private fun getField(timestamp: Long, field: Int): Int {
     return Calendar.getInstance().apply { timeInMillis = timestamp }.get(field)
