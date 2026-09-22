@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.transactions.ui
 
 import androidx.lifecycle.SavedStateHandle
 import com.mknlabs.expensetracker.domain.repository.CalculatorHistoryRepository
@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.cancel
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,6 +37,11 @@ class ItemizedCalculatorViewModelTest {
             calculatorHistoryRepository = historyRepository,
             savedStateHandle = SavedStateHandle()
         )
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        viewModel.viewModelScope.cancel()
     }
 
     @Test

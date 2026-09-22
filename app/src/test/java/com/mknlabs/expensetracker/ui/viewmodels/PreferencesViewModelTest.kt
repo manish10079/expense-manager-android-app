@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
 import org.junit.Rule
 import org.junit.Test
 

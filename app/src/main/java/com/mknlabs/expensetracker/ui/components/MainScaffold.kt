@@ -45,7 +45,7 @@ import com.mknlabs.expensetracker.ui.viewmodels.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
+import com.mknlabs.expensetracker.feature.transactions.ui.TransactionsViewModel
 import androidx.compose.ui.unit.dp
 
 @Composable

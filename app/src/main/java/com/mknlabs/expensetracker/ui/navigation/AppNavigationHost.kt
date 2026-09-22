@@ -33,7 +33,7 @@ import com.mknlabs.expensetracker.ui.screens.AboutScreen
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
 import com.mknlabs.expensetracker.ui.screens.FeedbackRoute
-import com.mknlabs.expensetracker.ui.screens.AddTransactionScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.AddTransactionScreen
 import com.mknlabs.expensetracker.ui.screens.AnalyticsScreen
 import com.mknlabs.expensetracker.ui.screens.BudgetAndRecurringScreen
 import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
@@ -42,19 +42,19 @@ import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
 import com.mknlabs.expensetracker.ui.screens.DataManagementScreen
 import com.mknlabs.expensetracker.ui.screens.GoalsScreen
 import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
-import com.mknlabs.expensetracker.ui.screens.ItemizedCalculatorScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorScreen
 import com.mknlabs.expensetracker.ui.screens.NotificationSettingsScreen
 import com.mknlabs.expensetracker.ui.screens.PreferencesScreen
 import com.mknlabs.expensetracker.ui.screens.ProfileScreen
 import com.mknlabs.expensetracker.ui.screens.ConnectedDevicesScreen
 import com.mknlabs.expensetracker.ui.screens.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.ui.screens.SettingsScreen
-import com.mknlabs.expensetracker.ui.screens.TransactionCardCustomizeScreen
-import com.mknlabs.expensetracker.ui.screens.TransactionScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
 import com.mknlabs.expensetracker.ui.screens.MembershipDetailsScreen
 import java.util.UUID
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.ItemizedCalculatorViewModel
+import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorViewModel
 
 @Composable
 fun AppNavigationHost(

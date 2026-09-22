@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import androidx.lifecycle.viewModelScope
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

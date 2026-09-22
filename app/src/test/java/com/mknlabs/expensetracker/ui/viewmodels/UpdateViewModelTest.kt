@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

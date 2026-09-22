@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.transactions.ui
 
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import org.junit.Assert.assertEquals

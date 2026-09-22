@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.transactions.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -29,6 +29,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.After
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.cancel
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -65,6 +69,11 @@ class BudgetAndRecurringViewModelTest {
             recurringRules = emptyList<RecurringTransactionRule>(),
             monthStartDay = 1
         )
+    }
+
+    @After
+    fun tearDown() {
+        viewModel.viewModelScope.cancel()
     }
 
     @Test

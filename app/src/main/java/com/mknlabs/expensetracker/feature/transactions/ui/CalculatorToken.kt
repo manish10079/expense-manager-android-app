@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.transactions.ui
 
 /**
  * Atomic token unit for the MIUI-style expression engine.

@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.transactions.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -163,8 +163,7 @@ import com.mknlabs.expensetracker.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.IncomeGreen
 import com.mknlabs.expensetracker.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.ui.viewmodels.TransactionsScreenUiState
-import com.mknlabs.expensetracker.ui.viewmodels.TransactionsViewModel
+
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.TransactionSwipeAction
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
