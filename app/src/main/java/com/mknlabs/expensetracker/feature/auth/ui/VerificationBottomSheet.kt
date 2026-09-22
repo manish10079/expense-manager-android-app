@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

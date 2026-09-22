@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

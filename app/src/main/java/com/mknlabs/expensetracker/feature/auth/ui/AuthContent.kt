@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -26,9 +26,6 @@ import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.ui.components.input.InputType
-import com.mknlabs.expensetracker.ui.viewmodels.AuthState
-import com.mknlabs.expensetracker.ui.viewmodels.AuthLoadingType
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester

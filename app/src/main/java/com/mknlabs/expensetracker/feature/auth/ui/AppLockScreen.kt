@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.activity.compose.BackHandler
 import android.content.res.Configuration

@@ -28,7 +28,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateEmailUiState
+import com.mknlabs.expensetracker.feature.auth.ui.UpdateEmailUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

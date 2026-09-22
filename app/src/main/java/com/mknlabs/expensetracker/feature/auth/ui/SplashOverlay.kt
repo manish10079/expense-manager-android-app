@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -48,8 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ui.theme.PurplePrimary
-import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.InitTask
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 

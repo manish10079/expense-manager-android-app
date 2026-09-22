@@ -19,8 +19,8 @@ import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.data.local.AppLockPreferences
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
-import com.mknlabs.expensetracker.ui.screens.AppLockScreen
-import com.mknlabs.expensetracker.ui.screens.AppLockScreenMode
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockScreen
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockScreenMode
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
 import kotlinx.coroutines.delay

@@ -42,7 +42,7 @@ import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
-import com.mknlabs.expensetracker.ui.screens.SplashOverlay
+import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
 import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
 import com.mknlabs.expensetracker.ui.components.UpdateDialog
@@ -61,10 +61,10 @@ import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.mknlabs.expensetracker.ui.viewmodels.InitTask
-import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AppLockViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AppLockState
+import com.mknlabs.expensetracker.feature.auth.ui.InitTask
+import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
 import com.mknlabs.expensetracker.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.ui.theme.AppLockLoadingBackground
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -78,7 +78,7 @@ import androidx.compose.runtime.setValue
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
 import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier

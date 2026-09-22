@@ -46,8 +46,8 @@ import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
 import androidx.compose.material.icons.rounded.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateEmailUiState
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.UpdateEmailUiState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -387,7 +387,7 @@ private fun ProfileScreenContent(
                 }
 
                 if (showVerificationSheet) {
-                    com.mknlabs.expensetracker.ui.screens.VerificationBottomSheet(
+                    com.mknlabs.expensetracker.feature.auth.ui.VerificationBottomSheet(
                         email = userProfile.emailAddress,
                         onDismiss = { showVerificationSheet = false }
                     )

@@ -50,8 +50,8 @@ import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.mknlabs.expensetracker.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.ui.components.input.InputType
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.UpdatePasswordState
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.UpdatePasswordState
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 

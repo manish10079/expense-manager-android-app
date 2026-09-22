@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -106,11 +106,6 @@ import com.mknlabs.expensetracker.ui.theme.Dimens
 import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.ui.theme.brandGradient
 import com.mknlabs.expensetracker.ui.theme.surfaceGradient
-import com.mknlabs.expensetracker.ui.viewmodels.AuthState
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.ReturningUserProfile
-import com.mknlabs.expensetracker.ui.viewmodels.ReturningUserStep
-import com.mknlabs.expensetracker.ui.viewmodels.resolveReturningUserStep
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import com.mknlabs.expensetracker.utils.formatDate
