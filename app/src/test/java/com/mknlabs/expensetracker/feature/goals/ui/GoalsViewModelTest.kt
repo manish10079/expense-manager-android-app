@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.viewmodels
+package com.mknlabs.expensetracker.feature.goals.ui
 
 import com.mknlabs.expensetracker.domain.repository.GoalFundEntryRepository
 import com.mknlabs.expensetracker.domain.repository.GoalRepository

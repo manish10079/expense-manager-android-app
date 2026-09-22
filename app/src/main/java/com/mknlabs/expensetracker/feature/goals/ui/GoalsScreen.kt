@@ -1,4 +1,4 @@
-package com.mknlabs.expensetracker.ui.screens
+package com.mknlabs.expensetracker.feature.goals.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -63,7 +63,6 @@ import com.mknlabs.expensetracker.ui.theme.PremiumCardDarkEnd
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightStart
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightCenter
 import com.mknlabs.expensetracker.ui.theme.PremiumCardLightEnd
-import com.mknlabs.expensetracker.ui.viewmodels.GoalsViewModel
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences

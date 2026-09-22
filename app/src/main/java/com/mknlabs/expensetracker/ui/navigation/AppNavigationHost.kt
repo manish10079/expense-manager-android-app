@@ -40,7 +40,7 @@ import com.mknlabs.expensetracker.ui.screens.AddCategoryScreen
 import com.mknlabs.expensetracker.feature.calendar.ui.CalendarScreen
 import com.mknlabs.expensetracker.ui.screens.CategoryManagementScreen
 import com.mknlabs.expensetracker.ui.screens.DataManagementScreen
-import com.mknlabs.expensetracker.ui.screens.GoalsScreen
+import com.mknlabs.expensetracker.feature.goals.ui.GoalsScreen
 import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorScreen
 import com.mknlabs.expensetracker.ui.screens.NotificationSettingsScreen
