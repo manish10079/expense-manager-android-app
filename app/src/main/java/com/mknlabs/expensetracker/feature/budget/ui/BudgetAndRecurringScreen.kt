@@ -2844,9 +2844,12 @@ private fun RecurringRuleEditorModal(
         containerColor = MaterialTheme.colorScheme.surface,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f),
         dragHandle = {
-            Spacer(modifier = Modifier.height(12.dp))
+            // The drag-handle slot is laid out as a Box by the sheet host, so padding
+            // must live on the handle itself. A sibling Spacer overlapped the pill and
+            // pinned it flush to the sheet's top edge.
             Box(
                 modifier = Modifier
+                    .padding(vertical = 12.dp)
                     .size(width = 38.dp, height = 4.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.outlineVariant)

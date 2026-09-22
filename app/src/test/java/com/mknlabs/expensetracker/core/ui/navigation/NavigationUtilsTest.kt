@@ -50,6 +50,36 @@ class NavigationUtilsTest {
     }
 
     @Test
+    fun `resolveBackNavigationRoute returns category management for the add category screen`() {
+        // Create-a-category is opened from Category Management. Unmapped it hit the
+        // `else -> null` branch, so system Back left the app instead of going back.
+        val backRoute = resolveBackNavigationRoute(
+            currentRoute = AppRoute.AddCategory,
+            profileOriginRoute = AppRoute.Settings,
+            previousRoute = AppRoute.CategoryManagement
+        )
+
+        assertEquals(AppRoute.CategoryManagement, backRoute)
+    }
+
+    @Test
+    fun `every route except the home root has a back destination`() {
+        // A route missing from the map resolves to null, which disables the scaffold's
+        // back handler and sends the whole app to the background. Home is the one
+        // deliberate exception: it is the root, so Back there leaves the app.
+        val unmapped = AppRoute.entries.filter { route ->
+            route != AppRoute.Home &&
+                resolveBackNavigationRoute(
+                    currentRoute = route,
+                    profileOriginRoute = AppRoute.Settings,
+                    previousRoute = AppRoute.Transactions
+                ) == null
+        }
+
+        assertEquals("routes with no back destination", emptyList<AppRoute>(), unmapped)
+    }
+
+    @Test
     fun `isBottomTabSwitch returns true when switching between bottom navigation tabs`() {
         assertTrue(isBottomTabSwitch(AppRoute.Home, AppRoute.Analytics))
         assertTrue(isBottomTabSwitch(AppRoute.Analytics, AppRoute.Budget))

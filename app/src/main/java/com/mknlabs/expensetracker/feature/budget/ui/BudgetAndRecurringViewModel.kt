@@ -194,6 +194,8 @@ private data class RecurringEntry(
     val isEnabled: Boolean,
     val notificationsEnabled: Boolean = true,
     val nextRunAt: Long = 0L,
+    /** The rule's own series anchor: the date it was created, never repointed by edits. */
+    val anchorAt: Long = 0L,
     val recurringType: RecurringType = RecurringType.REGULAR,
     val installmentTotalMinor: Long? = null,
     val installmentAmountMinor: Long? = null,
@@ -262,6 +264,7 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 isEnabled = rule.isEnabled,
                 notificationsEnabled = rule.notificationsEnabled,
                 nextRunAt = rule.nextRunAt,
+                anchorAt = rule.anchorAt,
                 recurringType = rule.recurringType,
                 installmentTotalMinor = rule.installmentTotalMinor,
                 installmentAmountMinor = rule.installmentAmountMinor,
@@ -792,7 +795,12 @@ private fun buildRegularExpense(
         notificationsEnabled = recurringEntry.notificationsEnabled,
         installmentTotalAmount = transaction.amount * (if (recurringEntry.repeatCount > 0) recurringEntry.repeatCount else 1),
         installmentPerAmount = transaction.amount,
-        firstDueAt = nextDueAt.takeIf { it > 0L } ?: transaction.createdAt
+        // An EMI plan built from this rule starts where the SERIES started — the
+        // rule's own anchor, i.e. the date the recurring rule was created. Not
+        // nextRunAt (the next due date), and not the template transaction's date
+        // either: an edit repoints the template at a newer transaction, which
+        // would make the plan look like it starts today.
+        firstDueAt = recurringEntry.anchorAt.takeIf { it > 0L } ?: transaction.createdAt
     )
 }
 

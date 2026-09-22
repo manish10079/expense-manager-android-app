@@ -57,6 +57,13 @@ fun resolveBackNavigationRoute(
         AppRoute.NotificationSettings,
         AppRoute.ConnectedDevices,
         AppRoute.MembershipDetails -> AppRoute.Settings
+        // Create-a-category is opened from Category Management, so Back returns to
+        // the screen it came from. Left unmapped it fell into `else -> null`, which
+        // disables the scaffold's back handler and sends the app to the background.
+        AppRoute.AddCategory -> AppRoute.CategoryManagement
+        // Feedback is reached from About, and returns there whether Back is handled
+        // by its own handler or by this map.
+        AppRoute.Feedback -> AppRoute.About
         AppRoute.Profile -> profileOriginRoute
         AppRoute.AddTransaction,
         AppRoute.Goals -> previousRoute

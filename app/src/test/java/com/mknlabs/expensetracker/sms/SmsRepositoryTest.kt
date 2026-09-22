@@ -113,6 +113,7 @@ class SmsRepositoryTest {
         override suspend fun getActiveTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getAllTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getById(id: String): TransactionEntity? = error("unexpected")
+        override suspend fun getLiveByRecurringRule(ruleId: String): List<TransactionEntity> = error("unexpected")
         override fun observeHomeSummary(
             currentMonthStartMillis: Long,
             currentMonthEndMillis: Long,

@@ -285,55 +285,24 @@ private fun AddCategoryScreenContent(
             }
         }
 
-        // Action Buttons at the bottom
+        // One full-width action. Cancel is gone: the toolbar's back arrow — and
+        // system Back — already leave this screen, so a second button only
+        // crowded the row.
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(24.dp)
         ) {
-            Button(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(58.dp),
-                shape = RoundedCornerShape(22.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            shape = RoundedCornerShape(22.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_cancel_1),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        )
-                    )
-                }
-            }
-
             Button(
                 onClick = onSaveCategory,
                 enabled = canCreate,
                 modifier = Modifier
-                    .weight(1.5f)
-                    .height(58.dp)
+                    .fillMaxWidth()
+                    // 58.dp reduced by 20%, rounded to whole dp like the rest of the
+                    // file. Only the container shrinks — the label keeps its type scale.
+                    .height(46.dp)
                     .shadow(
                         elevation = if (canCreate) 8.dp else 0.dp,
                         shape = RoundedCornerShape(22.dp),

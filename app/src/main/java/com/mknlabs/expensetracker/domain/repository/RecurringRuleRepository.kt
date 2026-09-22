@@ -50,6 +50,14 @@ interface RecurringRuleRepository {
      * previous [convertToRegular]) is revived with its paid state, amount and
      * linked transaction intact.
      *
+     * Converting a REGULAR rule that has already charged part of its series
+     * resumes the plan over those payments instead of restarting it: the plan
+     * keeps the series' own start date and adopts each occurrence already
+     * recorded as a settled installment, so a rule with 4 of its 8 occurrences
+     * behind it shows 4 of 8 rather than 0 of 8 dated from today. While resuming,
+     * the series' own dates win and [firstDueAt] is ignored; a rule with nothing
+     * charged yet starts the plan at [firstDueAt] exactly as before.
+     *
      * @return the updated rule, or null if [ruleId] no longer exists.
      */
     suspend fun convertToInstallment(

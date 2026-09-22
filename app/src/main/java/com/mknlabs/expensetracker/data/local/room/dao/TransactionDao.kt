@@ -73,6 +73,24 @@ interface TransactionDao {
     suspend fun getById(id: String): TransactionEntity?
 
     /**
+     * Every live transaction a recurring rule's schedule generated, oldest
+     * occurrence first. Ordered by `created_at`, which is the schedule date the
+     * worker stamped on each occurrence; its deterministic id
+     * (`"{ruleId}_{createdAt}"`) is the same date.
+     *
+     * Used to resume a plan over payments that already exist: a plain recurring
+     * rule converted to installments adopts these as its first settled slots.
+     */
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE source_recurring_rule_id = :ruleId AND is_deleted = 0
+        ORDER BY created_at ASC
+        """
+    )
+    suspend fun getLiveByRecurringRule(ruleId: String): List<TransactionEntity>
+
+    /**
      * Duplicate check for Smart SMS imports (plan D7): true when a transaction
      * with the same amount and SMS timestamp is already imported.
      *

@@ -305,6 +305,41 @@ class BudgetAndRecurringViewModelTest {
         assertEquals(2, card.totalInstallments)
     }
 
+    @Test
+    fun `converting a regular rule prefills its own creation date, not the template's`() = runTest {
+        val created = System.currentTimeMillis() - 200L * DAY_MILLIS
+        // An edit since then repointed the rule at a newer template, so the
+        // template's date is no longer the series' start.
+        val templateEditedAt = System.currentTimeMillis() - 4L * DAY_MILLIS
+        val rule = RecurringTransactionRule(
+            id = RULE_ID,
+            transactionId = TEMPLATE_ID,
+            frequency = RecurringFrequency.Monthly,
+            repeatCount = 8,
+            isEnabled = true,
+            remainingCount = 4,
+            anchorAt = created,
+            nextRunAt = System.currentTimeMillis() + 10L * DAY_MILLIS
+        )
+
+        viewModel.updateInputs(
+            transactions = listOf(templateTransaction().copy(createdAt = templateEditedAt)),
+            categories = listOf(category()),
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            recurringRules = listOf(rule),
+            monthStartDay = 1
+        )
+
+        val card = viewModel.uiState.value.recurringExpenses.single()
+        assertFalse(card.isInstallment)
+        assertEquals(
+            "converting is not creating a new rule: the plan must start where this one did",
+            created,
+            card.firstDueAt
+        )
+    }
+
     private fun occurrence(
         index: String,
         dueAt: Long,

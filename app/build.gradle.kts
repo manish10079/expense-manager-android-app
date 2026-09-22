@@ -19,8 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 246
-
-        versionName = "2.115.18"
+        versionName = "2.115.19"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +41,10 @@ android {
         }
     }
     val rcKey = localProperties.getProperty("revenueCatApiKey", "")
+    // Pinned App Check debug token for local development (gitignored). Left blank,
+    // the SDK mints a new token on every fresh install and it has to be registered
+    // in the Firebase console again; pinned, one registered value is used forever.
+    val appCheckDebugToken = localProperties.getProperty("appCheckDebugToken", "")
 
     signingConfigs {
         create("release") {
@@ -100,6 +103,9 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             // RevenueCat API key from local properties (kept secret)
             buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
+            // Pinned App Check debug token (kept secret, debug-only). Blank means
+            // the SDK's own rotating debug token is used, as before.
+            buildConfigField("String", "APP_CHECK_DEBUG_TOKEN", "\"$appCheckDebugToken\"")
         }
     }
     compileOptions {

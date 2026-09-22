@@ -375,6 +375,207 @@ class InstallmentRepositoryTest {
         assertNull(repository.settleOccurrenceWithTransaction("${RULE_ID}_occ_9", TEMPLATE_ID, anchor))
     }
 
+    @Test
+    fun convertingARuleThatAlreadyRan_resumesAtTheOccurrencesItCharged() = runTest {
+        // A plain monthly rule of 8 occurrences that has been running: the
+        // template is its first occurrence and the worker generated the next
+        // three. The editor converts it mid-series and passes the NEXT due date
+        // as the plan's first due date — which is what used to restart the plan
+        // at "0 OF 8" dated from today.
+        val occurrences = (0..3).map { monthAfter(anchor, it) }
+        repository.upsertRule(
+            repository.getActiveRules().first { it.id == RULE_ID }.copy(
+                repeatCount = 8,
+                remainingCount = 4,
+                nextRunAt = occurrences.last()
+            )
+        )
+        occurrences.drop(1).forEach { seedGeneratedOccurrence(it) }
+
+        val converted = repository.convertToInstallment(
+            ruleId = RULE_ID,
+            totalAmountMinor = 80_000L,
+            installmentAmountMinor = 10_000L,
+            totalInstallments = 8,
+            firstDueAt = monthAfter(anchor, 4)
+        )!!
+
+        val slots = repository.getOccurrences(RULE_ID).sortedBy { it.installmentIndex }
+        assertEquals("the plan keeps all 8 occurrences", 8, slots.size)
+        assertEquals(
+            "the plan starts at the series' first occurrence, not at the date passed in",
+            anchor,
+            slots.first().dueAt
+        )
+        assertEquals(
+            "the plan spans the whole series",
+            monthAfter(anchor, 7),
+            slots.last().dueAt
+        )
+
+        // Every occurrence that already happened is settled, in order, each
+        // pointing at the payment that recorded it — the template is #1.
+        val expectedLinks = listOf(TEMPLATE_ID) + occurrences.drop(1).map { "${RULE_ID}_$it" }
+        occurrences.forEachIndexed { index, dueAt ->
+            val slot = slots[index]
+            assertEquals("slot ${index + 1} due date", dueAt, slot.dueAt)
+            assertEquals("slot ${index + 1} status", "PAID", slot.status.name)
+            assertEquals("slot ${index + 1} settled at its own occurrence", dueAt, slot.paidAt)
+            assertEquals("slot ${index + 1} link", expectedLinks[index], slot.transactionId)
+        }
+
+        // Nothing was invented for the occurrences still to come.
+        (5..8).forEach { index ->
+            val slot = slots[index - 1]
+            assertEquals("slot $index due date", monthAfter(anchor, index - 1), slot.dueAt)
+            assertEquals("slot $index status", "PENDING", slot.status.name)
+            assertNull("slot $index must not claim a payment", slot.transactionId)
+        }
+
+        val plan = repository.getInstallmentPlan(RULE_ID)!!
+        assertEquals("4 of 8 already paid, not 0 of 8", 4, plan.paidInstallments)
+        assertEquals(40_000L, plan.totalPaidMinor)
+        assertEquals(40_000L, plan.remainingAmountMinor)
+        assertEquals(monthAfter(anchor, 4), plan.nextDueAt)
+
+        // The adopted ledger drives the schedule: the rule waits on slot 5.
+        assertEquals(monthAfter(anchor, 4), converted.nextRunAt)
+        assertEquals(4, converted.remainingCount)
+        assertTrue(converted.isEnabled)
+    }
+
+    @Test
+    fun thePlanStartsAtTheRulesOwnAnchor_notAtAReplacedTemplateDate() = runTest {
+        // A rule created in January that was later edited: the edit repoints the
+        // template at a NEWER transaction, so the template's date is no longer the
+        // series' start. The plan must still begin where the rule was created.
+        val templateReplacedAt = monthAfter(anchor, 8)
+        db.transactionDao().upsert(
+            Transaction(
+                id = "tx-replaced-template",
+                note = "laptop emi",
+                createdAt = templateReplacedAt,
+                amountMinor = 60_000L,
+                transactionTypeId = 2,
+                paymentTypeId = 1,
+                categoryId = 1,
+                syncState = SyncState.SYNCED
+            ).toEntity()
+        )
+        repository.upsertRule(
+            repository.getActiveRules().first { it.id == RULE_ID }.copy(
+                transactionId = "tx-replaced-template",
+                repeatCount = 8,
+                remainingCount = 4,
+                anchorAt = anchor,
+                nextRunAt = monthAfter(anchor, 4)
+            )
+        )
+        (1..3).forEach { seedGeneratedOccurrence(monthAfter(anchor, it)) }
+
+        val converted = repository.convertToInstallment(
+            ruleId = RULE_ID,
+            totalAmountMinor = 80_000L,
+            installmentAmountMinor = 10_000L,
+            totalInstallments = 8,
+            // What the editor used to pass: the next due date.
+            firstDueAt = monthAfter(anchor, 4)
+        )!!
+
+        val slots = repository.getOccurrences(RULE_ID).sortedBy { it.installmentIndex }
+        assertEquals(
+            "the series' own start wins over the replaced template's date",
+            anchor,
+            slots.first().dueAt
+        )
+        assertEquals(
+            "the four charged occurrences are still adopted",
+            4,
+            repository.getInstallmentPlan(RULE_ID)!!.paidInstallments
+        )
+        assertEquals(
+            "slot 1 links the template the rule now points at",
+            "tx-replaced-template",
+            slots.first().transactionId
+        )
+        assertEquals(monthAfter(anchor, 4), converted.nextRunAt)
+        assertEquals(4, converted.remainingCount)
+    }
+
+    @Test
+    fun convertingARuleThatHasNotRunYet_stillStartsAtTheChosenFirstDueDate() = runTest {
+        // Nothing charged beyond the template, so there is no series to resume:
+        // the plan is new and no slot is settled on the user's behalf.
+        convertToPlan(count = 3)
+
+        val slots = repository.getOccurrences(RULE_ID).sortedBy { it.installmentIndex }
+        assertEquals(anchor, slots.first().dueAt)
+        assertEquals("a plan with nothing charged yet must not adopt the template", "PENDING", slots.first().status.name)
+        assertNull(slots.first().transactionId)
+        assertEquals(0, repository.getInstallmentPlan(RULE_ID)!!.paidInstallments)
+    }
+
+    @Test
+    fun deletingAGeneratedPayment_keepsItsOccurrenceUnsettled() = runTest {
+        val occurrences = (0..3).map { monthAfter(anchor, it) }
+        repository.upsertRule(
+            repository.getActiveRules().first { it.id == RULE_ID }.copy(
+                repeatCount = 8,
+                remainingCount = 4,
+                nextRunAt = occurrences.last()
+            )
+        )
+        val generated = occurrences.drop(1)
+        generated.forEach { seedGeneratedOccurrence(it) }
+        // The user withdrew the most recent occurrence from the ledger.
+        db.transactionDao().softDelete(
+            id = "${RULE_ID}_${generated.last()}",
+            syncState = SyncState.PENDING_UPLOAD.name,
+            updatedAt = System.currentTimeMillis()
+        )
+
+        repository.convertToInstallment(
+            ruleId = RULE_ID,
+            totalAmountMinor = 80_000L,
+            installmentAmountMinor = 10_000L,
+            totalInstallments = 8,
+            firstDueAt = monthAfter(anchor, 4)
+        )
+
+        // Only payments that still exist are adopted: the withdrawn occurrence
+        // stays owed instead of being silently marked paid.
+        val slots = repository.getOccurrences(RULE_ID).sortedBy { it.installmentIndex }
+        assertEquals(3, repository.getInstallmentPlan(RULE_ID)!!.paidInstallments)
+        assertEquals("PENDING", slots[3].status.name)
+        assertNull(slots[3].transactionId)
+    }
+
+    /**
+     * One occurrence the worker generated: the deterministic "{ruleId}_{date}"
+     * id and that same date, exactly as `processRule` writes it.
+     */
+    private suspend fun seedGeneratedOccurrence(date: Long) {
+        db.transactionDao().upsert(
+            Transaction(
+                id = "${RULE_ID}_$date",
+                note = "laptop emi",
+                createdAt = date,
+                amountMinor = 60_000L,
+                transactionTypeId = 2,
+                paymentTypeId = 1,
+                categoryId = 1,
+                sourceRecurringRuleId = RULE_ID,
+                syncState = SyncState.SYNCED
+            ).toEntity()
+        )
+    }
+
+    /** One calendar month after [base] — the anchor sits on the 10th, so the step is exact. */
+    private fun monthAfter(base: Long, months: Int): Long = Calendar.getInstance().apply {
+        timeInMillis = base
+        add(Calendar.MONTH, months)
+    }.timeInMillis
+
     companion object {
         private const val RULE_ID = "rule-test-1"
         private const val TEMPLATE_ID = "tx-template-1"
