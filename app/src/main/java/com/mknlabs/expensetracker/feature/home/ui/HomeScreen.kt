@@ -349,9 +349,10 @@ private fun HomeScreenContent(
                     onSmsInboxClick = onSmsInboxClick,
                     isLockOverlayActive = isLockOverlayActive
                 )
-                // 7.dp matches the gap under the Cash Flow card (to the Spent Today /
-                // My Goals row), so the whole header stack reads on one rhythm.
-                Spacer(modifier = Modifier.height(7.dp))
+                // Tighter than the 7.dp gap below the Cash Flow card: the row above it
+                // is text and icons with no container of its own, so the card reads
+                // better sitting close to it than spaced away.
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     Column(
                         modifier = Modifier
@@ -421,7 +422,7 @@ private fun HomeScreenContent(
                     isLockOverlayActive = isLockOverlayActive,
                     isWide = isWide
                 )
-                Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 RecentActivitiesHeader(onViewAllClick = onViewAllClick)
                 Spacer(modifier = Modifier.height(16.dp))
                 HomeTransactionsList(
@@ -471,9 +472,10 @@ private fun HomeTopSection(
         onSmsInboxClick = onSmsInboxClick,
         isLockOverlayActive = isLockOverlayActive
     )
-    // 7.dp matches the gap under the Cash Flow card (to the Spent Today / My Goals
-    // row), so the whole header stack reads on one rhythm.
-    Spacer(modifier = Modifier.height(7.dp))
+    // Tighter than the 7.dp gap below the Cash Flow card: the header row above it is
+    // text and icons with no container of its own, so the card reads better sitting
+    // close to it than spaced away.
+    Spacer(modifier = Modifier.height(4.dp))
     HomeStatsSection(
         userProfile = userProfile,
         appSettings = appSettings,
@@ -650,22 +652,30 @@ private fun HomeHeaderRow(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            // 8.dp before the avatar, which is the largest element here and needs the
+            // room; the two icons are a pair and sit half that distance apart, in a
+            // nested row of their own.
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Detected bank messages waiting for a decision. Independent of the dialogs below:
-            // the badge is driven by the inbox table, so a dismissed notification still counts.
-            SmsInboxBellButton(
-                unreadCount = uiState.smsInboxUnreadCount,
-                onClick = onSmsInboxClick,
-                ringProgress = bellRing.value
-            )
-
-            Box(
-                modifier = Modifier.graphicsLayer {
-                    rotationZ = settingsRotation.value
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                SettingsButton(onClick = onSettingsClick)
+                // Detected bank messages waiting for a decision. Independent of the dialogs below:
+                // the badge is driven by the inbox table, so a dismissed notification still counts.
+                SmsInboxBellButton(
+                    unreadCount = uiState.smsInboxUnreadCount,
+                    onClick = onSmsInboxClick,
+                    ringProgress = bellRing.value
+                )
+
+                Box(
+                    modifier = Modifier.graphicsLayer {
+                        rotationZ = settingsRotation.value
+                    }
+                ) {
+                    SettingsButton(onClick = onSettingsClick)
+                }
             }
 
             val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
@@ -811,7 +821,10 @@ private fun HomeStatsSection(
         )
     }
 
-    Spacer(modifier = Modifier.height(14.dp))
+    // Paired with the spacer before Recent Activities, this keeps the gap from the
+    // Spent Today / My Goals row down to that heading tight, whether or not an ad
+    // card occupies the slot between them.
+    Spacer(modifier = Modifier.height(8.dp))
 
     // Ad slot: free users see the native ad (tall media-first card on wide windows,
     // compact row on phones). Ad-free/premium users get the Upcoming Recurring card

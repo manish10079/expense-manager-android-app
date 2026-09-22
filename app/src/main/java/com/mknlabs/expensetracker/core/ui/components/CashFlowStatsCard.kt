@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -71,8 +74,10 @@ private fun currentDateString(): String {
  * the Net Balance inner container.
  *
  * [isBalanceHidden] / [onToggleVisibility] preserve the existing privacy
- * auto-hide behavior: amounts are masked with "****" while hidden and the
- * whole card toggles visibility when tapped.
+ * auto-hide behavior: amounts are masked with "****" while hidden, the whole
+ * card toggles visibility when tapped, and a dedicated eye button beside the
+ * "Net Balance" label makes that tap discoverable. The 10-second re-mask timer
+ * lives in the caller (HomeViewModel), so it applies to both entry points.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -145,7 +150,10 @@ fun CashFlowStatsCard(
                 brush = borderBrush,
                 shape = RoundedCornerShape(20.dp)
             )
-            .padding(16.dp)
+            // Sides and bottom stay at 16.dp; the top is tighter because the
+            // header row's own pills already carry vertical padding, so 16.dp read
+            // as an empty band across the top of the card.
+            .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -165,7 +173,11 @@ fun CashFlowStatsCard(
                 ) {
                     Text(
                         text = currentDate,
-                        modifier = Modifier.padding(start = 10.dp, top = 6.dp, bottom = 6.dp),
+                        // No start inset: the date has to start on the same edge as the
+                        // EXPENSE label below it, which sits flush with the card's
+                        // content padding. The 10.dp it used to carry was left over
+                        // from a filled pill — the surface behind it is transparent.
+                        modifier = Modifier.padding(vertical = 6.dp),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.sp,
@@ -265,21 +277,56 @@ fun CashFlowStatsCard(
                 shape = RoundedCornerShape(12.dp),
                 color = colorScheme.surfaceVariant.copy(alpha = 0.45f)
             ) {
+                // Vertical padding is 6.dp rather than 12.dp because the eye button
+                // below is 32.dp tall and sets this row's height. Keeping 12.dp would
+                // have grown the container by ~11.dp; this keeps it at ~44.dp, and the
+                // label/amount still sit ~11.5.dp from the edges once centred.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                        .padding(horizontal = 14.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(R.string.label_net_balance_cash_flow),
-                        color = colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_net_balance_cash_flow),
+                            color = colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp
+                            )
                         )
-                    )
+
+                        // Reveal/hide affordance. The card itself is already clickable
+                        // for the same toggle, but nothing signalled that, so the eye is
+                        // the discoverable entry point. Tapping it consumes the tap, so
+                        // it toggles once rather than also firing the card.
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .clickable(onClick = onToggleVisibility),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isBalanceHidden) {
+                                    Icons.Rounded.Visibility
+                                } else {
+                                    Icons.Rounded.VisibilityOff
+                                },
+                                contentDescription = stringResource(
+                                    if (isBalanceHidden) R.string.desc_show_balance
+                                    else R.string.desc_hide_balance
+                                ),
+                                tint = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
 
                     Text(
                         text = displayBalance,
