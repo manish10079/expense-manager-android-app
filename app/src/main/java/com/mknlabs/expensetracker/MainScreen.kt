@@ -77,32 +77,32 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.InterstitialPlacement
-import com.mknlabs.expensetracker.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.models.PinVisualMode
-import com.mknlabs.expensetracker.ui.components.MainScaffold
-import com.mknlabs.expensetracker.ui.components.ComingSoonDialog
-import com.mknlabs.expensetracker.ui.components.PremiumGateSheet
-import com.mknlabs.expensetracker.ui.components.VoiceInputSheet
-import com.mknlabs.expensetracker.ui.components.VoiceSheetState
-import com.mknlabs.expensetracker.ui.components.ProPassRedeemDialog
-import com.mknlabs.expensetracker.ui.components.adPassDurationLabel
-import com.mknlabs.expensetracker.ui.navigation.AppRoute
-import com.mknlabs.expensetracker.ui.navigation.AppLockFlow
-import com.mknlabs.expensetracker.ui.navigation.rememberMainNavigationState
-import com.mknlabs.expensetracker.ui.navigation.routesKeepingTransactionsWarm
+import com.mknlabs.expensetracker.core.ui.components.MainScaffold
+import com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog
+import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
+import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
+import com.mknlabs.expensetracker.core.ui.components.adPassDurationLabel
+import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
+import com.mknlabs.expensetracker.core.ui.navigation.AppLockFlow
+import com.mknlabs.expensetracker.core.ui.navigation.rememberMainNavigationState
+import com.mknlabs.expensetracker.core.ui.navigation.routesKeepingTransactionsWarm
 import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationScheduler
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
-import com.mknlabs.expensetracker.ui.screens.OnboardingScreen
-import com.mknlabs.expensetracker.ui.screens.SmsChangeRoute
+import com.mknlabs.expensetracker.feature.auth.ui.OnboardingScreen
+import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsChangeRoute
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
-import com.mknlabs.expensetracker.ui.viewmodels.MainViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.VoiceAddViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.screens.AuthRoute
+import com.mknlabs.expensetracker.core.ui.MainViewModel
+import com.mknlabs.expensetracker.voice.VoiceAddViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AuthRoute
 import com.mknlabs.expensetracker.workers.SyncWorker
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
@@ -116,8 +116,8 @@ import com.mknlabs.expensetracker.workers.AutoBackupScheduler
 import com.mknlabs.expensetracker.utils.DeviceIntegrityUtils
 import com.mknlabs.expensetracker.utils.AppRestartUtils
 import com.mknlabs.expensetracker.utils.BackupDecryptionException
-import com.mknlabs.expensetracker.ui.theme.AdLoadingScrim
-import com.mknlabs.expensetracker.ui.theme.AdLoadingText
+import com.mknlabs.expensetracker.core.ui.theme.AdLoadingScrim
+import com.mknlabs.expensetracker.core.ui.theme.AdLoadingText
 
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.monetization.AccessLevel
@@ -715,15 +715,15 @@ fun MainScreen(
                 mainViewModel.uiEvent.collect { event ->
                     android.util.Log.d("MainScreen", "Received UI Event: $event")
                     when (event) {
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.TransactionOperationCompleted -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.TransactionOperationCompleted -> {
                             // Handled internally in screens
                         }
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.ShowAdExpiryWarning -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.ShowAdExpiryWarning -> {
                             android.util.Log.d("MainScreen", "Showing Expiry Warning Dialog")
                             adExpiryMinutesRemaining = event.minutesRemaining
                             showAdExpiryWarningDialog = true
                         }
-                        is com.mknlabs.expensetracker.ui.viewmodels.MainUiEvent.InstallmentsPaid -> {
+                        is com.mknlabs.expensetracker.core.ui.MainUiEvent.InstallmentsPaid -> {
                             showToast(
                                 context.resources.getQuantityString(
                                     R.plurals.toast_installments_paid,

@@ -1,0 +1,3710 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
+package com.mknlabs.expensetracker.feature.budget.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import com.mknlabs.expensetracker.models.BudgetPeriod
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import com.mknlabs.expensetracker.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.transactionList
+import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
+import com.mknlabs.expensetracker.models.RecurringType
+import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppIconBox
+import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
+import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
+import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.income
+
+import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.toMinorUnits
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
+import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
+import com.mknlabs.expensetracker.monetization.AdPlacement
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+
+private enum class BudgetCopyMode {
+    All,
+    Selected
+}
+
+private data class PendingBudgetCopy(
+    val mode: BudgetCopyMode,
+    val budgetIds: List<String>
+)
+
+@Composable
+fun BudgetAndRecurringScreen(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    transactions: List<Transaction> = transactionList,
+    availableCategories: List<CategoryType> = categoryMap.values.toList(),
+    recurringRules: List<RecurringTransactionRule> = emptyList(),
+    monthStartDay: Int = 1,
+    onDeleteRecurring: (String) -> Unit = {},
+    onRecurringEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
+    onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit = { _, _ -> },
+    onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit = { _, _, _ -> },
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit = { _, _, _ -> },
+    onConvertRecurringToRegular: (String) -> Unit = {},
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
+    onBackClick: () -> Unit = {},
+    isAdsEnabled: Boolean = false,
+    isProUser: Boolean = false
+) {
+    val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
+
+    LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules, monthStartDay) {
+        budgetViewModel.updateInputs(
+            transactions = transactions,
+            categories = availableCategories,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            recurringRules = recurringRules,
+            monthStartDay = monthStartDay
+        )
+    }
+
+    val uiState by budgetViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    BudgetAndRecurringContent(
+        uiState = uiState,
+        isAdsEnabled = isAdsEnabled,
+        // Counts are a Pro perk; the route resolves that once and the content stays
+        // a pure, previewable function.
+        isProUser = isProUser,
+        currencyId = currencyId,
+        amountFormatPreferences = amountFormatPreferences,
+        availableCategories = availableCategories,
+        transactions = transactions,
+        onDeleteRecurring = onDeleteRecurring,
+        onRecurringEnabledChange = onRecurringEnabledChange,
+        onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
+        onUpdateRecurringRule = onUpdateRecurringRule,
+        onSaveRecurringPlan = onSaveRecurringPlan,
+        onConvertRecurringToRegular = onConvertRecurringToRegular,
+        onPayInstallments = onPayInstallments,
+        onSkipInstallment = onSkipInstallment,
+        onUndoInstallment = onUndoInstallment,
+        onBackClick = onBackClick,
+        onSelectTab = { budgetViewModel.selectTab(it) },
+        onSelectPeriod = { budgetViewModel.selectPeriod(it) },
+        onSelectCustomMonth = { budgetViewModel.selectCustomMonth(it) },
+        onSaveBudget = { budgetId, categoryIds, limit, name, period ->
+            budgetViewModel.saveBudget(budgetId, categoryIds, limit, name, period)
+        },
+        onDeleteBudget = { budgetId -> budgetViewModel.deleteBudget(budgetId) },
+        onCopyAllBudgets = {
+            budgetViewModel.copyAllPreviousMonthBudgets()
+            Toast.makeText(context, R.string.msg_copy_all_budgets_success, Toast.LENGTH_SHORT).show()
+        },
+        onCopySelectedBudgets = { budgetIds ->
+            budgetViewModel.copySelectedPreviousMonthBudgets(budgetIds)
+            Toast.makeText(context, R.string.msg_copy_selected_budgets_success, Toast.LENGTH_SHORT).show()
+        }
+    )
+}
+
+@Composable
+private fun BudgetAndRecurringContent(
+    uiState: BudgetAndRecurringScreenUiState,
+    isAdsEnabled: Boolean,
+    isProUser: Boolean = false,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    availableCategories: List<CategoryType>,
+    transactions: List<Transaction>,
+    onDeleteRecurring: (String) -> Unit,
+    onRecurringEnabledChange: (String, Boolean) -> Unit,
+    onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
+    onUpdateRecurringRule: (String, RecurringFrequency, Int) -> Unit,
+    onSaveRecurringPlan: (String, RecurringFrequency, RecurringPlanEdit) -> Unit,
+    onConvertRecurringToRegular: (String) -> Unit,
+    onPayInstallments: (List<String>) -> Unit = {},
+    onSkipInstallment: (String) -> Unit = {},
+    onUndoInstallment: (String) -> Unit = {},
+    onBackClick: () -> Unit,
+    onSelectTab: (BudgetTab) -> Unit,
+    onSelectPeriod: (BudgetPeriodFilter) -> Unit,
+    onSelectCustomMonth: (Long) -> Unit,
+    onSaveBudget: (String?, List<Int>, Double, String, BudgetPeriod) -> Unit,
+    onDeleteBudget: (String) -> Unit,
+    onCopyAllBudgets: () -> Unit,
+    onCopySelectedBudgets: (List<String>) -> Unit
+) {
+    var isMonthPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isBudgetEditorVisible by rememberSaveable { mutableStateOf(false) }
+    var editingBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var budgetEditorSessionKey by rememberSaveable { mutableStateOf(0L) }
+    var pendingDeleteBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingDeleteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
+    var editingRecurringRule by remember { mutableStateOf<BudgetRecurringExpenseUi?>(null) }
+    var pendingMuteRecurringId by rememberSaveable { mutableStateOf<String?>(null) }
+    var muteDialogDismissed by rememberSaveable { mutableStateOf(false) }
+    var infoBudgetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var isGroupInfoSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val groupInfoSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Id of the EMI rule whose installment ledger is open (tap-through from a card).
+    var ledgerRuleId by rememberSaveable { mutableStateOf<String?>(null) }
+    val ledgerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isCopySheetVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingCopyRequest by remember { mutableStateOf<PendingBudgetCopy?>(null) }
+    // IDs currently playing their exit animation before the real delete fires.
+    val deletingRecurringIds = remember { mutableStateSetOf<String>() }
+
+
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+
+    // Per-tab scroll states for the two pager pages (Budgets / Recurring). The
+    // current page's scroll direction drives the standalone add FAB's auto-hide
+    // on compact portrait.
+    val budgetsListState = rememberLazyListState()
+    val recurringListState = rememberLazyListState()
+    rememberBindAddFabToScroll(
+        if (pagerState.currentPage == 0) budgetsListState else recurringListState
+    )
+
+    // Sync ViewModel tab state with PagerState
+    LaunchedEffect(pagerState.currentPage) {
+        val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Recurring
+        if (uiState.selectedTab != tab) {
+            onSelectTab(tab)
+        }
+    }
+
+    // Sync PagerState with ViewModel tab state (for programmatic clicks)
+    LaunchedEffect(uiState.selectedTab) {
+        val page = if (uiState.selectedTab == BudgetTab.Budgets) 0 else 1
+        if (pagerState.currentPage != page) {
+            pagerState.animateScrollToPage(page)
+        }
+    }
+
+    val expenseCategories = remember(availableCategories) {
+        availableCategories
+            .filter { it.transactionTypeId != 1 }
+            .sortedBy { it.name.lowercase() }
+    }
+    val expenseTransactions = remember(transactions) {
+        transactions
+            .filter { it.transactionTypeId != 1 }
+            .sortedByDescending { it.createdAt }
+    }
+    val editingBudget = uiState.categoryBudgets.firstOrNull { it.id == editingBudgetId }
+    val pendingDeleteBudget = uiState.categoryBudgets.firstOrNull { it.id == pendingDeleteBudgetId }
+    val pendingDeleteRecurring = uiState.recurringExpenses.firstOrNull { it.id == pendingDeleteRecurringId }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+            ) {
+                AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
+            }
+
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+                CurrentPeriodIndicator(
+                    startMillis = uiState.currentPeriodStartMillis,
+                    endMillis = uiState.currentPeriodEndMillis,
+                    monthStartDay = uiState.monthStartDay,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            // Tab Row
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+                BudgetTabRow(
+                    selectedTab = uiState.selectedTab,
+                    // Counted from the very lists the tabs render, so the badge can never
+                    // disagree with the cards below it — including the budget tab's
+                    // period filter, which changes how many budgets are on screen.
+                    budgetCount = uiState.categoryBudgets.size,
+                    recurringCount = uiState.recurringExpenses.size,
+                    isProUser = isProUser,
+                    onTabSelected = onSelectTab
+                )
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+            ) { page ->
+                LazyColumn(
+                    state = if (page == 0) budgetsListState else recurringListState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding(),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 20.dp, end = Dimens.ScreenPadding, bottom = 126.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    if (page == 0) {
+                        // TAB 1: BUDGETS
+                        item {
+                            GatedAction(
+                                feature = Feature.BUDGET_CUSTOM_MONTH,
+                                onAction = { isMonthPickerVisible = true }
+                            ) { status, onCustomMonthClick ->
+                                BudgetPeriodRow(
+                                    selectedPeriod = uiState.selectedPeriod,
+                                    isCustomMonthLocked = status !is AccessStatus.Granted,
+                                    onPeriodSelected = { period ->
+                                        if (period == BudgetPeriodFilter.CustomMonth) {
+                                            onCustomMonthClick()
+                                        } else {
+                                            onSelectPeriod(period)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        item { BudgetSummaryCard(summary = uiState.summary) }
+                        
+                        item {
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                            }
+                        }
+
+                        item { SectionTitle(title = stringResource(id = R.string.title_category_budgets)) }
+
+                        if (uiState.categoryBudgets.isEmpty()) {
+                            item {
+                                EmptySectionCard(
+                                    message = uiState.emptyCategoryMessage?.asString()
+                                        ?: stringResource(id = R.string.msg_no_category_budget_data)
+                                )
+                            }
+                        } else {
+                            items(uiState.categoryBudgets, key = { it.id }) { budget ->
+                                CategoryBudgetCard(
+                                    budget = budget,
+                                    onEditClick = {
+                                        editingBudgetId = budget.id
+                                        budgetEditorSessionKey = System.currentTimeMillis()
+                                        isBudgetEditorVisible = true
+                                    },
+                                    onDeleteClick = {
+                                        pendingDeleteBudgetId = budget.id
+                                    },
+                                    onInfoClick = {
+                                        infoBudgetId = budget.id
+                                        isGroupInfoSheetVisible = true
+                                    }
+                                )
+                            }
+                        }
+
+                        item {
+                            if (uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth) {
+                                GatedAction(
+                                    feature = Feature.BUDGET_COPY_PREVIOUS_MONTH,
+                                    displayName = stringResource(id = R.string.title_copy_previous_month_budgets),
+                                    onAction = { isCopySheetVisible = true }
+                                ) { status, onClick ->
+                                    CopyPreviousMonthBudgetsAction(
+                                        isLocked = status !is AccessStatus.Granted,
+                                        onClick = onClick
+                                    )
+                                }
+                            }
+                        }
+
+                        item {
+                            val canAdd = uiState.canAddBudget
+                            BudgetActionButton(
+                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
+                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
+                                enabled = canAdd,
+                                onClick = {
+                                    editingBudgetId = null
+                                    budgetEditorSessionKey = System.currentTimeMillis()
+                                    isBudgetEditorVisible = true
+                                }
+                            )
+                        }
+
+                        item {
+                            AdContainer(isAdsEnabled = isAdsEnabled) {
+                                NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                            }
+                        }
+                    } else {
+                        // TAB 2: RECURRING
+                        item { SectionTitle(title = stringResource(id = R.string.title_recurring_expenses)) }
+
+                        if (uiState.recurringExpenses.isEmpty()) {
+                            item {
+                                EmptySectionCard(
+                                    message = uiState.emptyRecurringMessage?.asString()
+                                        ?: stringResource(id = R.string.msg_no_recurring_items)
+                                )
+                            }
+                            item {
+                                AdContainer(isAdsEnabled = isAdsEnabled) {
+                                    NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                }
+                            }
+                        } else {
+                            uiState.recurringExpenses.forEach { expense ->
+                                item(key = expense.id) {
+                                    val isBeingDeleted = expense.id in deletingRecurringIds
+                                    AnimatedVisibility(
+                                        visible = !isBeingDeleted,
+                                        modifier = Modifier.animateItem(
+                                            fadeInSpec = null,
+                                            fadeOutSpec = tween(durationMillis = 300),
+                                            placementSpec = spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessMediumLow
+                                            )
+                                        ),
+                                        enter = expandVertically(
+                                            animationSpec = tween(durationMillis = 260)
+                                        ) + fadeIn(animationSpec = tween(durationMillis = 260)),
+                                        exit = shrinkVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            )
+                                        ) + fadeOut(animationSpec = tween(durationMillis = 220))
+                                    ) {
+                                        RecurringExpenseCard(
+                                            expense = expense,
+                                            onEnabledChange = { enabled ->
+                                                onRecurringEnabledChange(expense.id, enabled)
+                                            },
+                                            onNotificationsEnabledChange = { enabled ->
+                                                if (!enabled && !muteDialogDismissed) {
+                                                    pendingMuteRecurringId = expense.id
+                                                } else {
+                                                    onRecurringNotificationsEnabledChange(expense.id, enabled)
+                                                }
+                                            },
+                                            onEditClick = { editingRecurringRule = expense },
+                                            onDeleteClick = {
+                                                pendingDeleteRecurringId = expense.id
+                                            },
+                                            onLedgerClick = if (expense.isInstallment && expense.slots.isNotEmpty()) {
+                                                { ledgerRuleId = expense.id }
+                                            } else {
+                                                null
+                                            }
+                                        )
+                                    }
+                                    // Fire the real repository delete once the card has
+                                    // finished its exit animation and collapsed to nothing.
+                                    LaunchedEffect(isBeingDeleted) {
+                                        if (isBeingDeleted) {
+                                            kotlinx.coroutines.delay(350)
+                                            onDeleteRecurring(expense.id)
+                                            deletingRecurringIds.remove(expense.id)
+                                        }
+                                    }
+                                }
+                                item(key = "ad_${expense.id}") {
+                                    val isBeingDeleted = expense.id in deletingRecurringIds
+                                    AnimatedVisibility(
+                                        visible = !isBeingDeleted,
+                                        exit = shrinkVertically(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            )
+                                        ) + fadeOut(animationSpec = tween(durationMillis = 220))
+                                    ) {
+                                        AdContainer(isAdsEnabled = isAdsEnabled) {
+                                            NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (isMonthPickerVisible) {
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.MONTH_YEAR,
+            initialStartMillis = uiState.customMonthStart,
+            onDismissRequest = { isMonthPickerVisible = false },
+            onConfirm = { pickedDateMillis, _ ->
+                val adjustedTimestamp = datePickerSelectionToLocalDateTimestamp(
+                    selectedDateMillis = pickedDateMillis,
+                    referenceTimestamp = uiState.customMonthStart,
+                    isInputUtc = false
+                )
+                onSelectCustomMonth(adjustedTimestamp)
+                isMonthPickerVisible = false
+            }
+        )
+    }
+
+    if (isBudgetEditorVisible) {
+        BudgetEditorDialog(
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            monthLabel = uiState.summary.monthLabel,
+            expenseCategories = expenseCategories,
+            existingBudget = editingBudget,
+            categoryTrackedMap = uiState.categoryTrackedMap,
+            sessionKey = budgetEditorSessionKey,
+            onDismiss = {
+                isBudgetEditorVisible = false
+                editingBudgetId = null
+            },
+            onSave = { categoryIds, limitAmount, name, period ->
+                onSaveBudget(editingBudget?.id, categoryIds, limitAmount, name, period)
+                isBudgetEditorVisible = false
+                editingBudgetId = null
+            }
+        )
+    }
+
+    val infoBudget = uiState.categoryBudgets.firstOrNull { it.id == infoBudgetId }
+    if (isGroupInfoSheetVisible && infoBudget != null) {
+        BudgetGroupInfoSheet(
+            budget = infoBudget,
+            categories = availableCategories,
+            sheetState = groupInfoSheetState,
+            onDismiss = {
+                isGroupInfoSheetVisible = false
+                infoBudgetId = null
+            }
+        )
+    }
+
+    if (pendingDeleteBudget != null) {
+        DeleteBudgetDialog(
+            budgetName = pendingDeleteBudget.title,
+            onDismiss = { pendingDeleteBudgetId = null },
+            onConfirm = {
+                onDeleteBudget(pendingDeleteBudget.id)
+                pendingDeleteBudgetId = null
+            }
+        )
+    }
+
+    if (pendingDeleteRecurring != null) {
+        DeleteRecurringDialog(
+            recurringName = pendingDeleteRecurring.title,
+            onDismiss = { pendingDeleteRecurringId = null },
+            onConfirm = {
+                // Stage for animated exit — the actual delete fires once the
+                // AnimatedVisibility exit animation completes (see list below).
+                deletingRecurringIds.add(pendingDeleteRecurring.id)
+                pendingDeleteRecurringId = null
+            }
+        )
+    }
+
+    if (pendingMuteRecurringId != null) {
+        val pendingMuteExpense = uiState.recurringExpenses.firstOrNull { it.id == pendingMuteRecurringId }
+        MuteRecurringDialog(
+            ruleName = pendingMuteExpense?.title ?: "",
+            onDismiss = { pendingMuteRecurringId = null },
+            onConfirm = { dontShowAgain ->
+                onRecurringNotificationsEnabledChange(pendingMuteRecurringId!!, false)
+                if (dontShowAgain) {
+                    muteDialogDismissed = true
+                }
+                pendingMuteRecurringId = null
+            }
+        )
+    }
+
+    if (editingRecurringRule != null) {
+        val rule = editingRecurringRule!!
+        RecurringRuleEditorModal(
+            rule = rule,
+            onDismiss = { editingRecurringRule = null },
+            onSave = { frequency, installments ->
+                onUpdateRecurringRule(rule.id, frequency, installments)
+                editingRecurringRule = null
+            },
+            onSavePlan = { frequency, plan ->
+                onSaveRecurringPlan(rule.id, frequency, plan)
+                editingRecurringRule = null
+            },
+            onConvertToRegular = {
+                onConvertRecurringToRegular(rule.id)
+                editingRecurringRule = null
+            }
+        )
+    }
+
+    // A plan converted back to REGULAR (or deleted) while its ledger is open has
+    // no slots left to show — the sheet closes with it.
+    val ledgerExpense = uiState.recurringExpenses
+        .firstOrNull { it.id == ledgerRuleId && it.isInstallment }
+    if (ledgerExpense != null) {
+        InstallmentLedgerSheet(
+            expense = ledgerExpense,
+            sheetState = ledgerSheetState,
+            onDismiss = { ledgerRuleId = null },
+            onPay = onPayInstallments,
+            onSkip = onSkipInstallment,
+            onUndo = onUndoInstallment
+        )
+    }
+
+    if (isCopySheetVisible) {
+        val currentMonthHasBudgets =
+            uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth && uiState.categoryBudgets.isNotEmpty()
+        CopyPreviousMonthBudgetsSheet(
+            candidates = uiState.previousMonthBudgets,
+            availableCategories = availableCategories,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            previousMonthLabel = uiState.previousMonthLabel,
+            currentMonthLabel = uiState.summary.monthLabel,
+            onDismiss = { isCopySheetVisible = false },
+            onCreateBudget = {
+                isCopySheetVisible = false
+                editingBudgetId = null
+                budgetEditorSessionKey = System.currentTimeMillis()
+                isBudgetEditorVisible = true
+            },
+            onCopyAll = {
+                if (currentMonthHasBudgets) {
+                    pendingCopyRequest = PendingBudgetCopy(
+                        mode = BudgetCopyMode.All,
+                        budgetIds = uiState.previousMonthBudgets.map { it.id }
+                    )
+                } else {
+                    isCopySheetVisible = false
+                    onCopyAllBudgets()
+                }
+            },
+            onCopySelected = { ids ->
+                if (currentMonthHasBudgets) {
+                    pendingCopyRequest = PendingBudgetCopy(
+                        mode = BudgetCopyMode.Selected,
+                        budgetIds = ids
+                    )
+                } else {
+                    isCopySheetVisible = false
+                    onCopySelectedBudgets(ids)
+                }
+            }
+        )
+    }
+
+    val pendingCopy = pendingCopyRequest
+    if (pendingCopy != null) {
+        ConfirmCopyBudgetsDialog(
+            monthLabel = uiState.summary.monthLabel,
+            onDismiss = { pendingCopyRequest = null },
+            onConfirm = {
+                pendingCopyRequest = null
+                isCopySheetVisible = false
+                when (pendingCopy.mode) {
+                    BudgetCopyMode.All -> onCopyAllBudgets()
+                    BudgetCopyMode.Selected -> onCopySelectedBudgets(pendingCopy.budgetIds)
+                }
+            }
+        )
+    }
+}
+
+
+@Composable
+private fun budgetAccentColor(accent: BudgetAccent): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (accent) {
+        BudgetAccent.Primary -> colorScheme.primary
+        BudgetAccent.Warning -> colorScheme.tertiary
+        BudgetAccent.Overspent -> colorScheme.error
+        BudgetAccent.Disabled -> colorScheme.outline
+        BudgetAccent.Daily -> colorScheme.income
+        BudgetAccent.Yearly -> colorScheme.secondary
+    }
+}
+
+
+@Composable
+private fun BoxScope.BudgetGlow() {
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .padding(top = 72.dp)
+            .size(width = 260.dp, height = 180.dp)
+            .background(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f),
+                        MaterialTheme.colorScheme.background.copy(alpha = 0f)
+                    )
+                )
+            )
+    )
+}
+
+
+@Composable
+private fun BudgetPeriodRow(
+    selectedPeriod: BudgetPeriodFilter,
+    isCustomMonthLocked: Boolean,
+    onPeriodSelected: (BudgetPeriodFilter) -> Unit
+) {
+    val periods = remember { BudgetPeriodFilter.entries }
+    val selectedIndex = periods.indexOf(selectedPeriod).coerceAtLeast(0)
+    
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
+            .clip(RoundedCornerShape(26.dp))
+            .background(standardCardGradient())
+            .padding(4.dp)
+    ) {
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / periods.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "budget_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(brandGradient())
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            periods.forEach { period ->
+                BudgetPeriodChip(
+                    label = when (period) {
+                        BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
+                        BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
+                        BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
+                    },
+                    selected = period == selectedPeriod,
+                    isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked,
+                    onClick = { onPeriodSelected(period) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetPeriodChip(
+    label: String,
+    selected: Boolean,
+    isLocked: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "budget_text_color"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                color = animatedColor,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelSmall,
+            )
+
+            if (isLocked) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = stringResource(id = R.string.content_desc_locked_formatted, label),
+                    tint = if (selected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.featureGateLock
+                    },
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 26.dp,
+                shape = RoundedCornerShape(24.dp),
+                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
+            )
+            .clip(RoundedCornerShape(24.dp))
+            .background(standardCardGradient())
+            .border(
+
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Line 1 — month (left) + total budget (right) on a single row.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = summary.monthLabel,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = summary.totalBudgetLabel,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    maxLines = 1
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = stringResource(id = R.string.label_month),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        }
+
+        // Line 2 — Spent and Remaining, each on its own row.
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            BudgetInlineRow(
+                title = stringResource(id = R.string.title_spent),
+                value = summary.spentLabel,
+                valueColor = MaterialTheme.colorScheme.expense
+            )
+
+            BudgetInlineRow(
+                title = if (summary.remainingAmount >= 0.0) stringResource(id = R.string.label_remaining) else stringResource(id = R.string.label_over),
+                value = summary.remainingLabel.asString(),
+                valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+        }
+
+        // Line 3 — usage %, progress bar, and daily allowance / limit inline.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = summary.usageLabel.asString(),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.6.sp
+                ),
+                maxLines = 1
+            )
+
+            BudgetProgressBar(
+                progress = summary.usageFraction,
+                accent = brandGradient(),
+                modifier = Modifier.weight(1f)
+            )
+
+            val trailingLabel = summary.dailyAllowanceLabel?.asString() ?: summary.limitLabel.asString()
+            Text(
+                text = trailingLabel,
+                color = if (summary.dailyAllowanceLabel != null) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                },
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun BudgetInlineRow(
+    title: String,
+    value: String,
+    valueColor: Color
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.8.sp
+            ),
+            maxLines = 1
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = value,
+            color = valueColor,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.titleLarge.copy(
+            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+        )
+    )
+}
+
+@Composable
+private fun EmptySectionCard(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(standardCardGradient())
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(18.dp)
+    ) {
+        Text(
+            text = message,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@androidx.compose.material3.ExperimentalMaterial3Api
+@Composable
+private fun BudgetEditorDialog(
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    monthLabel: String,
+    expenseCategories: List<CategoryType>,
+    existingBudget: BudgetCategoryBudgetUi?,
+    categoryTrackedMap: Map<Int, List<String>>,
+    sessionKey: Any?,
+    onDismiss: () -> Unit,
+    onSave: (List<Int>, Double, String, BudgetPeriod) -> Unit
+) {
+    var isCategoryPickerVisible by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) { mutableStateOf(false) }
+    val categoryPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var selectedCategoryIds by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(
+            existingBudget?.categoryIds?.ifEmpty { listOf(existingBudget.categoryId) }?.toSet()
+                ?: expenseCategories.firstOrNull()?.id?.let { setOf(it) }
+                ?: emptySet()
+        )
+    }
+
+    var nameInput by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(existingBudget?.name.orEmpty())
+    }
+
+    var selectedPeriod by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(existingBudget?.period ?: BudgetPeriod.MONTHLY)
+    }
+
+    var amountInput by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) {
+        mutableStateOf(
+            existingBudget?.limitAmount
+                ?.takeIf { it > 0.0 }
+                ?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() }
+                .orEmpty()
+        )
+    }
+
+    val selectedCategories = expenseCategories.filter { it.id in selectedCategoryIds }
+    val limitAmount = amountInput.toDoubleOrNull()
+    val isSaveEnabled = selectedCategoryIds.isNotEmpty() && limitAmount != null && limitAmount > 0.0
+
+    val categoryFieldValue = when {
+        selectedCategories.isEmpty() -> stringResource(id = R.string.msg_no_expense_categories_available)
+        selectedCategories.size == 1 -> selectedCategories.first().name
+        else -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = if (existingBudget == null) stringResource(id = R.string.title_add_budget) else stringResource(id = R.string.title_edit_budget),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                )
+                Text(
+                    text = monthLabel,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
+                    placeholder = {
+                        val placeholder = when {
+                            selectedCategories.size == 1 -> selectedCategories.first().name
+                            selectedCategories.size > 1 -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
+                            else -> stringResource(id = R.string.label_budget_group)
+                        }
+                        Text(placeholder)
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_select_categories),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+
+                    SelectionDialogField(
+                        label = "",
+                        value = categoryFieldValue,
+                        actionLabel = stringResource(id = R.string.label_change_caps),
+                        enabled = expenseCategories.isNotEmpty(),
+                        onClick = { isCategoryPickerVisible = true },
+                        dropdownContent = {}
+                    )
+                }
+
+                OutlinedTextField(
+                    value = amountInput,
+                    onValueChange = { updatedValue ->
+                        amountInput = updatedValue.filter { character ->
+                            character.isDigit() || character == '.'
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(id = R.string.label_monthly_limit)) },
+                    placeholder = {
+                        Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_period),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        BudgetPeriod.entries.forEach { period ->
+                            FilterChip(
+                                selected = selectedPeriod == period,
+                                onClick = { selectedPeriod = period },
+                                label = { Text(stringResource(period.labelRes)) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
+                        onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
+                    }
+                },
+                enabled = isSaveEnabled
+            ) {
+                Text(if (existingBudget == null) stringResource(id = R.string.label_save_1) else stringResource(id = R.string.label_update_1))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_cancel_1))
+            }
+        }
+    )
+
+    if (isCategoryPickerVisible) {
+        BudgetCategoryPickerSheet(
+            categories = expenseCategories,
+            selectedCategoryIds = selectedCategoryIds,
+            categoryTrackedMap = categoryTrackedMap,
+            sheetState = categoryPickerSheetState,
+            onDismiss = { isCategoryPickerVisible = false },
+            onSelectionChanged = { newCategoryIds ->
+                selectedCategoryIds = newCategoryIds
+                isCategoryPickerVisible = false
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BudgetCategoryPickerSheet(
+    categories: List<CategoryType>,
+    selectedCategoryIds: Set<Int>,
+    categoryTrackedMap: Map<Int, List<String>>,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSelectionChanged: (Set<Int>) -> Unit
+) {
+    var tempSelectedIds by remember(selectedCategoryIds) { mutableStateOf(selectedCategoryIds) }
+
+    val conflictingTrackedCategories = tempSelectedIds.filter { catId ->
+        categoryTrackedMap[catId]?.isNotEmpty() == true
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.label_select_categories),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(id = R.string.label_choose_from_all_expense_catego),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            if (conflictingTrackedCategories.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.tip_duplicate_budget_tracking),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = categories,
+                    key = { category -> category.id }
+                ) { category ->
+                    val isSelected = category.id in tempSelectedIds
+                    val trackedInBudgets = categoryTrackedMap[category.id]
+
+                    BudgetCategoryMultiPickerRow(
+                        category = category,
+                        isSelected = isSelected,
+                        trackedInBudgets = trackedInBudgets,
+                        onClick = {
+                            tempSelectedIds = if (isSelected) {
+                                tempSelectedIds - category.id
+                            } else {
+                                tempSelectedIds + category.id
+                            }
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        tempSelectedIds = categories.map { it.id }.toSet()
+                    },
+                    modifier = Modifier.weight(2f), // ~40% width
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_select_all),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        tempSelectedIds = categories
+                            .filter { categoryTrackedMap[it.id].isNullOrEmpty() }
+                            .map { it.id }
+                            .toSet()
+                    },
+                    modifier = Modifier.weight(3f), // ~60% width
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_select_unbudgeted),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(
+                onClick = {
+                    onSelectionChanged(tempSelectedIds)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(stringResource(id = R.string.label_add))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun BudgetCategoryMultiPickerRow(
+    category: CategoryType,
+    isSelected: Boolean,
+    trackedInBudgets: List<String>?,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .border(
+                width = 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column {
+                Text(
+                    text = category.name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                )
+                if (!trackedInBudgets.isNullOrEmpty()) {
+                    Text(
+                        text = stringResource(id = R.string.label_already_tracked_in, trackedInBudgets.joinToString(", ")),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 1.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeleteBudgetDialog(
+    budgetName: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.label_delete_budget),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Text(stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(id = R.string.label_delete_1))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_cancel_1))
+            }
+        }
+    )
+}
+
+@Composable
+private fun SelectionDialogField(
+    label: String,
+    value: String,
+    actionLabel: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    dropdownContent: @Composable () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (label.isNotBlank()) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            )
+        }
+
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(standardCardGradient())
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .clickable(enabled = enabled, onClick = onClick)
+                    .padding(horizontal = 14.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Text(
+                    text = actionLabel,
+                    color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        letterSpacing = 0.7.sp
+                    )
+                )
+            }
+
+            dropdownContent()
+        }
+    }
+}
+
+@Composable
+private fun BudgetCategoryPickerSheet(
+    categories: List<CategoryType>,
+    selectedCategoryId: Int?,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onCategorySelected: (Int) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                Text(
+                    text = stringResource(id = R.string.label_select_category),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                )
+            }
+
+            item {
+                Text(
+                    text = stringResource(id = R.string.label_choose_from_all_expense_catego),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            items(
+                items = categories,
+                key = { category -> category.id }
+            ) { category ->
+                BudgetCategoryPickerRow(
+                    category = category,
+                    isSelected = category.id == selectedCategoryId,
+                    onClick = { onCategorySelected(category.id) }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetCategoryPickerRow(
+    category: CategoryType,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                }
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = category.icon,
+                contentDescription = category.name,
+                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = category.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = stringResource(id = R.string.label_expense_category),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        if (isSelected) {
+            Text(
+                text = stringResource(id = R.string.label_selected),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeleteRecurringDialog(
+    recurringName: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.label_delete_recurring),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Text(stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(id = R.string.label_delete_1))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_cancel_1))
+            }
+        }
+    )
+}
+
+@Composable
+private fun MuteRecurringDialog(
+    ruleName: String,
+    onDismiss: () -> Unit,
+    onConfirm: (dontShowAgain: Boolean) -> Unit
+) {
+    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.label_mute_recurring_title),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(
+                    text = stringResource(id = R.string.label_mute_recurring_message, ruleName),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { dontShowAgain = !dontShowAgain }
+                        .padding(vertical = 4.dp)
+                ) {
+                    Checkbox(
+                        checked = dontShowAgain,
+                        onCheckedChange = { dontShowAgain = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.primary,
+                            uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.label_dont_show_again),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(dontShowAgain) }) {
+                Text(stringResource(id = R.string.label_mute_yes))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_no))
+            }
+        }
+    )
+}
+
+
+
+@Composable
+private fun CategoryBudgetCard(
+    budget: BudgetCategoryBudgetUi,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onInfoClick: () -> Unit
+) {
+    val containerBrush = when {
+        budget.spentAmount > budget.limitAmount -> Brush.verticalGradient(
+            colors = listOf(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
+        )
+
+        budget.progressFraction >= 0.85f -> Brush.verticalGradient(
+            colors = listOf(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f))
+        )
+
+        else -> standardCardGradient()
+    }
+    val iconContainer = when {
+        budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
+        budget.progressFraction >= 0.85f -> MaterialTheme.colorScheme.tertiaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(containerBrush)
+            .border(
+                width = 1.dp,
+                color = budgetAccentColor(budget.accent).copy(alpha = 0.24f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(iconContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = budget.icon,
+                    contentDescription = budget.title,
+                    tint = budgetAccentColor(budget.accent),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = budget.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.label_budget_categories_info),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable(onClick = onInfoClick)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = budget.statusValueLabel.asString(),
+                    color = budgetAccentColor(budget.accent),
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        letterSpacing = 0.8.sp
+                    )
+                )
+            }
+
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = budget.summaryLabel,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = budget.totalCaption.asString(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        letterSpacing = 0.7.sp
+                    )
+                )
+            }
+        }
+
+        if (budget.remainingEdits != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (budget.remainingEdits == 0) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.label_edits_left_formatted, budget.remainingEdits),
+                    color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                )
+            }
+        }
+
+        BudgetProgressBar(
+            progress = budget.progressFraction,
+            accent = Brush.horizontalGradient(
+                colors = listOf(budgetAccentColor(budget.accent), budgetAccentColor(budget.accent).copy(alpha = 0.8f))
+            )
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = budget.statusCaption.asString(),
+                color = budgetAccentColor(budget.accent),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    letterSpacing = 1.sp
+                )
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BudgetCardAction(
+                    icon = Icons.Default.Edit,
+                    contentDescription = stringResource(id = R.string.label_edit),
+                    accent = MaterialTheme.colorScheme.primary,
+                    isLocked = !budget.canEdit,
+                    onClick = { if (budget.canEdit) onEditClick() }
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                BudgetCardAction(
+                    icon = Icons.Default.Delete,
+                    contentDescription = stringResource(id = R.string.label_delete),
+                    accent = MaterialTheme.colorScheme.error,
+                    isLocked = !budget.canEdit,
+                    onClick = { if (budget.canEdit) onDeleteClick() }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetCardAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    label: String? = null,
+    contentDescription: String? = null,
+    accent: Color = MaterialTheme.colorScheme.primary,
+    isLocked: Boolean = false,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    val finalAccent = if (isLocked) MaterialTheme.colorScheme.outline else accent
+    val backgroundAlpha = if (isLocked || !enabled) 0.16f else 0.12f
+    val borderAlpha = if (isLocked || !enabled) 0.35f else 0.22f
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(finalAccent.copy(alpha = backgroundAlpha))
+            .border(
+                width = 1.dp,
+                color = finalAccent.copy(alpha = borderAlpha),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = if (label != null) 12.dp else 10.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription ?: label,
+                    tint = if (isLocked || !enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) else finalAccent,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            if (label != null) {
+                if (icon != null) Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = label,
+                    color = if (isLocked || !enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) else finalAccent,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        letterSpacing = 0.8.sp
+                    )
+                )
+            }
+
+            if (isLocked) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = stringResource(R.string.content_desc_locked_formatted, contentDescription ?: label ?: ""),
+                    tint = finalAccent.copy(alpha = 0.7f),
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetProgressBar(
+    progress: Float,
+    accent: Brush,
+    modifier: Modifier = Modifier
+) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+        label = "budget_progress_animation"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(12.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(animatedProgress)
+                .height(12.dp)
+                .clip(CircleShape)
+                .background(accent)
+        )
+    }
+}
+
+@Composable
+private fun BudgetActionButton(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    val backgroundBrush = if (enabled) {
+        brandGradient()
+    } else {
+        Brush.horizontalGradient(
+            colors = listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outlineVariant)
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(backgroundBrush)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 18.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                letterSpacing = 1.2.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun RecurringExpenseCard(
+    expense: BudgetRecurringExpenseUi,
+    onEnabledChange: (Boolean) -> Unit,
+    onNotificationsEnabledChange: (Boolean) -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    /** Non-null only for an EMI rule with slots — opens the installment ledger. */
+    onLedgerClick: (() -> Unit)? = null
+) {
+    val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .border(
+                width = 1.dp,
+                color = budgetAccentColor(expense.accent).copy(alpha = 0.18f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = expense.icon,
+                    contentDescription = expense.title,
+                    tint = budgetAccentColor(expense.accent),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = expense.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleSmall
+                            .copy(
+                           fontWeight = FontWeight.Medium
+                        )
+                    )
+                    
+                    if (isUrgent) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = stringResource(id = R.string.content_desc_upcoming),
+                            tint = budgetAccentColor(expense.accent),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = expense.amountLabel,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                    )
+                )
+            }
+
+            Switch(
+                checked = expense.isEnabled,
+                onCheckedChange = onEnabledChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.outline
+                )
+            )
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            RecurringMetaChip(
+                label = expense.categoryLabel,
+                accent = budgetAccentColor(expense.accent)
+            )
+            RecurringMetaChip(
+                label = expense.frequencyLabel,
+                accent = budgetAccentColor(expense.accent)
+            )
+            RecurringMetaChip(
+                label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
+                accent = budgetAccentColor(expense.accent)
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = expense.dueLabel.asString(),
+                        color = budgetAccentColor(expense.accent),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                            letterSpacing = 0.8.sp
+                        )
+                    )
+                    
+                    if (expense.dueLabel.asString().contains("TODAY")) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.error)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = expense.sourceDateLabel.asString(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (onLedgerClick != null) {
+                    BudgetCardAction(
+                        icon = Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(id = R.string.action_view_installments),
+                        accent = budgetAccentColor(expense.accent),
+                        onClick = onLedgerClick
+                    )
+                }
+
+                BudgetCardAction(
+                    icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+                    contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
+                    accent = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        if (expense.notificationsEnabled) {
+                            onNotificationsEnabledChange(false)
+                        } else {
+                            onNotificationsEnabledChange(true)
+                        }
+                    }
+                )
+
+                GatedAction(
+                    feature = Feature.RECURRING_RULE_EDIT,
+                    displayName = stringResource(id = R.string.label_edit_recurring_rule),
+                    onAction = onEditClick
+                ) { status, onClick ->
+                    BudgetCardAction(
+                        icon = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.label_edit),
+                        accent = MaterialTheme.colorScheme.primary,
+                        isLocked = status !is AccessStatus.Granted,
+                        onClick = onClick
+                    )
+                }
+
+                BudgetCardAction(
+                    icon = Icons.Default.Delete,
+                    contentDescription = stringResource(id = R.string.label_delete),
+                    accent = MaterialTheme.colorScheme.error,
+                    onClick = onDeleteClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecurringMetaChip(
+    label: String,
+    accent: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(accent.copy(alpha = 0.14f))
+            .border(
+                width = 1.dp,
+                color = accent.copy(alpha = 0.26f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = label,
+            color = accent,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                letterSpacing = 0.7.sp
+            )
+        )
+    }
+}
+
+@Preview(
+    name = "Budget Screen",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
+/**
+ * Installment ledger for one EMI rule: every scheduled slot with what it is
+ * worth, what happened to it, and the three settlement actions.
+ *
+ * Paying is per slot and multi-selectable — the selected slots go up in one
+ * action, and the repository's per-slot idempotency makes a double submission
+ * (or a slot the worker settled meanwhile) harmless. Skipping waives the cycle
+ * without withdrawing the money owed, and undo returns either kind of settled
+ * slot to PENDING (withdrawing the transaction a payment had generated).
+ *
+ * Selection state is dropped whenever a slot stops being payable, so the
+ * "Pay selected" count can never contain a slot that is no longer pending.
+ */
+@Composable
+private fun InstallmentLedgerSheet(
+    expense: BudgetRecurringExpenseUi,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onPay: (List<String>) -> Unit,
+    onSkip: (String) -> Unit,
+    onUndo: (String) -> Unit
+) {
+    val accent = budgetAccentColor(expense.accent)
+    val progressLabel = stringResource(
+        R.string.label_emi_paid_progress,
+        expense.installmentPaidCount,
+        expense.totalInstallments
+    )
+    val remainingLabel = stringResource(
+        R.string.label_emi_remaining_format,
+        expense.installmentRemainingLabel
+    )
+    var selectedIds by remember(expense.id) { mutableStateOf(emptySet<String>()) }
+    val payableIds = remember(expense.slots) {
+        expense.slots
+            .filter { it.status == InstallmentOccurrenceStatus.PENDING }
+            .map { it.id }
+            .toSet()
+    }
+    // A slot may be settled by the worker (or undone) while the sheet is open:
+    // keep only selections that are still payable.
+    LaunchedEffect(payableIds) {
+        selectedIds = selectedIds intersect payableIds
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.List,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.title_emis_for_format, expense.title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "$progressLabel • $remainingLabel",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                RecurringMetaChip(
+                    label = expense.frequencyLabel,
+                    accent = accent
+                )
+                RecurringMetaChip(
+                    label = expense.dueLabel.asString(),
+                    accent = accent
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 340.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(expense.slots, key = { it.id }) { slot ->
+                    InstallmentSlotRow(
+                        slot = slot,
+                        accent = accent,
+                        selected = slot.id in selectedIds,
+                        onSelectedChange = { checked ->
+                            selectedIds = if (checked) selectedIds + slot.id else selectedIds - slot.id
+                        },
+                        onPay = { onPay(listOf(slot.id)) },
+                        onSkip = { onSkip(slot.id) },
+                        onUndo = { onUndo(slot.id) }
+                    )
+                }
+            }
+
+            if (selectedIds.isNotEmpty()) {
+                Button(
+                    onClick = { onPay(selectedIds.toList()) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_pay_selected_format, selectedIds.size),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstallmentSlotRow(
+    slot: InstallmentSlotUi,
+    accent: Color,
+    selected: Boolean,
+    onSelectedChange: (Boolean) -> Unit,
+    onPay: () -> Unit,
+    onSkip: () -> Unit,
+    onUndo: () -> Unit
+) {
+    val isPending = slot.status == InstallmentOccurrenceStatus.PENDING
+    val statusColor = when (slot.status) {
+        InstallmentOccurrenceStatus.PAID -> MaterialTheme.colorScheme.primary
+        InstallmentOccurrenceStatus.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
+        InstallmentOccurrenceStatus.OVERDUE -> MaterialTheme.colorScheme.error
+        InstallmentOccurrenceStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val statusLabel = stringResource(
+        when (slot.status) {
+            InstallmentOccurrenceStatus.PAID -> R.string.label_paid_caps
+            InstallmentOccurrenceStatus.SKIPPED -> R.string.label_skipped_caps
+            InstallmentOccurrenceStatus.OVERDUE -> R.string.label_overdue_caps
+            InstallmentOccurrenceStatus.PENDING -> R.string.label_pending_caps
+        }
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Multi-select only ever applies to slots that can still be paid — a
+        // settled slot changes through UNDO instead.
+        if (isPending) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) accent else Color.Transparent)
+                    .border(
+                        width = 1.5.dp,
+                        color = if (selected) accent else MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+                    .clickable { onSelectedChange(!selected) },
+                contentAlignment = Alignment.Center
+            ) {
+                if (selected) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.label_slot_index_format, slot.index) +
+                    "  " + formatDate(slot.dueAt),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = slot.paidAt?.let { paidAt ->
+                    slot.amountLabel + " • " + formatDate(paidAt)
+                } ?: slot.amountLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            RecurringMetaChip(label = statusLabel, accent = statusColor)
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            if (isPending) {
+                BudgetCardAction(
+                    label = stringResource(R.string.action_pay_caps),
+                    contentDescription = stringResource(R.string.action_pay_caps),
+                    accent = accent,
+                    onClick = onPay
+                )
+                TextButton(onClick = onSkip) {
+                    Text(
+                        text = stringResource(R.string.action_skip_caps),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            } else {
+                TextButton(onClick = onUndo) {
+                    Text(
+                        text = stringResource(R.string.action_undo_caps),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetAndRecurringScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        BudgetAndRecurringContent(
+            uiState = BudgetAndRecurringScreenUiState(),
+            isAdsEnabled = true,
+            currencyId = DEFAULT_CURRENCY_ID,
+            amountFormatPreferences = defaultAmountFormatPreferences,
+            availableCategories = emptyList(),
+            transactions = emptyList(),
+            onDeleteRecurring = {},
+            onRecurringEnabledChange = { _, _ -> },
+            onRecurringNotificationsEnabledChange = { _, _ -> },
+            onUpdateRecurringRule = { _, _, _ -> },
+            onSaveRecurringPlan = { _, _, _ -> },
+            onConvertRecurringToRegular = {},
+            onBackClick = {},
+            onSelectTab = {},
+            onSelectPeriod = {},
+            onSelectCustomMonth = {},
+            onSaveBudget = { _, _, _, _, _ -> },
+            onDeleteBudget = {},
+            onCopyAllBudgets = {},
+            onCopySelectedBudgets = {}
+        )
+    }
+}
+
+@Composable
+private fun BudgetTabRow(
+    selectedTab: BudgetTab,
+    budgetCount: Int,
+    recurringCount: Int,
+    isProUser: Boolean,
+    onTabSelected: (BudgetTab) -> Unit
+) {
+    val tabs = remember { BudgetTab.entries }
+    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
+    
+    val density = LocalDensity.current
+    var containerWidthPx by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .onSizeChanged { containerWidthPx = it.width }
+            .clip(RoundedCornerShape(26.dp))
+            .background(standardCardGradient())
+            .padding(4.dp)
+    ) {
+        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / tabs.size }
+        
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedIndex,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "tab_indicator_offset"
+        )
+
+        // Sliding indicator (Pill)
+        if (containerWidthPx > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = indicatorOffset)
+                    .width(tabWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(brandGradient())
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            tabs.forEach { tab ->
+                BudgetTabChip(
+                    label = when (tab) {
+                        BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
+                        BudgetTab.Recurring -> stringResource(id = R.string.label_tab_recurring)
+                    },
+                    count = tabBadgeCount(
+                        count = when (tab) {
+                            BudgetTab.Budgets -> budgetCount
+                            BudgetTab.Recurring -> recurringCount
+                        },
+                        isSelected = tab == selectedTab,
+                        isProUser = isProUser
+                    ),
+                    selected = tab == selectedTab,
+                    onClick = { onTabSelected(tab) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BudgetTabChip(
+    label: String,
+    count: Int?,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "tab_text_color"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // The badge is only ever passed for the selected tab, so whatever is drawn here sits
+        // on the brand-gradient indicator where `onPrimary` is the readable colour. A null
+        // count composes nothing at all, leaving the label exactly where it is today.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label.uppercase(),
+                color = animatedColor,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium,
+            )
+
+            if (count != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                TabCountBadge(count = count)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecurringRuleEditorModal(
+    rule: BudgetRecurringExpenseUi,
+    onDismiss: () -> Unit,
+    onSave: (RecurringFrequency, Int) -> Unit,
+    onSavePlan: (RecurringFrequency, RecurringPlanEdit) -> Unit,
+    onConvertToRegular: () -> Unit
+) {
+    var selectedType by remember {
+        mutableStateOf(if (rule.isInstallment) RecurringType.INSTALLMENT else RecurringType.REGULAR)
+    }
+    var selectedFrequency by remember { mutableStateOf(rule.frequency) }
+    var installmentsInput by remember { mutableStateOf(rule.totalInstallments.toString()) }
+    var isFrequencyDropdownExpanded by remember { mutableStateOf(false) }
+
+    // EMI fields — prefilled from the rule when it already carries a plan, so
+    // editing an existing loan shows its real terms.
+    var totalInput by remember { mutableStateOf(rule.installmentTotalAmount.formatForInput()) }
+    var installmentInput by remember { mutableStateOf(rule.installmentPerAmount.formatForInput()) }
+    var firstDueAt by remember {
+        mutableStateOf(rule.firstDueAt.takeIf { it > 0L } ?: System.currentTimeMillis())
+    }
+    var isFirstDuePickerVisible by remember { mutableStateOf(false) }
+    var showRegularConfirm by remember { mutableStateOf(false) }
+
+    val count = installmentsInput.toIntOrNull() ?: rule.totalInstallments
+    val totalAmount = totalInput.toDoubleOrNull() ?: 0.0
+    val installmentAmount = installmentInput.toDoubleOrNull() ?: 0.0
+    val planValid = count > 0 && totalAmount > 0.0 && installmentAmount > 0.0
+    // The recurring date is 12:00 local — slot dates inherit it, so "same
+    // total as count × installment" stays exact regardless of month lengths.
+    val planConsistent = totalAmount == installmentAmount * count
+    // Nothing editable changed — saving would rewrite sync timestamps for no
+    // visible reason, so the button stays disabled. (count <= 0 mirrors the old
+    // guard that never let a REGULAR rule save a zero repeat count.)
+    val regularInvalid = selectedType == RecurringType.REGULAR && count <= 0
+    val regularUnchanged = regularInvalid ||
+        (selectedType == RecurringType.REGULAR &&
+            selectedFrequency == rule.frequency && count == rule.totalInstallments)
+    val planUnchanged =
+        selectedType == RecurringType.INSTALLMENT &&
+            selectedFrequency == rule.frequency &&
+            rule.isInstallment &&
+            totalAmount == rule.installmentTotalAmount &&
+            installmentAmount == rule.installmentPerAmount &&
+            count == rule.totalInstallments &&
+            firstDueAt == rule.firstDueAt
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scrollState = rememberScrollState()
+
+    fun autoCalculateTotal(perInstStr: String, countInt: Int) {
+        val perInst = perInstStr.toDoubleOrNull()
+        if (perInst != null && perInst > 0.0 && countInt > 0) {
+            totalInput = (perInst * countInt).formatForInput()
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f),
+        dragHandle = {
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 38.dp, height = 4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.outlineVariant)
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.title_edit_recurring),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                // Type selector — REGULAR stays exactly the legacy editor;
+                // INSTALLMENT swaps the repeat-count row for the plan terms.
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_recurring_type),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        FilterChip(
+                            selected = selectedType == RecurringType.REGULAR,
+                            onClick = {
+                                if (rule.isInstallment && selectedType != RecurringType.REGULAR) {
+                                    showRegularConfirm = true
+                                } else {
+                                    selectedType = RecurringType.REGULAR
+                                }
+                            },
+                            label = { Text(stringResource(id = R.string.label_type_regular)) }
+                        )
+                        FilterChip(
+                            selected = selectedType == RecurringType.INSTALLMENT,
+                            onClick = {
+                                selectedType = RecurringType.INSTALLMENT
+                                if (totalInput.isBlank() || totalAmount == 0.0) {
+                                    autoCalculateTotal(installmentInput, count)
+                                }
+                            },
+                            label = { Text(stringResource(id = R.string.label_type_emi)) }
+                        )
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.label_frequency_capitalized),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = selectedFrequency.label,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = false,
+                            shape = RoundedCornerShape(14.dp),
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { isFrequencyDropdownExpanded = true }
+                        )
+
+                        DropdownMenu(
+                            expanded = isFrequencyDropdownExpanded,
+                            onDismissRequest = { isFrequencyDropdownExpanded = false },
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                        ) {
+                            RecurringFrequency.entries.forEach { frequency ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = frequency.label,
+                                            color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedFrequency = frequency
+                                        isFrequencyDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                AnimatedContent(
+                    targetState = selectedType,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                            slideInVertically(animationSpec = tween(220, easing = LinearOutSlowInEasing)) { height -> height / 6 })
+                            .togetherWith(
+                                fadeOut(animationSpec = tween(180)) +
+                                    slideOutVertically(animationSpec = tween(180)) { height -> -height / 6 }
+                            )
+                    },
+                    label = "recurring_type_transition"
+                ) { targetType ->
+                    if (targetType == RecurringType.REGULAR) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = stringResource(id = R.string.label_total_installments),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+
+                            OutlinedTextField(
+                                value = installmentsInput,
+                                onValueChange = { input ->
+                                    if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                        installmentsInput = input
+                                        autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(14.dp),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            )
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_total_amount),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                EditorAmountField(
+                                    value = totalInput,
+                                    onValueChange = { totalInput = it }
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_installment_amount),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                EditorAmountField(
+                                    value = installmentInput,
+                                    onValueChange = { newInst ->
+                                        installmentInput = newInst
+                                        autoCalculateTotal(newInst, count)
+                                    }
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_total_installments),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                OutlinedTextField(
+                                    value = installmentsInput,
+                                    onValueChange = { input ->
+                                        if (input.length <= 3 && input.all { char -> char.isDigit() }) {
+                                            installmentsInput = input
+                                            autoCalculateTotal(installmentInput, input.toIntOrNull() ?: 0)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(14.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.label_emi_first_due),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                OutlinedTextField(
+                                    value = editorDateFormatter.format(Date(firstDueAt)),
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { isFirstDuePickerVisible = true },
+                                    enabled = false,
+                                    shape = RoundedCornerShape(14.dp),
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.DateRange,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                        disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            if (!planConsistent && totalAmount > 0.0 && installmentAmount > 0.0) {
+                                Text(
+                                    text = stringResource(id = R.string.msg_emi_amount_mismatch),
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(id = R.string.label_cancel_caps), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+
+                TextButton(
+                    onClick = {
+                        when {
+                            selectedType == RecurringType.REGULAR -> onSave(selectedFrequency, count)
+                            planValid -> onSavePlan(
+                                selectedFrequency,
+                                RecurringPlanEdit(
+                                    totalAmountMinor = totalAmount.toMinorUnits(),
+                                    installmentAmountMinor = installmentAmount.toMinorUnits(),
+                                    totalInstallments = count,
+                                    firstDueAt = firstDueAt
+                                )
+                            )
+                        }
+                    },
+                    enabled = !if (selectedType == RecurringType.REGULAR) regularUnchanged else (planUnchanged || !planValid || !planConsistent),
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            MaterialTheme.colorScheme.primary.copy(
+                                alpha = if (
+                                    if (selectedType == RecurringType.REGULAR) regularUnchanged
+                                    else (planUnchanged || !planValid || !planConsistent)
+                                ) 0.4f else 1f
+                            ),
+                            RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Text(
+                        stringResource(id = R.string.label_save_changes_caps),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+
+    if (isFirstDuePickerVisible) {
+        WheelDateTimePickerModal(
+            mode = WheelPickerMode.SINGLE_DATE,
+            initialStartMillis = firstDueAt,
+            onDismissRequest = { isFirstDuePickerVisible = false },
+            onConfirm = { start, _ ->
+                firstDueAt = start
+                isFirstDuePickerVisible = false
+            }
+        )
+    }
+
+    // Switching an EMI rule back to REGULAR is confirmed first: the plan is
+    // only hidden (soft-deleted), and the info line says so, so the user
+    // knows paid history is not at risk.
+    if (showRegularConfirm) {
+        AlertDialog(
+            onDismissRequest = { showRegularConfirm = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(id = R.string.label_type_regular)) },
+            text = { Text(stringResource(id = R.string.msg_convert_to_regular_info)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showRegularConfirm = false
+                    onConvertToRegular()
+                }) {
+                    Text(stringResource(id = R.string.label_save_changes_caps), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRegularConfirm = false }) {
+                    Text(stringResource(id = R.string.label_cancel_caps))
+                }
+            }
+        )
+    }
+}
+
+/** Decimal amount field matching the budget editor's input style. */
+@Composable
+private fun EditorAmountField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    supportingText: String? = null,
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp)
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { input ->
+            if (input.isEmpty() || (input.all { it.isDigit() || it == '.' } && input.count { it == '.' } <= 1)) {
+                onValueChange(input)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        shape = shape,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        supportingText = supportingText?.let { { Text(it) } },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+}
+
+/** Strip trailing zeros so 100.0 prefills as "100" but 1234.56 stays exact. */
+private fun Double.formatForInput(): String {
+    val formatted = "%.2f".format(this)
+    return formatted.trimEnd('0').trimEnd('.')
+}
+
+private val editorDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun BudgetGroupInfoSheet(
+    budget: BudgetCategoryBudgetUi,
+    categories: List<CategoryType>,
+    sheetState: SheetState,
+    onDismiss: () -> Unit
+) {
+    val budgetCategories = remember(budget.categoryIds, categories) {
+        categories.filter { it.id in budget.categoryIds }
+    }
+
+    // Odd-index (0, 2, 4...) → category pill style from TransactionCard
+    val oddColor = MaterialTheme.colorScheme.primary
+    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+    // Even-index (1, 3, 5...) → payment-method pill style from TransactionCard
+    val evenColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = budget.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = stringResource(R.string.label_included_categories),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            if (budgetCategories.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.msg_no_category_budget_data),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    budgetCategories.forEachIndexed { index, category ->
+                        val isOdd = index % 2 == 0
+                        val pillColor = if (isOdd) oddColor else evenColor
+                        val pillBg    = if (isOdd) oddBackground else evenBackground
+                        Box(
+                            modifier = Modifier
+                                .background(pillBg, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = category.name.uppercase(),
+                                color = pillColor,
+                                maxLines = 1,
+                                softWrap = false,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CopyPreviousMonthBudgetsAction(
+    isLocked: Boolean,
+    onClick: () -> Unit
+) {
+    val contentColor = if (isLocked) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val borderColor = if (isLocked) {
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isLocked) {
+            val lockColor = MaterialTheme.colorScheme.featureGateLock
+            AppIconBox(
+                icon = Icons.Rounded.Lock,
+                contentDescription = stringResource(id = R.string.title_copy_previous_month_budgets),
+                size = 34.dp,
+                iconSize = 18.dp,
+                tint = lockColor,
+                backgroundColor = lockColor.copy(alpha = 0.14f)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = stringResource(id = R.string.title_copy_previous_month_budgets),
+                tint = contentColor,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = stringResource(id = R.string.title_copy_previous_month_budgets),
+            color = contentColor,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                letterSpacing = 1.1.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun CopyPreviousMonthBudgetsSheet(
+    candidates: List<BudgetCopyCandidateUi>,
+    availableCategories: List<CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    previousMonthLabel: String,
+    currentMonthLabel: String,
+    onDismiss: () -> Unit,
+    onCreateBudget: () -> Unit,
+    onCopyAll: () -> Unit,
+    onCopySelected: (List<String>) -> Unit
+) {
+    var checkedIds by remember(candidates.map { it.id }) { mutableStateOf(emptySet<String>()) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 4.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = stringResource(id = R.string.title_copy_previous_month_budgets),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                )
+                Text(
+                    text = stringResource(
+                        id = R.string.msg_copy_previous_budgets_context,
+                        previousMonthLabel,
+                        currentMonthLabel
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (candidates.isEmpty()) {
+                CopyPreviousMonthEmptyState(onCreateBudget = onCreateBudget)
+            } else {
+                Button(
+                    onClick = onCopyAll,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ContentCopy,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_copy_all),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(items = candidates, key = { it.id }) { candidate ->
+                        CopyBudgetRow(
+                            candidate = candidate,
+                            isChecked = candidate.id in checkedIds,
+                            availableCategories = availableCategories,
+                            currencyId = currencyId,
+                            amountFormatPreferences = amountFormatPreferences,
+                            onCheckedChange = { isChecked ->
+                                checkedIds = if (isChecked) {
+                                    checkedIds + candidate.id
+                                } else {
+                                    checkedIds - candidate.id
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = { onCopySelected(checkedIds.toList()) },
+                    enabled = checkedIds.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.action_copy_selected),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CopyBudgetRow(
+    candidate: BudgetCopyCandidateUi,
+    isChecked: Boolean,
+    availableCategories: List<CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val firstCategory = candidate.categoryIds.firstOrNull()?.let { categoryId ->
+        availableCategories.firstOrNull { it.id == categoryId }
+    }
+    val title = when {
+        candidate.name.isNotBlank() -> candidate.name
+        candidate.categoryIds.size == 1 -> firstCategory?.name
+            ?: stringResource(id = R.string.label_budget_group)
+        candidate.categoryIds.size > 1 && firstCategory != null ->
+            "${firstCategory.name} (+${candidate.categoryIds.size - 1})"
+        else -> stringResource(id = R.string.label_budget_group)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .border(
+                width = 1.dp,
+                color = if (isChecked) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                },
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable { onCheckedChange(!isChecked) }
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = firstCategory?.icon ?: Icons.Filled.DateRange,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = formatCurrencyValue(
+                        amount = candidate.limitAmount,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Circular selection indicator on the right, matching the budget/category picker style.
+        if (isChecked) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 1.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun CopyPreviousMonthEmptyState(
+    onCreateBudget: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.ContentCopy,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.size(42.dp)
+        )
+
+        Text(
+            text = stringResource(id = R.string.empty_copy_previous_month_title),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+            )
+        )
+
+        Text(
+            text = stringResource(id = R.string.msg_copy_previous_month_empty),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Button(
+            onClick = onCreateBudget,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.action_create_budget),
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConfirmCopyBudgetsDialog(
+    monthLabel: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        title = {
+            Text(
+                text = stringResource(id = R.string.title_copy_budgets_confirmation),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                )
+            )
+        },
+        text = {
+            Text(stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(id = R.string.action_copy))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.label_cancel_1))
+            }
+        }
+    )
+}

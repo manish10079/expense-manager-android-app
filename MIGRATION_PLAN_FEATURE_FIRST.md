@@ -27,8 +27,10 @@ com.mknlabs.expensetracker/
 │   │   ├── ui/                         # TransactionsScreen, AddTransactionScreen, Calculator
 │   │   ├── domain/                     # Transaction filters, sorting & calculations
 │   │   └── data/                       # Transaction export / import helpers
-│   ├── analytics/                      # Charts, Insights & Calendar
-│   │   └── ui/                         # AnalyticsScreen, CalendarScreen, AnalyticsViewModel
+│   ├── analytics/                      # Charts, Insights & Trends
+│   │   └── ui/                         # AnalyticsScreen, AnalyticsViewModel
+│   ├── calendar/                       # Calendar View & Timeline
+│   │   └── ui/                         # CalendarScreen, CalendarViewModel
 │   ├── budget/                         # Budgets & Recurring Expenses
 │   │   └── ui/                         # BudgetAndRecurringScreen, BudgetViewModel
 │   ├── goals/                          # Savings Goals
@@ -109,3 +111,47 @@ Migrate features one by one using `git mv` to preserve git commit history:
 - **Preserve Git History:** Always use `git mv` or CLI tools when moving files.
 - **Incremental Builds:** Execute `./gradlew testDebugUnitTest` after moving each feature package.
 - **Maintain DI Bindings:** Ensure `@HiltViewModel` annotations and `@Provides` modules in `di/` are updated with new package paths.
+
+---
+
+## ✅ Migration Status
+
+All phases are complete. Both legacy layer-first directories (`ui/screens/`, `ui/viewmodels/`) have been removed and no source file references a legacy package.
+
+| Phase | Status | Commit |
+| :--- | :--- | :--- |
+| Rules — feature-first layout enforced | ✅ Done | `57ca09a` |
+| 2.1 `feature/home` | ✅ Done | `79d696d` |
+| 2.2 `feature/transactions` | ✅ Done | `0f84cdc` |
+| 2.3 `feature/analytics` + `budget` + `calendar` | ✅ Done | `3afa881` |
+| 2.4a `feature/goals` | ✅ Done | `a3ba8be` |
+| 2.4b `feature/profile` | ✅ Done | `2e571a3` |
+| 2.4c `feature/settings` | ✅ Done | `797b72e` |
+| 2.4d `feature/auth` | ✅ Done | `1545aec` |
+| Remaining shared / cross-cutting ViewModels | ✅ Done | `1fa14c3` |
+| 1 Core extraction (`core/ui/*`) | ✅ Done | `b7ba353` |
+| 3 Cleanup & verification | ✅ Done | `b7ba353` |
+
+### Deviations from the original plan
+
+- **Phase 2 ran before Phase 1.** Features were migrated first, then `core/` was extracted in a single sweep.
+- **`calendar` was split out of `analytics`** into its own `feature/calendar/ui` package.
+- **Component co-location was not performed.** All shared UI composables live in `core/ui/components/` regardless of how many features use them, matching the documented tree. Pulling single-feature components (e.g. `TransactionCard`, `ProfileCard`, `UserBadge`) into their owning features remains a possible follow-up.
+- **Files with no listed home** were placed by closest fit: `MainViewModel` → `core/ui/`, `MonetizationViewModel` → `monetization/`, `VoiceAddViewModel` + `VoiceTransactionViewModel` → `voice/`, `PaymentMethodPredictorViewModel` → `feature/transactions/ui/`, `SmsChange*` + `SmsSetupViewModel` → `feature/smsinbox/ui/`, and the app gate screens `MaintenanceScreen` / `UpdateRequiredScreen` → `feature/settings/ui/`.
+- **`MainScreen.kt` and `MainActivity.kt` remain at the package root** as the Android entry point and app shell.
+
+### Verification
+
+- `./gradlew testDebugUnitTest` — **600 tests, 0 failures**
+- `./gradlew assembleDebug` — Hilt DI bindings and Room KSP generation compile cleanly
+
+---
+
+## 📌 Not covered by this migration (remaining work)
+
+The phases above migrated the **UI layer only**. The following items are intentionally out of scope and still outstanding:
+
+1. **`core/database`, `core/domain`, `core/data`, `core/utils` do not exist yet.** Phase 1 was scoped to `core/ui` only. The shared data layer (`data/local/room`, `data/repository`), shared models (`models/`, `domain/`), and helpers (`utils/`) still sit in their original top-level packages. Extracting them is a separate, larger migration.
+2. **Feature-specific components still live in `core/ui/components/`.** ~14 composables are used by a single feature (e.g. `TransactionCard`, `ActiveFilterBar`, `AddTransactionFab`, `VoiceInputSheet` → transactions; `CashFlowStatsCard`, `SmallHomeCard` → home; `UserBadge` → auth; `ProfileCard`, `BackupRestoreSheet` → settings; `TabCountBadge` → budget; `DialogModeSelector` → analytics). Co-locating them inside their owning features would tighten encapsulation.
+3. **Several `feature/*` packages are `ui`-only.** Only `smsinbox` currently has `data/`, `domain/`, `di/` and `worker/` layers. Feature-specific data and domain logic elsewhere still routes through the shared top-level `data/` and `domain/` packages.
+4. **`.idea/workspace.xml`** holds stale Compose-preview run configurations pointing at the old `ui.screens.*` paths. That is IDE-local state, not build input, and resolves itself when the previews are re-run.

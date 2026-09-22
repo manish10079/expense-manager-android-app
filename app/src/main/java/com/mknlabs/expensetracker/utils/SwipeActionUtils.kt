@@ -16,7 +16,7 @@ enum class TransactionSwipeAction {
  * Maps a horizontal swipe direction to its action.
  *
  * @param isLeftSwipe true when the finger moved left (negative drag — the
- *   `onSwipeLeft` callback of [com.mknlabs.expensetracker.ui.horizontalSwipe]).
+ *   `onSwipeLeft` callback of [com.mknlabs.expensetracker.core.ui.horizontalSwipe]).
  */
 fun transactionSwipeAction(isLeftSwipe: Boolean): TransactionSwipeAction =
     if (isLeftSwipe) TransactionSwipeAction.Duplicate else TransactionSwipeAction.Delete

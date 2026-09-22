@@ -28,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mknlabs.expensetracker.ui.theme.ExpenseRed
-import com.mknlabs.expensetracker.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
+import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

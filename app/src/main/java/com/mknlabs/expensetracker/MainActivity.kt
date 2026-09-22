@@ -42,31 +42,31 @@ import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.sms.SmsNotificationManager
 import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
-import com.mknlabs.expensetracker.ui.screens.SplashOverlay
-import com.mknlabs.expensetracker.ui.screens.MaintenanceScreen
-import com.mknlabs.expensetracker.ui.screens.UpdateRequiredScreen
-import com.mknlabs.expensetracker.ui.components.UpdateDialog
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.UpdateUiState
+import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
+import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
+import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
 import com.mknlabs.expensetracker.utils.PlayStoreLink
 import android.net.Uri
-import com.mknlabs.expensetracker.ui.adaptive.LocalAppWindowInfo
-import com.mknlabs.expensetracker.ui.adaptive.LocalFontScaleInfo
-import com.mknlabs.expensetracker.ui.adaptive.rememberAppWindowInfo
-import com.mknlabs.expensetracker.ui.adaptive.rememberFontScaleInfo
-import com.mknlabs.expensetracker.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.DeepLinkUtils
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.mknlabs.expensetracker.ui.viewmodels.InitTask
-import com.mknlabs.expensetracker.ui.viewmodels.SplashViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AppLockViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.AppLockState
-import com.mknlabs.expensetracker.ui.components.AppLockOverlay
-import com.mknlabs.expensetracker.ui.theme.AppLockLoadingBackground
+import com.mknlabs.expensetracker.feature.auth.ui.InitTask
+import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
+import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.core.ui.theme.AppLockLoadingBackground
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -78,8 +78,8 @@ import androidx.compose.runtime.setValue
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
-import com.mknlabs.expensetracker.ui.viewmodels.AuthViewModel
-import com.mknlabs.expensetracker.ui.viewmodels.MonetizationViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
@@ -332,7 +332,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val dynamicTypography = remember(fontMode, customFontFileName) {
-            com.mknlabs.expensetracker.ui.theme.resolveTypography(fontMode, customFontFamily)
+            com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
         }
 
         ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {

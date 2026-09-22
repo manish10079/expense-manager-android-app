@@ -4,8 +4,8 @@ import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.models.Transaction
-import com.mknlabs.expensetracker.ui.models.TransactionCardItemUi
-import com.mknlabs.expensetracker.ui.models.TransactionListItemUi
+import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
+import com.mknlabs.expensetracker.core.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatAmount
 import com.mknlabs.expensetracker.utils.formatDate

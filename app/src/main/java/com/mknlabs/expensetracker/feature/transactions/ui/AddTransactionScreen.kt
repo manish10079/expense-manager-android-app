@@ -1,0 +1,2877 @@
+package com.mknlabs.expensetracker.feature.transactions.ui
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import android.widget.Toast
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import com.mknlabs.expensetracker.models.FavoriteTransaction
+import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_ID
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.CurrencyPosition
+import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.models.RecurringPlanEdit
+import com.mknlabs.expensetracker.models.RecurringTransactionDraft
+import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.RecurringType
+import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.monetization.AccessStatus
+import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.RecurringGateResolver
+import com.mknlabs.expensetracker.monetization.RecurringRuleTier
+import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
+import com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog
+import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.models.TabItem
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.horizontalSwipe
+import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
+import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.getRankedCategories
+import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
+import com.mknlabs.expensetracker.utils.findFragmentActivity
+import com.mknlabs.expensetracker.utils.getCurrency
+import com.mknlabs.expensetracker.utils.toMajorUnits
+import com.mknlabs.expensetracker.utils.toMinorUnits
+import com.mknlabs.expensetracker.utils.getCurrency
+import com.mknlabs.expensetracker.domain.models.VoiceConfidence
+import android.util.Log
+import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
+import com.mknlabs.expensetracker.voice.VoiceAddViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import android.speech.RecognitionListener
+import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import java.math.BigDecimal
+
+private const val incomeTypeId = 1
+private const val expenseTypeId = 2
+private const val KEYPAD_DELETE_KEY = "delete"
+
+private data class TransactionMode(
+    val id: Int,
+    @androidx.annotation.StringRes val label: Int
+)
+
+private val transactionModes = listOf(
+    TransactionMode(id = incomeTypeId, label = R.string.title_income),
+    TransactionMode(id = expenseTypeId, label = R.string.title_expense)
+)
+
+private data class RecurringModeOption(
+    val frequency: RecurringFrequency,
+    @androidx.annotation.StringRes val label: Int
+)
+
+private val recurringModeOptions = listOf(
+    RecurringModeOption(RecurringFrequency.Daily, R.string.label_daily),
+    RecurringModeOption(RecurringFrequency.Weekly, R.string.label_weekly),
+    RecurringModeOption(RecurringFrequency.Monthly, R.string.label_monthly),
+    RecurringModeOption(RecurringFrequency.Yearly, R.string.label_yearly)
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddTransactionScreen(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    transactions: List<Transaction> = emptyList(),
+    availableCategories: List<CategoryType> = categoryMap.values.toList(),
+    availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
+    existingTransaction: Transaction? = null,
+    existingRecurringRule: RecurringTransactionRule? = null,
+    activeRecurringRuleCount: Int = 0,
+    allRecurringRules: List<RecurringTransactionRule> = emptyList(),
+    initialAmountInput: String? = null,
+    initialNote: String? = null,
+    initialCategoryId: Int? = null,
+    initialTransactionTypeId: Int? = null,
+    autoStartVoice: Boolean = false,
+    onVoiceAutoStarted: () -> Unit = {},
+    favorites: List<FavoriteTransaction> = emptyList(),
+    onRemoveFavorite: (String) -> Unit = {},
+    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
+    onAmountInputChange: (String) -> Unit = {},
+    onNoteChange: (String) -> Unit = {},
+    onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> }
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        val compact = maxHeight < 780.dp
+        val dense = maxHeight < 700.dp
+        // Wide windows (tablets, foldables, desktop, phone landscape) get the
+        // two-pane layout; the height-based compact/dense flags still govern
+        // font sizes and paddings on phones.
+        val wide = maxWidth >= 720.dp
+        // Usage ranking only counts transactions from the last 60 days, so the
+        // "most used" pickers reflect recent behaviour rather than all-time.
+        val rankingSinceMillis = remember { System.currentTimeMillis() - USAGE_RANKING_WINDOW_MS }
+        val paymentMethods = remember(availablePaymentMethods, transactions, rankingSinceMillis) {
+            getRankedPaymentMethods(
+                paymentMethods = availablePaymentMethods,
+                transactions = transactions,
+                sinceMillis = rankingSinceMillis
+            )
+        }
+        val isEditMode = existingTransaction != null
+
+        var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id, initialTransactionTypeId) {
+            mutableIntStateOf(existingTransaction?.transactionTypeId ?: initialTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_ID)
+        }
+        var selectedCategoryId by rememberSaveable(existingTransaction?.id, initialCategoryId) {
+            mutableIntStateOf(existingTransaction?.categoryId ?: initialCategoryId ?: 0)
+        }
+        var selectedPaymentId by rememberSaveable(existingTransaction?.id) {
+            mutableIntStateOf(
+                existingTransaction?.paymentTypeId
+                    ?: paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id
+                    ?: (paymentMethods.firstOrNull()?.id ?: 0)
+            )
+        }
+        var amountInput by rememberSaveable(existingTransaction?.id, initialAmountInput) {
+            mutableStateOf(existingTransaction?.amount?.let(::formatEditableAmount).orEmpty().ifBlank { initialAmountInput ?: "0" })
+        }
+        var selectedDateMillis by rememberSaveable(existingTransaction?.id) {
+            mutableLongStateOf(existingTransaction?.createdAt ?: System.currentTimeMillis())
+        }
+        var note by rememberSaveable(existingTransaction?.id, initialNote) {
+            mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
+        }
+
+        // Payment method prediction
+        val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
+        val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId.collectAsStateWithLifecycle()
+
+        var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(false) }
+
+        // Auto-predict payment method when note/merchant text changes
+        LaunchedEffect(note) {
+            if (note.isNotBlank() && !isEditMode && !hasManuallySelectedPayment) {
+                paymentMethodPredictorViewModel.predict(note)
+            }
+        }
+
+        // Apply predicted payment method when prediction arrives
+        LaunchedEffect(predictedPaymentMethodId) {
+            if (!isEditMode && predictedPaymentMethodId != null && !hasManuallySelectedPayment) {
+                selectedPaymentId = predictedPaymentMethodId!!
+            }
+        }
+
+        var noteDraft by rememberSaveable(existingTransaction?.id, initialNote) {
+            mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
+        }
+        var isRecurringEnabled by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(existingRecurringRule != null)
+        }
+        var selectedRecurringFrequency by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(existingRecurringRule?.frequency ?: RecurringFrequency.Monthly)
+        }
+        var recurringCountInput by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(existingRecurringRule?.repeatCount?.toString() ?: "12")
+        }
+        // EMI creation is offered only while creating: an existing plan is
+        // changed from the recurring list editor, which can show the plan's real
+        // first-due date (it lives on the slot ledger, not on the rule).
+        val canCreateInstallment = !isEditMode
+        var selectedRecurringType by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(RecurringType.REGULAR)
+        }
+        var emiTotalInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
+        // Null until the user picks one — an unpicked plan starts on the
+        // transaction date, so changing that date still moves the plan start.
+        var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf<Long?>(null)
+        }
+        var isEmiFirstDuePickerVisible by rememberSaveable { mutableStateOf(false) }
+        var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+        var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
+        var isFavoritesSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var showDuplicateWarning by rememberSaveable { mutableStateOf(false) }
+        var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
+        var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
+        var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
+        val amountFocusRequester = remember { FocusRequester() }
+        val noteFocusRequester = remember { FocusRequester() }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
+
+        // Voice input state
+        var isVoiceSheetVisible by rememberSaveable { mutableStateOf(false) }
+        val voiceViewModel: VoiceAddViewModel = hiltViewModel()
+        val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
+        val hasMicPermission = remember {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                PackageManager.PERMISSION_GRANTED
+        }
+        var micPermissionGranted by rememberSaveable { mutableStateOf(hasMicPermission) }
+        val micPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            micPermissionGranted = granted
+            if (granted) {
+                voiceViewModel.resetToListening()
+                isVoiceSheetVisible = true
+            } else {
+                voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
+                isVoiceSheetVisible = true
+            }
+        }
+
+        LaunchedEffect(autoStartVoice) {
+            if (autoStartVoice) {
+                onVoiceAutoStarted()
+                // The amount field is auto-focused and the keyboard is shown on
+                // screen entry. An open IME can make the SpeechRecognizer fail
+                // immediately ("try again" error), so dismiss both before the
+                // voice sheet starts listening — same as the mic button tap.
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+                // Give the keyboard time to fully dismiss before the
+                // SpeechRecognizer starts — otherwise it races with the
+                // animation and fails with the "try again" error.
+                kotlinx.coroutines.delay(300)
+                if (micPermissionGranted) {
+                    voiceViewModel.resetToListening()
+                    isVoiceSheetVisible = true
+                } else {
+                    micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+        }
+
+        // SpeechRecognizer — created once, started/stopped with the sheet
+        val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+        DisposableEffect(speechRecognizer) {
+            onDispose { speechRecognizer.destroy() }
+        }
+        LaunchedEffect(isVoiceSheetVisible, voiceUiState.sheetState) {
+            if (isVoiceSheetVisible && voiceUiState.sheetState == VoiceSheetState.LISTENING) {
+                Log.d("VoiceInput", "Starting speech recognizer, sheetVisible=$isVoiceSheetVisible, sheetState=${voiceUiState.sheetState}")
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                }
+                speechRecognizer.setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(params: Bundle?) {
+                        Log.d("VoiceInput", "onReadyForSpeech: params=$params")
+                    }
+                    override fun onBeginningOfSpeech() {
+                        Log.d("VoiceInput", "onBeginningOfSpeech")
+                    }
+                    override fun onRmsChanged(rmsdB: Float) {
+                        // Too frequent to log — intentionally silent
+                    }
+                    override fun onBufferReceived(buffer: ByteArray?) {
+                        Log.d("VoiceInput", "onBufferReceived: ${buffer?.size ?: 0} bytes")
+                    }
+                    override fun onEndOfSpeech() {
+                        Log.d("VoiceInput", "onEndOfSpeech: currentViewModelTranscript='${voiceUiState.transcript}'")
+                        // Do NOT call onSpeechResult here — voiceUiState.transcript is stale
+                        // (captured at LaunchedEffect launch time). The real result arrives in onResults.
+                    }
+                    override fun onError(error: Int) {
+                        val errorLabel = when (error) {
+                            SpeechRecognizer.ERROR_NO_MATCH -> "ERROR_NO_MATCH"
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "ERROR_SPEECH_TIMEOUT"
+                            SpeechRecognizer.ERROR_NETWORK -> "ERROR_NETWORK"
+                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "ERROR_NETWORK_TIMEOUT"
+                            SpeechRecognizer.ERROR_AUDIO -> "ERROR_AUDIO"
+                            SpeechRecognizer.ERROR_CLIENT -> "ERROR_CLIENT"
+                            SpeechRecognizer.ERROR_SERVER -> "ERROR_SERVER"
+                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "ERROR_RECOGNIZER_BUSY"
+                            else -> "ERROR_UNKNOWN($error)"
+                        }
+                        Log.e("VoiceInput", "onError: $errorLabel (code=$error)")
+                        val errorResId = when (error) {
+                            SpeechRecognizer.ERROR_NO_MATCH,
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
+                            SpeechRecognizer.ERROR_NETWORK,
+                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
+                            SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
+                            else -> R.string.msg_voice_error_recognizer
+                        }
+                        voiceViewModel.onRecognizerError(errorResId)
+                    }
+                    override fun onResults(results: Bundle?) {
+                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull().orEmpty()
+                        val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+                        Log.d("VoiceInput", "onResults: text='$text', matchCount=${matches?.size ?: 0}, confidence=${confidenceScores?.firstOrNull()}")
+                        voiceViewModel.onSpeechResult(text)
+                    }
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull().orEmpty()
+                        Log.d("VoiceInput", "onPartialResults: text='$text'")
+                        voiceViewModel.onPartialResult(text)
+                    }
+                    override fun onEvent(eventType: Int, params: Bundle?) {
+                        Log.d("VoiceInput", "onEvent: eventType=$eventType")
+                    }
+                })
+                speechRecognizer.startListening(intent)
+            }
+        }
+
+        LaunchedEffect(initialAmountInput) {
+            if (initialAmountInput != null && initialAmountInput != amountInput) {
+                amountInput = initialAmountInput
+            }
+        }
+
+        // Auto-focus amount field and open keyboard on screen entry. Skipped when
+        // launched via the Speak-to-Add shortcut so the IME can't break the
+        // SpeechRecognizer right as the voice sheet opens.
+        LaunchedEffect(Unit) {
+            if (!autoStartVoice) {
+                amountFocusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
+
+        LaunchedEffect(initialNote) {
+            if (initialNote != null && initialNote != note) {
+                note = initialNote
+                noteDraft = initialNote
+            }
+        }
+
+        LaunchedEffect(initialCategoryId) {
+            if (initialCategoryId != null && initialCategoryId != selectedCategoryId && initialCategoryId != 0) {
+                selectedCategoryId = initialCategoryId
+            }
+        }
+
+        LaunchedEffect(initialTransactionTypeId) {
+            if (initialTransactionTypeId != null && initialTransactionTypeId != selectedTransactionTypeId && initialTransactionTypeId != 0) {
+                selectedTransactionTypeId = initialTransactionTypeId
+            }
+        }
+
+        val colorScheme = MaterialTheme.colorScheme
+
+        val categoriesForType = remember(transactions, availableCategories, selectedTransactionTypeId, rankingSinceMillis) {
+            getRankedCategories(
+                categories = availableCategories,
+                transactions = transactions,
+                transactionTypeId = selectedTransactionTypeId,
+                sinceMillis = rankingSinceMillis
+            )
+        }
+
+        LaunchedEffect(categoriesForType) {
+            if (categoriesForType.none { it.id == selectedCategoryId }) {
+                selectedCategoryId = categoriesForType.firstOrNull()?.id ?: 0
+            }
+        }
+
+        val selectedCategory = remember(categoriesForType, selectedCategoryId) {
+            categoriesForType.firstOrNull { it.id == selectedCategoryId }
+        }
+        val selectedPayment = remember(paymentMethods, selectedPaymentId) {
+            paymentMethods.firstOrNull { it.id == selectedPaymentId }
+        }
+        val recurringCount = recurringCountInput.toIntOrNull()
+
+        // ── Recurring draft (built once, so the Add button and the save path
+        // can never disagree about what is about to be persisted) ─────────────
+        val isEmiSelected = canCreateInstallment && selectedRecurringType == RecurringType.INSTALLMENT
+        val effectiveFirstDueAt = emiFirstDueAtPicked ?: selectedDateMillis
+        val recurringDraft = buildRecurringDraft(
+            isRecurringEnabled = isRecurringEnabled,
+            frequency = selectedRecurringFrequency,
+            repeatCount = recurringCount,
+            isInstallmentSelected = isEmiSelected,
+            totalAmount = emiTotalInput.toDoubleOrNull() ?: 0.0,
+            installmentAmount = emiInstallmentInput.toDoubleOrNull() ?: 0.0,
+            firstDueAt = effectiveFirstDueAt
+        )
+
+        val canSubmit = (amountInput.toDoubleOrNull() ?: 0.0) > 0 &&
+            selectedCategory != null &&
+            selectedPayment != null &&
+            // An EMI with terms that do not add up (or that is still half-filled)
+            // stays unsaveable rather than silently falling back to a plain
+            // recurring rule.
+            (!isRecurringEnabled ||
+                (recurringDraft != null && (!isEmiSelected || recurringDraft.plan != null)))
+
+        // Prefills the form from a tapped favorite template and notifies the
+        // caller (which resets the star toggle) before confirming to the user.
+        val applyFavorite: (FavoriteTransaction) -> Unit = { favorite ->
+            amountInput = formatEditableAmount(favorite.amountMinor.toMajorUnits())
+            selectedTransactionTypeId = favorite.transactionTypeId
+            selectedCategoryId = favorite.categoryId
+            selectedPaymentId = favorite.paymentTypeId
+            note = favorite.note
+            noteDraft = favorite.note
+            Toast.makeText(context, context.getString(R.string.msg_favorite_copied), Toast.LENGTH_SHORT).show()
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(
+                    start = Dimens.ScreenPadding,
+                    end = Dimens.ScreenPadding,
+                    top = Dimens.HeaderSpacing,
+                    bottom = if (dense) 12.dp else 14.dp
+                )
+                // Swipe left → Expense (next tab), swipe right → Income (previous tab),
+                // matching the Calendar screen's month/year swipe conventions. Compose's
+                // gesture disambiguation (touch slop + Main pass bubbling) lets the vertical
+                // scroll and the horizontally-scrollable category/payment chip rows keep
+                // their gestures, so only deliberate horizontal swipes switch tabs.
+                .horizontalSwipe(
+                    onSwipeLeft = {
+                        if (selectedTransactionTypeId == incomeTypeId) {
+                            selectedTransactionTypeId = expenseTypeId
+                        }
+                    },
+                    onSwipeRight = {
+                        if (selectedTransactionTypeId == expenseTypeId) {
+                            selectedTransactionTypeId = incomeTypeId
+                        }
+                    }
+                )
+        ) {                AppHeader(
+                title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
+                onBackClick = {
+                    keyboardController?.hide()
+                    onBackClick()
+                },
+                actions = {
+                    // Delete transaction icon (matches SelectionHeader style)
+                    if (isEditMode) {
+                        IconButton(
+                            onClick = {
+                                keyboardController?.hide()
+                                onDeleteClick()
+                            },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = stringResource(R.string.desc_delete_transaction),
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    // Reset form icon (only in add mode)
+                    if (!isEditMode) {
+                        IconButton(onClick = {
+                            selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
+                            selectedCategoryId = 0
+                            selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
+                            amountInput = "0"
+                            selectedDateMillis = System.currentTimeMillis()
+                            note = ""
+                            noteDraft = ""
+                            isRecurringEnabled = false
+                            selectedRecurringFrequency = RecurringFrequency.Monthly
+                            recurringCountInput = "12"
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = stringResource(R.string.desc_clear_fields),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+            ) {                    // Shared form blocks, reused by both the single-column (phone)
+                // and two-pane (wide) layouts so behavior stays identical.
+                val tabAndAmountBlock: @Composable () -> Unit = {
+                    AnimatedTabSwitcher(
+                        items = transactionModes.map { TabItem(it.id, stringResource(it.label)) },
+                        selectedItemId = selectedTransactionTypeId,
+                        onItemSelected = { selectedTransactionTypeId = it }
+                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CurrencyAmountCard(
+                            amountText = amountInput,
+                            currencyId = currencyId,
+                            selectedTransactionTypeId = selectedTransactionTypeId,
+                            compact = compact,
+                            focusRequester = amountFocusRequester,
+                            // Disable focus while the note sheet is open so that when it
+                            // closes, Compose's focus-restoration pass doesn't re-focus
+                            // this field and pop the numeric keyboard back up.
+                            canFocus = !isNoteSheetVisible,
+                            onAmountChange = {
+                                val validated = validateAmountChange(it, amountInput)
+                                if (validated != amountInput) {
+                                    amountInput = validated
+                                    onAmountInputChange(validated)
+                                }
+                            },
+                            onClick = {
+                                amountFocusRequester.requestFocus()
+                                keyboardController?.show()
+                            },
+                            onImeNext = {
+                                // Tick/enter on amount → open note sheet
+                                keyboardController?.hide()
+                                noteDraft = note
+                                isNoteSheetVisible = true
+                            }
+                        )
+                    }
+                }
+
+                val noteBlock: @Composable () -> Unit = {
+                    val micBorderColor by animateColorAsState(
+                        targetValue = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        label = "mic_border"
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    noteDraft = note
+                                    isNoteSheetVisible = true
+                                })
+                                .padding(
+                                    horizontal = if (compact) 12.dp else 16.dp,
+                                    vertical = if (compact) 4.dp else 6.dp
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.EditNote,
+                                    contentDescription = stringResource(R.string.label_note),
+                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.primary,
+                                    modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = note.ifBlank { stringResource(R.string.label_add_note) },
+                                    color = if (note.isBlank()) colorScheme.onSurfaceVariant else colorScheme.onSurface,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontStyle = if (note.isBlank()) FontStyle.Italic else FontStyle.Normal
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    voiceViewModel.resetToListening()
+                                    if (micPermissionGranted) {
+                                        isVoiceSheetVisible = true
+                                    } else {
+                                        micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                    }
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Mic,
+                                contentDescription = stringResource(R.string.desc_voice_add),
+                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(Color.Transparent))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    onCalculatorClick()
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Calculate,
+                                contentDescription = stringResource(R.string.desc_open_calculator),
+                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                            )
+                        }
+
+                        // Favorite template star (edit mode only): immediately
+                        // persists the current values as a favorite template.
+                        if (isEditMode) {
+                            Box(
+                                modifier = Modifier
+                                    .size(if (compact) 40.dp else 44.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = RoundedCornerShape(16.dp),
+                                        ambientColor = colorScheme.primary.copy(alpha = 0.06f),
+                                        spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    )
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(SolidColor(Color.Transparent))
+                                    .border(
+                                        width = 1.dp,
+                                        color = micBorderColor,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .clickable(onClick = {
+                                        keyboardController?.hide()
+                                        val category = selectedCategory
+                                        val payment = selectedPayment
+                                        val amount = amountInput.toDoubleOrNull()
+                                        if (category != null && payment != null && amount != null) {
+                                            onSaveExistingAsFavorite(
+                                                Transaction(
+                                                    id = existingTransaction?.id.orEmpty(),
+                                                    note = note.trim(),
+                                                    createdAt = selectedDateMillis,
+                                                    amountMinor = amount.toMinorUnits(),
+                                                    transactionTypeId = selectedTransactionTypeId,
+                                                    paymentTypeId = payment.id,
+                                                    categoryId = category.id,
+                                                    contentHash = existingTransaction?.contentHash,
+                                                    syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
+                                                    isDeleted = false,
+                                                    updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
+                                                    sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
+                                                )
+                                            )
+                                        }
+                                    }),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                    tint = colorScheme.primary,
+                                    modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                val categoryBlock: @Composable () -> Unit = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                    ) {
+                        SectionHeader(title = stringResource(R.string.title_category_1))
+                        ChoiceChipRow(
+                            items = categoriesForType,
+                            selectedId = selectedCategoryId,
+                            compact = compact,
+                            getId = { it.id },
+                            getLabel = { it.name },
+                            getIcon = { it.icon },
+                            onItemSelected = { selectedCategoryId = it }
+                        )
+                    }
+                }
+
+                val paymentBlock: @Composable () -> Unit = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                    ) {
+                        SectionHeader(title = stringResource(R.string.title_payment_method))
+                        ChoiceChipRow(
+                            items = paymentMethods,
+                            selectedId = selectedPaymentId,
+                            compact = compact,
+                            getId = { it.id },
+                            getLabel = { it.name },
+                            getIcon = { it.icon },
+                            onItemSelected = { selectedPaymentId = it; hasManuallySelectedPayment = true }
+                        )
+                    }
+                }
+
+                val dateRecurringBlock: @Composable () -> Unit = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                    ) {
+                        SelectionInfoCard(
+                            modifier = Modifier.weight(1f),
+                            leadingIcon = Icons.Filled.CalendarMonth,
+                            label = stringResource(R.string.label_date),
+                            value = formatTransactionDate(selectedDateMillis, dateFormatPattern),
+                            compact = compact,
+                            onClick = { isDatePickerVisible = true }
+                        )
+
+                        RecurringCompactCard(
+                            modifier = Modifier.weight(1f),
+                            isEnabled = isRecurringEnabled,
+                            frequency = selectedRecurringFrequency,
+                            isInstallment = isEmiSelected,
+                            compact = compact,
+                            onClick = { isRecurringModalVisible = true }
+                        )
+                    }
+                }
+
+                // Quick-entry favorites carousel, shown just above the note row
+                // (add mode only).
+                val quickFavoritesBlock: @Composable () -> Unit = {
+                    if (!isEditMode) {
+                        QuickFavoritesRow(
+                            favorites = favorites,
+                            currencyId = currencyId,
+                            onSelectFavorite = applyFavorite,
+                            onOpenAllSheet = { isFavoritesSheetVisible = true }
+                        )
+                    }
+                }
+
+                if (wide) {
+                    // Two-pane: left = tabs, amount, category + payment pickers;
+                    // right = note, date + recurring. Each pane scrolls on its own.
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                        ) {
+                            tabAndAmountBlock()
+                            categoryBlock()
+                            paymentBlock()
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                        ) {
+                            quickFavoritesBlock()
+                            noteBlock()
+                            dateRecurringBlock()
+                        }
+                    }
+                } else {
+                    // Compact phone: unchanged single scroll column (order frozen).
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                    ) {
+                        tabAndAmountBlock()
+                        quickFavoritesBlock()
+                        noteBlock()
+                        categoryBlock()
+                        paymentBlock()
+                        dateRecurringBlock()
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(if (dense) 12.dp else 16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AddTransactionButton(
+                        modifier = Modifier.weight(1f),
+                        enabled = canSubmit,
+                        label = if (isEditMode) stringResource(R.string.label_update_action) else stringResource(R.string.label_add_action),
+                        selectedCategory = selectedCategory?.name.orEmpty(),
+                        onClick = {
+                            val category = selectedCategory ?: return@AddTransactionButton
+                            val payment = selectedPayment ?: return@AddTransactionButton
+                            val amount = amountInput.toDoubleOrNull() ?: return@AddTransactionButton
+                            val transaction = Transaction(
+                                id = existingTransaction?.id.orEmpty(),
+                                note = note.trim(),
+                                createdAt = selectedDateMillis,
+                                amountMinor = amount.toMinorUnits(),
+                                transactionTypeId = selectedTransactionTypeId,
+                                paymentTypeId = payment.id,
+                                categoryId = category.id,
+                                contentHash = existingTransaction?.contentHash,
+                                syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
+                                isDeleted = false,
+                                updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
+                                sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
+                            )
+                            // Duplicate detection: check if a rule with same category + amount + frequency exists
+                            if (recurringDraft != null && !isEditMode) {
+                                val amount = amountInput.toDoubleOrNull() ?: 0.0
+                                val duplicate = allRecurringRules.firstOrNull { rule ->
+                                    !rule.isDeleted &&
+                                    rule.frequency == recurringDraft.frequency &&
+                                    rule.transactionId != transaction.id &&
+                                    // Match by category (from the rule's linked transaction)
+                                    transactions.any { t ->
+                                        t.id == rule.transactionId &&
+                                        t.categoryId == category.id &&
+                                        t.amountMinor == transaction.amountMinor
+                                    }
+                                }
+                                if (duplicate != null) {
+                                    val categoryName = availableCategories.firstOrNull { it.id == category.id }?.name ?: "this category"
+                                    val freqLabel = selectedRecurringFrequency.label
+                                    val amountFormatted = formatCurrencyValue(transaction.amountMinor / 100.0, currencyId)
+                                    duplicateWarningMessage = context.getString(R.string.msg_duplicate_recurring_rule, categoryName, amountFormatted, freqLabel)
+                                    pendingSaveTransaction = transaction
+                                    pendingSaveDraft = recurringDraft
+                                    showDuplicateWarning = true
+                                    return@AddTransactionButton
+                                }
+                            }
+                            keyboardController?.hide()
+                            // Learn merchant → payment method association
+                            if (note.isNotBlank()) {
+                                paymentMethodPredictorViewModel.learn(note, payment.id)
+                            }
+                            onSaveClick(transaction, recurringDraft)
+                        }
+                    )
+
+
+                }
+            }
+        }
+
+        if (isDatePickerVisible) {
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_DATE,
+                initialStartMillis = selectedDateMillis,
+                onDismissRequest = { isDatePickerVisible = false },
+                onConfirm = { start, _ ->
+                    selectedDateMillis = start
+                    isDatePickerVisible = false
+                }
+            )
+        }
+
+        if (isNoteSheetVisible) {
+            TransactionNoteBottomSheet(
+                note = noteDraft,
+                onNoteChange = { noteDraft = it },
+                onDismissRequest = {
+                    // force=true prevents Compose from restoring focus to any child
+                    // (e.g. the amount BasicTextField) after the sheet leaves composition.
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                    isNoteSheetVisible = false
+                },
+                onSave = {
+                    note = noteDraft
+                    onNoteChange(note)
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                    isNoteSheetVisible = false
+                }
+            )
+        }
+
+        if (isVoiceSheetVisible) {
+            val currencySymbol = remember(currencyId) { getCurrency(currencyId).currencySymbol }
+            VoiceInputSheet(
+                sheetState = voiceUiState.sheetState,
+                transcript = voiceUiState.transcript,
+                parsedTransaction = voiceUiState.parsedTransaction,
+                errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
+                currencySymbol = currencySymbol,
+                onDismissRequest = {
+                    voiceViewModel.dismiss()
+                    isVoiceSheetVisible = false
+                },
+                onConfirm = { transaction ->
+                    // Auto-fill form fields from parsed voice result
+                    amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
+                    selectedTransactionTypeId = transaction.transactionTypeId
+                    selectedCategoryId = transaction.categoryId
+                    note = transaction.note
+                    noteDraft = transaction.note
+                    if (transaction.merchant != null) {
+                        note = if (note.isNotBlank()) "$note \u2014 ${transaction.merchant}" else transaction.merchant
+                        noteDraft = note
+                    }
+                    selectedDateMillis = transaction.createdAt
+                    voiceViewModel.dismiss()
+                    isVoiceSheetVisible = false
+                },
+                onRetry = {
+                    voiceViewModel.resetToListening()
+                }
+            )
+        }
+
+        if (isRecurringModalVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { isRecurringModalVisible = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.surface,
+                // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
+                tonalElevation = 0.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 32.dp)
+                ) {
+                    RecurringTransactionSection(
+                        isEnabled = isRecurringEnabled,
+                        selectedFrequency = selectedRecurringFrequency,
+                        repeatCountInput = recurringCountInput,
+                        compact = compact,
+                        activeRecurringRuleCount = activeRecurringRuleCount,
+                        hasExistingRule = existingRecurringRule != null,
+                        canCreateInstallment = canCreateInstallment,
+                        selectedType = selectedRecurringType,
+                        emiTotalInput = emiTotalInput,
+                        emiInstallmentInput = emiInstallmentInput,
+                        emiFirstDueText = formatTransactionDate(effectiveFirstDueAt, dateFormatPattern),
+                        isEmiPlanValid = recurringDraft?.plan != null,
+                        onEnabledChange = { isRecurringEnabled = it },
+                        onFrequencySelected = { selectedRecurringFrequency = it },
+                        onRepeatCountChange = { recurringCountInput = it.filter(Char::isDigit) },
+                        onTypeSelected = { selectedRecurringType = it },
+                        onEmiTotalChange = { emiTotalInput = it },
+                        onEmiInstallmentChange = { emiInstallmentInput = it },
+                        // The wheel picker is itself a modal sheet, so it cannot
+                        // open on top of this one: step out to it and come back.
+                        onEmiFirstDueClick = {
+                            isRecurringModalVisible = false
+                            isEmiFirstDuePickerVisible = true
+                        }
+                    )
+                }
+            }
+        }
+
+        // Duplicate warning dialog
+        if (showDuplicateWarning && duplicateWarningMessage != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDuplicateWarning = false
+                    duplicateWarningMessage = null
+                    pendingSaveTransaction = null
+                    pendingSaveDraft = null
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = stringResource(R.string.title_cannot_duplicate_recurring),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                text = {
+                    Text(
+                        text = duplicateWarningMessage ?: "",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDuplicateWarning = false
+                        duplicateWarningMessage = null
+                        val tx = pendingSaveTransaction
+                        val draft = pendingSaveDraft
+                        pendingSaveTransaction = null
+                        pendingSaveDraft = null
+                        keyboardController?.hide()
+                        if (tx != null) onSaveClick(tx, draft)
+                    }) {
+                        Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showDuplicateWarning = false
+                        duplicateWarningMessage = null
+                        pendingSaveTransaction = null
+                        pendingSaveDraft = null
+                    }) {
+                        Text(stringResource(R.string.label_no), fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
+        }
+
+        // The recurring section steps out of its sheet so this picker (itself a
+        // sheet) can open; confirming or cancelling returns to the plan form.
+        if (isEmiFirstDuePickerVisible) {
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_DATE,
+                initialStartMillis = effectiveFirstDueAt,
+                onDismissRequest = {
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                },
+                onConfirm = { start, _ ->
+                    emiFirstDueAtPicked = start
+                    isEmiFirstDuePickerVisible = false
+                    isRecurringModalVisible = true
+                }
+            )
+        }
+
+        if (isFavoritesSheetVisible) {
+            FavoritesBottomSheet(
+                favorites = favorites,
+                currencyId = currencyId,
+                availableCategories = availableCategories,
+                availablePaymentMethods = availablePaymentMethods,
+                onDismiss = { isFavoritesSheetVisible = false },
+                onSelect = applyFavorite,
+                onDelete = { id ->
+                    onRemoveFavorite(id)
+                    Toast.makeText(context, context.getString(R.string.msg_favorite_removed), Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecurringTransactionSection(
+    isEnabled: Boolean,
+    selectedFrequency: RecurringFrequency,
+    repeatCountInput: String,
+    compact: Boolean,
+    activeRecurringRuleCount: Int = 0,
+    hasExistingRule: Boolean = false,
+    canCreateInstallment: Boolean = false,
+    selectedType: RecurringType = RecurringType.REGULAR,
+    emiTotalInput: String = "",
+    emiInstallmentInput: String = "",
+    emiFirstDueText: String = "",
+    isEmiPlanValid: Boolean = false,
+    onEnabledChange: (Boolean) -> Unit,
+    onFrequencySelected: (RecurringFrequency) -> Unit,
+    onRepeatCountChange: (String) -> Unit,
+    onTypeSelected: (RecurringType) -> Unit = {},
+    onEmiTotalChange: (String) -> Unit = {},
+    onEmiInstallmentChange: (String) -> Unit = {},
+    onEmiFirstDueClick: () -> Unit = {}
+) {
+    // INSTALLMENT is only offered while creating; the recurring-list editor owns
+    // changing an existing rule's plan.
+    val isInstallment = canCreateInstallment && selectedType == RecurringType.INSTALLMENT
+    val planCount = repeatCountInput.toIntOrNull() ?: 0
+    val context = LocalContext.current
+    val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    var showPremiumSheet by remember { mutableStateOf(false) }
+    var showAdDialog by remember { mutableStateOf(false) }
+    var pendingFrequencyForAd by remember { mutableStateOf<RecurringFrequency?>(null) }
+
+    // Access is resolved by the monetization layer, which owns the Pro bypass and the
+    // pro_gating_enabled kill switch. This section only asks; it never decides.
+    val enableFeature = RecurringGateResolver.enableFeature(
+        activeRuleCount = activeRecurringRuleCount,
+        hasExistingRule = hasExistingRule
+    )
+    val ruleCountGate: AccessStatus = if (enableFeature != null) {
+        monetizationViewModel.getAccessStatus(enableFeature).collectAsStateWithLifecycle().value
+    } else {
+        AccessStatus.Granted
+    }
+
+    // Pro users are gated nowhere, so the ladder would be noise for them.
+    val userTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+    val showRuleLadder = userTier != UserTier.PREMIUM
+    val colorScheme = MaterialTheme.colorScheme
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (isEnabled) Color.Transparent 
+                     else colorScheme.outlineVariant.copy(alpha = 0.3f),
+        label = "recurring_section_border"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(SolidColor(Color.Transparent))
+            .border(
+                width = if (isEnabled) 0.dp else 1.dp,
+                color = if (isEnabled) Color.Transparent else animatedBorderColor,
+                shape = RoundedCornerShape(22.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isEnabled) colorScheme.primary.copy(alpha = 0.12f)
+                        else colorScheme.onSurface.copy(alpha = 0.08f)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    tint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.label_recurring_transaction),
+                    color = if (isEnabled) colorScheme.primary else colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+
+            androidx.compose.material3.Switch(
+                checked = isEnabled,
+                onCheckedChange = { wantEnabled ->
+                    if (wantEnabled && ruleCountGate !is AccessStatus.Granted) {
+                        // Gate: rule count threshold
+                        when (ruleCountGate) {
+                            is AccessStatus.DeniedAd -> showAdDialog = true
+                            is AccessStatus.DeniedPremium -> showPremiumSheet = true
+                            else -> onEnabledChange(true)
+                        }
+                    } else {
+                        onEnabledChange(wantEnabled)
+                    }
+                },
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedThumbColor = colorScheme.onPrimary,
+                    checkedTrackColor = colorScheme.primary,
+                    uncheckedThumbColor = colorScheme.outline,
+                    uncheckedTrackColor = colorScheme.surfaceVariant
+                )
+            )
+        }
+
+        // Informational only: it explains the ladder before a gate ever fires.
+        if (showRuleLadder) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorScheme.primary.copy(alpha = 0.06f))
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.desc_recurring_rule_ladder),
+                    color = colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    text = when (RecurringGateResolver.ruleTier(activeRecurringRuleCount)) {
+                        RecurringRuleTier.FREE -> stringResource(
+                            R.string.desc_recurring_rules_used_free,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.FREE_RULE_LIMIT
+                        )
+                        RecurringRuleTier.AD -> stringResource(
+                            R.string.desc_recurring_rules_used_ad,
+                            activeRecurringRuleCount,
+                            RecurringGateResolver.AD_RULE_LIMIT
+                        )
+                        RecurringRuleTier.PREMIUM -> stringResource(
+                            R.string.desc_recurring_rules_used_premium,
+                            activeRecurringRuleCount
+                        )
+                    },
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+        }
+
+        if (isEnabled) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (canCreateInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_recurring_type))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            FilterChip(
+                                selected = !isInstallment,
+                                onClick = { onTypeSelected(RecurringType.REGULAR) },
+                                label = { Text(stringResource(R.string.label_type_regular)) }
+                            )
+                            FilterChip(
+                                selected = isInstallment,
+                                onClick = { onTypeSelected(RecurringType.INSTALLMENT) },
+                                label = { Text(stringResource(R.string.label_type_emi)) }
+                            )
+                        }
+                        if (isInstallment) {
+                            Text(
+                                text = stringResource(R.string.desc_emi_plan_toggle),
+                                color = colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+
+                // Frequency Selector (Sliding Pill)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SectionHeader(title = stringResource(R.string.title_frequency))
+                    
+                    val density = LocalDensity.current
+                    var containerWidthPx by remember { mutableIntStateOf(0) }
+                    val selectedIndex = recurringModeOptions.indexOfFirst { it.frequency == selectedFrequency }.coerceAtLeast(0)
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .onSizeChanged { containerWidthPx = it.width }
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(SolidColor(Color.Transparent))
+                            .border(
+                                width = 1.dp,
+                                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(4.dp)
+                    ) {
+                        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / recurringModeOptions.size }
+                        
+                        val indicatorOffset by animateDpAsState(
+                            targetValue = tabWidth * selectedIndex,
+                            animationSpec = spring(stiffness = Spring.StiffnessLow),
+                            label = "recurring_freq_indicator_offset"
+                        )
+
+                        if (containerWidthPx > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .offset(x = indicatorOffset)
+                                    .width(tabWidth)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(brandGradient())
+                            )
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            recurringModeOptions.forEach { option ->
+                                val selected = option.frequency == selectedFrequency
+                                // Frequency access comes from the monetization layer, so a Pro user is
+                                // never asked to watch an ad and the kill switch still applies.
+                                val frequencyFeature = RecurringGateResolver.frequencyFeature(option.frequency)
+                                val freqGate: AccessStatus = if (frequencyFeature != null) {
+                                    monetizationViewModel.getAccessStatus(frequencyFeature)
+                                        .collectAsStateWithLifecycle().value
+                                } else {
+                                    AccessStatus.Granted
+                                }
+                                val animatedColor by animateColorAsState(
+                                    targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                                    label = "recurring_freq_text_color"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable {
+                                        if (freqGate !is AccessStatus.Granted) {
+                                            pendingFrequencyForAd = option.frequency
+                                            when (freqGate) {
+                                                is AccessStatus.DeniedAd -> showAdDialog = true
+                                                is AccessStatus.DeniedPremium -> showPremiumSheet = true
+                                                else -> onFrequencySelected(option.frequency)
+                                            }
+                                        } else {
+                                            onFrequencySelected(option.frequency)
+                                        }
+                                    }
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = stringResource(option.label),
+                                        color = animatedColor,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Plan terms — only the count below is shared with REGULAR.
+                if (isInstallment) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_total_amount))
+                        EmiAmountField(
+                            value = emiTotalInput,
+                            onValueChange = onEmiTotalChange,
+                            supportingText = stringResource(R.string.desc_emi_total_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_installment_amount))
+                        EmiAmountField(
+                            value = emiInstallmentInput,
+                            onValueChange = onEmiInstallmentChange,
+                            supportingText = stringResource(R.string.desc_emi_installment_amount)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionHeader(title = stringResource(R.string.label_emi_first_due))
+                        OutlinedTextField(
+                            value = emiFirstDueText,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = onEmiFirstDueClick),
+                            enabled = false,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = colorScheme.primary
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = colorScheme.onSurface,
+                                disabledBorderColor = colorScheme.outlineVariant,
+                                disabledContainerColor = colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+
+                    // A half-filled plan is not an error yet — only an inconsistent
+                    // one is, exactly as in the recurring-list editor.
+                    if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
+                        Text(
+                            text = stringResource(R.string.msg_emi_amount_mismatch),
+                            color = colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+
+                // Installments Picker
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SectionHeader(title = stringResource(R.string.label_total_installments))
+                    
+                    val presetInstallments = listOf("3", "6", "12", "24")
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        presetInstallments.forEach { count ->
+                            val isSelected = repeatCountInput == count
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .heightIn(min = 44.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        if (isSelected) SolidColor(colorScheme.primary.copy(alpha = 0.15f))
+                                        else standardCardGradient()
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (isSelected) colorScheme.primary else Color.Transparent,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .clickable { onRepeatCountChange(count) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = count,
+                                    color = if (isSelected) colorScheme.primary else colorScheme.onSurface,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        
+                        // Custom Input Field
+                        OutlinedTextField(
+                            value = if (repeatCountInput in presetInstallments) "" else repeatCountInput,
+                            onValueChange = { if (it.length <= 3) onRepeatCountChange(it) },
+                            modifier = Modifier.weight(1.2f).heightIn(min = 44.dp),
+                            singleLine = true,
+                            placeholder = { Text(stringResource(R.string.label_other_installment), style = MaterialTheme.typography.bodyMedium) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedBorderColor = colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedTextColor = colorScheme.primary
+                            )
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = colorScheme.secondary.copy(alpha = 0.7f),
+                            modifier = Modifier.size(14.dp).padding(top = 2.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isInstallment) {
+                                stringResource(
+                                    R.string.msg_emi_create_info,
+                                    (planCount - 1).coerceAtLeast(0)
+                                )
+                            } else {
+                                stringResource(R.string.msg_installment_info)
+                            },
+                            color = colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                lineHeight = 14.sp,
+                                letterSpacing = 0.2.sp
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 52.dp, top = 4.dp, bottom = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.label_recurring_track),
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+            }
+        }
+    }
+
+    // Ad dialog for frequency gating and rule count gating
+    if (showAdDialog) {
+        val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
+        val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
+        AdRewardDialog(
+            featureName = pendingFrequencyForAd?.label
+                ?: stringResource(R.string.label_recurring_transaction),
+            durationMinutes = adPassMinutes,
+            isLoading = isAdLoading,
+            onDismiss = { showAdDialog = false; pendingFrequencyForAd = null },
+            onWatchAdClick = {
+                // This section is composed inside the recurring ModalBottomSheet, which is
+                // hosted in its own dialog window — LocalContext there is a
+                // ContextThemeWrapper, not the Activity, so a plain `as? Activity` cast is
+                // null and the rewarded ad is never even requested. Unwrap like MainScreen.
+                val activity = context.findFragmentActivity()
+                // Grant access once it is real — reward earned, or no ad to show. Applying
+                // the pending choice up front would unlock the rule without an ad ever
+                // appearing (frequency gate: select it; rule-count gate: enable it).
+                val applyGrantedChoice = {
+                    pendingFrequencyForAd?.let { onFrequencySelected(it) }
+                    onEnabledChange(true)
+                    showAdDialog = false
+                    pendingFrequencyForAd = null
+                }
+                if (activity != null) {
+                    monetizationViewModel.onAdWatched(
+                        activity,
+                        pendingFrequencyForAd?.let { featureForFrequency(it) }
+                            ?: Feature.RECURRING_RULES_MULTI,
+                        null,
+                        applyGrantedChoice
+                    )
+                } else {
+                    // No host Activity means no ad can ever be shown; don't strand the
+                    // user on a button that can't do anything.
+                    Log.w("AddTransactionScreen", "No host Activity for the recurring ad gate; granting directly.")
+                    applyGrantedChoice()
+                }
+            }
+        )
+    }
+
+    // Premium sheet for Yearly frequency and 7th+ rule
+    var showComingSoonDialog by remember { mutableStateOf(false) }
+    if (showPremiumSheet) {
+        PremiumGateSheet(
+            onDismiss = { showPremiumSheet = false; pendingFrequencyForAd = null },
+            onUpgradeClick = {
+                showPremiumSheet = false
+                showComingSoonDialog = true
+            }
+        )
+    }
+    if (showComingSoonDialog) {
+        ComingSoonDialog(
+            onDismiss = { showComingSoonDialog = false }
+        )
+    }
+}
+
+/** Maps a frequency to its gating Feature. */
+private fun featureForFrequency(freq: RecurringFrequency): Feature = when (freq) {
+    RecurringFrequency.Daily -> Feature.RECURRING_FREQUENCY_DAILY
+    RecurringFrequency.Weekly -> Feature.RECURRING_FREQUENCY_WEEKLY
+    RecurringFrequency.Yearly -> Feature.RECURRING_FREQUENCY_YEARLY
+    RecurringFrequency.Monthly -> Feature.RECURRING_FREQUENCY_MONTHLY
+}
+
+
+@Composable
+private fun CurrencyAmountCard(
+    amountText: String,
+    currencyId: Int,
+    selectedTransactionTypeId: Int,
+    compact: Boolean,
+    focusRequester: FocusRequester,
+    canFocus: Boolean = true,
+    onAmountChange: (String) -> Unit,
+    onClick: () -> Unit = {},
+    onImeNext: () -> Unit = {}
+) {
+    val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
+    val currency = getCurrency(currencyId)
+    val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
+    val density = LocalDensity.current
+    val labelTranslationY = with(density) { (-4).dp.toPx() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = if (compact) 104.dp else 122.dp) // Tightened height
+            .shadow(
+                elevation = 8.dp,
+                shape = shape,
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
+            )
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                shape = shape
+            )
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = if (compact) 16.dp else 20.dp, // Tightened horizontal padding
+                    vertical = if (compact) 10.dp else 12.dp    // Tightened vertical padding
+                )
+                .matchParentSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Top Section
+            Column {
+                Text(
+                    text = stringResource(R.string.label_enter_amount),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .graphicsLayer { translationY = labelTranslationY }
+                )
+
+                Spacer(modifier = Modifier.height(if (compact) 2.dp else 4.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.1f)
+                        .height(1.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                )
+            }
+
+            // Middle/Bottom Section: Amount Display
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (currency.position == CurrencyPosition.PREFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 22.sp else 24.sp
+                        ),
+                        modifier = Modifier.padding(bottom = if (compact) 4.dp else 5.dp, end = 8.dp)
+                    )
+                }
+
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = amountText,
+                        color = Color.Transparent,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 40.sp else 48.sp,
+                            lineHeight = if (compact) 44.sp else 52.sp
+                        ),
+                        maxLines = 1
+                    )
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    var textFieldValue by remember {
+                        mutableStateOf(
+                            TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(amountText.length)
+                            )
+                        )
+                    }
+                    // Sync text from parent while preserving the cursor position
+                    // so mid-text insertion keeps working after validation.
+                    LaunchedEffect(amountText) {
+                        if (textFieldValue.text != amountText) {
+                            val cursorPos = textFieldValue.selection.start
+                                .coerceAtMost(amountText.length)
+                            textFieldValue = TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(cursorPos)
+                            )
+                        }
+                    }
+                    BasicTextField(
+                        value = textFieldValue,
+                        onValueChange = { newValue ->
+                            val validated = validateAmountChange(
+                                newValue.text, textFieldValue.text
+                            )
+                            // Special case: if the field became "0" after validation
+                            // (e.g., user deleted the last digit), place cursor at the end
+                            val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
+                                validated.length
+                            } else {
+                                newValue.selection.start.coerceAtMost(validated.length)
+                            }
+                            // Always update so cursor taps are honoured
+                            textFieldValue = TextFieldValue(
+                                text = validated,
+                                selection = TextRange(cursorPos)
+                            )
+                            // Only propagate when the text actually changed
+                            if (validated != amountText) {
+                                onAmountChange(validated)
+                            }
+                        },
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .focusProperties { this.canFocus = canFocus }
+                            .fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 40.sp else 48.sp,
+                            lineHeight = if (compact) 44.sp else 52.sp,
+                            color = amountColor,
+                            textAlign = TextAlign.Center
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { onImeNext() }
+                        ),
+                        singleLine = true,
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                    )
+                }
+
+                if (currency.position == CurrencyPosition.POSTFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = if (compact) 22.sp else 24.sp
+                        ),
+                        modifier = Modifier.padding(start = 8.dp, bottom = 6.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(1.dp))
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.labelSmall
+    )
+}
+
+@Composable
+private fun <T> ChoiceChipRow(
+    items: List<T>,
+    selectedId: Int,
+    compact: Boolean,
+    getId: (T) -> Int,
+    getLabel: (T) -> String,
+    getIcon: (T) -> ImageVector,
+    onItemSelected: (Int) -> Unit
+) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)) {
+        items(items, key = getId) { item ->
+            ChoiceChip(
+                label = getLabel(item),
+                icon = getIcon(item),
+                isSelected = getId(item) == selectedId,
+                compact = compact,
+                onClick = { onItemSelected(getId(item)) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChoiceChip(
+    label: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.widthIn(min = if (compact) 72.dp else 80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (compact) 58.dp else 64.dp)
+                .shadow(
+                    elevation = if (isSelected) 22.dp else 0.dp,
+                    shape = CircleShape,
+                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
+                )
+                .clip(CircleShape)
+                .background(
+                    brush = if (isSelected) {
+                        brandGradient()
+                    } else {
+                        standardCardGradient()
+                    }
+                )
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = label,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.4.sp,
+                fontSize = if (compact) 10.sp else 11.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun SelectionInfoCard(
+    modifier: Modifier = Modifier,
+    leadingIcon: ImageVector,
+    label: String,
+    value: String,
+    isPlaceholder: Boolean = false,
+    highlighted: Boolean = false,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (highlighted) Color.Transparent 
+                     else colorScheme.outlineVariant.copy(alpha = 0.5f),
+        label = "selection_card_border"
+    )
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        SectionHeader(title = label)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = if (compact) 48.dp else 56.dp)
+                .shadow(
+                    elevation = if (highlighted) 12.dp else 6.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    ambientColor = colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f),
+                    spotColor = colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f)
+                )
+                .clip(RoundedCornerShape(20.dp))
+                .background(SolidColor(Color.Transparent))
+                .border(
+                    width = if (highlighted) 0.dp else 1.dp,
+                    color = if (highlighted) Color.Transparent else animatedBorderColor,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .clickable(onClick = onClick)
+                .padding(
+                    horizontal = if (compact) 12.dp else 16.dp,
+                    vertical = if (compact) 8.dp else 12.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = label,
+                tint = when {
+                    highlighted -> colorScheme.primary
+                    isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    else -> colorScheme.primary
+                },
+                modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Text(
+                text = value,
+                color = if (isPlaceholder) colorScheme.onSurfaceVariant else colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = if (highlighted) FontWeight.Bold else FontWeight.SemiBold,
+                    fontSize = if (compact) 14.sp else 15.sp,
+                    fontStyle = if (isPlaceholder) FontStyle.Italic else FontStyle.Normal,
+                    lineHeight = 18.sp
+                ),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun NumericKeypad(
+    compact: Boolean,
+    onKeyPressed: (String) -> Unit
+) {
+    val rows = listOf(
+        listOf("1", "2", "3"),
+        listOf("4", "5", "6"),
+        listOf("7", "8", "9"),
+        listOf(".", "0", KEYPAD_DELETE_KEY)
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)
+    ) {
+        rows.forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)
+            ) {
+                row.forEach { key ->
+                    KeypadKey(
+                        label = key,
+                        compact = compact,
+                        onClick = { onKeyPressed(key) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeypadToggle(
+    expanded: Boolean,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(standardCardGradient())
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = if (compact) 16.dp else 18.dp,
+                vertical = if (compact) 12.dp else 14.dp
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = stringResource(R.string.label_amount_keypad),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = if (compact) 15.sp else 16.sp
+                )
+            )
+            Text(
+                text = stringResource(if (expanded) R.string.label_tap_to_hide_keypad else R.string.label_tap_to_slide_up_keypad),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .size(if (compact) 34.dp else 38.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = if (expanded) {
+                    Icons.Filled.KeyboardArrowDown
+                } else {
+                    Icons.Filled.KeyboardArrowUp
+                },
+                contentDescription = stringResource(if (expanded) R.string.desc_collapse_keypad else R.string.desc_expand_keypad),
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun KeypadKey(
+    label: String,
+    compact: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(if (compact) 46.dp else 52.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(standardCardGradient())
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (label == KEYPAD_DELETE_KEY) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Backspace,
+                contentDescription = stringResource(R.string.desc_delete),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(if (compact) 22.dp else 24.dp)
+            )
+        } else {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = if (compact) 24.sp else 26.sp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickFavoritesRow(
+    favorites: List<FavoriteTransaction>,
+    currencyId: Int,
+    onSelectFavorite: (FavoriteTransaction) -> Unit,
+    onOpenAllSheet: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.title_quick_favorites),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item(key = "all_favorites") {
+                FilterChip(
+                    selected = false,
+                    onClick = onOpenAllSheet,
+                    label = {
+                        Text(
+                            text = stringResource(R.string.label_all_favorites),
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        labelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+            items(favorites, key = { it.id }) { favorite ->
+                SuggestionChip(
+                    onClick = { onSelectFavorite(favorite) },
+                    label = {
+                        Text(
+                            text = "${favorite.title} • ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    )
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FavoritesBottomSheet(
+    favorites: List<FavoriteTransaction>,
+    currencyId: Int,
+    availableCategories: List<CategoryType>,
+    availablePaymentMethods: List<PaymentType>,
+    onDismiss: () -> Unit,
+    onSelect: (FavoriteTransaction) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val filteredList = remember(favorites, searchQuery) {
+        if (searchQuery.isBlank()) {
+            favorites
+        } else {
+            favorites.filter { it.title.contains(searchQuery, ignoreCase = true) }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.85f)
+                .padding(horizontal = 16.dp)
+                .navigationBarsPadding()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.title_favorite_templates),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.desc_close),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(stringResource(R.string.placeholder_search_favorites)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (filteredList.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.msg_no_favorites_yet),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.msg_no_favorites_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredList, key = { it.id }) { favorite ->
+                        FavoriteTemplateRow(
+                            favorite = favorite,
+                            currencyId = currencyId,
+                            availableCategories = availableCategories,
+                            availablePaymentMethods = availablePaymentMethods,
+                            onSelect = {
+                                onSelect(favorite)
+                                onDismiss()
+                            },
+                            onDelete = { onDelete(favorite.id) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoriteTemplateRow(
+    favorite: FavoriteTransaction,
+    currencyId: Int,
+    availableCategories: List<CategoryType>,
+    availablePaymentMethods: List<PaymentType>,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val categoryLabel = availableCategories.firstOrNull { it.id == favorite.categoryId }?.name
+    val paymentLabel = availablePaymentMethods.firstOrNull { it.id == favorite.paymentTypeId }?.name
+    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" • ")
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = favorite.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        Text(
+            text = formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 8.dp, end = 4.dp)
+        )
+
+        Button(
+            onClick = onSelect,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(stringResource(R.string.label_copy))
+        }
+
+        IconButton(onClick = onDelete) {
+            Icon(
+                imageVector = Icons.Rounded.Delete,
+                contentDescription = stringResource(R.string.desc_delete_favorite),
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddTransactionButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    label: String,
+    selectedCategory: String,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(28.dp)
+
+    Box(
+        modifier = modifier
+            .alpha(if (enabled) 1f else 0.55f)
+            .shadow(
+                elevation = 26.dp,
+                shape = shape,
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
+            )
+            .clip(shape)
+            .background(brush = brandGradient())
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleSmall,
+            )
+
+
+        }
+    }
+}
+
+@Composable
+
+private fun updateAmountInput(
+    current: String,
+    pressedKey: String
+): String {
+    return when (pressedKey) {
+        "delete" -> {
+            val updated = current.dropLast(1)
+            if (updated.isBlank()) "0" else updated
+        }
+
+        "." -> {
+            if (current.contains(".")) {
+                current
+            } else {
+                "$current."
+            }
+        }
+
+        else -> {
+            val digitsAfterDecimal = if (current.contains(".")) {
+                current.substringAfter(".").length
+            } else {
+                0
+            }
+
+            if (digitsAfterDecimal >= 2) {
+                current
+            } else if (current == "0") {
+                if (pressedKey == "0") current else pressedKey
+            } else {
+                (current + pressedKey).take(12)
+            }
+        }
+    }
+}
+
+private fun formatTransactionDate(
+    dateInMillis: Long,
+    dateFormatPattern: String
+): String {
+    return formatDate(dateInMillis, dateFormatPattern)
+}
+
+private fun formatEditableAmount(amount: Double): String {
+    return BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
+}
+
+/**
+ * The recurring rule an Add Transaction save persists, or null when recurring is
+ * off or the repeat count is unusable.
+ *
+ * An EMI is materialized only when its terms are internally consistent
+ * (`total = installment × count`, the invariant the recurring-list editor also
+ * enforces), compared in minor units so float noise on values like
+ * `1234.56 × 3` cannot reject a plan the user entered correctly. A half-filled or
+ * inconsistent plan therefore yields a draft with `plan == null`, which callers
+ * must treat as unsaveable instead of persisting it as an ordinary recurring
+ * rule.
+ */
+internal fun buildRecurringDraft(
+    isRecurringEnabled: Boolean,
+    frequency: RecurringFrequency,
+    repeatCount: Int?,
+    isInstallmentSelected: Boolean,
+    totalAmount: Double,
+    installmentAmount: Double,
+    firstDueAt: Long
+): RecurringTransactionDraft? {
+    if (!isRecurringEnabled || repeatCount == null || repeatCount <= 0) return null
+
+    val totalMinor = totalAmount.toMinorUnits()
+    val installmentMinor = installmentAmount.toMinorUnits()
+    val plan = if (isInstallmentSelected && totalMinor > 0L && installmentMinor > 0L &&
+        totalMinor == installmentMinor * repeatCount
+    ) {
+        RecurringPlanEdit(
+            totalAmountMinor = totalMinor,
+            installmentAmountMinor = installmentMinor,
+            totalInstallments = repeatCount,
+            firstDueAt = firstDueAt
+        )
+    } else {
+        null
+    }
+
+    return RecurringTransactionDraft(
+        frequency = frequency,
+        repeatCount = repeatCount,
+        plan = plan
+    )
+}
+
+/** Major-unit amount input for the EMI plan fields (digits and one decimal point only). */
+@Composable
+private fun EmiAmountField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    supportingText: String? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { input ->
+            // Same 12-character ceiling as the transaction amount field, which
+            // also keeps the minor-unit conversion far away from Long overflow.
+            if (input.length <= 12 &&
+                (input.isEmpty() || (input.all { it.isDigit() || it == '.' } && input.count { it == '.' } <= 1))
+            ) {
+                onValueChange(input)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        supportingText = supportingText?.let { { Text(it) } },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+}
+
+private fun validateAmountChange(newValue: String, current: String): String {
+    if (newValue.isEmpty()) return "0"
+    if (newValue.length > 12) return current
+
+    val dotCount = newValue.count { it == '.' }
+    if (dotCount > 1) return current
+
+    if (newValue.any { !it.isDigit() && it != '.' }) return current
+
+    if (newValue.contains(".")) {
+        val decimals = newValue.substringAfter(".")
+        if (decimals.length > 2) return current
+    }
+
+    if (newValue.startsWith("0") && newValue.length > 1 && newValue[1] != '.') {
+        val sanitized = newValue.dropWhile { it == '0' }
+        return if (sanitized.isEmpty()) "0" else sanitized
+    }
+
+    return newValue
+}
+
+@Preview(
+    name = "Add Transaction",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
+
+@Composable
+private fun AddTransactionScreenPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        AddTransactionScreen()
+    }
+}
+
+@Composable
+private fun RecurringCompactCard(
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean,
+    frequency: RecurringFrequency,
+    isInstallment: Boolean = false,
+    compact: Boolean,
+    onClick: () -> Unit
+) {
+    val frequencyLabel = stringResource(recurringModeOptions.first { it.frequency == frequency }.label)
+    SelectionInfoCard(
+        modifier = modifier,
+        leadingIcon = Icons.Default.CalendarMonth,
+        label = stringResource(R.string.label_recurring),
+        value = when {
+            !isEnabled -> stringResource(R.string.label_off)
+            isInstallment -> stringResource(R.string.label_emi_frequency_format, frequencyLabel)
+            else -> frequencyLabel
+        },
+        isPlaceholder = !isEnabled,
+        highlighted = isEnabled,
+        compact = compact,
+        onClick = onClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TransactionNoteBottomSheet(
+    note: String,
+    onNoteChange: (String) -> Unit,
+    onDismissRequest: () -> Unit,
+    onSave: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    // Keep the cursor at the right-most end of existing text when the sheet opens.
+    var noteFieldValue by remember {
+        mutableStateOf(TextFieldValue(text = note, selection = TextRange(note.length)))
+    }
+
+    LaunchedEffect(Unit) {
+        delay(300) // Small delay to ensure sheet is visible before focusing
+        noteFieldValue = noteFieldValue.copy(selection = TextRange(noteFieldValue.text.length))
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.label_what_is_this_for),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                IconButton(onClick = onDismissRequest) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.desc_close),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Input Area
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextField(
+                    value = noteFieldValue,
+                    onValueChange = { newValue ->
+                        if (newValue.text.length <= 200) {
+                            noteFieldValue = newValue
+                            onNoteChange(newValue.text)
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 120.dp)
+                        .focusRequester(focusRequester)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(16.dp)
+                        ),
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.placeholder_add_note),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    trailingIcon = {
+                        if (noteFieldValue.text.isNotEmpty()) {
+                            IconButton(onClick = {
+                                noteFieldValue = TextFieldValue("")
+                                onNoteChange("")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.desc_clear_note),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+
+                // Character Counter
+                Text(
+                    text = "${noteFieldValue.text.length}/200",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                )
+            }
+
+            // Save Button (Mini Gradient Button)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .shadow(
+                        elevation = 16.dp,
+                        shape = RoundedCornerShape(28.dp),
+                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
+                    )
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(brandGradient())
+                    .clickable(onClick = onSave),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.label_save_note),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+    }
+}

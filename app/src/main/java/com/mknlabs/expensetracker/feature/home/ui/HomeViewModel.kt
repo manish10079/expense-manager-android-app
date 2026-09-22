@@ -1,0 +1,524 @@
+package com.mknlabs.expensetracker.feature.home.ui
+
+import android.app.Application
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
+import com.mknlabs.expensetracker.domain.repository.GoalRepository
+import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
+import com.mknlabs.expensetracker.domain.repository.SyncRepository
+import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.GetSmsInboxUnreadCountUseCase
+import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Goal
+import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
+import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.models.firstName
+import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
+import com.mknlabs.expensetracker.utils.UiText
+import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.toMajorUnits
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.math.abs
+
+// ──────────────────────────────────────────────────────────
+// Upcoming Recurring UI model (self-contained for HomeScreen)
+// ──────────────────────────────────────────────────────────
+
+@Immutable
+data class UpcomingRecurringUi(
+    val id: String,
+    val title: String,
+    val dueLabel: UiText,
+    val dueAmountLabel: String,
+    val icon: ImageVector,
+    val categoryLabel: String,
+    val nextDueAt: Long
+)
+
+// ──────────────────────────────────────────────────────────
+// Home UI State
+// ──────────────────────────────────────────────────────────
+
+/** Period filter for the Cash Flow card. */
+enum class CashFlowPeriod {
+    THIS_MONTH,
+    THIS_YEAR
+}
+
+@Immutable
+data class HomeScreenUiState(
+    val greetingName: String = defaultUserProfile.firstName(),
+    val totalBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val previousMonthBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val totalIncome: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val recentTransactions: List<TransactionCardItemUi> = emptyList(),
+    val activeGoalsSaved: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val goalCount: Int = 0,
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    val isBalanceHidden: Boolean = true,
+    val isSyncing: Boolean = false,
+    val userTier: UserTier = UserTier.FREE,
+    // Unread count behind the Home bell badge for the detected-SMS inbox. 0 renders no badge;
+    // it is reported for every tier because the inbox is where a detected bank message survives
+    // a dismissed notification.
+    val smsInboxUnreadCount: Int = 0,
+    // Monthly Summary (shown to ad-free/premium users in place of the home ad slot).
+    val monthlyNetDisplay: String = "",
+    val monthlyNetDeltaPercent: Float = 0f,
+    val monthlyNetDeltaDisplay: UiText? = null,
+    val monthlyIncomeFraction: Float = 0.5f,
+    val upcomingRecurring: List<UpcomingRecurringUi> = emptyList(),
+    // Current period indicator
+    val currentPeriodStartMillis: Long = 0L,
+    val currentPeriodEndMillis: Long = 0L,
+    val monthStartDay: Int = 1,
+    // Cash Flow card period filter
+    val selectedPeriod: CashFlowPeriod = CashFlowPeriod.THIS_MONTH,
+    val yearTotalIncome: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val yearTotalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
+    val yearTotalBalance: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID)
+)
+
+private data class HomeInputState(
+    val userProfile: UserProfile = defaultUserProfile,
+    val userTier: UserTier = UserTier.FREE,
+    val currencyId: Int = DEFAULT_CURRENCY_ID,
+    val amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    val dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    val timeFormat: String = DEFAULT_TIME_FORMAT,
+    val categories: List<CategoryType> = emptyList(),
+    val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+)
+
+private const val HOME_RECENT_TRANSACTION_LIMIT = 10
+
+internal fun activeGoalsSavedMinor(allGoals: List<Goal>): Long =
+    allGoals.filter { !it.isCompleted }.sumOf { it.currentAmountMinor }
+
+/**
+ * Computed values for the home Monthly Summary card (shown to ad-free users in
+ * place of the home ad slot). Pure function, unit-tested in HomeViewModelTest.
+ *
+ * @param incomeMinor this month's income in minor units
+ * @param expenseMinor this month's expense in minor units
+ * @param previousIncomeMinor last month's income in minor units
+ * @param previousExpenseMinor last month's expense in minor units
+ */
+internal data class MonthlySummaryUi(
+    val netMinor: Long,
+    val deltaPercent: Float,
+    val hasBaseline: Boolean,
+    val incomeFraction: Float
+)
+
+internal fun buildMonthlySummary(
+    incomeMinor: Long,
+    expenseMinor: Long,
+    previousIncomeMinor: Long,
+    previousExpenseMinor: Long
+): MonthlySummaryUi {
+    val netMinor = incomeMinor - expenseMinor
+    val previousNetMinor = previousIncomeMinor - previousExpenseMinor
+    return MonthlySummaryUi(
+        netMinor = netMinor,
+        deltaPercent = percentageChange(netMinor.toDouble(), previousNetMinor.toDouble()),
+        hasBaseline = previousNetMinor != 0L,
+        // Income share of the month's total flow; neutral split when there is no activity.
+        incomeFraction = if (incomeMinor + expenseMinor > 0L) {
+            incomeMinor.toFloat() / (incomeMinor + expenseMinor).toFloat()
+        } else {
+            0.5f
+        }
+    )
+}
+
+/** Percent change of [current] vs [previous]; 100% when there was no previous baseline. */
+private fun percentageChange(current: Double, previous: Double): Float {
+    if (previous == 0.0) {
+        return if (current == 0.0) 0f else 100f
+    }
+    return (((current - previous) / previous) * 100.0).toFloat()
+}
+
+/**
+ * Builds a human-readable due label ("Today", "Tomorrow", "In X days") for a
+ * recurring transaction's next run timestamp.
+ */
+private fun dueLabelForHome(nextDueAt: Long): UiText {
+    val now = System.currentTimeMillis()
+    val daysUntil = TimeUnit.MILLISECONDS.toDays(nextDueAt - now)
+    return when {
+        daysUntil < 0L -> UiText.res(R.string.format_days_overdue, abs(daysUntil.toInt()))
+        daysUntil == 0L -> UiText.res(R.string.label_today)
+        daysUntil == 1L -> UiText.res(R.string.label_tomorrow)
+        else -> UiText.res(R.string.format_days_left, daysUntil.toInt())
+    }
+}
+
+/**
+ * Maps enabled recurring rules + their source transactions into a display-ready
+ * list of [UpcomingRecurringUi], sorted by soonest due first, limited to [limit].
+ */
+private fun buildUpcomingRecurring(
+    rules: List<RecurringTransactionRule>,
+    transactions: List<Transaction>,
+    categories: Map<Int, CategoryType>,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    limit: Int = 2
+): List<UpcomingRecurringUi> {
+    val txById = transactions.associateBy { it.id }
+    return rules
+        .filter { it.isEnabled && !it.isDeleted }
+        .mapNotNull { rule ->
+            val tx = txById[rule.transactionId] ?: return@mapNotNull null
+            val category = categories[tx.categoryId]
+            UpcomingRecurringUi(
+                id = rule.id,
+                title = tx.note.ifBlank { category?.name ?: "" },
+                dueLabel = dueLabelForHome(rule.nextRunAt),
+                dueAmountLabel = formatCurrencyValue(tx.amount, currencyId, amountFormatPreferences),
+                icon = category?.icon ?: Icons.Default.Repeat,
+                categoryLabel = category?.name ?: "",
+                nextDueAt = rule.nextRunAt
+            )
+        }
+        .sortedBy { it.nextDueAt }
+        .take(limit)
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val application: Application,
+    private val transactionRepository: TransactionRepository,
+    private val goalRepository: GoalRepository,
+    private val recurringRuleRepository: RecurringRuleRepository,
+    private val syncRepository: SyncRepository,
+    private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository,
+    private val getSmsInboxUnreadCount: GetSmsInboxUnreadCountUseCase
+) : ViewModel() {
+
+    private val inputState = MutableStateFlow(HomeInputState())
+
+    private val _uiState = MutableStateFlow(HomeScreenUiState())
+    val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
+
+    private var smartHideJob: Job? = null
+    private var currentMonthStartDay: Int = 1
+    private val _selectedPeriod = MutableStateFlow(CashFlowPeriod.THIS_MONTH)
+
+    init {
+        startDataObservation()
+    }
+
+    /**
+     * Emits once at start and again whenever the local calendar day rolls over
+     * (midnight), so the period bounds driving the home queries (Spend Today,
+     * current/previous month ranges) are recomputed while the app stays in
+     * memory across days. Between emissions it simply sleeps until the next
+     * local midnight, so it costs nothing when the day does not change.
+     */
+    private fun dayChangeTicker(): Flow<Unit> = flow {
+        while (true) {
+            val now = System.currentTimeMillis()
+            val nextDayStart = java.util.Calendar.getInstance().apply {
+                timeInMillis = now
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+                add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }.timeInMillis
+            emit(Unit)
+            // Small overshoot guarantees we wake strictly after the boundary
+            // even if the clock ticks between the two reads. If the device was
+            // asleep past midnight, the deferred delay fires on wake and the
+            // loop recomputes from the current time.
+            delay((nextDayStart - now).coerceAtLeast(1000L))
+        }
+    }
+
+    private fun startDataObservation() {
+        viewModelScope.launch {
+            combine(
+                com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+                    .getAppSettingsFlow(application),
+                dayChangeTicker()
+            ) { settings, _ -> settings }
+                .flatMapLatest { settings ->
+                    currentMonthStartDay = settings.monthStartDay
+                    val now = System.currentTimeMillis()
+                    val (currentMonthStart, currentMonthEnd) = com.mknlabs.expensetracker.utils.CustomMonthUtils.getCustomMonthRange(now, currentMonthStartDay, 0)
+                    val (prevMonthStart, prevMonthEnd) = com.mknlabs.expensetracker.utils.CustomMonthUtils.getCustomMonthRange(now, currentMonthStartDay, -1)
+                    val todayStart = java.util.Calendar.getInstance().apply {
+                        timeInMillis = now
+                        set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        set(java.util.Calendar.MINUTE, 0)
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }.timeInMillis
+                    val todayEnd = java.util.Calendar.getInstance().apply {
+                        timeInMillis = now
+                        set(java.util.Calendar.HOUR_OF_DAY, 23)
+                        set(java.util.Calendar.MINUTE, 59)
+                        set(java.util.Calendar.SECOND, 59)
+                        set(java.util.Calendar.MILLISECOND, 999)
+                    }.timeInMillis
+
+                    combine(
+                        transactionRepository.observeHomeSummary(
+                            currentMonthStartMillis = currentMonthStart,
+                            currentMonthEndMillis = currentMonthEnd,
+                            previousMonthStartMillis = prevMonthStart,
+                            previousMonthEndMillis = prevMonthEnd,
+                            todayStartMillis = todayStart,
+                            todayEndMillis = todayEnd
+                        ),
+                        transactionRepository.observeRecentTransactions(HOME_RECENT_TRANSACTION_LIMIT),
+                        goalRepository.observeAllGoals(),
+                        recurringRuleRepository.observeActiveRecurringRules(),
+                        transactionRepository.observeActiveTransactions(),
+                        syncRepository.isSyncing,
+                        inputState,
+                        // Home consumes the inbox only through its use case, so the badge cannot
+                        // reach into the inbox's tables or DAO directly.
+                        getSmsInboxUnreadCount()
+                    ) { flows ->
+                        @Suppress("UNCHECKED_CAST")
+                        val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
+                        @Suppress("UNCHECKED_CAST")
+                        val recentTransactions = flows[1] as List<com.mknlabs.expensetracker.domain.repository.RecentTransaction>
+                        @Suppress("UNCHECKED_CAST")
+                        val allGoals = flows[2] as List<Goal>
+                        @Suppress("UNCHECKED_CAST")
+                        val recurringRules = flows[3] as List<RecurringTransactionRule>
+                        @Suppress("UNCHECKED_CAST")
+                        val allActiveTransactions = flows[4] as List<Transaction>
+                        val isSyncing = flows[5] as Boolean
+                        val inputs = flows[6] as HomeInputState
+                        val smsInboxUnreadCount = flows[7] as Int
+
+                        val categoriesMap = inputs.categories.associateBy { it.id }
+                        val upcomingRecurring = buildUpcomingRecurring(
+                            rules = recurringRules,
+                            transactions = allActiveTransactions,
+                            categories = categoriesMap,
+                            currencyId = inputs.currencyId,
+                            amountFormatPreferences = inputs.amountFormatPreferences
+                        )
+
+                        val monthlySummary = buildMonthlySummary(
+                            incomeMinor = summary.totalIncomeMinor,
+                            expenseMinor = summary.totalExpenseMinor,
+                            previousIncomeMinor = summary.previousMonthIncomeMinor,
+                            previousExpenseMinor = summary.previousMonthExpenseMinor
+                        )
+                        HomeScreenUiState(
+                            greetingName = inputs.userProfile.firstName().replaceFirstChar { it.uppercase() },
+                            totalBalance = formatCurrencyValue(
+                                (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            previousMonthBalance = formatCurrencyValue(
+                                (summary.previousMonthIncomeMinor - summary.previousMonthExpenseMinor).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            totalIncome = formatCurrencyValue(
+                                summary.totalIncomeMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            totalExpense = formatCurrencyValue(
+                                summary.totalExpenseMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            todaySpending = formatCurrencyValue(
+                                summary.highlightedExpenseMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            monthlyNetDisplay = formatCurrencyValue(
+                                monthlySummary.netMinor.toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            monthlyNetDeltaPercent = monthlySummary.deltaPercent,
+                            monthlyNetDeltaDisplay = if (monthlySummary.hasBaseline) {
+                                formatPercent(monthlySummary.deltaPercent)
+                            } else {
+                                null
+                            },
+                            monthlyIncomeFraction = monthlySummary.incomeFraction,
+                            upcomingRecurring = upcomingRecurring,
+                            recentTransactions = recentTransactions.map { recentTransaction ->
+                                recentTransaction.transaction.toTransactionCardItemUi(
+                                    currencyId = inputs.currencyId,
+                                    amountFormatPreferences = inputs.amountFormatPreferences,
+                                    dateFormatPattern = inputs.dateFormatPattern,
+                                    timeFormat = inputs.timeFormat,
+                                    paymentTypeName = recentTransaction.paymentTypeName,
+                                    categories = inputs.categories,
+                                    fallbackCategoryName = application.getString(R.string.label_other)
+                                )
+                            },
+                            activeGoalsSaved = formatCurrencyValue(
+                                activeGoalsSavedMinor(allGoals).toMajorUnits(),
+                                currencyId = inputs.currencyId,
+                                amountFormatPreferences = inputs.amountFormatPreferences
+                            ),
+                            goalCount = allGoals.count { !it.isCompleted },
+                            customizationSettings = inputs.customizationSettings,
+                            isBalanceHidden = _uiState.value.isBalanceHidden,
+                            isSyncing = isSyncing,
+                            userTier = inputs.userTier,
+                            smsInboxUnreadCount = smsInboxUnreadCount,
+                            currentPeriodStartMillis = currentMonthStart,
+                            currentPeriodEndMillis = currentMonthEnd,
+                            monthStartDay = currentMonthStartDay
+                        )
+                    }
+                }
+                .collect { state ->
+                    _uiState.value = state
+                }
+        }
+    }
+
+    fun updateInputs(
+        userProfile: UserProfile,
+        userTier: UserTier,
+        currencyId: Int,
+        amountFormatPreferences: AmountFormatPreferences,
+        dateFormatPattern: String,
+        timeFormat: String,
+        categories: List<CategoryType>,
+        customizationSettings: TransactionCardCustomizationSettings
+    ) {
+        inputState.update {
+            it.copy(
+                userProfile = userProfile,
+                userTier = userTier,
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences,
+                dateFormatPattern = dateFormatPattern,
+                timeFormat = timeFormat,
+                categories = categories,
+                customizationSettings = customizationSettings
+            )
+        }
+    }
+
+    /** Signed percent display like "+12%" / "-8%" (mirrors the Analytics helper). */
+    private fun formatPercent(value: Float): UiText {
+        val formatter = DecimalFormat("0.#")
+        val absoluteValue = formatter.format(abs(value))
+        val prefixRes = if (value >= 0f) R.string.label_plus else R.string.label_minus
+        return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
+    }
+
+    fun onPeriodChanged(period: CashFlowPeriod) {
+        _selectedPeriod.value = period
+        _uiState.update { it.copy(selectedPeriod = period) }
+        if (period == CashFlowPeriod.THIS_YEAR) {
+            refreshYearSummary()
+        }
+    }
+
+    private fun refreshYearSummary() {
+        viewModelScope.launch {
+            val now = java.util.Calendar.getInstance()
+            val yearStart = java.util.Calendar.getInstance().apply {
+                timeInMillis = now.timeInMillis
+                set(java.util.Calendar.MONTH, java.util.Calendar.JANUARY)
+                set(java.util.Calendar.DAY_OF_MONTH, 1)
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            val yearEnd = java.util.Calendar.getInstance().apply {
+                timeInMillis = now.timeInMillis
+                set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER)
+                set(java.util.Calendar.DAY_OF_MONTH, 31)
+                set(java.util.Calendar.HOUR_OF_DAY, 23)
+                set(java.util.Calendar.MINUTE, 59)
+                set(java.util.Calendar.SECOND, 59)
+                set(java.util.Calendar.MILLISECOND, 999)
+            }.timeInMillis
+            val summary = transactionRepository.getRangeSummary(yearStart, yearEnd)
+            val inputs = inputState.value
+            val yearIncome = formatCurrencyValue(
+                summary.totalIncomeMinor.toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            val yearExpense = formatCurrencyValue(
+                summary.totalExpenseMinor.toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            val yearBalance = formatCurrencyValue(
+                (summary.totalIncomeMinor - summary.totalExpenseMinor).toMajorUnits(),
+                currencyId = inputs.currencyId,
+                amountFormatPreferences = inputs.amountFormatPreferences
+            )
+            _uiState.update {
+                it.copy(
+                    yearTotalIncome = yearIncome,
+                    yearTotalExpense = yearExpense,
+                    yearTotalBalance = yearBalance
+                )
+            }
+        }
+    }
+
+    fun toggleBalanceVisibility() {
+        val newState = !_uiState.value.isBalanceHidden
+        _uiState.update { it.copy(isBalanceHidden = newState) }
+        
+        smartHideJob?.cancel()
+        if (!newState) {
+            // If we just showed the balance, start a 10-second timer to hide it again
+            smartHideJob = viewModelScope.launch {
+                delay(10000)
+                _uiState.update { it.copy(isBalanceHidden = true) }
+            }
+        }
+    }
+}

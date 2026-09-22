@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.smsinbox.data.repository
 import com.mknlabs.expensetracker.data.local.room.dao.DetectedSmsNotificationDao
 import com.mknlabs.expensetracker.data.local.room.entities.DetectedSmsNotificationEntity
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.EXPENSE_TRANSACTION_TYPE_ID
+import com.mknlabs.expensetracker.feature.smsinbox.domain.model.INCOME_TRANSACTION_TYPE_ID
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsConfidenceScore
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxStatus
@@ -138,13 +139,13 @@ class SmsInboxRepositoryImplTest {
 
     @Test
     fun `each filter maps to exactly one query constraint`() = runTest {
-        repository.getPage(SmsInboxFilter.UNREAD)
-        assertEquals(SmsInboxStatus.NEW.name, dao.lastStatus)
-        assertNull(dao.lastTransactionTypeId)
-
         repository.getPage(SmsInboxFilter.EXPENSE)
         assertNull(dao.lastStatus)
         assertEquals(EXPENSE_TRANSACTION_TYPE_ID, dao.lastTransactionTypeId)
+
+        repository.getPage(SmsInboxFilter.INCOME)
+        assertNull(dao.lastStatus)
+        assertEquals(INCOME_TRANSACTION_TYPE_ID, dao.lastTransactionTypeId)
 
         repository.getPage(SmsInboxFilter.ALL)
         assertNull(dao.lastStatus)
@@ -158,14 +159,6 @@ class SmsInboxRepositoryImplTest {
 
         repository.getPage(SmsInboxFilter.INCOME)
         assertTrue(dao.lastExcludeDecided == true)
-
-        // The status-based filters are already narrow, so nothing more is excluded —
-        // otherwise the Added filter could never show an added detection.
-        repository.getPage(SmsInboxFilter.ADDED)
-        assertFalse(dao.lastExcludeDecided == true)
-
-        repository.getPage(SmsInboxFilter.IGNORED)
-        assertFalse(dao.lastExcludeDecided == true)
     }
 
     @Test

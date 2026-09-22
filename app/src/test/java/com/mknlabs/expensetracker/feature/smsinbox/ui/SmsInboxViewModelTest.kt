@@ -49,25 +49,25 @@ import org.junit.Test
  *
  * Depends only on the feature's own ports, so no Room, Hilt or device is involved.
  */
+import com.mknlabs.expensetracker.utils.MainDispatcherRule
+import org.junit.Rule
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class SmsInboxViewModelTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var repository: FakeInboxRepository
     private lateinit var writer: FakeTransactionWriter
     private lateinit var cleaner: FakeNotificationCleaner
     private lateinit var viewModel: SmsInboxViewModel
 
-    /**
-     * The ViewModel's own time. Held here (rather than taken from `runTest`) because the
-     * swipe-delete Undo window is a real delay on the ViewModel's dispatcher, and the test
-     * has to be able to run it out instead of waiting ten seconds.
-     */
-    private lateinit var scheduler: TestCoroutineScheduler
+    private val scheduler: TestCoroutineScheduler
+        get() = mainDispatcherRule.testDispatcher.scheduler
 
     @Before
     fun setUp() {
-        scheduler = TestCoroutineScheduler()
-        Dispatchers.setMain(UnconfinedTestDispatcher(scheduler))
         repository = FakeInboxRepository()
         writer = FakeTransactionWriter()
         cleaner = FakeNotificationCleaner()
@@ -86,11 +86,6 @@ class SmsInboxViewModelTest {
             dateFormatPattern = TEST_DATE_PATTERN,
             timeFormat = DEFAULT_TIME_FORMAT
         )
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test
