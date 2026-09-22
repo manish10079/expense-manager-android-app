@@ -129,8 +129,8 @@ All phases are complete. Both legacy layer-first directories (`ui/screens/`, `ui
 | 2.4c `feature/settings` | ✅ Done | `797b72e` |
 | 2.4d `feature/auth` | ✅ Done | `1545aec` |
 | Remaining shared / cross-cutting ViewModels | ✅ Done | `1fa14c3` |
-| 1 Core extraction (`core/ui/*`) | ✅ Done | *(this commit)* |
-| 3 Cleanup & verification | ✅ Done | *(this commit)* |
+| 1 Core extraction (`core/ui/*`) | ✅ Done | `b7ba353` |
+| 3 Cleanup & verification | ✅ Done | `b7ba353` |
 
 ### Deviations from the original plan
 
@@ -144,3 +144,14 @@ All phases are complete. Both legacy layer-first directories (`ui/screens/`, `ui
 
 - `./gradlew testDebugUnitTest` — **600 tests, 0 failures**
 - `./gradlew assembleDebug` — Hilt DI bindings and Room KSP generation compile cleanly
+
+---
+
+## 📌 Not covered by this migration (remaining work)
+
+The phases above migrated the **UI layer only**. The following items are intentionally out of scope and still outstanding:
+
+1. **`core/database`, `core/domain`, `core/data`, `core/utils` do not exist yet.** Phase 1 was scoped to `core/ui` only. The shared data layer (`data/local/room`, `data/repository`), shared models (`models/`, `domain/`), and helpers (`utils/`) still sit in their original top-level packages. Extracting them is a separate, larger migration.
+2. **Feature-specific components still live in `core/ui/components/`.** ~14 composables are used by a single feature (e.g. `TransactionCard`, `ActiveFilterBar`, `AddTransactionFab`, `VoiceInputSheet` → transactions; `CashFlowStatsCard`, `SmallHomeCard` → home; `UserBadge` → auth; `ProfileCard`, `BackupRestoreSheet` → settings; `TabCountBadge` → budget; `DialogModeSelector` → analytics). Co-locating them inside their owning features would tighten encapsulation.
+3. **Several `feature/*` packages are `ui`-only.** Only `smsinbox` currently has `data/`, `domain/`, `di/` and `worker/` layers. Feature-specific data and domain logic elsewhere still routes through the shared top-level `data/` and `domain/` packages.
+4. **`.idea/workspace.xml`** holds stale Compose-preview run configurations pointing at the old `ui.screens.*` paths. That is IDE-local state, not build input, and resolves itself when the previews are re-run.
