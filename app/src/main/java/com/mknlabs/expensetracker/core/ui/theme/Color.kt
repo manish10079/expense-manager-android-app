@@ -23,8 +23,11 @@ val TextSecondaryDark = Color(0xFF9E9E9E)
 
 val DividerDark = Color(0xFF2A2A2A)
 
-val IncomeGreen = Color(0xFF81C784)
-val ExpenseRed = Color(0xFFFF7D7D)
+// Semantic amount inks. Saturated enough to carry the expense and income figures on
+// the dark violet card, where the previous pastels washed out against the surface and
+// read as decoration rather than as the one number the row exists to show.
+val IncomeGreen = Color(0xFF3DDC97)
+val ExpenseRed = Color(0xFFFF6B6B)
 
 // Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
 // themes, which the pastel income/expense tones above are too light to do.
@@ -81,9 +84,23 @@ val IconColor = Color(0xFFCDBDFF)
 val FeatureGateLockGold = Color(0xFFFFC857)
 
 // Premium StatsCard Gradient
-val PremiumCardDarkStart = Color(0xFF261C38)   // Deep Dark Violet
-val PremiumCardDarkCenter = Color(0xFF19181F) // Dark Charcoal
-val PremiumCardDarkEnd = Color(0xFF121116)     // Muted Slate
+val PremiumCardDarkStart = Color(0xFF2B2349)   // Violet, top-left
+val PremiumCardDarkCenter = Color(0xFF1C1632) // Violet-charcoal, centre
+val PremiumCardDarkEnd = Color(0xFF100C1F)     // Near-black plum, bottom-right
+
+// The two radial blooms stacked OVER the linear base above, so the surface reads as
+// light falling across the card rather than as one flat diagonal. Both are plain
+// opaque colours, not alphas of the theme's `primary`: they are blended into the base
+// with `BlendMode.Screen`, which is what makes them behave as light rather than as
+// paint, and an already-translucent source would only fight that.
+val PremiumCardGlowTop = Color(0xFF43346B)
+val PremiumCardGlowBottom = Color(0xFF241A42)
+
+// The card family's edge, as its own pair rather than a tint of the brand accent: the
+// border has to read as the lit top-left edge of the surface it outlines, and a brand
+// violet would sit off the gradient's hue instead of graduating with it.
+val PremiumCardBorderStart = Color(0xFF584B7C)
+val PremiumCardBorderEnd = Color(0xFF231D38)
 
 val PremiumCardLightStart = Color(0xFFF8F5FF)  // Soft Lavender White
 val PremiumCardLightCenter = Color(0xFFEDE8FF) // Pale Lilac
@@ -91,6 +108,49 @@ val PremiumCardLightEnd = Color(0xFFE0D8F5)    // Light Violet
 
 val PremiumCardLabelDark = Color(0xFFA09CAB)   // Muted blue-gray for dark mode labels
 val PremiumCardDateDark = Color(0xFF7A7585)     // Dimmer gray for dark mode date
+
+// CashFlowCard Palette
+val CashFlowCardDarkStart = Color(0xFF1E1735)   // 0%
+val CashFlowCardDarkCenter = Color(0xFF131120)  // 55%
+val CashFlowCardDarkEnd = Color(0xFF0C0B12)     // 100%
+val CashFlowCardGlowTop = Color(0x387A52FF)      // rgba(122, 82, 255, 0.22)
+val CashFlowCardGlowBottom = Color(0x214C2ACF)   // rgba(76, 42, 207, 0.13)
+
+val CashFlowCardLightStart = Color(0xFFFAF8FF)
+val CashFlowCardLightCenter = Color(0xFFF3EEFC)
+val CashFlowCardLightEnd = Color(0xFFECE5F8)
+
+val CashFlowCardBorderDarkStart = Color(0x807A52FF) // rgba(122, 82, 255, 0.50) at 0%
+val CashFlowCardBorderDarkMid = Color(0x24BFA6FF)   // rgba(191, 166, 255, 0.14) at 45%
+val CashFlowCardBorderLight = Color(0xFFE2DCF0)
+
+val CashFlowDateTextDark = Color(0xFFA792E8)
+val CashFlowDateTextLight = Color(0xFF6C52EE)
+
+val CashFlowPillBgDark = Color(0xFF231D33)
+val CashFlowPillBgLight = Color(0xFFEDE8F8)
+val CashFlowPillBorderDark = Color(0xFF3B3254)
+val CashFlowPillBorderLight = Color(0xFFDCD4F0)
+val CashFlowPillTextDark = Color(0xFFDDD8EC)
+val CashFlowPillTextLight = Color(0xFF372D54)
+
+val CashFlowExpenseAmountDark = Color(0xFFFF7262) // Coral salmon red
+val CashFlowExpenseAmountLight = Color(0xFFE04343) // Vivid crimson red
+
+val CashFlowIncomeAmountDark = Color(0xFF5DE290)  // Radiant mint green
+val CashFlowIncomeAmountLight = Color(0xFF16A34A) // Deep emerald green
+
+val CashFlowLabelDark = Color(0xFF9089A4)
+val CashFlowLabelLight = Color(0xFF746B8B)
+
+val CashFlowNetBalanceBgDark = Color(0xFF161224)
+val CashFlowNetBalanceBgLight = Color(0xFFEDE8F8)
+val CashFlowNetBalanceBorderDark = Color(0xFF2E2644)
+val CashFlowNetBalanceBorderLight = Color(0xFFDBD3EE)
+val CashFlowNetBalanceLabelDark = Color(0xFFB5ADCA)
+val CashFlowNetBalanceLabelLight = Color(0xFF574E6F)
+val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
+val CashFlowNetBalanceAmountLight = Color(0xFF1E1738)
 
 // SmallHomeCard Gradient
 val SmallCardDarkStart = Color(0xFF1E1730)      // Deep violet-charcoal

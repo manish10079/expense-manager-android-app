@@ -56,7 +56,6 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.utils.formatTime
-import com.mknlabs.expensetracker.utils.getAmountColor
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
 import androidx.compose.foundation.layout.Arrangement
@@ -323,7 +322,7 @@ fun TransactionCard(
 
             Text(
                 text = amount,
-                color = getAmountColor(transactionTypeId),
+                color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else Color.White,
                 maxLines = 1,
                 softWrap = false,
                 style = MaterialTheme.typography.titleSmall.copy(
