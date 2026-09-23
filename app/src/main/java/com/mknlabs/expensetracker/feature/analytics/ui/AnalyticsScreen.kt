@@ -24,6 +24,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
 
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -86,6 +88,20 @@ import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
+import com.adamglin.phosphoricons.regular.Wallet
+import com.adamglin.phosphoricons.regular.TrendUp
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import java.util.Locale
@@ -1088,7 +1104,7 @@ private fun DrawScope.drawSkippedLine(
 private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         InsightStatCard(
             modifier = Modifier.weight(1f),
@@ -1097,8 +1113,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.dailyDeltaDisplay.asString(),
             deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = Icons.Filled.Wallet,
-            iconTint = MaterialTheme.colorScheme.primary
+            icon = PhosphorIcons.Regular.Wallet
         )
         InsightStatCard(
             modifier = Modifier.weight(1f),
@@ -1107,8 +1122,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.savingsDeltaDisplay.asString(),
             deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = Icons.Filled.ArrowOutward,
-            iconTint = MaterialTheme.colorScheme.secondary
+            icon = PhosphorIcons.Regular.TrendUp
         )
     }
 }
@@ -1121,18 +1135,32 @@ private fun InsightStatCard(
     delta: String,
     deltaColor: Color,
     deltaBackground: Color,
-    icon: ImageVector,
-    iconTint: Color
+    icon: ImageVector
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
+    } else {
+        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
+    }
+
+    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
+    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
+    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
+    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
+    val shape = RoundedCornerShape(18.dp)
+
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+            .clip(shape)
+            .background(brush = gradientBrush)
+            .border(width = 1.dp, color = borderColor, shape = shape)
+            .padding(14.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 18.dp)
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1141,46 +1169,64 @@ private fun InsightStatCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
-                        .background(standardCardGradient()),
+                        .background(iconBgColor),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = iconTintColor,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
+
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(deltaBackground)
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = delta,
                         color = deltaColor,
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp
+                        )
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(18.dp))
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            val valueStyle = when {
-                value.length > 10 -> MaterialTheme.typography.titleLarge
-                value.length > 7 -> MaterialTheme.typography.headlineSmall
-                else -> MaterialTheme.typography.headlineMedium
-            }.copy(fontWeight = FontWeight.ExtraBold)
 
-            Text(
-                text = value,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = valueStyle,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column {
+                Text(
+                    text = title,
+                    color = labelColor,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.5.sp
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                val valueStyle = when {
+                    value.length > 10 -> MaterialTheme.typography.titleMedium
+                    value.length > 7 -> MaterialTheme.typography.titleLarge
+                    else -> MaterialTheme.typography.headlineSmall
+                }.copy(fontWeight = FontWeight.Bold)
+
+                Text(
+                    text = value,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = valueStyle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
