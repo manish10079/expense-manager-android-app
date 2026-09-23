@@ -19,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 246
-        versionName = "2.115.32"
+        versionName = "2.116.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -200,6 +200,9 @@ dependencies {
     // Glassmorphic Backdrop Blur (Haze)
     implementation(libs.haze)
     implementation(libs.haze.materials)
+
+    // Phosphor Icons (Light, Thin, Regular, Bold, Fill, Duotone)
+    implementation(libs.phosphor.icon)
 
     // Hilt
     implementation(libs.hilt.android)

@@ -48,6 +48,21 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
  *   purpose: Analytics has four short labels and uses labelLarge, while Budget has three
  *   all-caps labels that would not fit on one line at that size.
  */
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
+
+
 @Composable
 fun PeriodChip(
     label: String,
@@ -57,32 +72,38 @@ fun PeriodChip(
     isLocked: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
 ) {
-    // Flat colours rather than a gradient: a gradient faded into itself reads as a solid fill
-    // anyway, and a single colour is what allows the selection to animate.
+    val isDark = MaterialTheme.colorScheme.isDark
+
+    val targetContainerColor = if (isSelected) {
+        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+    } else {
+        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+    }
+
+    val targetBorderColor = if (isSelected) {
+        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+    } else {
+        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+    }
+
+    val targetContentColor = if (isSelected) {
+        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+    } else {
+        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+    }
+
     val containerColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
+        targetValue = targetContainerColor,
         animationSpec = tween(durationMillis = 180),
         label = "period_chip_container"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-        } else {
-            MaterialTheme.colorScheme.outlineVariant
-        },
+        targetValue = targetBorderColor,
         animationSpec = tween(durationMillis = 180),
         label = "period_chip_border"
     )
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.onPrimaryContainer
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        },
+        targetValue = targetContentColor,
         animationSpec = tween(durationMillis = 180),
         label = "period_chip_content"
     )

@@ -24,15 +24,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.ChevronRight
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.fill.CheckCircle
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.CaretRight
+import com.adamglin.phosphoricons.regular.Circle
+import com.adamglin.phosphoricons.regular.Gear
+import com.adamglin.phosphoricons.regular.Info
+import com.adamglin.phosphoricons.regular.PiggyBank
+import com.adamglin.phosphoricons.regular.X
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -69,8 +71,10 @@ import com.mknlabs.expensetracker.models.hasPhoneNumber
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.components.*
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -805,7 +809,7 @@ private fun HomeStatsSection(
         SmallHomeCard(
             title = stringResource(R.string.label_spent_today),
             value = uiState.todaySpending,
-            icon = Icons.Default.CalendarMonth,
+            icon = PhosphorIcons.Regular.CalendarBlank,
             modifier = Modifier.weight(1f),
             onClick = onTodaySpendingClick
         )
@@ -814,7 +818,7 @@ private fun HomeStatsSection(
             title = stringResource(R.string.title_my_goals),
             // Total saved across all active goals (the badge carries the count).
             value = uiState.activeGoalsSaved,
-            icon = Icons.Default.Savings,
+            icon = PhosphorIcons.Regular.PiggyBank,
             badgeCount = uiState.goalCount,
             modifier = Modifier.weight(1f),
             onClick = onGoalsClick
@@ -941,15 +945,22 @@ private fun UpcomingRecurringCard(
 
 @Composable
 private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val titleColor = MaterialTheme.colorScheme.onBackground
+    val actionColor = if (isDark) NavOnDark else NavOnLight
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(id = R.string.label_recent_activities),
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleSmall
+            text = stringResource(id = R.string.label_recent),
+            color = titleColor,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         )
 
         var isPressed by remember { mutableStateOf(false) }
@@ -961,6 +972,7 @@ private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier
                 .scale(scale)
                 .clickable {
@@ -975,14 +987,14 @@ private fun RecentActivitiesHeader(onViewAllClick: () -> Unit) {
         ) {
             Text(
                 text = stringResource(id = R.string.label_view_all),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge
+                color = actionColor,
+                style = MaterialTheme.typography.labelMedium
             )
             Icon(
-                imageVector = Icons.Rounded.ChevronRight,
+                imageVector = PhosphorIcons.Regular.CaretRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
+                tint = actionColor,
+                modifier = Modifier.size(13.dp)
             )
         }
     }
@@ -1110,7 +1122,7 @@ fun AccountSetupCard(
                         modifier = Modifier.size(20.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = PhosphorIcons.Regular.X,
                             contentDescription = stringResource(id = R.string.label_cancel_1),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(14.dp)
@@ -1150,7 +1162,7 @@ fun AccountSetupCard(
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = PhosphorIcons.Regular.Info,
                         contentDescription = stringResource(id = R.string.title_setup_progress),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
@@ -1196,7 +1208,7 @@ fun AccountSetupCard(
                                 )
                         ) {
                             Icon(
-                                imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                imageVector = if (isDone) PhosphorIcons.Fill.CheckCircle else PhosphorIcons.Regular.Circle,
                                 contentDescription = null,
                                 tint = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
@@ -1247,7 +1259,7 @@ fun SettingsButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Outlined.Settings,
+            imageVector = PhosphorIcons.Regular.Gear,
             contentDescription = stringResource(id = R.string.desc_settings),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(28.dp)

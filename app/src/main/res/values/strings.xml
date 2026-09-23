@@ -421,6 +421,7 @@
     <string name="label_premium_member">PRO MEMBER</string>
     <string name="label_private_member">PRIVATE MEMBER</string>
     <string name="label_qval">Q%1$s</string>
+    <string name="label_recent">Recent</string>
     <string name="label_recent_activities">Recent Activities</string>
     <string name="label_repeat_count">Repeat count</string>
     <string name="label_reset">Reset</string>

@@ -61,6 +61,19 @@ import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
 import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
@@ -574,6 +587,28 @@ private fun CustomRangeSelector(
     onClear: () -> Unit
 ) {
     // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
+    val isDark = MaterialTheme.colorScheme.isDark
+    val isSelected = selectedPeriod == AnalyticsPeriod.CUSTOM
+
+    val containerColor = if (isSelected) {
+        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+    } else {
+        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+    }
+
+    val borderColor = if (isSelected) {
+        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+    } else {
+        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+    }
+
+    val textColor = if (isSelected) {
+        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+    } else {
+        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+    }
+
+    // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
     // Clear action follows the pill instead of being pushed to the far edge.
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -582,22 +617,10 @@ private fun CustomRangeSelector(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(18.dp))
-                .background(
-                    if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
-                        )
-                    } else {
-                        standardCardGradient()
-                    }
-                )
+                .background(containerColor)
                 .border(
                     width = 1.dp,
-                    color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    } else {
-                        MaterialTheme.colorScheme.outlineVariant
-                    },
+                    color = borderColor,
                     shape = RoundedCornerShape(18.dp)
                 )
         ) {
@@ -625,7 +648,7 @@ private fun CustomRangeSelector(
                     // pill share a line with the three period chips.
                     Text(
                         text = customRange?.let { formatCustomRangeLabel(it) } ?: stringResource(id = R.string.desc_custom_range),
-                        color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = textColor,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
                     if (isLocked) {
