@@ -67,8 +67,6 @@ import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
-import com.mknlabs.expensetracker.core.ui.theme.NavPillDark
-import com.mknlabs.expensetracker.core.ui.theme.NavPillLight
 import com.mknlabs.expensetracker.core.ui.theme.fabGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
@@ -472,11 +470,8 @@ private fun RowScope.FloatingCapsuleNavItem(
     onClick: () -> Unit
 ) {
     val indicatorShape = RoundedCornerShape(20.dp)
-
     val isDark = MaterialTheme.colorScheme.isDark
 
-    // Exact selection and non-selection tokens from indexmockup.html
-    val indicatorColor = if (isDark) NavPillDark else NavPillLight
     val selectedContent = if (isDark) NavOnDark else NavOnLight
     val unselectedContent = if (isDark) NavOffDark else NavOffLight
 
@@ -500,16 +495,6 @@ private fun RowScope.FloatingCapsuleNavItem(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        // Active pill indicator
-        if (selected) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(indicatorShape)
-                    .background(indicatorColor)
-            )
-        }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

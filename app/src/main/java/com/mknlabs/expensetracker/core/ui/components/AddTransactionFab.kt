@@ -44,6 +44,9 @@ import com.mknlabs.expensetracker.core.ui.theme.fabGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import kotlinx.coroutines.delay
 
+import androidx.compose.ui.graphics.Brush
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+
 /**
  * Diameter of the add-transaction FAB. Exposed so the shell that docks it (see
  * [AppBottomBar]) can centre it on an edge without duplicating the number.
@@ -96,42 +99,63 @@ fun AddTransactionFab(
         label = "add_transaction_fab_visibility"
     ) {
         val fabBrush = fabGradient()
+        val isDark = MaterialTheme.colorScheme.isDark
 
-        FloatingActionButton(
-            onClick = onClick,
-            shape = CircleShape,
-            // The fill is painted by the gradient Box inside, so the container
-            // itself must stay unpainted — otherwise a flat purple slab would sit
-            // behind the gradient and flatten it back out.
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onBrandGradient,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 8.dp,
-                pressedElevation = 12.dp
-            ),
-            modifier = Modifier
-                .size(AddTransactionFabSize)
-                // Brand-tinted glow instead of a neutral drop shadow: the FAB is the
-                // shell's one saturated action, and against the AMOLED background the
-                // default black shadow is effectively invisible at this size.
-                .shadow(
-                    elevation = 12.dp,
-                    shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
-                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
-                )
+        Box(
+            contentAlignment = Alignment.Center
         ) {
+            // Ambient purple glow / shadow focused on the bottom section of the FAB,
+            // illuminating the frosted glass blur below it
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(brush = fabBrush),
-                contentAlignment = Alignment.Center
+                    .size(AddTransactionFabSize + 28.dp)
+                    .offset(y = 8.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                (if (isDark) Color(0xFF8B5CF6) else Color(0xFF7C4DFF)).copy(alpha = if (isDark) 0.55f else 0.35f),
+                                (if (isDark) Color(0xFF6D28D9) else Color(0xFF6C52EE)).copy(alpha = if (isDark) 0.22f else 0.12f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+            )
+
+            FloatingActionButton(
+                onClick = onClick,
+                shape = CircleShape,
+                // The fill is painted by the gradient Box inside, so the container
+                // itself must stay unpainted — otherwise a flat purple slab would sit
+                // behind the gradient and flatten it back out.
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onBrandGradient,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 12.dp
+                ),
+                modifier = Modifier
+                    .size(AddTransactionFabSize)
+                    // Brand-tinted glow focused toward the bottom section
+                    .shadow(
+                        elevation = 16.dp,
+                        shape = CircleShape,
+                        ambientColor = if (isDark) Color(0xFF8B5CF6).copy(alpha = 0.55f) else Color(0xFF7C4DFF).copy(alpha = 0.40f),
+                        spotColor = if (isDark) Color(0xFF7C3AED).copy(alpha = 0.60f) else Color(0xFF6D28D9).copy(alpha = 0.45f)
+                    )
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.desc_add_transaction),
-                    modifier = Modifier.size(24.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(brush = fabBrush),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.desc_add_transaction),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }
