@@ -152,6 +152,15 @@ val CashFlowNetBalanceLabelLight = Color(0xFF574E6F)
 val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
 val CashFlowNetBalanceAmountLight = Color(0xFF1E1738)
 
+// Bottom Navigation Bar Palette (indexmockup.html)
+val NavOnDark = Color(0xFFBFA6FF)     // --nav-on: #BFA6FF
+val NavOffDark = Color(0xFF7A778C)    // --nav-off: #7A778C
+val NavPillDark = Color(0x297A52FF)   // --nav-pill: rgba(122,82,255,.16)
+
+val NavOnLight = Color(0xFF6C52EE)    // Vibrant lilac/violet
+val NavOffLight = Color(0xFF8A879A)   // Muted slate
+val NavPillLight = Color(0x1F6C52EE)  // rgba(108,82,238,.12)
+
 // SmallHomeCard Gradient
 val SmallCardDarkStart = Color(0xFF1E1730)      // Deep violet-charcoal
 val SmallCardDarkEnd = Color(0xFF151218)        // Muted dark slate

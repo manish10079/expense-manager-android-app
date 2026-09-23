@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -265,10 +267,13 @@ fun MainScaffold(
             userTier = userTier
         )
 
+        val hazeState = remember { HazeState() }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = if (useNavigationRail) AppNavigationRailWidth + 12.dp else 0.dp)
+                .hazeSource(state = hazeState)
         ) {
             AppNavigationHost(
             saveableStateHolder = saveableStateHolder,
@@ -419,6 +424,7 @@ fun MainScaffold(
             AppBottomBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 currentRoute = currentRoute,
+                hazeState = hazeState,
                 onItemClick = { route ->
                     onBottomBarVisibilityChange(false)
                     onRouteChange(route)

@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,11 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,17 +45,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkMid
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardGlowBottom
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardGlowTop
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowDateTextDark
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowDateTextLight
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowExpenseAmountDark
@@ -96,12 +84,11 @@ private fun currentDateString(): String {
 }
 
 /**
- * Redesigned CashFlow card matching cashflowcard.png:
- * - 3-Layer background with 2 radial glows (18% x, 0% y & 100% x, 100% y) over a 135deg linear base
- * - 135deg border gradient with precise alpha stops
- * - Top header with uppercase formatted date and period selector capsule
- * - Clear Expense (coral red) and Income (mint green) metrics side-by-side
- * - Inset Net Balance container with bright white balance display and privacy toggle
+ * Redesigned CashFlow card with adaptive image background:
+ * - Stretches and shrinks vertically/horizontally across devices and orientations
+ * - Perfect 24.dp corner clipping
+ * - Supports both Dark mode (bg_cashflow_dark) and Light mode (bg_cashflow_light)
+ * - All internal content styles, formatting, dropdown selection, and privacy toggle preserved
  */
 @Composable
 fun CashFlowStatsCard(
@@ -128,28 +115,6 @@ fun CashFlowStatsCard(
         }
     }
 
-    // Exact 135deg Border Gradient:
-    // 0% -> rgba(122, 82, 255, 0.50), 45% -> rgba(191, 166, 255, 0.14), 100% -> Transparent
-    val borderBrush = remember(isDark) {
-        if (isDark) {
-            Brush.linearGradient(
-                colorStops = arrayOf(
-                    0.00f to CashFlowCardBorderDarkStart,
-                    0.45f to CashFlowCardBorderDarkMid,
-                    1.00f to Color.Transparent
-                ),
-                start = Offset.Zero,
-                end = Offset.Infinite
-            )
-        } else {
-            Brush.linearGradient(
-                colors = listOf(CashFlowCardBorderLight, CashFlowCardBorderLight),
-                start = Offset.Zero,
-                end = Offset.Infinite
-            )
-        }
-    }
-
     // Decide which values to show based on selected period and privacy
     val displayExpense = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) {
         if (isBalanceHidden) "****" else yearExpense
@@ -169,63 +134,22 @@ fun CashFlowStatsCard(
 
     var dropdownMenuExpanded by remember { mutableStateOf(dropdownExpanded) }
 
-    Surface(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .clickable(onClick = onToggleVisibility)
-            .drawWithCache {
-                val width = size.width
-                val height = size.height
-
-                // Layer 3 (Base Linear Gradient at 135deg / top-left to bottom-right):
-                // 0% -> #1E1735, 55% -> #131120, 100% -> #0C0B12
-                val baseLinear = Brush.linearGradient(
-                    colorStops = if (isDark) {
-                        arrayOf(
-                            0.00f to CashFlowCardDarkStart,
-                            0.55f to CashFlowCardDarkCenter,
-                            1.00f to CashFlowCardDarkEnd
-                        )
-                    } else {
-                        arrayOf(
-                            0.00f to CashFlowCardLightStart,
-                            0.55f to CashFlowCardLightCenter,
-                            1.00f to CashFlowCardLightEnd
-                        )
-                    },
-                    start = Offset(0f, 0f),
-                    end = Offset(width, height)
-                )
-
-                // Layer 1 (Top-Left Radial Glow):
-                // Center: 18% x, 0% y | Radius: 120% x, 95% y | Color: rgba(122, 82, 255, 0.22)
-                val topLeftGlow = Brush.radialGradient(
-                    colors = listOf(CashFlowCardGlowTop, Color.Transparent),
-                    center = Offset(width * 0.18f, 0f),
-                    radius = maxOf(width * 1.20f, height * 0.95f)
-                )
-
-                // Layer 2 (Bottom-Right Radial Glow):
-                // Center: 100% x, 100% y | Radius: 95% x, 80% y | Color: rgba(76, 42, 207, 0.13)
-                val bottomRightGlow = Brush.radialGradient(
-                    colors = listOf(CashFlowCardGlowBottom, Color.Transparent),
-                    center = Offset(width * 1.00f, height * 1.00f),
-                    radius = maxOf(width * 0.95f, height * 0.80f)
-                )
-
-                onDrawBehind {
-                    drawRect(brush = baseLinear)
-                    if (isDark) {
-                        drawRect(brush = topLeftGlow, blendMode = BlendMode.Screen)
-                        drawRect(brush = bottomRightGlow, blendMode = BlendMode.Screen)
-                    }
-                }
-            },
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, borderBrush),
-        color = Color.Transparent
     ) {
+        // Adaptive background image that stretches and shrinks horizontally & vertically
+        Image(
+            painter = painterResource(
+                id = if (isDark) R.drawable.bg_cashflow_dark else R.drawable.bg_cashflow_light
+            ),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.matchParentSize()
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()

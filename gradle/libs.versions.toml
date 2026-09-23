@@ -42,6 +42,7 @@ paging = "3.3.5"
 pagingCompose = "3.3.5"
 roomPaging = "2.8.4"
 revenuecat = "10.15.1"
+haze = "1.5.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -113,6 +114,8 @@ rootbeer-lib = { group = "com.scottyab", name = "rootbeer-lib", version.ref = "r
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenuecat" }
 errorprone-annotations = { group = "com.google.errorprone", name = "error_prone_annotations", version.ref = "errorproneAnnotations" }
+haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
+haze-materials = { group = "dev.chrisbanes.haze", name = "haze-materials", version.ref = "haze" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

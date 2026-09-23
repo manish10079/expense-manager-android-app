@@ -63,8 +63,20 @@ import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
+import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
+import com.mknlabs.expensetracker.core.ui.theme.NavPillDark
+import com.mknlabs.expensetracker.core.ui.theme.NavPillLight
 import com.mknlabs.expensetracker.core.ui.theme.fabGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 
 /**
@@ -171,6 +183,7 @@ fun AppBottomBar(
     currentRoute: AppRoute?,
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
+    hazeState: HazeState? = null,
     modifier: Modifier = Modifier
 ) {
     var barVisible by remember { mutableStateOf(true) }
@@ -204,6 +217,7 @@ fun AppBottomBar(
         },
         barVisible = barVisible,
         onRevealClick = { showRequests++ },
+        hazeState = hazeState,
         modifier = modifier
     )
 }
@@ -241,6 +255,7 @@ private fun AppBottomBarContent(
     onAddClick: () -> Unit,
     barVisible: Boolean,
     onRevealClick: () -> Unit,
+    hazeState: HazeState? = null,
     modifier: Modifier = Modifier
 ) {
     val capsuleShape = RoundedCornerShape(32.dp)
@@ -325,19 +340,35 @@ private fun AppBottomBarContent(
                 // protruding half) and anchors to this wrapper's top edge, which
                 // the top padding above has already aligned to the Column's top.
                 Box(contentAlignment = Alignment.TopCenter) {
+                    val isDark = MaterialTheme.colorScheme.isDark
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(CapsuleWidthFraction)
                             .widthIn(max = CapsuleMaxWidth)
                             .heightIn(min = capsuleMinHeight)
                             .shadow(
-                                elevation = 8.dp,
+                                elevation = 12.dp,
                                 shape = capsuleShape,
                                 ambientColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                                spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                                spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f)
                             )
                             .clip(capsuleShape)
-                            .background(containerColor)
+                            .then(
+                                if (hazeState != null) {
+                                    Modifier.hazeEffect(
+                                        state = hazeState,
+                                        style = HazeStyle(
+                                            backgroundColor = if (isDark) Color(0xD90E0D13) else Color(0xD9FFFFFF),
+                                            blurRadius = 24.dp,
+                                            noiseFactor = 0.03f,
+                                            tints = emptyList()
+                                        )
+                                    )
+                                } else {
+                                    Modifier.background(containerColor)
+                                }
+                            )
                             // Drawn after the background so the hairline sits on top
                             // of it rather than being painted over by it.
                             .border(1.dp, capsuleBorderColor, capsuleShape)
@@ -442,24 +473,20 @@ private fun RowScope.FloatingCapsuleNavItem(
 ) {
     val indicatorShape = RoundedCornerShape(20.dp)
 
-    // Selected = a translucent brand wash with lavender content, which is what makes
-    // the active destination read as lit rather than filled: on the frosted capsule a
-    // solid `secondaryContainer` pill looked like an opaque sticker, and it also
-    // ignored the content showing through around it. Unselected stays on the muted
-    // `onSurfaceVariant`, so the two states differ by hue and weight (the label also
-    // goes bold) rather than by colour alone.
-    val indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-    val selectedContent = MaterialTheme.colorScheme.secondary
+    val isDark = MaterialTheme.colorScheme.isDark
+
+    // Exact selection and non-selection tokens from indexmockup.html
+    val indicatorColor = if (isDark) NavPillDark else NavPillLight
+    val selectedContent = if (isDark) NavOnDark else NavOnLight
+    val unselectedContent = if (isDark) NavOffDark else NavOffLight
 
     val iconTint by animateColorAsState(
-        targetValue = if (selected) selectedContent
-        else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) selectedContent else unselectedContent,
         label = "bottom_bar_icon_tint"
     )
 
     val labelColor by animateColorAsState(
-        targetValue = if (selected) selectedContent
-        else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) selectedContent else unselectedContent,
         label = "bottom_bar_label_tint"
     )
 

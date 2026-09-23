@@ -43,6 +43,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
+import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
+import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
@@ -107,12 +112,16 @@ private fun RailNavItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val selectedContent = if (isDark) NavOnDark else NavOnLight
+    val unselectedContent = if (isDark) NavOffDark else NavOffLight
+
     val iconTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) selectedContent else unselectedContent,
         label = "rail_icon_tint"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (selected) selectedContent else unselectedContent,
         label = "rail_label_tint"
     )
     // Icon grows on selection, mirroring the bottom bar's expanding icon container.
