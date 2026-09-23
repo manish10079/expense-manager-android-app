@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.analytics.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -852,6 +853,16 @@ private fun AnalyticsLineChart(
     val backgroundColor = MaterialTheme.colorScheme.background
     val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
     val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
+
+    val animationProgress = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(expensePoints, incomePoints, labels, displayMode) {
+        animationProgress.snapTo(0f)
+        animationProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+        )
+    }
+    val progress = animationProgress.value
     
     Column(modifier = Modifier.fillMaxWidth()) {
         val maxExpense = if (showExpense && expensePoints.isNotEmpty()) expensePoints.maxOrNull() ?: 0f else 0f
@@ -915,9 +926,10 @@ private fun AnalyticsLineChart(
                     if (showExpense && expensePoints.isNotEmpty()) {
                         val stepX = if (expensePoints.size > 1) size.width / (expensePoints.size - 1) else size.width
                         val normalized = expensePoints.mapIndexed { index, value ->
+                            val animValue = value * progress
                             Offset(
                                 x = stepX * index,
-                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                                y = chartHeight - ((animValue / maxValue) * (chartHeight - 16.dp.toPx()))
                             )
                         }
                         
@@ -925,28 +937,26 @@ private fun AnalyticsLineChart(
                             values = expensePoints,
                             normalized = normalized,
                             chartHeight = chartHeight,
-                            lineColor = expenseColor,
-                            // The fill has to follow the line. It was built from the theme's
-                            // primary colour, so an expense-only chart drew a red line over a
-                            // purple shadow while the income branch below tinted its own fill.
+                            lineColor = expenseColor.copy(alpha = progress.coerceIn(0.3f, 1f)),
                             fillColors = if (displayMode == HeroDisplayMode.EXPENSE) {
                                 listOf(
-                                    expenseColor.copy(alpha = 0.6f),
-                                    expenseColor.copy(alpha = 0.2f),
-                                    backgroundColor.copy(alpha = 0.1f)
+                                    expenseColor.copy(alpha = 0.6f * progress),
+                                    expenseColor.copy(alpha = 0.2f * progress),
+                                    backgroundColor.copy(alpha = 0.1f * progress)
                                 )
                             } else null,
                             lineStrokeWidth = lineStrokeWidth,
-                            dotRadius = dotRadius
+                            dotRadius = dotRadius * progress
                         )
                     }
                     
                     if (showIncome && incomePoints.isNotEmpty()) {
                         val stepX = if (incomePoints.size > 1) size.width / (incomePoints.size - 1) else size.width
                         val normalized = incomePoints.mapIndexed { index, value ->
+                            val animValue = value * progress
                             Offset(
                                 x = stepX * index,
-                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                                y = chartHeight - ((animValue / maxValue) * (chartHeight - 16.dp.toPx()))
                             )
                         }
                         
@@ -954,16 +964,16 @@ private fun AnalyticsLineChart(
                             values = incomePoints,
                             normalized = normalized,
                             chartHeight = chartHeight,
-                            lineColor = incomeColor,
+                            lineColor = incomeColor.copy(alpha = progress.coerceIn(0.3f, 1f)),
                             fillColors = if (displayMode == HeroDisplayMode.INCOME) {
                                 listOf(
-                                    incomeColor.copy(alpha = 0.6f),
-                                    incomeColor.copy(alpha = 0.2f),
-                                    backgroundColor.copy(alpha = 0.1f)
+                                    incomeColor.copy(alpha = 0.6f * progress),
+                                    incomeColor.copy(alpha = 0.2f * progress),
+                                    backgroundColor.copy(alpha = 0.1f * progress)
                                 )
                             } else null,
                             lineStrokeWidth = lineStrokeWidth,
-                            dotRadius = dotRadius
+                            dotRadius = dotRadius * progress
                         )
                     }
 
