@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.analytics.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -24,6 +25,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
 
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -61,6 +64,48 @@ import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
+import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
+import com.adamglin.phosphoricons.regular.Wallet
+import com.adamglin.phosphoricons.regular.TrendUp
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
+import java.util.Locale
 import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
@@ -574,6 +619,28 @@ private fun CustomRangeSelector(
     onClear: () -> Unit
 ) {
     // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
+    val isDark = MaterialTheme.colorScheme.isDark
+    val isSelected = selectedPeriod == AnalyticsPeriod.CUSTOM
+
+    val containerColor = if (isSelected) {
+        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+    } else {
+        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+    }
+
+    val borderColor = if (isSelected) {
+        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+    } else {
+        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+    }
+
+    val textColor = if (isSelected) {
+        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+    } else {
+        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+    }
+
+    // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
     // Clear action follows the pill instead of being pushed to the far edge.
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -582,22 +649,10 @@ private fun CustomRangeSelector(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(18.dp))
-                .background(
-                    if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
-                        )
-                    } else {
-                        standardCardGradient()
-                    }
-                )
+                .background(containerColor)
                 .border(
                     width = 1.dp,
-                    color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    } else {
-                        MaterialTheme.colorScheme.outlineVariant
-                    },
+                    color = borderColor,
                     shape = RoundedCornerShape(18.dp)
                 )
         ) {
@@ -625,7 +680,7 @@ private fun CustomRangeSelector(
                     // pill share a line with the three period chips.
                     Text(
                         text = customRange?.let { formatCustomRangeLabel(it) } ?: stringResource(id = R.string.desc_custom_range),
-                        color = if (selectedPeriod == AnalyticsPeriod.CUSTOM) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = textColor,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
                     if (isLocked) {
@@ -657,6 +712,8 @@ private fun HeroAnalyticsSection(
     displayMode: HeroDisplayMode,
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+
     val title = when (displayMode) {
         HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spending)
         HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
@@ -668,67 +725,113 @@ private fun HeroAnalyticsSection(
         HeroDisplayMode.INCOME -> snapshot.incomeDisplay
         HeroDisplayMode.BOTH -> snapshot.savingsDisplay
     }
-    
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(listOf(CashFlowCardDarkStart, CashFlowCardDarkCenter, CashFlowCardDarkEnd))
+    } else {
+        Brush.linearGradient(listOf(CashFlowCardLightStart, CashFlowCardLightCenter, CashFlowCardLightEnd))
+    }
+    val borderColor = if (isDark) CashFlowCardBorderDarkStart.copy(alpha = 0.35f) else CashFlowCardBorderLight
+    val shape = RoundedCornerShape(20.dp)
+
+    val deltaColor = if (snapshot.changePercent >= 0) {
+        if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.income
+    } else {
+        if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense
+    }
+    val deltaArrow = if (snapshot.changePercent >= 0) "▲ " else "▼ "
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(brush = gradientBrush)
+                .border(width = 1.dp, color = borderColor, shape = shape)
+                .padding(18.dp)
         ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    letterSpacing = 3.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-            
-            DialogModeSelector(
-                options = HeroDisplayMode.entries.map { mode ->
-                    DialogModeOption(
-                        id = mode,
-                        label = stringResource(id = mode.labelRes),
-                        icon = when (mode) {
-                            HeroDisplayMode.EXPENSE -> Icons.Filled.ArrowDownward
-                            HeroDisplayMode.INCOME -> Icons.Filled.ArrowUpward
-                            HeroDisplayMode.BOTH -> Icons.Filled.SwapHoriz
-                        },
-                        iconTint = when (mode) {
-                            HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
-                            HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
-                            HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
-                        }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title.uppercase(Locale.getDefault()),
+                        color = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 1.2.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 10.5.sp
+                        )
                     )
-                },
-                selectedId = displayMode,
-                onOptionSelected = onDisplayModeChange,
-            )
+                    
+                    DialogModeSelector(
+                        options = HeroDisplayMode.entries.map { mode ->
+                            DialogModeOption(
+                                id = mode,
+                                label = stringResource(id = mode.labelRes),
+                                icon = when (mode) {
+                                    HeroDisplayMode.EXPENSE -> Icons.Filled.ArrowDownward
+                                    HeroDisplayMode.INCOME -> Icons.Filled.ArrowUpward
+                                    HeroDisplayMode.BOTH -> Icons.Filled.SwapHoriz
+                                },
+                                iconTint = when (mode) {
+                                    HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
+                                    HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
+                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
+                                }
+                            )
+                        },
+                        selectedId = displayMode,
+                        onOptionSelected = onDisplayModeChange,
+                    )
+                }
+
+                Text(
+                    text = amount,
+                    color = if (isDark) CashFlowNetBalanceAmountDark else CashFlowNetBalanceAmountLight,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 31.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(deltaColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 9.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "$deltaArrow${snapshot.changeDisplay.asString()}",
+                            color = deltaColor,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 11.5.sp
+                            )
+                        )
+                    }
+
+                    Text(
+                        text = resolveSummaryLabel(snapshot.summaryLabel),
+                        color = if (isDark) Color(0xFF8F8BA3) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp)
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = resolveSummaryLabel(snapshot.summaryLabel),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = amount,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(
-                text = snapshot.changeDisplay.asString(),
-                color = if (snapshot.changePercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 6.dp)
-            )
-        }
+
         Spacer(modifier = Modifier.height(18.dp))
+
         AnalyticsLineChart(
             expensePoints = snapshot.expenseChartPoints,
             incomePoints = snapshot.incomeChartPoints,
@@ -750,6 +853,16 @@ private fun AnalyticsLineChart(
     val backgroundColor = MaterialTheme.colorScheme.background
     val showExpense = displayMode == HeroDisplayMode.EXPENSE || displayMode == HeroDisplayMode.BOTH
     val showIncome = displayMode == HeroDisplayMode.INCOME || displayMode == HeroDisplayMode.BOTH
+
+    val animationProgress = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(expensePoints, incomePoints, labels, displayMode) {
+        animationProgress.snapTo(0f)
+        animationProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+        )
+    }
+    val progress = animationProgress.value
     
     Column(modifier = Modifier.fillMaxWidth()) {
         val maxExpense = if (showExpense && expensePoints.isNotEmpty()) expensePoints.maxOrNull() ?: 0f else 0f
@@ -813,9 +926,10 @@ private fun AnalyticsLineChart(
                     if (showExpense && expensePoints.isNotEmpty()) {
                         val stepX = if (expensePoints.size > 1) size.width / (expensePoints.size - 1) else size.width
                         val normalized = expensePoints.mapIndexed { index, value ->
+                            val animValue = value * progress
                             Offset(
                                 x = stepX * index,
-                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                                y = chartHeight - ((animValue / maxValue) * (chartHeight - 16.dp.toPx()))
                             )
                         }
                         
@@ -823,28 +937,26 @@ private fun AnalyticsLineChart(
                             values = expensePoints,
                             normalized = normalized,
                             chartHeight = chartHeight,
-                            lineColor = expenseColor,
-                            // The fill has to follow the line. It was built from the theme's
-                            // primary colour, so an expense-only chart drew a red line over a
-                            // purple shadow while the income branch below tinted its own fill.
+                            lineColor = expenseColor.copy(alpha = progress.coerceIn(0.3f, 1f)),
                             fillColors = if (displayMode == HeroDisplayMode.EXPENSE) {
                                 listOf(
-                                    expenseColor.copy(alpha = 0.6f),
-                                    expenseColor.copy(alpha = 0.2f),
-                                    backgroundColor.copy(alpha = 0.1f)
+                                    expenseColor.copy(alpha = 0.6f * progress),
+                                    expenseColor.copy(alpha = 0.2f * progress),
+                                    backgroundColor.copy(alpha = 0.1f * progress)
                                 )
                             } else null,
                             lineStrokeWidth = lineStrokeWidth,
-                            dotRadius = dotRadius
+                            dotRadius = dotRadius * progress
                         )
                     }
                     
                     if (showIncome && incomePoints.isNotEmpty()) {
                         val stepX = if (incomePoints.size > 1) size.width / (incomePoints.size - 1) else size.width
                         val normalized = incomePoints.mapIndexed { index, value ->
+                            val animValue = value * progress
                             Offset(
                                 x = stepX * index,
-                                y = chartHeight - ((value / maxValue) * (chartHeight - 16.dp.toPx()))
+                                y = chartHeight - ((animValue / maxValue) * (chartHeight - 16.dp.toPx()))
                             )
                         }
                         
@@ -852,16 +964,16 @@ private fun AnalyticsLineChart(
                             values = incomePoints,
                             normalized = normalized,
                             chartHeight = chartHeight,
-                            lineColor = incomeColor,
+                            lineColor = incomeColor.copy(alpha = progress.coerceIn(0.3f, 1f)),
                             fillColors = if (displayMode == HeroDisplayMode.INCOME) {
                                 listOf(
-                                    incomeColor.copy(alpha = 0.6f),
-                                    incomeColor.copy(alpha = 0.2f),
-                                    backgroundColor.copy(alpha = 0.1f)
+                                    incomeColor.copy(alpha = 0.6f * progress),
+                                    incomeColor.copy(alpha = 0.2f * progress),
+                                    backgroundColor.copy(alpha = 0.1f * progress)
                                 )
                             } else null,
                             lineStrokeWidth = lineStrokeWidth,
-                            dotRadius = dotRadius
+                            dotRadius = dotRadius * progress
                         )
                     }
 
@@ -1002,7 +1114,7 @@ private fun DrawScope.drawSkippedLine(
 private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         InsightStatCard(
             modifier = Modifier.weight(1f),
@@ -1011,8 +1123,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.dailyDeltaDisplay.asString(),
             deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = Icons.Filled.Wallet,
-            iconTint = MaterialTheme.colorScheme.primary
+            icon = PhosphorIcons.Regular.Wallet
         )
         InsightStatCard(
             modifier = Modifier.weight(1f),
@@ -1021,8 +1132,7 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.savingsDeltaDisplay.asString(),
             deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = Icons.Filled.ArrowOutward,
-            iconTint = MaterialTheme.colorScheme.secondary
+            icon = PhosphorIcons.Regular.TrendUp
         )
     }
 }
@@ -1035,18 +1145,32 @@ private fun InsightStatCard(
     delta: String,
     deltaColor: Color,
     deltaBackground: Color,
-    icon: ImageVector,
-    iconTint: Color
+    icon: ImageVector
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
+    } else {
+        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
+    }
+
+    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
+    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
+    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
+    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
+    val shape = RoundedCornerShape(18.dp)
+
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+            .clip(shape)
+            .background(brush = gradientBrush)
+            .border(width = 1.dp, color = borderColor, shape = shape)
+            .padding(14.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 18.dp)
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1055,46 +1179,64 @@ private fun InsightStatCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
-                        .background(standardCardGradient()),
+                        .background(iconBgColor),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = iconTintColor,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
+
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(deltaBackground)
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = delta,
                         color = deltaColor,
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp
+                        )
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(18.dp))
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            val valueStyle = when {
-                value.length > 10 -> MaterialTheme.typography.titleLarge
-                value.length > 7 -> MaterialTheme.typography.headlineSmall
-                else -> MaterialTheme.typography.headlineMedium
-            }.copy(fontWeight = FontWeight.ExtraBold)
 
-            Text(
-                text = value,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = valueStyle,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column {
+                Text(
+                    text = title,
+                    color = labelColor,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.5.sp
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                val valueStyle = when {
+                    value.length > 10 -> MaterialTheme.typography.titleMedium
+                    value.length > 7 -> MaterialTheme.typography.titleLarge
+                    else -> MaterialTheme.typography.headlineSmall
+                }.copy(fontWeight = FontWeight.Bold)
+
+                Text(
+                    text = value,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = valueStyle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

@@ -161,13 +161,39 @@ val NavOnLight = Color(0xFF6C52EE)    // Vibrant lilac/violet
 val NavOffLight = Color(0xFF8A879A)   // Muted slate
 val NavPillLight = Color(0x1F6C52EE)  // rgba(108,82,238,.12)
 
-// SmallHomeCard Gradient
-val SmallCardDarkStart = Color(0xFF1E1730)      // Deep violet-charcoal
-val SmallCardDarkEnd = Color(0xFF151218)        // Muted dark slate
-val SmallCardLightStart = Color(0xFFFAF7FF)     // Soft lavender white
-val SmallCardLightEnd = Color(0xFFF0EAFB)       // Pale lilac
-val SmallCardIconBgDark = Color(0xFF6C5CE7)     // Purple for icon bg (dark)
-val SmallCardIconBgLight = Color(0xFF7B61FF)    // Purple for icon bg (light)
+// SmallHomeCard / Quick Action Palette (indexmockup.html)
+val SmallCardDarkStart = Color(0xFF1B1530)      // --qcard-bg
+val SmallCardDarkEnd = Color(0xFF121019)
+val SmallCardBorderDark = Color(0x12FFFFFF)     // rgba(255, 255, 255, 0.07)
+
+val SmallCardLightStart = Color(0xFFFAF7FF)
+val SmallCardLightEnd = Color(0xFFF0EAFB)
+val SmallCardBorderLight = Color(0x1F7A52FF)    // rgba(122, 82, 255, 0.12)
+
+val SmallCardIconBgDark = Color(0x2E7A52FF)     // --qicon-bg: rgba(122, 82, 255, 0.18)
+val SmallCardIconBgLight = Color(0x246C52EE)    // rgba(108, 82, 238, 0.14)
+val SmallCardIconDark = Color(0xFFBFA6FF)       // --qicon-c: #BFA6FF
+val SmallCardIconLight = Color(0xFF6C52EE)
+
+val SmallCardLabelDark = Color(0xFFA5A1B8)      // --t-secondary: #A5A1B8 (indexmockup.html)
+val SmallCardLabelLight = Color(0xFF746B8B)     // Light mode muted slate
+
+// Chip / Filter Pill Palette (indexmockup.html)
+val ChipBgSelectedDark = Color(0x337A52FF)       // --chip-on-bg: rgba(122, 82, 255, 0.20)
+val ChipBorderSelectedDark = Color(0x737A52FF)   // --chip-on-bd: rgba(122, 82, 255, 0.45)
+val ChipTextSelectedDark = Color(0xFFBFA6FF)     // --chip-on-c: #BFA6FF
+
+val ChipBgSelectedLight = Color(0x296C52EE)      // rgba(108, 82, 238, 0.16)
+val ChipBorderSelectedLight = Color(0x666C52EE)  // rgba(108, 82, 238, 0.40)
+val ChipTextSelectedLight = Color(0xFF6C52EE)    // #6C52EE
+
+val ChipBgUnselectedDark = Color(0x0FFFFFFF)     // --chip-bg: rgba(255, 255, 255, 0.06)
+val ChipBorderUnselectedDark = Color(0x1AFFFFFF) // --chip-bd: rgba(255, 255, 255, 0.10)
+val ChipTextUnselectedDark = Color(0xFFA5A1B8)   // --chip-c: #A5A1B8
+
+val ChipBgUnselectedLight = Color(0x0A000000)   // rgba(0, 0, 0, 0.04)
+val ChipBorderUnselectedLight = Color(0x14000000) // rgba(0, 0, 0, 0.08)
+val ChipTextUnselectedLight = Color(0xFF746B8B) // #746B8B
 
 // Premium Membership Palette
 val PremiumGradientStart = Color(0xFF7C4DFF) // Deep Violet

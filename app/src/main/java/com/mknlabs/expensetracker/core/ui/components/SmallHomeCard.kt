@@ -17,10 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.outlined.ChevronRight
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.CaretRight
+import com.adamglin.phosphoricons.regular.PiggyBank
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,12 +39,18 @@ import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
+import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
 
 
 @Composable
@@ -57,35 +64,31 @@ fun SmallHomeCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(18.dp)
 
-    // Theme-aware gradient background (same as StatsCard)
+    // Theme-aware gradient background matching indexmockup.html --qcard-bg
     val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd))
+        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
     } else {
-        Brush.linearGradient(listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd))
+        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
     }
 
-    // Purple border glow matching the hero card
-    val primaryColor = colorScheme.primary
-    val borderBrush = remember(primaryColor) {
-        Brush.linearGradient(
-            colors = listOf(
-                primaryColor.copy(alpha = 0.35f),
-                Color.White.copy(alpha = 0.06f)
-            )
-        )
-    }
+    // Border matching indexmockup.html --qcard-bd
+    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
 
-    // Use theme primary for brand consistency with StatsCard
-    val iconBgColor = colorScheme.primary
+    // Icon background & tint matching indexmockup.html --qicon-bg & --qicon-c
+    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
+    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
+
+    // Label color matching indexmockup.html --t-secondary (#A5A1B8 in dark mode)
+    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
 
     Box(
         modifier = modifier
             .clip(shape)
             .clickable(onClick = onClick)
             .background(brush = gradientBrush)
-            .border(width = 1.dp, brush = borderBrush, shape = shape)
+            .border(width = 1.dp, color = borderColor, shape = shape)
             .padding(12.dp)
     ) {
         Row(
@@ -104,18 +107,13 @@ fun SmallHomeCard(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape)
-                            .background(iconBgColor.copy(alpha = 0.15f))
-                            .border(
-                                width = 1.dp,
-                                color = iconBgColor.copy(alpha = 0.25f),
-                                shape = CircleShape
-                            ),
+                            .background(iconBgColor),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = iconBgColor,
+                            tint = iconTintColor,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -144,7 +142,7 @@ fun SmallHomeCard(
                 Column {
                     LabelText(
                         text = title,
-                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        color = labelColor,
                         maxLines = 1
                     )
 
@@ -161,10 +159,10 @@ fun SmallHomeCard(
             }
 
             Icon(
-                imageVector = Icons.Outlined.ChevronRight,
+                imageVector = PhosphorIcons.Regular.CaretRight,
                 contentDescription = null,
-                tint = colorScheme.primary.copy(alpha = 0.7f),
-                modifier = Modifier.size(20.dp)
+                tint = if (isDark) Color.White.copy(alpha = 0.3f) else colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(14.dp)
             )
         }
     }
@@ -178,7 +176,7 @@ private fun SmallHomeCardTodayLightPreview() {
             SmallHomeCard(
                 title = "Today's Spending",
                 value = "₹2,450",
-                icon = Icons.Filled.CalendarMonth,
+                icon = PhosphorIcons.Regular.CalendarBlank,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -193,7 +191,7 @@ private fun SmallHomeCardTodayDarkPreview() {
             SmallHomeCard(
                 title = "Today's Spending",
                 value = "₹2,450",
-                icon = Icons.Filled.CalendarMonth,
+                icon = PhosphorIcons.Regular.CalendarBlank,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -214,13 +212,13 @@ private fun SmallHomeCardRowLightPreview() {
                 SmallHomeCard(
                     title = "Today's Spending",
                     value = "₹2,450",
-                    icon = Icons.Filled.CalendarMonth,
+                    icon = PhosphorIcons.Regular.CalendarBlank,
                     modifier = Modifier.weight(1f)
                 )
                 SmallHomeCard(
                     title = "Savings Goals",
                     value = "₹12,000",
-                    icon = Icons.Filled.Savings,
+                    icon = PhosphorIcons.Regular.PiggyBank,
                     badgeCount = 3,
                     modifier = Modifier.weight(1f)
                 )
@@ -243,13 +241,13 @@ private fun SmallHomeCardRowDarkPreview() {
                 SmallHomeCard(
                     title = "Today's Spending",
                     value = "₹2,450",
-                    icon = Icons.Filled.CalendarMonth,
+                    icon = PhosphorIcons.Regular.CalendarBlank,
                     modifier = Modifier.weight(1f)
                 )
                 SmallHomeCard(
                     title = "Savings Goals",
                     value = "₹12,000",
-                    icon = Icons.Filled.Savings,
+                    icon = PhosphorIcons.Regular.PiggyBank,
                     badgeCount = 3,
                     modifier = Modifier.weight(1f)
                 )
