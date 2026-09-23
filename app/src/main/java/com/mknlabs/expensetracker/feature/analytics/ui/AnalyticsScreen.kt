@@ -74,6 +74,21 @@ import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
 import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
 import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
 import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkStart
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
+import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
+import java.util.Locale
 import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
@@ -680,6 +695,8 @@ private fun HeroAnalyticsSection(
     displayMode: HeroDisplayMode,
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+
     val title = when (displayMode) {
         HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spending)
         HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
@@ -691,67 +708,113 @@ private fun HeroAnalyticsSection(
         HeroDisplayMode.INCOME -> snapshot.incomeDisplay
         HeroDisplayMode.BOTH -> snapshot.savingsDisplay
     }
-    
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+    val gradientBrush = if (isDark) {
+        Brush.linearGradient(listOf(CashFlowCardDarkStart, CashFlowCardDarkCenter, CashFlowCardDarkEnd))
+    } else {
+        Brush.linearGradient(listOf(CashFlowCardLightStart, CashFlowCardLightCenter, CashFlowCardLightEnd))
+    }
+    val borderColor = if (isDark) CashFlowCardBorderDarkStart.copy(alpha = 0.35f) else CashFlowCardBorderLight
+    val shape = RoundedCornerShape(20.dp)
+
+    val deltaColor = if (snapshot.changePercent >= 0) {
+        if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.income
+    } else {
+        if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense
+    }
+    val deltaArrow = if (snapshot.changePercent >= 0) "▲ " else "▼ "
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(brush = gradientBrush)
+                .border(width = 1.dp, color = borderColor, shape = shape)
+                .padding(18.dp)
         ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    letterSpacing = 3.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-            
-            DialogModeSelector(
-                options = HeroDisplayMode.entries.map { mode ->
-                    DialogModeOption(
-                        id = mode,
-                        label = stringResource(id = mode.labelRes),
-                        icon = when (mode) {
-                            HeroDisplayMode.EXPENSE -> Icons.Filled.ArrowDownward
-                            HeroDisplayMode.INCOME -> Icons.Filled.ArrowUpward
-                            HeroDisplayMode.BOTH -> Icons.Filled.SwapHoriz
-                        },
-                        iconTint = when (mode) {
-                            HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
-                            HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
-                            HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
-                        }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title.uppercase(Locale.getDefault()),
+                        color = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 1.2.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 10.5.sp
+                        )
                     )
-                },
-                selectedId = displayMode,
-                onOptionSelected = onDisplayModeChange,
-            )
+                    
+                    DialogModeSelector(
+                        options = HeroDisplayMode.entries.map { mode ->
+                            DialogModeOption(
+                                id = mode,
+                                label = stringResource(id = mode.labelRes),
+                                icon = when (mode) {
+                                    HeroDisplayMode.EXPENSE -> Icons.Filled.ArrowDownward
+                                    HeroDisplayMode.INCOME -> Icons.Filled.ArrowUpward
+                                    HeroDisplayMode.BOTH -> Icons.Filled.SwapHoriz
+                                },
+                                iconTint = when (mode) {
+                                    HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
+                                    HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
+                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
+                                }
+                            )
+                        },
+                        selectedId = displayMode,
+                        onOptionSelected = onDisplayModeChange,
+                    )
+                }
+
+                Text(
+                    text = amount,
+                    color = if (isDark) CashFlowNetBalanceAmountDark else CashFlowNetBalanceAmountLight,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 31.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(deltaColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 9.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "$deltaArrow${snapshot.changeDisplay.asString()}",
+                            color = deltaColor,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 11.5.sp
+                            )
+                        )
+                    }
+
+                    Text(
+                        text = resolveSummaryLabel(snapshot.summaryLabel),
+                        color = if (isDark) Color(0xFF8F8BA3) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp)
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = resolveSummaryLabel(snapshot.summaryLabel),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = amount,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(
-                text = snapshot.changeDisplay.asString(),
-                color = if (snapshot.changePercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 6.dp)
-            )
-        }
+
         Spacer(modifier = Modifier.height(18.dp))
+
         AnalyticsLineChart(
             expensePoints = snapshot.expenseChartPoints,
             incomePoints = snapshot.incomeChartPoints,
