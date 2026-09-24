@@ -5,8 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,9 +32,11 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,7 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -113,6 +118,11 @@ fun TransactionCard(
     val expenseLabel = remember(resources) { resources.getString(R.string.label_expense) }
     val noNoteLabel = remember(resources) { resources.getString(R.string.label_no_note) }
 
+    // Row 1 binds the note and the amount to one style, row 2 binds every pill and the
+    // date·time to another, so neither pair can drift apart in size or weight.
+    val titleStyle = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+    val metaStyle = MaterialTheme.typography.labelSmall
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,12 +185,12 @@ fun TransactionCard(
                 val noteTooltipState = rememberTooltipState()
                 val noteTooltipScope = rememberCoroutineScope()
 
-                // Truncated notes get a small info icon that reveals the complete
-                // text in a themed tooltip popup when tapped (tapping again dismisses
-                // it; tapping anywhere else dismisses too). The note text itself
-                // keeps its default behavior — tap opens the transaction, long-press
-                // enters multi-select — only the icon carries the tooltip.
+                // Row 1 — the note shares this row with the amount. The amount is
+                // deliberately unweighted, so it is measured at its full intrinsic
+                // width before the note takes the remainder: it can never be truncated
+                // and the note is always what yields.
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -193,16 +203,33 @@ fun TransactionCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         softWrap = false,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = if (isNoteEmpty) FontWeight.Normal else FontWeight.Bold,
-                            fontStyle = if (isNoteEmpty) FontStyle.Italic else FontStyle.Normal
-                        ),
-                        modifier = Modifier.weight(1f, fill = false),
+                        // The empty-note placeholder keeps its gray italic treatment —
+                        // only the colour and slant differ, never the size or weight.
+                        style = if (isNoteEmpty) {
+                            titleStyle.copy(
+                                fontWeight = FontWeight.Normal,
+                                fontStyle = FontStyle.Italic
+                            )
+                        } else {
+                            titleStyle
+                        },
+                        // fill = true: the note claims the whole slot left over after the
+                        // amount is measured, which is what keeps the amount flush right
+                        // on cards with a short note. It does not detach the info icon
+                        // from the text, because that icon only renders while the note is
+                        // actually truncated — and a truncated note fills its slot by
+                        // definition.
+                        modifier = Modifier.weight(1f),
                         onTextLayout = { result ->
                             noteTruncated = result.didOverflowWidth || result.lineCount < noteLineCount
                         }
                     )
 
+                    // Truncated notes get a small info icon that reveals the complete
+                    // text in a themed tooltip popup when tapped (tapping again dismisses
+                    // it; tapping anywhere else dismisses too). The note text itself
+                    // keeps its default behavior — tap opens the transaction, long-press
+                    // enters multi-select — only the icon carries the tooltip.
                     if (showNoteTooltip && noteTruncated && !isNoteEmpty) {
                         TooltipBox(
                             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
@@ -254,82 +281,117 @@ fun TransactionCard(
                             }
                         }
                     }
-                }
 
-                if (showTransactionDate || showTransactionTime) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = remember(transactionDate, transactionTime, showTransactionDate, showTransactionTime) {
-                            buildAnnotatedString {
-                                if (showTransactionDate) {
-                                    append(transactionDate)
-                                }
-                                if (showTransactionDate && showTransactionTime) {
-                                    withStyle(SeparatorSpanStyle) {
-                                        append(" • ") // • ● ⬤
-                                    }
-                                }
-                                if (showTransactionTime) {
-                                    append(transactionTime)
-                                }
-                            }
-                        },
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = amount,
+                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else Color.White,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                         softWrap = false,
-                        style = MaterialTheme.typography.labelSmall
+                        style = titleStyle
                     )
                 }
 
-                // Pills Section — FlowRow: pills keep their natural content width and
-                // wrap onto a second line only when all three don't fit, so every
-                // label stays fully visible.
-                Spacer(modifier = Modifier.height(6.dp))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    if (showTypeLabel) {
-                        TransactionPill(
-                            text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
-                            color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                            backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f)
-                        )
-                    }
+                val hasMetaRow = showTypeLabel ||
+                    (showCategoryLabel && categoryLabel.isNotBlank()) ||
+                    (showPaymentMethod && paymentType.isNotBlank()) ||
+                    showTransactionDate ||
+                    showTransactionTime
 
-                    if (showCategoryLabel && categoryLabel.isNotBlank()) {
-                        TransactionPill(
-                            text = categoryLabel,
-                            color = MaterialTheme.colorScheme.primary,
-                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-                        )
-                    }
+                // Row 2 — the payment, income/expense and category pills on the left, the
+                // date·time pinned to the right edge. The pills live in their own
+                // horizontally scrollable strip so a long category name can never push or
+                // squeeze the date, and the date is unweighted for the same reason the
+                // amount is in row 1.
+                //
+                // The strip scrolls only while the pills actually overflow. It has to stay
+                // inert otherwise, or it would swallow the horizontal drag that the list
+                // row's swipe-to-duplicate/delete gesture relies on. Children of a
+                // scrollable are measured with an unbounded max width, so the inner Row's
+                // own size *is* its full content width — which is what makes the overflow
+                // comparison below possible without measuring the text twice.
+                if (hasMetaRow) {
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                    if (showPaymentMethod && paymentType.isNotBlank()) {
-                        TransactionPill(
-                            text = paymentType,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val pillScrollState = rememberScrollState()
+                        var pillContentWidth by remember { mutableIntStateOf(0) }
+
+                        BoxWithConstraints(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            val viewportWidth = constraints.maxWidth
+                            Row(
+                                modifier = Modifier
+                                    .horizontalScroll(
+                                        state = pillScrollState,
+                                        enabled = pillContentWidth > viewportWidth
+                                    )
+                                    .onSizeChanged { pillContentWidth = it.width },
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (showPaymentMethod && paymentType.isNotBlank()) {
+                                    TransactionPill(
+                                        text = paymentType,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
+                                        style = metaStyle
+                                    )
+                                }
+
+                                if (showTypeLabel) {
+                                    TransactionPill(
+                                        text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
+                                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
+                                        backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f),
+                                        style = metaStyle
+                                    )
+                                }
+
+                                if (showCategoryLabel && categoryLabel.isNotBlank()) {
+                                    TransactionPill(
+                                        text = categoryLabel,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                        style = metaStyle
+                                    )
+                                }
+                            }
+                        }
+
+                        if (showTransactionDate || showTransactionTime) {
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                text = remember(transactionDate, transactionTime, showTransactionDate, showTransactionTime) {
+                                    buildAnnotatedString {
+                                        if (showTransactionDate) {
+                                            append(transactionDate)
+                                        }
+                                        if (showTransactionDate && showTransactionTime) {
+                                            withStyle(SeparatorSpanStyle) {
+                                                append(" • ") // • ● ⬤
+                                            }
+                                        }
+                                        if (showTransactionTime) {
+                                            append(transactionTime)
+                                        }
+                                    }
+                                },
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                softWrap = false,
+                                style = metaStyle
+                            )
+                        }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = amount,
-                color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else Color.White,
-                maxLines = 1,
-                softWrap = false,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
 
             Spacer(modifier = Modifier.width(14.dp))
         }
@@ -404,12 +466,16 @@ fun TransactionCard(
  * The corner radius stays a constant *fraction* of the height (4dp on a ~16dp pill is
  * the same 1:4 ratio the previous 6dp radius had on a ~24dp pill), so the silhouette
  * is identical rather than visibly rounder at the smaller size.
+ *
+ * The type size arrives as [style] rather than being hardcoded, so the pills and the
+ * row's date·time line are guaranteed to share one source of truth.
  */
 @Composable
 private fun TransactionPill(
     text: String,
     color: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
+    style: TextStyle
 ) {
     Box(
         modifier = Modifier
@@ -422,7 +488,7 @@ private fun TransactionPill(
             color = color,
             maxLines = 1,
             softWrap = false,
-            style = MaterialTheme.typography.labelSmall
+            style = style
         )
     }
 }
@@ -464,6 +530,86 @@ fun TransactionCardDarkPreview() {
                 categoryLabel = "Food".uppercase(),
                 isProUser = true,
                 isRecurring = true
+            )
+        }
+    }
+}
+
+/**
+ * Narrow viewport with a note, an amount and three pills that all want more room than
+ * they get: the note ellipsises, the amount stays whole, and the pill strip is wide
+ * enough to scroll. Composed with [TransactionCardWidePreview] below, the pair shows
+ * that the available width — not any hardcoded character count — decides the cut.
+ */
+@Preview(showBackground = true, widthDp = 380)
+@Composable
+fun TransactionCardLongContentPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            TransactionCard(
+                note = "Monthly grocery run at the neighbourhood supermarket with the family",
+                transactionDate = "31 Dec",
+                transactionTime = formatTime(1738368000000, "12-hour"),
+                amount = "-₹1,24,567.00",
+                transactionTypeId = 2,
+                icon = Icons.Filled.QuestionMark,
+                paymentType = getPaymentTypeName(1).uppercase(),
+                categoryLabel = "Groceries And Household Supplies".uppercase(),
+                isProUser = true,
+                isRecurring = true
+            )
+        }
+    }
+}
+
+/**
+ * The same content at a landscape/tablet width. The note is handed a wider slot, so more
+ * characters survive before the ellipsis while the amount and the date keep their edges —
+ * no orientation branch anywhere.
+ */
+@Preview(showBackground = true, widthDp = 720)
+@Composable
+fun TransactionCardWidePreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            TransactionCard(
+                note = "Monthly grocery run at the neighbourhood supermarket with the family",
+                transactionDate = "31 Dec",
+                transactionTime = formatTime(1738368000000, "12-hour"),
+                amount = "-₹1,24,567.00",
+                transactionTypeId = 2,
+                icon = Icons.Filled.QuestionMark,
+                paymentType = getPaymentTypeName(1).uppercase(),
+                categoryLabel = "Groceries And Household Supplies".uppercase(),
+                isProUser = true,
+                isRecurring = true
+            )
+        }
+    }
+}
+
+/**
+ * The two degenerate paths: no category icon (the text column starts at the card's own
+ * padding), a blank note (the gray italic placeholder, still the same size as the amount)
+ * and only a single pill, so row 2 sits well inside the width.
+ */
+@Preview(showBackground = true, widthDp = 380)
+@Composable
+fun TransactionCardMinimalPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            TransactionCard(
+                note = "",
+                transactionDate = "Today",
+                transactionTime = formatTime(1738368000000, "12-hour"),
+                amount = "₹1,200",
+                transactionTypeId = 2,
+                icon = Icons.Filled.QuestionMark,
+                paymentType = getPaymentTypeName(3).uppercase(),
+                categoryLabel = "",
+                showCategoryIcon = false,
+                showTypeLabel = false,
+                isProUser = false
             )
         }
     }
