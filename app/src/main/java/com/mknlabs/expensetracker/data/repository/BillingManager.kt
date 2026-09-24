@@ -146,13 +146,20 @@ class BillingManager @Inject constructor(
      */
     override val offers: StateFlow<List<SubscriptionOffer>> = _offerings
         .map { offerings ->
-            offerings?.current?.availablePackages.orEmpty().map { pkg ->
+            val packages = offerings?.current?.availablePackages.orEmpty()
+            val monthlyPkg = packages.firstOrNull { it.packageType.name == "MONTHLY" }
+            val monthlyMicros = monthlyPkg?.product?.price?.amountMicros ?: 0L
+
+            packages.map { pkg ->
+                val typeName = pkg.packageType.name
+                val formattedPrice = pkg.product.price.formatted
+                val strikethroughText = calculateStrikethroughPrice(typeName, monthlyMicros, formattedPrice)
+
                 SubscriptionOfferMapper.from(
                     packageIdentifier = pkg.identifier,
-                    packageTypeName = pkg.packageType.name,
-                    // `price.formatted` is the store's own localized string; in RevenueCat
-                    // 10.x `priceString` no longer exists on `StoreProduct`.
-                    storeFormattedPrice = pkg.product.price.formatted
+                    packageTypeName = typeName,
+                    storeFormattedPrice = formattedPrice,
+                    strikethroughPriceText = strikethroughText,
                 )
             }
         }
@@ -521,4 +528,22 @@ class BillingManager @Inject constructor(
     fun cleanup() {
         Purchases.sharedInstance.updatedCustomerInfoListener = null
     }
+}
+
+private fun calculateStrikethroughPrice(
+    packageTypeName: String,
+    monthlyMicros: Long,
+    formattedPrice: String
+): String? {
+    if (monthlyMicros <= 0L) return null
+    val months = when (packageTypeName) {
+        "SIX_MONTH" -> 6
+        "ANNUAL" -> 12
+        else -> return null
+    }
+    val totalUnDiscountedMicros = monthlyMicros * months
+    val totalAmount = totalUnDiscountedMicros / 1_000_000.0
+    val currencyPrefix = formattedPrice.takeWhile { !it.isDigit() }.trim()
+    val formattedNumber = String.format(java.util.Locale.getDefault(), "%.2f", totalAmount)
+    return if (currencyPrefix.isNotEmpty()) "$currencyPrefix$formattedNumber" else formattedNumber
 }

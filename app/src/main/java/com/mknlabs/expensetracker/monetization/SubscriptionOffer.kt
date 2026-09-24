@@ -27,6 +27,10 @@ data class SubscriptionOffer(
     @StringRes val periodLabelRes: Int,
     /** The store-formatted price, shown exactly as the store supplied it. */
     val priceText: String,
+    /** Optional discount/savings badge label resource, e.g. "20% OFF". */
+    @StringRes val discountBadgeRes: Int? = null,
+    /** Optional strikethrough un-discounted original base price text. */
+    val strikethroughPriceText: String? = null,
 )
 
 /**
@@ -49,17 +53,28 @@ object SubscriptionOfferMapper {
      *   mapper, is the only place that touches the SDK enum.
      * @param storeFormattedPrice `StoreProduct.price.formatted`, already localized by the
      *   store.
+     * @param strikethroughPriceText optional un-discounted original base price text.
      */
     fun from(
         packageIdentifier: String,
         packageTypeName: String,
         storeFormattedPrice: String,
+        strikethroughPriceText: String? = null,
     ): SubscriptionOffer = SubscriptionOffer(
         id = packageIdentifier,
         planLabelRes = planLabelFor(packageTypeName),
         periodLabelRes = periodLabelFor(packageTypeName),
         priceText = storeFormattedPrice,
+        discountBadgeRes = discountBadgeFor(packageTypeName),
+        strikethroughPriceText = strikethroughPriceText,
     )
+
+    /** Maps RevenueCat's package type to an optional savings/discount badge string. */
+    internal fun discountBadgeFor(packageTypeName: String): Int? = when (packageTypeName) {
+        "SIX_MONTH" -> R.string.paywall_discount_six_months
+        "ANNUAL" -> R.string.paywall_discount_twelve_months
+        else -> null
+    }
 
     /**
      * Maps RevenueCat's package type to the plan's length label.

@@ -2040,6 +2040,8 @@
     <string name="paywall_plan_twelve_months">12 months</string>
     <string name="paywall_plan_lifetime">Lifetime</string>
     <string name="paywall_plan_generic">Pro plan</string>
+    <string name="paywall_discount_six_months">20% OFF</string>
+    <string name="paywall_discount_twelve_months">40% OFF</string>
     <string name="paywall_period_week">per week</string>
     <string name="paywall_period_month">per month</string>
     <string name="paywall_period_months">per period</string>
