@@ -24,6 +24,19 @@ class MainNavigationState(
     var profileOriginRoute by mutableStateOf(AppRoute.Home)
         private set
 
+    /**
+     * The screen the paywall was opened from.
+     *
+     * Deliberately kept apart from [previousRoute]: that one-deep stack is written only
+     * when the destination is Add Transaction, and it exists for that screen's own exit
+     * path. Reading it for the paywall meant Back from an upsell saw a stale route and
+     * dropped the user on Home instead of the screen they came from. This value is written
+     * only when the paywall is *entered*, so Back always has the real origin and the
+     * return trip never overwrites it.
+     */
+    var paywallOriginRoute by mutableStateOf(AppRoute.Home)
+        private set
+
     var isBottomBarVisible by mutableStateOf(false)
         private set
 
@@ -61,6 +74,11 @@ class MainNavigationState(
     fun navigateTo(route: AppRoute) {
         if (route == AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
             previousRoute = currentRoute
+        }
+        // Guarded on the destination not already being the paywall, so a re-entry cannot
+        // record the paywall as its own origin and trap Back there.
+        if (route == AppRoute.Paywall && currentRoute != AppRoute.Paywall) {
+            paywallOriginRoute = currentRoute
         }
         currentRoute = route
     }
@@ -133,6 +151,7 @@ class MainNavigationState(
     internal fun restoreNavigationState(
         previous: AppRoute,
         profileOrigin: AppRoute,
+        paywallOrigin: AppRoute,
         bottomBarVisible: Boolean,
         selected: Transaction?,
         draftAmount: String?,
@@ -141,6 +160,7 @@ class MainNavigationState(
     ) {
         previousRoute = previous
         profileOriginRoute = profileOrigin
+        paywallOriginRoute = paywallOrigin
         isBottomBarVisible = bottomBarVisible
         selectedTransaction = selected
         addTransactionDraftAmount = draftAmount
@@ -161,6 +181,7 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
             "currentRoute" to value.currentRoute.route,
             "previousRoute" to value.previousRoute.route,
             "profileOriginRoute" to value.profileOriginRoute.route,
+            "paywallOriginRoute" to value.paywallOriginRoute.route,
             "isBottomBarVisible" to value.isBottomBarVisible,
             "selectedTransaction" to value.selectedTransaction?.let { tx ->
                 mapOf(
@@ -209,6 +230,7 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
         state.restoreNavigationState(
             previous = AppRoute.fromRoute(value["previousRoute"] as? String) ?: AppRoute.Home,
             profileOrigin = AppRoute.fromRoute(value["profileOriginRoute"] as? String) ?: AppRoute.Home,
+            paywallOrigin = AppRoute.fromRoute(value["paywallOriginRoute"] as? String) ?: AppRoute.Home,
             bottomBarVisible = value["isBottomBarVisible"] as? Boolean ?: false,
             selected = selected,
             draftAmount = value["addTransactionDraftAmount"] as? String,

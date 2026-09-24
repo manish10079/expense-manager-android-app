@@ -68,7 +68,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
-import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
@@ -122,7 +121,6 @@ fun PaywallRoute(
     PaywallContent(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
-        onBackClick = onBackClick,
         onSubscribeClick = { offerId ->
             // Gated content can live in its own dialog window, where LocalContext is a
             // ContextThemeWrapper rather than the Activity — a plain `as? Activity` cast
@@ -144,7 +142,6 @@ fun PaywallRoute(
 @Composable
 internal fun PaywallContent(
     uiState: PaywallUiState,
-    onBackClick: () -> Unit,
     onSubscribeClick: (String) -> Unit,
     onRestoreClick: () -> Unit,
     onRetryClick: () -> Unit,
@@ -178,13 +175,6 @@ internal fun PaywallContent(
                 ),
                 verticalArrangement = Arrangement.spacedBy(Dimens.spacingDefault),
             ) {
-                item {
-                    AppHeader(
-                        title = stringResource(R.string.title_paywall),
-                        onBackClick = onBackClick,
-                    )
-                }
-
                 item { PaywallHero() }
 
                 if (uiState.isPremium) {
@@ -599,7 +589,6 @@ private fun PaywallPreviewLight() {
     ExpenseTrackerTheme(darkTheme = false) {
         PaywallContent(
             uiState = PaywallPreviewState,
-            onBackClick = {},
             onSubscribeClick = {},
             onRestoreClick = {},
             onRetryClick = {},
@@ -614,7 +603,6 @@ private fun PaywallPreviewDark() {
     ExpenseTrackerTheme(darkTheme = true) {
         PaywallContent(
             uiState = PaywallPreviewState,
-            onBackClick = {},
             onSubscribeClick = {},
             onRestoreClick = {},
             onRetryClick = {},
@@ -629,7 +617,6 @@ private fun PaywallPreviewLargeFont() {
     ExpenseTrackerTheme(darkTheme = false) {
         PaywallContent(
             uiState = PaywallPreviewState,
-            onBackClick = {},
             onSubscribeClick = {},
             onRestoreClick = {},
             onRetryClick = {},

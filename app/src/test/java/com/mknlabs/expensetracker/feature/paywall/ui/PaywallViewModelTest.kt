@@ -310,6 +310,7 @@ private class FakeBillingRepository : BillingRepository {
     val purchasedOfferIds = mutableListOf<String>()
     var restoreCount = 0
     var refreshCount = 0
+    var refreshEntitlementCount = 0
     var acknowledgeCount = 0
 
     override val offers = MutableStateFlow<List<SubscriptionOffer>>(emptyList())
@@ -333,6 +334,10 @@ private class FakeBillingRepository : BillingRepository {
 
     override fun refreshOffers() {
         refreshCount++
+    }
+
+    override fun refreshEntitlement() {
+        refreshEntitlementCount++
     }
 
     override fun acknowledgePurchase() {

@@ -80,6 +80,17 @@ interface BillingRepository {
     /** Restores previous purchases for the signed-in app user id. */
     fun restore()
 
+    /**
+     * Re-reads the store's entitlement state, refreshing it when the SDK's snapshot is
+     * stale.
+     *
+     * [storeEntitlement] mirrors whatever the SDK last delivered, and the SDK only delivers
+     * when it has something to push: a listener event, a login, a purchase or a restore. A
+     * screen that has to state where Pro comes from calls this, so its answer rests on the
+     * store's current view instead of on a snapshot that may never have arrived.
+     */
+    fun refreshEntitlement()
+
     /** Re-fetches offerings, returning [isOffersLoaded] to false while in flight. */
     fun refreshOffers()
 

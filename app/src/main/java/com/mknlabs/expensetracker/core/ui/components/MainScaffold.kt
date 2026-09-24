@@ -56,6 +56,7 @@ fun MainScaffold(
     currentRoute: AppRoute,
     previousRoute: AppRoute,
     profileOriginRoute: AppRoute,
+    paywallOriginRoute: AppRoute,
     isBottomBarVisible: Boolean,
     transactions: List<Transaction>,
     transactionCount: Int,
@@ -200,7 +201,8 @@ fun MainScaffold(
     val backNavigationRoute = resolveBackNavigationRoute(
         currentRoute = currentRoute,
         profileOriginRoute = profileOriginRoute,
-        previousRoute = previousRoute
+        previousRoute = previousRoute,
+        paywallOriginRoute = paywallOriginRoute
     )
     val colorScheme = MaterialTheme.colorScheme
 
@@ -291,6 +293,7 @@ fun MainScaffold(
             currentRoute = currentRoute,
             previousRoute = previousRoute,
             profileOriginRoute = profileOriginRoute,
+            paywallOriginRoute = paywallOriginRoute,
             transactions = transactions,
             transactionCount = transactionCount,
             recurringRules = recurringRules,

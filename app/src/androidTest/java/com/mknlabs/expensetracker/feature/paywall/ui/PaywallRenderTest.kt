@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
@@ -82,7 +83,6 @@ class PaywallRenderTest {
             ExpenseTrackerTheme {
                 PaywallContent(
                     uiState = state,
-                    onBackClick = {},
                     onSubscribeClick = onSubscribe,
                     onRestoreClick = onRestore,
                     onRetryClick = onRetry,
@@ -137,6 +137,17 @@ class PaywallRenderTest {
         compose.onNodeWithText(subscribeLabel).assertIsEnabled().performClick()
         // The first plan is preselected, so the primary action is never a dead tap.
         assertEquals(monthly.id, purchasedOfferId)
+    }
+
+    @Test
+    fun paywallIsFullBleedWithNoBackChevron() {
+        renderPaywall(
+            state = PaywallUiState(offers = listOf(monthly), isLoadingOffers = false)
+        )
+
+        // An upsell, not a page with a title bar: the header and its chevron are gone. The
+        // chevron was also a second way out of the screen, which disagreed with system Back.
+        compose.onNodeWithContentDescription(text(R.string.desc_back)).assertDoesNotExist()
     }
 
     @Test

@@ -1915,6 +1915,8 @@
     <string name="label_membership_benefits">MEMBERSHIP BENEFITS</string>
     <string name="label_pro_subscription_active">Subscription Active</string>
     <string name="label_pro_pass_active">Pro Pass Active</string>
+    <string name="label_pro_source_subscription">Source: Google Play subscription</string>
+    <string name="label_pro_source_pro_pass">Source: Pro Pass code</string>
     <string name="msg_subscription_active_desc">Your subscription is active and renews automatically. Manage it from Google Play.</string>
     <string name="label_pro_subscription_ends_on">Your subscription ends on %1$s. You can resubscribe anytime.</string>
     <string name="msg_subscription_billing_issue">We couldn\'t collect your last payment. Update your payment method in Google Play to keep Pro.</string>
@@ -2020,7 +2022,6 @@
     <string name="btn_upgrade">Upgrade to Pro</string>
 
     <!-- Paywall -->
-    <string name="title_paywall">Go Pro</string>
     <string name="msg_paywall_subtitle">Unlock every Pro feature and support ongoing development.</string>
     <string name="label_paywall_benefits">What you get</string>
     <string name="label_paywall_choose_plan">Choose your plan</string>

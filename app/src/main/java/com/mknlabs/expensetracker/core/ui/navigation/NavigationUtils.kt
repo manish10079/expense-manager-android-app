@@ -37,7 +37,8 @@ enum class AppLockFlow {
 fun resolveBackNavigationRoute(
     currentRoute: AppRoute,
     profileOriginRoute: AppRoute,
-    previousRoute: AppRoute
+    previousRoute: AppRoute,
+    paywallOriginRoute: AppRoute
 ): AppRoute? {
     return when (currentRoute) {
         AppRoute.Analytics,
@@ -69,9 +70,10 @@ fun resolveBackNavigationRoute(
         AppRoute.Goals -> previousRoute
         // The paywall is opened from upsells all over the app (gated actions, settings
         // rows, the transaction editor), so Back returns to whichever screen opened it.
-        // Unmapped, this fell into `else -> null`, which disables the scaffold's back
-        // handler and sends the app to the background instead of the previous screen.
-        AppRoute.Paywall -> previousRoute
+        // It reads its own origin rather than `previousRoute`, which is only maintained
+        // for Add Transaction: reading that one left Back on the paywall heading to a
+        // stale Home instead of the membership screen that opened it.
+        AppRoute.Paywall -> paywallOriginRoute
         AppRoute.ItemizedCalculator -> AppRoute.AddTransaction
         else -> null
     }

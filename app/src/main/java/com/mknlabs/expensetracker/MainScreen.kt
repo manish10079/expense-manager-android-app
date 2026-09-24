@@ -823,6 +823,7 @@ fun MainScreen(
                         currentRoute = navigationState.currentRoute,
                         previousRoute = navigationState.previousRoute,
                         profileOriginRoute = navigationState.profileOriginRoute,
+                        paywallOriginRoute = navigationState.paywallOriginRoute,
                         isBottomBarVisible = navigationState.isBottomBarVisible,
                         transactions = mainUiState.transactions,
                         transactionCount = mainUiState.transactionCount,

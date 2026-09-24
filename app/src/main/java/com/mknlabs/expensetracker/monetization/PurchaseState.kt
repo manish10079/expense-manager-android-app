@@ -100,6 +100,23 @@ sealed class PurchaseState {
 }
 
 /**
+ * The action that produced this state, or null for [PurchaseState.Idle] — the one state that
+ * no attempt produced.
+ *
+ * Exists so a screen can react to the outcomes of the action it owns: the membership screen
+ * runs restores only, and must not re-announce a purchase the paywall already reported.
+ */
+internal val PurchaseState.operationOrNull: PurchaseState.Operation?
+    get() = when (this) {
+        is PurchaseState.Idle -> null
+        is PurchaseState.InProgress -> operation
+        is PurchaseState.Completed -> operation
+        is PurchaseState.Cancelled -> operation
+        is PurchaseState.PaymentPending -> operation
+        is PurchaseState.Failed -> operation
+    }
+
+/**
  * Maps a RevenueCat error code to its translatable cause.
  *
  * `PurchasesErrorCode` is a foreign enum that grows between SDK upgrades, so the final

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
+import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,6 +37,13 @@ sealed class RedemptionState {
 class MonetizationViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val monetizationRepository: MonetizationRepository,
+    /**
+     * The store's billing surface. Injected here rather than reached through
+     * [monetizationRepository] because restore is an *action* the membership screen owns:
+     * routing it through the entitlement reader would have made that interface carry a
+     * purchase trigger for one caller.
+     */
+    private val billingRepository: BillingRepository,
     private val proPassRepository: ProPassRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
@@ -93,6 +102,28 @@ class MonetizationViewModel @Inject constructor(
         )
 
     /**
+     * The outcome of a restore started from this screen, or [PurchaseState.Idle].
+     *
+     * Scoped to [PurchaseState.Operation.Restore] on purpose: a purchase is announced by the
+     * paywall that ran it, and the paywall owns that state until it has shown the message.
+     * Without the filter, a user who bought Pro and immediately backed out to this screen
+     * would be told about the same purchase twice.
+     */
+    val restoreState: StateFlow<PurchaseState> = billingRepository.purchaseState
+        .map { state ->
+            if (state.operationOrNull == PurchaseState.Operation.Restore) {
+                state
+            } else {
+                PurchaseState.Idle
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = PurchaseState.Idle
+        )
+
+    /**
      * Length of the pass a rewarded ad grants, in minutes — Remote Config
      * (`ad_pass_duration_minutes`). Gating UI copy must read this instead of stating a fixed
      * duration, so the promise and the grant can never disagree.
@@ -129,6 +160,35 @@ class MonetizationViewModel @Inject constructor(
 
     fun resetRedemptionState() {
         _redemptionState.value = RedemptionState.Idle
+    }
+
+    /**
+     * Restores the account's previous store purchases, in place.
+     *
+     * Belongs here rather than behind a trip to the paywall: the user asked to restore, and
+     * the purchase screen's Play sheet is not what they asked for. Progress and the outcome
+     * are reported through [restoreState].
+     */
+    fun restorePurchases() {
+        if (restoreState.value is PurchaseState.InProgress) return
+        billingRepository.restore()
+    }
+
+    /** Releases the restore outcome once its message has been shown. */
+    fun onRestoreOutcomeShown() {
+        billingRepository.acknowledgePurchase()
+    }
+
+    /**
+     * Re-reads the store's entitlement state.
+     *
+     * Called when the membership screen opens. That screen has to state where Pro comes
+     * from, and RevenueCat only delivers its customer info through its listener, a login or
+     * a purchase — so a subscriber who is already signed in can reach the screen with no
+     * store snapshot at all, leaving a ProPass grant to describe their access.
+     */
+    fun refreshStoreEntitlement() {
+        billingRepository.refreshEntitlement()
     }
 
     // The simulated-purchase entry point was removed once real purchases existed. It had no

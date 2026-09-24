@@ -12,6 +12,7 @@ import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.monetization.SubscriptionOfferMapper
 import com.mknlabs.expensetracker.monetization.discountPercentOf
 import com.mknlabs.expensetracker.monetization.toPurchaseState
+import com.revenuecat.purchases.CacheFetchPolicy
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.LogLevel
 import com.revenuecat.purchases.Offerings
@@ -21,6 +22,7 @@ import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.PurchasesException
 import com.revenuecat.purchases.PurchasesTransactionException
+import com.revenuecat.purchases.awaitCustomerInfo
 import com.revenuecat.purchases.awaitLogIn
 import com.revenuecat.purchases.awaitLogOut
 import com.revenuecat.purchases.awaitOfferings
@@ -279,6 +281,13 @@ class BillingManager @Inject constructor(
             // Fetch initial offerings
             fetchOfferings()
 
+            // Read the store's CustomerInfo as soon as configuration succeeds. RevenueCat
+            // only delivers it through its listener, a login, or a purchase/restore, so
+            // without this read a subscriber who is already signed in can spend the whole
+            // session with no snapshot at all — which is how the membership screen came to
+            // describe a ProPass grant for a user who is paying for a subscription.
+            refreshCustomerInfo()
+
             Log.d(TAG, "RevenueCat initialized successfully")
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing RevenueCat", e)
@@ -368,6 +377,40 @@ class BillingManager @Inject constructor(
     }
 
     fun getCustomerInfo(): CustomerInfo? = _customerInfo.value
+
+    /**
+     * Re-reads the customer's entitlements, refreshing them from the store when the SDK's
+     * snapshot is stale.
+     *
+     * The SDK delivers customer info through its listener or as the result of a login,
+     * purchase or restore — and through nothing else. A subscriber who is already signed in
+     * can therefore go an entire session with no snapshot, which is what left the
+     * membership screen describing a ProPass grant for a user who is paying for a
+     * subscription. Anything that has to state where Pro comes from reads the store here.
+     *
+     * [CacheFetchPolicy.NOT_STALE_CACHED_OR_CURRENT] returns the cached snapshot only while
+     * it is still current, so a stale entitlement is never presented as fact. A failed
+     * fetch leaves the previous snapshot in place — an old answer beats a blank one.
+     */
+    fun refreshCustomerInfo() {
+        if (!isConfigured) {
+            Log.w(TAG, "CustomerInfo refresh requested before RevenueCat was configured")
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val customerInfo = Purchases.sharedInstance.awaitCustomerInfo(
+                    fetchPolicy = CacheFetchPolicy.NOT_STALE_CACHED_OR_CURRENT
+                )
+                updateCustomerInfo(customerInfo)
+            } catch (e: PurchasesException) {
+                Log.e(TAG, "Error refreshing CustomerInfo: ${e.message}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception refreshing CustomerInfo", e)
+            }
+        }
+    }
 
     fun getOfferings(): Offerings? = _offerings.value
 
@@ -511,6 +554,8 @@ class BillingManager @Inject constructor(
     }
 
     override fun restore() = restorePurchases()
+
+    override fun refreshEntitlement() = refreshCustomerInfo()
 
     override fun refreshOffers() {
         _isOffersLoaded.value = false

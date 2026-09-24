@@ -33,8 +33,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -65,7 +68,9 @@ import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
 
 @Composable
@@ -80,13 +85,39 @@ fun MembershipDetailsScreen(
     // read from the entitlement rather than from the profile's `isSubscription` mirror —
     // only a Firestore sync writes that, so a real subscriber used to read as a ProPass.
     val storeEntitlement by monetizationViewModel.storeEntitlement.collectAsStateWithLifecycle()
+    val restoreState by monetizationViewModel.restoreState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    // Ask the store what it knows before this card describes the user's access. RevenueCat
+    // delivers customer info only through its listener, a login or a purchase, so a
+    // subscriber who was already signed in could arrive here with no store snapshot at all
+    // — and the card then named a ProPass grant as the source of their Pro.
+    LaunchedEffect(Unit) {
+        monetizationViewModel.refreshStoreEntitlement()
+    }
+
+    // The restore is announced here because it now runs here. Same pure mapper as the
+    // paywall so one outcome can never be worded two ways; `isPremium` is the store's own
+    // verdict, which is what separates "restored" from "nothing to restore".
+    val restoreMessageRes = purchaseMessageRes(restoreState, isPremium = storeEntitlement != null)
+    LaunchedEffect(restoreMessageRes) {
+        val messageRes = restoreMessageRes ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(context.getString(messageRes))
+        // Released only after the message has been shown, so a configuration change
+        // mid-snackbar cannot swallow it.
+        monetizationViewModel.onRestoreOutcomeShown()
+    }
 
     MembershipDetailsContent(
         userTier = userTier,
         proExpiryTimestamp = proExpiryTimestamp,
         isAnonymous = isAnonymous,
         storeEntitlement = storeEntitlement,
-        onBackClick = onBackClick
+        isRestoring = restoreState is PurchaseState.InProgress,
+        snackbarHostState = snackbarHostState,
+        onBackClick = onBackClick,
+        onRestoreClick = monetizationViewModel::restorePurchases
     )
 }
 
@@ -97,7 +128,10 @@ internal fun MembershipDetailsContent(
     proExpiryTimestamp: Long,
     isAnonymous: Boolean,
     storeEntitlement: StoreEntitlement?,
-    onBackClick: () -> Unit
+    isRestoring: Boolean,
+    onBackClick: () -> Unit,
+    onRestoreClick: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val status = resolveMembershipStatus(
         userTier = userTier,
@@ -107,9 +141,10 @@ internal fun MembershipDetailsContent(
     )
     val isPremium = status.isPro
     val colorScheme = MaterialTheme.colorScheme
-    // Opens the Pro paywall (provided by the app shell). Every call to action here lands
-    // on it: it lists the plans, carries the restore action, and shows the store's
-    // management link for a subscriber, which is what each of them needs.
+    // Opens the Pro paywall (provided by the app shell). The actions that need plans or the
+    // store's management page land on it: it lists the plans and carries the store's
+    // management link. Restore deliberately does not — it is an action of its own, and is
+    // run here rather than by sending the user to the purchase screen.
     val upgradeToPro = LocalUpgradeToPro.current
 
     Box(
@@ -240,7 +275,8 @@ internal fun MembershipDetailsContent(
                         }
 
                         OutlinedButton(
-                            onClick = upgradeToPro,
+                            onClick = onRestoreClick,
+                            enabled = !isRestoring,
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -258,6 +294,13 @@ internal fun MembershipDetailsContent(
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+        )
     }
 }
 
@@ -347,16 +390,37 @@ private fun MembershipHeroCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = when (status) {
-                        MembershipStatus.SUBSCRIPTION -> stringResource(R.string.label_pro_subscription_active)
-                        MembershipStatus.PRO_PASS -> stringResource(R.string.label_pro_pass_active)
-                        MembershipStatus.OFFLINE -> stringResource(R.string.label_unlimited_offline)
-                        MembershipStatus.FREE -> stringResource(R.string.label_free_tier)
-                    },
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
-                )
+                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        text = when (status) {
+                            MembershipStatus.SUBSCRIPTION -> stringResource(R.string.label_pro_subscription_active)
+                            MembershipStatus.PRO_PASS -> stringResource(R.string.label_pro_pass_active)
+                            MembershipStatus.OFFLINE -> stringResource(R.string.label_unlimited_offline)
+                            MembershipStatus.FREE -> stringResource(R.string.label_free_tier)
+                        },
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
+                    )
+
+                    // Where Pro comes from, said outright. The two Pro states look alike
+                    // from the outside but mean opposite things: one is a recurring charge
+                    // the user can cancel, the other a grant that simply runs out. The card
+                    // names which, instead of leaving it to be inferred from the wording
+                    // above — the whole reason a subscriber used to read as a ProPass.
+                    val sourceRes = when (status) {
+                        MembershipStatus.SUBSCRIPTION -> R.string.label_pro_source_subscription
+                        MembershipStatus.PRO_PASS -> R.string.label_pro_source_pro_pass
+                        MembershipStatus.OFFLINE, MembershipStatus.FREE -> null
+                    }
+                    sourceRes?.let { res ->
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(res),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = PremiumOnGradient.copy(alpha = 0.85f)
+                        )
+                    }
+                }
 
                 Box(
                     modifier = Modifier
@@ -469,6 +533,8 @@ private fun SubscriptionMembershipPreview() {
             proExpiryTimestamp = 0L,
             isAnonymous = false,
             storeEntitlement = renewingSubscription(),
+            isRestoring = false,
+            onRestoreClick = {},
             onBackClick = {}
         )
     }
@@ -485,6 +551,8 @@ private fun CancelledSubscriptionMembershipPreview() {
             // Still active until it expires, but it will not renew — the card must not call
             // this date a renewal.
             storeEntitlement = renewingSubscription().copy(willRenew = false),
+            isRestoring = false,
+            onRestoreClick = {},
             onBackClick = {}
         )
     }
@@ -499,6 +567,8 @@ private fun ProPassMembershipPreview() {
             proExpiryTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 30L, // 30 days
             isAnonymous = false,
             storeEntitlement = null,
+            isRestoring = false,
+            onRestoreClick = {},
             onBackClick = {}
         )
     }
@@ -513,6 +583,8 @@ private fun FreeMembershipPreview() {
             proExpiryTimestamp = 0L,
             isAnonymous = false,
             storeEntitlement = null,
+            isRestoring = false,
+            onRestoreClick = {},
             onBackClick = {}
         )
     }
@@ -527,6 +599,8 @@ private fun AnonymousMembershipPreview() {
             proExpiryTimestamp = 0L,
             isAnonymous = true,
             storeEntitlement = null,
+            isRestoring = false,
+            onRestoreClick = {},
             onBackClick = {}
         )
     }

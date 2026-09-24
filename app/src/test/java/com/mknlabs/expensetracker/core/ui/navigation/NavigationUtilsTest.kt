@@ -19,7 +19,8 @@ class NavigationUtilsTest {
         val backRoute = resolveBackNavigationRoute(
             currentRoute = AppRoute.Profile,
             profileOriginRoute = AppRoute.Settings,
-            previousRoute = AppRoute.Home
+            previousRoute = AppRoute.Home,
+            paywallOriginRoute = AppRoute.Home
         )
 
         assertEquals(AppRoute.Settings, backRoute)
@@ -30,7 +31,8 @@ class NavigationUtilsTest {
         val backRoute = resolveBackNavigationRoute(
             currentRoute = AppRoute.ItemizedCalculator,
             profileOriginRoute = AppRoute.Home,
-            previousRoute = AppRoute.Transactions
+            previousRoute = AppRoute.Transactions,
+            paywallOriginRoute = AppRoute.Home
         )
 
         assertEquals(AppRoute.AddTransaction, backRoute)
@@ -43,7 +45,8 @@ class NavigationUtilsTest {
         val backRoute = resolveBackNavigationRoute(
             currentRoute = AppRoute.DetectedSms,
             profileOriginRoute = AppRoute.Home,
-            previousRoute = AppRoute.Home
+            previousRoute = AppRoute.Home,
+            paywallOriginRoute = AppRoute.Home
         )
 
         assertEquals(AppRoute.Home, backRoute)
@@ -56,10 +59,29 @@ class NavigationUtilsTest {
         val backRoute = resolveBackNavigationRoute(
             currentRoute = AppRoute.AddCategory,
             profileOriginRoute = AppRoute.Settings,
-            previousRoute = AppRoute.CategoryManagement
+            previousRoute = AppRoute.CategoryManagement,
+            paywallOriginRoute = AppRoute.Home
         )
 
         assertEquals(AppRoute.CategoryManagement, backRoute)
+    }
+
+    @Test
+    fun `resolveBackNavigationRoute returns the paywall origin for the paywall`() {
+        // Back from an upsell must return to the screen that opened the paywall. Reading
+        // `previousRoute` instead — a stack that only Add Transaction maintains — sent the
+        // user to a stale Home, so a subscriber who opened the paywall from the membership
+        // screen could not get back to it.
+        val backRoute = resolveBackNavigationRoute(
+            currentRoute = AppRoute.Paywall,
+            // Both of these are deliberately *not* the answer, so the test proves the
+            // paywall reads its own origin and nothing else.
+            profileOriginRoute = AppRoute.Settings,
+            previousRoute = AppRoute.Home,
+            paywallOriginRoute = AppRoute.MembershipDetails
+        )
+
+        assertEquals(AppRoute.MembershipDetails, backRoute)
     }
 
     @Test
@@ -72,7 +94,8 @@ class NavigationUtilsTest {
                 resolveBackNavigationRoute(
                     currentRoute = route,
                     profileOriginRoute = AppRoute.Settings,
-                    previousRoute = AppRoute.Transactions
+                    previousRoute = AppRoute.Transactions,
+                    paywallOriginRoute = AppRoute.Home
                 ) == null
         }
 

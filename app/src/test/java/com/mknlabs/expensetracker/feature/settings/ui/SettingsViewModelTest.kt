@@ -156,6 +156,7 @@ class SettingsViewModelTest {
         override fun purchase(activity: Activity, offerId: String) {}
         override fun restore() {}
         override fun refreshOffers() {}
+        override fun refreshEntitlement() {}
         override fun acknowledgePurchase() {}
     }
 

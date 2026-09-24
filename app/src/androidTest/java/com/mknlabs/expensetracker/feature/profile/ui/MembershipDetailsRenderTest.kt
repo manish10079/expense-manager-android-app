@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.profile.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
@@ -19,6 +20,8 @@ import com.mknlabs.expensetracker.monetization.StoreEntitlement
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -64,7 +67,9 @@ class MembershipDetailsRenderTest {
         proExpiryTimestamp: Long = 0L,
         isAnonymous: Boolean = false,
         storeEntitlement: StoreEntitlement? = null,
+        isRestoring: Boolean = false,
         onUpgradeToPro: () -> Unit = {},
+        onRestore: () -> Unit = {},
     ) {
         compose.setContent {
             ExpenseTrackerTheme {
@@ -74,7 +79,9 @@ class MembershipDetailsRenderTest {
                         proExpiryTimestamp = proExpiryTimestamp,
                         isAnonymous = isAnonymous,
                         storeEntitlement = storeEntitlement,
-                        onBackClick = {}
+                        isRestoring = isRestoring,
+                        onBackClick = {},
+                        onRestoreClick = onRestore
                     )
                 }
             }
@@ -119,6 +126,9 @@ class MembershipDetailsRenderTest {
         )
 
         compose.onNodeWithText(text(R.string.label_pro_subscription_active)).assertIsDisplayed()
+        // Where Pro comes from is named on the card, not left to be inferred.
+        compose.onNodeWithText(text(R.string.label_pro_source_subscription)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_pro_source_pro_pass)).assertDoesNotExist()
         compose.onNodeWithText(
             text(
                 R.string.label_pro_renews_on,
@@ -192,6 +202,9 @@ class MembershipDetailsRenderTest {
         )
 
         compose.onNodeWithText(text(R.string.label_pro_pass_active)).assertIsDisplayed()
+        // The same Pro state means the opposite thing here, and the card now says so.
+        compose.onNodeWithText(text(R.string.label_pro_source_pro_pass)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_pro_source_subscription)).assertDoesNotExist()
         compose.onNodeWithText(
             text(
                 R.string.label_pro_expires_on,
@@ -316,6 +329,41 @@ class MembershipDetailsRenderTest {
 
         compose.onNodeWithText(text(R.string.label_unlimited_offline)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.btn_sign_in_register)).assertIsDisplayed()
+    }
+
+    // --- the restore action, which used to leave the screen ---
+
+    @Test
+    fun restoreRunsInPlaceInsteadOfOpeningThePaywall() {
+        var restoreCount = 0
+        var paywallOpened = false
+
+        renderScreen(
+            userTier = UserTier.PREMIUM,
+            proExpiryTimestamp = now + TEN_DAYS,
+            onUpgradeToPro = { paywallOpened = true },
+            onRestore = { restoreCount++ }
+        )
+
+        val restoreLabel = text(R.string.btn_restore_purchase)
+        scrollTo(restoreLabel)
+        compose.onNodeWithText(restoreLabel).performClick()
+
+        assertEquals("Restore must reach the billing layer", 1, restoreCount)
+        assertFalse("Restore must not send the user to the paywall", paywallOpened)
+    }
+
+    @Test
+    fun restoreIsDisabledWhileARestoreIsInFlight() {
+        renderScreen(
+            userTier = UserTier.PREMIUM,
+            proExpiryTimestamp = now + TEN_DAYS,
+            isRestoring = true
+        )
+
+        val restoreLabel = text(R.string.btn_restore_purchase)
+        scrollTo(restoreLabel)
+        compose.onNodeWithText(restoreLabel).assertIsNotEnabled()
     }
 
     private companion object {

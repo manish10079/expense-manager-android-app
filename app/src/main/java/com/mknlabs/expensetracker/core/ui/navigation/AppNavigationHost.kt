@@ -63,6 +63,7 @@ fun AppNavigationHost(
     currentRoute: AppRoute,
     previousRoute: AppRoute,
     profileOriginRoute: AppRoute,
+    paywallOriginRoute: AppRoute,
     transactions: List<Transaction>,
     transactionCount: Int,
     recurringRules: List<RecurringTransactionRule>,
@@ -787,7 +788,7 @@ fun AppNavigationHost(
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
                         onBackClick = {
-                            val backRoute = resolveBackNavigationRoute(AppRoute.Goals, profileOriginRoute, previousRoute) ?: AppRoute.Home
+                            val backRoute = resolveBackNavigationRoute(AppRoute.Goals, profileOriginRoute, previousRoute, paywallOriginRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)
                             onRouteChange(backRoute)
                         }
@@ -817,7 +818,7 @@ fun AppNavigationHost(
                     // decision and Home is the safe fallback.
                     PaywallRoute(
                         onBackClick = {
-                            val backRoute = resolveBackNavigationRoute(AppRoute.Paywall, profileOriginRoute, previousRoute) ?: AppRoute.Home
+                            val backRoute = resolveBackNavigationRoute(AppRoute.Paywall, profileOriginRoute, previousRoute, paywallOriginRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)
                             onRouteChange(backRoute)
                         },
