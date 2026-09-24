@@ -52,9 +52,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.PremiumBorder
@@ -64,21 +66,26 @@ import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.monetization.StoreEntitlement
 
 @Composable
 fun MembershipDetailsScreen(
     userTier: UserTier = UserTier.FREE,
     proExpiryTimestamp: Long = 0L,
     isAnonymous: Boolean = false,
-    isSubscription: Boolean = false,
     onBackClick: () -> Unit = {},
     monetizationViewModel: MonetizationViewModel = hiltViewModel()
 ) {
+    // Whether Pro came from the store decides which Pro state this screen is in, so it is
+    // read from the entitlement rather than from the profile's `isSubscription` mirror —
+    // only a Firestore sync writes that, so a real subscriber used to read as a ProPass.
+    val storeEntitlement by monetizationViewModel.storeEntitlement.collectAsStateWithLifecycle()
+
     MembershipDetailsContent(
         userTier = userTier,
         proExpiryTimestamp = proExpiryTimestamp,
         isAnonymous = isAnonymous,
-        isSubscription = isSubscription,
+        storeEntitlement = storeEntitlement,
         onBackClick = onBackClick
     )
 }
@@ -89,12 +96,21 @@ internal fun MembershipDetailsContent(
     userTier: UserTier,
     proExpiryTimestamp: Long,
     isAnonymous: Boolean,
-    isSubscription: Boolean,
+    storeEntitlement: StoreEntitlement?,
     onBackClick: () -> Unit
 ) {
-    val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
+    val status = resolveMembershipStatus(
+        userTier = userTier,
+        isAnonymous = isAnonymous,
+        // The entitlement itself, not a cached boolean: the card needs its date too.
+        hasActiveStoreSubscription = storeEntitlement != null
+    )
+    val isPremium = status.isPro
     val colorScheme = MaterialTheme.colorScheme
-    var showComingSoonDialog by remember { mutableStateOf(false) }
+    // Opens the Pro paywall (provided by the app shell). Every call to action here lands
+    // on it: it lists the plans, carries the restore action, and shows the store's
+    // management link for a subscriber, which is what each of them needs.
+    val upgradeToPro = LocalUpgradeToPro.current
 
     Box(
         modifier = Modifier
@@ -127,11 +143,10 @@ internal fun MembershipDetailsContent(
                 // Top Hero Card
                 item {
                     MembershipHeroCard(
-                        isPremium = isPremium,
-                        isAnonymous = isAnonymous,
+                        status = status,
                         proExpiryTimestamp = proExpiryTimestamp,
-                        isSubscription = isSubscription,
-                        onUpgradeClick = { showComingSoonDialog = true }
+                        storeEntitlement = storeEntitlement,
+                        onUpgradeClick = upgradeToPro
                     )
                 }
 
@@ -193,9 +208,22 @@ internal fun MembershipDetailsContent(
                             .padding(top = 10.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        if (isPremium) {
+                        // The two Pro states need opposite actions, which is the whole
+                        // reason they are tracked separately:
+                        //  - a subscriber has a subscription to manage in the store;
+                        //  - a ProPass holder has none, and is the user most likely to
+                        //    want one, so they get the store's plans instead.
+                        val primaryActionRes = when (status) {
+                            MembershipStatus.SUBSCRIPTION -> R.string.btn_manage_subscription
+                            MembershipStatus.PRO_PASS -> R.string.btn_paywall_subscribe
+                            // Free and offline states carry their call to action on the
+                            // hero card, where the benefits are spelled out.
+                            MembershipStatus.FREE, MembershipStatus.OFFLINE -> null
+                        }
+
+                        primaryActionRes?.let { actionRes ->
                             Button(
-                                onClick = { showComingSoonDialog = true },
+                                onClick = upgradeToPro,
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = colorScheme.secondaryContainer,
@@ -204,7 +232,7 @@ internal fun MembershipDetailsContent(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = stringResource(R.string.btn_manage_subscription),
+                                    text = stringResource(actionRes),
                                     fontWeight = FontWeight.SemiBold,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
@@ -212,7 +240,7 @@ internal fun MembershipDetailsContent(
                         }
 
                         OutlinedButton(
-                            onClick = { showComingSoonDialog = true },
+                            onClick = upgradeToPro,
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -230,26 +258,20 @@ internal fun MembershipDetailsContent(
                 }
             }
         }
-
-        // Coming Soon Dialog
-        if (showComingSoonDialog) {
-            com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog(
-                onDismiss = { showComingSoonDialog = false }
-            )
-        }
     }
 }
 
 @Composable
 private fun MembershipHeroCard(
-    isPremium: Boolean,
-    isAnonymous: Boolean,
+    status: MembershipStatus,
     proExpiryTimestamp: Long,
-    isSubscription: Boolean,
+    storeEntitlement: StoreEntitlement?,
     onUpgradeClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    val isPremium = status.isPro
+    val isAnonymous = status == MembershipStatus.OFFLINE
     val proGradient = Brush.verticalGradient(
         colors = listOf(
             PremiumGradientStart,
@@ -257,15 +279,37 @@ private fun MembershipHeroCard(
         )
     )
 
-    val formattedDate = remember(proExpiryTimestamp, isSubscription) {
-        val pattern = context.getString(
-            if (isSubscription) R.string.date_pattern_full_short else R.string.date_pattern_pro_expiry
-        )
-        try {
-            java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
-                .format(java.util.Date(proExpiryTimestamp))
-        } catch (e: Exception) {
-            context.getString(R.string.label_na)
+    // Which sentence to show, and which date belongs in it, is decided by
+    // `membershipHeroCopy`; formatting happens only when it named a date. That keeps the two
+    // sources of truth apart: a subscriber is dated by the store's own `expirationDate`, a
+    // ProPass by the timestamp the Cloud Function wrote.
+    val heroCopy = membershipHeroCopy(
+        status = status,
+        proExpiryTimestamp = proExpiryTimestamp,
+        storeEntitlement = storeEntitlement,
+        // Read at composition so an end date that has already passed is described as
+        // expired rather than announced as an upcoming renewal.
+        now = System.currentTimeMillis()
+    )
+    val dateMillis = heroCopy.dateMillis
+    val formattedDate = remember(dateMillis) {
+        if (dateMillis == null) {
+            ""
+        } else {
+            // A renewal is a day, not an instant: the store reports midnight-ish boundaries,
+            // so a time would only add noise. A ProPass expiry keeps its time, because it is
+            // accurate to the moment the pass dies.
+            val pattern = if (status == MembershipStatus.SUBSCRIPTION) {
+                R.string.date_pattern_full_short
+            } else {
+                R.string.date_pattern_pro_expiry
+            }
+            try {
+                java.text.SimpleDateFormat(context.getString(pattern), java.util.Locale.getDefault())
+                    .format(java.util.Date(dateMillis))
+            } catch (e: Exception) {
+                context.getString(R.string.label_na)
+            }
         }
     }
 
@@ -304,12 +348,11 @@ private fun MembershipHeroCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (isPremium) {
-                        if (isSubscription) stringResource(R.string.label_pro_subscription_active) else stringResource(R.string.label_pro_active)
-                    } else if (isAnonymous) {
-                        stringResource(R.string.label_unlimited_offline)
-                    } else {
-                        stringResource(R.string.label_free_tier)
+                    text = when (status) {
+                        MembershipStatus.SUBSCRIPTION -> stringResource(R.string.label_pro_subscription_active)
+                        MembershipStatus.PRO_PASS -> stringResource(R.string.label_pro_pass_active)
+                        MembershipStatus.OFFLINE -> stringResource(R.string.label_unlimited_offline)
+                        MembershipStatus.FREE -> stringResource(R.string.label_free_tier)
                     },
                     style = MaterialTheme.typography.headlineSmall,
                     color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
@@ -336,16 +379,10 @@ private fun MembershipHeroCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = if (isPremium) {
-                    if (isSubscription) {
-                        stringResource(R.string.label_pro_renews_on, formattedDate)
-                    } else {
-                        stringResource(R.string.label_pro_expires_on, formattedDate)
-                    }
-                } else if (isAnonymous) {
-                    stringResource(R.string.label_offline_warning_desc)
+                text = if (dateMillis != null) {
+                    stringResource(heroCopy.descriptionRes, formattedDate)
                 } else {
-                    stringResource(R.string.msg_going_pro_benefits)
+                    stringResource(heroCopy.descriptionRes)
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
                 color = if (isPremium) PremiumOnGradient.copy(alpha = 0.9f) else colorScheme.onSurfaceVariant
@@ -413,16 +450,55 @@ private fun BenefitRow(
     }
 }
 
-@Preview(name = "Premium User State")
-@Preview(name = "Premium User State (Dark)", uiMode = Configuration.UI_MODE_NIGHT_YES)
+/** A renewing store subscription: the card dates this from the store, not the profile. */
+private fun renewingSubscription() = StoreEntitlement(
+    expirationDateMillis = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30, // 30 days
+    willRenew = true,
+    hasBillingIssue = false
+)
+
+@Preview(name = "Subscription State")
+@Preview(name = "Subscription State (Dark)", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PremiumMembershipPreview() {
+private fun SubscriptionMembershipPreview() {
+    ExpenseTrackerTheme {
+        MembershipDetailsContent(
+            userTier = UserTier.PREMIUM,
+            // Zero on purpose: a real subscriber has no local expiry, so this must never be
+            // what the card dates itself from.
+            proExpiryTimestamp = 0L,
+            isAnonymous = false,
+            storeEntitlement = renewingSubscription(),
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(name = "Subscription Cancelled State")
+@Composable
+private fun CancelledSubscriptionMembershipPreview() {
+    ExpenseTrackerTheme {
+        MembershipDetailsContent(
+            userTier = UserTier.PREMIUM,
+            proExpiryTimestamp = 0L,
+            isAnonymous = false,
+            // Still active until it expires, but it will not renew — the card must not call
+            // this date a renewal.
+            storeEntitlement = renewingSubscription().copy(willRenew = false),
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(name = "ProPass State")
+@Composable
+private fun ProPassMembershipPreview() {
     ExpenseTrackerTheme {
         MembershipDetailsContent(
             userTier = UserTier.PREMIUM,
             proExpiryTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 30L, // 30 days
             isAnonymous = false,
-            isSubscription = true,
+            storeEntitlement = null,
             onBackClick = {}
         )
     }
@@ -436,7 +512,7 @@ private fun FreeMembershipPreview() {
             userTier = UserTier.FREE,
             proExpiryTimestamp = 0L,
             isAnonymous = false,
-            isSubscription = false,
+            storeEntitlement = null,
             onBackClick = {}
         )
     }
@@ -450,7 +526,7 @@ private fun AnonymousMembershipPreview() {
             userTier = UserTier.FREE,
             proExpiryTimestamp = 0L,
             isAnonymous = true,
-            isSubscription = false,
+            storeEntitlement = null,
             onBackClick = {}
         )
     }

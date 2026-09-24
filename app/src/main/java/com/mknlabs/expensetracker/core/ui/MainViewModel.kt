@@ -26,6 +26,8 @@ import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.monetization.ProExpiryAction
+import com.mknlabs.expensetracker.monetization.ProExpiryResolver
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -92,8 +94,6 @@ class MainViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MainDataUiState())
     val uiState: StateFlow<MainDataUiState> = _uiState.asStateFlow()
     
-    val isProPassEnabled: StateFlow<Boolean> = configurationRepository.isProPassEnabled
-
     val favorites: StateFlow<List<FavoriteTransaction>> = favoriteTransactionRepository.getAllFavorites()
         .stateIn(
             scope = viewModelScope,
@@ -180,61 +180,92 @@ class MainViewModel @Inject constructor(
             }
         }
 
-        // Monitor Premium/Pro Expiry to perform automatic local downgrade
+        // Monitor Premium/Pro Expiry to perform automatic local downgrade.
+        //
+        // The third input is the *resolved* tier rather than another raw field, because the
+        // resolved tier already accounts for a live store entitlement. Deciding from the raw
+        // fields alone downgraded a paying subscriber to FREE the moment an old ProPass
+        // expiry passed: the subscription was still live, yet both local mirrors were
+        // rewritten to FREE and pushed to Firestore. A subscription always outranks a ProPass.
         viewModelScope.launch {
             combine(
                 com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(appContext),
-                AppSettingsDataStore.getAppSettingsFlow(appContext)
-            ) { profile, settings ->
-                profile to settings
-            }.collectLatest { (profile, settings) ->
+                AppSettingsDataStore.getAppSettingsFlow(appContext),
+                monetizationRepository.userTier
+            ) { profile, settings, resolvedTier ->
+                Triple(profile, settings, resolvedTier)
+            }.collectLatest { (profile, settings, resolvedTier) ->
                 val now = System.currentTimeMillis()
-                val isExpired = profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp in 1..<now
-                if (isExpired) {
-                    android.util.Log.d("MainVM", "Premium has expired. Downgrading user locally.")
-                    // 1. Downgrade locally in AppSettings
-                    AppSettingsDataStore.updateAppSettings(appContext) { current ->
-                        current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
-                    }
-                    // 2. Downgrade locally in UserProfile
-                    com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentProfile ->
-                        currentProfile.copy(
-                            accountTier = "FREE",
-                            updatedAtMillis = now
-                        )
-                    }
-                    // 3. Trigger a sync worker to push this downgraded status to Firestore
-                    com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
-                } else if (profile.accountTier == "PREMIUM" && profile.proExpiryTimestamp > now) {
-                    if (settings.userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
-                        AppSettingsDataStore.updateUserTier(appContext, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
-                    }
-                    // If the subscription is active, but we haven't reached the expiry yet,
-                    // we can schedule a delay until the expiry time, then trigger a recheck!
-                    val delayMillis = profile.proExpiryTimestamp - now
-                    if (delayMillis > 0) {
-                        android.util.Log.d("MainVM", "Scheduling expiry recheck in ${delayMillis / 1000} seconds")
-                        delay(delayMillis + 1000) // add 1 second padding
-                        
-                        val currentProfile = com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(appContext).first()
-                        val currentNow = System.currentTimeMillis()
-                        if (currentProfile.accountTier == "PREMIUM" && currentProfile.proExpiryTimestamp in 1..<currentNow) {
-                            android.util.Log.d("MainVM", "Premium expired during session. Downgrading user locally.")
-                            AppSettingsDataStore.updateAppSettings(appContext) { current ->
-                                current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+                // What to do is decided by a pure function, so every branch — a grant still
+                // running, a lapsed grant with nothing else granting Pro, a permanent grant,
+                // and a subscriber whose old pass has lapsed — is unit-tested rather than
+                // inferred from the shape of this collector.
+                when (
+                    val action = ProExpiryResolver.action(
+                        accountTier = profile.accountTier,
+                        proExpiryTimestamp = profile.proExpiryTimestamp,
+                        resolvedTier = resolvedTier,
+                        now = now
+                    )
+                ) {
+                    ProExpiryAction.None -> Unit
+
+                    ProExpiryAction.Downgrade -> downgradeToFree(now)
+
+                    is ProExpiryAction.Hold -> {
+                        if (settings.userTier != com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+                            AppSettingsDataStore.updateUserTier(appContext, com.mknlabs.expensetracker.models.UserTier.PREMIUM)
+                        }
+                        // Wake up when the grant ends rather than trusting this snapshot, so
+                        // a session left open across the expiry still lands on downgrade.
+                        val delayMillis = action.expiryMillis - now
+                        if (delayMillis > 0) {
+                            android.util.Log.d("MainVM", "Scheduling expiry recheck in ${delayMillis / 1000} seconds")
+                            delay(delayMillis + 1000) // add 1 second padding
+
+                            val currentProfile = com.mknlabs.expensetracker.data.local.UserProfileDataStore.getUserProfileFlow(appContext).first()
+                            val currentNow = System.currentTimeMillis()
+                            // Re-decided by the same rule, with the tier re-read rather than
+                            // reused: this branch can be asleep for the length of the grant,
+                            // and a subscription bought in the meantime must win.
+                            val recheck = ProExpiryResolver.action(
+                                accountTier = currentProfile.accountTier,
+                                proExpiryTimestamp = currentProfile.proExpiryTimestamp,
+                                resolvedTier = monetizationRepository.userTier.first(),
+                                now = currentNow
+                            )
+                            if (recheck == ProExpiryAction.Downgrade) {
+                                downgradeToFree(currentNow)
                             }
-                            com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentP ->
-                                currentP.copy(
-                                    accountTier = "FREE",
-                                    updatedAtMillis = currentNow
-                                )
-                            }
-                            com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Clears every local Pro mirror and pushes the downgrade to Firestore.
+     *
+     * Every call site checks the *resolved* tier first, so this can only ever describe a user
+     * with no store entitlement. What it writes is a mirror of the store's verdict, never a
+     * replacement for it — the entitlement keeps winning even if this runs at a bad moment.
+     */
+    private suspend fun downgradeToFree(now: Long) {
+        android.util.Log.d("MainVM", "Pro expired with no live store entitlement. Downgrading user locally.")
+        // 1. Downgrade locally in AppSettings
+        AppSettingsDataStore.updateAppSettings(appContext) { current ->
+            current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+        }
+        // 2. Downgrade locally in UserProfile
+        com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentProfile ->
+            currentProfile.copy(
+                accountTier = "FREE",
+                updatedAtMillis = now
+            )
+        }
+        // 3. Trigger a sync worker to push this downgraded status to Firestore
+        com.mknlabs.expensetracker.workers.SyncWorker.startImmediate(appContext)
     }
 
     fun setTransactionObservationEnabled(enabled: Boolean) {

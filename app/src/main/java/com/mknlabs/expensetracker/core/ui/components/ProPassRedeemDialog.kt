@@ -44,13 +44,22 @@ fun ProPassRedeemDialog(
 ) {
     var code by remember { mutableStateOf("") }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
-    val userTier by viewModel.userTier.collectAsStateWithLifecycle()
+    // Only a *store subscription* is grounds for refusing a code.
+    //
+    // This check used to be `userTier == PREMIUM`, which refused two users it should not:
+    // a ProPass holder, whose code would have stacked (the `redeemProPass` function computes
+    // `max(now, existingExpiry) + durationDays` and is explicit that existing premium is
+    // "extended, not overwritten"), and a subscriber, who was shown ProPass-specific copy
+    // about waiting for a pass to expire. The first is why the Settings row stays enabled for
+    // a ProPass holder at all, and this dialog was contradicting it one tap later.
+    val hasActiveStoreSubscription by viewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
     val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
 
-    // If Pro Pass is currently active, show pop up informing user to try after expiry
-    if (userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM) {
+    // A subscription already covers the window a new grant would occupy, so the code would
+    // run out unused. Say that, rather than asking the user to wait for an expiry.
+    if (hasActiveStoreSubscription) {
         AlertDialog(
             onDismissRequest = onDismiss,
             containerColor = MaterialTheme.colorScheme.surface,
@@ -64,14 +73,14 @@ fun ProPassRedeemDialog(
             },
             title = {
                 Text(
-                    text = stringResource(id = R.string.title_pro_pass_already_active),
+                    text = stringResource(id = R.string.title_pro_pass_subscribed),
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center
                 )
             },
             text = {
                 Text(
-                    text = stringResource(id = R.string.msg_pro_pass_already_active),
+                    text = stringResource(id = R.string.msg_pro_pass_subscribed),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
