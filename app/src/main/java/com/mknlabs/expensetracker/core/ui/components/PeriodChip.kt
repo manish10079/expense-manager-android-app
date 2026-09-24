@@ -38,8 +38,8 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
  * divides its width into equal segments, so short labels sit in a mostly empty bar, and it
  * is shared by four other screens that must not be restyled to change one.
  *
- * A chip is emitted per option so the parent can space the options evenly and let them wrap
- * onto a second row when they stop fitting, which is what [EvenlySpacedChips] arranges.
+ * A chip is emitted per option so the parent can divide the row evenly and let the options wrap
+ * onto a second row when they stop fitting.
  *
  * The fill animates rather than sliding, because separate chips have no shared path for an
  * indicator to travel along. A colour transition is what keeps a state change reading as

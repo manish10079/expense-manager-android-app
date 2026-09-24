@@ -135,7 +135,6 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
-import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TabCountBadge

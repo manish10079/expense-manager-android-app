@@ -62,7 +62,6 @@ import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
-import com.mknlabs.expensetracker.core.ui.components.EvenlySpacedChips
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
