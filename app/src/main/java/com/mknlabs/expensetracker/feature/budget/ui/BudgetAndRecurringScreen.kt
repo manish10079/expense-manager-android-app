@@ -844,13 +844,14 @@ private fun BudgetPeriodRow(
     // fit on one line on a phone.
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = EvenlySpacedChips(minGap = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         BudgetPeriodFilter.entries.forEach { period ->
             val isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked
 
             PeriodChip(
+                modifier = Modifier.weight(1f),
                 label = when (period) {
                     BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
                     BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)

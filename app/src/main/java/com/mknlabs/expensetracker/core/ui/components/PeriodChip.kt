@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 
@@ -120,12 +121,13 @@ fun PeriodChip(
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
     ) {
         Text(
             text = label,
             color = contentColor,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = textStyle
         )
 

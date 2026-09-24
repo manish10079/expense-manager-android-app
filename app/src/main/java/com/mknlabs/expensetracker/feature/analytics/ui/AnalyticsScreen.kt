@@ -306,7 +306,7 @@ fun AnalyticsScreenContent(
                     // window does to them. A Row would squeeze or clip instead.
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = EvenlySpacedChips(minGap = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Emitted one chip at a time so the FlowRow sees four siblings to
@@ -325,6 +325,7 @@ fun AnalyticsScreenContent(
                                     .forEach { period ->
                                         val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
                                         PeriodChip(
+                                            modifier = Modifier.weight(1f),
                                             label = stringResource(id = period.labelRes),
                                             isSelected = period == uiState.selectedPeriod,
                                             isLocked = isLocked,
@@ -337,6 +338,7 @@ fun AnalyticsScreenContent(
                         }
 
                         CustomRangeSelector(
+                            modifier = Modifier.weight(1f),
                             selectedPeriod = uiState.selectedPeriod,
                             customRange = customRange,
                             onClick = {
@@ -616,9 +618,9 @@ private fun CustomRangeSelector(
     selectedPeriod: AnalyticsPeriod,
     customRange: LongRange?,
     onClick: () -> Unit,
-    onClear: () -> Unit
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
     val isDark = MaterialTheme.colorScheme.isDark
     val isSelected = selectedPeriod == AnalyticsPeriod.CUSTOM
 
@@ -640,14 +642,15 @@ private fun CustomRangeSelector(
         if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
     }
 
-    // Wrap-content, not fillMaxWidth: this nests inside the shared period row, and the
-    // Clear action follows the pill instead of being pushed to the far edge.
     Row(
+        modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
+                .weight(1f)
+                .minimumInteractiveComponentSize()
                 .clip(RoundedCornerShape(18.dp))
                 .background(containerColor)
                 .border(
@@ -662,9 +665,10 @@ private fun CustomRangeSelector(
                 onAction = onClick
             ) { status, gatedOnClick ->
                 val isLocked = status !is AccessStatus.Granted
-                
+
                 Row(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .clickable(
                             // Names the control for screen readers. The calendar icon used to
                             // carry this label, and with the icon gone the visible text is
@@ -674,14 +678,16 @@ private fun CustomRangeSelector(
                         ) { if (isLocked) gatedOnClick() else onClick() }
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
                 ) {
                     // No calendar icon: it was removed to buy the width that lets this
                     // pill share a line with the three period chips.
                     Text(
                         text = customRange?.let { formatCustomRangeLabel(it) } ?: stringResource(id = R.string.desc_custom_range),
                         color = textColor,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (isLocked) {
                         Icon(
