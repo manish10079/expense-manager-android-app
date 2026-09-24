@@ -107,7 +107,9 @@ function activeSubscription(rcData) {
  *  - failed-precondition  an active store subscription (carries
  *                         `details.reason = "SUBSCRIPTION_ACTIVE"` plus the
  *                         subscription's `details.subscriptionExpiry` in epoch millis),
- *                         or an inactive / expired / used-up coupon
+ *                         or an inactive / expired / used-up coupon. The coupon refusals
+ *                         carry `details.reason` as well — INVALID_CODE, INACTIVE, EXPIRED,
+ *                         LIMIT_REACHED — because the code alone cannot tell them apart.
  */
 exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
   // --- Auth gate (mirrors the old app check) ---
@@ -129,7 +131,9 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
   // --- Input validation (mirrors the old app check) ---
   const rawCode = request.data?.code;
   if (typeof rawCode !== "string" || rawCode.trim().length === 0) {
-    throw new HttpsError("invalid-argument", "Code cannot be empty");
+    throw new HttpsError("invalid-argument", "Code cannot be empty", {
+      reason: "INVALID_CODE"
+    });
   }
   const code = rawCode.trim().toUpperCase();
 
@@ -177,13 +181,19 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       : [];
 
     if (!isActive) {
-      throw new HttpsError("failed-precondition", "This ProPass code is no longer active");
+      throw new HttpsError("failed-precondition", "This ProPass code is no longer active", {
+        reason: "INACTIVE"
+      });
     }
     if (durationDays <= 0) {
-      throw new HttpsError("failed-precondition", "Invalid ProPass code");
+      throw new HttpsError("failed-precondition", "Invalid ProPass code", {
+        reason: "INVALID_CODE"
+      });
     }
     if (expiryMillis > 0 && expiryMillis < Date.now()) {
-      throw new HttpsError("failed-precondition", "This ProPass code has expired");
+      throw new HttpsError("failed-precondition", "This ProPass code has expired", {
+        reason: "EXPIRED"
+      });
     }
 
     const redemptionSnap = await tx.get(redemptionRef);
@@ -192,7 +202,9 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       throw new HttpsError("already-exists", "You have already redeemed this ProPass code");
     }
     if (currentUses >= maxUses) {
-      throw new HttpsError("failed-precondition", "This ProPass code has reached its usage limit");
+      throw new HttpsError("failed-precondition", "This ProPass code has reached its usage limit", {
+        reason: "LIMIT_REACHED"
+      });
     }
 
     // Existing premium is extended, not overwritten (matches old app behaviour).

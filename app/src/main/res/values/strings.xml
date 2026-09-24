@@ -1818,6 +1818,14 @@
     <string name="btn_activate_pro">Activate Pro</string>
     <string name="msg_pro_pass_activated">ProPass Activated! You now have %1$d days of premium access.</string>
     <string name="error_invalid_pro_pass">Invalid or expired ProPass code.</string>
+    <string name="error_redeem_not_signed_in">Sign in with Google or Email to redeem a ProPass code.</string>
+    <string name="error_redeem_inactive">This ProPass code is no longer active.</string>
+    <string name="error_redeem_expired">This ProPass code has expired.</string>
+    <string name="error_redeem_limit_reached">This ProPass code has reached its usage limit.</string>
+    <string name="error_redeem_already_redeemed">You have already redeemed this ProPass code.</string>
+    <string name="error_redeem_subscription_active">Your subscription already covers Pro, so a ProPass would run out unused. Manage it from Google Play.</string>
+    <string name="error_redeem_network">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="error_redeem_unknown">Couldn\'t activate that code. Please try again.</string>
     <string name="label_have_a_code">Have a Pro Access Code?</string>
     <string name="error_underage_restriction">You must be at least 15 years old to continue.</string>
     <string name="label_parental_consent">I have parental consent to use this app.</string>

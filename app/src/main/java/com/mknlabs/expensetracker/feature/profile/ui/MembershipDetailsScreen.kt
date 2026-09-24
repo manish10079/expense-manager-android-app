@@ -60,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -90,6 +91,17 @@ fun MembershipDetailsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    // The same dialog the Settings row opens, hosted here too so the one code path a
+    // ProPass holder looks for exists on the screen that explains their access.
+    var showRedeemDialog by remember { mutableStateOf(false) }
+
+    if (showRedeemDialog) {
+        ProPassRedeemDialog(
+            viewModel = monetizationViewModel,
+            onDismiss = { showRedeemDialog = false }
+        )
+    }
+
     // Ask the store what it knows before this card describes the user's access. RevenueCat
     // delivers customer info only through its listener, a login or a purchase, so a
     // subscriber who was already signed in could arrive here with no store snapshot at all
@@ -118,7 +130,8 @@ fun MembershipDetailsScreen(
         isRestoring = restoreState is PurchaseState.InProgress,
         snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
-        onRestoreClick = monetizationViewModel::restorePurchases
+        onRestoreClick = monetizationViewModel::restorePurchases,
+        onRedeemProPassClick = { showRedeemDialog = true }
     )
 }
 
@@ -132,6 +145,7 @@ internal fun MembershipDetailsContent(
     isRestoring: Boolean,
     onBackClick: () -> Unit,
     onRestoreClick: () -> Unit,
+    onRedeemProPassClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val status = resolveMembershipStatus(
@@ -269,6 +283,28 @@ internal fun MembershipDetailsContent(
                             ) {
                                 Text(
                                     text = stringResource(actionRes),
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+
+                        // The second way to reach Pro, and the only one open to a user who
+                        // was given a code. It sits above Restore because it grants access
+                        // while Restore only recovers it; a subscriber never sees it, since
+                        // the server refuses a pass that would run out unused.
+                        if (status == MembershipStatus.PRO_PASS || status == MembershipStatus.FREE) {
+                            OutlinedButton(
+                                onClick = onRedeemProPassClick,
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = colorScheme.primary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.title_redeem_pro_pass),
                                     fontWeight = FontWeight.SemiBold,
                                     style = MaterialTheme.typography.bodyLarge
                                 )

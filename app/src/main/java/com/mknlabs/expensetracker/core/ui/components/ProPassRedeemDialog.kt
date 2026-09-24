@@ -196,7 +196,9 @@ fun ProPassRedeemDialog(
                     }
                     is RedemptionState.Error -> {
                         Text(
-                            text = currentState.message,
+                            // Localized here rather than carried in the state: the server's
+                            // English message is a developer aid, not copy.
+                            text = stringResource(id = redemptionErrorMessageRes(currentState.error)),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
