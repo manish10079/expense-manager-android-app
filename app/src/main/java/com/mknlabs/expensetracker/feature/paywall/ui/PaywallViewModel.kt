@@ -33,6 +33,28 @@ data class PaywallUiState(
     val isBusy: Boolean get() = purchaseState is PurchaseState.InProgress
 
     /**
+     * The attempt that just finished delivered what this screen sells, so there is nothing
+     * left to sell and the paywall closes itself.
+     *
+     * A *purchase* qualifies on the transaction alone. RevenueCat reports it completed as
+     * soon as the Play sheet is accepted, while [isPremium] waits for the entitlement to come
+     * back from the store — and never arrives at all when the store's entitlement is not
+     * configured to match the id the billing layer reads. Closing on the entitlement rather
+     * than on the transaction would leave a user who has just paid sitting on a purchase
+     * screen, which is the bug this property exists to prevent.
+     *
+     * A *restore* qualifies only when it found something: `Completed(Restore)` also means
+     * "there was nothing to restore", which is exactly when the user still needs this screen
+     * (and is why the copy mapper consults [isPremium] separately).
+     */
+    val isPurchaseSettled: Boolean
+        get() {
+            val state = purchaseState
+            return state is PurchaseState.Completed &&
+                (state.operation == PurchaseState.Operation.Purchase || isPremium)
+        }
+
+    /**
      * The store has an active subscription *and* gave us a page to manage it on.
      *
      * Both halves are required: offering the link to a non-subscriber would lead nowhere,

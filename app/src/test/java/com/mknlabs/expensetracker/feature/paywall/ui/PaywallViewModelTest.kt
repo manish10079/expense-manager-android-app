@@ -225,6 +225,76 @@ class PaywallViewModelTest {
             assertTrue(viewModel.uiState.value.isPremium)
         }
 
+    // --- Closing the paywall once it has nothing left to sell ----------------------------
+
+    @Test
+    fun `a completed purchase settles the paywall`() = runTest {
+        val viewModel = viewModel()
+        collectState(viewModel)
+
+        billing.purchaseState.value = PurchaseState.Completed(PurchaseState.Operation.Purchase)
+
+        // Settled on the transaction alone: the entitlement lags the Play sheet, and with a
+        // store entitlement that does not match the id the billing layer reads it never
+        // arrives at all. Either way the user has paid, so the paywall must not wait for it.
+        assertFalse(viewModel.uiState.value.isPremium)
+        assertTrue(viewModel.uiState.value.isPurchaseSettled)
+    }
+
+    @Test
+    fun `a subscriber who opens the paywall is left in it`() = runTest {
+        val viewModel = viewModel()
+        collectState(viewModel)
+
+        billing.isPremium.value = true
+
+        // No attempt has been made, so nothing settles: a Pro user who opened the paywall to
+        // manage their subscription must not be thrown out of it.
+        assertFalse(viewModel.uiState.value.isPurchaseSettled)
+    }
+
+    @Test
+    fun `a restore that found nothing leaves the paywall up`() = runTest {
+        val viewModel = viewModel()
+        collectState(viewModel)
+
+        billing.purchaseState.value = PurchaseState.Completed(PurchaseState.Operation.Restore)
+
+        // "Nothing to restore" is a completed restore, and the user still needs somewhere to
+        // buy.
+        assertFalse(viewModel.uiState.value.isPurchaseSettled)
+    }
+
+    @Test
+    fun `a restore that found a subscription settles the paywall`() = runTest {
+        val viewModel = viewModel()
+        collectState(viewModel)
+
+        billing.isPremium.value = true
+        billing.purchaseState.value = PurchaseState.Completed(PurchaseState.Operation.Restore)
+
+        assertTrue(viewModel.uiState.value.isPurchaseSettled)
+    }
+
+    @Test
+    fun `an attempt that did not complete leaves the paywall up`() = runTest {
+        val viewModel = viewModel()
+        collectState(viewModel)
+
+        billing.purchaseState.value = PurchaseState.Cancelled(PurchaseState.Operation.Purchase)
+        assertFalse(viewModel.uiState.value.isPurchaseSettled)
+
+        billing.purchaseState.value =
+            PurchaseState.PaymentPending(PurchaseState.Operation.Purchase)
+        assertFalse(viewModel.uiState.value.isPurchaseSettled)
+
+        billing.purchaseState.value = PurchaseState.Failed(
+            PurchaseState.Operation.Purchase,
+            PurchaseState.FailureReason.StoreProblem,
+        )
+        assertFalse(viewModel.uiState.value.isPurchaseSettled)
+    }
+
     // --- Managing an existing subscription ----------------------------------------------
 
     @Test

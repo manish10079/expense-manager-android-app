@@ -72,8 +72,18 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.utils.findFragmentActivity
+import kotlinx.coroutines.delay
 
 private const val TAG = "PaywallScreen"
+
+/**
+ * How long the purchase confirmation stays on screen before the paywall closes itself.
+ *
+ * Long enough to register the message, short enough that the close still reads as the
+ * result of the purchase rather than as a delay. Deliberately shorter than the snackbar's
+ * own timeout, which would hold a paid-for purchase screen up for four seconds.
+ */
+private const val PURCHASE_CONFIRMATION_HOLD_MILLIS = 1_500L
 
 /**
  * Paywall route: owns the ViewModel, collects state and resolves the host Activity.
@@ -116,6 +126,21 @@ fun PaywallRoute(
         // Released only after the message has actually been shown, so a configuration
         // change mid-snackbar cannot swallow it.
         viewModel.onOutcomeShown()
+    }
+
+    // A settled attempt closes the paywall. The user came here to buy, they have bought, and
+    // a purchase screen they have already paid on is the bug this exists to prevent — the
+    // confirmation above is what they get for their money, not another chance to pay twice.
+    LaunchedEffect(uiState.isPurchaseSettled) {
+        if (!uiState.isPurchaseSettled) return@LaunchedEffect
+        delay(PURCHASE_CONFIRMATION_HOLD_MILLIS)
+        // Consumed here rather than by the effect above, because leaving cancels that one
+        // mid-snackbar and its acknowledgement would never run — and an outcome left
+        // unconsumed is announced again the next time the paywall opens. Both calls below
+        // are non-suspending, so clearing the state that keys this effect cannot cancel them
+        // part-way: the last suspension point is the delay.
+        viewModel.onOutcomeShown()
+        onBackClick()
     }
 
     PaywallContent(
