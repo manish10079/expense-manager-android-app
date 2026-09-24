@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -290,6 +291,15 @@ internal fun MembershipDetailsContent(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
+
+                        // Where cancelling actually happens, under the action a subscriber is
+                        // most likely to try first. Play owns the renewal, so the app cannot
+                        // offer a cancel control of its own — the honest answer is the store
+                        // path. Only a subscriber has something to cancel: a ProPass grant
+                        // runs out on its own, and a free user has nothing to end.
+                        if (status == MembershipStatus.SUBSCRIPTION) {
+                            SubscriptionCancelHint()
+                        }
                     }
                 }
             }
@@ -300,6 +310,31 @@ internal fun MembershipDetailsContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
+        )
+    }
+}
+
+// The two lines that answer "how do I stop being charged?". Split rather than written as
+// one sentence because the store path is the part that has to be read, and a subscriber
+// scanning for it should not have to parse a paragraph to find it.
+@Composable
+private fun SubscriptionCancelHint() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.label_cancel_subscription_anytime),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = stringResource(R.string.label_cancel_subscription_where),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+            textAlign = TextAlign.Center
         )
     }
 }

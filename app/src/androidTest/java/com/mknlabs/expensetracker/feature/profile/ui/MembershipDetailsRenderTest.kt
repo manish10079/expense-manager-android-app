@@ -144,6 +144,10 @@ class MembershipDetailsRenderTest {
         // A subscriber has a subscription to manage, so no buy CTA on the card.
         scrollTo(text(R.string.btn_restore_purchase))
         compose.onNodeWithText(text(R.string.btn_paywall_subscribe)).assertDoesNotExist()
+        // Cancelling is the store's job, and the screen says where: right under the restore
+        // action a subscriber would otherwise try first.
+        compose.onNodeWithText(text(R.string.label_cancel_subscription_anytime)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_cancel_subscription_where)).assertIsDisplayed()
     }
 
     @Test
@@ -217,9 +221,11 @@ class MembershipDetailsRenderTest {
         compose.onNodeWithText(subscribeLabel).assertIsDisplayed().performClick()
         assertTrue("Subscribe must open the paywall", paywallOpened)
 
-        // Pro with no store subscription has nothing to manage.
+        // Pro with no store subscription has nothing to manage — and nothing to cancel
+        // either, so the Play Store cancellation path must not be offered.
         scrollTo(text(R.string.btn_restore_purchase))
         compose.onNodeWithText(text(R.string.btn_manage_subscription)).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.label_cancel_subscription_anytime)).assertDoesNotExist()
     }
 
     // --- the date regressions this suite exists for ---
@@ -321,6 +327,8 @@ class MembershipDetailsRenderTest {
         compose.onNodeWithText(text(R.string.btn_manage_subscription)).assertDoesNotExist()
         compose.onNodeWithText(text(R.string.btn_paywall_subscribe)).assertDoesNotExist()
         compose.onNodeWithText(text(R.string.msg_subscription_active_desc)).assertDoesNotExist()
+        // Nothing is being charged, so there is nothing to tell them to cancel.
+        compose.onNodeWithText(text(R.string.label_cancel_subscription_anytime)).assertDoesNotExist()
     }
 
     @Test

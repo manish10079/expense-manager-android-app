@@ -1933,6 +1933,8 @@
     <string name="label_pro_benefit_many_more_features">Many More... You Can Explore</string>
     <string name="btn_restore_purchase">Restore Purchase</string>
     <string name="btn_manage_subscription">Manage Subscription</string>
+    <string name="label_cancel_subscription_anytime">You can cancel your subscription anytime</string>
+    <string name="label_cancel_subscription_where">You can do it from Play Store\'s Payments &amp; subscriptions section</string>
     <string name="btn_upgrade_now">Go Pro Now</string>
     <string name="label_expires_on">Expires on %1$s</string>
     <string name="label_renews_on">Renews on %1$s</string>
