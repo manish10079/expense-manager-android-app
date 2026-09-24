@@ -16,13 +16,11 @@ service cloud.firestore {
       // Prevent listing all coupons
       allow list: if false;
 
-      // Only allow incrementing currentUses by exactly +1
-      // No other fields can be modified
-      allow update: if request.resource.data.diff(resource.data)
-                        .affectedKeys()
-                        .hasOnly(['currentUses'])
-                    && request.resource.data.currentUses
-                       == resource.data.currentUses + 1;
+      // Coupons are written ONLY by the redeemProPass Cloud Function, which uses the
+      // Admin SDK and bypasses these rules. Clients may not touch a coupon at all: the
+      // old allowance to increment currentUses by exactly +1 still let any client burn a
+      // code's usage one increment at a time, until it looked exhausted to real users.
+      allow update: if false;
 
       // Coupons can only be created/deleted by backend/admin
       allow create, delete: if false;
@@ -38,9 +36,10 @@ service cloud.firestore {
         allow get: if request.auth != null
                    && request.auth.uid == uid;
 
-        // User can create or update only their own redemption record
-        allow create, update: if request.auth != null
-                              && request.auth.uid == uid;
+        // Redemptions are written ONLY by the redeemProPass Cloud Function (Admin SDK).
+        // A client that could create or overwrite its own record could fake a redemption,
+        // or erase one and spend the same code twice.
+        allow create, update: if false;
 
         // No deletes or listing
         allow list, delete: if false;
