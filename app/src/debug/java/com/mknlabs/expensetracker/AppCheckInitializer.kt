@@ -29,7 +29,7 @@ import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
  */
 object AppCheckInitializer {
     fun initialize(context: Context) {
-        val pinnedSecret = BuildConfig.APP_CHECK_DEBUG_TOKEN
+        val pinnedSecret = BuildConfig.APP_CHECK_TOKEN.ifEmpty { BuildConfig.APP_CHECK_DEBUG_TOKEN }
         if (pinnedSecret.isNotBlank()) {
             seedDebugSecret(context, pinnedSecret)
         }

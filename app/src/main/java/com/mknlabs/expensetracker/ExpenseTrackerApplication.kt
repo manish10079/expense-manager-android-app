@@ -67,6 +67,9 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Debug builds use a debug token (shown in logcat) so development is
         // not blocked by integrity checks. Release builds use Play Integrity
         // which verifies the app is genuine and the device is uncompromised.
+        if (BuildConfig.DEBUG && BuildConfig.APP_CHECK_TOKEN.isNotBlank()) {
+            System.setProperty("firebase.appcheck.debug.token", BuildConfig.APP_CHECK_TOKEN)
+        }
         FirebaseApp.initializeApp(this)
         AppCheckInitializer.initialize(this)
 

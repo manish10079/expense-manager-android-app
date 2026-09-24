@@ -19,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 246
-        versionName = "2.121.2"
+        versionName = "2.121.4"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,17 +34,23 @@ android {
     }
 
     // Load local properties for secrets (gitignored)
-    val localPropertiesFile = rootProject.file("localProperties.properties")
     val localProperties = Properties().apply {
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use { load(it) }
+        val f1 = rootProject.file("local.properties")
+        if (f1.exists()) {
+            f1.inputStream().use { load(it) }
+        }
+        val f2 = rootProject.file("localProperties.properties")
+        if (f2.exists()) {
+            f2.inputStream().use { load(it) }
         }
     }
     val rcKey = localProperties.getProperty("revenueCatApiKey", "")
     // Pinned App Check debug token for local development (gitignored). Left blank,
     // the SDK mints a new token on every fresh install and it has to be registered
     // in the Firebase console again; pinned, one registered value is used forever.
-    val appCheckDebugToken = localProperties.getProperty("appCheckDebugToken", "")
+    val appCheckDebugToken = localProperties.getProperty("APP_CHECK_DEBUG_TOKEN")
+        ?: localProperties.getProperty("appCheckDebugToken")
+        ?: ""
 
     signingConfigs {
         create("release") {
@@ -105,6 +111,7 @@ android {
             buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
             // Pinned App Check debug token (kept secret, debug-only). Blank means
             // the SDK's own rotating debug token is used, as before.
+            buildConfigField("String", "APP_CHECK_TOKEN", "\"$appCheckDebugToken\"")
             buildConfigField("String", "APP_CHECK_DEBUG_TOKEN", "\"$appCheckDebugToken\"")
         }
     }
@@ -118,13 +125,6 @@ android {
         resValues = true
     }
     sourceSets {
-        getByName("main") {
-            assets {
-                directories.add(
-                    "src/main/java/com/mknlabs/expensetracker/data/legacyimport"
-                )
-            }
-        }
         // Room migration tests read the exported schema JSONs from assets.
         getByName("androidTest") {
             assets {
