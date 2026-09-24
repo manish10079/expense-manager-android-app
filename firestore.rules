@@ -100,6 +100,14 @@ service cloud.firestore {
 
     /******************************************************************
      * USER SUBCOLLECTIONS
+     *
+     * NOTE: this recursive rule grants clients read+write on EVERY
+     * subcollection under users/{uid} (transactions, budgets, goals,
+     * devices, fcmTokens, ...). Firestore rules are ADDITIVE — a nested
+     * rule can never *deny* a path this one already allows — so anything
+     * that must be server-authoritative (e.g. the RevenueCat entitlement
+     * snapshot) cannot live under users/{uid}. That is why rc_customers
+     * below is a top-level collection.
      ******************************************************************/
     match /users/{uid}/{document=**} {
 
@@ -119,6 +127,43 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid;
       allow read, update, delete: if false;
+    }
+
+    /******************************************************************
+     * REVENUECAT ENTITLEMENT SNAPSHOT
+     * Path:
+     * rc_customers/{uid}
+     *
+     * Written ONLY by the RevenueCat Firebase Extension. The extension uses
+     * the Admin SDK, which bypasses these rules entirely, so no write rule
+     * is needed for it to work. Clients get read-only access to their own
+     * document and can neither write nor enumerate others.
+     *
+     * Doc id === Firebase UID === RevenueCat app user id (BillingManager
+     * calls Purchases.logIn(firebaseUid), so the two always match).
+     ******************************************************************/
+    match /rc_customers/{uid} {
+
+      // Read own entitlement snapshot
+      allow get: if request.auth != null
+                 && request.auth.uid == uid;
+
+      // No listing other customers, and no client writes at all
+      allow list, write: if false;
+    }
+
+    /******************************************************************
+     * REVENUECAT WEBHOOK EVENTS LOG (optional)
+     * Path:
+     * rc_events/{eventId}
+     *
+     * Server-side audit trail of subscription lifecycle events
+     * (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, ...) written by
+     * the extension via Admin SDK. No client access whatsoever — this is a
+     * backend/debugging log, not app-facing data.
+     ******************************************************************/
+    match /rc_events/{eventId} {
+      allow read, write: if false;
     }
 
     /******************************************************************
