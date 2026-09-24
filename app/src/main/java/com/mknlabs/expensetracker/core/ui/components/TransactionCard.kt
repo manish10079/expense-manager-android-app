@@ -311,8 +311,10 @@ fun TransactionCard(
                 // scrollable are measured with an unbounded max width, so the inner Row's
                 // own size *is* its full content width — which is what makes the overflow
                 // comparison below possible without measuring the text twice.
+                // The gap between the note/amount row and the meta row. Kept just wide
+                // enough to read as two distinct lines without loosening the card.
                 if (hasMetaRow) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(7.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -456,19 +458,14 @@ fun TransactionCard(
 /**
  * Small label pill for the card's secondary row (type / category / payment).
  *
- * Deliberately carries NO vertical padding: with none, the box hugs the label's own
- * line box, which is exactly the height of the card's date·time line above it — that
- * line is a single-line `labelSmall` Text too, so the two match by construction
- * rather than through a stored dimension. Nothing is converted from sp to dp, so the
- * match also survives font-scale changes and Android 14+ non-linear font scaling,
- * where a hardcoded height would drift by a fraction of a dp.
+ * Carries a little vertical padding around the label's own line box, so the pill reads as a
+ * filled chip instead of a tight rectangle that hugs the text. The type size still arrives
+ * as [style] rather than a hardcoded height, so the pills and the card's date·time line — a
+ * plain single-line `labelSmall` Text — keep one source of truth and scale together with the
+ * user's font size, including Android 14+ non-linear font scaling.
  *
- * The corner radius stays a constant *fraction* of the height (4dp on a ~16dp pill is
- * the same 1:4 ratio the previous 6dp radius had on a ~24dp pill), so the silhouette
- * is identical rather than visibly rounder at the smaller size.
- *
- * The type size arrives as [style] rather than being hardcoded, so the pills and the
- * row's date·time line are guaranteed to share one source of truth.
+ * The corner radius stays a small constant so the silhouette stays crisp at the compact
+ * size rather than turning into a lozenge.
  */
 @Composable
 private fun TransactionPill(
@@ -480,7 +477,7 @@ private fun TransactionPill(
     Box(
         modifier = Modifier
             .background(backgroundColor, RoundedCornerShape(4.dp))
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 3.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
