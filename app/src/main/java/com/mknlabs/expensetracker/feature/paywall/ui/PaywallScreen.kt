@@ -483,14 +483,15 @@ private fun PlanCard(
                         ),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    if (offer.discountBadgeRes != null) {
+                    val discountPercent = offer.discountPercent
+                    if (discountPercent != null) {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(6.dp),
                         ) {
                             Text(
-                                text = stringResource(offer.discountBadgeRes),
+                                text = stringResource(R.string.paywall_discount_badge, discountPercent),
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                 ),

@@ -51,29 +51,51 @@ class SubscriptionOfferMapperTest {
     // --- The three plans this app actually sells ---------------------------------------
 
     @Test
-    fun `a monthly package is labelled as one month with no discount badge`() {
+    fun `a monthly package is labelled as one month`() {
         val offer = SubscriptionOfferMapper.from("monthly", "MONTHLY", "₹149.00")
         assertEquals(R.string.paywall_plan_monthly, offer.planLabelRes)
         assertEquals(R.string.paywall_period_month, offer.periodLabelRes)
-        assertEquals(null, offer.discountBadgeRes)
     }
 
     @Test
-    fun `a six month package is labelled as six months with 20 percent off badge and strikethrough price`() {
-        val offer = SubscriptionOfferMapper.from("six_months", "SIX_MONTH", "₹749.00", "₹894.00")
+    fun `a six month package is labelled as six months`() {
+        val offer = SubscriptionOfferMapper.from("six_months", "SIX_MONTH", "₹749.00")
         assertEquals(R.string.paywall_plan_six_months, offer.planLabelRes)
         assertEquals(R.string.paywall_period_months, offer.periodLabelRes)
-        assertEquals(R.string.paywall_discount_six_months, offer.discountBadgeRes)
+    }
+
+    @Test
+    fun `an annual package is labelled as twelve months`() {
+        val offer = SubscriptionOfferMapper.from("annual", "ANNUAL", "₹1,299.00")
+        assertEquals(R.string.paywall_plan_twelve_months, offer.planLabelRes)
+        assertEquals(R.string.paywall_period_year, offer.periodLabelRes)
+    }
+
+    // --- Pricing comes from the store, not from the plan's length ----------------------
+
+    @Test
+    fun `the store's reported discount and full price are carried through untouched`() {
+        val offer = SubscriptionOfferMapper.from(
+            packageIdentifier = "six_months",
+            packageTypeName = "SIX_MONTH",
+            storeFormattedPrice = "₹749.00",
+            discountPercent = 16,
+            strikethroughPriceText = "₹894.00",
+        )
+        assertEquals(16, offer.discountPercent)
         assertEquals("₹894.00", offer.strikethroughPriceText)
     }
 
     @Test
-    fun `an annual package is labelled as twelve months with 40 percent off badge and strikethrough price`() {
-        val offer = SubscriptionOfferMapper.from("annual", "ANNUAL", "₹1,299.00", "₹1,788.00")
-        assertEquals(R.string.paywall_plan_twelve_months, offer.planLabelRes)
-        assertEquals(R.string.paywall_period_year, offer.periodLabelRes)
-        assertEquals(R.string.paywall_discount_twelve_months, offer.discountBadgeRes)
-        assertEquals("₹1,788.00", offer.strikethroughPriceText)
+    fun `no discount is claimed for a plan the store reported no discount for`() {
+        // The badge is the store's pricing, not the plan's length: a six-month or annual
+        // plan must render without one when Play reports no offer on it.
+        listOf("MONTHLY" to "₹149.00", "SIX_MONTH" to "₹749.00", "ANNUAL" to "₹1,299.00")
+            .forEach { (packageTypeName, price) ->
+                val offer = SubscriptionOfferMapper.from("id", packageTypeName, price)
+                assertEquals(null, offer.discountPercent)
+                assertEquals(null, offer.strikethroughPriceText)
+            }
     }
 
     // --- Pass-through ------------------------------------------------------------------

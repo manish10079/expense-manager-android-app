@@ -10,6 +10,7 @@ import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.monetization.SubscriptionOfferMapper
+import com.mknlabs.expensetracker.monetization.discountPercentOf
 import com.mknlabs.expensetracker.monetization.toPurchaseState
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.LogLevel
@@ -26,6 +27,7 @@ import com.revenuecat.purchases.awaitOfferings
 import com.revenuecat.purchases.awaitPurchase
 import com.revenuecat.purchases.awaitRestore
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import com.revenuecat.purchases.models.StoreProduct
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -146,20 +148,15 @@ class BillingManager @Inject constructor(
      */
     override val offers: StateFlow<List<SubscriptionOffer>> = _offerings
         .map { offerings ->
-            val packages = offerings?.current?.availablePackages.orEmpty()
-            val monthlyPkg = packages.firstOrNull { it.packageType.name == "MONTHLY" }
-            val monthlyMicros = monthlyPkg?.product?.price?.amountMicros ?: 0L
-
-            packages.map { pkg ->
-                val typeName = pkg.packageType.name
-                val formattedPrice = pkg.product.price.formatted
-                val strikethroughText = calculateStrikethroughPrice(typeName, monthlyMicros, formattedPrice)
+            offerings?.current?.availablePackages.orEmpty().map { pkg ->
+                val pricing = planPricing(pkg.product)
 
                 SubscriptionOfferMapper.from(
                     packageIdentifier = pkg.identifier,
-                    packageTypeName = typeName,
-                    storeFormattedPrice = formattedPrice,
-                    strikethroughPriceText = strikethroughText,
+                    packageTypeName = pkg.packageType.name,
+                    storeFormattedPrice = pricing.priceText,
+                    discountPercent = pricing.discountPercent,
+                    strikethroughPriceText = pricing.strikethroughPriceText,
                 )
             }
         }
@@ -528,22 +525,48 @@ class BillingManager @Inject constructor(
     fun cleanup() {
         Purchases.sharedInstance.updatedCustomerInfoListener = null
     }
+
+    /**
+     * The price a plan card shows for one product, plus the store's own discount for it.
+     *
+     * [discountPercent] and [strikethroughPriceText] are set only when Play reports a real
+     * discount on the option that would actually be purchased, and both come from that
+     * option's own `pricingPhases`: the phase charged first, and the full price it settles
+     * into. Nothing is inferred from the monthly plan or from the package's length, so no
+     * card can advertise a saving the store would not honour.
+     *
+     * When there is no such discount the base plan price is shown as-is, with no badge and
+     * nothing struck through.
+     */
+    private fun planPricing(product: StoreProduct): PlanPricing {
+        // `StoreProduct.price` is the base plan price for a Google subscription, and is the
+        // fallback for every case below — including a product Play returned no options for.
+        val basePlanPriceText = product.price.formatted
+        val noDiscount = PlanPricing(basePlanPriceText, null, null)
+
+        val option = product.defaultOption ?: return noDiscount
+        val fullPhase = option.fullPricePhase ?: return noDiscount
+        val discountedPhase = option.introPhase ?: return noDiscount
+        // A free phase is a free trial, which the first phase being zero describes better
+        // than a struck-through price beside a non-zero one would.
+        if (option.freePhase != null) return noDiscount
+
+        val percent = discountPercentOf(
+            fullPriceMicros = fullPhase.price.amountMicros,
+            discountedPriceMicros = discountedPhase.price.amountMicros,
+        ) ?: return noDiscount
+
+        return PlanPricing(
+            priceText = discountedPhase.price.formatted,
+            strikethroughPriceText = fullPhase.price.formatted,
+            discountPercent = percent,
+        )
+    }
 }
 
-private fun calculateStrikethroughPrice(
-    packageTypeName: String,
-    monthlyMicros: Long,
-    formattedPrice: String
-): String? {
-    if (monthlyMicros <= 0L) return null
-    val months = when (packageTypeName) {
-        "SIX_MONTH" -> 6
-        "ANNUAL" -> 12
-        else -> return null
-    }
-    val totalUnDiscountedMicros = monthlyMicros * months
-    val totalAmount = totalUnDiscountedMicros / 1_000_000.0
-    val currencyPrefix = formattedPrice.takeWhile { !it.isDigit() }.trim()
-    val formattedNumber = String.format(java.util.Locale.getDefault(), "%.2f", totalAmount)
-    return if (currencyPrefix.isNotEmpty()) "$currencyPrefix$formattedNumber" else formattedNumber
-}
+/** The paywall pricing for one product, all of it store-supplied text. */
+private data class PlanPricing(
+    val priceText: String,
+    val strikethroughPriceText: String?,
+    val discountPercent: Int?,
+)

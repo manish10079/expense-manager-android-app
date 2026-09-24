@@ -10,10 +10,15 @@ import com.mknlabs.expensetracker.R
  * `Package`, so the ViewModel that consumes it can be unit-tested without constructing
  * SDK objects — and so no RevenueCat identifier can leak into user-facing text.
  *
- * [priceText] is the store's own localized price string (`StoreProduct.price.formatted`,
- * fed by Play's `ProductDetails`), which the store has already formatted for the user's
- * currency and locale. It is never assembled in code, so no currency or number formatting
- * is invented here.
+ * [priceText] is the store's own localized price string (`Price.formatted`, fed by Play's
+ * `ProductDetails`), which the store has already formatted for the user's currency and
+ * locale. It is never assembled in code, so no currency or number formatting is invented
+ * here.
+ *
+ * [discountPercent] and [strikethroughPriceText] are the store's *own* discount for this
+ * plan, and both are null unless Play reports one: a percentage is never derived from
+ * another plan's price, and [strikethroughPriceText] is a price the store really charges
+ * for the same agreement rather than a list price reconstructed in code.
  *
  * [planLabelRes] and [periodLabelRes] are `@StringRes` ids rather than text, per the
  * project's i18n rule: the billing layer chooses *which* label, the UI owns the wording.
@@ -27,9 +32,18 @@ data class SubscriptionOffer(
     @StringRes val periodLabelRes: Int,
     /** The store-formatted price, shown exactly as the store supplied it. */
     val priceText: String,
-    /** Optional discount/savings badge label resource, e.g. "20% OFF". */
-    @StringRes val discountBadgeRes: Int? = null,
-    /** Optional strikethrough un-discounted original base price text. */
+    /**
+     * The store's discount for this plan as a whole percent, e.g. 20 for "20% OFF".
+     *
+     * A number rather than text, because a percentage is only meaningful formatted against
+     * the UI's own wording.
+     */
+    val discountPercent: Int? = null,
+    /**
+     * The store's full price for the same plan, to show struck through beside
+     * [priceText]. Only set when the store reports a discount, so it is never a price the
+     * customer could not be charged.
+     */
     val strikethroughPriceText: String? = null,
 )
 
@@ -51,30 +65,27 @@ object SubscriptionOfferMapper {
      * @param packageIdentifier the RevenueCat package identifier.
      * @param packageTypeName `PackageType.name` — passed as text so the caller, not this
      *   mapper, is the only place that touches the SDK enum.
-     * @param storeFormattedPrice `StoreProduct.price.formatted`, already localized by the
+     * @param storeFormattedPrice the price to show for this plan, already localized by the
      *   store.
-     * @param strikethroughPriceText optional un-discounted original base price text.
+     * @param discountPercent the store's discount for this plan as a whole percent, or null
+     *   when the store reports none.
+     * @param strikethroughPriceText the store's full price for the same plan, set only
+     *   alongside [discountPercent].
      */
     fun from(
         packageIdentifier: String,
         packageTypeName: String,
         storeFormattedPrice: String,
+        discountPercent: Int? = null,
         strikethroughPriceText: String? = null,
     ): SubscriptionOffer = SubscriptionOffer(
         id = packageIdentifier,
         planLabelRes = planLabelFor(packageTypeName),
         periodLabelRes = periodLabelFor(packageTypeName),
         priceText = storeFormattedPrice,
-        discountBadgeRes = discountBadgeFor(packageTypeName),
+        discountPercent = discountPercent,
         strikethroughPriceText = strikethroughPriceText,
     )
-
-    /** Maps RevenueCat's package type to an optional savings/discount badge string. */
-    internal fun discountBadgeFor(packageTypeName: String): Int? = when (packageTypeName) {
-        "SIX_MONTH" -> R.string.paywall_discount_six_months
-        "ANNUAL" -> R.string.paywall_discount_twelve_months
-        else -> null
-    }
 
     /**
      * Maps RevenueCat's package type to the plan's length label.
