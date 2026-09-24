@@ -1806,9 +1806,12 @@
     <!-- ProPass / Redemption -->
     <string name="title_redeem_pro_pass">Redeem Pro Pass</string>
     <string name="label_redeem_pro_pass_subtitle">Enter promo code or pass key</string>
+    <!-- Shown instead on a store subscriber: a ProPass would be dated from now, a window the
+         subscription already covers, so the code would be burned for nothing. -->
+    <string name="label_redeem_pro_pass_subscribed_subtitle">Included with your subscription</string>
     <string name="title_activate_pro_pass">Activate ProPass</string>
-    <string name="title_pro_pass_already_active">Pro Pass Active</string>
-    <string name="msg_pro_pass_already_active">Your Pro Pass is currently active. Please try redeeming a new code after your current Pro Pass expires.</string>
+    <string name="title_pro_pass_subscribed">You already have a subscription</string>
+    <string name="msg_pro_pass_subscribed">A ProPass adds time on top of your subscription, so it would run out while your subscription is still active. Manage your subscription from Google Play.</string>
     <string name="btn_ok">OK</string>
     <string name="msg_enter_pro_pass_code">Enter your unique alphanumeric ProPass code below.</string>
     <string name="placeholder_pro_pass_code">e.g. EXPN-T0C3-HG41-NM1</string>
@@ -1910,7 +1913,12 @@
     <string name="label_free">Free</string>
     <string name="label_pro_active">Pro Member</string>
     <string name="label_membership_benefits">MEMBERSHIP BENEFITS</string>
-    <string name="label_pro_subscription_active">Pro Active</string>
+    <string name="label_pro_subscription_active">Subscription Active</string>
+    <string name="label_pro_pass_active">Pro Pass Active</string>
+    <string name="msg_subscription_active_desc">Your subscription is active and renews automatically. Manage it from Google Play.</string>
+    <string name="label_pro_subscription_ends_on">Your subscription ends on %1$s. You can resubscribe anytime.</string>
+    <string name="msg_subscription_billing_issue">We couldn\'t collect your last payment. Update your payment method in Google Play to keep Pro.</string>
+    <string name="msg_pro_active_no_expiry">Your Pro access is active.</string>
     <string name="msg_going_pro_benefits">Unlock custom transaction styles, advanced budgeting tools, and 4 device sync by going pro.</string>
     <string name="label_na">N/A</string>
     <string name="btn_sign_in_register">Sign In / Register</string>
@@ -2010,4 +2018,46 @@
     <string name="msg_feature_locked_pro_required">This feature requires a Pro subscription</string>
     <string name="msg_subscribe_to_unlock">Subscribe to unlock this feature and support ongoing development</string>
     <string name="btn_upgrade">Upgrade to Pro</string>
+
+    <!-- Paywall -->
+    <string name="title_paywall">Go Pro</string>
+    <string name="msg_paywall_subtitle">Unlock every Pro feature and support ongoing development.</string>
+    <string name="label_paywall_benefits">What you get</string>
+    <string name="label_paywall_choose_plan">Choose your plan</string>
+    <string name="label_paywall_plans_unavailable">Plans couldn\'t be loaded.</string>
+    <string name="msg_paywall_plans_unavailable_desc">Check your connection and try again.</string>
+    <string name="btn_paywall_retry">Retry</string>
+    <string name="content_desc_loading_plans">Loading plans</string>
+    <string name="btn_paywall_subscribe">Subscribe</string>
+    <string name="msg_paywall_renewal_disclosure">Your subscription renews automatically until you cancel. Cancel anytime from Google Play.</string>
+    <string name="msg_paywall_already_pro">You\'re on Pro. Thanks for supporting the app.</string>
+    <string name="content_desc_paywall_plan_selected">Selected plan</string>
+    <string name="paywall_plan_weekly">1 week</string>
+    <string name="paywall_plan_monthly">1 month</string>
+    <string name="paywall_plan_two_months">2 months</string>
+    <string name="paywall_plan_three_months">3 months</string>
+    <string name="paywall_plan_six_months">6 months</string>
+    <string name="paywall_plan_twelve_months">12 months</string>
+    <string name="paywall_plan_lifetime">Lifetime</string>
+    <string name="paywall_plan_generic">Pro plan</string>
+    <string name="paywall_period_week">per week</string>
+    <string name="paywall_period_month">per month</string>
+    <string name="paywall_period_months">per period</string>
+    <string name="paywall_period_year">per year</string>
+    <string name="paywall_period_one_time">one-time</string>
+    <string name="msg_paywall_purchase_success">You\'re on Pro now. Enjoy!</string>
+    <string name="msg_paywall_restore_success">Your purchase was restored.</string>
+    <string name="msg_paywall_restore_nothing_found">No previous purchase was found for this account.</string>
+    <string name="msg_paywall_payment_pending">Your payment is pending. Pro unlocks as soon as the payment completes.</string>
+    <string name="paywall_error_network">Couldn\'t reach the store. Check your connection and try again.</string>
+    <string name="paywall_error_store_problem">The store couldn\'t complete this. Please try again.</string>
+    <string name="paywall_error_not_allowed">Purchases aren\'t allowed on this device or account.</string>
+    <string name="paywall_error_product_unavailable">This plan isn\'t available right now. Please try again later.</string>
+    <string name="paywall_error_already_owned">You already have this subscription.</string>
+    <string name="paywall_error_receipt_in_use">This subscription is already linked to another account. Sign in with the account that bought it, then restore.</string>
+    <string name="paywall_error_invalid_receipt">We couldn\'t verify this purchase. Please try again.</string>
+    <string name="paywall_error_invalid_credentials">The store rejected the request. Please try again later.</string>
+    <string name="paywall_error_configuration">Subscriptions aren\'t set up correctly right now. Please try again later.</string>
+    <string name="paywall_error_billing_not_configured">Subscriptions aren\'t available in this build.</string>
+    <string name="paywall_error_unknown">Something went wrong. Please try again.</string>
 </resources>

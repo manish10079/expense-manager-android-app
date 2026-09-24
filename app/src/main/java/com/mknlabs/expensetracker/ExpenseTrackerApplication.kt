@@ -7,6 +7,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
+import com.mknlabs.expensetracker.data.repository.BillingManager
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.domain.repository.FcmTokenRepository
 import com.mknlabs.expensetracker.notifications.NotificationHelper
@@ -36,6 +37,20 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var fcmTokenRepository: FcmTokenRepository
+
+    /**
+     * RevenueCat bootstrap.
+     *
+     * [BillingManager] is a `@Singleton` that configures the SDK from its own `init`
+     * block, and Hilt builds a singleton lazily — only when something asks for it.
+     * Nothing else in the app injects it, so without this field `Purchases.configure()`
+     * never runs and every subscription call fails. Holding it here makes the
+     * Application the one place that starts billing, at process start, before any
+     * screen can ask for offerings. The field is intentionally never read: the
+     * construction itself is the side effect, exactly like [appLifecycleObserver].
+     */
+    @Inject
+    lateinit var billingManager: BillingManager
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

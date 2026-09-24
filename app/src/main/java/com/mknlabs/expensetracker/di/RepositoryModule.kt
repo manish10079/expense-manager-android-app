@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.di
 
 import com.mknlabs.expensetracker.data.legacy.LegacyImportRepository as LegacyImportRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.AppPreferencesRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.BillingManager as BillingManagerImpl
 import com.mknlabs.expensetracker.data.repository.BudgetRepository as BudgetRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CategoryRepository as CategoryRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.DataManagementRepository as DataManagementRepositoryImpl
@@ -42,6 +43,12 @@ abstract class RepositoryModule {
     abstract fun bindCalculatorHistoryRepository(
         impl: CalculatorHistoryRepositoryImpl
     ): CalculatorHistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBillingRepository(
+        impl: BillingManagerImpl
+    ): BillingRepository
 
     @Binds
     @Singleton
