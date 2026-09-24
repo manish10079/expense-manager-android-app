@@ -87,6 +87,12 @@ android {
             )
             // RevenueCat API key from local properties (kept secret)
             buildConfigField("String", "REVENUE_CAT_API_KEY", "\"$rcKey\"")
+            // The App Check debug-secret pinning in ExpenseTrackerApplication lives in
+            // the main source set, so it is compiled for release too and needs this
+            // field to resolve. It is deliberately empty here — the debug secret must
+            // never ship in the bundle — and the only read sits behind
+            // BuildConfig.DEBUG, so R8 sees the branch as dead code in release.
+            buildConfigField("String", "APP_CHECK_TOKEN", "\"\"")
         }
         // Macrobenchmark target variant: a release-equivalent build (non-debuggable,
         // minified) signed with the debug key. Official docs: create a copy of the
