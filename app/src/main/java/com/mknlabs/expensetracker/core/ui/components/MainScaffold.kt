@@ -38,6 +38,7 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.core.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.navigation.resolveBackNavigationRoute
 import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsViewModel
 import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringViewModel
@@ -242,7 +243,16 @@ fun MainScaffold(
         }
     }
 
-    CompositionLocalProvider(LocalAddFabVisibility provides addFabVisibility) {
+    CompositionLocalProvider(
+        LocalAddFabVisibility provides addFabVisibility,
+        // Installed once here so every "Upgrade to Pro" affordance below — gated actions,
+        // settings rows, the membership screen, the transaction editor — can open the
+        // paywall without carrying a navigation dependency of its own.
+        LocalUpgradeToPro provides {
+            onBottomBarVisibilityChange(false)
+            onRouteChange(AppRoute.Paywall)
+        }
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

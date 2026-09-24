@@ -141,9 +141,9 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.RecurringGateResolver
 import com.mknlabs.expensetracker.monetization.RecurringRuleTier
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
-import com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import androidx.compose.ui.platform.LocalContext
@@ -1745,19 +1745,14 @@ private fun RecurringTransactionSection(
     }
 
     // Premium sheet for Yearly frequency and 7th+ rule
-    var showComingSoonDialog by remember { mutableStateOf(false) }
+    val upgradeToPro = LocalUpgradeToPro.current
     if (showPremiumSheet) {
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false; pendingFrequencyForAd = null },
             onUpgradeClick = {
                 showPremiumSheet = false
-                showComingSoonDialog = true
+                upgradeToPro()
             }
-        )
-    }
-    if (showComingSoonDialog) {
-        ComingSoonDialog(
-            onDismiss = { showComingSoonDialog = false }
         )
     }
 }

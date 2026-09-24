@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -42,8 +43,11 @@ fun GatedAction(
     val accessStatus by monetizationViewModel.getAccessStatus(feature, optionId).collectAsStateWithLifecycle()
 
     var showPremiumSheet by remember { mutableStateOf(false) }
-    var showComingSoonDialog by remember { mutableStateOf(false) }
     var showAdDialog by remember { mutableStateOf(false) }
+
+    // Opens the Pro paywall. Installed by the app shell, so a gated component stays
+    // unaware of routing; in a Preview the fallback is a no-op.
+    val upgradeToPro = LocalUpgradeToPro.current
 
     val actualDisplayName = displayName ?: feature.displayName
 
@@ -62,14 +66,8 @@ fun GatedAction(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
                 showPremiumSheet = false
-                showComingSoonDialog = true
+                upgradeToPro()
             }
-        )
-    }
-
-    if (showComingSoonDialog) {
-        ComingSoonDialog(
-            onDismiss = { showComingSoonDialog = false }
         )
     }
 

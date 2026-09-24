@@ -28,6 +28,7 @@ import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.components.*
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import java.time.LocalDate
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -96,8 +97,7 @@ fun DataManagementScreen(
         onDeleteAllTransactionsClick = onDeleteAllTransactionsClick,
         onPrepareForExternalActivity = onPrepareForExternalActivity,
         onBackClick = onBackClick,
-        getAccessStatus = { feature, optionId -> monetizationViewModel.getAccessStatus(feature, optionId) },
-        onPurchaseSimulated = { monetizationViewModel.onPurchaseSimulated() }
+        getAccessStatus = { feature, optionId -> monetizationViewModel.getAccessStatus(feature, optionId) }
     )
 }
 
@@ -119,8 +119,7 @@ private fun DataManagementContent(
     onDeleteAllTransactionsClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit,
     onBackClick: () -> Unit,
-    getAccessStatus: (Feature, String?) -> kotlinx.coroutines.flow.StateFlow<AccessStatus>,
-    onPurchaseSimulated: () -> Unit
+    getAccessStatus: (Feature, String?) -> kotlinx.coroutines.flow.StateFlow<AccessStatus>
 ) {
     var isDeleteTransactionsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
@@ -505,19 +504,14 @@ private fun DataManagementContent(
         )
     }
 
-    var showComingSoonDialog by remember { mutableStateOf(false) }
+    val upgradeToPro = LocalUpgradeToPro.current
     if (showPremiumSheet) {
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
                 showPremiumSheet = false
-                showComingSoonDialog = true
+                upgradeToPro()
             }
-        )
-    }
-    if (showComingSoonDialog) {
-        ComingSoonDialog(
-            onDismiss = { showComingSoonDialog = false }
         )
     }
 
@@ -639,8 +633,7 @@ private fun DataManagementScreenPreview() {
             onDeleteAllTransactionsClick = {},
             onPrepareForExternalActivity = {},
             onBackClick = {},
-            getAccessStatus = { _, _ -> flow },
-            onPurchaseSimulated = {}
+            getAccessStatus = { _, _ -> flow }
         )
     }
 }

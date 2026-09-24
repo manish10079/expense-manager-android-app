@@ -2,7 +2,9 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import com.google.android.ump.ConsentInformation.PrivacyOptionsRequirementStatus
 import com.google.firebase.auth.FirebaseUser
+import android.app.Activity
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
@@ -12,6 +14,8 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.PurchaseState
+import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,16 +39,19 @@ class SettingsViewModelTest {
 
     private lateinit var viewModel: SettingsViewModel
     private lateinit var adsCoordinator: AdsCoordinator
+    private lateinit var fakeBilling: FakeBillingRepository
 
     @Before
     fun setup() {
         adsCoordinator = AdsCoordinator(android.app.Application())
+        fakeBilling = FakeBillingRepository()
         viewModel = SettingsViewModel(
             authRepository = FakeAuthRepository(),
             monetizationRepository = FakeMonetizationRepository(),
             configurationRepository = FakeConfigurationRepository(),
             syncRepository = FakeSyncRepository(),
-            adsCoordinator = adsCoordinator
+            adsCoordinator = adsCoordinator,
+            billingRepository = fakeBilling
         )
 
         // Start collecting the flow to keep it active during tests.
@@ -83,6 +90,20 @@ class SettingsViewModelTest {
         awaitUiState { !hasPrivacyOptionsItem(viewModel) }
     }
 
+    @Test
+    fun `redeem row stays enabled while there is no store subscription`() {
+        // The default: no entitlement, so the ProPass row stays redeemable — including for a
+        // ProPass holder, whose next code legitimately extends the grant.
+        assertFalse(viewModel.hasActiveStoreSubscription.value)
+    }
+
+    @Test
+    fun `redeem row disabled once the store reports a premium entitlement`() {
+        fakeBilling.isPremium.value = true
+
+        assertTrue(viewModel.hasActiveStoreSubscription.value)
+    }
+
     private fun hasPrivacyOptionsItem(vm: SettingsViewModel): Boolean {
         return vm.uiState.value.settingsSections
             .flatMap { it.items }
@@ -118,14 +139,36 @@ class SettingsViewModelTest {
         override suspend fun reauthenticate(email: String, password: String): Result<Unit> = Result.success(Unit)
     }
 
+    /**
+     * A ProPass is *not* grounds for disabling the redeem row, so the only thing this test
+     * double ever simulates is a real store subscription.
+     */
+    private class FakeBillingRepository : BillingRepository {
+        override val offers = MutableStateFlow<List<SubscriptionOffer>>(emptyList())
+        override val isOffersLoaded = MutableStateFlow(false)
+        override val purchaseState = MutableStateFlow<PurchaseState>(PurchaseState.Idle)
+        override val isPremium = MutableStateFlow(false)
+        override val isAdFree = MutableStateFlow(false)
+        override val managementUrl = MutableStateFlow<String?>(null)
+        override val storeEntitlement =
+            MutableStateFlow<com.mknlabs.expensetracker.monetization.StoreEntitlement?>(null)
+
+        override fun purchase(activity: Activity, offerId: String) {}
+        override fun restore() {}
+        override fun refreshOffers() {}
+        override fun acknowledgePurchase() {}
+    }
+
     private class FakeMonetizationRepository : MonetizationRepository {
         override val userTier: Flow<UserTier> = flowOf(UserTier.FREE)
         override val isAdsEnabled: Flow<Boolean> = flowOf(true)
         override val globalAdAccessExpiry: Flow<Long> = flowOf(0L)
+        override val hasActiveStoreSubscription: Flow<Boolean> = flowOf(false)
+        override val storeEntitlement: Flow<com.mknlabs.expensetracker.monetization.StoreEntitlement?> =
+            flowOf(null)
         override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> =
             flowOf(AccessStatus.Granted)
         override suspend fun grantTemporaryAccess(feature: Feature, optionId: String?, durationMillis: Long) {}
-        override suspend fun becomePremium() {}
     }
 
     private class FakeConfigurationRepository : ConfigurationRepository {

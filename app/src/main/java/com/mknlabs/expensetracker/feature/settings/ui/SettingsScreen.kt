@@ -120,6 +120,9 @@ fun SettingsScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
 
     val adFreeRemainingTime by settingsViewModel.adFreeRemainingTime.collectAsStateWithLifecycle()
+    // Comes from the store entitlement, not from the Pro tier: a ProPass holder should still
+    // be able to redeem a second code to extend, whereas a subscriber would only burn one.
+    val hasActiveStoreSubscription by settingsViewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     // The ad-free row advertises the rewarded-ad pass, whose length is Remote Config-driven
     // (`ad_pass_duration_minutes`). Resolved here and passed down so the previewable Content
     // composable keeps taking everything through parameters (no ViewModel, no resources lookup).
@@ -153,6 +156,7 @@ fun SettingsScreen(
         isAdsEnabled = isAdsEnabled,
         adFreeRemainingTime = adFreeRemainingTime,
         adFreeDurationLabel = adFreeDurationLabel,
+        hasActiveStoreSubscription = hasActiveStoreSubscription,
         onProfileClick = onProfileClick,
         onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
@@ -183,6 +187,7 @@ fun SettingsScreenContent(
     isAdsEnabled: Boolean = false,
     adFreeRemainingTime: String? = null,
     adFreeDurationLabel: String = "",
+    hasActiveStoreSubscription: Boolean = false,
     onProfileClick: () -> Unit = {},
     onCloudSyncDevicesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
@@ -333,9 +338,17 @@ fun SettingsScreenContent(
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_redeem_pro_pass,
-                                    subtitleRes = R.string.label_redeem_pro_pass_subtitle,
+                                    // The copy explains the greying rather than leaving the
+                                    // "enter promo code" invitation on a row that no longer
+                                    // responds, which would read as a bug.
+                                    subtitleRes = if (hasActiveStoreSubscription) {
+                                        R.string.label_redeem_pro_pass_subscribed_subtitle
+                                    } else {
+                                        R.string.label_redeem_pro_pass_subtitle
+                                    },
                                     icon = Icons.Rounded.LocalOffer,
-                                    onClick = onRedeemProPassClick
+                                    onClick = if (hasActiveStoreSubscription) { {} } else onRedeemProPassClick,
+                                    isEnabled = !hasActiveStoreSubscription
                                 )
                             )
                         )

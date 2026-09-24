@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mknlabs.expensetracker.domain.usecase.BecomePremiumUseCase
 import com.mknlabs.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
 import com.mknlabs.expensetracker.domain.usecase.ObserveAccessStatusUseCase
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
@@ -39,7 +38,6 @@ class MonetizationViewModel @Inject constructor(
     private val proPassRepository: ProPassRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase,
     private val grantTemporaryAccessUseCase: GrantTemporaryAccessUseCase,
-    private val becomePremiumUseCase: BecomePremiumUseCase,
     private val configurationRepository: ConfigurationRepository,
     private val adsCoordinator: AdsCoordinator
 ) : ViewModel() {
@@ -63,6 +61,35 @@ class MonetizationViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UserTier.FREE
+        )
+
+    /**
+     * True when Pro comes from a store purchase rather than a ProPass grant.
+     *
+     * Separate from [userTier] on purpose: both states are Pro, but they need different
+     * calls to action — a subscriber manages a subscription, a ProPass holder has none to
+     * manage and should be offered the store's plans instead.
+     */
+    val hasActiveStoreSubscription: StateFlow<Boolean> = monetizationRepository.hasActiveStoreSubscription
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            // False until the store answers: the safe default is "no subscription", which
+            // only ever shows a buy CTA the store will refuse if it is wrong.
+            initialValue = false
+        )
+
+    /**
+     * The store's view of the active `premium` entitlement, or null when there is none.
+     *
+     * Null is the honest default before the store answers: it makes a caller show wording
+     * rather than a date, and a date that arrives a moment later simply replaces it.
+     */
+    val storeEntitlement: StateFlow<StoreEntitlement?> = monetizationRepository.storeEntitlement
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
         )
 
     /**
@@ -104,14 +131,10 @@ class MonetizationViewModel @Inject constructor(
         _redemptionState.value = RedemptionState.Idle
     }
 
-    /**
-     * Simulates a purchase and grants full access for a limited test window.
-     */
-    fun onPurchaseSimulated() {
-        viewModelScope.launch {
-            becomePremiumUseCase.execute()
-        }
-    }
+    // The simulated-purchase entry point was removed once real purchases existed. It had no
+    // caller left in the UI, and it granted permanent Pro — which would have outranked a
+    // real subscription and hidden billing failures during sandbox testing. Use a license
+    // tester purchase, or a ProPass code, to grant Pro now.
 
     /**
      * Returns a reactive stream of the access status for a feature.

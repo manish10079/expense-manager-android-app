@@ -52,6 +52,7 @@ import com.mknlabs.expensetracker.feature.settings.ui.SettingsScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
 import com.mknlabs.expensetracker.feature.profile.ui.MembershipDetailsScreen
+import com.mknlabs.expensetracker.feature.paywall.ui.PaywallRoute
 import java.util.UUID
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorViewModel
@@ -461,10 +462,11 @@ fun AppNavigationHost(
                             onRouteChange(AppRoute.Settings)
                         },
                         onUpgradeClick = {
-                            // This will trigger the AdFreeAccess flow which doubles as our current 'Premium' upsell
+                            // Previously this routed to Settings and did nothing, with a
+                            // comment promising an AdFree flow that was never wired. It now
+                            // opens the paywall like every other upsell.
                             onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.Settings)
-                            // We trigger the AdFree flow in the next turn via SettingsActionId handling
+                            onRouteChange(AppRoute.Paywall)
                         }
                     )
                 }
@@ -798,11 +800,31 @@ fun AppNavigationHost(
                         userTier = userTier,
                         proExpiryTimestamp = userProfile.proExpiryTimestamp,
                         isAnonymous = isAnonymousUser,
-                        isSubscription = userProfile.isSubscription,
+                        // Whether Pro came from the store is read from the entitlement
+                        // inside the screen (BillingRepository.isPremium), not from
+                        // `userProfile.isSubscription` — that mirror is only ever written
+                        // by a Firestore sync, so a real subscriber read as false here.
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
                         }
+                    )
+                }
+
+                AppRoute.Paywall -> {
+                    // The paywall is reachable from many screens, so Back returns to
+                    // whichever one opened it; `resolveBackNavigationRoute` owns that
+                    // decision and Home is the safe fallback.
+                    PaywallRoute(
+                        onBackClick = {
+                            val backRoute = resolveBackNavigationRoute(AppRoute.Paywall, profileOriginRoute, previousRoute) ?: AppRoute.Home
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(backRoute)
+                        },
+                        // The paywall opens the legal pages and the store's management page
+                        // in an external browser, so the shell must suppress the auto-lock
+                        // first or the PIN is demanded on return.
+                        onPrepareForExternalActivity = onPrepareForExternalActivity
                     )
                 }
             }

@@ -383,9 +383,11 @@ class TransactionsViewModelTest {
         override fun observeAccessStatus(feature: Feature, optionId: String?): Flow<AccessStatus> =
             flowOf(AccessStatus.Granted)
         override suspend fun grantTemporaryAccess(feature: Feature, optionId: String?, durationMillis: Long) {}
-        override suspend fun becomePremium() {}
         override val isAdsEnabled: Flow<Boolean> = flowOf(true)
         override val globalAdAccessExpiry: Flow<Long> = flowOf(0L)
+        override val hasActiveStoreSubscription: Flow<Boolean> = flowOf(false)
+        override val storeEntitlement: Flow<com.mknlabs.expensetracker.monetization.StoreEntitlement?> =
+            flowOf(null)
         override val userTier: Flow<com.mknlabs.expensetracker.models.UserTier> = flowOf(com.mknlabs.expensetracker.models.UserTier.FREE)
     }
 }

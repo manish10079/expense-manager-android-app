@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.update
 
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.monetization.AdsCoordinator
@@ -99,7 +100,13 @@ class SettingsViewModel @Inject constructor(
     private val monetizationRepository: MonetizationRepository,
     private val configurationRepository: ConfigurationRepository,
     private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository,
-    private val adsCoordinator: AdsCoordinator
+    private val adsCoordinator: AdsCoordinator,
+    /**
+     * The store's own entitlement source. Injected so "is there a real subscription?" is
+     * answered by the entitlement itself rather than inferred from the Pro tier, which a
+     * ProPass also grants.
+     */
+    private val billingRepository: BillingRepository
 ) : ViewModel() {
 
     private var transactionCount: Int = 0
@@ -116,6 +123,17 @@ class SettingsViewModel @Inject constructor(
     // Live countdown of the remaining ad-free pass (MM:SS), or null when no pass is active.
     private val _adFreeRemainingTime = MutableStateFlow<String?>(null)
     val adFreeRemainingTime: StateFlow<String?> = _adFreeRemainingTime.asStateFlow()
+
+    /**
+     * True while the store reports an active `premium` entitlement — a real subscription.
+     *
+     * Deliberately *narrower* than the Pro tier. A ProPass holder is Pro as well, but
+     * redeeming another code legitimately *extends* their grant — `redeemProPass` extends
+     * rather than overwrites — so holding a ProPass is not grounds for locking this row.
+     * A subscription is different: the grant would be dated from now, the subscription
+     * already covers that window, and the grant has lapsed by the time it ends.
+     */
+    val hasActiveStoreSubscription: StateFlow<Boolean> = billingRepository.isPremium
 
     init {
         authRepository.currentUser

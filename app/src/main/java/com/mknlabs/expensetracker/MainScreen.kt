@@ -80,11 +80,9 @@ import com.mknlabs.expensetracker.monetization.InterstitialPlacement
 import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.core.ui.components.MainScaffold
-import com.mknlabs.expensetracker.core.ui.components.ComingSoonDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
-import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.components.adPassDurationLabel
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.AppLockFlow
@@ -217,7 +215,6 @@ fun MainScreen(
     var showAccountCreatedPopup by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
-    var showProPassRedeemDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
     // One-time, non-blocking notice when the device is rooted or an emulator
     // (security plan Phase 2, Items 7 & 8).
@@ -1255,30 +1252,16 @@ fun MainScreen(
         }
     }
 
-    val isProPassEnabled by mainViewModel.isProPassEnabled.collectAsStateWithLifecycle()
-
-    if (showProPassRedeemDialog && isUiInteractive) {
-        ProPassRedeemDialog(
-            viewModel = monetizationViewModel,
-            onDismiss = { showProPassRedeemDialog = false }
-        )
-    }
-
-    var showComingSoonDialog by remember { mutableStateOf(false) }
-
     if (showPremiumSheet && isUiInteractive) {
         PremiumGateSheet(
             onDismiss = { showPremiumSheet = false },
             onUpgradeClick = {
                 showPremiumSheet = false
-                showComingSoonDialog = true
+                // This sheet is rendered by the shell itself, outside the subtree that
+                // installs LocalUpgradeToPro, so the shell navigates directly.
+                navigationState.updateBottomBarVisibility(false)
+                navigationState.navigateTo(AppRoute.Paywall)
             }
-        )
-    }
-
-    if (showComingSoonDialog && isUiInteractive) {
-        ComingSoonDialog(
-            onDismiss = { showComingSoonDialog = false }
         )
     }
 

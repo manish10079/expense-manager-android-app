@@ -67,6 +67,11 @@ fun resolveBackNavigationRoute(
         AppRoute.Profile -> profileOriginRoute
         AppRoute.AddTransaction,
         AppRoute.Goals -> previousRoute
+        // The paywall is opened from upsells all over the app (gated actions, settings
+        // rows, the transaction editor), so Back returns to whichever screen opened it.
+        // Unmapped, this fell into `else -> null`, which disables the scaffold's back
+        // handler and sends the app to the background instead of the previous screen.
+        AppRoute.Paywall -> previousRoute
         AppRoute.ItemizedCalculator -> AppRoute.AddTransaction
         else -> null
     }

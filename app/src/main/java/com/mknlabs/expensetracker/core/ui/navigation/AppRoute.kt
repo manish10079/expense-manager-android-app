@@ -24,6 +24,7 @@ enum class AppRoute(
     AddCategory("add_category", false),
     Goals("goals", false),
     MembershipDetails("membership_details", false),
+    Paywall("paywall", false),
     Feedback("feedback", false),
     DetectedSms("detected_sms", false);
 
