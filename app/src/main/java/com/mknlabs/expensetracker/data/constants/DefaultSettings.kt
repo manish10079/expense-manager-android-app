@@ -9,7 +9,13 @@ import com.mknlabs.expensetracker.utils.getDefaultOrder
 const val DEFAULT_CURRENCY_ID = 1
 val DEFAULT_CURRENCY_GROUPING_STYLE = CurrencyGroupingStyle.INDIAN
 const val DEFAULT_CURRENCY_DECIMAL_PLACES = 0
-const val DEFAULT_DATE_FORMAT_PATTERN = "dd/MM/yyyy"
+// "19 Sep 2026": the spelled-out month removes the day-first / month-first ambiguity a
+// purely numeric pattern has. Users can still pick any pattern from the Preferences
+// screen's date sheet (see `supportedDateFormats`).
+const val DEFAULT_DATE_FORMAT_PATTERN = "dd MMM yyyy"
+// The pattern this default replaced. Kept so the one-time defaults migration in
+// AppSettingsDataStore can recognise installs that never moved off it.
+const val LEGACY_DEFAULT_DATE_FORMAT_PATTERN = "dd/MM/yyyy"
 const val DOB_DATE_FORMAT_PATTERN = "dd MMM yyyy"
 const val DEFAULT_TIME_FORMAT = "12-hour"
 const val DEFAULT_SORT_BY = "Date"
@@ -57,9 +63,12 @@ const val DEFAULT_SMS_MIUI_SETUP_ACKNOWLEDGED = false
 const val DEFAULT_DEVICE_INTEGRITY_NOTICE_ACKNOWLEDGED = false
 val DEFAULT_THEME_MODE = AppThemeMode.DARK
 const val DEFAULT_TRANSACTION_CARD_SHOW_INCOME_EXPENSE_LABELS = false
+// The date is the useful half of a transaction timestamp, so it ships on; the clock ships
+// off to keep the card's second row quiet. Both are one tap away in the card
+// customization sheet, which owns the persisted value from then on.
 const val DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_DATE = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_PAYMENT_METHOD = false
-const val DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_TIME = true
+const val DEFAULT_TRANSACTION_CARD_SHOW_TRANSACTION_TIME = false
 const val DEFAULT_TRANSACTION_CARD_SHOW_CATEGORY_ICON = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_CATEGORY_LABEL = true
 const val DEFAULT_TRANSACTION_CARD_SHOW_DATE_SEPARATORS = false

@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mknlabs.expensetracker.data.constants.defaultAppSettings
+import com.mknlabs.expensetracker.data.constants.LEGACY_DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
@@ -24,6 +25,10 @@ val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore
 
 object AppSettingsDataStore {
     const val DATA_STORE_NAME = "app_settings"
+
+    // Bump this when a shipped default changes in a way that has to reach installs which
+    // already wrote their settings, and describe the step in [migrateRevisedDefaults].
+    private const val CURRENT_DEFAULTS_REVISION = 1
 
     private object Keys {
         val currencyId = intPreferencesKey("currency_id")
@@ -88,6 +93,7 @@ object AppSettingsDataStore {
         val activeCustomFontFileName = stringPreferencesKey("active_custom_font_file_name")
         val importedFontFileNames = stringPreferencesKey("imported_font_file_names")
         val monthStartDay = intPreferencesKey("month_start_day")
+        val defaultsRevision = intPreferencesKey("defaults_revision")
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
@@ -99,7 +105,46 @@ object AppSettingsDataStore {
             if (preferences[Keys.installDateMillis] == null) {
                 preferences[Keys.installDateMillis] = System.currentTimeMillis()
             }
+            migrateRevisedDefaults(preferences)
         }
+    }
+
+    /**
+     * Carries installs that never moved a setting over to the current shipped defaults.
+     *
+     * Every key is written the first time any setting changes, so a long-lived install keeps
+     * carrying the default that was current back then — editing `defaultAppSettings` alone
+     * would only ever reach fresh installs. This walks the revision forward exactly once per
+     * install, and rewrites a value only while it still equals the superseded default, so a
+     * deliberate choice of any other value survives untouched. The date format is the one
+     * exception: a stored "dd/MM/yyyy" may be the user's own pick rather than the old
+     * default, and nothing distinguishes the two.
+     */
+    private fun migrateRevisedDefaults(preferences: MutablePreferences) {
+        val revision = preferences[Keys.defaultsRevision] ?: 0
+        if (revision >= CURRENT_DEFAULTS_REVISION) return
+
+        if (revision < 1) {
+            // The default date format moved from "dd/MM/yyyy" to "dd MMM yyyy".
+            val storedDateFormat = preferences[Keys.dateFormatPattern]
+            if (storedDateFormat == null || storedDateFormat == LEGACY_DEFAULT_DATE_FORMAT_PATTERN) {
+                preferences[Keys.dateFormatPattern] = defaultAppSettings.dateFormatPattern
+            }
+
+            // The card now ships with the date on and the clock off, so bring the pair up to
+            // date. A stored `true` for the time is indistinguishable from the old default,
+            // so it moves with it; the card customization sheet flips it back in one tap.
+            if (preferences[Keys.transactionCardShowTransactionDate] == null) {
+                preferences[Keys.transactionCardShowTransactionDate] =
+                    defaultAppSettings.transactionCardShowTransactionDate
+            }
+            if (preferences[Keys.transactionCardShowTransactionTime] != false) {
+                preferences[Keys.transactionCardShowTransactionTime] =
+                    defaultAppSettings.transactionCardShowTransactionTime
+            }
+        }
+
+        preferences[Keys.defaultsRevision] = CURRENT_DEFAULTS_REVISION
     }
 
     suspend fun updateAppSettings(

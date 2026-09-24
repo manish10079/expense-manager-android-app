@@ -64,6 +64,8 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.AccessLevel
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.utils.getDateFormatPreviewLabel
 import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
 
@@ -811,7 +813,7 @@ private fun PreferencesScreenPreview() {
                 currentCurrencyLabel = "INR",
                 currentDecimalPlacesLabel = "2 decimal places",
                 currentGroupingLabelRes = R.string.label_grouping_indian,
-                currentDateFormatLabel = "dd/MM/yyyy",
+                currentDateFormatLabel = getDateFormatPreviewLabel(DEFAULT_DATE_FORMAT_PATTERN),
                 currentTimeFormatLabelRes = R.string.label_24hour,
                 currentThemeModeLabelRes = R.string.label_theme_dark,
             ),
