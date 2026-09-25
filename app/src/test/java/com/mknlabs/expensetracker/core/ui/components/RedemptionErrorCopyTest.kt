@@ -26,6 +26,7 @@ class RedemptionErrorCopyTest {
         RedemptionError.Expired,
         RedemptionError.LimitReached,
         RedemptionError.AlreadyRedeemed,
+        RedemptionError.PassActive(1_790_306_107_150L),
         RedemptionError.SubscriptionActive(1_790_306_107_150L),
         RedemptionError.Network,
         RedemptionError.Unknown,

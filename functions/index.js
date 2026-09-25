@@ -109,7 +109,9 @@ function activeSubscription(rcData) {
  *                         subscription's `details.subscriptionExpiry` in epoch millis),
  *                         or an inactive / expired / used-up coupon. The coupon refusals
  *                         carry `details.reason` as well — INVALID_CODE, INACTIVE, EXPIRED,
- *                         LIMIT_REACHED — because the code alone cannot tell them apart.
+ *                         LIMIT_REACHED — because the code alone cannot tell them apart), or
+ *                         a running pass (`details.reason = "PASS_ACTIVE"` plus
+ *                         `details.passExpiry` in epoch millis).
  */
 exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
   // --- Auth gate (mirrors the old app check) ---
@@ -162,6 +164,24 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       );
     }
 
+    // Pass gate. A running pass already grants Pro, so a second code would sit behind it and
+    // its days would be spent on access the user already has. The old client refused this
+    // before it called; the refusal lives here now, so a modified client cannot stack either.
+    // Judged on the expiry alone: the tier mirrors it and can lag, while a future end date is
+    // the durable fact that says the pass is still running.
+    const userSnap = await tx.get(userRef);
+    const passExpiry = userSnap.exists ? Number(userSnap.data()?.proExpiryTimestamp) || 0 : 0;
+    if (passExpiry > Date.now()) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Your Pro Pass is currently active",
+        {
+          reason: "PASS_ACTIVE",
+          passExpiry
+        }
+      );
+    }
+
     const couponSnap = await tx.get(couponRef);
     if (!couponSnap.exists) {
       throw new HttpsError("not-found", "Invalid ProPass code");
@@ -207,8 +227,8 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       });
     }
 
-    // Existing premium is extended, not overwritten (matches old app behaviour).
-    const userSnap = await tx.get(userRef);
+    // Only a lapsed expiry can reach here — the pass gate above refuses a running one — but it
+    // must still not pull the new grant backwards.
     const existingExpiry = userSnap.exists ? Number(userSnap.data()?.proExpiryTimestamp) || 0 : 0;
 
     const newExpiry = Math.max(Date.now(), existingExpiry) + durationDays * DURATION_MS_PER_DAY;

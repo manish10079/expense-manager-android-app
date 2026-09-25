@@ -1823,6 +1823,7 @@
     <string name="error_redeem_expired">This ProPass code has expired.</string>
     <string name="error_redeem_limit_reached">This ProPass code has reached its usage limit.</string>
     <string name="error_redeem_already_redeemed">You have already redeemed this ProPass code.</string>
+    <string name="error_redeem_pass_active">Your Pro Pass is currently active. Please try redeeming a new code after your current Pro Pass expires.</string>
     <string name="error_redeem_subscription_active">Your subscription already covers Pro, so a ProPass would run out unused. Manage it from Google Play.</string>
     <string name="error_redeem_network">Couldn\'t reach the server. Check your connection and try again.</string>
     <string name="error_redeem_unknown">Couldn\'t activate that code. Please try again.</string>

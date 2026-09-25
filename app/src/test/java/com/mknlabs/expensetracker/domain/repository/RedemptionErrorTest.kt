@@ -29,6 +29,14 @@ class RedemptionErrorTest {
     }
 
     @Test
+    fun `a pass refusal carries the expiry the server sent`() {
+        assertEquals(
+            RedemptionError.PassActive(1_790_306_107_150L),
+            RedemptionError.fromReason("PASS_ACTIVE", 1_790_306_107_150L)
+        )
+    }
+
+    @Test
     fun `each coupon refusal is told apart from the others`() {
         assertEquals(RedemptionError.InvalidCode, RedemptionError.fromReason("INVALID_CODE"))
         assertEquals(RedemptionError.Inactive, RedemptionError.fromReason("INACTIVE"))

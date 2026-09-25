@@ -120,8 +120,9 @@ fun SettingsScreen(
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
 
     val adFreeRemainingTime by settingsViewModel.adFreeRemainingTime.collectAsStateWithLifecycle()
-    // Comes from the store entitlement, not from the Pro tier: a ProPass holder should still
-    // be able to redeem a second code to extend, whereas a subscriber would only burn one.
+    // Comes from the store entitlement, not from the Pro tier: the store is the authority on a
+    // subscription, so its answer alone can grey the row. A running pass refuses a code too,
+    // but the server is the one that says so, and the redeem dialog reports it.
     val hasActiveStoreSubscription by settingsViewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     // The ad-free row advertises the rewarded-ad pass, whose length is Remote Config-driven
     // (`ad_pass_duration_minutes`). Resolved here and passed down so the previewable Content

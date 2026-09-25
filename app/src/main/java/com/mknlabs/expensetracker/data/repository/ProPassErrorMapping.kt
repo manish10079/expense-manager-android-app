@@ -24,9 +24,21 @@ internal fun redemptionErrorOf(e: Exception): RedemptionError {
     return redemptionErrorFrom(
         code = functionsException.code,
         reason = details?.get("reason") as? String,
-        subscriptionExpiryMillis = (details?.get("subscriptionExpiry") as? Number)?.toLong() ?: 0L,
+        blockingExpiryMillis = blockingExpiryMillis(details),
     )
 }
+
+/**
+ * When the access that refused this call ends, in epoch millis, or 0 when there is none.
+ *
+ * `subscriptionExpiry` and `passExpiry` are two names for the same fact — the end of the
+ * access the user already has — so the client reads whichever the server sent rather than
+ * carrying that distinction into the UI.
+ */
+internal fun blockingExpiryMillis(details: Map<*, *>?): Long =
+    (details?.get("subscriptionExpiry") as? Number)?.toLong()
+        ?: (details?.get("passExpiry") as? Number)?.toLong()
+        ?: 0L
 
 /**
  * The decision table itself, as a pure function of the callable's two halves.
@@ -37,7 +49,7 @@ internal fun redemptionErrorOf(e: Exception): RedemptionError {
 internal fun redemptionErrorFrom(
     code: FirebaseFunctionsException.Code?,
     reason: String?,
-    subscriptionExpiryMillis: Long,
+    blockingExpiryMillis: Long,
 ): RedemptionError = when (code) {
     FirebaseFunctionsException.Code.UNAUTHENTICATED,
     FirebaseFunctionsException.Code.PERMISSION_DENIED -> RedemptionError.NotSignedIn
@@ -48,7 +60,7 @@ internal fun redemptionErrorFrom(
 
     FirebaseFunctionsException.Code.FAILED_PRECONDITION,
     FirebaseFunctionsException.Code.INVALID_ARGUMENT ->
-        RedemptionError.fromReason(reason, subscriptionExpiryMillis)
+        RedemptionError.fromReason(reason, blockingExpiryMillis)
 
     else -> RedemptionError.Unknown
 }

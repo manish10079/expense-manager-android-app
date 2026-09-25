@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.monetization
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
@@ -157,7 +158,10 @@ class MonetizationViewModel @Inject constructor(
 
                 is RedemptionOutcome.Failure -> {
                     // Typed on purpose: wording is the UI's business (strings.xml), and the
-                    // server's English message must never reach the screen.
+                    // server's English message must never reach the screen. Logged because the
+                    // dialog only ever shows the sentence — without this line a refused
+                    // redemption leaves nothing behind to diagnose it from.
+                    Log.w(TAG, "redeemProPass refused: ${outcome.error}")
                     _redemptionState.value = RedemptionState.Error(outcome.error)
                 }
             }
@@ -320,5 +324,10 @@ class MonetizationViewModel @Inject constructor(
      */
     fun showPrivacyOptionsForm(activity: Activity) {
         adsCoordinator.showPrivacyOptionsForm(activity)
+    }
+
+    private companion object {
+        /** Shared with the repository, so one tag covers a whole redemption attempt. */
+        const val TAG = "ProPassRedeem"
     }
 }

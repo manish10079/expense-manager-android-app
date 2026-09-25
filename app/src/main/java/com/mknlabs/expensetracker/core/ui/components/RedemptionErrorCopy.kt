@@ -15,9 +15,9 @@ import com.mknlabs.expensetracker.domain.repository.RedemptionError
  * of inventing a second wording for the same advice. A code the server has never heard of and
  * a code it cannot grant are one problem as far as the user can act on it.
  *
- * [RedemptionError.SubscriptionActive] carries the subscription's expiry, which the screen
- * that also holds a date formatter can surface; the dialog states the fact without a date
- * rather than formatting one of its own.
+ * [RedemptionError.SubscriptionActive] and [RedemptionError.PassActive] carry the expiry of
+ * the access that blocked the code, which the screen that also holds a date formatter can
+ * surface; the dialog states the fact without a date rather than formatting one of its own.
  */
 @StringRes
 internal fun redemptionErrorMessageRes(error: RedemptionError): Int = when (error) {
@@ -27,6 +27,7 @@ internal fun redemptionErrorMessageRes(error: RedemptionError): Int = when (erro
     RedemptionError.Expired -> R.string.error_redeem_expired
     RedemptionError.LimitReached -> R.string.error_redeem_limit_reached
     RedemptionError.AlreadyRedeemed -> R.string.error_redeem_already_redeemed
+    is RedemptionError.PassActive -> R.string.error_redeem_pass_active
     is RedemptionError.SubscriptionActive -> R.string.error_redeem_subscription_active
     RedemptionError.Network -> R.string.error_redeem_network
     RedemptionError.Unknown -> R.string.error_redeem_unknown

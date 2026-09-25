@@ -44,21 +44,22 @@ fun ProPassRedeemDialog(
 ) {
     var code by remember { mutableStateOf("") }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
-    // Only a *store subscription* is grounds for refusing a code.
+    // Only a *store subscription* is refused up front, because the store is the authority on
+    // one and its answer is already on hand.
     //
-    // This check used to be `userTier == PREMIUM`, which refused two users it should not:
-    // a ProPass holder, whose code would have stacked (the `redeemProPass` function computes
-    // `max(now, existingExpiry) + durationDays` and is explicit that existing premium is
-    // "extended, not overwritten"), and a subscriber, who was shown ProPass-specific copy
-    // about waiting for a pass to expire. The first is why the Settings row stays enabled for
-    // a ProPass holder at all, and this dialog was contradicting it one tap later.
+    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder — back
+    // when a second code stacked on top of a running pass. Stacking is gone: the server now
+    // refuses a running pass with `PASS_ACTIVE`. That refusal is left to the server instead of
+    // being guessed here, because the pass expiry is a local mirror that a sync may not have
+    // caught up with, and refusing on a stale one would block a redemption the server would
+    // have granted.
     val hasActiveStoreSubscription by viewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
     val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
 
     // A subscription already covers the window a new grant would occupy, so the code would
-    // run out unused. Say that, rather than asking the user to wait for an expiry.
+    // run out unused. Say that.
     if (hasActiveStoreSubscription) {
         AlertDialog(
             onDismissRequest = onDismiss,

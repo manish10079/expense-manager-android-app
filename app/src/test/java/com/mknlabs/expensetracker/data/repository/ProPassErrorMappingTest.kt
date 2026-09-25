@@ -70,6 +70,34 @@ class ProPassErrorMappingTest {
     }
 
     @Test
+    fun `a running pass is refused with the pass's own expiry`() {
+        assertEquals(
+            RedemptionError.PassActive(7L),
+            redemptionErrorFrom(
+                FirebaseFunctionsException.Code.FAILED_PRECONDITION,
+                "PASS_ACTIVE",
+                7L
+            )
+        )
+        assertEquals(
+            RedemptionError.PassActive(0L),
+            redemptionErrorFrom(
+                FirebaseFunctionsException.Code.FAILED_PRECONDITION,
+                "PASS_ACTIVE",
+                0L
+            )
+        )
+    }
+
+    @Test
+    fun `the blocking expiry is read from whichever key the server sent`() {
+        assertEquals(11L, blockingExpiryMillis(mapOf("subscriptionExpiry" to 11L)))
+        assertEquals(22L, blockingExpiryMillis(mapOf("passExpiry" to 22L)))
+        assertEquals(0L, blockingExpiryMillis(mapOf("reason" to "PASS_ACTIVE")))
+        assertEquals(0L, blockingExpiryMillis(null))
+    }
+
+    @Test
     fun `an unrelated failure is unknown rather than a guess`() {
         assertEquals(
             RedemptionError.Unknown,

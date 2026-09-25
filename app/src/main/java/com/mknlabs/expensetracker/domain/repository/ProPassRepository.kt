@@ -28,6 +28,14 @@ sealed interface RedemptionError {
     data object AlreadyRedeemed : RedemptionError
 
     /**
+     * The account already has a running pass, so this code would sit behind it and its days
+     * would be spent on access the user already has.
+     *
+     * [expiryMillis] is when that pass ends, or 0 when the server did not say.
+     */
+    data class PassActive(val expiryMillis: Long) : RedemptionError
+
+    /**
      * The account is already Pro through the store, so the pass would run out unused.
      *
      * [expiryMillis] is when that subscription ends, or 0 when it does not expire.
@@ -48,6 +56,7 @@ sealed interface RedemptionError {
         const val REASON_EXPIRED = "EXPIRED"
         const val REASON_LIMIT_REACHED = "LIMIT_REACHED"
         const val REASON_ALREADY_REDEEMED = "ALREADY_REDEEMED"
+        const val REASON_PASS_ACTIVE = "PASS_ACTIVE"
 
         /**
          * Maps a server reason onto a typed error. An absent or unfamiliar reason is
@@ -57,9 +66,10 @@ sealed interface RedemptionError {
          */
         fun fromReason(
             reason: String?,
-            subscriptionExpiryMillis: Long = 0L,
+            blockingExpiryMillis: Long = 0L,
         ): RedemptionError = when (reason) {
-            REASON_SUBSCRIPTION_ACTIVE -> SubscriptionActive(subscriptionExpiryMillis)
+            REASON_SUBSCRIPTION_ACTIVE -> SubscriptionActive(blockingExpiryMillis)
+            REASON_PASS_ACTIVE -> PassActive(blockingExpiryMillis)
             REASON_INVALID_CODE -> InvalidCode
             REASON_INACTIVE -> Inactive
             REASON_EXPIRED -> Expired

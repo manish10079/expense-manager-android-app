@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.functions.FirebaseFunctions
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
@@ -42,6 +43,10 @@ class ProPassRepositoryImpl @Inject constructor(
         val data = result.data as? Map<*, *>
         val durationDays = (data?.get("durationDays") as? Number)?.toInt()
         if (data == null || durationDays == null) {
+            // A grant always carries durationDays, so reaching here means the call succeeded
+            // and this build could not read the answer. The dialog can only report that as a
+            // bad code, so the keys are logged to keep the claim checkable.
+            Log.w(TAG, "redeemProPass returned no durationDays; keys=${data?.keys}")
             return RedemptionOutcome.Failure(RedemptionError.InvalidCode)
         }
         val newExpiry = (data["newExpiry"] as? Number)?.toLong()
@@ -65,5 +70,10 @@ class ProPassRepositoryImpl @Inject constructor(
         com.mknlabs.expensetracker.data.local.MonetizationDataStore.updateGlobalAdAccessExpiry(appContext, 0L)
 
         return RedemptionOutcome.Success(durationDays)
+    }
+
+    private companion object {
+        /** Shared with the view model, so one tag covers a whole redemption attempt. */
+        const val TAG = "ProPassRedeem"
     }
 }
