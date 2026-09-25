@@ -132,6 +132,8 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
@@ -140,6 +142,8 @@ import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
 import com.mknlabs.expensetracker.core.ui.components.tabBadgeSlotWidth
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -867,26 +871,31 @@ private fun BudgetPeriodRow(
 
 @Composable
 private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
-    Column(
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 26.dp,
-                shape = RoundedCornerShape(24.dp),
-                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
-            )
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(horizontal = 18.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .then(
+                // The card's lift is a tinted one the theme supplies rather than the card
+                // spec's: scrim is what carries it against the dark field, and this card
+                // has always carried it. Light takes the shared soft lift instead.
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier.shadow(
+                        elevation = 26.dp,
+                        shape = RoundedCornerShape(24.dp),
+                        ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
         // Line 1 — month (left) + total budget (right) on a single row.
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -980,6 +989,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             )
         }
     }
+    }
 }
 
 @Composable
@@ -1030,17 +1040,11 @@ private fun SectionTitle(title: String) {
 
 @Composable
 private fun EmptySectionCard(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(18.dp)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(20.dp),
+        contentPadding = PaddingValues(18.dp),
     ) {
         Text(
             text = message,
