@@ -48,6 +48,9 @@ import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppDialogConfirmButton
+import com.mknlabs.expensetracker.core.ui.components.AppDialogDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppDialogDismissButton
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
@@ -303,6 +306,8 @@ fun DeleteGoalDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_delete_goal),
@@ -325,9 +330,10 @@ fun DeleteGoalDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
@@ -345,6 +351,8 @@ fun FundGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_fund_goal),
@@ -361,6 +369,7 @@ fun FundGoalDialog(
                     label = { Text(stringResource(R.string.label_fund_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -378,9 +387,10 @@ fun FundGoalDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
@@ -405,6 +415,8 @@ fun AddGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_add_goal),
@@ -420,6 +432,7 @@ fun AddGoalDialog(
                     placeholder = { Text(stringResource(R.string.label_goal_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppDialogDefaults.fieldShape(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
@@ -434,6 +447,7 @@ fun AddGoalDialog(
                     label = { Text(stringResource(R.string.label_target_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -455,17 +469,17 @@ fun AddGoalDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppDialogConfirmButton(
+                text = stringResource(R.string.label_save_1),
                 onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
                 enabled = isSaveEnabled
-            ) {
-                Text(stringResource(R.string.label_save_1))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 
@@ -513,6 +527,8 @@ fun EditGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_edit_goal),
@@ -527,6 +543,7 @@ fun EditGoalDialog(
                     label = { Text(stringResource(R.string.label_goal_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppDialogDefaults.fieldShape(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
@@ -549,6 +566,7 @@ fun EditGoalDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -570,17 +588,17 @@ fun EditGoalDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppDialogConfirmButton(
+                text = stringResource(R.string.label_save_1),
                 onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
                 enabled = isSaveEnabled
-            ) {
-                Text(stringResource(R.string.label_save_1))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 
@@ -745,6 +763,8 @@ private fun GoalIconPickerModal(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_choose_icon),
@@ -770,9 +790,10 @@ private fun GoalIconPickerModal(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
