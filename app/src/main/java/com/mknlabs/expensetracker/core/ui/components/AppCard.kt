@@ -238,7 +238,18 @@ object AppCardDefaults {
      * the existing cards were drawn with.
      */
     @Composable
-    fun shape(): Shape = RoundedCornerShape(CornerRadius)
+    fun shape(): Shape = shape(Dimens.CardRadius)
+
+    /**
+     * The standard radius in light and a radius the component already had in dark,
+     * mirroring [colors]. The cards being migrated off the pre-redesign screens each
+     * carried a radius of its own, and adopting the card spec in light is the point of
+     * the migration — but folding their dark value in at the same time would move pixels
+     * in the theme this pass is not allowed to touch.
+     */
+    @Composable
+    fun shape(darkRadius: Dp): Shape =
+        RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) darkRadius else CornerRadius)
 
     /**
      * The standard card in light, and the container and outline the component already had

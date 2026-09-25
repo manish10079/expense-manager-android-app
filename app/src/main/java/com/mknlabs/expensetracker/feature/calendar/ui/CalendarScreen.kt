@@ -30,8 +30,6 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -85,6 +85,7 @@ import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -586,16 +587,20 @@ private fun MonthCalendarCard(
     onSwipePrevious: () -> Unit,
     onSwipeNext: () -> Unit
 ) {
-    Box(
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
-            .background(standardCardGradient())
             .horizontalSwipe(
                 key = days to selectedDate,
                 onSwipeLeft = onSwipeNext,
                 onSwipeRight = onSwipePrevious
-            )
+            ),
+        // The gradient is the dark surface and the only fill this card has, so the
+        // container underneath it stays transparent and no outline is added; light falls
+        // back to the standard card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(26.dp),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
@@ -775,11 +780,11 @@ private fun CalendarTransactionCard(
 private fun EmptyTransactionsCard(
     message: String
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -869,9 +874,9 @@ private fun AnnualSummaryCard(
     totalIncome: String,
     totalExpense: String
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(28.dp)
+    AppCard(
+        colors = AppCardDefaults.colors(MaterialTheme.colorScheme.surface),
+        shape = AppCardDefaults.shape(28.dp),
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -947,10 +952,10 @@ private fun MonthSummaryCard(
     summary: CalendarMonthFinancialSummaryUi,
     onClick: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(22.dp),
-        modifier = Modifier.clickable(onClick = onClick)
+    AppCard(
+        onClick = onClick,
+        colors = AppCardDefaults.colors(MaterialTheme.colorScheme.surface),
+        shape = AppCardDefaults.shape(22.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 14.dp),
