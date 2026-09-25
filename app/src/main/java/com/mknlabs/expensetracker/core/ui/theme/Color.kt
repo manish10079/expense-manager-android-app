@@ -151,32 +151,36 @@ val CashFlowCardBorderDarkMid = Color(0x24BFA6FF)   // rgba(191, 166, 255, 0.14)
 val CashFlowCardBorderLight = Color(0xFFE2DCF0)
 
 val CashFlowDateTextDark = Color(0xFFA792E8)
-val CashFlowDateTextLight = Color(0xFF6C52EE)
+// Light values below are aliases of the palette tokens above rather than hexes of
+// their own. The hero no longer paints a surface in light mode — it is a white card —
+// so these are now only the inks *inside* it, and inks that are aliases cannot drift
+// away from the text colours every other light surface uses.
+val CashFlowDateTextLight = TextSecondaryLight
 
 val CashFlowPillBgDark = Color(0xFF231D33)
-val CashFlowPillBgLight = Color(0xFFEDE8F8)
+val CashFlowPillBgLight = CardLight
 val CashFlowPillBorderDark = Color(0xFF3B3254)
-val CashFlowPillBorderLight = Color(0xFFDCD4F0)
+val CashFlowPillBorderLight = DividerLight
 val CashFlowPillTextDark = Color(0xFFDDD8EC)
-val CashFlowPillTextLight = Color(0xFF372D54)
+val CashFlowPillTextLight = TextSecondaryLight
 
 val CashFlowExpenseAmountDark = Color(0xFFFF7262) // Coral salmon red
-val CashFlowExpenseAmountLight = Color(0xFFE04343) // Vivid crimson red
+val CashFlowExpenseAmountLight = ExpenseInkLight
 
 val CashFlowIncomeAmountDark = Color(0xFF5DE290)  // Radiant mint green
-val CashFlowIncomeAmountLight = Color(0xFF16A34A) // Deep emerald green
+val CashFlowIncomeAmountLight = IncomeInkLight
 
 val CashFlowLabelDark = Color(0xFF9089A4)
-val CashFlowLabelLight = Color(0xFF746B8B)
+val CashFlowLabelLight = TextSecondaryLight
 
 val CashFlowNetBalanceBgDark = Color(0xFF161224)
-val CashFlowNetBalanceBgLight = Color(0xFFEDE8F8)
+val CashFlowNetBalanceBgLight = CardLight
 val CashFlowNetBalanceBorderDark = Color(0xFF2E2644)
-val CashFlowNetBalanceBorderLight = Color(0xFFDBD3EE)
+val CashFlowNetBalanceBorderLight = DividerLight
 val CashFlowNetBalanceLabelDark = Color(0xFFB5ADCA)
-val CashFlowNetBalanceLabelLight = Color(0xFF574E6F)
+val CashFlowNetBalanceLabelLight = TextSecondaryLight
 val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
-val CashFlowNetBalanceAmountLight = Color(0xFF1E1738)
+val CashFlowNetBalanceAmountLight = TextPrimaryLight
 
 // Bottom Navigation Bar Palette (indexmockup.html)
 val NavOnDark = Color(0xFFBFA6FF)     // --nav-on: #BFA6FF
@@ -202,7 +206,7 @@ val SmallCardIconDark = Color(0xFFBFA6FF)       // --qicon-c: #BFA6FF
 val SmallCardIconLight = Color(0xFF6C52EE)
 
 val SmallCardLabelDark = Color(0xFFA5A1B8)      // --t-secondary: #A5A1B8 (indexmockup.html)
-val SmallCardLabelLight = Color(0xFF746B8B)     // Light mode muted slate
+val SmallCardLabelLight = TextSecondaryLight     // Light mode muted slate
 
 // Chip / Filter Pill Palette (indexmockup.html)
 val ChipBgSelectedDark = Color(0x337A52FF)       // --chip-on-bg: rgba(122, 82, 255, 0.20)

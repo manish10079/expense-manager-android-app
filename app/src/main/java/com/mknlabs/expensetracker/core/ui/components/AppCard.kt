@@ -1,16 +1,24 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
@@ -32,18 +40,32 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
  * a 65%-alpha outline variant, no lift — because this pass is light-only. A card that
  * styled both themes would have quietly restyled the dark one, which is out of scope.
  *
+ * The chrome is built from modifiers rather than delegated to a Material `Surface`, so
+ * that the fill, the outline and the ripple stack in a known order: fill first, outline
+ * over it, ripple over both. A card that took its click handling through the caller's
+ * `modifier` would draw the ripple underneath its own fill and look dead to the touch.
+ *
  * On the shadow: the spec asks for both a 2–3dp elevation and a 16–24dp blur, and
  * Compose derives the blur from the elevation, so the two cannot both hold. The look
  * is what the spec is after ("extremely soft", "do not use heavy Material shadows"),
  * so the elevation follows the blur and the lift is kept invisible by the 5–6% alpha
- * instead. That lands the vertical offset in the specified 4–6dp band. To go back to
- * a literal 2–3dp elevation, lower [AppCardDefaults.Elevation] and raise the alphas
- * above it — no call site has to change.
+ * instead, which lands the vertical offset in the specified 4–6dp band. To go back to a
+ * literal 2–3dp elevation, lower [AppCardDefaults.Elevation] and raise the alphas above
+ * it — no call site has to change.
  *
+ * @param brush fill for a card that is a brand gradient rather than a flat colour. The
+ *   app's hero surfaces are gradients against the dark field and plain cards against the
+ *   light one, so a call site passes its gradient through
+ *   [com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient] and lets light fall back
+ *   to [AppCardColors.containerColor]. When non-null this replaces that colour as the
+ *   fill; the border, shape and shadow are unaffected.
  * @param contentPadding inside the card's own shape. Zero by default: the cards being
  *   migrated onto this already pad their own content, and a default would have doubled
  *   the padding on all of them. Pass [AppCardDefaults.ContentPadding] for a card that
- *   has none of its own.
+ *   carries none of its own.
+ * @param content the card's content, in a [BoxScope] rather than the [ColumnScope] a
+ *   Material card hands you — a card is as often a row with something pinned to a corner
+ *   as it is a stack. Wrap it in a [Column] to stack.
  */
 @Composable
 fun AppCard(
@@ -51,14 +73,16 @@ fun AppCard(
     shape: Shape = AppCardDefaults.shape(),
     colors: AppCardColors = AppCardDefaults.colors(),
     elevation: Dp = AppCardDefaults.Elevation,
+    brush: Brush? = null,
     contentPadding: PaddingValues = AppCardDefaults.ContentPadding,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     AppCardSurface(
         modifier = modifier,
         shape = shape,
         colors = colors,
         elevation = elevation,
+        brush = brush,
         contentPadding = contentPadding,
         content = content,
     )
@@ -67,28 +91,33 @@ fun AppCard(
 /**
  * The same card where the whole surface is the tap target.
  *
- * Separate overload rather than an optional lambda so the touch target, the ripple
- * and the role semantics come from [Surface] itself — a card that is clickable in
- * only part of its area is a card that half the users will miss.
+ * Separate overload rather than an optional lambda, so that the touch target, the ripple
+ * and the minimum interactive size are the card's own business and not something every
+ * call site has to remember. [onLongClick] is the same treatment for the lists that
+ * enter selection mode on a long press.
  */
 @Composable
 fun AppCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onLongClick: (() -> Unit)? = null,
     shape: Shape = AppCardDefaults.shape(),
     colors: AppCardColors = AppCardDefaults.colors(),
     elevation: Dp = AppCardDefaults.Elevation,
+    brush: Brush? = null,
     contentPadding: PaddingValues = AppCardDefaults.ContentPadding,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     AppCardSurface(
         modifier = modifier,
         shape = shape,
         colors = colors,
         elevation = elevation,
+        brush = brush,
         contentPadding = contentPadding,
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         content = content,
     )
@@ -100,49 +129,66 @@ private fun AppCardSurface(
     shape: Shape,
     colors: AppCardColors,
     elevation: Dp,
+    brush: Brush?,
     contentPadding: PaddingValues,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
-    val lifted = if (MaterialTheme.colorScheme.isDark) {
-        modifier
-    } else {
-        // clip = false so the shadow is drawn outside the shape while the Surface
-        // still clips its own content to it.
-        modifier.shadow(
-            elevation = elevation,
-            shape = shape,
-            clip = false,
-            ambientColor = CardShadowAmbientLight,
-            spotColor = CardShadowSpotLight,
-        )
-    }
+    val isDark = MaterialTheme.colorScheme.isDark
 
-    val body: @Composable () -> Unit = {
-        Column(modifier = Modifier.padding(contentPadding), content = content)
-    }
+    val chrome = modifier
+        .then(
+            if (isDark || elevation <= 0.dp) {
+                Modifier
+            } else {
+                // clip = false so the shadow is cast outside the shape while the card
+                // itself is still clipped to it below.
+                Modifier.shadow(
+                    elevation = elevation,
+                    shape = shape,
+                    clip = false,
+                    ambientColor = CardShadowAmbientLight,
+                    spotColor = CardShadowSpotLight,
+                )
+            }
+        )
+        .clip(shape)
+        .then(
+            if (brush == null) {
+                Modifier.background(colors.containerColor)
+            } else {
+                Modifier.background(brush)
+            }
+        )
+        // border() has no nullable overload, and a card may deliberately carry no
+        // outline at all — a hero painting its own edge, or a transparent row.
+        .then(
+            if (colors.border == null) {
+                Modifier
+            } else {
+                Modifier.border(border = colors.border, shape = shape)
+            }
+        )
+        .then(
+            when {
+                onClick == null -> Modifier
+                onLongClick == null -> Modifier
+                    .minimumInteractiveComponentSize()
+                    .clickable(enabled = enabled, onClick = onClick)
+                else -> Modifier
+                    .minimumInteractiveComponentSize()
+                    .combinedClickable(
+                        enabled = enabled,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+            }
+        )
 
-    if (onClick == null) {
-        Surface(
-            modifier = lifted,
-            shape = shape,
-            color = colors.containerColor,
-            contentColor = colors.contentColor,
-            border = colors.border,
-            content = body,
-        )
-    } else {
-        Surface(
-            onClick = onClick,
-            modifier = lifted,
-            enabled = enabled,
-            shape = shape,
-            color = colors.containerColor,
-            contentColor = colors.contentColor,
-            border = colors.border,
-            content = body,
-        )
+    CompositionLocalProvider(LocalContentColor provides colors.contentColor) {
+        Box(modifier = chrome.padding(contentPadding)) { content() }
     }
 }
 
@@ -155,15 +201,12 @@ data class AppCardColors(
 
 object AppCardDefaults {
 
-    /**
-     * Default inside padding for a card that carries none of its own. The spacing
-     * scale's base step, matching the 16dp the existing cards pad themselves with.
-     */
-    val ContentPadding = PaddingValues(Dimens.spacingDefault)
+    /** No padding of the card's own; every migrated card pads its content itself. */
+    val ContentPadding = PaddingValues(0.dp)
 
     /**
-     * Shadow elevation. Light mode only — dark cards are not lifted — and the value
-     * is the shadow's blur, not a Material elevation step. See [AppCard] for why.
+     * Shadow elevation. Light mode only — dark cards are not lifted — and the value is
+     * the shadow's blur, not a Material elevation step. See [AppCard] for why.
      */
     val Elevation: Dp
         @Composable get() = if (MaterialTheme.colorScheme.isDark) 0.dp else 12.dp
@@ -173,7 +216,26 @@ object AppCardDefaults {
      * the existing cards were drawn with.
      */
     @Composable
-    fun shape(): Shape = RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 24.dp)
+    fun shape(): Shape =
+        RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 24.dp)
+
+    /**
+     * The card that was a flat tinted surface — half-strength variant container and no
+     * outline — which is what the setup and permission prompts have always been. Dark
+     * keeps exactly that; light takes the standard card, because a tinted flat surface
+     * is the shape of thing the light redesign is replacing with white cards.
+     */
+    @Composable
+    fun tintedColors(): AppCardColors =
+        if (MaterialTheme.colorScheme.isDark) {
+            AppCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                border = null
+            )
+        } else {
+            colors()
+        }
 
     /**
      * White on the grey field with a hairline outline in light; the existing

@@ -75,6 +75,7 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -854,16 +855,20 @@ private fun HomeStatsSection(
 private fun UpcomingRecurringCard(
     upcomingExpenses: List<UpcomingRecurringUi>
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // 30dp in dark, where this card is a brand gradient; the standard card in light.
+        shape = if (MaterialTheme.colorScheme.isDark) {
+            RoundedCornerShape(30.dp)
+        } else {
+            AppCardDefaults.shape()
+        },
+        brush = darkOnlyGradient(standardCardGradient()),
+        contentPadding = PaddingValues(22.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(22.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1083,13 +1088,10 @@ fun AccountSetupCard(
 
     if (isComplete || isDismissed) return
 
-    androidx.compose.material3.Card(
+    AppCard(
         onClick = onActionClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = AppCardDefaults.tintedColors()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

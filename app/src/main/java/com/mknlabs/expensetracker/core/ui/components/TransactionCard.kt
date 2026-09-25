@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Column
@@ -71,6 +70,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.transparent
 import kotlinx.coroutines.launch
 
@@ -102,12 +102,18 @@ fun TransactionCard(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
-    val cardBorder = remember(borderColor) {
-        BorderStroke(
-            width = 1.dp,
-            color = borderColor
+    // Selection keeps the filled primary container and the stronger edge it always had.
+    // An unselected row was a transparent list row rather than a filled surface, and dark
+    // mode is not part of this pass, so the dark fill stays clear; in light the row is a
+    // card like any other, which is the whole point of the redesign.
+    val baseColors = AppCardDefaults.colors()
+    val cardColors = when {
+        isSelected -> baseColors.copy(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
         )
+        MaterialTheme.colorScheme.isDark -> baseColors.copy(containerColor = transparent)
+        else -> baseColors
     }
 
     // Hoisted string resources: resolved once per card slot (cached across recompositions)
@@ -123,25 +129,11 @@ fun TransactionCard(
     val titleStyle = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
     val metaStyle = MaterialTheme.typography.labelSmall
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .then(
-                if (isSelected) {
-                    Modifier.background(MaterialTheme.colorScheme.primaryContainer)
-                } else {
-                    Modifier.background(transparent)
-                }
-            )
-            .border(
-                border = cardBorder,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+    AppCard(
+        onClick = onClick,
+        onLongClick = onLongClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = cardColors
     ) {
         Row(
             modifier = Modifier

@@ -1,7 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,8 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +69,7 @@ import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillBorderLight
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillTextDark
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillTextLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.bitmapFill
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.feature.home.ui.CashFlowPeriod
 import kotlinx.coroutines.delay
@@ -85,11 +86,14 @@ private fun currentDateString(): String {
 }
 
 /**
- * Redesigned CashFlow card with adaptive image background:
- * - Stretches and shrinks vertically/horizontally across devices and orientations
- * - Perfect 24.dp corner clipping
- * - Supports both Dark mode (bg_cashflow_dark) and Light mode (bg_cashflow_light)
- * - All internal content styles, formatting, dropdown selection, and privacy toggle preserved
+ * Cash Flow hero card.
+ *
+ * The dark card is the surface it has always been: a baked PNG stretched across the
+ * whole card over a borderless 24dp shape. Light mode is the app's standard card — white
+ * on the grey field, outlined and lifted — because the light palette is where "avoid
+ * colourful backgrounds" applies; the hero's own gradient stays a dark-mode device.
+ *
+ * Everything inside is identical in both themes apart from the ink it reads.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -135,22 +139,37 @@ fun CashFlowStatsCard(
 
     var dropdownMenuExpanded by remember { mutableStateOf(dropdownExpanded) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .clickable(onClick = onToggleVisibility)
-    ) {
-        // Adaptive background image that stretches and shrinks horizontally & vertically
-        Image(
-            painter = painterResource(
-                id = if (isDark) R.drawable.bg_cashflow_dark else R.drawable.bg_cashflow_light
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.matchParentSize()
-        )
+    // The hero's dark fill is a bitmap, so it arrives as a brush scaled to the card
+    // rather than as an Image behind the content; light mode leaves it null and takes
+    // the card's own white container instead.
+    val context = LocalContext.current
+    val heroFill = if (isDark) {
+        val hero = remember(context) {
+            BitmapFactory.decodeResource(context.resources, R.drawable.bg_cashflow_dark)
+        }
+        hero?.let { remember(it) { bitmapFill(it.asImageBitmap()) } }
+    } else {
+        null
+    }
 
+    AppCard(
+        onClick = onToggleVisibility,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        brush = heroFill,
+        // The hero paints its own edge in dark, so the card adds no outline and no lift
+        // there; in light it is an ordinary card and takes both.
+        colors = if (isDark) {
+            AppCardColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                border = null
+            )
+        } else {
+            AppCardDefaults.colors()
+        },
+        elevation = if (isDark) 0.dp else AppCardDefaults.Elevation
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

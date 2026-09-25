@@ -1,15 +1,58 @@
 package com.mknlabs.expensetracker.core.ui.theme
 
+import android.graphics.BitmapShader
+import android.graphics.Matrix
+import android.graphics.Shader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.MaterialTheme
 
 /**
  * Standardized gradients for the application to ensure brand consistency.
  */
+
+/**
+ * A card fill that paints a bitmap stretched to the surface's bounds.
+ *
+ * The Cash Flow hero's dark surface is a baked PNG rather than a gradient assembled
+ * from tokens, so it cannot be handed over as a plain [Brush] the way every other hero
+ * fill is. Scaling a shader to the bounds reproduces what an `Image` with
+ * `ContentScale.FillBounds` was doing, which is what lets that card move onto the
+ * shared card chrome without its dark appearance changing.
+ */
+fun bitmapFill(bitmap: ImageBitmap): Brush = BitmapFillBrush(bitmap)
+
+private class BitmapFillBrush(private val bitmap: ImageBitmap) : ShaderBrush() {
+    override fun createShader(size: Size): Shader {
+        val image = bitmap.asAndroidBitmap()
+        val matrix = Matrix().apply {
+            setScale(size.width / image.width, size.height / image.height)
+        }
+        return BitmapShader(image, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP).apply {
+            setLocalMatrix(matrix)
+        }
+    }
+}
+
+/**
+ * A card fill that exists only in dark mode.
+ *
+ * The app's hero surfaces are brand gradients against the dark field and plain white
+ * cards against the light one, so the light redesign's rule for them is "gradient in
+ * dark, flat in light". Returning null in light lets a call site hand the result
+ * straight to a card's brush, which then falls back to the theme's card colour rather
+ * than needing the branch at every site.
+ */
+@Composable
+fun darkOnlyGradient(gradient: Brush): Brush? =
+    if (MaterialTheme.colorScheme.isDark) gradient else null
 
 @Composable
 fun brandGradient(alpha: Float = 1f): Brush {

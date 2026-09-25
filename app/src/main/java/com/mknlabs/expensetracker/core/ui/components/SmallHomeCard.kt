@@ -1,8 +1,8 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,9 +43,7 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
 import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
@@ -64,17 +63,14 @@ fun SmallHomeCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
-    val shape = RoundedCornerShape(18.dp)
+    // Dark keeps the 18dp quick-action shape and the brand-tinted edge it was drawn
+    // with; light is the standard card, 24dp with the palette's hairline. See AppCard.
+    val shape = if (isDark) RoundedCornerShape(18.dp) else AppCardDefaults.shape()
 
-    // Theme-aware gradient background matching indexmockup.html --qcard-bg
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
-    } else {
-        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
-    }
-
-    // Border matching indexmockup.html --qcard-bd
-    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
+    // The brand-tinted gradient is the dark surface matching indexmockup.html --qcard-bg.
+    // Light mode does not raise a tinted surface at all, so the gradient is not painted
+    // there and the card falls back to its white container.
+    val gradientBrush = Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
 
     // Icon background & tint matching indexmockup.html --qicon-bg & --qicon-c
     val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
@@ -83,13 +79,23 @@ fun SmallHomeCard(
     // Label color matching indexmockup.html --t-secondary (#A5A1B8 in dark mode)
     val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
 
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .clickable(onClick = onClick)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, color = borderColor, shape = shape)
-            .padding(12.dp)
+    AppCard(
+        onClick = onClick,
+        modifier = modifier,
+        shape = shape,
+        // The dark gradient paints its own edge, so the card contributes the outline it
+        // has always had and nothing else; light takes the standard card colours.
+        colors = if (isDark) {
+            AppCardColors(
+                containerColor = Color.Transparent,
+                contentColor = colorScheme.onSurface,
+                border = BorderStroke(1.dp, SmallCardBorderDark)
+            )
+        } else {
+            AppCardDefaults.colors()
+        },
+        brush = darkOnlyGradient(gradientBrush),
+        contentPadding = PaddingValues(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
