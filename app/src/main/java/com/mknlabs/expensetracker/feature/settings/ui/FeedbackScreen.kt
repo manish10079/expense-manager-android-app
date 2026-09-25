@@ -27,6 +27,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -132,42 +136,41 @@ private fun FeedbackScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Info Card with User Context
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(standardCardGradient())
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                        shape = RoundedCornerShape(24.dp)
-                    )
-                    .padding(20.dp)
+            AppCard(
+                modifier = Modifier.fillMaxWidth(),
+                // The gradient is the dark surface and this card's only fill, so the
+                // container beneath it stays transparent; light takes the white card.
+                brush = darkOnlyGradient(standardCardGradient()),
+                shape = AppCardDefaults.shape(24.dp),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.Email,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Rounded.Email,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.label_send_feedback_desc),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = stringResource(R.string.label_send_feedback_desc),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleSmall
+                        text = stringResource(
+                            R.string.label_logged_in_as,
+                            uiState.userEmail.ifEmpty { "Anonymous" },
+                            uiState.userId.take(8)
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(
-                        R.string.label_logged_in_as,
-                        uiState.userEmail.ifEmpty { "Anonymous" },
-                        uiState.userId.take(8)
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -185,12 +188,24 @@ private fun FeedbackScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(
+                        RoundedCornerShape(
+                            if (MaterialTheme.colorScheme.isDark) 24.dp else 16.dp
+                        )
+                    )
                     .background(MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(24.dp),
+                // Dark keeps the 24dp radius and the quarter-strength border it has always
+                // drawn; light takes the field spec's 16dp and its full-strength outline.
+                shape = RoundedCornerShape(
+                    if (MaterialTheme.colorScheme.isDark) 24.dp else 16.dp
+                ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                    unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) {
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    } else {
+                        MaterialTheme.colorScheme.outline
+                    },
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
