@@ -48,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -99,6 +100,7 @@ import com.mknlabs.expensetracker.core.ui.theme.BadgeExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.BadgeIncomeGreen
 import com.mknlabs.expensetracker.core.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.transparent
 import com.mknlabs.expensetracker.utils.UiText
 import androidx.compose.ui.res.pluralStringResource
@@ -511,7 +513,17 @@ private fun SearchField(query: String, onQueryChanged: (String) -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
         singleLine = true,
         placeholder = { Text(stringResource(id = R.string.label_sms_inbox_search_hint)) },
-        shape = RoundedCornerShape(14.dp)
+        // A search bar is one of the spec's secondary surfaces, so in light the field is
+        // filled instead of leaving the grey field showing through it, and it takes the
+        // spec's 16dp field radius rather than the 14dp this was drawn with. Dark keeps
+        // both the transparent fill and the 14dp.
+        shape = RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) 14.dp else 16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) Color.Transparent
+            else MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = if (MaterialTheme.colorScheme.isDark) Color.Transparent
+            else MaterialTheme.colorScheme.surfaceVariant,
+        )
     )
 }
 

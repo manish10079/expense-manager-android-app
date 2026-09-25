@@ -58,6 +58,7 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -272,13 +273,27 @@ fun SmsChangeContent(
                             }
                         }
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        focusedBorderColor = colorScheme.primary,
-                        unfocusedBorderColor = Color.Transparent,
-                        cursorColor = colorScheme.primary
-                    )
+                    // Light takes the field spec: a white surface on the hairline outline,
+                    // lit in brand purple while it holds the cursor. The half-strength wash
+                    // this used to be sits almost on the sheet's own white and left the note
+                    // with no edge at all. Dark keeps the wash and the invisible edge.
+                    colors = if (MaterialTheme.colorScheme.isDark) {
+                        OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            focusedBorderColor = colorScheme.primary,
+                            unfocusedBorderColor = Color.Transparent,
+                            cursorColor = colorScheme.primary
+                        )
+                    } else {
+                        OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = colorScheme.surface,
+                            unfocusedContainerColor = colorScheme.surface,
+                            focusedBorderColor = colorScheme.primary,
+                            unfocusedBorderColor = colorScheme.outline,
+                            cursorColor = colorScheme.primary
+                        )
+                    }
                 )
                 Text(
                     text = "${uiState.note.length}/200",
