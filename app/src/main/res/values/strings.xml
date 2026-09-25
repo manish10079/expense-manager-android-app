@@ -1935,8 +1935,8 @@
     <string name="btn_sign_in_register">Sign In / Register</string>
     <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
     <string name="label_free_tier">Free Tier</string>
-    <string name="label_pro_benefit_adfree">Ad-Free Experience</string>
-    <string name="label_pro_benefit_devices">4 Device Sync</string>
+    <string name="label_pro_benefit_adfree">Zero Ads. Pure Focus</string>
+    <string name="label_pro_benefit_devices">Instant Sync Across 4 Devices!</string>
     <string name="label_pro_benefit_custom_card">Customizable Transaction Cards</string>
     <string name="label_pro_benefit_advanced_features">Advanced Analytics &amp; Goals</string>
     <string name="label_pro_benefit_many_more_features">Many More... You Can Explore</string>
