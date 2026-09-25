@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.data.local
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -23,6 +24,10 @@ private val Context.monetizationDataStore: DataStore<Preferences> by preferences
 object MonetizationDataStore {
 
     private object Keys {
+        // The store's own verdict on the `premium` entitlement, latched by BillingManager
+        // whenever a CustomerInfo snapshot arrives. Plain rather than encrypted: it states
+        // no user data, only which entitlement the store currently reports.
+        val premiumEntitlementActive = booleanPreferencesKey("premium_entitlement_active")
         // Legacy (plaintext) long key — still read until migrated.
         val globalAdAccessExpiry = longPreferencesKey("global_ad_access_expiry")
         // Encrypted replacement (string key, AES-GCM envelope).
@@ -50,6 +55,32 @@ object MonetizationDataStore {
             preferences[Keys.globalAdAccessExpiryEnc] =
                 SecureValueCipher.encrypt(expiryMillis.toString())
             preferences.remove(Keys.globalAdAccessExpiry)
+        }
+    }
+
+    /**
+     * The store's last-known verdict on the `premium` entitlement.
+     *
+     * Persisted rather than read live because [AppSettingsDataStore] needs an answer on
+     * every settings write and has no BillingRepository to ask. It exists because a store
+     * subscription never writes `accountTier = "PREMIUM"` locally — only the `redeemProPass`
+     * Cloud Function does — so the profile alone reads a paying subscriber as free.
+     *
+     * `false` only until the first CustomerInfo snapshot ever arrives (a fresh install has
+     * no entitlement); after that the last verdict survives the cold-start window before
+     * RevenueCat answers, so a restart cannot re-derive a subscriber as free.
+     */
+    fun getPremiumEntitlementActive(context: Context): Flow<Boolean> {
+        val appContext = context.applicationContext
+        return appContext.monetizationDataStore.data
+            .map { preferences -> preferences[Keys.premiumEntitlementActive] ?: false }
+    }
+
+    /** Latches the store's verdict. Callers must pass a real snapshot, never "unknown". */
+    suspend fun setPremiumEntitlementActive(context: Context, active: Boolean) {
+        val appContext = context.applicationContext
+        appContext.monetizationDataStore.edit { preferences ->
+            preferences[Keys.premiumEntitlementActive] = active
         }
     }
 }
