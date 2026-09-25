@@ -59,10 +59,14 @@ import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
 import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
@@ -79,6 +83,7 @@ import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
+import androidx.compose.foundation.BorderStroke
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
 import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
@@ -734,9 +739,11 @@ private fun HeroAnalyticsSection(
     val gradientBrush = if (isDark) {
         Brush.linearGradient(listOf(CashFlowCardDarkStart, CashFlowCardDarkCenter, CashFlowCardDarkEnd))
     } else {
-        Brush.linearGradient(listOf(CashFlowCardLightStart, CashFlowCardLightCenter, CashFlowCardLightEnd))
+        null
     }
-    val borderColor = if (isDark) CashFlowCardBorderDarkStart.copy(alpha = 0.35f) else CashFlowCardBorderLight
+    // The hero paints its own edge in dark; in light it is an ordinary card and takes the
+    // shared outline instead.
+    val borderColor = CashFlowCardBorderDarkStart.copy(alpha = 0.35f)
     val shape = RoundedCornerShape(20.dp)
 
     val deltaColor = if (snapshot.changePercent >= 0) {
@@ -747,13 +754,20 @@ private fun HeroAnalyticsSection(
     val deltaArrow = if (snapshot.changePercent >= 0) "▲ " else "▼ "
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(shape)
-                .background(brush = gradientBrush)
-                .border(width = 1.dp, color = borderColor, shape = shape)
-                .padding(18.dp)
+        AppCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = AppCardDefaults.shape(20.dp),
+            colors = if (isDark) {
+                AppCardColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    border = BorderStroke(1.dp, borderColor)
+                )
+            } else {
+                AppCardDefaults.colors()
+            },
+            brush = gradientBrush,
+            contentPadding = PaddingValues(18.dp),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -1157,21 +1171,30 @@ private fun InsightStatCard(
     val gradientBrush = if (isDark) {
         Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
     } else {
-        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
+        null
     }
 
-    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
+    // The card carries its own hairline in dark; light takes the shared card's.
+    val borderColor = SmallCardBorderDark
     val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
     val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
     val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
     val shape = RoundedCornerShape(18.dp)
 
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, color = borderColor, shape = shape)
-            .padding(14.dp)
+    AppCard(
+        modifier = modifier,
+        shape = AppCardDefaults.shape(18.dp),
+        colors = if (isDark) {
+            AppCardColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                border = BorderStroke(1.dp, borderColor)
+            )
+        } else {
+            AppCardDefaults.colors()
+        },
+        brush = gradientBrush,
+        contentPadding = PaddingValues(14.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -1248,11 +1271,14 @@ private fun InsightStatCard(
 
 @Composable
 private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1359,10 +1385,14 @@ private fun CategoryCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1677,10 +1707,14 @@ private fun TopSpendingCard(
     dateFormatPattern: String,
     onViewAllClick: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1805,10 +1839,14 @@ private fun SmartTipCard(
     modifier: Modifier = Modifier,
     tip: SmartTipUi
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1858,10 +1896,14 @@ private fun PaymentTypeCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
