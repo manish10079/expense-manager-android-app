@@ -28,6 +28,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.feature.auth.ui.UpdateEmailUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -435,14 +437,19 @@ private fun PendingVerificationContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Pending verification card
-        Surface(
+        // A full-width tinted panel is the shape of thing the redesign replaces with a
+        // card, so light takes the shared white card here too; dark keeps the brand tint
+        // and its matching edge, which is how this state has always been dressed.
+        AppCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-            )
+            shape = AppCardDefaults.shape(16.dp),
+            colors = AppCardDefaults.colors(
+                darkContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                darkBorder = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                )
+            ),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),

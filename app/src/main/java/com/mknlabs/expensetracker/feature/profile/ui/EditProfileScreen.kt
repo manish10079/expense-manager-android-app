@@ -41,6 +41,7 @@ import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
@@ -69,6 +70,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.focus.onFocusChanged
 
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 
@@ -299,14 +301,20 @@ private fun ProfileScreenContent(
                     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
 
-                androidx.compose.material3.Surface(
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                // The card that groups the account fields. It is chrome rather than a
+                // message, so light takes the shared white card; dark keeps the surface, the
+                // quarter-strength outline and the 8dp lift it has always had.
+                AppCard(
+                    shape = AppCardDefaults.shape(28.dp),
+                    colors = AppCardDefaults.colors(
+                        darkContainer = MaterialTheme.colorScheme.surface,
+                        darkBorder = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        )
                     ),
-                    shadowElevation = 8.dp
+                    elevation = if (MaterialTheme.colorScheme.isDark) 8.dp
+                    else AppCardDefaults.Elevation
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         InputFieldCard(
@@ -330,7 +338,14 @@ private fun ProfileScreenContent(
                         )
 
                         HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            // The rule still separates the two fields on the card; in light it
+                            // is the spec's hairline instead of a fifth-strength wash that
+                            // disappeared into the white.
+                            color = if (MaterialTheme.colorScheme.isDark) {
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            }
                         )
 
                         if (isGoogleAccount) {
@@ -739,16 +754,39 @@ private fun PhoneInputFieldCard(
     val primary = colorScheme.primary
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
-    val containerShape = RoundedCornerShape(28.dp)
-    val borderColor = colorScheme.outlineVariant.copy(alpha = 0.4f)
+    // The same field spec the shared InputFieldCard follows: light takes the 16dp white
+    // field on the hairline outline, lit in brand purple while it holds the cursor, and
+    // dark keeps the 28dp, the quarter-strength edge and the 8dp lift. This is a second
+    // implementation of that field - it carries the country-code selector the shared one
+    // has no slot for - so it has to be kept in step by hand.
+    val isDark = colorScheme.isDark
+    var isFocused by remember { mutableStateOf(false) }
+    val containerShape = if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
+    val borderColor = if (isDark) {
+        colorScheme.outlineVariant.copy(alpha = 0.4f)
+    } else {
+        if (isFocused) primary else colorScheme.outline
+    }
     val focusManager = LocalFocusManager.current
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
+    AppCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { isFocused = it.hasFocus },
         shape = containerShape,
-        color = containerColor,
-        border = BorderStroke(width = 1.dp, color = borderColor),
-        shadowElevation = 8.dp
+        colors = if (isDark) {
+            AppCardDefaults.colors(
+                darkContainer = containerColor,
+                darkBorder = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        } else {
+            AppCardColors(
+                containerColor = containerColor,
+                contentColor = onSurface,
+                border = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        },
+        elevation = if (isDark) 8.dp else AppCardDefaults.Elevation,
     ) {
         Row(
             modifier = Modifier
