@@ -1,12 +1,15 @@
 package com.mknlabs.expensetracker.feature.profile.ui
 
 import android.content.res.Configuration
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +27,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.material.icons.rounded.ConfirmationNumber
+import androidx.compose.material.icons.rounded.Event
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,6 +43,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -47,8 +55,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,12 +74,18 @@ import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.ProPassBorder
+import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientEnd
+import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientStart
+import com.mknlabs.expensetracker.core.ui.theme.ProPassOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumBorder
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientEnd
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.PurchaseState
@@ -192,11 +208,12 @@ internal fun MembershipDetailsContent(
             ) {
                 // Top Hero Card
                 item {
-                    MembershipHeroCard(
+                    MembershipCard(
                         status = status,
                         proExpiryTimestamp = proExpiryTimestamp,
                         storeEntitlement = storeEntitlement,
-                        onUpgradeClick = upgradeToPro
+                        onUpgradeClick = upgradeToPro,
+                        onRedeemProPassClick = onRedeemProPassClick
                     )
                 }
 
@@ -289,11 +306,16 @@ internal fun MembershipDetailsContent(
                             }
                         }
 
-                        // The second way to reach Pro, and the only one open to a user who
-                        // was given a code. It sits above Restore because it grants access
-                        // while Restore only recovers it; a subscriber never sees it, since
-                        // the server refuses a pass that would run out unused.
-                        if (status == MembershipStatus.PRO_PASS || status == MembershipStatus.FREE) {
+                        // The second way to reach Pro, and the only one open to a user who was
+                        // given a code. It sits above Restore because it grants access while
+                        // Restore only recovers it.
+                        //
+                        // Only for a pass holder here: a free user gets it inside their card,
+                        // and a subscriber never sees it at all, since the server refuses a pass
+                        // that would run out unused. A pass holder keeps it because their state
+                        // outlives the grant — the tier is swept on a schedule, so a lapsed pass
+                        // still reads as one for a while, and redeeming then is allowed.
+                        if (status == MembershipStatus.PRO_PASS) {
                             OutlinedButton(
                                 onClick = onRedeemProPassClick,
                                 shape = RoundedCornerShape(16.dp),
@@ -375,171 +397,364 @@ private fun SubscriptionCancelHint() {
     }
 }
 
+/**
+ * The colours one membership state draws itself in.
+ *
+ * Gathered in one place because the three states share a single layout and differ only here
+ * and in their copy. The surface is the part that carries meaning: violet for access the user
+ * pays for, blue for a pass they were given, and the neutral surface for the state with no
+ * access at all.
+ */
+private data class MembershipCardPalette(
+    val surface: Brush,
+    val border: Color,
+    val shadow: Color,
+    val foreground: Color,
+    val headerLabel: Color,
+    val bodyText: Color,
+    val accent: Color,
+    val panelBackground: Color,
+    val panelIcon: Color,
+    val panelHeadline: Color,
+)
+
 @Composable
-private fun MembershipHeroCard(
+private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalette {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (status) {
+        MembershipStatus.SUBSCRIPTION -> MembershipCardPalette(
+            surface = Brush.verticalGradient(listOf(PremiumGradientStart, PremiumGradientEnd)),
+            border = PremiumBorder.copy(alpha = 0.7f),
+            shadow = PremiumGradientEnd.copy(alpha = 0.4f),
+            foreground = PremiumOnGradient,
+            headerLabel = PremiumGold,
+            bodyText = PremiumOnGradient.copy(alpha = 0.92f),
+            accent = PremiumGold,
+            panelBackground = PremiumOnGradient.copy(alpha = 0.12f),
+            // A green tick on the panel is this card's "you have it" mark; the pass card marks
+            // the same claim in gold, which is the accent a grant is dressed in.
+            panelIcon = IncomeGreen,
+            panelHeadline = PremiumOnGradient,
+        )
+
+        MembershipStatus.PRO_PASS -> MembershipCardPalette(
+            surface = Brush.verticalGradient(listOf(ProPassGradientStart, ProPassGradientEnd)),
+            border = ProPassBorder.copy(alpha = 0.7f),
+            shadow = ProPassGradientStart.copy(alpha = 0.4f),
+            foreground = ProPassOnGradient,
+            headerLabel = PremiumGold,
+            bodyText = ProPassOnGradient.copy(alpha = 0.92f),
+            accent = PremiumGold,
+            panelBackground = ProPassOnGradient.copy(alpha = 0.14f),
+            panelIcon = PremiumGold,
+            panelHeadline = PremiumGold,
+        )
+
+        MembershipStatus.FREE, MembershipStatus.OFFLINE -> MembershipCardPalette(
+            surface = Brush.verticalGradient(
+                listOf(
+                    colorScheme.surfaceVariant.copy(alpha = 0.9f),
+                    colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                )
+            ),
+            border = colorScheme.outlineVariant.copy(alpha = 0.4f),
+            shadow = PremiumShadowNeutral.copy(alpha = 0.1f),
+            foreground = colorScheme.onSurface,
+            headerLabel = colorScheme.onSurfaceVariant,
+            bodyText = colorScheme.onSurfaceVariant,
+            accent = colorScheme.primary,
+            panelBackground = colorScheme.onSurface.copy(alpha = 0.06f),
+            panelIcon = colorScheme.primary,
+            panelHeadline = colorScheme.onSurface,
+        )
+    }
+}
+
+/** The icon behind a [MembershipGlyph]. */
+private fun glyphIcon(glyph: MembershipGlyph): ImageVector = when (glyph) {
+    MembershipGlyph.VERIFIED -> Icons.Rounded.Verified
+    MembershipGlyph.TICKET -> Icons.Rounded.ConfirmationNumber
+    MembershipGlyph.LOCK -> Icons.Rounded.Lock
+    MembershipGlyph.DATE -> Icons.Rounded.Event
+    MembershipGlyph.CLOCK -> Icons.Rounded.Schedule
+}
+
+/**
+ * The membership card: one layout for all three states.
+ *
+ * A subscriber, a ProPass holder and a free user are all asking the same question — what do I
+ * have? — so they get the same card: what this is (header and badge), what it is called
+ * (title), what the app actually knows about it (facts), and how it is paid for (panel). Only
+ * the answers differ. That is what makes the three states comparable at a glance instead of
+ * three unrelated designs the user has to re-read each time.
+ *
+ * Size comes from the window's size class and the layout wraps rather than clips, so the card
+ * survives a tablet, a split screen and a large system font without losing a fact.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MembershipCard(
     status: MembershipStatus,
     proExpiryTimestamp: Long,
     storeEntitlement: StoreEntitlement?,
-    onUpgradeClick: () -> Unit
+    onUpgradeClick: () -> Unit,
+    onRedeemProPassClick: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val context = LocalContext.current
-    val isPremium = status.isPro
-    val isAnonymous = status == MembershipStatus.OFFLINE
-    val proGradient = Brush.verticalGradient(
-        colors = listOf(
-            PremiumGradientStart,
-            PremiumGradientEnd
-        )
-    )
-
-    // Which sentence to show, and which date belongs in it, is decided by
-    // `membershipHeroCopy`; formatting happens only when it named a date. That keeps the two
-    // sources of truth apart: a subscriber is dated by the store's own `expirationDate`, a
-    // ProPass by the timestamp the Cloud Function wrote.
-    val heroCopy = membershipHeroCopy(
+    val spacing = currentSpacing()
+    val palette = membershipCardPalette(status)
+    val spec = membershipCardSpec(
         status = status,
         proExpiryTimestamp = proExpiryTimestamp,
         storeEntitlement = storeEntitlement,
-        // Read at composition so an end date that has already passed is described as
-        // expired rather than announced as an upcoming renewal.
+        // Read at composition so an end date that has already passed is described as ended
+        // rather than announced as an upcoming renewal.
         now = System.currentTimeMillis()
     )
-    val dateMillis = heroCopy.dateMillis
-    val formattedDate = remember(dateMillis) {
-        if (dateMillis == null) {
-            ""
-        } else {
-            // A renewal is a day, not an instant: the store reports midnight-ish boundaries,
-            // so a time would only add noise. A ProPass expiry keeps its time, because it is
-            // accurate to the moment the pass dies.
-            val pattern = if (status == MembershipStatus.SUBSCRIPTION) {
-                R.string.date_pattern_full_short
-            } else {
-                R.string.date_pattern_pro_expiry
-            }
-            try {
-                java.text.SimpleDateFormat(context.getString(pattern), java.util.Locale.getDefault())
-                    .format(java.util.Date(dateMillis))
-            } catch (e: Exception) {
-                context.getString(R.string.label_na)
-            }
-        }
-    }
+    val cardShape = RoundedCornerShape(spacing.cardRadius + 12.dp)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
                 elevation = 12.dp,
-                shape = RoundedCornerShape(32.dp),
-                ambientColor = if (isPremium) PremiumGradientStart.copy(alpha = 0.4f) else PremiumShadowNeutral.copy(alpha = 0.1f),
-                spotColor = if (isPremium) PremiumGradientEnd.copy(alpha = 0.4f) else PremiumShadowNeutral.copy(alpha = 0.1f)
+                shape = cardShape,
+                ambientColor = palette.shadow,
+                spotColor = palette.shadow
             )
-            .clip(RoundedCornerShape(32.dp))
-            .background(
-                brush = if (isPremium) proGradient else Brush.verticalGradient(
-                    listOf(
-                        colorScheme.surfaceVariant.copy(alpha = 0.9f),
-                        colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                    )
-                )
-            )
-            .border(
-                width = if (isPremium) 1.5.dp else 1.dp,
-                color = if (isPremium) PremiumBorder.copy(alpha = 0.7f) else colorScheme.outlineVariant.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(32.dp)
-            )
+            .clip(cardShape)
+            .background(brush = palette.surface)
+            .border(width = 1.dp, color = palette.border, shape = cardShape)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(28.dp)
+                .padding(spacing.paddingLarge),
+            verticalArrangement = Arrangement.spacedBy(spacing.paddingCompact)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
-                    Text(
-                        text = when (status) {
-                            MembershipStatus.SUBSCRIPTION -> stringResource(R.string.label_pro_subscription_active)
-                            MembershipStatus.PRO_PASS -> stringResource(R.string.label_pro_pass_active)
-                            MembershipStatus.OFFLINE -> stringResource(R.string.label_unlimited_offline)
-                            MembershipStatus.FREE -> stringResource(R.string.label_free_tier)
-                        },
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = if (isPremium) PremiumOnGradient else colorScheme.onSurface
-                    )
-
-                    // Where Pro comes from, said outright. The two Pro states look alike
-                    // from the outside but mean opposite things: one is a recurring charge
-                    // the user can cancel, the other a grant that simply runs out. The card
-                    // names which, instead of leaving it to be inferred from the wording
-                    // above — the whole reason a subscriber used to read as a ProPass.
-                    val sourceRes = when (status) {
-                        MembershipStatus.SUBSCRIPTION -> R.string.label_pro_source_subscription
-                        MembershipStatus.PRO_PASS -> R.string.label_pro_source_pro_pass
-                        MembershipStatus.OFFLINE, MembershipStatus.FREE -> null
-                    }
-                    sourceRes?.let { res ->
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(res),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = PremiumOnGradient.copy(alpha = 0.85f)
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(
-                            color = if (isPremium) PremiumOnGradient.copy(alpha = 0.2f) else colorScheme.primary.copy(alpha = 0.1f),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(com.mknlabs.expensetracker.R.drawable.ic_crown),
-                        contentDescription = stringResource(R.string.label_pro),
-                        tint = if (isPremium) PremiumGold else colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            MembershipCardHeader(spec = spec, palette = palette)
 
             Text(
-                text = if (dateMillis != null) {
-                    stringResource(heroCopy.descriptionRes, formattedDate)
-                } else {
-                    stringResource(heroCopy.descriptionRes)
-                },
-                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                color = if (isPremium) PremiumOnGradient.copy(alpha = 0.9f) else colorScheme.onSurfaceVariant
+                text = stringResource(spec.titleRes),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = palette.foreground
             )
 
-            if (!isPremium) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = onUpgradeClick,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.primary,
-                        contentColor = colorScheme.onPrimary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = if (isAnonymous) stringResource(R.string.btn_sign_in_register) else stringResource(R.string.btn_upgrade_now),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+            spec.bodyRes?.let { bodyRes ->
+                Text(
+                    text = stringResource(bodyRes),
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
+                    color = palette.bodyText
+                )
+            }
+
+            if (spec.facts.isNotEmpty()) {
+                MembershipCardFacts(
+                    facts = spec.facts,
+                    // A pass dies at a moment, so its date keeps the time; a store renewal is a
+                    // day, so a time would only be noise.
+                    datePatternRes = if (status == MembershipStatus.PRO_PASS) {
+                        R.string.date_pattern_pro_expiry
+                    } else {
+                        R.string.date_pattern_full_short
+                    },
+                    palette = palette
+                )
+            }
+
+            spec.panel?.let { panel ->
+                MembershipCardPanel(panel = panel, palette = palette)
+            }
+
+            spec.primaryActionRes?.let { primaryActionRes ->
+                MembershipCardActions(
+                    primaryActionRes = primaryActionRes,
+                    showRedeemAction = spec.showRedeemAction,
+                    onUpgradeClick = onUpgradeClick,
+                    onRedeemProPassClick = onRedeemProPassClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MembershipCardHeader(spec: MembershipCardSpec, palette: MembershipCardPalette) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = glyphIcon(spec.glyph),
+            contentDescription = null,
+            tint = palette.headerLabel,
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+
+        // Weighted rather than fixed: at a large font size the label takes the width it needs
+        // and pushes the badge along instead of colliding with it.
+        Text(
+            text = stringResource(spec.headerLabelRes),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = palette.headerLabel,
+            modifier = Modifier.weight(1f)
+        )
+
+        spec.badgeRes?.let { badgeRes ->
+            Spacer(modifier = Modifier.width(Dimens.spacingCompact))
+            Text(
+                text = stringResource(badgeRes),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp,
+                color = palette.foreground.copy(alpha = 0.9f)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MembershipCardFacts(
+    facts: List<MembershipFact>,
+    @StringRes datePatternRes: Int,
+    palette: MembershipCardPalette
+) {
+    // Flow, not Row: two facts side by side while there is room, stacked when there is not —
+    // which is what a narrow screen, a split window or a large font all produce.
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.spacingDefault),
+        verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
+    ) {
+        facts.forEach { fact ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = glyphIcon(fact.glyph),
+                    contentDescription = null,
+                    tint = palette.accent,
+                    modifier = Modifier.size(16.dp)
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Text(
+                    text = membershipFactLabel(fact, datePatternRes),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = palette.foreground.copy(alpha = 0.9f)
+                )
+            }
+        }
+    }
+}
+
+/** A fact's own text: a formatted date, a pluralised count, or a plain label. */
+@Composable
+private fun membershipFactLabel(fact: MembershipFact, @StringRes datePatternRes: Int): String =
+    when (fact) {
+        is MembershipFact.Label -> stringResource(fact.labelRes)
+
+        is MembershipFact.Date ->
+            stringResource(fact.labelRes, rememberFormattedDate(fact.valueMillis, datePatternRes))
+
+        is MembershipFact.Count ->
+            pluralStringResource(fact.pluralsRes, fact.count, fact.count)
+    }
+
+/** Formats a timestamp once per value and pattern, falling back to N/A rather than crashing. */
+@Composable
+private fun rememberFormattedDate(millis: Long, @StringRes patternRes: Int): String {
+    val context = LocalContext.current
+    return remember(millis, patternRes) {
+        try {
+            java.text.SimpleDateFormat(context.getString(patternRes), java.util.Locale.getDefault())
+                .format(java.util.Date(millis))
+        } catch (e: Exception) {
+            context.getString(R.string.label_na)
+        }
+    }
+}
+
+@Composable
+private fun MembershipCardPanel(panel: MembershipPanel, palette: MembershipCardPalette) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = palette.panelBackground, shape = RoundedCornerShape(16.dp))
+            .padding(Dimens.spacingDefault),
+        verticalArrangement = Arrangement.spacedBy(Dimens.spacingTiny)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = glyphIcon(panel.glyph),
+                contentDescription = null,
+                tint = palette.panelIcon,
+                modifier = Modifier.size(18.dp)
+            )
+
+            Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+
+            Text(
+                text = stringResource(panel.headlineRes),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = palette.panelHeadline,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Text(
+            text = stringResource(panel.bodyRes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.foreground.copy(alpha = 0.85f)
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MembershipCardActions(
+    @StringRes primaryActionRes: Int,
+    showRedeemAction: Boolean,
+    onUpgradeClick: () -> Unit,
+    onRedeemProPassClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.spacingCompact),
+        verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
+    ) {
+        Button(
+            onClick = onUpgradeClick,
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            )
+        ) {
+            Text(
+                text = stringResource(primaryActionRes),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+
+        if (showRedeemAction) {
+            TextButton(
+                onClick = onRedeemProPassClick,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary)
+            ) {
+                Text(
+                    text = stringResource(R.string.title_redeem_pro_pass),
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }

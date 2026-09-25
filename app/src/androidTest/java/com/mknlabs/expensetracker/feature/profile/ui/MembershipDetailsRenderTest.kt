@@ -125,16 +125,19 @@ class MembershipDetailsRenderTest {
             onUpgradeToPro = { paywallOpened = true }
         )
 
-        compose.onNodeWithText(text(R.string.label_pro_subscription_active)).assertIsDisplayed()
-        // Where Pro comes from is named on the card, not left to be inferred.
-        compose.onNodeWithText(text(R.string.label_pro_source_subscription)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.label_pro_source_pro_pass)).assertDoesNotExist()
+        // What this is, said twice: the header names the store, the badge declares the state.
+        compose.onNodeWithText(text(R.string.label_membership_card_subscription)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_active_caps)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.title_membership_pro_card)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_managed_by_play)).assertIsDisplayed()
         compose.onNodeWithText(
             text(
-                R.string.label_pro_renews_on,
+                R.string.label_renews_on,
                 dateFor(renewalDate, R.string.date_pattern_full_short)
             )
         ).assertIsDisplayed()
+        // A subscriber is not a pass holder, and the two must never wear each other's copy.
+        compose.onNodeWithText(text(R.string.label_membership_pass_headline)).assertDoesNotExist()
 
         val manageLabel = text(R.string.btn_manage_subscription)
         scrollTo(manageLabel)
@@ -144,6 +147,7 @@ class MembershipDetailsRenderTest {
         // A subscriber has a subscription to manage, so no buy CTA on the card.
         scrollTo(text(R.string.btn_restore_purchase))
         compose.onNodeWithText(text(R.string.btn_paywall_subscribe)).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.btn_membership_buy_subscription)).assertDoesNotExist()
         // Cancelling is the store's job, and the screen says where: right under the restore
         // action a subscriber would otherwise try first.
         compose.onNodeWithText(text(R.string.label_cancel_subscription_anytime)).assertIsDisplayed()
@@ -165,10 +169,17 @@ class MembershipDetailsRenderTest {
 
         compose.onNodeWithText(
             text(
-                R.string.label_pro_subscription_ends_on,
+                R.string.label_expires_on,
                 dateFor(endDate, R.string.date_pattern_full_short)
             )
         ).assertIsDisplayed()
+        // The same date under the renewal wording would promise a charge that is not coming.
+        compose.onNodeWithText(
+            text(
+                R.string.label_renews_on,
+                dateFor(endDate, R.string.date_pattern_full_short)
+            )
+        ).assertDoesNotExist()
     }
 
     @Test
@@ -187,10 +198,12 @@ class MembershipDetailsRenderTest {
         compose.onNodeWithText(text(R.string.msg_subscription_billing_issue)).assertIsDisplayed()
         compose.onNodeWithText(
             text(
-                R.string.label_pro_renews_on,
+                R.string.label_renews_on,
                 dateFor(renewalDate, R.string.date_pattern_full_short)
             )
         ).assertDoesNotExist()
+        // Nor may the card claim everything is unlocked at a user the store cannot charge.
+        compose.onNodeWithText(text(R.string.label_membership_unlocked_headline)).assertDoesNotExist()
     }
 
     @Test
@@ -205,16 +218,24 @@ class MembershipDetailsRenderTest {
             onUpgradeToPro = { paywallOpened = true }
         )
 
-        compose.onNodeWithText(text(R.string.label_pro_pass_active)).assertIsDisplayed()
-        // The same Pro state means the opposite thing here, and the card now says so.
-        compose.onNodeWithText(text(R.string.label_pro_source_pro_pass)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.label_pro_source_subscription)).assertDoesNotExist()
+        // Same product and same title as the subscriber's card, so what separates them is
+        // the surface and the badge — which is exactly what these two lines pin.
+        compose.onNodeWithText(text(R.string.label_membership_card_pro_pass)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_badge_free_pass)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_card_subscription)).assertDoesNotExist()
+        // Both facts the pass knows: how long is left, and when it ends.
+        compose.onNodeWithText(
+            context.resources.getQuantityString(R.plurals.label_membership_days_remaining, 10, 10)
+        ).assertIsDisplayed()
         compose.onNodeWithText(
             text(
-                R.string.label_pro_expires_on,
+                R.string.label_expires_on,
                 dateFor(passExpiry, R.string.date_pattern_pro_expiry)
             )
         ).assertIsDisplayed()
+        // And the sentence that stops a grant being mistaken for a subscription.
+        compose.onNodeWithText(text(R.string.label_membership_pass_headline)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.msg_membership_pass_body)).assertIsDisplayed()
 
         val subscribeLabel = text(R.string.btn_paywall_subscribe)
         scrollTo(subscribeLabel)
@@ -244,8 +265,7 @@ class MembershipDetailsRenderTest {
             )
         )
 
-        compose.onNodeWithText(text(R.string.msg_subscription_active_desc)).assertIsDisplayed()
-        // Formatting the unset local timestamp is what printed "01 Jan 1970" to paying users.
+        compose.onNodeWithText(text(R.string.label_membership_unlocked_headline)).assertIsDisplayed()
         compose.onNodeWithText(dateFor(0L, R.string.date_pattern_full_short)).assertDoesNotExist()
         compose.onNodeWithText(dateFor(0L, R.string.date_pattern_pro_expiry)).assertDoesNotExist()
     }
@@ -260,9 +280,14 @@ class MembershipDetailsRenderTest {
         // this test pins.
         renderScreen(userTier = UserTier.PREMIUM, proExpiryTimestamp = 0L, storeEntitlement = null)
 
+        compose.onNodeWithText(text(R.string.label_membership_pass_headline)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.msg_pro_active_no_expiry)).assertIsDisplayed()
         compose.onNodeWithText(dateFor(0L, R.string.date_pattern_pro_expiry)).assertDoesNotExist()
         compose.onNodeWithText(dateFor(0L, R.string.date_pattern_full_short)).assertDoesNotExist()
+        // A countdown would be invented too: there is no end to count down to.
+        compose.onNodeWithText(
+            context.resources.getQuantityString(R.plurals.label_membership_days_remaining, 0, 0)
+        ).assertDoesNotExist()
     }
 
     @Test
@@ -280,10 +305,7 @@ class MembershipDetailsRenderTest {
             )
         )
 
-        compose.onNodeWithText(text(R.string.msg_subscription_active_desc)).assertIsDisplayed()
-        compose.onNodeWithText(
-            dateFor(leftoverPassExpiry, R.string.date_pattern_pro_expiry)
-        ).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.label_membership_unlocked_headline)).assertIsDisplayed()
     }
 
     @Test
@@ -303,7 +325,7 @@ class MembershipDetailsRenderTest {
 
         compose.onNodeWithText(
             text(
-                R.string.label_pro_renews_on,
+                R.string.label_renews_on,
                 dateFor(renewalDate, R.string.date_pattern_full_short)
             )
         ).assertIsDisplayed()
@@ -318,15 +340,19 @@ class MembershipDetailsRenderTest {
     fun freeUserIsOfferedUpgradeAndNoRenewalCopy() {
         renderScreen(userTier = UserTier.FREE)
 
-        compose.onNodeWithText(text(R.string.label_free_tier)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.btn_upgrade_now)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_card_free)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.title_membership_upgrade_card)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.msg_membership_upgrade_body)).assertIsDisplayed()
+        // Both ways to reach Pro sit on the card itself for a free user.
+        compose.onNodeWithText(text(R.string.btn_membership_buy_subscription)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.title_redeem_pro_pass)).assertIsDisplayed()
 
         // Anchored at the bottom of the list so the absence is checked where those rows
         // would actually be composed, not merely off-screen.
         scrollTo(text(R.string.btn_restore_purchase))
         compose.onNodeWithText(text(R.string.btn_manage_subscription)).assertDoesNotExist()
         compose.onNodeWithText(text(R.string.btn_paywall_subscribe)).assertDoesNotExist()
-        compose.onNodeWithText(text(R.string.msg_subscription_active_desc)).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.label_membership_unlocked_headline)).assertDoesNotExist()
         // Nothing is being charged, so there is nothing to tell them to cancel.
         compose.onNodeWithText(text(R.string.label_cancel_subscription_anytime)).assertDoesNotExist()
     }
@@ -337,6 +363,8 @@ class MembershipDetailsRenderTest {
 
         compose.onNodeWithText(text(R.string.label_unlimited_offline)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.btn_sign_in_register)).assertIsDisplayed()
+        // The server refuses a code from an anonymous user, so the card must not offer one.
+        compose.onNodeWithText(text(R.string.title_redeem_pro_pass)).assertDoesNotExist()
     }
 
     // --- the restore action, which used to leave the screen ---

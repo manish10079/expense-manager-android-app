@@ -1917,20 +1917,32 @@
     <!-- My Membership & Subscription Feature -->
     <string name="label_tap_to_sync">Sign in / sign up\nBack up &amp; sync</string>
     <string name="title_membership">My Membership</string>
+
+    <!-- Membership card: one shared layout for the subscription, Pro Pass and free states -->
+    <string name="label_membership_card_subscription">Google Play Subscription</string>
+    <string name="label_membership_card_pro_pass">Pro Pass Access</string>
+    <string name="label_membership_card_free">Free Plan</string>
+    <string name="label_membership_badge_free_pass">FREE PASS</string>
+    <string name="title_membership_pro_card">Expense Tracker Pro</string>
+    <string name="title_membership_upgrade_card">Upgrade to Expense Tracker Pro</string>
+    <string name="msg_membership_upgrade_body">Unlock unlimited budgets, widgets, recurring transactions, advanced analytics, cloud backup, and more.</string>
+    <string name="label_membership_managed_by_play">Managed by Google Play</string>
+    <string name="label_membership_unlocked_headline">All Premium Features Unlocked</string>
+    <string name="msg_membership_unlocked_body">Billing and cancellation are managed securely through Google Play.</string>
+    <string name="label_membership_pass_headline">Unlocked using a promotional Pro Pass.</string>
+    <string name="msg_membership_pass_body">This access expires automatically. It is not a Google Play subscription.</string>
+    <string name="btn_membership_buy_subscription">Buy Subscription</string>
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d day remaining</item>
+        <item quantity="other">%1$d days remaining</item>
+    </plurals>
     <string name="desc_membership_settings">View status, billing cycles, or upgrade details</string>
     <string name="label_pro">Pro</string>
     <string name="label_free">Free</string>
     <string name="label_pro_active">Pro Member</string>
     <string name="label_membership_benefits">MEMBERSHIP BENEFITS</string>
-    <string name="label_pro_subscription_active">Subscription Active</string>
-    <string name="label_pro_pass_active">Pro Pass Active</string>
-    <string name="label_pro_source_subscription">Source: Google Play subscription</string>
-    <string name="label_pro_source_pro_pass">Source: Pro Pass code</string>
-    <string name="msg_subscription_active_desc">Your subscription is active and renews automatically. Manage it from Google Play.</string>
-    <string name="label_pro_subscription_ends_on">Your subscription ends on %1$s. You can resubscribe anytime.</string>
     <string name="msg_subscription_billing_issue">We couldn\'t collect your last payment. Update your payment method in Google Play to keep Pro.</string>
     <string name="msg_pro_active_no_expiry">Your Pro access is active.</string>
-    <string name="msg_going_pro_benefits">Unlock custom transaction styles, advanced budgeting tools, and 4 device sync by going pro.</string>
     <string name="label_na">N/A</string>
     <string name="btn_sign_in_register">Sign In / Register</string>
     <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
@@ -1944,11 +1956,8 @@
     <string name="btn_manage_subscription">Manage Subscription</string>
     <string name="label_cancel_subscription_anytime">You can cancel your subscription anytime</string>
     <string name="label_cancel_subscription_where">You can do it from Play Store\'s Payments &amp; subscriptions section</string>
-    <string name="btn_upgrade_now">Go Pro Now</string>
     <string name="label_expires_on">Expires on %1$s</string>
-    <string name="label_renews_on">Renews on %1$s</string>
-    <string name="label_pro_expires_on">Your Pro access expires on %1$s.</string>
-    <string name="label_pro_renews_on">Your subscription will renew automatically on %1$s.</string>
+    <string name="label_renews_on">Renews %1$s</string>
     <string name="label_unlimited_offline">Offline Local Mode</string>
     <string name="label_offline_warning_desc">Your data is only stored on this device. Sign in or register to secure backups.</string>
     <string name="title_coming_soon">Coming Soon</string>
