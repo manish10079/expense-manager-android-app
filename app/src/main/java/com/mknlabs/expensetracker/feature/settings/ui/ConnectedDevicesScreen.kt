@@ -26,6 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -210,13 +212,20 @@ private fun DeviceListContent(
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Sync Toggle
-        Surface(
+        AppCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+            shape = AppCardDefaults.shape(24.dp),
+            // The brand tint is this card's dark surface and dark keeps it; light takes the
+            // standard white card, which is what the redesign asks of every tinted hero.
+            colors = AppCardDefaults.colors(
+                darkContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                darkBorder = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                )
+            ),
         ) {
             Row(
                 modifier = Modifier
@@ -246,13 +255,18 @@ private fun DeviceListContent(
 
         // Force Sync option if sync is enabled
         if (isSyncEnabled) {
-            Surface(
+            AppCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                shape = AppCardDefaults.shape(24.dp),
+                colors = AppCardDefaults.colors(
+                    darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
+                    darkBorder = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                    )
+                ),
             ) {
                 Row(
                     modifier = Modifier
@@ -325,13 +339,18 @@ private fun DeviceListContent(
         }
 
         // Usage Summary
-        Surface(
+        AppCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            shape = AppCardDefaults.shape(24.dp),
+            colors = AppCardDefaults.colors(
+                darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                darkBorder = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
+            ),
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(
@@ -436,17 +455,21 @@ private fun DeviceItem(
     device: RegisteredDevice,
     onUnlinkClick: () -> Unit
 ) {
-    Surface(
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Dimens.ScreenPadding, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp, 
-            if (device.isCurrentDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) 
-            else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-        )
+        shape = AppCardDefaults.shape(16.dp),
+        // A row of the roster is a card in light; dark keeps the current device's own
+        // brand-edged outline, which is where that device is called out beside the badge.
+        colors = AppCardDefaults.colors(
+            darkContainer = MaterialTheme.colorScheme.surface,
+            darkBorder = androidx.compose.foundation.BorderStroke(
+                1.dp,
+                if (device.isCurrentDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+            )
+        ),
     ) {
         Row(
             modifier = Modifier
