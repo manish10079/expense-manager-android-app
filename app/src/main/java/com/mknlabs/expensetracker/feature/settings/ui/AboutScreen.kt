@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +50,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -288,18 +292,16 @@ private fun AboutInfoCard(
     title: String,
     description: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(24.dp)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the card.
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icon,
@@ -320,6 +322,7 @@ private fun AboutInfoCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge
         )
+        }
     }
 }
 
@@ -329,18 +332,12 @@ private fun DeveloperCard(
     email: String,
     onEmailClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .clickable(onClick = onEmailClick)
-            .padding(24.dp)
+    AppCard(
+        onClick = onEmailClick,
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
+        contentPadding = PaddingValues(24.dp),
     ) {
         Column {
             Text(
@@ -377,18 +374,14 @@ private fun AboutSectionHeader(title: String) {
 
 @Composable
 private fun SupportLegalSection(content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
-        content()
+        Column {
+            content()
+        }
     }
 }
 
