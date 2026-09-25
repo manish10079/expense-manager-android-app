@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 /**
  * Highest count rendered in full. Anything above it shows as an overflow badge instead, so a
@@ -80,7 +81,10 @@ internal fun isTabBadgeOverflow(count: Int): Boolean = count > MAX_TAB_BADGE_COU
  * badge cannot move the label beside it.
  *
  * Coloured from the theme rather than hardcoded, because it is always drawn on top of the
- * brand-gradient tab indicator and has to stay readable in light and dark mode. Sized entirely
+ * brand-gradient tab indicator and has to stay readable in light and dark mode. The ink and the
+ * chip are one pair per theme: dark keeps the indicator's own ink at 22%, which is what it was
+ * built with, and light takes the palette's brand container pair, because `onPrimary` is white
+ * there and a white number on a fifth-of-white chip is a number nobody can read. Sized entirely
  * from typography with a minimum width instead of a fixed height, so it follows the system font
  * scale without clipping and keeps one and three digit counts the same shape.
  */
@@ -98,9 +102,22 @@ fun TabCountBadge(
     // Screen readers get the real number, never the capped label.
     val badgeDescription = pluralStringResource(R.plurals.label_tab_item_count, count, count)
 
+    val colorScheme = MaterialTheme.colorScheme
+
+    // One pair per theme, and they may not drift apart: a chip that is lighter than its own
+    // ink is a hole. In dark the indicator's ink over a fifth of itself still reads; in light
+    // that same pairing is white on white, so the count becomes a pale brand bubble with the
+    // brand's dark ink on it instead.
+    val badgeInk = if (colorScheme.isDark) colorScheme.onPrimary else colorScheme.onPrimaryContainer
+    val badgeContainer = if (colorScheme.isDark) {
+        colorScheme.onPrimary.copy(alpha = 0.22f)
+    } else {
+        colorScheme.primaryContainer
+    }
+
     Text(
         text = visibleText,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = badgeInk,
         style = MaterialTheme.typography.labelSmall,
         textAlign = TextAlign.Center,
         maxLines = 1,
@@ -108,7 +125,7 @@ fun TabCountBadge(
         modifier = modifier
             .defaultMinSize(minWidth = 22.dp)
             .clip(RoundedCornerShape(percent = 50))
-            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f))
+            .background(badgeContainer)
             .padding(horizontal = 6.dp, vertical = 2.dp)
             .semantics { contentDescription = badgeDescription }
     )

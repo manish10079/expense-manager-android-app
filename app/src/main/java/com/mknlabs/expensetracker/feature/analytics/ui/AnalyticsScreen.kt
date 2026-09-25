@@ -12,10 +12,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -313,19 +315,20 @@ fun AnalyticsScreenContent(
                     },
                     label = "analytics_period_row"
                 ) { customRangeActive ->
-                    // Four period controls on one line, spaced evenly across the full width.
-                    // FlowRow rather than a Row because the wrapping is the adaptivity: the
-                    // labels keep their natural width and move onto a second row only when
-                    // all four stop fitting, which is what a large font scale or a narrow
-                    // window does to them. A Row would squeeze or clip instead.
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    // Four period controls on one line, horizontally scrollable. The chips
+                    // take their natural width instead of each being handed a quarter of the
+                    // row, so no label ever has to squeeze, ellipsize or wrap, and the row
+                    // scrolls sideways when all four stop fitting on the screen — which is
+                    // what a large font scale or a narrow window does to them.
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Emitted one chip at a time so the FlowRow sees four siblings to
-                        // space. Wrapping them in an inner Row would make it two children
-                        // and the three periods would stay bunched at one end.
+                        // Emitted one chip at a time so the Row sees four siblings to space.
+                        // Wrapping them in an inner Row would make it two children and the
+                        // three periods would stay bunched at one end.
                         if (!customRangeActive) {
                             GatedAction(
                                 feature = Feature.ANALYTICS_PERIOD_YEAR,
@@ -339,7 +342,6 @@ fun AnalyticsScreenContent(
                                     .forEach { period ->
                                         val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
                                         PeriodChip(
-                                            modifier = Modifier.weight(1f),
                                             label = stringResource(id = period.labelRes),
                                             isSelected = period == uiState.selectedPeriod,
                                             isLocked = isLocked,
@@ -352,7 +354,6 @@ fun AnalyticsScreenContent(
                         }
 
                         CustomRangeSelector(
-                            modifier = Modifier.weight(1f),
                             selectedPeriod = uiState.selectedPeriod,
                             customRange = customRange,
                             onClick = {
@@ -663,7 +664,6 @@ private fun CustomRangeSelector(
     ) {
         Box(
             modifier = Modifier
-                .weight(1f)
                 .minimumInteractiveComponentSize()
                 .clip(RoundedCornerShape(18.dp))
                 .background(containerColor)

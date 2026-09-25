@@ -5,6 +5,7 @@ package com.mknlabs.expensetracker.feature.budget.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -840,21 +841,23 @@ private fun BudgetPeriodRow(
 ) {
     // Chips rather than the shared AnimatedTabSwitcher bar, matching the period selector on
     // Analytics. An equal-segment bar divides the whole width between three short labels, so
-    // most of it is empty pill, and the chips also let this row wrap instead of squeezing.
+    // most of it is empty pill.
     //
     // The label size stays labelSmall, which is what this row already used. These labels are
     // all caps and longer than the Analytics ones, and at labelLarge three of them no longer
-    // fit on one line on a phone.
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    // fit on one line on a phone. The row scrolls sideways instead of wrapping, so each chip
+    // keeps its natural width and every label stays readable on one line — wrapping used to
+    // push "CUSTOM MONTH" onto a second row of its own.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         BudgetPeriodFilter.entries.forEach { period ->
             val isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked
 
             PeriodChip(
-                modifier = Modifier.weight(1f),
                 label = when (period) {
                     BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
                     BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
