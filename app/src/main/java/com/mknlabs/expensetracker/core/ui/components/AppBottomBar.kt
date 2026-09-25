@@ -63,6 +63,7 @@ import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.NavEdgeLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
@@ -261,14 +262,27 @@ private fun AppBottomBarContent(
 
     // Frosted glass. A true backdrop blur is not available here: the bar is a SHARED
     // sibling of the scrolling content, not its parent, so there is no composable for
-    // a RenderEffect to sample. What is available is translucency — the elevated
-    // surface tone drawn at 80% over whatever is behind it — so live content reads
-    // through the capsule instead of being hidden behind an opaque slab, and the
-    // hairline border gives the pane the edge a glass surface needs to stay legible
-    // against both the app background and a bright card scrolled under it.
-    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        .copy(alpha = 0.80f)
-    val capsuleBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
+    // a RenderEffect to sample. What is available is translucency — the surface tone
+    // drawn at 80% over whatever is behind it — so live content reads through the
+    // capsule instead of being hidden behind an opaque slab, and the hairline border
+    // gives the pane the edge a glass surface needs to stay legible against both the
+    // app background and a bright card scrolled under it.
+    //
+    // Light is the spec's white bar, edged with the nav's own hairline instead of the
+    // card outline: the capsule floats over live content rather than sitting in the
+    // card grid, so its edge is drawn a touch warmer and lighter than the grid's. Dark
+    // keeps both the elevated tone and the outline wash it has always used.
+    val isDark = MaterialTheme.colorScheme.isDark
+    val containerColor = if (isDark) {
+        MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp).copy(alpha = 0.80f)
+    } else {
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.80f)
+    }
+    val capsuleBorderColor = if (isDark) {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
+    } else {
+        NavEdgeLight
+    }
 
     val capsuleMinHeight = capsuleMinHeight(LocalFontScaleInfo.current.tier)
 
@@ -344,8 +358,6 @@ private fun AppBottomBarContent(
                 // protruding half) and anchors to this wrapper's top edge, which
                 // the top padding above has already aligned to the Column's top.
                 Box(contentAlignment = Alignment.TopCenter) {
-                    val isDark = MaterialTheme.colorScheme.isDark
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(CapsuleWidthFraction)
@@ -363,7 +375,13 @@ private fun AppBottomBarContent(
                                     Modifier.hazeEffect(
                                         state = hazeState,
                                         style = HazeStyle(
-                                            backgroundColor = if (isDark) Color(0xD90E0D13) else Color(0xD9FFFFFF),
+                                            // The frost's own fill, and what the app
+                                            // actually samples: white from the scheme in
+                                            // light, so the light bar cannot drift off the
+                                            // spec, and the same charcoal it has always
+                                            // been in dark.
+                                            backgroundColor = if (isDark) Color(0xD90E0D13)
+                                                else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                                             blurRadius = 24.dp,
                                             noiseFactor = 0.03f,
                                             tints = emptyList()

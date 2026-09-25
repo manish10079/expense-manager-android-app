@@ -30,7 +30,10 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 
 /**
@@ -48,6 +51,7 @@ fun AppHeader(
 ) {
     // Shared tier logic (see rememberFontScaleInfo / maxLinesForTier) — never
     // multiply sizes by the raw fontScale (non-linear on Android 14+).
+    val isDark = MaterialTheme.colorScheme.isDark
     val fontScaleInfo = rememberFontScaleInfo()
     val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
     val effectiveTopOffset = if (fontScaleInfo.tier == FontScaleTier.Huge) 0.dp else contentTopOffset
@@ -64,7 +68,9 @@ fun AppHeader(
 
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.primary,
+            // The page's own ink in light — a title rather than an accent on one — and
+            // the brand purple it has always been in dark.
+            color = if (isDark) MaterialTheme.colorScheme.primary else TextPrimaryLight,
             maxLines = titleMaxLines,
             overflow = TextOverflow.Ellipsis,
             softWrap = true,
@@ -84,6 +90,9 @@ fun AppHeader(
 
 @Composable
 private fun BackButton(onClick: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+
     Box(
         modifier = Modifier
             .size(48.dp), // Outer padding for accessibility
@@ -93,7 +102,9 @@ private fun BackButton(onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp) // The visible circle
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                // The spec's secondary surface in light; the quarter-strength wash this
+                // used to be vanished into the grey field. Dark is unchanged.
+                .background(if (isDark) colorScheme.surfaceVariant.copy(alpha = 0.3f) else CardLight)
                 .clickable(onClick = onClick), // Ripple now limited to 40dp
             contentAlignment = Alignment.Center
         ) {

@@ -188,7 +188,10 @@ val NavOffDark = Color(0xFF7A778C)    // --nav-off: #7A778C
 val NavPillDark = Color(0x297A52FF)   // --nav-pill: rgba(122,82,255,.16)
 
 val NavOnLight = Color(0xFF6C52EE)    // Vibrant lilac/violet
-val NavOffLight = Color(0xFF8A879A)   // Muted slate
+// An alias of the third ink weight rather than a muted slate of its own: an unselected
+// destination is exactly that weight, and an alias cannot drift away from the text
+// colour every other light surface uses.
+val NavOffLight = TextTertiaryLight
 val NavPillLight = Color(0x1F6C52EE)  // rgba(108,82,238,.12)
 
 // SmallHomeCard / Quick Action Palette (indexmockup.html)
