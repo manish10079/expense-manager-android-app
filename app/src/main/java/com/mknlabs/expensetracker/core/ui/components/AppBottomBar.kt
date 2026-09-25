@@ -236,9 +236,10 @@ fun AppBottomBar(
  * - Destination labels wrap instead of truncating as the system font scale
  *   rises ([maxLinesForTier]) and their containers flex with them, so nothing
  *   is clipped at Large/Huge font scales.
- * - The FAB is top-aligned to the capsule and pushed up by half its diameter, so
- *   its midpoint sits exactly on the capsule's top edge (half inside, half
- *   protruding) at any capsule height.
+ * - The FAB is top-aligned to the capsule and pushed up by half its diameter PLUS
+ *   its glow inset — the wrapper the button is centred in is taller than the button,
+ *   and the wrapper is what gets aligned — so its midpoint sits exactly on the
+ *   capsule's top edge (half inside, half protruding) at any capsule height.
  *
  * Adaptivity: the bar is theme-aware and reflows with the system font scale
  * (see [capsuleMinHeight]), wraps instead of clipping, caps its width for wide
@@ -321,12 +322,17 @@ private fun AppBottomBarContent(
             // the screen edge. Sliding down by its own height then clears the
             // screen completely — with the insets outside, the FAB's protruding
             // half would still peek above the bottom of the display.
+            //
+            // The top pad reserves the FAB's protruding half plus its glow inset,
+            // because the offset below moves the whole composed FAB — circle plus
+            // the glow box it is centred in — and it is that box which has to fit
+            // inside the element for the slide to clear the display.
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(
-                        top = AddTransactionFabSize / 2,
+                        top = AddTransactionFabSize / 2 + AddTransactionFabGlowInset,
                         start = Dimens.spacingCompact,
                         end = Dimens.spacingCompact,
                         bottom = Dimens.spacingCompact
@@ -399,9 +405,15 @@ private fun AppBottomBarContent(
                     // Docked Add FAB — half inside the capsule, half above it. It
                     // rides the bar's show/hide animation rather than tracking the
                     // list scroll, so the centre gap is never left as a bare hole.
+                    //
+                    // The offset covers the glow inset as well as the radius: what
+                    // is aligned to the capsule is the glow box, and the circle sits
+                    // one inset inside that box.
                     AddTransactionFab(
                         onClick = onAddClick,
-                        modifier = Modifier.offset(y = -(AddTransactionFabSize / 2))
+                        modifier = Modifier.offset(
+                            y = -(AddTransactionFabSize / 2 + AddTransactionFabGlowInset)
+                        )
                     )
                 }
             }

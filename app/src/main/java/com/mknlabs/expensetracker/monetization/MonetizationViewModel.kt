@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.monetization
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.usecase.GrantTemporaryAccessUseCase
@@ -10,6 +11,8 @@ import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.ProPassRepository
+import com.mknlabs.expensetracker.domain.repository.RedemptionError
+import com.mknlabs.expensetracker.domain.repository.RedemptionOutcome
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.workers.SyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +33,7 @@ sealed class RedemptionState {
     object Idle : RedemptionState()
     object Loading : RedemptionState()
     data class Success(val days: Int) : RedemptionState()
-    data class Error(val message: String) : RedemptionState()
+    data class Error(val error: RedemptionError) : RedemptionState()
 }
 
 @HiltViewModel
@@ -145,16 +148,23 @@ class MonetizationViewModel @Inject constructor(
     fun redeemProPass(code: String) {
         viewModelScope.launch {
             _redemptionState.value = RedemptionState.Loading
-            proPassRepository.redeemCode(code)
-                .onSuccess { days ->
-                    _redemptionState.value = RedemptionState.Success(days)
+            when (val outcome = proPassRepository.redeemCode(code)) {
+                is RedemptionOutcome.Success -> {
+                    _redemptionState.value = RedemptionState.Success(outcome.durationDays)
                     // ProPass activated: push local data to Firestore and pull cloud
                     // changes so premium access and transactions are in sync immediately.
                     SyncWorker.startImmediate(appContext)
                 }
-                .onFailure { error ->
-                    _redemptionState.value = RedemptionState.Error(error.message ?: "Unknown error")
+
+                is RedemptionOutcome.Failure -> {
+                    // Typed on purpose: wording is the UI's business (strings.xml), and the
+                    // server's English message must never reach the screen. Logged because the
+                    // dialog only ever shows the sentence — without this line a refused
+                    // redemption leaves nothing behind to diagnose it from.
+                    Log.w(TAG, "redeemProPass refused: ${outcome.error}")
+                    _redemptionState.value = RedemptionState.Error(outcome.error)
                 }
+            }
         }
     }
 
@@ -314,5 +324,10 @@ class MonetizationViewModel @Inject constructor(
      */
     fun showPrivacyOptionsForm(activity: Activity) {
         adsCoordinator.showPrivacyOptionsForm(activity)
+    }
+
+    private companion object {
+        /** Shared with the repository, so one tag covers a whole redemption attempt. */
+        const val TAG = "ProPassRedeem"
     }
 }

@@ -74,10 +74,10 @@ class SubscriptionSyncDiagnostics @Inject constructor(
      * is simply skipped, because an anonymous RevenueCat user has no Firebase uid to look up.
      */
     suspend fun logSyncCheck(appUserId: String?, customerInfo: CustomerInfo?) {
-        val activeEntitlements = customerInfo?.entitlements?.all
-            ?.filterValues { it.isActive }
-            ?.toSortedMap()
-            .orEmpty()
+        val allEntitlements = customerInfo?.entitlements?.all.orEmpty()
+        val activeEntitlements = allEntitlements
+            .filterValues { it.isActive }
+            .toSortedMap()
 
         Log.d(TAG, "── RevenueCat -> Firestore sync check ──")
 
@@ -137,7 +137,7 @@ class SubscriptionSyncDiagnostics @Inject constructor(
             Log.d(TAG, "  $key = ${render(data[key])}")
         }
 
-        reportEntitlementComparison(activeEntitlements.keys, data)
+        reportEntitlementComparison(activeEntitlements.keys, allEntitlements.keys, data)
     }
 
     /**
@@ -208,9 +208,17 @@ class SubscriptionSyncDiagnostics @Inject constructor(
     /**
      * Best-effort comparison, and deliberately not an assertion: the extension snapshot
      * legitimately lags the SDK, and its field names belong to RevenueCat rather than to us.
+     *
+     * The document is compared against **every** entitlement [CustomerInfo] carries, not just
+     * the active ones. RevenueCat keeps re-sending an entitlement it has already issued — a
+     * past purchase's entitlement stays in the payload after the subscription expires — and
+     * the extension stores that payload verbatim. Against the active set alone, anyone with
+     * an expired entitlement on record therefore reads as a mismatch, which is common and
+     * harmless: the app only ever looks up the one entitlement it asks for.
      */
     private fun reportEntitlementComparison(
-        sdkEntitlementIds: Set<String>,
+        sdkActiveEntitlementIds: Set<String>,
+        sdkAllEntitlementIds: Set<String>,
         data: Map<String, Any?>,
     ) {
         val documentedIds = (data[DOCUMENT_ENTITLEMENTS_FIELD] as? Map<*, *>)
@@ -227,10 +235,15 @@ class SubscriptionSyncDiagnostics @Inject constructor(
             return
         }
 
-        val sdkIds = sdkEntitlementIds.sorted()
-        Log.d(TAG, "COMPARE: SDK active=$sdkIds  Firestore '$DOCUMENT_ENTITLEMENTS_FIELD'=$documentedIds")
+        val activeIds = sdkActiveEntitlementIds.sorted()
+        val allIds = sdkAllEntitlementIds.sorted()
+        Log.d(
+            TAG,
+            "COMPARE: SDK active=$activeIds  SDK all=$allIds  " +
+                "Firestore '$DOCUMENT_ENTITLEMENTS_FIELD'=$documentedIds"
+        )
 
-        if (sdkIds == documentedIds) {
+        if (allIds == documentedIds) {
             Log.d(TAG, "VERDICT: consistent — the extension snapshot matches CustomerInfo")
         } else {
             Log.w(

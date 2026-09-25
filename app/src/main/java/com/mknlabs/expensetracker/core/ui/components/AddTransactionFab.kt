@@ -54,6 +54,16 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 val AddTransactionFabSize = 56.dp
 
 /**
+ * How far the ambient glow reaches beyond the button on every side.
+ *
+ * Exported for the same reason as the diameter: the composed FAB is
+ * [AddTransactionFabSize] + 2 × this tall with the button centred inside it, so a
+ * dock that aligns *this* wrapper to a surface puts the circle half an inset away
+ * from the edge it meant to straddle. Whoever anchors the FAB has to add it back.
+ */
+val AddTransactionFabGlowInset = 14.dp
+
+/**
  * Shared visibility controller for the standalone add-transaction FAB rendered
  * by [MainScaffold] — docked into the centre of the floating bottom navigation bar.
  *
@@ -108,7 +118,7 @@ fun AddTransactionFab(
             // illuminating the frosted glass blur below it
             Box(
                 modifier = Modifier
-                    .size(AddTransactionFabSize + 28.dp)
+                    .size(AddTransactionFabSize + AddTransactionFabGlowInset * 2)
                     .offset(y = 8.dp)
                     .background(
                         brush = Brush.radialGradient(

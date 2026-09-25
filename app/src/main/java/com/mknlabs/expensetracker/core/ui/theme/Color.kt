@@ -203,6 +203,18 @@ val PremiumGold = Color(0xFFFFD700)
 val PremiumOnGradient = Color(0xFFFFFFFF)
 val PremiumShadowNeutral = Color(0xFF000000)
 
+// Pro Pass Membership Palette
+//
+// A Pro Pass is a grant, not a charge, and a holder has to be able to tell the two apart
+// at a glance. The pass therefore carries a surface of its own instead of the
+// subscription's violet. The white ink and the gold accent are shared with the premium
+// card, so the two still read as one family — the surface colour plus the badge say which
+// state this is, without the user having to read the copy to find out.
+val ProPassGradientStart = Color(0xFF1E5FD0) // Deep Blue
+val ProPassGradientEnd = Color(0xFF2E9BD6) // Sky Blue
+val ProPassBorder = Color(0xFF7CC4F5)
+val ProPassOnGradient = Color(0xFFFFFFFF)
+
 private val DarkOnPrimary = Color(0xFF24114C)
 private val DarkPrimaryContainer = Color(0xFF2D243F)
 private val DarkOnPrimaryContainer = Color(0xFFF0E9FF)
