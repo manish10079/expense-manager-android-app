@@ -70,6 +70,8 @@ import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePicker
@@ -836,8 +838,13 @@ private fun LargeTransactionThresholdModal(
                     shape = RoundedCornerShape(16.dp),
                     color = if (isCustom.not() && selectedPresetMinor == presetMinor) {
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                    } else {
+                    } else if (MaterialTheme.colorScheme.isDark) {
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    } else {
+                        // A picker option is one of the spec's secondary surfaces in
+                        // light. The half-strength wash it used to be sits almost on the
+                        // sheet's own white, which left the options with no edge at all.
+                        CardLight
                     },
                     onClick = {
                         selectedPresetMinor = presetMinor
@@ -863,8 +870,10 @@ private fun LargeTransactionThresholdModal(
                 shape = RoundedCornerShape(16.dp),
                 color = if (isCustom) {
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                } else {
+                } else if (MaterialTheme.colorScheme.isDark) {
                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                } else {
+                    CardLight
                 },
                 onClick = {
                     isCustom = true
