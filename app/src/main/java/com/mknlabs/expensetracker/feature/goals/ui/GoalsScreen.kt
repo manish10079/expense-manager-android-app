@@ -47,12 +47,15 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressMedium
@@ -60,9 +63,6 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkStart
 import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkCenter
 import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightEnd
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -619,7 +619,13 @@ private fun DeadlinePickerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // A picker row is a field inside the dialog, so in light it takes the spec's
+            // secondary surface. The half-strength wash it used to be sits almost on the
+            // dialog's own white and left the row with no edge at all.
+            .background(
+                if (colorScheme.isDark) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                else colorScheme.surfaceVariant
+            )
             .padding(horizontal = 16.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -692,7 +698,12 @@ private fun GoalIconPickerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // The icon picker's row is a field too, so it takes the secondary surface in
+            // light for the same reason the deadline row above does.
+            .background(
+                if (colorScheme.isDark) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                else colorScheme.surfaceVariant
+            )
             .clickable(onClick = onPick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -827,15 +838,11 @@ fun GoalItem(
     val isDark = colorScheme.isDark
     val cardShape = RoundedCornerShape(24.dp)
 
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
-        )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd)
-        )
-    }
+    // The premium gradient is dark's card surface and dark's alone; light takes the shared
+    // white card below, so the lavender tokens this used to blend are gone with it.
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
+    )
     val borderBrush = remember(colorScheme.primary) {
         Brush.linearGradient(
             colors = listOf(
@@ -845,9 +852,15 @@ fun GoalItem(
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
+    // Light flattens this hero to the shared card: the lavender gradient it painted is
+    // exactly the sort of surface the redesign replaces with white. Dark keeps that
+    // gradient byte for byte, along with the two things the shared card has no way to
+    // carry - a violet-tinted lift and a gradient edge, where AppCard takes a solid
+    // outline and one shadow colour - so the chrome branches and the content under it is
+    // untouched. The light branch still reads its container, outline and elevation from
+    // AppCardDefaults, so this card cannot drift away from the rest.
+    val cardChrome = if (isDark) {
+        Modifier
             .shadow(
                 elevation = 12.dp,
                 shape = cardShape,
@@ -857,6 +870,27 @@ fun GoalItem(
             .clip(cardShape)
             .background(brush = gradientBrush)
             .border(width = 1.dp, brush = borderBrush, shape = cardShape)
+    } else {
+        val lightCard = AppCardDefaults.colors()
+        Modifier
+            .shadow(
+                elevation = AppCardDefaults.Elevation,
+                shape = cardShape,
+                ambientColor = CardShadowAmbientLight,
+                spotColor = CardShadowSpotLight
+            )
+            .clip(cardShape)
+            .background(lightCard.containerColor)
+            .then(
+                lightCard.border?.let { Modifier.border(border = it, shape = cardShape) }
+                    ?: Modifier
+            )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(cardChrome)
             .padding(16.dp)
     ) {
         Column(
