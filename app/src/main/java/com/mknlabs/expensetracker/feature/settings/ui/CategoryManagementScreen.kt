@@ -53,6 +53,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserProfile
@@ -342,18 +345,16 @@ private fun CategoryManagementCard(
     item: CategoryManagementItemUi,
     onDeleteClick: () -> Unit
 ) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // The gradient is the dark surface and this row's only fill, so the container
+        // beneath it stays transparent; light takes the standard white card.
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(20.dp),
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                brush = standardCardGradient()
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(20.dp)
-            )
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -409,6 +410,7 @@ private fun CategoryManagementCard(
         }
 
         Spacer(modifier = Modifier.width(14.dp))
+    }
     }
 }
 
