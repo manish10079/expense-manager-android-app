@@ -28,6 +28,9 @@ object MonetizationDataStore {
         // whenever a CustomerInfo snapshot arrives. Plain rather than encrypted: it states
         // no user data, only which entitlement the store currently reports.
         val premiumEntitlementActive = booleanPreferencesKey("premium_entitlement_active")
+        // One-shot claim: has cloud sync already been switched on automatically for this
+        // install's first store entitlement? Released by nothing — see claimCloudSyncAutoEnable.
+        val cloudSyncAutoEnabled = booleanPreferencesKey("cloud_sync_auto_enabled")
         // Legacy (plaintext) long key — still read until migrated.
         val globalAdAccessExpiry = longPreferencesKey("global_ad_access_expiry")
         // Encrypted replacement (string key, AES-GCM envelope).
@@ -82,5 +85,29 @@ object MonetizationDataStore {
         appContext.monetizationDataStore.edit { preferences ->
             preferences[Keys.premiumEntitlementActive] = active
         }
+    }
+
+    /**
+     * Claims the one automatic switch-on of cloud sync, and answers whether this call won it.
+     *
+     * Called only when the store reports Pro, and returns true exactly once per install: the
+     * first subscriber activation gets sync turned on for them, and every later one is refused.
+     *
+     * The claim is deliberately never released. An inactive -> active transition happens again
+     * on a renewal, a re-login and a restored entitlement, so gating on the transition alone
+     * would switch sync back on for someone who has since turned it off. Latching instead makes
+     * "never re-enable after the user opted out" a property of the data rather than a hope
+     * about how often RevenueCat's verdict flips.
+     */
+    suspend fun claimCloudSyncAutoEnable(context: Context): Boolean {
+        val appContext = context.applicationContext
+        var claimed = false
+        appContext.monetizationDataStore.edit { preferences ->
+            if (preferences[Keys.cloudSyncAutoEnabled] != true) {
+                preferences[Keys.cloudSyncAutoEnabled] = true
+                claimed = true
+            }
+        }
+        return claimed
     }
 }
