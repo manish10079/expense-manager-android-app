@@ -144,12 +144,16 @@ import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -687,7 +691,7 @@ fun AddTransactionScreen(
 
                 val noteBlock: @Composable () -> Unit = {
                     val micBorderColor by animateColorAsState(
-                        targetValue = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        targetValue = if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f) else colorScheme.outline,
                         label = "mic_border"
                     )
                     Row(
@@ -700,13 +704,13 @@ fun AddTransactionScreen(
                                 .weight(1f)
                                 .heightIn(min = if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -750,13 +754,13 @@ fun AddTransactionScreen(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -785,13 +789,13 @@ fun AddTransactionScreen(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -818,13 +822,13 @@ fun AddTransactionScreen(
                                 modifier = Modifier
                                     .size(if (compact) 40.dp else 44.dp)
                                     .shadow(
-                                        elevation = 6.dp,
+                                        elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                         shape = RoundedCornerShape(16.dp),
-                                        ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                        spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                        ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                        spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                     )
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(SolidColor(Color.Transparent))
+                                    .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                     .border(
                                         width = 1.dp,
                                         color = micBorderColor,
@@ -1456,10 +1460,12 @@ private fun RecurringTransactionSection(
                             .height(IntrinsicSize.Min)
                             .onSizeChanged { containerWidthPx = it.width }
                             .clip(RoundedCornerShape(20.dp))
-                            .background(SolidColor(Color.Transparent))
+                            // Light: the specified secondary surface, so the sliding brand
+                            // pill reads as the selected segment of a control.
+                            .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surfaceVariant))
                             .border(
                                 width = 1.dp,
-                                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
+                                color = if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.2f) else Color.Transparent,
                                 shape = RoundedCornerShape(20.dp)
                             )
                             .padding(4.dp)
@@ -1570,8 +1576,8 @@ private fun RecurringTransactionSection(
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 disabledTextColor = colorScheme.onSurface,
-                                disabledBorderColor = colorScheme.outlineVariant,
-                                disabledContainerColor = colorScheme.surfaceVariant
+                                disabledBorderColor = if (colorScheme.isDark) colorScheme.outlineVariant else colorScheme.outline,
+                                disabledContainerColor = if (colorScheme.isDark) colorScheme.surfaceVariant else colorScheme.surface
                             )
                         )
                     }
@@ -1605,8 +1611,11 @@ private fun RecurringTransactionSection(
                                     .heightIn(min = 44.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
-                                        if (isSelected) SolidColor(colorScheme.primary.copy(alpha = 0.15f))
-                                        else standardCardGradient()
+                                        when {
+                                            isSelected -> SolidColor(colorScheme.primary.copy(alpha = 0.15f))
+                                            colorScheme.isDark -> standardCardGradient()
+                                            else -> SolidColor(colorScheme.surfaceVariant)
+                                        }
                                     )
                                     .border(
                                         width = 1.dp,
@@ -1794,16 +1803,16 @@ private fun CurrencyAmountCard(
             .fillMaxWidth()
             .heightIn(min = if (compact) 104.dp else 122.dp) // Tightened height
             .shadow(
-                elevation = 8.dp,
+                elevation = if (MaterialTheme.colorScheme.isDark) 8.dp else 12.dp,
                 shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
+                ambientColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else CardShadowAmbientLight,
+                spotColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f) else CardShadowSpotLight
             )
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f))
+            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f) else MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline,
                 shape = shape
             )
             .clickable(onClick = onClick)
@@ -1834,7 +1843,7 @@ private fun CurrencyAmountCard(
                     modifier = Modifier
                         .fillMaxWidth(0.1f)
                         .height(1.dp)
-                        .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        .background(MaterialTheme.colorScheme.hairline)
                 )
             }
 
@@ -2009,10 +2018,10 @@ private fun ChoiceChip(
                 )
                 .clip(CircleShape)
                 .background(
-                    brush = if (isSelected) {
-                        brandGradient()
-                    } else {
-                        standardCardGradient()
+                    brush = when {
+                        isSelected -> brandGradient()
+                        MaterialTheme.colorScheme.isDark -> standardCardGradient()
+                        else -> SolidColor(MaterialTheme.colorScheme.surfaceVariant)
                     }
                 )
                 .clickable(onClick = onClick),
@@ -2057,7 +2066,8 @@ private fun SelectionInfoCard(
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (highlighted) Color.Transparent 
-                     else colorScheme.outlineVariant.copy(alpha = 0.5f),
+                     else if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f)
+                     else colorScheme.outline,
         label = "selection_card_border"
     )
 
@@ -2074,11 +2084,14 @@ private fun SelectionInfoCard(
                 .shadow(
                     elevation = if (highlighted) 12.dp else 6.dp,
                     shape = RoundedCornerShape(20.dp),
-                    ambientColor = colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f),
-                    spotColor = colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f)
+                    // The highlighted tile is the enabled-recurring one, and its violet lift
+                    // is that state's message, so light keeps the tint; the plain tile takes
+                    // the card spec's own shadow.
+                    ambientColor = if (colorScheme.isDark || highlighted) colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowAmbientLight,
+                    spotColor = if (colorScheme.isDark || highlighted) colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowSpotLight
                 )
                 .clip(RoundedCornerShape(20.dp))
-                .background(SolidColor(Color.Transparent))
+                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                 .border(
                     width = if (highlighted) 0.dp else 1.dp,
                     color = if (highlighted) Color.Transparent else animatedBorderColor,
@@ -2165,7 +2178,12 @@ private fun KeypadToggle(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(standardCardGradient())
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surface))
+            .border(
+                width = 1.dp,
+                color = if (MaterialTheme.colorScheme.isDark) Color.Transparent else MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(22.dp)
+            )
             .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 16.dp else 18.dp,
@@ -2222,7 +2240,12 @@ private fun KeypadKey(
         modifier = modifier
             .height(if (compact) 46.dp else 52.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(standardCardGradient())
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surface))
+            .border(
+                width = 1.dp,
+                color = if (MaterialTheme.colorScheme.isDark) Color.Transparent else MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(18.dp)
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -2285,7 +2308,7 @@ private fun QuickFavoritesRow(
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
                         labelColor = MaterialTheme.colorScheme.primary
                     )
                 )
@@ -2302,7 +2325,7 @@ private fun QuickFavoritesRow(
                         )
                     },
                     colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             }
@@ -2446,7 +2469,7 @@ private fun FavoriteTemplateRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -2655,9 +2678,9 @@ private fun EmiAmountField(
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.outline,
+            focusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         )
     )
 }
@@ -2801,7 +2824,7 @@ private fun TransactionNoteBottomSheet(
                         .focusRequester(focusRequester)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                            color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outline.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(16.dp)
                         ),
                     placeholder = {
@@ -2825,8 +2848,8 @@ private fun TransactionNoteBottomSheet(
                         }
                     },
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         cursorColor = MaterialTheme.colorScheme.primary
