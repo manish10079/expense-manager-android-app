@@ -34,8 +34,6 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +67,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
@@ -85,6 +85,8 @@ import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -225,18 +227,30 @@ internal fun MembershipDetailsContent(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp
                         ),
-                        color = colorScheme.primary.copy(alpha = 0.8f),
+                        // A section header is a label rather than something to tap, so in
+                        // light it takes the secondary ink instead of the brand purple the
+                        // card above it already uses for its actions.
+                        color = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.8f)
+                        else TextSecondaryLight,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
                     )
                 }
 
                 item {
-                    Card(
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    AppCard(
+                        shape = AppCardDefaults.shape(24.dp),
+                        // A half-strength variant wash is dark's surface here and dark keeps
+                        // it; light takes the white card on the grey field. The membership
+                        // hero above keeps its tier gradient - that fill is what says which
+                        // access the user has - but the benefits list is chrome, and a tinted
+                        // panel is the shape of thing the redesign replaces with a card.
+                        colors = AppCardDefaults.colors(
+                            darkContainer = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            darkBorder = BorderStroke(
+                                1.dp,
+                                colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            )
                         ),
-                        border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.3f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
