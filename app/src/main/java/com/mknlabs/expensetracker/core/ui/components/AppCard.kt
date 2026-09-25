@@ -39,6 +39,9 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
  * Dark mode is deliberately left on the chrome the app already had — same container,
  * a 65%-alpha outline variant, no lift — because this pass is light-only. A card that
  * styled both themes would have quietly restyled the dark one, which is out of scope.
+ * A component whose dark card has always cast a lift of its own — the premium halo, the
+ * raised field — keeps it by passing that elevation in; [AppCardDefaults.Elevation]
+ * itself stays zero in dark, so nothing that passes nothing is lifted.
  *
  * The chrome is built from modifiers rather than delegated to a Material `Surface`, so
  * that the fill, the outline and the ripple stack in a known order: fill first, outline
@@ -140,12 +143,21 @@ private fun AppCardSurface(
 
     val chrome = modifier
         .then(
-            if (isDark || elevation <= 0.dp) {
-                Modifier
-            } else {
+            // Zero elevation is what keeps a dark card un-lifted: that is the default
+            // there. A dark component that has always cast a shadow of its own passes
+            // its elevation in and keeps it, drawn with the plain default shadow — the
+            // very call the Material Surface it replaced made — while light lifts with
+            // the redesign's two soft tokens.
+            when {
+                elevation <= 0.dp -> Modifier
                 // clip = false so the shadow is cast outside the shape while the card
                 // itself is still clipped to it below.
-                Modifier.shadow(
+                isDark -> Modifier.shadow(
+                    elevation = elevation,
+                    shape = shape,
+                    clip = false,
+                )
+                else -> Modifier.shadow(
                     elevation = elevation,
                     shape = shape,
                     clip = false,
@@ -212,30 +224,51 @@ object AppCardDefaults {
         @Composable get() = if (MaterialTheme.colorScheme.isDark) 0.dp else 12.dp
 
     /**
+     * [shape]'s radius as a number, for the few places that draw the card's own
+     * geometry rather than its fill — a status ring, a halo. They have to agree with
+     * the card corner for corner, so they read the radius from here instead of
+     * repeating it, which is what keeps a 24dp light card from being outlined at the
+     * old 20dp.
+     */
+    val CornerRadius: Dp
+        @Composable get() = if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 24.dp
+
+    /**
      * 24dp in light, the spec's card radius. Dark keeps [Dimens.CardRadius], the 20dp
      * the existing cards were drawn with.
      */
     @Composable
-    fun shape(): Shape =
-        RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 24.dp)
+    fun shape(): Shape = RoundedCornerShape(CornerRadius)
 
     /**
-     * The card that was a flat tinted surface — half-strength variant container and no
-     * outline — which is what the setup and permission prompts have always been. Dark
-     * keeps exactly that; light takes the standard card, because a tinted flat surface
-     * is the shape of thing the light redesign is replacing with white cards.
+     * The standard card in light, and the container and outline the component already had
+     * in dark. Most cards predate the redesign with a dark fill of their own — a tonal
+     * surface, a gradient, a tint, no fill at all — and this pass must not restyle any of
+     * them, so the dark values are spelled out at the call site and light takes the card
+     * spec. Keeping the branch here rather than open-coding `isDark` in each component is
+     * what makes "light-only" checkable by reading one function.
      */
     @Composable
-    fun tintedColors(): AppCardColors =
+    fun colors(darkContainer: Color, darkBorder: BorderStroke? = null): AppCardColors =
         if (MaterialTheme.colorScheme.isDark) {
             AppCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                containerColor = darkContainer,
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                border = null
+                border = darkBorder
             )
         } else {
             colors()
         }
+
+    /**
+     * The card that was a flat tinted surface — half-strength variant container and no
+     * outline — which is what the setup and permission prompts have always been. Light
+     * takes the standard card, because a tinted flat surface is the shape of thing the
+     * light redesign is replacing with white cards.
+     */
+    @Composable
+    fun tintedColors(): AppCardColors =
+        colors(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
 
     /**
      * White on the grey field with a hairline outline in light; the existing

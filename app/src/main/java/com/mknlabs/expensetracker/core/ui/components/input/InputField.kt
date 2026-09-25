@@ -30,12 +30,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 @Composable
 fun InputFieldCard(
@@ -57,32 +62,59 @@ fun InputFieldCard(
     val colorScheme = MaterialTheme.colorScheme
     val focusManager = LocalFocusManager.current
 
+    val isDark = colorScheme.isDark
     val containerColor = colorScheme.surface
     val primary = colorScheme.primary
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     val errorColor = colorScheme.error
     
-    val containerShape = RoundedCornerShape(28.dp)
-    val borderColor = colorScheme.outlineVariant.copy(
-        alpha = if (isEnabled) 0.4f else 0.2f
-    )
+    // Whether the field is being typed into. Read off the container rather than off the
+    // text field, so one modifier covers every input type — including the date row,
+    // which never gets a text field at all.
+    var isFocused by remember { mutableStateOf(false) }
+
+    // Light takes the field spec: a white surface at 16dp, outlined in the same hairline
+    // the cards use, and lit in brand purple while it holds the cursor so the field being
+    // typed into is never in doubt. Dark keeps the 28dp, the quarter-strength outline and
+    // the 8dp lift it has always had.
+    val containerShape = if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
+    val borderColor = if (isDark) {
+        colorScheme.outlineVariant.copy(alpha = if (isEnabled) 0.4f else 0.2f)
+    } else {
+        when {
+            !isEnabled -> colorScheme.outline.copy(alpha = 0.6f)
+            isFocused -> primary
+            else -> colorScheme.outline
+        }
+    }
 
     val isClickable = inputType == InputType.Date && isEnabled
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    Surface(
+    AppCard(
         modifier = modifier
             .fillMaxWidth()
+            .onFocusChanged { isFocused = it.hasFocus }
             .then(
                 if (isClickable && onClick != null) {
                     Modifier.clickable { onClick() }
                 } else Modifier
             ),
         shape = containerShape,
-        color = containerColor,
-        border = BorderStroke(width = 1.dp, color = borderColor),
-        shadowElevation = 8.dp
+        colors = if (isDark) {
+            AppCardDefaults.colors(
+                darkContainer = containerColor,
+                darkBorder = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        } else {
+            AppCardColors(
+                containerColor = containerColor,
+                contentColor = onSurface,
+                border = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        },
+        elevation = if (isDark) 8.dp else AppCardDefaults.Elevation,
     ) {
         Row(
             modifier = Modifier

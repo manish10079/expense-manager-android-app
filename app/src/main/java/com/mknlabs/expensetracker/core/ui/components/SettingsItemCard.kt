@@ -84,7 +84,6 @@ fun SettingsItemCard(
     val colorScheme = MaterialTheme.colorScheme
     val finalEnabled = isEnabled && !isLocked
     val isGated = isLocked && accessLevel != AccessLevel.FREE
-    val containerShape = RoundedCornerShape(20.dp)
 
     val updatedOnClick by rememberUpdatedState(onClick)
     val updatedOnCheckedChange by rememberUpdatedState(onCheckedChange)
@@ -94,7 +93,6 @@ fun SettingsItemCard(
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     val danger = colorScheme.error
-    val containerColor = colorScheme.surfaceContainerLow
 
     val lockColor = colorScheme.featureGateLock
 
@@ -285,12 +283,12 @@ fun SettingsItemCard(
     }
 
     if (standalone) {
-        Surface(
+        // The row pads itself, so the card does not. Dark keeps the tonal container it
+        // has always used (a 1dp tonal elevation on a #1A-ish surface, which is not
+        // visible); light gets the standard card, outline and lift included.
+        AppCard(
             modifier = modifier.fillMaxWidth(),
-            shape = containerShape,
-            color = containerColor,
-            tonalElevation = 1.dp,
-            shadowElevation = 0.dp
+            colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow)
         ) {
             itemContent()
         }

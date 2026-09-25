@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -39,9 +38,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,12 +62,16 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.core.ui.components.ProfileCard
 import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
@@ -430,23 +431,29 @@ private fun SettingsSectionContainer(
     items: List<SettingsRowData>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(headerRes),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            // The label sits above the card as an aside rather than as an accent on it:
+            // brand purple here competed with the icon pucks inside the card, so light
+            // mode reads it as the third ink weight instead. Dark keeps the purple.
+            color = if (isDark) colorScheme.primary else TextSecondaryLight,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 6.dp)
         )
 
-        Surface(
+        AppCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            tonalElevation = 1.dp,
-            shadowElevation = 0.dp
+            // Dark keeps the tonal container the group has always had; light takes the
+            // white card, outline and soft lift, which is now the only container the
+            // settings rows are drawn on.
+            colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow),
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 items.forEachIndexed { index, item ->
@@ -456,7 +463,12 @@ private fun SettingsSectionContainer(
                         HorizontalDivider(
                             modifier = Modifier.padding(start = 72.dp, end = 16.dp),
                             thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            // The hairline does the row separation, so in light it
+                            // is the divider colour at full strength rather than a
+                            // wash of it; dark keeps the half-strength variant it has
+                            // always drawn.
+                            color = if (isDark) colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                    else colorScheme.outline
                         )
                     }
                 }

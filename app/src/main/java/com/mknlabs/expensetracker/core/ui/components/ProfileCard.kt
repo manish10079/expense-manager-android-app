@@ -32,7 +32,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.utils.toTitleCase
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -56,8 +58,13 @@ fun ProfileCard(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
     val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
-    val cardShape = RoundedCornerShape(20.dp)
+    val cardShape = AppCardDefaults.shape()
+    // The sweep below draws a round rect of its own, so it has to trace the same radius
+    // the card does: a 24dp light card outlined at the old 20dp would show the ring
+    // stepping in at every corner.
+    val cardCornerRadius = AppCardDefaults.CornerRadius
 
     // Animates 2 full rotations (720 deg) and blends into the background upon visiting the settings screen
     val borderProgress = remember { Animatable(0f) }
@@ -105,7 +112,7 @@ fun ProfileCard(
             if (currentAlpha > 0f) {
                 val angle = borderProgress.value * 360f
                 val strokePx = (2.dp + 1.2.dp * (1f - (borderProgress.value / 2f).coerceIn(0f, 1f))).toPx()
-                val cornerRadiusPx = 20.dp.toPx()
+                val cornerRadiusPx = cardCornerRadius.toPx()
 
                 val shader = SweepGradient(
                     size.width / 2f,
@@ -130,13 +137,16 @@ fun ProfileCard(
         Modifier
     }
 
-    Surface(
+    AppCard(
         onClick = onClick ?: {},
         enabled = onClick != null,
         shape = cardShape,
-        color = colorScheme.surfaceContainerLow,
-        tonalElevation = if (isPremium) 3.dp else 1.dp,
-        shadowElevation = if (isPremium) 2.dp else 0.dp,
+        // Dark keeps the tonal container the card has always had — the tonal elevation
+        // it used to pass was inert, since the container was named explicitly — and light
+        // takes the white card, outline and soft lift. The premium tier's own lift
+        // travels with it rather than being flattened away.
+        colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow),
+        elevation = if (isDark) (if (isPremium) 2.dp else 0.dp) else AppCardDefaults.Elevation,
         modifier = modifier
             .fillMaxWidth()
             .then(animatedBorderModifier)
@@ -188,7 +198,13 @@ fun ProfileCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isPremium) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        color = when {
+                            isPremium -> MaterialTheme.colorScheme.primaryContainer
+                            // A neutral chip in light; the brand tint stays the premium
+                            // tier's, where it means something.
+                            isDark -> MaterialTheme.colorScheme.surfaceContainerHigh
+                            else -> CardLight
+                        },
                         contentColor = if (isPremium) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     ) {
                         Text(
