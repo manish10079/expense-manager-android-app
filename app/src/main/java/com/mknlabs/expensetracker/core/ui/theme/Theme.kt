@@ -38,6 +38,19 @@ val ColorScheme.textTertiary: Color
 
 val ColorScheme.expense: Color get() = error
 
+/**
+ * The hairline that rules one row off from the next.
+ *
+ * A token of its own because the app drew this separator several ways — half strength,
+ * two-fifths strength, and once as the divider token outright — and the light redesign
+ * needs them all to be the one specified #E8EBEF line. Light therefore takes the
+ * divider colour at full strength; dark keeps the two-fifths wash these separators have
+ * always been drawn with, which is what stops this from quietly re-ruling every dark
+ * screen that reads it.
+ */
+val ColorScheme.hairline: Color
+    get() = if (isDark) outlineVariant.copy(alpha = 0.4f) else outline
+
 @Composable
 private fun ApplySystemBarStyle(darkTheme: Boolean) {
     val view = LocalView.current

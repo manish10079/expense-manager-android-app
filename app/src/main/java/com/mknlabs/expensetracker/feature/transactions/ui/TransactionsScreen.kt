@@ -158,11 +158,14 @@ import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.core.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.core.ui.models.buildTransactionsFeed
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.TransactionSwipeAction
@@ -343,7 +346,16 @@ private fun HeaderCircleActionButton(
             modifier = Modifier
                 .size(40.dp) // The visible circle — matches AppHeader back button
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                // The spec's secondary surface in light, as on AppHeader's back button;
+                // the half-strength wash this used to be disappeared into the grey
+                // field. Dark is unchanged.
+                .background(
+                    if (MaterialTheme.colorScheme.isDark) {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    } else {
+                        CardLight
+                    }
+                )
                 .clickable(onClick = onClick), // Ripple now limited to 40dp
             contentAlignment = Alignment.Center
         ) {
@@ -605,7 +617,9 @@ private fun TransactionScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge,
-                    shape = RoundedCornerShape(Dimens.CardRadius),
+                    shape = RoundedCornerShape(
+                        if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 16.dp
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = Dimens.PaddingMedium)
@@ -1020,7 +1034,7 @@ private fun TransactionScreenContent(
             ) {
                 Column {
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.hairline
                     )
                     TextButton(
                         onClick = { selectAllInQuery() },
@@ -1038,7 +1052,7 @@ private fun TransactionScreenContent(
                         )
                     }
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.hairline
                     )
                 }
             }
@@ -1723,7 +1737,7 @@ private fun TransactionSummaryCard(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.hairline,
                 thickness = 0.8.dp
             )
             Row(
@@ -1750,7 +1764,7 @@ private fun TransactionSummaryCard(
                     Text(
                         text = "+ " + income,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = IncomeGreen
+                        color = MaterialTheme.colorScheme.income
                     )
                 }
 
@@ -1765,12 +1779,12 @@ private fun TransactionSummaryCard(
                     Text(
                         text = "- " + expense,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = ExpenseRed
+                        color = MaterialTheme.colorScheme.expense
                     )
                 }
             }
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.hairline,
                 thickness = 0.8.dp
             )
         }
