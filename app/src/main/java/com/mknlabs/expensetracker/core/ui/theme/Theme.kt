@@ -25,6 +25,17 @@ val ColorScheme.useDarkSystemBarIcons: Boolean
 val ColorScheme.income: Color
     get() = if (isExpenseTrackerDarkPalette()) IncomeGreen else tertiary
 
+/**
+ * Third text weight, below [ColorScheme.onSurfaceVariant]: timestamps, counts and
+ * hints that annotate a row rather than being part of it.
+ *
+ * A token of its own because Material has only two ink slots, and the screens that
+ * wanted a third were reaching for a hardcoded grey instead — which is how an app
+ * ends up with six slightly different greys.
+ */
+val ColorScheme.textTertiary: Color
+    get() = if (isExpenseTrackerDarkPalette()) TextTertiaryDark else TextTertiaryLight
+
 val ColorScheme.expense: Color get() = error
 
 @Composable

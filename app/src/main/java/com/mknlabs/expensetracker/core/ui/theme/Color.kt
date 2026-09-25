@@ -29,6 +29,11 @@ val DividerDark = Color(0xFF2A2A2A)
 val IncomeGreen = Color(0xFF3DDC97)
 val ExpenseRed = Color(0xFFFF6B6B)
 
+// Amount inks for white surfaces. Same hue family as the dark pair above, deepened
+// until both clear 4.5:1 on white.
+val IncomeInkLight = Color(0xFF15803D)  // deep emerald
+val ExpenseInkLight = Color(0xFFDC2626) // crimson
+
 // Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
 // themes, which the pastel income/expense tones above are too light to do.
 val BadgeIncomeGreen = Color(0xFF1E8E3E)
@@ -64,15 +69,36 @@ val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
 // Neutral Shades
 val NeutralGray = Color(0xFF8E8E93)
 
-val BackgroundLight = Color(0xFFEDEDF1)
+// ── Light mode: the premium finance palette ───────────────────────────────────
+//
+// A soft grey field carrying floating white cards, separated by a hairline rather
+// than by a heavy shadow. These literals are the design spec itself rather than a
+// hand-tuned approximation of one, so they are the one place in the file where the
+// exact hex is the requirement; every light surface in the app reads from here.
+val BackgroundLight = Color(0xFFF7F8FA)   // app background, every screen
 
-val SurfaceLight = Color(0xFFFFFFFF)
-val CardLight = Color(0xFFD2D2E3)
+val SurfaceLight = Color(0xFFFFFFFF)      // primary card surface
+val CardLight = Color(0xFFF1F2F4)         // chips, segmented controls, search bars
 
-val TextPrimaryLight = Color(0xFF1A1A1A)
-val TextSecondaryLight = Color(0xFF6E6E73)
+val TextPrimaryLight = Color(0xFF1F2937)
+val TextSecondaryLight = Color(0xFF6B7280)
+val TextTertiaryLight = Color(0xFF9CA3AF)
 
-val DividerLight = Color(0xFFE2E2E6)
+val DividerLight = Color(0xFFE8EBEF)      // card outline, dividers, field borders
+
+// The card lift: black at 5–6% over that grey field, split into the two components
+// Compose blends separately (ambient all round, spot below) so the two can be tuned
+// apart while both stay inside the spec's 4–6% band.
+val CardShadowAmbientLight = Color(0x0D000000) // 5%
+val CardShadowSpotLight = Color(0x0F000000)    // 6%
+
+// Nav bar hairline. A hair warmer than the card outline above, because the capsule
+// floats over live content instead of sitting in the page's card grid.
+val NavEdgeLight = Color(0xFFECEEF2)
+
+// Third text weight. Nothing in the dark theme reads it yet, so its value there is
+// free to be the natural step below TextSecondaryDark rather than a matched pair.
+val TextTertiaryDark = Color(0xFF77777C)
 
 val DarkGradientStart = Color(0xFF6C5AE1)
 val DarkGradientEnd = Color(0xFF282626)
@@ -233,8 +259,12 @@ private val LightSecondary = Color(0xFF6750A4)
 private val LightOnSecondary = Color(0xFFFFFFFF)
 private val LightSecondaryContainer = Color(0xFFE8DEF8)
 private val LightOnSecondaryContainer = Color(0xFF1D192B)
-private val LightTertiary = IncomeGreen
-private val LightOnTertiary = Color(0xFF07361A)
+// The dark theme's inks are tuned for a near-black field; on white they fall to
+// roughly 2.5:1 (mint) and 4.0:1 (coral), which is not enough for the one number a
+// row exists to show. Both are deepened here until they clear 4.5:1 on a white card,
+// keeping the hue family so income still reads green and expense still reads red.
+private val LightTertiary = IncomeInkLight
+private val LightOnTertiary = Color(0xFFFFFFFF)
 private val LightTertiaryContainer = Color(0xFFD8F3DD)
 private val LightOnTertiaryContainer = Color(0xFF0F2417)
 private val LightErrorContainer = Color(0xFFFFDAD6)
@@ -280,7 +310,7 @@ internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme(
     onTertiary = LightOnTertiary,
     tertiaryContainer = LightTertiaryContainer,
     onTertiaryContainer = LightOnTertiaryContainer,
-    error = ExpenseRed,
+    error = ExpenseInkLight,
     onError = LightOnPrimary,
     errorContainer = LightErrorContainer,
     onErrorContainer = LightOnErrorContainer,
