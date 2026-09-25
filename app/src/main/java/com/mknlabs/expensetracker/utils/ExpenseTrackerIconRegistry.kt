@@ -1,67 +1,18 @@
 package com.mknlabs.expensetracker.utils
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.AssuredWorkload
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.BeachAccess
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.Cake
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Celebration
-import androidx.compose.material.icons.filled.ChildCare
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.CurrencyExchange
-import androidx.compose.material.icons.filled.DirectionsBoat
-import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Flatware
-import androidx.compose.material.icons.filled.Flight
-import androidx.compose.material.icons.filled.Hiking
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Hotel
-import androidx.compose.material.icons.filled.LaptopMac
-import androidx.compose.material.icons.filled.LocalCafe
-import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.Medication
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Park
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Pool
-import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Spa
-import androidx.compose.material.icons.filled.SportsBasketball
-import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.Subscriptions
-import androidx.compose.material.icons.filled.Train
-import androidx.compose.material.icons.filled.TwoWheeler
-import androidx.compose.material.icons.filled.VolunteerActivism
-import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
+/**
+ * The one table that turns a stored `iconKey` into a drawable icon.
+ *
+ * [com.mknlabs.expensetracker.models.CategoryType], `PaymentType` and `Goal` all resolve
+ * through [iconForKey], and the icon picker no longer carries vectors of its own, so this is
+ * the only place an icon is defined. A key missing from this map draws as a question mark,
+ * which is why every key the picker offers must also live here.
+ */
 object ExpenseTrackerIconRegistry {
 
     private val iconMap: Map<String, ImageVector> = mapOf(
@@ -124,7 +75,60 @@ object ExpenseTrackerIconRegistry {
         "currency_exchange" to Icons.Filled.CurrencyExchange,
         "storefront" to Icons.Filled.Storefront,
         "fastfood" to Icons.Filled.Fastfood,
-        "cake" to Icons.Filled.Cake
+        "cake" to Icons.Filled.Cake,
+        // Every key below was offered by the icon picker while having no entry here, so
+        // choosing one stored a key that drew as a question mark in every list row. The picker
+        // now reads its vectors from this map, and CategoryIconCatalogTest fails if a key the
+        // picker offers ever goes missing from it again.
+        "water_drop" to Icons.Filled.WaterDrop,
+        "electric_bolt" to Icons.Filled.ElectricBolt,
+        "gas_meter" to Icons.Filled.Whatshot,
+        "wifi" to Icons.Filled.Wifi,
+        "tv" to Icons.Filled.Tv,
+        "local_shipping" to Icons.Filled.LocalShipping,
+        "cleaning_services" to Icons.Filled.CleaningServices,
+        "pest_control" to Icons.Filled.PestControl,
+        "yard" to Icons.Filled.Yard,
+        "plumbing" to Icons.Filled.Plumbing,
+        "hvac" to Icons.Filled.Air,
+        "garage" to Icons.Filled.HomeWork,
+        "local_laundry_service" to Icons.Filled.LocalLaundryService,
+        "checkroom" to Icons.Filled.Checkroom,
+        "ice_skating" to Icons.Filled.AcUnit,
+        "skiing" to Icons.Filled.AcUnit,
+        "sports_tennis" to Icons.Filled.SportsTennis,
+        "sports_golf" to Icons.Filled.SportsGolf,
+        "kayaking" to Icons.Filled.Rowing,
+        "surfing" to Icons.Filled.Waves,
+        "directions_run" to Icons.AutoMirrored.Filled.DirectionsRun,
+        "pedal_bike" to Icons.Filled.PedalBike,
+        "sailing" to Icons.Filled.Sailing,
+        "theater_comedy" to Icons.Filled.TheaterComedy,
+        "casino" to Icons.Filled.Casino,
+        "toys" to Icons.Filled.Toys,
+        "piano" to Icons.Filled.Piano,
+        "brush" to Icons.Filled.Brush,
+        "palette" to Icons.Filled.Palette,
+        "auto_stories" to Icons.Filled.AutoStories,
+        "menu_book" to Icons.AutoMirrored.Filled.MenuBook,
+        "computer" to Icons.Filled.Computer,
+        "memory" to Icons.Filled.Memory,
+        "mouse" to Icons.Filled.Mouse,
+        "keyboard" to Icons.Filled.Keyboard,
+        "headset" to Icons.Filled.Headset,
+        "speaker" to Icons.Filled.Speaker,
+        "router" to Icons.Filled.Router,
+        "monitor" to Icons.Filled.Monitor,
+        "print" to Icons.Filled.Print,
+        "smart_home" to Icons.Filled.Hub,
+        "videocam" to Icons.Filled.Videocam,
+        "mic" to Icons.Filled.Mic,
+        "radio" to Icons.Filled.Radio,
+        "satellite" to Icons.Filled.Satellite,
+        "explore" to Icons.Filled.Explore,
+        "terrain" to Icons.Filled.Terrain,
+        "landscape" to Icons.Filled.Landscape,
+        "forest" to Icons.Filled.Forest
     )
 
     fun iconForKey(iconKey: String): ImageVector {
