@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 
 /**
@@ -87,10 +88,24 @@ fun <T> DialogModeSelector(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                // Light takes the spec's secondary surface at full strength with the
+                // hairline edge. The wash this used to be was two-fifths of that colour,
+                // which reads as an empty patch against the grey field and as nothing at
+                // all against a white hero card; dark is unchanged.
+                .background(
+                    if (MaterialTheme.colorScheme.isDark) {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    }
+                )
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                    color = if (MaterialTheme.colorScheme.isDark) {
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
+                    } else {
+                        MaterialTheme.colorScheme.outline
+                    },
                     shape = RoundedCornerShape(20.dp)
                 )
                 .clickable { isDialogVisible = true }
@@ -161,7 +176,11 @@ fun <T> ViewPickerDialog(
             Surface(
                 shape = RoundedCornerShape(28.dp),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp,
+                // Material tints an elevated surface towards its surface-tint role, which
+                // this palette never defines, so the dialog picked up a lavender cast in
+                // light. Light draws it flat and lets the shadow do the lifting; dark
+                // keeps the tonal step it has always had.
+                tonalElevation = if (MaterialTheme.colorScheme.isDark) 6.dp else 0.dp,
                 shadowElevation = 12.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -194,8 +213,10 @@ fun <T> ViewPickerDialog(
                                 val bgColor by animateColorAsState(
                                     targetValue = if (isSelected)
                                         MaterialTheme.colorScheme.primary
+                                    else if (MaterialTheme.colorScheme.isDark)
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                                     else
-                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                        MaterialTheme.colorScheme.surfaceVariant,
                                     animationSpec = tween(200),
                                     label = "tileBg_${option.label}"
                                 )
@@ -217,7 +238,11 @@ fun <T> ViewPickerDialog(
                                         .then(
                                             if (!isSelected) Modifier.border(
                                                 width = 1.dp,
-                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                                color = if (MaterialTheme.colorScheme.isDark) {
+                                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                                } else {
+                                                    MaterialTheme.colorScheme.outline
+                                                },
                                                 shape = RoundedCornerShape(18.dp)
                                             ) else Modifier
                                         )

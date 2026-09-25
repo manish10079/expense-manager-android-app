@@ -143,9 +143,19 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+/**
+ * What the analytics hero is showing.
+ *
+ * These labels are the title-case forms - "Expense", "Income", "Both" - because they
+ * are the options of a changer the user reads as three words, and the upper-case
+ * [R.string.label_expense] / [R.string.label_income] mixed with the title-case
+ * [R.string.label_both] read as two different kinds of label in one control. The
+ * upper-case pair stays as it is for the transaction pills and the legends that were
+ * built around it.
+ */
 enum class HeroDisplayMode(val labelRes: Int) {
-    EXPENSE(R.string.label_expense),
-    INCOME(R.string.label_income),
+    EXPENSE(R.string.label_expense_title),
+    INCOME(R.string.label_income_title),
     BOTH(R.string.label_both)
 }
 

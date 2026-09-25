@@ -293,6 +293,11 @@ private fun AddCategoryScreenContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
+                // The action is pinned to the window, so the keyboard has to be accounted
+                // for here: without this the IME is drawn straight over the button and
+                // "Add type" cannot be reached while a name is being typed. Same
+                // pairing the other pinned actions use.
+                .imePadding()
                 .padding(24.dp)
         ) {
             Button(

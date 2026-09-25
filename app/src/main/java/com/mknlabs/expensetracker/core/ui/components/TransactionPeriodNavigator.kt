@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 enum class TransactionPeriodFilter(@StringRes val labelRes: Int) {
     ALL(R.string.label_all),
@@ -55,14 +56,24 @@ fun TransactionPeriodNavigator(
     onLabelClick: (() -> Unit)? = null  // null = not clickable (e.g. ALL mode)
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
 
-    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
+    // The strip is where the "view by" changer sits, and it stands on the field rather
+    // than inside a card. In light it becomes one - white on the grey field, held by the
+    // hairline edge - so the pill's secondary surface has something to read against and
+    // the strip stops blending into the field. Dark keeps the outline-only strip it has
+    // always had.
+    val borderColor = if (isDark) {
+        colorScheme.outlineVariant.copy(alpha = 0.65f)
+    } else {
+        colorScheme.outline
+    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(Color.Transparent)
+            .background(if (isDark) Color.Transparent else colorScheme.surface)
             .border(
                 width = 1.dp,
                 color = borderColor,

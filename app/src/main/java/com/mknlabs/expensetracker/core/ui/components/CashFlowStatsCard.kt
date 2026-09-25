@@ -23,6 +23,7 @@ import com.adamglin.phosphoricons.regular.EyeSlash
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -234,7 +235,17 @@ fun CashFlowStatsCard(
                         onDismissRequest = { dropdownMenuExpanded = false },
                         offset = DpOffset(x = 0.dp, y = 8.dp),
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(16.dp)),
+                        // The popup is a surface in its own right, and Material builds it
+                        // from surface-container roles this palette never defines - which
+                        // on the light field renders with a lavender cast. Light paints it
+                        // as the card it is: the specified white, flat, with the hairline
+                        // edge and the card's own corner. Dark keeps the Material default
+                        // it has always had.
+                        shape = RoundedCornerShape(16.dp),
+                        containerColor = if (isDark) MenuDefaults.containerColor else MaterialTheme.colorScheme.surface,
+                        tonalElevation = if (isDark) MenuDefaults.TonalElevation else 0.dp,
+                        border = if (isDark) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         CashFlowPeriodOption(
                             label = stringResource(R.string.label_this_month_cash_flow),

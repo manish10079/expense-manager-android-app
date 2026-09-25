@@ -225,7 +225,16 @@ fun TransactionCard(
 
                     Text(
                         text = amount,
-                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else Color.White,
+                        // An expense amount used to be drawn white outright, which was right
+                        // while the row was transparent over the dark field - but light now
+                        // makes the row a white card, where white ink disappears. Income
+                        // keeps its semantic green; an expense takes the card's primary ink
+                        // in light and stays white in dark, which is unchanged.
+                        color = when {
+                            transactionTypeId == 1 -> MaterialTheme.colorScheme.income
+                            MaterialTheme.colorScheme.isDark -> Color.White
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
                         maxLines = 1,
                         softWrap = false,
                         style = titleStyle

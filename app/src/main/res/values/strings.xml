@@ -173,8 +173,14 @@
     <string name="label_expense_category">Expense category</string>
     <string name="label_expense_tracker">Budget &amp; Spend</string>
     <string name="label_expense_tracker_1">BUDGET &amp; SPEND</string>
+    <!-- Title-case counterpart of label_expense, for the analytics hero's mode changer:
+         the three options are read as words there, while label_expense stays upper case
+         for the transaction pills and the legends that were built around it. -->
+    <string name="label_expense_title">Expense</string>
     <string name="label_how_many_times_this_recurring">How many times this recurring transaction should repeat.</string>
     <string name="label_income">INCOME</string>
+    <!-- Title-case counterpart of label_income; see label_expense_title. -->
+    <string name="label_income_title">Income</string>
     <string name="label_monthly_budget">MONTHLY BUDGET</string>
     <string name="label_no_category_spending_found_in">No category spending found in this range.</string>
     <string name="label_no_spending_data_found">No spending data found.</string>
