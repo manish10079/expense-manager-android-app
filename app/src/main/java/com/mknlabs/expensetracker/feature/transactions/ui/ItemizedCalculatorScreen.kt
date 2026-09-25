@@ -108,9 +108,13 @@ import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CalculatorHistoryEntry
 import com.mknlabs.expensetracker.models.CalculatorLineItem
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.models.TabItem
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
@@ -289,7 +293,7 @@ private fun CalculatorHistoryHeaderIcon(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant)
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
@@ -697,9 +701,11 @@ private fun NormalCalculatorDisplay(
         label = "ResultColor"
     )
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
+    // Light flattens the display panel to the shared card; dark keeps the tinted gradient
+    // panel and its violet edge, which the shared card has no slot for.
+    val lightCard = AppCardDefaults.colors()
+    val displayChrome = if (MaterialTheme.colorScheme.isDark) {
+        Modifier
             .clip(RoundedCornerShape(30.dp))
             .background(standardCardGradient())
             .border(
@@ -707,6 +713,27 @@ private fun NormalCalculatorDisplay(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
                 shape = RoundedCornerShape(30.dp)
             )
+    } else {
+        Modifier
+            .shadow(
+                elevation = AppCardDefaults.Elevation,
+                shape = RoundedCornerShape(30.dp),
+                clip = false,
+                ambientColor = CardShadowAmbientLight,
+                spotColor = CardShadowSpotLight
+            )
+            .clip(RoundedCornerShape(30.dp))
+            .background(lightCard.containerColor)
+            .then(
+                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(30.dp)) }
+                    ?: Modifier
+            )
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(displayChrome)
             .padding(horizontal = if (compact) 16.dp else 22.dp, vertical = if (compact) 16.dp else 28.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
@@ -721,10 +748,12 @@ private fun NormalCalculatorDisplay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(22.dp))
-                    .background(standardCardGradient())
+                    // The field the expression is typed into takes the secondary surface in
+                    // light, so it still reads as a field on the white panel.
+                    .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surfaceVariant))
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+                        color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f) else MaterialTheme.colorScheme.outline,
                         shape = RoundedCornerShape(22.dp)
                     )
                     .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
@@ -850,14 +879,28 @@ private fun CalculatorKeyButton(
                         )
                     )
 
-                    accent -> Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+                    accent -> if (MaterialTheme.colorScheme.isDark) {
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+                            )
                         )
-                    )
+                    } else {
+                        SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+                    }
 
-                    else -> standardCardGradient()
+                    MaterialTheme.colorScheme.isDark -> standardCardGradient()
+                    else -> SolidColor(MaterialTheme.colorScheme.surface)
+                }
+            )
+            .then(
+                // A numeric key is a white card on the light field and needs the hairline
+                // edge; the brand key and the operator pills carry their own.
+                if (MaterialTheme.colorScheme.isDark || primary || accent) {
+                    Modifier
+                } else {
+                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape)
                 }
             )
             .clickable(onClick = onClick),
@@ -889,12 +932,34 @@ private fun TotalAmountCard(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences
 ) {
+    // Light flattens the total to the shared card; dark keeps the tinted gradient.
+    val lightCard = AppCardDefaults.colors()
+    val cardChrome = if (MaterialTheme.colorScheme.isDark) {
+        Modifier
+            .clip(RoundedCornerShape(30.dp))
+            .background(standardCardGradient())
+    } else {
+        Modifier
+            .shadow(
+                elevation = AppCardDefaults.Elevation,
+                shape = RoundedCornerShape(30.dp),
+                clip = false,
+                ambientColor = CardShadowAmbientLight,
+                spotColor = CardShadowSpotLight
+            )
+            .clip(RoundedCornerShape(30.dp))
+            .background(lightCard.containerColor)
+            .then(
+                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(30.dp)) }
+                    ?: Modifier
+            )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+            .then(cardChrome)
             .padding(horizontal = 18.dp, vertical = 28.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -927,19 +992,46 @@ private fun BreakdownItemCard(
     onDeleteClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(28.dp)
-    val highlightedBorderColor = MaterialTheme.colorScheme.primary
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+    val highlightedBorderColor = colorScheme.primary
+    // Light flattens every row to the shared card. The row being edited keeps the violet
+    // lift and the 2dp ring it announces itself with, so the highlight still reads on
+    // white; dark keeps its gradient fill and its lift exactly as they were.
+    val lightCard = AppCardDefaults.colors()
+    val cardChrome = if (isDark) {
+        Modifier
+            .shadow(
+                elevation = if (item.highlighted) 18.dp else 0.dp,
+                shape = shape,
+                ambientColor = colorScheme.primary.copy(alpha = if (item.highlighted) 0.14f else 0f),
+                spotColor = colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
+            )
+            .clip(shape)
+            .background(standardCardGradient())
+    } else {
+        Modifier
+            .shadow(
+                elevation = if (item.highlighted) 18.dp else AppCardDefaults.Elevation,
+                shape = shape,
+                ambientColor = if (item.highlighted) colorScheme.primary.copy(alpha = 0.14f) else CardShadowAmbientLight,
+                spotColor = if (item.highlighted) colorScheme.secondary.copy(alpha = 0.12f) else CardShadowSpotLight
+            )
+            .clip(shape)
+            .background(lightCard.containerColor)
+            .then(
+                if (item.highlighted) {
+                    Modifier
+                } else {
+                    lightCard.border?.let { Modifier.border(border = it, shape = shape) } ?: Modifier
+                }
+            )
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = if (item.highlighted) 18.dp else 0.dp,
-                shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = if (item.highlighted) 0.14f else 0f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
-            )
-            .clip(shape)
-            .background(standardCardGradient())
+            .then(cardChrome)
             .drawBehind {
                 if (item.highlighted) {
                     drawRoundRect(
@@ -1025,21 +1117,20 @@ private fun AddItemInputCard(
     onCancel: () -> Unit,
     onAddClick: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val solidCardGradient = remember(colorScheme.surface, colorScheme.surfaceVariant) {
-        Brush.verticalGradient(
-            colors = listOf(
-                colorScheme.surface,
-                colorScheme.surfaceVariant
-            )
-        )
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(MaterialTheme.colorScheme.surface)
+            .then(
+                // White in both themes already; light adds the card's hairline edge so it
+                // reads as a card rather than a hole in the field.
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier
+                } else {
+                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(28.dp))
+                }
+            )
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -1153,7 +1244,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
                 )
             }
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surface.copy(alpha = 0f) else MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -1184,7 +1275,9 @@ private fun SecondaryActionButton(
         modifier = modifier
             .heightIn(min = 54.dp)
             .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
+            // A wash against its own white card would vanish; light takes the secondary
+            // surface the spec gives a secondary action.
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surfaceVariant))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -1521,7 +1614,7 @@ private fun CalculatorHistoryEntryRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(standardCardGradient())
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surfaceVariant))
             .combinedClickable(
                 onClick = { onTapResult(entry.result) },
                 onLongClick = { onLongPress(entry) }
