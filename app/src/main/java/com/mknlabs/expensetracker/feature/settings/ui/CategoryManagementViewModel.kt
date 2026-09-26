@@ -99,6 +99,9 @@ private fun buildCategoryManagementItems(
     categories: List<CategoryType>,
     transactionTypeId: Int
 ): List<CategoryManagementItemUi> {
+    // The user's own categories lead, newest first — a category they just added is the
+    // one they are most likely looking for — with the built-ins after it in their fixed
+    // order. The grid renders this list in order, so this is what puts a new card first.
     val customItems = categories
         .filter { it.transactionTypeId == transactionTypeId }
         .sortedByDescending { it.id }
@@ -119,6 +122,7 @@ private fun buildCategoryManagementItems(
 private fun buildPaymentManagementItems(
     paymentTypes: List<PaymentType>
 ): List<CategoryManagementItemUi> {
+    // Newest payment method first, for the same reason the categories lead with theirs.
     val customItems = paymentTypes.sortedByDescending { it.id }
     val builtinItems = paymentTypeMap.values.sortedBy { it.id }
 

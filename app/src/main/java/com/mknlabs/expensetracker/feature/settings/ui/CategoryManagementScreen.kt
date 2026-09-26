@@ -8,23 +8,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.AlertDialog
@@ -44,6 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -235,10 +237,17 @@ private fun CategoryManagementContent(
                         maxWidth = 640.dp,
                         modifier = Modifier.weight(1f)
                     ) {
-                    LazyColumn(
+                    // A grid, not a list. Each card is a glyph and a name, so it reads
+                    // fine two-up and the list was wasting the horizontal half of every
+                    // row. Adaptive columns fill whatever width the window offers — two
+                    // on a phone, more up to the 640dp cap above — rather than fixing a
+                    // count that would strand empty space on a tablet.
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 150.dp),
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 120.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
                             items = animatingItems,
@@ -347,75 +356,79 @@ private fun BoxScope.CategoryManagementGlow() {
     )
 }
 
-
-
-
-
 @Composable
 private fun CategoryManagementCard(
     item: CategoryManagementItemUi,
     onDeleteClick: () -> Unit
 ) {
     AppCard(
-        modifier = Modifier.fillMaxWidth(),
-        // The gradient is the dark surface and this row's only fill, so the container
+        modifier = Modifier
+            .fillMaxWidth()
+            // A floor rather than a fixed height, so cards sharing a grid row agree on a
+            // size instead of each hugging its own title length.
+            .heightIn(min = 142.dp),
+        // The gradient is the dark surface and this card's only fill, so the container
         // beneath it stays transparent; light takes the standard white card.
         brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(20.dp),
     ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.width(14.dp))
-
-        AppIconBox(
-            icon = item.icon,
-            contentDescription = item.title,
-            size = 50.dp,
-            iconSize = 25.dp,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AppIconBox(
+                icon = item.icon,
+                contentDescription = item.title,
+                size = 48.dp,
+                iconSize = 24.dp,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+                )
             )
-        )
 
-        Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-        // Title only. There was a second line here describing the category, but no
-        // category or payment method has ever carried a description — neither model has
-        // the field — so the line was a hardcoded fallback string, and it labelled the
-        // user's own entries with a canned sentence rather than anything they wrote.
-        // With nothing real behind it, the row renders nothing instead.
-        Text(
-            text = item.title,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.weight(1f)
-        )
+            // The name, and nothing else. The line that used to sit under it described
+            // the category, but no category or payment method has ever carried a
+            // description — neither model has the field — so it was a hardcoded fallback
+            // string labelling the user's own entries with a canned sentence.
+            Text(
+                text = item.title,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
 
         if (item.isUserCreated) {
-            Spacer(modifier = Modifier.width(8.dp))
+            // Only the user's own entries are deletable, so the 'x' is also the signal
+            // that a card is theirs — a built-in one has no control at all.
+            //
+            // The glyph carries the muted secondary ink the row's subtitle used, not a
+            // red one: a red control on every card turned the grid into a wall of
+            // warnings, and the dialog is where the caveat belongs. The box is the 48dp
+            // a11y minimum touch target, which the 28dp control it replaces missed.
             Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f), CircleShape)
+                    .align(Alignment.TopEnd)
+                    .size(48.dp)
                     .clickable(onClick = onDeleteClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Delete,
+                    imageVector = Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
             }
         }
-
-        Spacer(modifier = Modifier.width(14.dp))
-    }
     }
 }
 
