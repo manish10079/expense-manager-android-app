@@ -44,20 +44,31 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroDateText
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroExpense
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroIncome
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroInsetBg
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroInsetBorder
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroLabel
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroNetText
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroPillBg
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowHeroPillBorder
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkLight
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.cashFlowHeroBaseBrush
-import com.mknlabs.expensetracker.core.ui.theme.cashFlowHeroGlows
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.IncomeInkLight
+import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
+import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryLight
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.heroRail
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.feature.home.ui.CashFlowPeriod
 import kotlinx.coroutines.delay
@@ -76,12 +87,13 @@ private fun currentDateString(): String {
 /**
  * Cash Flow hero card.
  *
- * The dark card is the surface it has always been: a baked PNG stretched across the
- * whole card over a borderless 24dp shape. Light mode is the app's standard card — white
- * on the grey field, outlined and lifted — because the light palette is where "avoid
- * colourful backgrounds" applies; the hero's own gradient stays a dark-mode device.
+ * A neutral card in both themes, the same surface as every other card in the app. The
+ * brand is carried by a 3dp rail down the leading edge and a single bloom off the
+ * top-trailing corner rather than by the surface itself — at ~9% of the card's area in
+ * brand colour, against the ~100% of the violet gradient this replaces.
  *
- * Everything inside is identical in both themes apart from the ink it reads.
+ * Everything inside is identical in both themes apart from the ink it reads, and that ink
+ * is now the app's shared text and semantic tokens rather than a set of the hero's own.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -127,35 +139,35 @@ fun CashFlowStatsCard(
 
     var dropdownMenuExpanded by remember { mutableStateOf(dropdownExpanded) }
 
-    // One gradient recipe in both themes — a base violet ramp with two radial blooms —
-    // so the hero reads as the same card recolored, not a gradient in dark and a flat
-    // white card in light. The blooms need the surface size, so they ride on the card's
-    // own background fill rather than being folded into its brush.
-    val heroBase = cashFlowHeroBaseBrush()
-
     AppCard(
         onClick = onToggleVisibility,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        brush = heroBase,
-        // The hero paints its own edge in both themes, so it supplies its own outline and
-        // carries no lift; only its colour differs between light and dark.
+        // The app's own card radius, so the hero is radius-matched to the cards it sits
+        // among in each theme rather than carrying a number of its own.
+        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
+        // No brush: the surface is neutral now, so the hero takes the ordinary flat-fill
+        // path and differs from any other card only in the colour it passes here.
         colors = AppCardColors(
-            containerColor = Color.Transparent,
+            containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
             contentColor = MaterialTheme.colorScheme.onSurface,
             border = BorderStroke(
                 1.dp,
-                if (isDark) CashFlowHeroBorderDark else CashFlowHeroBorderLight
+                if (isDark) HeroOutlineDark else HeroOutlineLight
             )
         ),
         elevation = 0.dp
     ) {
-        // The two blooms over the base ramp, clipped to the card's rounded shape by the
-        // card itself, since this fill spans the card.
+        // Both decorations sit behind the content, clipped to the card's own shape by the
+        // card. The bloom is drawn first so the rail reads as the nearer edge.
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .cashFlowHeroGlows()
+                .heroBloom()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .heroRail()
         )
 
         Column(
@@ -173,7 +185,7 @@ fun CashFlowStatsCard(
                 // Formatted Current Date (e.g. 15 SEP 2026)
                 Text(
                     text = currentDate,
-                    color = CashFlowHeroDateText,
+                    color = if (isDark) TextSecondaryDark else TextSecondaryLight,
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
@@ -185,10 +197,10 @@ fun CashFlowStatsCard(
                 Box {
                     Surface(
                         shape = RoundedCornerShape(50),
-                        color = CashFlowHeroPillBg,
+                        color = if (isDark) HeroPillDark else HeroPillLight,
                         border = BorderStroke(
                             width = 1.dp,
-                            color = CashFlowHeroPillBorder
+                            color = if (isDark) HeroPillOutlineDark else HeroPillOutlineLight
                         ),
                         modifier = Modifier.clickable { dropdownMenuExpanded = true }
                     ) {
@@ -201,7 +213,7 @@ fun CashFlowStatsCard(
                                     stringResource(R.string.label_this_year_cash_flow)
                                 else
                                     stringResource(R.string.label_this_month_cash_flow),
-                                color = CashFlowHeroDateText,
+                                color = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
@@ -211,7 +223,7 @@ fun CashFlowStatsCard(
                             Icon(
                                 imageVector = PhosphorIcons.Regular.CaretDown,
                                 contentDescription = null,
-                                tint = CashFlowHeroDateText,
+                                tint = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -267,8 +279,8 @@ fun CashFlowStatsCard(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_expense_cash_flow).uppercase(Locale.getDefault()),
                     amount = displayExpense,
-                    labelColor = CashFlowHeroLabel,
-                    amountColor = CashFlowHeroExpense,
+                    labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
+                    amountColor = if (isDark) ExpenseRed else ExpenseInkLight,
                     textAlign = TextAlign.Start
                 )
 
@@ -277,8 +289,8 @@ fun CashFlowStatsCard(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.label_income_cash_flow).uppercase(Locale.getDefault()),
                     amount = displayIncome,
-                    labelColor = CashFlowHeroLabel,
-                    amountColor = CashFlowHeroIncome,
+                    labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
+                    amountColor = if (isDark) IncomeGreen else IncomeInkLight,
                     textAlign = TextAlign.End
                 )
             }
@@ -287,10 +299,10 @@ fun CashFlowStatsCard(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                color = CashFlowHeroInsetBg,
+                color = if (isDark) HeroInsetDark else HeroInsetLight,
                 border = BorderStroke(
                     width = 1.dp,
-                    color = CashFlowHeroInsetBorder
+                    color = if (isDark) HeroInsetOutlineDark else HeroInsetOutlineLight
                 )
             ) {
                 Row(
@@ -306,7 +318,7 @@ fun CashFlowStatsCard(
                     ) {
                         Text(
                             text = stringResource(R.string.label_net_balance_cash_flow),
-                            color = CashFlowHeroLabel,
+                            color = if (isDark) TextTertiaryDark else TextTertiaryLight,
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
@@ -331,7 +343,7 @@ fun CashFlowStatsCard(
                                     if (isBalanceHidden) R.string.desc_show_balance
                                     else R.string.desc_hide_balance
                                 ),
-                                tint = CashFlowHeroLabel.copy(alpha = 0.7f),
+                                tint = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -339,7 +351,7 @@ fun CashFlowStatsCard(
 
                     Text(
                         text = displayBalance,
-                        color = CashFlowHeroNetText,
+                        color = if (isDark) TextPrimaryDark else TextPrimaryLight,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp

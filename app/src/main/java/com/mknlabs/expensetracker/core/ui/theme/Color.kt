@@ -80,9 +80,15 @@ val BackgroundLight = Color(0xFFF7F8FA)   // app background, every screen
 val SurfaceLight = Color(0xFFFFFFFF)      // primary card surface
 val CardLight = Color(0xFFF1F2F4)         // chips, segmented controls, search bars
 
+// The three light weights, in the corrected order. The old third weight was #9CA3AF,
+// which measures 2.54:1 on white — below AA, and not fixable by choosing a paler grey,
+// because no colour lighter than the second weight clears 4.5:1 on both the white card
+// and the #F7F8FA field. The tiers move down one rung instead: secondary takes #5B6270
+// (6.13:1 on a card) and tertiary the #6B7280 secondary used to hold (4.83:1 on a card,
+// 4.55:1 on the field). Light has room for three weights in this order and no more.
 val TextPrimaryLight = Color(0xFF1F2937)
-val TextSecondaryLight = Color(0xFF6B7280)
-val TextTertiaryLight = Color(0xFF9CA3AF)
+val TextSecondaryLight = Color(0xFF5B6270)
+val TextTertiaryLight = Color(0xFF6B7280)
 
 val DividerLight = Color(0xFFE8EBEF)      // card outline, dividers, field borders
 
@@ -96,9 +102,10 @@ val CardShadowSpotLight = Color(0x0F000000)    // 6%
 // floats over live content instead of sitting in the page's card grid.
 val NavEdgeLight = Color(0xFFECEEF2)
 
-// Third text weight. Nothing in the dark theme reads it yet, so its value there is
-// free to be the natural step below TextSecondaryDark rather than a matched pair.
-val TextTertiaryDark = Color(0xFF77777C)
+// Third text weight, and the one the hero's metric labels read. #77777C measured
+// 4.44:1 on the #0A0A0A field, just under AA, so this steps up to the lightest ink that
+// clears it: 5.91:1 on the field and 5.17:1 on a card.
+val TextTertiaryDark = Color(0xFF8A8C95)
 
 val DarkGradientStart = Color(0xFF6C5AE1)
 val DarkGradientEnd = Color(0xFF282626)
@@ -182,45 +189,50 @@ val CashFlowNetBalanceLabelLight = TextSecondaryLight
 val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
 val CashFlowNetBalanceAmountLight = TextPrimaryLight
 
-// ── Cash Flow hero: one unified recipe for both themes ─────────────────────────
+// ── Cash Flow hero: a neutral card carrying the brand as an accent ─────────────
 //
-// Hue 255, ~47% saturation, an identical two-bloom structure (light violet top-left,
-// deep violet bottom-right) and literally identical inks. Only the base gradient's
-// lightness changes between themes, which is what makes the light and dark heroes read
-// as the same card recolored rather than as two different designs. Dark previously drew
-// a baked PNG (bg_cashflow_dark); the hero is now painted from these tokens in both
-// themes, so the image is no longer needed. Contrast of every ink was checked against
-// the brightest (bloomed) corner of each gradient: expense 4.54:1, income 5.20:1,
-// date 5.26:1, labels 4.89:1 — all clear AA.
-val CashFlowHeroDarkStart = Color(0xFF271B4B)
-val CashFlowHeroDarkCenter = Color(0xFF1B1334)
-val CashFlowHeroDarkEnd = Color(0xFF120C22)
-val CashFlowHeroLightStart = Color(0xFF3E2B78)
-val CashFlowHeroLightCenter = Color(0xFF31225E)
-val CashFlowHeroLightEnd = Color(0xFF231843)
+// The hero was the one surface in the app painted entirely in brand violet, which made
+// the largest object on the first screen also the loudest, and forced light mode to
+// invent a second dark-violet ramp to match it. It is now the same card as everything
+// else in both themes, with the brand in three small places instead: a 3dp rail down the
+// leading edge, one bloom off the top-trailing corner, and the amount inks.
+//
+// That is roughly 9% of the card's area in brand colour where it used to be ~100%. And
+// because the surface no longer differs between themes, the inks no longer need a set of
+// their own either — they are the shared text and semantic tokens, so the hero cannot
+// drift away from the rest of the app.
+val HeroSurfaceDark = Color(0xFF1A1A20)        // 1.14:1 over the #0A0A0A field
+val HeroSurfaceLight = Color(0xFFFFFFFF)       // the app's card white
+val HeroOutlineDark = Color(0xFF2A2A31)        // 1.22:1 on the card
+val HeroOutlineLight = Color(0xFFE8EBEF)       // the app's hairline
 
-val CashFlowHeroGlowTop = Color(0x479378FF)         // rgba(147, 120, 255, 0.28)
-val CashFlowHeroGlowBottomDark = Color(0x8C140C28)  // rgba(20, 12, 40, 0.55)
-val CashFlowHeroGlowBottomLight = Color(0x47140C28) // rgba(20, 12, 40, 0.28)
+// The rail's own fill. Deliberately not `primary`: that is fully saturated at
+// hsl(250,100,69), the luminance where neither black nor white ink clears 4.5:1 on it,
+// so a fill using it cannot be made accessible — only replaced. These are the two ends
+// of the CTA ramp, which carry white ink at 6.25:1 and 8.51:1 in dark and 5.10:1 in
+// light, and which is what the app's filled buttons use.
+val HeroRailStartDark = Color(0xFF5838FA)      // purple-600, white ink 6.25:1
+val HeroRailEndDark = Color(0xFF3713EC)        // purple-700, white ink 8.51:1
+val HeroRailStartLight = Color(0xFF6A4DFF)     // 5.10:1 with white ink
+val HeroRailEndLight = Color(0xFF5B45D6)       // the deeper end of the same ramp
 
-val CashFlowHeroBorderDark = Color(0x619378FF)      // rgba(147, 120, 255, 0.38)
-val CashFlowHeroBorderLight = Color(0x73A38CFF)     // rgba(163, 140, 255, 0.45)
+// One bloom, at the accent's own hue. 22% over a near-black card reads as light
+// catching the corner; the same alpha on white would read as a stain, so light takes
+// 10% and the accent stands at full strength only in the rail.
+val HeroBloomDark = Color(0x389E84FF)          // accent, 22% alpha
+val HeroBloomLight = Color(0x1A6A4DFF)         // accent, 10% alpha
 
-// The inks inside the hero: shared verbatim by both themes, so the two cards carry the
-// same colours and only their surface differs.
-val CashFlowHeroDateText = Color(0xFFD8CCF8)
-val CashFlowHeroLabel = Color(0xFFCFC6EC)
-val CashFlowHeroExpense = Color(0xFFFFB0A6)
-val CashFlowHeroIncome = Color(0xFF6FE8A6)
-val CashFlowHeroNetText = Color(0xFFFFFFFF)
-
-// The inset surfaces are white washes over the gradient in both themes, rather than a
-// darker fill in dark and a lighter one in light — which is what used to make the two
-// heroes feel inverted relative to each other.
-val CashFlowHeroInsetBg = Color(0x1AFFFFFF)         // white 10%
-val CashFlowHeroInsetBorder = Color(0x2EFFFFFF)     // white 18%
-val CashFlowHeroPillBg = Color(0x1FFFFFFF)          // white 12%
-val CashFlowHeroPillBorder = Color(0x38FFFFFF)      // white 22%
+// The net-balance inset steps one rung off the card surface and the period pill two, in
+// each theme's own direction: shallower in light, where the card is the lighter of the
+// pair, and deeper in dark, where it is the darker.
+val HeroInsetDark = Color(0xFF22222A)
+val HeroInsetLight = Color(0xFFFAFAFC)
+val HeroInsetOutlineDark = Color(0xFF2A2A31)
+val HeroInsetOutlineLight = Color(0xFFE8EBEF)
+val HeroPillDark = Color(0xFF242428)
+val HeroPillLight = Color(0xFFF5F5F5)
+val HeroPillOutlineDark = Color(0xFF2D2D31)
+val HeroPillOutlineLight = Color(0x14000000)   // black 8%
 
 // Bottom Navigation Bar Palette (indexmockup.html)
 val NavOnDark = Color(0xFFBFA6FF)     // --nav-on: #BFA6FF
