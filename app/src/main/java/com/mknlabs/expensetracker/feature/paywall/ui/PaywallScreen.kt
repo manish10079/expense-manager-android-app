@@ -68,6 +68,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
@@ -247,7 +248,7 @@ internal fun PaywallContent(
                 item { RenewalDisclosure() }
 
                 item {
-                    TextButton(
+                    AppTextButton(
                         onClick = onRestoreClick,
                         enabled = !uiState.isBusy,
                         modifier = Modifier.height(44.dp),
@@ -266,7 +267,7 @@ internal fun PaywallContent(
                 // non-subscriber has nothing to manage.
                 if (uiState.canManageSubscription) {
                     item {
-                        TextButton(
+                        AppTextButton(
                             onClick = { uiState.managementUrl?.let(onOpenUrl) },
                             enabled = !uiState.isBusy,
                             modifier = Modifier.height(44.dp),
@@ -315,7 +316,7 @@ private fun PaywallLegalLinks(onOpenUrl: (String) -> Unit) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(
+        AppTextButton(
             onClick = { onOpenUrl(termsUrl) },
             modifier = Modifier.height(44.dp),
         ) {
@@ -326,7 +327,7 @@ private fun PaywallLegalLinks(onOpenUrl: (String) -> Unit) {
             )
         }
         Spacer(modifier = Modifier.width(Dimens.spacingSmall))
-        TextButton(
+        AppTextButton(
             onClick = { onOpenUrl(privacyUrl) },
             modifier = Modifier.height(44.dp),
         ) {
@@ -602,7 +603,7 @@ private fun PlansUnavailable(onRetryClick: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        TextButton(onClick = onRetryClick) {
+        AppTextButton(onClick = onRetryClick) {
             Text(text = stringResource(R.string.btn_paywall_retry))
         }
     }

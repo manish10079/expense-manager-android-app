@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mknlabs.expensetracker.data.constants.categoryMap
@@ -504,7 +505,7 @@ fun FilterBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Reset button
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         isExpenseExpanded = false
                         isIncomeExpanded = false

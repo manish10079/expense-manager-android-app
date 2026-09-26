@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -1169,12 +1170,12 @@ private fun MonthYearPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(tempDate) }) {
+            AppTextButton(onClick = { onConfirm(tempDate) }) {
                 Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
@@ -1218,12 +1219,12 @@ private fun YearPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(tempYear) }) {
+            AppTextButton(onClick = { onConfirm(tempYear) }) {
                 Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },

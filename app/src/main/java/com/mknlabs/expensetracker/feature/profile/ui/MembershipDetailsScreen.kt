@@ -66,6 +66,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
@@ -330,7 +332,7 @@ internal fun MembershipDetailsContent(
                         // outlives the grant — the tier is swept on a schedule, so a lapsed pass
                         // still reads as one for a while, and redeeming then is allowed.
                         if (status == MembershipStatus.PRO_PASS) {
-                            OutlinedButton(
+                            AppOutlinedButton(
                                 onClick = onRedeemProPassClick,
                                 shape = RoundedCornerShape(16.dp),
                                 border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
@@ -347,7 +349,7 @@ internal fun MembershipDetailsContent(
                             }
                         }
 
-                        OutlinedButton(
+                        AppOutlinedButton(
                             onClick = onRestoreClick,
                             enabled = !isRestoring,
                             shape = RoundedCornerShape(16.dp),
@@ -759,7 +761,7 @@ private fun MembershipCardActions(
         }
 
         if (showRedeemAction) {
-            TextButton(
+            AppTextButton(
                 onClick = onRedeemProPassClick,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary)

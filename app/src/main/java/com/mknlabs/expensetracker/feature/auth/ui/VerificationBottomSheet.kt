@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -162,7 +164,7 @@ fun VerificationBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Resend Button
-            OutlinedButton(
+            AppOutlinedButton(
                 onClick = {
                     scope.launch {
                         isResending = true
@@ -215,7 +217,7 @@ fun VerificationBottomSheet(
 
             // Cancel button (only show if not verified)
             if (!isVerified) {
-                TextButton(
+                AppTextButton(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth()
                 ) {

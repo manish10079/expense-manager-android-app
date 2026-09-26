@@ -100,6 +100,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -1503,7 +1504,7 @@ private fun CalculatorHistorySheet(
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showDeleteConfirm = false
                     onClearHistory()
                 }) {
@@ -1515,7 +1516,7 @@ private fun CalculatorHistorySheet(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
+                AppTextButton(onClick = { showDeleteConfirm = false }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_confirm),
                         fontWeight = FontWeight.Bold
@@ -1543,7 +1544,7 @@ private fun CalculatorHistorySheet(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_expression), entry.expression))
@@ -1564,7 +1565,7 @@ private fun CalculatorHistorySheet(
                         }
                     }
 
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_result), entry.result))
@@ -1585,7 +1586,7 @@ private fun CalculatorHistorySheet(
                         }
                     }
 
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             onDeleteEntry(entry.timestampMillis)
                             Toast.makeText(context, context.getString(R.string.toast_entry_deleted), Toast.LENGTH_SHORT).show()

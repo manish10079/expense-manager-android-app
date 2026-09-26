@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
 import com.mknlabs.expensetracker.domain.models.VoiceConfidence
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -363,7 +364,7 @@ private fun ResultContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            TextButton(
+            AppTextButton(
                 onClick = onRetry,
                 modifier = Modifier.weight(1f)
             ) {

@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
@@ -837,7 +838,7 @@ fun AppNavigationHost(
                     title = { Text(stringResource(id = R.string.msg_email_updated_success)) },
                     text = { Text(stringResource(id = R.string.msg_email_updated_success_desc)) },
                     confirmButton = {
-                        TextButton(onClick = {
+                        AppTextButton(onClick = {
                             showEmailUpdateSuccessDialog = false
                             onDirectSignOut()
                         }) {

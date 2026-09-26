@@ -72,6 +72,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -1258,7 +1260,7 @@ private fun BudgetEditorDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = {
                     if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
                         onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
@@ -1270,7 +1272,7 @@ private fun BudgetEditorDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1386,7 +1388,7 @@ private fun BudgetCategoryPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         tempSelectedIds = categories.map { it.id }.toSet()
                     },
@@ -1400,7 +1402,7 @@ private fun BudgetCategoryPickerSheet(
                     )
                 }
 
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         tempSelectedIds = categories
                             .filter { categoryTrackedMap[it.id].isNullOrEmpty() }
@@ -1547,12 +1549,12 @@ private fun DeleteBudgetDialog(
             Text(stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(stringResource(id = R.string.label_delete_1))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1769,12 +1771,12 @@ private fun DeleteRecurringDialog(
             Text(stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(stringResource(id = R.string.label_delete_1))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1833,12 +1835,12 @@ private fun MuteRecurringDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(dontShowAgain) }) {
+            AppTextButton(onClick = { onConfirm(dontShowAgain) }) {
                 Text(stringResource(id = R.string.label_mute_yes))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_no))
             }
         }
@@ -2614,7 +2616,7 @@ private fun InstallmentSlotRow(
                     accent = accent,
                     onClick = onPay
                 )
-                TextButton(onClick = onSkip) {
+                AppTextButton(onClick = onSkip) {
                     Text(
                         text = stringResource(R.string.action_skip_caps),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2622,7 +2624,7 @@ private fun InstallmentSlotRow(
                     )
                 }
             } else {
-                TextButton(onClick = onUndo) {
+                AppTextButton(onClick = onUndo) {
                     Text(
                         text = stringResource(R.string.action_undo_caps),
                         color = MaterialTheme.colorScheme.primary,
@@ -3144,14 +3146,14 @@ private fun RecurringRuleEditorModal(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TextButton(
+                AppTextButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(id = R.string.label_cancel_caps), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
-                TextButton(
+                AppTextButton(
                     onClick = {
                         when {
                             selectedType == RecurringType.REGULAR -> onSave(selectedFrequency, count)
@@ -3213,7 +3215,7 @@ private fun RecurringRuleEditorModal(
             title = { Text(stringResource(id = R.string.label_type_regular)) },
             text = { Text(stringResource(id = R.string.msg_convert_to_regular_info)) },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showRegularConfirm = false
                     onConvertToRegular()
                 }) {
@@ -3221,7 +3223,7 @@ private fun RecurringRuleEditorModal(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRegularConfirm = false }) {
+                AppTextButton(onClick = { showRegularConfirm = false }) {
                     Text(stringResource(id = R.string.label_cancel_caps))
                 }
             }
@@ -3729,12 +3731,12 @@ private fun ConfirmCopyBudgetsDialog(
             Text(stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(stringResource(id = R.string.action_copy))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }

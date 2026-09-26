@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 // ── Filter Pill Color Palette ────────────────────────────────────────────
@@ -207,7 +208,7 @@ fun ActiveFilterBar(
                 }
 
                 // "Clear all" pinned to the end
-                TextButton(
+                AppTextButton(
                     onClick = onClearAll,
                     modifier = Modifier.padding(start = 4.dp)
                 ) {

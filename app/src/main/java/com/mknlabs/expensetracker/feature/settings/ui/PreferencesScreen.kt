@@ -39,6 +39,7 @@ import androidx.compose.material3.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -546,7 +547,7 @@ private fun FontPickerSheet(
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     onDeleteFont(fileName)
                     showDeleteDialog = null
                 }) {
@@ -554,7 +555,7 @@ private fun FontPickerSheet(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) {
+                AppTextButton(onClick = { showDeleteDialog = null }) {
                     Text(stringResource(R.string.label_cancel))
                 }
             }

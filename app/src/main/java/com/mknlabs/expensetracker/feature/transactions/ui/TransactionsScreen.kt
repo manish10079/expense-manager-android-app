@@ -124,6 +124,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
@@ -991,7 +992,7 @@ private fun TransactionScreenContent(
                                         .padding(Dimens.PaddingMedium),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    TextButton(onClick = onRetry) {
+                                    AppTextButton(onClick = onRetry) {
                                         Text(
                                             text = stringResource(R.string.label_retry),
                                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -1036,7 +1037,7 @@ private fun TransactionScreenContent(
                     HorizontalDivider(
                         color = MaterialTheme.colorScheme.hairline
                     )
-                    TextButton(
+                    AppTextButton(
                         onClick = { selectAllInQuery() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -1181,7 +1182,7 @@ private fun TransactionScreenContent(
             title = { Text(stringResource(R.string.label_delete_transactions)) },
             text = { Text(stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size)) },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         deleteSelectedTransactions()
                         showDeleteConfirmation = false
@@ -1191,7 +1192,7 @@ private fun TransactionScreenContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirmation = false }) {
+                AppTextButton(onClick = { showDeleteConfirmation = false }) {
                     Text(stringResource(R.string.label_cancel_confirm))
                 }
             },
@@ -1207,7 +1208,7 @@ private fun TransactionScreenContent(
             title = { Text(stringResource(R.string.title_cannot_duplicate_recurring)) },
             text = { Text(stringResource(R.string.msg_cannot_duplicate_recurring)) },
             confirmButton = {
-                TextButton(onClick = { showRecurringDuplicateDialog = false }) {
+                AppTextButton(onClick = { showRecurringDuplicateDialog = false }) {
                     Text(stringResource(R.string.label_ok), fontWeight = FontWeight.Bold)
                 }
             },
@@ -1905,7 +1906,7 @@ private fun TransactionListErrorState(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
-            TextButton(onClick = onRetry) {
+            AppTextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.label_retry),
                     style = MaterialTheme.typography.bodyMedium.copy(

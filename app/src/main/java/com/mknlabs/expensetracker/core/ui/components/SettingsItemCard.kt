@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.AccessLevel
@@ -266,7 +267,7 @@ fun SettingsItemCard(
                     }
 
                     SettingsItemType.Button -> {
-                        TextButton(
+                        AppTextButton(
                             onClick = { updatedOnClick?.invoke() },
                             enabled = finalEnabled
                         ) {

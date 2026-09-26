@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
@@ -397,7 +398,7 @@ private fun DataManagementContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         isDeleteTransactionsDialogVisible = false
                         onDeleteAllTransactionsClick()
@@ -411,7 +412,7 @@ private fun DataManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
+                AppTextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.primary,
@@ -441,7 +442,7 @@ private fun DataManagementContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         pendingRestoreUri = null
                         onDatabaseRestoreFileSelected(selectedUri)
@@ -455,7 +456,7 @@ private fun DataManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingRestoreUri = null }) {
+                AppTextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.primary,
@@ -552,7 +553,7 @@ private fun DataManagementContent(
                 }
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         val days = customFrequencyInput.toIntOrNull() ?: 7
                         if (days in 1..365) {
@@ -570,7 +571,7 @@ private fun DataManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { isCustomFrequencyDialogVisible = false }) {
+                AppTextButton(onClick = { isCustomFrequencyDialogVisible = false }) {
                     Text(
                         text = stringResource(R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

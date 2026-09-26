@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
@@ -321,7 +322,7 @@ fun DeleteGoalDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.label_delete_1),
                     color = MaterialTheme.colorScheme.error,
@@ -379,7 +380,7 @@ fun FundGoalDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = { onSave(fundAmount) },
                 enabled = isSaveEnabled
             ) {
@@ -663,7 +664,7 @@ private fun DeadlinePickerRow(
                     .clickable(onClick = onPick)
                     .padding(horizontal = 8.dp, vertical = 8.dp)
             )
-            TextButton(onClick = onClear) {
+            AppTextButton(onClick = onClear) {
                 Text(
                     text = stringResource(R.string.label_clear),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
@@ -671,7 +672,7 @@ private fun DeadlinePickerRow(
                 )
             }
         } else {
-            TextButton(onClick = onPick) {
+            AppTextButton(onClick = onPick) {
                 Text(
                     text = stringResource(R.string.label_set_deadline),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),

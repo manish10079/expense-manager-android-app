@@ -107,6 +107,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.delay
 import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
@@ -1196,7 +1197,7 @@ fun AddTransactionScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = {
+                    AppTextButton(onClick = {
                         showDuplicateWarning = false
                         duplicateWarningMessage = null
                         val tx = pendingSaveTransaction
@@ -1210,7 +1211,7 @@ fun AddTransactionScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
+                    AppTextButton(onClick = {
                         showDuplicateWarning = false
                         duplicateWarningMessage = null
                         pendingSaveTransaction = null

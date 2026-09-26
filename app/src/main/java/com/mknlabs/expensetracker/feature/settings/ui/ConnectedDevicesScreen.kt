@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -408,7 +409,7 @@ private fun DeviceListContent(
             title = { Text(deviceToUnlink!!.modelName) },
             text = { Text(stringResource(R.string.msg_unlink_device_confirm)) },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         onUnlink(deviceToUnlink!!.id)
                         deviceToUnlink = null
@@ -419,7 +420,7 @@ private fun DeviceListContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { deviceToUnlink = null }) {
+                AppTextButton(onClick = { deviceToUnlink = null }) {
                     Text(stringResource(R.string.label_cancel_confirm))
                 }
             }
@@ -442,7 +443,7 @@ private fun DeviceListContent(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showForceSyncInfo = false }) {
+                AppTextButton(onClick = { showForceSyncInfo = false }) {
                     Text(text = stringResource(R.string.label_ok))
                 }
             }

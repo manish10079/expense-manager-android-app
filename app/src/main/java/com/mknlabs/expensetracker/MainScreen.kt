@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.AppLockPreferences
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
@@ -1306,7 +1307,7 @@ fun MainScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showAdExpiryWarningDialog = false }) {
+                    AppTextButton(onClick = { showAdExpiryWarningDialog = false }) {
                         Text(stringResource(id = R.string.btn_maybe_later))
                     }
                 }
@@ -1340,7 +1341,7 @@ fun MainScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = acknowledgeIntegrityNotice) {
+                    AppTextButton(onClick = acknowledgeIntegrityNotice) {
                         Text(stringResource(id = R.string.btn_got_it))
                     }
                 }
@@ -1366,7 +1367,7 @@ fun MainScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             showLogoutDialog = false
                             authViewModel.signOut()
@@ -1377,7 +1378,7 @@ fun MainScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showLogoutDialog = false }) {
+                    AppTextButton(onClick = { showLogoutDialog = false }) {
                         Text(text = stringResource(id = R.string.label_cancel))
                     }
                 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
@@ -172,7 +173,7 @@ fun UpdateDialog(
         },
         dismissButton = {
             if (!force) {
-                TextButton(onClick = onLater) {
+                AppTextButton(onClick = onLater) {
                     Text(stringResource(R.string.label_later))
                 }
             }
@@ -403,7 +404,7 @@ private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 if (!force) {
-                    TextButton(onClick = {}) {
+                    AppTextButton(onClick = {}) {
                         Text(stringResource(R.string.label_later))
                     }
                     Spacer(modifier = Modifier.width(8.dp))

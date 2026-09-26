@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
 import java.text.SimpleDateFormat
@@ -229,7 +230,7 @@ fun VoiceConfirmationSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)

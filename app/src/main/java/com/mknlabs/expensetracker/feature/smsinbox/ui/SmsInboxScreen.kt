@@ -89,6 +89,7 @@ import android.content.Context
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
@@ -362,12 +363,12 @@ private fun SmsInboxContent(
             title = { Text(stringResource(id = R.string.label_sms_inbox_delete_title)) },
             text = { Text(stringResource(id = R.string.label_sms_inbox_delete_body)) },
             confirmButton = {
-                TextButton(onClick = onConfirmDelete) {
+                AppTextButton(onClick = onConfirmDelete) {
                     Text(stringResource(id = R.string.action_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = onCancelDelete) {
+                AppTextButton(onClick = onCancelDelete) {
                     Text(stringResource(id = R.string.action_cancel))
                 }
             }
@@ -391,12 +392,12 @@ private fun SmsInboxContent(
             },
             text = { Text(stringResource(id = R.string.label_sms_inbox_add_all_body)) },
             confirmButton = {
-                TextButton(onClick = onConfirmAddAll) {
+                AppTextButton(onClick = onConfirmAddAll) {
                     Text(stringResource(id = R.string.action_add_all))
                 }
             },
             dismissButton = {
-                TextButton(onClick = onCancelAddAll) {
+                AppTextButton(onClick = onCancelAddAll) {
                     Text(stringResource(id = R.string.action_cancel))
                 }
             }
@@ -496,7 +497,7 @@ private fun EditDetectionDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.action_cancel))
             }
         }
@@ -1016,7 +1017,7 @@ private fun DetectionCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(
+                AppTextButton(
                     onClick = onDelete,
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                 ) {

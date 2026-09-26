@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -96,7 +97,7 @@ private fun FeedbackScreenContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         onDismissSuccess()
                         onBackClick()

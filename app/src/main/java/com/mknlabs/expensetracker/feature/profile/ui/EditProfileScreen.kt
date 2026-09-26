@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DOB_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
@@ -361,7 +362,7 @@ private fun ProfileScreenContent(
                             )
                         } else if (!emailVerifiedState) {
                             // Email not verified → Verify Email button
-                            androidx.compose.material3.TextButton(
+                            AppTextButton(
                                 onClick = {
                                     firebaseUser?.sendEmailVerification()
                                     showVerificationSheet = true
@@ -382,7 +383,7 @@ private fun ProfileScreenContent(
                             }
                         } else {
                             // Email verified (non-Google) → Update Email button
-                            androidx.compose.material3.TextButton(
+                            AppTextButton(
                                 onClick = { showUpdateEmailSheet = true },
                                 modifier = Modifier.fillMaxWidth()
                             ) {

@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
@@ -105,7 +107,7 @@ fun AuthRoute(
             title = { Text(stringResource(id = R.string.title_google_accounts_not_found)) },
             text = { Text(stringResource(id = R.string.msg_google_accounts_not_found)) },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showNoGoogleAccountsDialog = false
                     // Open device Settings → Add Google Account
                     viewModel.shouldAttemptAutoSignInAfterReturn = true
@@ -119,7 +121,7 @@ fun AuthRoute(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showNoGoogleAccountsDialog = false
                     // Retry sign-in — the Credential Manager may succeed on a
                     // second attempt after clearing its stale state.
@@ -245,7 +247,7 @@ private fun AuthContentBody(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Google Sign In Button
-            OutlinedButton(
+            AppOutlinedButton(
                 onClick = onGoogleSignIn,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -492,7 +494,7 @@ private fun AuthContentBody(
                 }
             }
 
-            TextButton(onClick = { 
+            AppTextButton(onClick = { 
                 isSignUp = !isSignUp 
                 onToggleSignUp()
             }) {
@@ -505,7 +507,7 @@ private fun AuthContentBody(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextButton(
+            AppTextButton(
                 onClick = onGuestContinue,
                 enabled = authState !is AuthState.Loading
             ) {
@@ -648,7 +650,7 @@ private fun EmailVerificationContent(
             }
         }
 
-        OutlinedButton(
+        AppOutlinedButton(
             onClick = onResend,
             modifier = Modifier
                 .fillMaxWidth()
@@ -670,7 +672,7 @@ private fun EmailVerificationContent(
             }
         }
 
-        TextButton(
+        AppTextButton(
             onClick = onCancel,
             enabled = !isVerificationLoading
         ) {

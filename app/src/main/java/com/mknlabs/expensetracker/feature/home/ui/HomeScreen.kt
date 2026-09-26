@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -1235,7 +1236,7 @@ fun AccountSetupCard(
                 }
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { showChecklist = false }) {
+                AppTextButton(onClick = { showChecklist = false }) {
                     Text(stringResource(R.string.btn_got_it))
                 }
             },

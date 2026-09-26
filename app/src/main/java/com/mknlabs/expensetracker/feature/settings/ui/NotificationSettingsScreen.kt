@@ -62,6 +62,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.ReminderWindow
 import com.mknlabs.expensetracker.models.SettingsItemType
@@ -733,7 +734,7 @@ private fun ReminderTimeWindowPickerModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(id = R.string.btn_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1028,7 +1029,7 @@ private fun WeeklySummaryTimeModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(id = R.string.btn_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1154,7 +1155,7 @@ private fun NotificationPermissionBanner(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            TextButton(onClick = onEnableClick) {
+            AppTextButton(onClick = onEnableClick) {
                 Text(
                     text = stringResource(
                         id = if (hasRequestedPermission) {

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RedemptionState
 
@@ -135,7 +136,7 @@ fun ProPassRedeemDialog(
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(text = stringResource(id = R.string.label_later))
                 }
             }
@@ -252,7 +253,7 @@ fun ProPassRedeemDialog(
         },
         dismissButton = {
             if (state !is RedemptionState.Success && state !is RedemptionState.Loading) {
-                TextButton(onClick = { 
+                AppTextButton(onClick = { 
                     viewModel.resetRedemptionState()
                     onDismiss() 
                 }) {

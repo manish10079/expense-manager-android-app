@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 
 @Composable
 fun AdRewardDialog(
@@ -88,7 +89,7 @@ fun AdRewardDialog(
             }
         },
         dismissButton = {
-            TextButton(
+            AppTextButton(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {

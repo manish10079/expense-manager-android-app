@@ -55,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.Transaction
@@ -288,7 +289,7 @@ private fun CategoryManagementContent(
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showDeleteDialog = false
                     when (tab) {
                         CategoryManagementTab.Income,
@@ -305,7 +306,7 @@ private fun CategoryManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showDeleteDialog = false
                     pendingDeleteItem = null
                 }) {

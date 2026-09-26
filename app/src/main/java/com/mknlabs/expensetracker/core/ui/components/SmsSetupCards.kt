@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 /**
@@ -94,7 +95,7 @@ fun SmsPermissionCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextButton(onClick = onOpenSettings) {
+            AppTextButton(onClick = onOpenSettings) {
                 Text(
                     text = stringResource(id = R.string.label_open_app_settings),
                     color = MaterialTheme.colorScheme.primary,
@@ -170,14 +171,14 @@ fun MiuiSmsSetupCard(
 
             // Two rows so the actions can never overflow a narrow screen.
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onOpenAppSettings) {
+                AppTextButton(onClick = onOpenAppSettings) {
                     Text(
                         text = stringResource(id = R.string.label_open_app_settings),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
-                TextButton(onClick = onBatterySettings) {
+                AppTextButton(onClick = onBatterySettings) {
                     Text(
                         text = stringResource(id = R.string.label_battery_settings),
                         color = MaterialTheme.colorScheme.primary,
@@ -189,7 +190,7 @@ fun MiuiSmsSetupCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(
                         text = stringResource(id = R.string.label_sms_miui_done),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

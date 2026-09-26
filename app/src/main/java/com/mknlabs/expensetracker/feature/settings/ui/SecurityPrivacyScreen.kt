@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
 import com.mknlabs.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mknlabs.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
@@ -449,7 +450,7 @@ private fun AutoLockDurationPickerSheet(
                         if (isLocked) {
                             Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.featureGateLock)
                         } else if (customMinutesInput.isNotEmpty()) {
-                            TextButton(onClick = {
+                            AppTextButton(onClick = {
                                 val mins = customMinutesInput.toIntOrNull() ?: 0
                                 if (mins > 0) {
                                     onDurationSelected(mins)

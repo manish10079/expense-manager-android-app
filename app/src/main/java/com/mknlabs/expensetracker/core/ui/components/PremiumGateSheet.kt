@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 
 import androidx.compose.runtime.remember
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.models.PremiumCopy
 import com.mknlabs.expensetracker.core.ui.models.PremiumCopyOptions
 
@@ -190,7 +191,7 @@ fun PremiumGateSheet(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                TextButton(
+                AppTextButton(
                     onClick = onDismiss,
                     modifier = Modifier.height(44.dp)
                 ) {
@@ -206,7 +207,7 @@ fun PremiumGateSheet(
 
                 if (onRedeemClick != null) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(
+                    AppTextButton(
                         onClick = onRedeemClick,
                         modifier = Modifier.height(40.dp)
                     ) {

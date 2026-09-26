@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.feature.auth.ui.UpdateEmailUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -294,7 +296,7 @@ fun UpdateEmailBottomSheet(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Cancel
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             onReset()
                             onDismiss()
@@ -501,7 +503,7 @@ private fun PendingVerificationContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Resend with countdown
-        OutlinedButton(
+        AppOutlinedButton(
             onClick = handleResend,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             enabled = countdownSeconds <= 0 && !isResending,
@@ -545,7 +547,7 @@ private fun PendingVerificationContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Cancel
-        TextButton(
+        AppTextButton(
             onClick = onDismiss,
             modifier = Modifier.fillMaxWidth()
         ) {

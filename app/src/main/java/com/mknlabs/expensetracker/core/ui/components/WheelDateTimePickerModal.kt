@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.utils.validateAndCalculateTimestamp
 import java.util.*
 
@@ -187,7 +188,7 @@ fun WheelDateTimePickerModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(stringResource(id = R.string.btn_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                 }
 
