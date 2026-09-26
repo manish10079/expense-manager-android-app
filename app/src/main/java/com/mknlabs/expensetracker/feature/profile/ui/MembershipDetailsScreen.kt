@@ -50,6 +50,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -87,7 +89,9 @@ import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
 import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
 import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
 import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
@@ -232,7 +236,7 @@ internal fun MembershipDetailsContent(
                         // A section header is a label rather than something to tap, so in
                         // light it takes the secondary ink instead of the brand purple the
                         // card above it already uses for its actions.
-                        color = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.8f)
+                        color = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.8f)
                         else TextSecondaryLight,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
                     )
@@ -337,7 +341,7 @@ internal fun MembershipDetailsContent(
                                 shape = RoundedCornerShape(16.dp),
                                 border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = colorScheme.primary
+                                    contentColor = colorScheme.accentInk
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -355,7 +359,7 @@ internal fun MembershipDetailsContent(
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = colorScheme.primary
+                                contentColor = colorScheme.accentInk
                             ),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -478,9 +482,9 @@ private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalet
             foreground = colorScheme.onSurface,
             headerLabel = colorScheme.onSurfaceVariant,
             bodyText = colorScheme.onSurfaceVariant,
-            accent = colorScheme.primary,
+            accent = colorScheme.accentInk,
             panelBackground = colorScheme.onSurface.copy(alpha = 0.06f),
-            panelIcon = colorScheme.primary,
+            panelIcon = colorScheme.accentInk,
             panelHeadline = colorScheme.onSurface,
         )
     }
@@ -749,8 +753,8 @@ private fun MembershipCardActions(
             onClick = onUpgradeClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
+                containerColor = colorScheme.cta,
+                contentColor = colorScheme.onCta
             )
         ) {
             Text(
@@ -764,7 +768,7 @@ private fun MembershipCardActions(
             AppTextButton(
                 onClick = onRedeemProPassClick,
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary)
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.accentInk)
             ) {
                 Text(
                     text = stringResource(R.string.title_redeem_pro_pass),
@@ -791,7 +795,7 @@ private fun BenefitRow(
             modifier = Modifier
                 .size(24.dp)
                 .background(
-                    color = if (isAvailable) colorScheme.primary.copy(alpha = 0.15f) else colorScheme.error.copy(alpha = 0.1f),
+                    color = if (isAvailable) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.error.copy(alpha = 0.1f),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -799,7 +803,7 @@ private fun BenefitRow(
             Icon(
                 imageVector = if (isAvailable) Icons.Default.Check else Icons.Default.Close,
                 contentDescription = null,
-                tint = if (isAvailable) colorScheme.primary else colorScheme.error,
+                tint = if (isAvailable) colorScheme.accentInk else colorScheme.error,
                 modifier = Modifier.size(16.dp)
             )
         }

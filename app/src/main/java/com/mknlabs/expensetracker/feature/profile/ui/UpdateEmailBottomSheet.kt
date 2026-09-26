@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.profile.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,6 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -273,9 +277,9 @@ fun UpdateEmailBottomSheet(
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                             },
                             disabledContentColor = if (isLoading) {
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.accentInk
                             } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                MaterialTheme.colorScheme.disabled
                             }
                         )
                     ) {
@@ -283,7 +287,7 @@ fun UpdateEmailBottomSheet(
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.accentInk
                             )
                         } else {
                             Text(
@@ -359,13 +363,13 @@ fun UpdateEmailBottomSheet(
                             imageVector = Icons.Rounded.CheckCircle,
                             contentDescription = null,
                             modifier = Modifier.size(56.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.accentInk
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(id = R.string.msg_email_updated_success),
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -449,7 +453,7 @@ private fun PendingVerificationContent(
                 darkContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                 darkBorder = androidx.compose.foundation.BorderStroke(
                     1.dp,
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.3f)
                 )
             ),
         ) {
@@ -461,7 +465,7 @@ private fun PendingVerificationContent(
                     imageVector = Icons.Rounded.Email,
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.accentInk
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -530,7 +534,7 @@ private fun PendingVerificationContent(
             Text(
                 text = stringResource(id = R.string.msg_verification_email_resent),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.padding(top = 12.dp)
             )
         }

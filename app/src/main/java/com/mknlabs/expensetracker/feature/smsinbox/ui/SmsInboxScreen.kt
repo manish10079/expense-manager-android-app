@@ -1,5 +1,9 @@
 package com.mknlabs.expensetracker.feature.smsinbox.ui
 
+import androidx.compose.material3.FilterChipDefaults
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -70,6 +74,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -484,7 +490,11 @@ private fun EditDetectionDialog(
                             FilterChip(
                                 selected = category.id == editor.categoryId,
                                 onClick = { onCategoryChanged(category.id) },
-                                label = { Text(text = category.name) }
+                                label = { Text(text = category.name) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                                )
                             )
                         }
                     }
@@ -540,7 +550,11 @@ private fun FilterRow(selected: SmsInboxFilter, onFilterSelected: (SmsInboxFilte
             FilterChip(
                 selected = filter == selected,
                 onClick = { onFilterSelected(filter) },
-                label = { Text(text = filter.label()) }
+                label = { Text(text = filter.label()) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                )
             )
         }
     }
@@ -1091,7 +1105,7 @@ private fun BulkActionBar(
                 Icon(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.desc_exit_selection),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.accentInk
                 )
             }
 
@@ -1113,7 +1127,7 @@ private fun BulkActionBar(
                 contentDescription = stringResource(
                     if (allSelected) R.string.desc_deselect_all else R.string.desc_select_all
                 ),
-                contentColor = MaterialTheme.colorScheme.primary
+                contentColor = MaterialTheme.colorScheme.accentInk
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -1122,7 +1136,7 @@ private fun BulkActionBar(
                 onClick = onAddAll,
                 icon = Icons.AutoMirrored.Rounded.PlaylistAddCheck,
                 contentDescription = stringResource(R.string.desc_add_all),
-                contentColor = MaterialTheme.colorScheme.primary
+                contentColor = MaterialTheme.colorScheme.accentInk
             )
 
             Spacer(modifier = Modifier.width(8.dp))

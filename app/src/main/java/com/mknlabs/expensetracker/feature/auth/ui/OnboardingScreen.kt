@@ -68,6 +68,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -105,6 +107,7 @@ import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -558,7 +561,7 @@ private fun OnboardingScreenContent(
                                                 .fillMaxWidth()
                                                 .clip(RoundedCornerShape(24.dp))
                                                 .background(
-                                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                    if (isSelected) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
                                                     else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                                                 )
                                                 .clickable { 
@@ -570,7 +573,7 @@ private fun OnboardingScreenContent(
                                             Icon(
                                                 imageVector = goalIcons[index],
                                                 contentDescription = null,
-                                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                tint = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier.size(24.dp)
                                             )
                                             Spacer(Modifier.width(16.dp))
@@ -579,14 +582,14 @@ private fun OnboardingScreenContent(
                                                 style = MaterialTheme.typography.titleMedium.copy(
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                                 ),
-                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                                color = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurface
                                             )
                                             Spacer(Modifier.weight(1f))
                                             if (isSelected) {
                                                 Icon(
                                                     imageVector = Icons.Filled.CheckCircle,
                                                     contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    tint = MaterialTheme.colorScheme.accentInk,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                             }
@@ -863,7 +866,7 @@ private fun WelcomeBackPage(
                 fontSize = 40.sp,
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.accentInk,
                         MaterialTheme.colorScheme.secondary
                     )
                 )
@@ -901,7 +904,7 @@ private fun WelcomeBackPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                    .background(MaterialTheme.colorScheme.accentSoft)
                     .padding(horizontal = 20.dp, vertical = 16.dp)
                     .graphicsLayer(
                         alpha = cardAlpha,
@@ -918,7 +921,7 @@ private fun WelcomeBackPage(
                     Text(
                         text = stringResource(R.string.label_your_goal),
                         style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 0.8.sp
                         )
@@ -957,7 +960,7 @@ private fun BoxScope.AmbientBackdrop() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
                         MaterialTheme.colorScheme.background
                     ),
@@ -1033,7 +1036,7 @@ private fun BottomControls(
             } else {
                 Text(
                     text = stringResource(id = R.string.label_next_caps),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.4.sp,
@@ -1075,13 +1078,13 @@ private fun PrimaryOnboardingButton(
             .shadow(
                 elevation = 16.dp, // Reduced from 34dp
                 shape = RoundedCornerShape(999.dp),
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             ),
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onCta
         ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues()
     ) {
@@ -1096,7 +1099,7 @@ private fun PrimaryOnboardingButton(
         ) {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onCta,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.4.sp,
@@ -1135,7 +1138,7 @@ private fun PageIndicator(
                     .scale(dotScale)
                     .clip(CircleShape)
                     .background(
-                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        if (selected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.outline
                     )
                     .alpha(if (selected) 1f else 0.7f)
             )
@@ -1297,7 +1300,7 @@ private fun BoxScope.SecureTrackerIllustration() {
                 Icon(
                     imageVector = Icons.Filled.Fingerprint,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onCta,
                     modifier = Modifier.size(42.dp)
                 )
             }
@@ -1523,24 +1526,17 @@ private fun BoxScope.PremiumPrivacyIllustration() {
                 .shadow(
                     elevation = 28.dp,
                     shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
                 )
                 .clip(CircleShape)
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    )
-                ),
+                .background(brush = brandGradient()),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Security,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onCta,
                 modifier = Modifier.size(64.dp)
             )
         }

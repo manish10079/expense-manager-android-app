@@ -18,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -332,7 +334,7 @@ private fun ProfileScreenContent(
                                         imageVector = Icons.Rounded.Verified,
                                         contentDescription = stringResource(id = R.string.content_desc_email_verified),
                                         modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = MaterialTheme.colorScheme.accentInk
                                     )
                                 }
                             } else null
@@ -510,7 +512,7 @@ private fun ProfileScreenContent(
                     .shadow(
                         elevation = 28.dp,
                         shape = RoundedCornerShape(999.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
                     ),
                 shape = RoundedCornerShape(999.dp),
@@ -525,7 +527,7 @@ private fun ProfileScreenContent(
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.accentInk,
                                     MaterialTheme.colorScheme.secondary
                                 )
                             ),
@@ -752,7 +754,7 @@ private fun PhoneInputFieldCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val containerColor = colorScheme.surface
-    val primary = colorScheme.primary
+    val accent = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     // The same field spec the shared InputFieldCard follows: light takes the 16dp white
@@ -766,7 +768,7 @@ private fun PhoneInputFieldCard(
     val borderColor = if (isDark) {
         colorScheme.outlineVariant.copy(alpha = 0.4f)
     } else {
-        if (isFocused) primary else colorScheme.outline
+        if (isFocused) accent else colorScheme.outline
     }
     val focusManager = LocalFocusManager.current
 
@@ -799,13 +801,13 @@ private fun PhoneInputFieldCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(primary.copy(alpha = 0.1f)),
+                    .background(accent.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Call,
                     contentDescription = null,
-                    tint = primary,
+                    tint = accent,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -837,14 +839,14 @@ private fun PhoneInputFieldCard(
                             text = selectedCountryCode,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = primary
+                                color = accent
                             )
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowDown,
                             contentDescription = stringResource(id = R.string.title_select_country),
-                            tint = primary,
+                            tint = accent,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -873,7 +875,7 @@ private fun PhoneInputFieldCard(
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
                             color = onSurface
                         ),
-                        cursorBrush = SolidColor(primary),
+                        cursorBrush = SolidColor(accent),
                         modifier = Modifier.fillMaxWidth(),
                         decorationBox = { innerTextField ->
                             if (phoneNumber.isEmpty()) {

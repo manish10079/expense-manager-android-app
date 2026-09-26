@@ -51,6 +51,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
@@ -216,7 +218,7 @@ internal fun PaywallContent(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp,
                         ),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -256,7 +258,7 @@ internal fun PaywallContent(
                         Text(
                             text = stringResource(R.string.btn_restore_purchase),
                             style = MaterialTheme.typography.labelLarge.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.accentInk,
                                 fontWeight = FontWeight.SemiBold,
                             ),
                         )
@@ -353,7 +355,7 @@ private fun PaywallHero() {
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.accentInk,
                             MaterialTheme.colorScheme.secondary,
                         )
                     )
@@ -384,7 +386,7 @@ private fun AlreadyProNotice() {
     Text(
         text = stringResource(R.string.msg_paywall_already_pro),
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -402,7 +404,7 @@ private fun ProBenefits() {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.5.sp,
             ),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
         )
 
         BenefitRow(stringResource(R.string.label_pro_benefit_adfree))
@@ -423,14 +425,14 @@ private fun BenefitRow(text: String) {
             modifier = Modifier
                 .size(24.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center,
         ) {
             // Decorative: the benefit text beside it carries the meaning.
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(14.dp),
             )
         }
@@ -467,7 +469,7 @@ private fun PlanCard(
         shape = RoundedCornerShape(Dimens.CardRadius),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
             } else {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             },
@@ -475,7 +477,7 @@ private fun PlanCard(
         border = BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
             color = if (isSelected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.accentInk
             } else {
                 MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
             },
@@ -503,7 +505,7 @@ private fun PlanCard(
                     if (discountPercent != null) {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.accentInk,
                             shape = RoundedCornerShape(6.dp),
                         ) {
                             Text(
@@ -555,7 +557,7 @@ private fun SubscribeAction(
         enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.accentInk,
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
         modifier = Modifier

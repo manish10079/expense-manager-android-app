@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -106,7 +108,7 @@ fun VerificationBottomSheet(
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     textAlign = TextAlign.Center
                 )
             } else if (remainingTimeMs != null && remainingTimeMs!! == 0L) {
@@ -205,7 +207,7 @@ fun VerificationBottomSheet(
                 Text(
                     text = statusText,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isVerified) MaterialTheme.colorScheme.primary
+                    color = if (isVerified) MaterialTheme.colorScheme.accentInk
                             else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )

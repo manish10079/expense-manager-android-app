@@ -61,6 +61,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
@@ -80,6 +83,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -561,7 +565,7 @@ private fun AppLockScreenContent(
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(
+                                MaterialTheme.colorScheme.accentInk.copy(
                                     alpha = if (isDarkPalette) 0.12f else 0.06f
                                 ),
                                 Color.Transparent
@@ -611,7 +615,7 @@ private fun AppLockScreenContent(
                             .background(
                                 brush = Brush.radialGradient(
                                     colors = listOf(
-                                        MaterialTheme.colorScheme.primary.copy(
+                                        MaterialTheme.colorScheme.accentInk.copy(
                                             alpha = if (isDarkPalette) 0.14f else 0.08f
                                         ),
                                         MaterialTheme.colorScheme.surface.copy(alpha = 0f)
@@ -930,7 +934,7 @@ private fun SecurityQuestionCard(
             .clip(RoundedCornerShape(if (compact) 18.dp else 24.dp))
             .background(
                 if (isSelected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.22f)
                 } else {
                     MaterialTheme.colorScheme.surfaceVariant
                 }
@@ -1013,13 +1017,13 @@ private fun AppLockAnswerField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
-            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+            focusedBorderColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.75f),
             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.accentInk,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            cursorColor = MaterialTheme.colorScheme.primary
+            cursorColor = MaterialTheme.colorScheme.accentInk
         )
     )
 }
@@ -1037,7 +1041,7 @@ private fun PrimaryActionButton(
             .shadow(
                 elevation = 28.dp,
                 shape = RoundedCornerShape(999.dp),
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
             ),
         shape = RoundedCornerShape(999.dp),
@@ -1056,7 +1060,7 @@ private fun PrimaryActionButton(
         ) {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onCta,
                 style = MaterialTheme.typography.titleMedium,
             )
         }
@@ -1074,7 +1078,7 @@ private fun BiometricActionButton(
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = MaterialTheme.colorScheme.accentInk
         )
     ) {
         Icon(
@@ -1319,12 +1323,12 @@ private fun PinSlot(
                         modifier = Modifier
                             .size(18.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondary)
+                            .background(MaterialTheme.colorScheme.cta)
                             .shadow(
                                 elevation = 14.dp,
                                 shape = CircleShape,
-                                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-                                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.35f),
+                                spotColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.35f)
                             )
                     )
                 }

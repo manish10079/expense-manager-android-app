@@ -35,6 +35,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
@@ -153,7 +155,7 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 1.sp
                 ),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 textAlign = TextAlign.Center
             )
 
@@ -185,8 +187,8 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                     .fillMaxWidth()
                     .height(3.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                color = MaterialTheme.colorScheme.accentInk,
+                trackColor = MaterialTheme.colorScheme.accentSoft
             )
 
             Spacer(modifier = Modifier.height(12.dp))
