@@ -41,7 +41,9 @@ import coil.transform.CircleCropTransformation
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailStartLight
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 @Composable
 fun ProfileAvatar(
@@ -217,11 +219,14 @@ fun ProfileAvatar(
                     .offset(x = size * 0.04f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.accentInk, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    // The chip is a brand island like the "+" FAB: it paints the light CTA
+                    // purple in BOTH themes instead of following the scheme. The old brush read
+                    // accentInk -> secondary, and those two are the same colour within a theme —
+                    // flat #6A4DFF in light, flat #9E84FF in dark — so the badge was always a
+                    // solid dot, just a purple that swapped with the theme. Holding the light
+                    // end keeps one identity across the switch, the decision fabGradient()
+                    // documents for the FAB.
+                    .background(color = HeroRailStartLight)
                     .border(
                         width = 0.5.dp,
                         color = Color.Black,
@@ -229,18 +234,29 @@ fun ProfileAvatar(
                     ),
                 contentAlignment = Alignment.Center
             ) {
+                // Dark mode draws the glyph in the dark base rather than the theme's white.
+                // The case is partly legibility: white on the chip's old #9E84FF measured
+                // 2.9:1, under the 3:1 a graphic needs, so the old pairing never cleared its
+                // own bar. Near-black on the fill's #6A4DFF is ~3.9:1 and reads as a mark ON
+                // the brand rather than a glow out of it. Light keeps the white it always had.
+                val badgeInk = if (MaterialTheme.colorScheme.isDark) {
+                    MaterialTheme.colorScheme.background
+                } else {
+                    MaterialTheme.colorScheme.onPrimary
+                }
+
                 if (badgeIconRes != null) {
                     Icon(
                         painter = painterResource(id = badgeIconRes),
                         contentDescription = badgeContentDescription,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = badgeInk,
                         modifier = Modifier.size(size * 0.27f)
                     )
                 } else {
                     Icon(
                         imageVector = badgeIcon,
                         contentDescription = badgeContentDescription,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = badgeInk,
                         modifier = Modifier.size(size * 0.135f)
                     )
                 }
