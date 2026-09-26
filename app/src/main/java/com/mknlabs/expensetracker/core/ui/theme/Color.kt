@@ -270,7 +270,13 @@ val ChipTextSelectedDark = Color(0xFFBFA6FF)     // --chip-on-c: #BFA6FF
 
 val ChipBgSelectedLight = Color(0x296C52EE)      // rgba(108, 82, 238, 0.16)
 val ChipBorderSelectedLight = Color(0x666C52EE)  // rgba(108, 82, 238, 0.40)
-val ChipTextSelectedLight = Color(0xFF6C52EE)    // #6C52EE
+// Was #6C52EE, the same value as the tint it sits on: a chip whose selected fill is 16%
+// of its own label colour composites to #E7E3FC over a white card, and the label then
+// measured 4.12:1 against it — below AA, and invisible on the field where the same tint
+// composites to #E1DDF8. The label is now a shade deeper than the tint it labels, which
+// is the whole reason this pair exists rather than one token doing both jobs: 5.14:1 on
+// the card, 6.05:1 on the field.
+val ChipTextSelectedLight = Color(0xFF5B45D6)
 
 val ChipBgUnselectedDark = Color(0x0FFFFFFF)     // --chip-bg: rgba(255, 255, 255, 0.06)
 val ChipBorderUnselectedDark = Color(0x1AFFFFFF) // --chip-bd: rgba(255, 255, 255, 0.10)
@@ -300,7 +306,13 @@ val ProPassGradientEnd = Color(0xFF2E9BD6) // Sky Blue
 val ProPassBorder = Color(0xFF7CC4F5)
 val ProPassOnGradient = Color(0xFFFFFFFF)
 
-private val DarkOnPrimary = Color(0xFF24114C)
+// The ink on the brand fill in dark mode. Was #24114C, which measures 3.97:1 on
+// PurplePrimary #7B61FF and so failed AA on every filled primary button in the theme.
+// That fill is intrinsically hostile — at 4.20:1 with white and 4.12:1 even with the card
+// colour, only a genuinely black ink clears it — so the ink goes as dark as the palette
+// goes and lands at 4.71:1. This token also feeds onSecondary and onError, where the same
+// change measures 11.61:1 and 7.13:1, so neither regresses.
+private val DarkOnPrimary = Color(0xFF0A0A0A)
 private val DarkPrimaryContainer = Color(0xFF2D243F)
 private val DarkOnPrimaryContainer = Color(0xFFF0E9FF)
 private val DarkSecondaryContainer = Color(0xFF3D3159)
