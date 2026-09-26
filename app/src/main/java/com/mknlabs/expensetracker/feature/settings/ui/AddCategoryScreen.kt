@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -36,6 +38,8 @@ import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
@@ -175,7 +179,7 @@ private fun AddCategoryScreenContent(
                             Icon(
                                 imageVector = selectedIcon.icon,
                                 contentDescription = stringResource(selectedIcon.labelRes),
-                                tint = MaterialTheme.colorScheme.onPrimary,
+                                tint = MaterialTheme.colorScheme.onCta,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -186,7 +190,7 @@ private fun AddCategoryScreenContent(
                     ),
                     shape = RoundedCornerShape(22.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )
                 )
@@ -226,7 +230,7 @@ private fun AddCategoryScreenContent(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.accentInk
                         )
                     },
                     trailingIcon = {
@@ -243,7 +247,7 @@ private fun AddCategoryScreenContent(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f),
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )
                 )
@@ -311,15 +315,15 @@ private fun AddCategoryScreenContent(
                     .shadow(
                         elevation = if (canCreate) 8.dp else 0.dp,
                         shape = RoundedCornerShape(22.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
+                        spotColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f)
                     ),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    contentColor = MaterialTheme.colorScheme.onCta,
+                    disabledContentColor = MaterialTheme.colorScheme.disabled
                 ),
                 contentPadding = PaddingValues(0.dp)
             ) {
@@ -335,7 +339,7 @@ private fun AddCategoryScreenContent(
                 ) {
                     if (uiState.isSaving) {
                         CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onCta,
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
                         )
@@ -355,7 +359,7 @@ private fun AddCategoryScreenContent(
 private fun CategorySectionLabel(text: String) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         style = MaterialTheme.typography.labelLarge.copy(
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp
@@ -372,7 +376,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.22f),
                 shape = RoundedCornerShape(24.dp)
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -393,7 +397,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                     CategoryManagementTab.Payment -> Icons.Filled.Payments
                 },
                 contentDescription = stringResource(targetTab.titleRes),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onCta,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -431,7 +435,7 @@ private fun IconSelectionItem(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
@@ -444,7 +448,7 @@ private fun IconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (selected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
     }

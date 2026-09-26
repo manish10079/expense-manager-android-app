@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -53,6 +55,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
@@ -273,7 +277,7 @@ private fun CategoryManagementContent(
                 showDeleteDialog = false
                 pendingDeleteItem = null
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(R.string.label_delete_confirm),
@@ -327,7 +331,7 @@ private fun BoxScope.CategoryManagementGlow() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.14f),
                         MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
                         MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                     )
@@ -427,7 +431,7 @@ private fun IconSelectionItem(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
@@ -444,7 +448,7 @@ private fun IconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (selected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(30.dp)
         )
     }
@@ -474,7 +478,7 @@ private fun AddCategoryFab(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+                            MaterialTheme.colorScheme.accentInk.copy(alpha = 0.28f),
                             MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                         )
                     ),
@@ -488,7 +492,7 @@ private fun AddCategoryFab(
                 .shadow(
                     elevation = 22.dp,
                     shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.30f)
                 )
                 .clip(CircleShape)
@@ -501,7 +505,7 @@ private fun AddCategoryFab(
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = stringResource(R.string.desc_add_category),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onCta,
                 modifier = Modifier.size(26.dp)
             )
         }

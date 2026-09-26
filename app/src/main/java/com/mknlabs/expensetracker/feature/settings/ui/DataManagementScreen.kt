@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +18,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -382,7 +386,7 @@ private fun DataManagementContent(
     if (isDeleteTransactionsDialogVisible) {
         AlertDialog(
             onDismissRequest = { isDeleteTransactionsDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
@@ -415,7 +419,7 @@ private fun DataManagementContent(
                 AppTextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -426,7 +430,7 @@ private fun DataManagementContent(
     pendingRestoreUri?.let { selectedUri ->
         AlertDialog(
             onDismissRequest = { pendingRestoreUri = null },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(id = R.string.label_restore_database),
@@ -459,7 +463,7 @@ private fun DataManagementContent(
                 AppTextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -519,7 +523,7 @@ private fun DataManagementContent(
     if (isCustomFrequencyDialogVisible) {
         AlertDialog(
             onDismissRequest = { isCustomFrequencyDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(R.string.title_custom_backup_frequency),
@@ -546,7 +550,7 @@ private fun DataManagementContent(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                         )
                     )
@@ -565,7 +569,7 @@ private fun DataManagementContent(
                 ) {
                     Text(
                         text = stringResource(R.string.label_apply),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -604,7 +608,7 @@ private fun SectionHeader(
 ) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         style = MaterialTheme.typography.labelMedium.copy(
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp

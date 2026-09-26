@@ -17,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -86,7 +88,7 @@ private fun FeedbackScreenContent(
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(48.dp)
                 )
             },
@@ -151,7 +153,7 @@ private fun FeedbackScreenContent(
                         Icon(
                             imageVector = Icons.Rounded.Email,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -201,7 +203,7 @@ private fun FeedbackScreenContent(
                     if (MaterialTheme.colorScheme.isDark) 24.dp else 16.dp
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                     unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) {
                         MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                     } else {
@@ -252,7 +254,7 @@ private fun FeedbackScreenContent(
                     .clip(RoundedCornerShape(28.dp)),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.accentInk,
                     disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                 )
             ) {

@@ -39,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -59,6 +61,7 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
@@ -306,7 +309,7 @@ private fun AboutInfoCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -353,7 +356,7 @@ private fun DeveloperCard(
             )
             Text(
                 text = email,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -364,7 +367,7 @@ private fun DeveloperCard(
 private fun AboutSectionHeader(title: String) {
     Text(
         text = title,
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+        color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier
             .fillMaxWidth()
@@ -401,7 +404,7 @@ private fun AboutActionItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -414,7 +417,7 @@ private fun AboutActionItem(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
             modifier = Modifier.size(20.dp)
         )
     }
@@ -436,7 +439,7 @@ private fun SocialButton(
             size = 60.dp,
             iconSize = 28.dp,
             backgroundBrush = brandGradient(),
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = MaterialTheme.colorScheme.onCta,
             modifier = Modifier.clickable(onClick = onClick)
         )
         Spacer(modifier = Modifier.height(8.dp))

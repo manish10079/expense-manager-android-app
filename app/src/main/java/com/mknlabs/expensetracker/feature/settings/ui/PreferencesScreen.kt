@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -42,6 +45,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -565,7 +570,7 @@ private fun FontPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -708,15 +713,15 @@ private fun FontOptionItem(
     val isGated = isLocked && accessLevel != AccessLevel.FREE
 
     val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
     } else {
         MaterialTheme.colorScheme.surfaceVariant
     }
 
     val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.accentInk
     } else if (isGated) {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        MaterialTheme.colorScheme.disabled
     } else {
         MaterialTheme.colorScheme.onSurface
     }
@@ -744,7 +749,7 @@ private fun FontOptionItem(
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -786,7 +791,7 @@ private fun FontOptionItem(
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.label_selected),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold
                 )

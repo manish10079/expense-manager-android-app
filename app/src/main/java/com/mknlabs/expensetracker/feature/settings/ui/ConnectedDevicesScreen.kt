@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.track
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +18,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -152,14 +156,14 @@ private fun SyncTeaseContent(onUpgradeClick: () -> Unit) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Rounded.CloudSync,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.accentInk
             )
         }
 
@@ -224,7 +228,7 @@ private fun DeviceListContent(
                 darkContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
                 darkBorder = androidx.compose.foundation.BorderStroke(
                     1.dp,
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f)
                 )
             ),
         ) {
@@ -291,7 +295,7 @@ private fun DeviceListContent(
                                 Icon(
                                     imageVector = Icons.Outlined.Info,
                                     contentDescription = stringResource(R.string.desc_force_sync),
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -311,7 +315,7 @@ private fun DeviceListContent(
                     if (isSyncing) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             strokeWidth = 2.5.dp
                         )
                     } else {
@@ -319,7 +323,7 @@ private fun DeviceListContent(
                             onClick = onForceSyncClick,
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
+                                containerColor = MaterialTheme.colorScheme.accentInk,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
@@ -367,7 +371,7 @@ private fun DeviceListContent(
                     Text(
                         text = "${(devices.size.toFloat() / maxDevices * 100).toInt()}%",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.accentInk
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -377,8 +381,8 @@ private fun DeviceListContent(
                         .fillMaxWidth()
                         .height(8.dp)
                         .clip(CircleShape),
-                    color = if (devices.size >= maxDevices) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                    color = if (devices.size >= maxDevices) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.accentInk,
+                    trackColor = MaterialTheme.colorScheme.track
                 )
             }
         }
@@ -467,7 +471,7 @@ private fun DeviceItem(
             darkContainer = MaterialTheme.colorScheme.surface,
             darkBorder = androidx.compose.foundation.BorderStroke(
                 1.dp,
-                if (device.isCurrentDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.3f)
                 else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
             )
         ),
@@ -483,7 +487,7 @@ private fun DeviceItem(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (device.isCurrentDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f)
                         else MaterialTheme.colorScheme.surfaceVariant
                     ),
                 contentAlignment = Alignment.Center
@@ -492,7 +496,7 @@ private fun DeviceItem(
                     imageVector = Icons.Rounded.Devices,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = if (device.isCurrentDevice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -529,7 +533,7 @@ private fun DeviceItem(
                     text = if (device.isCurrentDevice) stringResource(R.string.label_active_now) 
                            else stringResource(R.string.label_last_active, formatDate(device.lastActiveMillis, "dd MMM, HH:mm")),
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (device.isCurrentDevice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -551,7 +555,7 @@ private fun DeviceItem(
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier
                         .size(20.dp)
                         .align(Alignment.CenterVertically)

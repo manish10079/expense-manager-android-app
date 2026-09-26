@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -52,6 +54,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -498,7 +502,7 @@ private fun NotificationSettingsContent(
     infoCategory?.let { category ->
         ModalBottomSheet(
             onDismissRequest = { infoCategory = null },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             Column(
@@ -659,7 +663,7 @@ private fun ReminderTimeWindowPickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -678,7 +682,7 @@ private fun ReminderTimeWindowPickerModal(
 
             Text(
                 text = stringResource(id = R.string.label_starts_at),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -700,7 +704,7 @@ private fun ReminderTimeWindowPickerModal(
 
             Text(
                 text = stringResource(id = R.string.label_ends_at),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -809,7 +813,7 @@ private fun LargeTransactionThresholdModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -838,7 +842,7 @@ private fun LargeTransactionThresholdModal(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     color = if (isCustom.not() && selectedPresetMinor == presetMinor) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
                     } else if (MaterialTheme.colorScheme.isDark) {
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     } else {
@@ -870,7 +874,7 @@ private fun LargeTransactionThresholdModal(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 color = if (isCustom) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
                 } else if (MaterialTheme.colorScheme.isDark) {
                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 } else {
@@ -975,7 +979,7 @@ private fun WeeklySummaryTimeModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(

@@ -47,6 +47,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +73,7 @@ import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
+import com.mknlabs.expensetracker.core.ui.theme.disabled
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
@@ -441,7 +444,7 @@ private fun SettingsSectionContainer(
             // The label sits above the card as an aside rather than as an accent on it:
             // brand purple here competed with the icon pucks inside the card, so light
             // mode reads it as the third ink weight instead. Dark keeps the purple.
-            color = if (isDark) colorScheme.primary else TextSecondaryLight,
+            color = if (isDark) colorScheme.accentInk else TextSecondaryLight,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 6.dp)
         )
@@ -488,10 +491,10 @@ private fun SettingsRowItemView(
     val isEnabled = data.isEnabled
     val colorScheme = MaterialTheme.colorScheme
 
-    val iconTint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-    val iconBg = if (isEnabled) colorScheme.primary.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
-    val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f)
-    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val iconTint = if (isEnabled) colorScheme.accentInk else colorScheme.disabled
+    val iconBg = if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.disabled
+    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.disabled
 
     Row(
         modifier = modifier
@@ -551,7 +554,7 @@ private fun SettingsRowItemView(
             Text(
                 text = data.trailing,
                 style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.primary,
+                color = colorScheme.accentInk,
                 maxLines = 1
             )
         }
