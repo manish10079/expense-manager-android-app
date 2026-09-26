@@ -8,7 +8,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 
@@ -77,8 +76,7 @@ fun Modifier.heroRail(): Modifier {
  */
 @Composable
 fun Modifier.heroBloom(): Modifier {
-    val isDark = MaterialTheme.colorScheme.isDark
-    val bloom = if (isDark) HeroBloomDark else HeroBloomLight
+    val bloom = MaterialTheme.colorScheme.glow
 
     return this.drawWithCache {
         val brush = Brush.radialGradient(
@@ -90,32 +88,77 @@ fun Modifier.heroBloom(): Modifier {
     }
 }
 
+/**
+ * The brand as an INK, ramped for the one affordance that paints a glyph with it.
+ *
+ * The mock keeps accent and fill as two different roles, and they stop agreeing in dark:
+ * `--accent` is `#9E84FF`, which is meant to be read as a colour on a neutral surface,
+ * while `--cta` is `#5838FA`, which is meant to be sat on. A destination icon or label
+ * painted with [brandGradient] would therefore be near-invisible in dark once that
+ * gradient moved to the CTA ramp — dark ink on a dark field. This keeps the glyph side
+ * of the brand on the accent instead: 5.94:1 on the card in dark, 5.10:1 in light.
+ *
+ * Never use this as a fill: it is the ink role, and a fill needs [brandGradient]'s 600/700
+ * so a label can sit on it.
+ */
 @Composable
-fun brandGradient(alpha: Float = 1f): Brush {
-    val primaryColor = MaterialTheme.colorScheme.primary.copy(alpha = alpha)
-    val secondaryColor = MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
-    return remember(primaryColor, secondaryColor) {
+fun accentInkGradient(): Brush {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val start = if (isDark) AccentInkDark else AccentInkLight
+    val end = if (isDark) PurplePrimary else ChipSelectedInkLight
+    return remember(start, end) {
         Brush.linearGradient(
-            colors = listOf(primaryColor, secondaryColor)
+            colors = listOf(start, end)
         )
     }
 }
 
 /**
- * Fill for the Add-transaction FAB: a lit-from-the-top-left violet rather than the
- * flat brand fill it used to be.
+ * The app's one brand fill: the mock's CTA ramp, `#5838FA → #3713EC` in dark and
+ * `#6A4DFF → #5B45D6` in light.
  *
- * Both ends are derived from `primary` through [lerp] instead of being new hex
- * values, so the circle follows the theme — a lighter and a deeper purple in dark
- * mode, the same relationship in light mode — and the brand hue can never drift
- * away from a gradient that was tuned by hand. The lighter end sits top-left
- * because that is where [Brush.linearGradient] starts, which matches the raised
- * visual language the rest of the app's brand surfaces already use.
+ * Deliberately NOT `primary → secondary`. The scheme's dark primary is `#7B61FF`, the
+ * fully-saturated 500, which the mock keeps as accent, glow and focus ring only — it
+ * cannot carry either black or white ink at 4.5:1, so a fill built from it has to be
+ * replaced rather than recoloured, and its pale `secondary` end (`#CDBDFF`) made the
+ * gradient read as a bright wash rather than as a brand surface. Both ends are now the
+ * 600/700 the spec prescribes for fills, which is what the filled buttons, selected
+ * chips and segment indicators already reach for through [ColorScheme.cta].
+ *
+ * Ink on this fill is white in BOTH themes ([ColorScheme.onCta] / [ColorScheme.onBrandGradient]);
+ * black fails on `#5838FA` (3.17:1). The `alpha` parameter is for tints — a chip's selected
+ * background is this ramp at 20% — not for the fill itself.
+ */
+@Composable
+fun brandGradient(alpha: Float = 1f): Brush {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val start = (if (isDark) HeroRailStartDark else HeroRailStartLight).copy(alpha = alpha)
+    val end = (if (isDark) HeroRailEndDark else HeroRailEndLight).copy(alpha = alpha)
+    return remember(start, end) {
+        Brush.linearGradient(
+            colors = listOf(start, end)
+        )
+    }
+}
+
+/**
+ * Fill for the Add-transaction FAB: the brand ramp lit from the top-left corner.
+ *
+ * These are the mock's own CTA ends — `#5838FA → #3713EC` in dark and
+ * `#6A4DFF → #5B45D6` in light — not a hand-tuned lerp of the scheme's `primary`.
+ * `primary` in dark is the fully-saturated 500 (`#7B61FF`), which the spec keeps as
+ * accent, glow and focus ring and never as a fill; a large brand block built by
+ * lerping it is exactly the "over-purple" surface the redesign replaces. Routing the
+ * FAB through the same ramp every filled control uses also means the FAB and the
+ * reveal handle cannot drift apart.
+ *
+ * The lighter end sits top-left because that is where [Brush.linearGradient] starts.
  */
 @Composable
 fun fabGradient(): Brush {
-    val lit = lerp(MaterialTheme.colorScheme.primary, Color.White, 0.22f)
-    val deep = lerp(MaterialTheme.colorScheme.primary, Color.Black, 0.18f)
+    val isDark = MaterialTheme.colorScheme.isDark
+    val lit = if (isDark) HeroRailStartDark else HeroRailStartLight
+    val deep = if (isDark) HeroRailEndDark else HeroRailEndLight
     return remember(lit, deep) {
         Brush.linearGradient(
             colors = listOf(lit, deep)
@@ -123,24 +166,34 @@ fun fabGradient(): Brush {
     }
 }
 
+// The card fill, read straight from the spec's card ladder rather than a wash of
+// `surfaceVariant`. The old recipe blended a legacy #353534 down over the field to reach
+// the spec by accident; now that `surfaceVariant` is the spec's own --menu (#26262E), that
+// blend would land off-spec, so the ladder is read directly:
+// dark runs #1A1A20 (card) to #1E1E23 (the sheet rung one step up), light runs #FFFFFF
+// (card) to #FAFAFC (its sheet rung). Both ends are spec tokens in their own theme.
 @Composable
 fun standardCardGradient(): Brush {
-    val color1 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    val color2 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-    return remember(color1, color2) {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val top = if (isDark) HeroSurfaceDark else HeroSurfaceLight
+    val bottom = if (isDark) SheetDark else SheetLight
+    return remember(top, bottom) {
         Brush.verticalGradient(
-            colors = listOf(color1, color2)
+            colors = listOf(top, bottom)
         )
     }
 }
 
+// The screen surface, one rung below the card: dark steps the field #141418 up to the
+// card #1A1A20, light steps the field #FFFFFF down to its sheet rung #FAFAFC.
 @Composable
 fun surfaceGradient(): Brush {
-    val color1 = MaterialTheme.colorScheme.surface
-    val color2 = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
-    return remember(color1, color2) {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val top = MaterialTheme.colorScheme.surface
+    val bottom = if (isDark) HeroSurfaceDark else SheetLight
+    return remember(top, bottom) {
         Brush.verticalGradient(
-            colors = listOf(color1, color2)
+            colors = listOf(top, bottom)
         )
     }
 }

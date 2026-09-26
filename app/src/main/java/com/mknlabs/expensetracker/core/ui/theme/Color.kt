@@ -9,13 +9,11 @@ import androidx.compose.ui.graphics.luminance
 
 val transparent= Color.Transparent;
 val PurplePrimary = Color(0xFF7B61FF)
-val PurpleAccent = Color(0xFFCDBDFF)
 
 
 val BackgroundDark = Color(0xFF0A0A0A)
 
 val SurfaceDark = Color(0xFF141418)   // spec --s1
-val CardDark = Color(0xFF353534)
 
 
 val TextPrimaryDark = Color(0xFFF2F2F5)   // spec --tp
@@ -46,7 +44,6 @@ val BadgeOnColor = Color(0xFFFFFFFF)
 // stays readable on it. A row picks by sender, so any one sender keeps its own colour
 // while two senders side by side rarely share one.
 val PurplePrimaryLight = Color(0xFF6A4DFF)
-val PurpleAccentLight = Color(0xFF8C6DFF)
 
 // Savings Goal Progress Shades
 val GoalProgressLow = Color(0xFFD6C8FF)
@@ -66,8 +63,6 @@ val AppLockLoadingBackground = Color(0xFF000000)
 // Semantic UI Highlights
 val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
 
-// Neutral Shades
-val NeutralGray = Color(0xFF8E8E93)
 
 // ── Light mode: the premium finance palette ───────────────────────────────────
 //
@@ -107,13 +102,6 @@ val NavEdgeLight = Color(0xFFECEEF2)
 // clears it: 5.91:1 on the field and 5.17:1 on a card.
 val TextTertiaryDark = Color(0xFF8A8C95)
 
-val DarkGradientStart = Color(0xFF6C5AE1)
-val DarkGradientEnd = Color(0xFF282626)
-
-val LightGradientStart = Color(0xFFF8F5FF)
-val LightGradientEnd = Color(0xFF9480EE)
-
-val IconColor = Color(0xFFCDBDFF)
 val FeatureGateLockGold = Color(0xFFFFC857)
 
 // Premium StatsCard Gradient
@@ -121,73 +109,22 @@ val PremiumCardDarkStart = Color(0xFF2B2349)   // Violet, top-left
 val PremiumCardDarkCenter = Color(0xFF1C1632) // Violet-charcoal, centre
 val PremiumCardDarkEnd = Color(0xFF100C1F)     // Near-black plum, bottom-right
 
-// The two radial blooms stacked OVER the linear base above, so the surface reads as
-// light falling across the card rather than as one flat diagonal. Both are plain
-// opaque colours, not alphas of the theme's `primary`: they are blended into the base
-// with `BlendMode.Screen`, which is what makes them behave as light rather than as
-// paint, and an already-translucent source would only fight that.
-val PremiumCardGlowTop = Color(0xFF43346B)
-val PremiumCardGlowBottom = Color(0xFF241A42)
+// The premium card's glow, border, light-theme and label sub-palettes were retired with
+// the inspect-and-replace pass: the membership surface is one gradient (PremiumGradient*)
+// plus its gold and its lilac border, and every other member of the old family had no
+// reader. The dark trio below survives because the goals screen still paints a goal card
+// with it; it is an app surface, not a spec token, and is kept apart from the membership
+// ramp for that reason.
 
-// The card family's edge, as its own pair rather than a tint of the brand accent: the
-// border has to read as the lit top-left edge of the surface it outlines, and a brand
-// violet would sit off the gradient's hue instead of graduating with it.
-val PremiumCardBorderStart = Color(0xFF584B7C)
-val PremiumCardBorderEnd = Color(0xFF231D38)
-
-val PremiumCardLightStart = Color(0xFFF8F5FF)  // Soft Lavender White
-val PremiumCardLightCenter = Color(0xFFEDE8FF) // Pale Lilac
-val PremiumCardLightEnd = Color(0xFFE0D8F5)    // Light Violet
-
-val PremiumCardLabelDark = Color(0xFFA09CAB)   // Muted blue-gray for dark mode labels
-val PremiumCardDateDark = Color(0xFF7A7585)     // Dimmer gray for dark mode date
-
-// CashFlowCard Palette
-val CashFlowCardDarkStart = Color(0xFF1E1735)   // 0%
-val CashFlowCardDarkCenter = Color(0xFF131120)  // 55%
-val CashFlowCardDarkEnd = Color(0xFF0C0B12)     // 100%
-val CashFlowCardGlowTop = Color(0x387A52FF)      // rgba(122, 82, 255, 0.22)
-val CashFlowCardGlowBottom = Color(0x214C2ACF)   // rgba(76, 42, 207, 0.13)
-
-val CashFlowCardLightStart = Color(0xFFFAF8FF)
-val CashFlowCardLightCenter = Color(0xFFF3EEFC)
-val CashFlowCardLightEnd = Color(0xFFECE5F8)
-
-val CashFlowCardBorderDarkStart = Color(0x807A52FF) // rgba(122, 82, 255, 0.50) at 0%
-val CashFlowCardBorderDarkMid = Color(0x24BFA6FF)   // rgba(191, 166, 255, 0.14) at 45%
-val CashFlowCardBorderLight = Color(0xFFE2DCF0)
-
-val CashFlowDateTextDark = Color(0xFFA792E8)
-// Light values below are aliases of the palette tokens above rather than hexes of
-// their own. The hero no longer paints a surface in light mode — it is a white card —
-// so these are now only the inks *inside* it, and inks that are aliases cannot drift
-// away from the text colours every other light surface uses.
-val CashFlowDateTextLight = TextSecondaryLight
-
-val CashFlowPillBgDark = Color(0xFF231D33)
-val CashFlowPillBgLight = CardLight
-val CashFlowPillBorderDark = Color(0xFF3B3254)
-val CashFlowPillBorderLight = DividerLight
-val CashFlowPillTextDark = Color(0xFFDDD8EC)
-val CashFlowPillTextLight = TextSecondaryLight
-
-val CashFlowExpenseAmountDark = Color(0xFFFF7262) // Coral salmon red
-val CashFlowExpenseAmountLight = ExpenseInkLight
-
-val CashFlowIncomeAmountDark = Color(0xFF5DE290)  // Radiant mint green
-val CashFlowIncomeAmountLight = IncomeInkLight
-
-val CashFlowLabelDark = Color(0xFF9089A4)
-val CashFlowLabelLight = TextSecondaryLight
-
-val CashFlowNetBalanceBgDark = Color(0xFF161224)
-val CashFlowNetBalanceBgLight = CardLight
-val CashFlowNetBalanceBorderDark = Color(0xFF2E2644)
-val CashFlowNetBalanceBorderLight = DividerLight
-val CashFlowNetBalanceLabelDark = Color(0xFFB5ADCA)
-val CashFlowNetBalanceLabelLight = TextSecondaryLight
-val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
-val CashFlowNetBalanceAmountLight = TextPrimaryLight
+// ── Retired: the Cash Flow palette (indexmockup.html) ────────────────────────
+//
+// This was the violet-gradient hero of the old mock, and it was retired when the hero was
+// rebuilt as a neutral card carrying the brand only in a rail, a bloom and the amount
+// inks. Nothing survives to replace it token-for-token, because the neutral hero is not a
+// recoloured version of the old surface — it is a different surface, and it reads from the
+// spec's own card ladder (HeroSurface*, HeroOutline*) and the shared text and semantic
+// tokens instead. The whole family is deleted rather than left as dead values that a
+// future screen could pick up and quietly revive the gradient with.
 
 // ── Cash Flow hero: a neutral card carrying the brand as an accent ─────────────
 //
@@ -234,61 +171,58 @@ val HeroPillLight = Color(0xFFF5F5F5)
 val HeroPillOutlineDark = Color(0xFF2D2D31)
 val HeroPillOutlineLight = Color(0x14000000)   // black 8%
 
-// Bottom Navigation Bar Palette (indexmockup.html)
-val NavOnDark = Color(0xFFBFA6FF)     // --nav-on: #BFA6FF
-val NavOffDark = Color(0xFF7A778C)    // --nav-off: #7A778C
-val NavPillDark = Color(0x297A52FF)   // --nav-pill: rgba(122,82,255,.16)
+// ── Bottom navigation (retargeted from indexmockup.html to the spec) ─────────
+//
+// The old values were a lilac pair of the previous mock's own making: #BFA6FF on and
+// #7A778C off in dark, #6C52EE on in light. The spec draws the same two states with the
+// tokens it already names — the active destination is `--accent`, an inactive one is the
+// third ink weight `--tt` — so both themes now read those instead. The pill tint was
+// #7A52FF/.16, a violet the spec never uses; its active pill is `--accentSoft`, already
+// available as such, and nothing in the app referenced the token, so both pill values are
+// retired rather than retargeted to a colour no call site was asking for.
+val NavOnDark = Color(0xFF9E84FF)     // spec --accent, dark
+val NavOffDark = TextTertiaryDark     // spec --tt (#8A8C95), dark
 
-val NavOnLight = Color(0xFF6C52EE)    // Vibrant lilac/violet
-// An alias of the third ink weight rather than a muted slate of its own: an unselected
-// destination is exactly that weight, and an alias cannot drift away from the text
-// colour every other light surface uses.
-val NavOffLight = TextTertiaryLight
-val NavPillLight = Color(0x1F6C52EE)  // rgba(108,82,238,.12)
+val NavOnLight = Color(0xFF6A4DFF)    // spec --accent, light
+val NavOffLight = TextTertiaryLight   // spec --tt (#6B7280), light
 
-// SmallHomeCard / Quick Action Palette (indexmockup.html)
-val SmallCardDarkStart = Color(0xFF1B1530)      // --qcard-bg
-val SmallCardDarkEnd = Color(0xFF121019)
-val SmallCardBorderDark = Color(0x12FFFFFF)     // rgba(255, 255, 255, 0.07)
+// ── Chip parts, retargeted from indexmockup.html to the spec ────────────────
+//
+// The retired family was twelve tokens describing four parts of a chip in two states, and
+// it described them in the old mock's violet (#7A52FF / #6C52EE, on 12-20% tints). The
+// spec expresses the same four parts once each, with values of their own: `--chip`,
+// `--chipLine`, `--chipSel`, `--chipInk`, `--chipInkOff`. The selected pair is
+// chipSelected/chipSelectedInk above; the unselected three are here. They are aliases of
+// the values the spec names rather than new literals, so a chip and the hero pill beside
+// it cannot drift apart.
+val ColorScheme.chip: Color
+    get() = if (isDark) HeroPillDark else HeroPillLight              // spec --chip
 
-val SmallCardLightStart = Color(0xFFFAF7FF)
-val SmallCardLightEnd = Color(0xFFF0EAFB)
-val SmallCardBorderLight = Color(0x1F7A52FF)    // rgba(122, 82, 255, 0.12)
+val ColorScheme.chipOutline: Color
+    get() = if (isDark) HeroPillOutlineDark else HeroPillOutlineLight // spec --chipLine
 
-val SmallCardIconBgDark = Color(0x2E7A52FF)     // --qicon-bg: rgba(122, 82, 255, 0.18)
-val SmallCardIconBgLight = Color(0x246C52EE)    // rgba(108, 82, 238, 0.14)
-val SmallCardIconDark = Color(0xFFBFA6FF)       // --qicon-c: #BFA6FF
-val SmallCardIconLight = Color(0xFF6C52EE)
+val ColorScheme.chipInkOff: Color
+    get() = if (isDark) TextSecondaryDark else TextSecondaryLight    // spec --chipInkOff
 
-val SmallCardLabelDark = Color(0xFFA5A1B8)      // --t-secondary: #A5A1B8 (indexmockup.html)
-val SmallCardLabelLight = TextSecondaryLight     // Light mode muted slate
+// ── The quick-action card (retargeted from indexmockup.html) ────────────────
+//
+// The old family painted a violet-tinted card, but the spec's surfaces are neutral and
+// the brand lives in the icon tile instead: `--accentSoft` behind the glyph and `--accent`
+// on it. So the card itself now reads the shared card ladder and only the tile is tinted,
+// which is what keeps the home row off the brand budget. The two washes are kept apart by
+// theme because one alpha cannot serve both — 14% is a wash on black and a stain on white.
+internal val AccentSoftDark = Color(0x249E84FF)   // accent 14%
+internal val AccentSoftLight = Color(0x1A6A4DFF)  // accent 10%
 
-// Chip / Filter Pill Palette (indexmockup.html)
-val ChipBgSelectedDark = Color(0x337A52FF)       // --chip-on-bg: rgba(122, 82, 255, 0.20)
-val ChipBorderSelectedDark = Color(0x737A52FF)   // --chip-on-bd: rgba(122, 82, 255, 0.45)
-val ChipTextSelectedDark = Color(0xFFBFA6FF)     // --chip-on-c: #BFA6FF
-
-val ChipBgSelectedLight = Color(0x296C52EE)      // rgba(108, 82, 238, 0.16)
-val ChipBorderSelectedLight = Color(0x666C52EE)  // rgba(108, 82, 238, 0.40)
-// Was #6C52EE, the same value as the tint it sits on: a chip whose selected fill is 16%
-// of its own label colour composites to #E7E3FC over a white card, and the label then
-// measured 4.12:1 against it — below AA, and invisible on the field where the same tint
-// composites to #E1DDF8. The label is now a shade deeper than the tint it labels, which
-// is the whole reason this pair exists rather than one token doing both jobs: 5.14:1 on
-// the card, 6.05:1 on the field.
-val ChipTextSelectedLight = Color(0xFF5B45D6)
-
-val ChipBgUnselectedDark = Color(0x0FFFFFFF)     // --chip-bg: rgba(255, 255, 255, 0.06)
-val ChipBorderUnselectedDark = Color(0x1AFFFFFF) // --chip-bd: rgba(255, 255, 255, 0.10)
-val ChipTextUnselectedDark = Color(0xFFA5A1B8)   // --chip-c: #A5A1B8
-
-val ChipBgUnselectedLight = Color(0x0A000000)   // rgba(0, 0, 0, 0.04)
-val ChipBorderUnselectedLight = Color(0x14000000) // rgba(0, 0, 0, 0.08)
-val ChipTextUnselectedLight = Color(0xFF746B8B) // #746B8B
+val ColorScheme.accentSoft: Color
+    get() = if (isDark) AccentSoftDark else AccentSoftLight
 
 // Premium Membership Palette
-val PremiumGradientStart = Color(0xFF663ED3) // Deep Violet, darkened to hold PremiumGold
-val PremiumGradientEnd = Color(0xFF5218D3) // was #651FFF
+// Retargeted to the mock's master reference table, which is authoritative over its own
+// CSS: the card fill is the CTA ramp `#5838FA -> #3713EC`, not the `#5030E8 -> #3713EC`
+// the `.premium` rule happens to paint. Gold and the lilac border are unchanged.
+val PremiumGradientStart = Color(0xFF5838FA) // spec Premium = --cta
+val PremiumGradientEnd = Color(0xFF3713EC)   // spec Premium = --cta2
 val PremiumBorder = Color(0xFFB388FF)
 val PremiumGold = Color(0xFFFFD700)
 val PremiumOnGradient = Color(0xFFFFFFFF)
@@ -312,41 +246,49 @@ val ProPassOnGradient = Color(0xFFFFFFFF)
 // colour, only a genuinely black ink clears it — so the ink goes as dark as the palette
 // goes and lands at 4.71:1. This token also feeds onSecondary and onError, where the same
 // change measures 11.61:1 and 7.13:1, so neither regresses.
-private val DarkOnPrimary = Color(0xFF0A0A0A)
-private val DarkPrimaryContainer = Color(0xFF2D243F)
-private val DarkOnPrimaryContainer = Color(0xFFF0E9FF)
-private val DarkSecondaryContainer = Color(0xFF3D3159)
-private val DarkOnSecondaryContainer = Color(0xFFE2D8FF)
-private val DarkTertiary = Color(0xFFFFB74D)
-private val DarkOnTertiary = Color(0xFF24114C)
-private val DarkTertiaryContainer = Color(0xFF533B2A)
-private val DarkErrorContainer = Color(0xFF4B1E20)
+// Retargeted to the spec's own tokens (mock-design-system.html). The old values were the
+// legacy violet palette's (#7B61FF fill, #CDBDFF, M3-default containers), none of which
+// the spec names. The mapping now reads:
+//   primary    --cta       #5838FA      a FILL (label white)
+//   onPrimary  onCta       #FFFFFF
+//   secondary  --accent    #9E84FF      the brand INK
+//   *Container --accentSoft / --chipSel / --savings, i.e. tints DERIVED from those tokens,
+//              because the spec defines no container role of its own.
+private val DarkOnPrimary = Color(0xFFFFFFFF)            // spec onCta
+private val DarkPrimaryContainer = Color(0x249E84FF)     // spec --accentSoft, dark
+private val DarkOnPrimaryContainer = Color(0xFF9E84FF)   // spec --accent
+private val DarkSecondaryContainer = Color(0xFF2C283F)   // spec --chipSel
+private val DarkOnSecondaryContainer = Color(0xFF9E84FF) // spec --chipInk
+private val DarkTertiary = Color(0xFF3DDC97)             // spec --income
+private val DarkOnTertiary = Color(0xFF0A0A0A)
+private val DarkTertiaryContainer = Color(0x245EEAD4)    // spec --savings 14%
+private val DarkErrorContainer = Color(0xFF4B1E20)       // no spec slot: derived expense tint
 private val DarkOnErrorContainer = Color(0xFFFFAAA0)
 
 private val LightOnPrimary = Color(0xFFFFFFFF)
-private val LightPrimaryContainer = Color(0xFFE5DEFF)
-private val LightOnPrimaryContainer = Color(0xFF21005D)
-private val LightSecondary = Color(0xFF6750A4)
+private val LightPrimaryContainer = Color(0x1A6A4DFF)    // spec --accentSoft, light
+private val LightOnPrimaryContainer = Color(0xFF5B45D6)  // spec --chipInk
+private val LightSecondary = Color(0xFF6A4DFF)           // spec --accent, light
 private val LightOnSecondary = Color(0xFFFFFFFF)
-private val LightSecondaryContainer = Color(0xFFE8DEF8)
-private val LightOnSecondaryContainer = Color(0xFF1D192B)
+private val LightSecondaryContainer = Color(0xFFEDEAFF)  // spec --chipSel
+private val LightOnSecondaryContainer = Color(0xFF5B45D6) // spec --chipInk
 // The dark theme's inks are tuned for a near-black field; on white they fall to
 // roughly 2.5:1 (mint) and 4.0:1 (coral), which is not enough for the one number a
 // row exists to show. Both are deepened here until they clear 4.5:1 on a white card,
 // keeping the hue family so income still reads green and expense still reads red.
 private val LightTertiary = IncomeInkLight
 private val LightOnTertiary = Color(0xFFFFFFFF)
-private val LightTertiaryContainer = Color(0xFFD8F3DD)
+private val LightTertiaryContainer = Color(0x1A0F766E)   // spec --savings 10%
 private val LightOnTertiaryContainer = Color(0xFF0F2417)
 private val LightErrorContainer = Color(0xFFFFDAD6)
 private val LightOnErrorContainer = Color(0xFF410002)
 
 internal val ExpenseTrackerDarkColorScheme: ColorScheme = darkColorScheme(
-    primary = PurplePrimary,
+    primary = Color(0xFF5838FA),   // spec --cta, dark (white ink 6.25:1)
     onPrimary = DarkOnPrimary,
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkOnPrimaryContainer,
-    secondary = PurpleAccent,
+    secondary = Color(0xFF9E84FF), // spec --accent, dark (the brand ink)
     onSecondary = DarkOnPrimary,
     secondaryContainer = DarkSecondaryContainer,
     onSecondaryContainer = DarkOnSecondaryContainer,
@@ -361,7 +303,7 @@ internal val ExpenseTrackerDarkColorScheme: ColorScheme = darkColorScheme(
     onBackground = TextPrimaryDark,
     surface = SurfaceDark,
     onSurface = TextPrimaryDark,
-    surfaceVariant = CardDark,
+    surfaceVariant = Color(0xFF26262E), // spec --menu / --track, dark
     onSurfaceVariant = TextSecondaryDark,
     outline = DividerDark,
     outlineVariant = DividerDark,
@@ -407,16 +349,20 @@ val ColorScheme.featureGateLock: Color
  * Glyph colour for the brand-gradient Add affordances — the docked FAB and the
  * reveal handle that replaces the bar while it is hidden.
  *
- * White in dark mode, black in light mode. Deliberately NOT `onPrimary`, which is
- * the scheme's own pairing for the flat brand fill: that pairing flips to a dark ink
- * in dark mode, which leaves the glyph muddy against the saturated gradient this
- * affordance actually uses. Following the theme's own light/dark polarity instead
- * keeps the same white-on-purple read the mock calls for in dark mode, and the same
- * black-on-purple read that stays legible once the light scheme's paler gradient
- * ends land under it.
+ * White in BOTH themes. The gradient under it is [brandGradient]/[fabGradient], which is
+ * now the mock's filled-CTA ramp — `#5838FA → #3713EC` in dark, `#6A4DFF → #5B45D6` in
+ * light. Both are deep purples, and the darker end of the light ramp would fall under
+ * AA for a black glyph, so the polarity no longer flips with the theme. Aliasing
+ * [onCta] rather than repeating the literal keeps the glyph and the label of every
+ * filled brand control on one value: white measures 6.25:1 on the dark end and 5.10:1
+ * on light's.
+ *
+ * Deliberately NOT `onPrimary`: that slot now carries the same white [OnCta], because the
+ * retarget moved `primary` onto the CTA fill and took its label with it — but this token
+ * names the glyph role, so a future `primary` change cannot silently repaint the FAB.
  */
 val ColorScheme.onBrandGradient: Color
-    get() = if (isDark) Color.White else Color.Black
+    get() = OnCta
 
 // ── Categorical chart palette ────────────────────────────────────────────────
 // Chart slices, in draw order. The order is load-bearing: the first tone is the
@@ -486,14 +432,12 @@ val ColorScheme.chartOther: Color
     get() = if (isDark) ChartOtherDark else ChartOtherLight
 
 // ── Accent as ink ────────────────────────────────────────────────────────────
-// The brand purple used as a GLYPH on a neutral control, which is a different job from
-// `primary` used as a FILL, and the two stop agreeing in dark. In light they coincide:
-// the keypad's operator glyph is #6A4DFF, the mock's own light accent, at 4.55:1 on the
-// #F1F2F4 key. In dark they cannot, because `primary` is #7B61FF, which measures 2.92:1
-// on the #353534 key — under the 3:1 a large glyph needs, and the same shortfall that
-// already keeps #7B61FF from carrying a label elsewhere. Dark therefore takes the mock's
-// dark accent, #9E84FF, which measures 4.21:1 at the weaker of the two gradient stops on
-// that key. Nothing else moves: this is an ink, never a fill.
+// The brand purple used as a GLYPH or label on a neutral control — a different job from
+// `primary`, which is now the CTA FILL. The mock keeps the two roles apart (`--accent` is
+// ink, `--cta` is fill) and they do not agree: the accent is the lighter #9E84FF in dark,
+// and light's operator glyph #6A4DFF in light. In dark it must be the accent and not the
+// fill, because a #5838FA glyph on a dark control is only 3.17:1 — under the 3:1 a large
+// glyph needs — while #9E84FF clears it. Nothing else moves: an ink, never a fill.
 internal val AccentInkLight = Color(0xFF6A4DFF)
 internal val AccentInkDark = Color(0xFF9E84FF)
 
@@ -505,10 +449,10 @@ val ColorScheme.accentInk: Color
 // primary so nothing in light moves. Its label is white, which measures 6.25:1 against the
 // dark fill -- the figure the spec's own matrix records for this pair.
 //
-// The ink has to travel with the fill. The scheme's dark onPrimary is near-black (#0A0A0A)
-// and lands at 4.71:1 on the old #7B61FF, so it passes today; left on the new #5838FA it
-// drops to 3.17:1 and fails. Moving a CTA fill without its label turns a passing pair into a
-// failing one, which is why the two are declared together and must be changed together.
+// The ink travels with the fill: the scheme's dark onPrimary is now white (#FFFFFF), which
+// is the label these runs carry, and the two are declared together so a change to one
+// cannot leave the other behind. #5838FA takes white at 6.25:1, where the near-black ink it
+// used to carry drops to 3.17:1 — which is why the label moved when the fill did.
 internal val CtaLight = Color(0xFF6A4DFF)
 internal val CtaDark = Color(0xFF5838FA)
 internal val OnCta = Color(0xFFFFFFFF)
@@ -518,6 +462,29 @@ val ColorScheme.cta: Color
 
 val ColorScheme.onCta: Color
     get() = OnCta
+
+// -- Brand budget, per screen -------------------------------------------------
+// The spec caps brand colour at 30% of a screen's area, and its own accounting lands
+// the home screen at 15-25%: hero rail + bloom ~9%, FAB ~2%, active nav pill ~3%,
+// selected chip ~2%, goal progress ~2%. The token layer is what enforces that:
+//
+//   * the field, every card and every sheet are NEUTRAL in both themes -- no surface
+//     token carries brand at full bleed, so the brand never arrives as a region;
+//   * the brand reaches a screen only through small roles -- `cta` (a control's 600/700
+//     fill), `accentInk` (a glyph or label), `brandGradient` (a control's ramp) and the
+//     handful of blooms (`HeroBloom*`, the voice radial) whose alphas keep them a wash;
+//   * `primary` now IS the CTA fill (#5838FA dark / #6A4DFF light), matching Material's
+//     "primary is a fill" contract, so a control that reads it without an override is
+//     still on spec. The saturated accent (#9E84FF) is `secondary`/`accentInk` -- an INK,
+//     never a fill -- which is what stops the largest object on a screen from also being
+//     the loudest.
+//
+// A new full-bleed brand surface is the one thing this budget forbids. The sanctioned
+// exception is the membership card family (Premium / Pro Pass), which stays a dark brand
+// surface in BOTH themes by design.
+
+/** The spec's ceiling on brand-coloured area for a single screen, as a fraction. */
+internal const val BRAND_AREA_BUDGET = 0.30f
 
 // ── Budget health ────────────────────────────────────────────────────────────
 // Green on track, amber near the limit, deep red over it — the traffic-light read the
@@ -549,3 +516,113 @@ val ColorScheme.budgetNearLimit: Color
 
 val ColorScheme.budgetOver: Color
     get() = if (isDark) BudgetOverDark else BudgetOverLight
+
+// -- Surface and control roles the scheme lacked ------------------------------
+// The mock's two token sets are not fully expressible through Material's own roles: it
+// names a third surface rung, a track, a second outline weight, a disabled ink line and
+// three control inks that have no ColourScheme slot. Each is added here as a named role
+// reading that theme's literal, so the mock's tables and this file can be diffed token
+// for token. The literals, in the order they appear below:
+//
+//   mock DARK   --s3 #1E1E23   --menu/--track #26262E   --lineStrong #6A6A7E
+//               --dis #6E6E7A  --transfer #60A5FA        --debt #FB7185
+//               --chipSel #2C283F
+//   mock LIGHT  --s3 #FAFAFC   --track #F1F2F4          --lineStrong #A7B0BC
+//               --dis #A8B0BB  --transfer #1D4ED8        --debt #BE123C
+//               --chipSel #EDEAFF
+
+// Sheet: the container a dialog or bottom sheet is painted on, one rung off the card.
+// Dark steps UP its ladder from the #1A1A20 card (#1E1E23); light steps DOWN from the
+// #FFFFFF card (#FAFAFC), which is why the two are not the same relationship to their
+// own card and are therefore two values rather than one name.
+internal val SheetDark = Color(0xFF1E1E23)     // spec --s3, dark
+internal val SheetLight = Color(0xFFFAFAFC)    // spec --s3, light
+
+val ColorScheme.sheet: Color
+    get() = if (isDark) SheetDark else SheetLight
+
+// The empty part of a progress bar. Named rather than borrowed from surfaceVariant
+// because the spec gives it a value of its own in each theme, and a bar whose track moved
+// with the card would stop reading as a track.
+internal val TrackDark = Color(0xFF26262E)     // spec --track / --menu
+internal val TrackLight = Color(0xFFF1F2F4)    // spec --track
+
+val ColorScheme.track: Color
+    get() = if (isDark) TrackDark else TrackLight
+
+// The spec names --lineStrong (#6A6A7E dark / #A7B0BC light) for the boundary a control
+// needs when a hairline cannot carry one. It is intentionally NOT exposed as a role: no
+// control in the app draws that edge, and the spec's own matrix records light failing 3:1
+// on it (2.19) -- so light is told to use a fill or a 2dp stroke instead. Declaring it
+// would leave a token whose only reader is a future screen that should reach for a fill.
+
+// Disabled: exempt from the text-contrast rule (WCAG 1.4.3 exempts inactive controls), so
+// these are the spec's own values rather than an ink picked to clear a ratio. Kept clear
+// of each theme's enabled inks so a disabled control never reads as a live one.
+internal val DisabledDark = Color(0xFF6E6E7A)   // spec --dis
+internal val DisabledLight = Color(0xFFA8B0BB)  // spec --dis
+
+val ColorScheme.disabled: Color
+    get() = if (isDark) DisabledDark else DisabledLight
+
+// The two amount inks the summary rows did not have: transfer and debt. Same treatment as
+// income and expense -- a saturated tone on the dark field, deepened until it clears
+// 4.5:1 on white in light. Debt's dark value is the same rose the chart ramp already uses.
+internal val TransferDark = Color(0xFF60A5FA)   // 7.79:1 on #0A0A0A
+internal val TransferLight = Color(0xFF1D4ED8)  // 6.70:1 on #FFFFFF
+internal val DebtDark = Color(0xFFFB7185)       // 7.36:1 on #0A0A0A
+internal val DebtLight = Color(0xFFBE123C)      // 6.29:1 on #FFFFFF
+
+val ColorScheme.transfer: Color
+    get() = if (isDark) TransferDark else TransferLight
+
+val ColorScheme.debt: Color
+    get() = if (isDark) DebtDark else DebtLight
+
+// Selected chip: the fill and the ink are a pair, and the mock states both. Dark's fill is
+// its own grey-violet rather than a tint of the accent, and the label on it is the accent
+// ink (4.86:1). Light's fill is a pale lavender carrying the deeper #5B45D6 the palette
+// already uses for exactly this job (5.45:1). Declared together so a chip cannot ship with
+// one theme's fill under the other theme's ink.
+internal val ChipSelectedDark = Color(0xFF2C283F)       // spec --chipSel
+internal val ChipSelectedLight = Color(0xFFEDEAFF)      // spec --chipSel
+// The inks are aliases rather than new literals: dark's chip ink is the accent ink, and
+// light's is the deeper violet the palette declares for a label on a tint. An alias
+// cannot drift away from the value it names.
+internal val ChipSelectedInkDark = AccentInkDark        // spec --chipInk = --accent
+internal val ChipSelectedInkLight = Color(0xFF5B45D6)   // spec --chipInk
+
+val ColorScheme.chipSelected: Color
+    get() = if (isDark) ChipSelectedDark else ChipSelectedLight
+
+val ColorScheme.chipSelectedInk: Color
+    get() = if (isDark) ChipSelectedInkDark else ChipSelectedInkLight
+
+// ── Savings, invest, menu and glow ──────────────────────────────────────────
+// Four more spec tokens Material has no slot for. `--savings` and `--invest` complete the
+// spec's amount-ink set beside income/expense/transfer/debt (the goals and chart surfaces
+// are where they are read). `--menu` is the surface a popup menu takes: in dark it is the
+// same #26262E as the track, in light it is the card white rather than the track's grey,
+// which is why it is its own role and not an alias of `track`. `--glow` is the accent wash
+// the hero bloom paints (Gradient.heroBloom reads this role). `--menu` and `--glow` have
+// live readers; `--savings` and `--invest` are declared ahead of their surfaces, exactly as
+// `transfer`/`debt` are — the goals and chart code will read them when it distinguishes
+// those buckets, and no screen invents its own green for them in the meantime.
+internal val SavingsDark = Color(0xFF5EEAD4)   // spec --savings, dark
+internal val SavingsLight = Color(0xFF0F766E)  // spec --savings, light
+internal val InvestDark = Color(0xFFFBBF24)    // spec --invest, dark
+internal val InvestLight = Color(0xFFB45309)   // spec --invest, light
+internal val MenuDark = Color(0xFF26262E)      // spec --menu, dark
+internal val MenuLight = Color(0xFFFFFFFF)     // spec --menu, light
+
+val ColorScheme.savings: Color
+    get() = if (isDark) SavingsDark else SavingsLight
+
+val ColorScheme.invest: Color
+    get() = if (isDark) InvestDark else InvestLight
+
+val ColorScheme.menu: Color
+    get() = if (isDark) MenuDark else MenuLight
+
+val ColorScheme.glow: Color
+    get() = if (isDark) HeroBloomDark else HeroBloomLight
