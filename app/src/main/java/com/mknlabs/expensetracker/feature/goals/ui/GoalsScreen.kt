@@ -30,6 +30,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -58,6 +60,8 @@ import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
@@ -140,7 +144,7 @@ private fun GoalsScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { isAddGoalDialogVisible = true },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.accentInk,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_goal))
@@ -373,7 +377,7 @@ fun FundGoalDialog(
                     shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -435,7 +439,7 @@ fun AddGoalDialog(
                     singleLine = true,
                     shape = AppDialogDefaults.fieldShape(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -451,7 +455,7 @@ fun AddGoalDialog(
                     shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -546,7 +550,7 @@ fun EditGoalDialog(
                     singleLine = true,
                     shape = AppDialogDefaults.fieldShape(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -570,7 +574,7 @@ fun EditGoalDialog(
                     shape = AppDialogDefaults.fieldShape(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -658,7 +662,7 @@ private fun DeadlinePickerRow(
             Text(
                 text = formatDate(deadlineAt, dateFormatPattern),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = colorScheme.primary,
+                color = colorScheme.accentInk,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(onClick = onPick)
@@ -676,7 +680,7 @@ private fun DeadlinePickerRow(
                 Text(
                     text = stringResource(R.string.label_set_deadline),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = colorScheme.primary
+                    color = colorScheme.accentInk
                 )
             }
         }
@@ -737,7 +741,7 @@ private fun GoalIconPickerRow(
             Icon(
                 imageVector = selectedOption?.icon ?: Icons.Filled.Savings,
                 contentDescription = stringResource(R.string.cd_goal_icon),
-                tint = colorScheme.onPrimary,
+                tint = colorScheme.onCta,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -751,7 +755,7 @@ private fun GoalIconPickerRow(
         Text(
             text = stringResource(R.string.title_choose_icon),
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = colorScheme.primary
+            color = colorScheme.accentInk
         )
     }
 }
@@ -812,11 +816,11 @@ private fun GoalIconSelectionItem(
             .aspectRatio(1f)
             .clip(CircleShape)
             .background(
-                color = if (selected) colorScheme.primary else colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                color = if (selected) colorScheme.accentInk else colorScheme.surfaceVariant.copy(alpha = 0.6f)
             )
             .border(
                 width = if (selected) 2.dp else 1.dp,
-                color = if (selected) colorScheme.primary else colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = if (selected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f),
                 shape = CircleShape
             )
             .clickable(onClick = onClick),
@@ -865,10 +869,10 @@ fun GoalItem(
     val gradientBrush = Brush.linearGradient(
         colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
     )
-    val borderBrush = remember(colorScheme.primary) {
+    val borderBrush = remember(colorScheme.accentInk) {
         Brush.linearGradient(
             colors = listOf(
-                colorScheme.primary.copy(alpha = 0.4f),
+                colorScheme.accentInk.copy(alpha = 0.4f),
                 Color.White.copy(alpha = 0.08f)
             )
         )
@@ -886,7 +890,7 @@ fun GoalItem(
             .shadow(
                 elevation = 12.dp,
                 shape = cardShape,
-                ambientColor = colorScheme.primary.copy(alpha = 0.2f),
+                ambientColor = colorScheme.accentInk.copy(alpha = 0.2f),
                 spotColor = Color.Black
             )
             .clip(cardShape)
@@ -937,7 +941,7 @@ fun GoalItem(
                         Icon(
                             imageVector = goalIcon,
                             contentDescription = stringResource(R.string.cd_goal_icon),
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -962,7 +966,7 @@ fun GoalItem(
                     GoalCardAction(
                         icon = Icons.Default.Add,
                         contentDescription = stringResource(R.string.cd_add_funds),
-                        accent = MaterialTheme.colorScheme.primary,
+                        accent = MaterialTheme.colorScheme.accentInk,
                         onClick = onFund
                     )
 
@@ -985,7 +989,7 @@ fun GoalItem(
                     .fillMaxWidth()
                     .height(8.dp),
                 color = progressColor,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                trackColor = MaterialTheme.colorScheme.track,
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
             )
 
@@ -1144,7 +1148,7 @@ private fun GoalFundHistoryInline(
         Icon(
             imageVector = Icons.Default.History,
             contentDescription = stringResource(R.string.desc_toggle_fund_history),
-            tint = colorScheme.primary,
+            tint = colorScheme.accentInk,
             modifier = Modifier.size(14.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))

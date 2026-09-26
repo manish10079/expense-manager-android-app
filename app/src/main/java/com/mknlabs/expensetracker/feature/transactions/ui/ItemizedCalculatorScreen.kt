@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -117,6 +119,8 @@ import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
@@ -302,7 +306,7 @@ private fun CalculatorHistoryHeaderIcon(
             Icon(
                 imageVector = Icons.Rounded.History,
                 contentDescription = stringResource(id = R.string.content_desc_calculator_history),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -696,7 +700,7 @@ private fun NormalCalculatorDisplay(
 
     val resultColor by animateColorAsState(
         targetValue = if (isEvaluated) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.accentInk
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         },
@@ -712,7 +716,7 @@ private fun NormalCalculatorDisplay(
             .background(standardCardGradient())
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.16f),
                 shape = RoundedCornerShape(30.dp)
             )
     } else {
@@ -803,7 +807,7 @@ private fun NormalCalculatorDisplay(
                         fontSize = exprFontSize,
                         textAlign = TextAlign.End
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk),
                     interactionSource = interactionSource,
                     decorationBox = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -864,22 +868,17 @@ private fun CalculatorKeyButton(
             .shadow(
                 elevation = if (primary) 18.dp else if (accent) 10.dp else 0.dp,
                 shape = shape,
-                ambientColor = if (primary) MaterialTheme.colorScheme.primary.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(
+                ambientColor = if (primary) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(
                     alpha = 0.10f
                 ),
-                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.primary.copy(
+                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.accentInk.copy(
                     alpha = 0.08f
                 )
             )
             .clip(shape)
             .background(
                 brush = when {
-                    primary -> Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    )
+                    primary -> brandGradient()
 
                     accent -> if (MaterialTheme.colorScheme.isDark) {
                         Brush.verticalGradient(
@@ -913,7 +912,7 @@ private fun CalculatorKeyButton(
                 imageVector = icon,
                 contentDescription = label,
                 tint = when {
-                    primary -> MaterialTheme.colorScheme.onPrimary
+                    primary -> MaterialTheme.colorScheme.onCta
                     accent -> MaterialTheme.colorScheme.accentInk
                     else -> MaterialTheme.colorScheme.onSurface
                 },
@@ -926,7 +925,7 @@ private fun CalculatorKeyButton(
                 // the operator is told apart by its glyph rather than by its surface. The
                 // grey key fill above stays as a second cue; this is the one the spec names.
                 color = when {
-                    primary -> MaterialTheme.colorScheme.onPrimary
+                    primary -> MaterialTheme.colorScheme.onCta
                     accent -> MaterialTheme.colorScheme.accentInk
                     else -> MaterialTheme.colorScheme.onSurface
                 },
@@ -1007,7 +1006,7 @@ private fun BreakdownItemCard(
     val shape = RoundedCornerShape(28.dp)
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
-    val highlightedBorderColor = colorScheme.primary
+    val highlightedBorderColor = colorScheme.accentInk
     // Light flattens every row to the shared card. The row being edited keeps the violet
     // lift and the 2dp ring it announces itself with, so the highlight still reads on
     // white; dark keeps its gradient fill and its lift exactly as they were.
@@ -1017,7 +1016,7 @@ private fun BreakdownItemCard(
             .shadow(
                 elevation = if (item.highlighted) 18.dp else 0.dp,
                 shape = shape,
-                ambientColor = colorScheme.primary.copy(alpha = if (item.highlighted) 0.14f else 0f),
+                ambientColor = colorScheme.accentInk.copy(alpha = if (item.highlighted) 0.14f else 0f),
                 spotColor = colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
             )
             .clip(shape)
@@ -1027,7 +1026,7 @@ private fun BreakdownItemCard(
             .shadow(
                 elevation = if (item.highlighted) 18.dp else AppCardDefaults.Elevation,
                 shape = shape,
-                ambientColor = if (item.highlighted) colorScheme.primary.copy(alpha = 0.14f) else CardShadowAmbientLight,
+                ambientColor = if (item.highlighted) colorScheme.accentInk.copy(alpha = 0.14f) else CardShadowAmbientLight,
                 spotColor = if (item.highlighted) colorScheme.secondary.copy(alpha = 0.12f) else CardShadowSpotLight
             )
             .clip(shape)
@@ -1149,7 +1148,7 @@ private fun AddItemInputCard(
     ) {
         Text(
             text = stringResource(id = R.string.label_new_item),
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.accentInk,
             style = MaterialTheme.typography.labelLarge.copy(
                 letterSpacing = 1.2.sp,
                 fontWeight = FontWeight.Bold
@@ -1225,12 +1224,12 @@ private fun ItemizedTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            cursorColor = MaterialTheme.colorScheme.primary,
+            cursorColor = MaterialTheme.colorScheme.accentInk,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.accentInk,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
@@ -1316,20 +1315,13 @@ private fun PrimaryActionButton(
             .heightIn(min = 54.dp)
             .alpha(if (enabled) 1f else 0.55f)
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.secondary
-                    )
-                )
-            )
+            .background(brush = brandGradient())
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onCta,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold
             )
@@ -1350,18 +1342,11 @@ private fun ApplyToNoteButton(
             .shadow(
                 elevation = 22.dp,
                 shape = RoundedCornerShape(32.dp),
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.28f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
             )
             .clip(RoundedCornerShape(32.dp))
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.secondary
-                    )
-                )
-            )
+            .background(brush = brandGradient())
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -1388,7 +1373,7 @@ private fun ApplyToNoteButton(
 
             Text(
                 text = stringResource(id = R.string.label_apply_to_note),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onCta,
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -1415,7 +1400,7 @@ private fun CalculatorHistorySheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
@@ -1488,7 +1473,7 @@ private fun CalculatorHistorySheet(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(id = R.string.label_clear_history),
@@ -1530,7 +1515,7 @@ private fun CalculatorHistorySheet(
         val entry = selectedLongPressEntry!!
         AlertDialog(
             onDismissRequest = { selectedLongPressEntry = null },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = "${entry.expression} = ${entry.result}",
@@ -1559,7 +1544,7 @@ private fun CalculatorHistorySheet(
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.accentInk, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(stringResource(R.string.label_copy_expression), color = MaterialTheme.colorScheme.onSurface)
                         }
@@ -1580,7 +1565,7 @@ private fun CalculatorHistorySheet(
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.accentInk, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(stringResource(R.string.label_copy_result), color = MaterialTheme.colorScheme.onSurface)
                         }
@@ -1661,7 +1646,7 @@ private fun CalculatorHistoryEntryRow(
             ) {
                 Text(
                     text = "=",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -1692,7 +1677,7 @@ private fun CalculatorHistoryEntryRow(
             Icon(
                 imageVector = Icons.Filled.ContentCopy,
                 contentDescription = stringResource(id = R.string.content_desc_copy_history),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
         }

@@ -87,6 +87,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -153,7 +155,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import androidx.compose.runtime.DisposableEffect
@@ -634,7 +641,7 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = stringResource(R.string.desc_clear_fields),
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.accentInk
                             )
                         }
                     }
@@ -707,7 +714,7 @@ fun AddTransactionScreen(
                                 .shadow(
                                     elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
@@ -734,7 +741,7 @@ fun AddTransactionScreen(
                                 Icon(
                                     imageVector = Icons.Filled.EditNote,
                                     contentDescription = stringResource(R.string.label_note),
-                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.primary,
+                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.accentInk,
                                     modifier = Modifier.size(if (compact) 18.dp else 20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -757,7 +764,7 @@ fun AddTransactionScreen(
                                 .shadow(
                                     elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
@@ -781,7 +788,7 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                tint = colorScheme.accentInk.copy(alpha = 0.8f),
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -792,7 +799,7 @@ fun AddTransactionScreen(
                                 .shadow(
                                     elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
@@ -811,7 +818,7 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
-                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                tint = colorScheme.accentInk.copy(alpha = 0.8f),
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -825,7 +832,7 @@ fun AddTransactionScreen(
                                     .shadow(
                                         elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                         shape = RoundedCornerShape(16.dp),
-                                        ambientColor = if (colorScheme.isDark) colorScheme.primary.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                        ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
                                         spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                     )
                                     .clip(RoundedCornerShape(16.dp))
@@ -864,7 +871,7 @@ fun AddTransactionScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Star,
                                     contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                    tint = colorScheme.primary,
+                                    tint = colorScheme.accentInk,
                                     modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                                 )
                             }
@@ -1132,7 +1139,7 @@ fun AddTransactionScreen(
             ModalBottomSheet(
                 onDismissRequest = { isRecurringModalVisible = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
                 tonalElevation = 0.dp
             ) {
@@ -1181,7 +1188,7 @@ fun AddTransactionScreen(
                     pendingSaveTransaction = null
                     pendingSaveDraft = null
                 },
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(R.string.title_cannot_duplicate_recurring),
@@ -1334,7 +1341,7 @@ private fun RecurringTransactionSection(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isEnabled) colorScheme.primary.copy(alpha = 0.12f)
+                        if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f)
                         else colorScheme.onSurface.copy(alpha = 0.08f)
                     ),
                 contentAlignment = Alignment.Center
@@ -1342,7 +1349,7 @@ private fun RecurringTransactionSection(
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
-                    tint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    tint = if (isEnabled) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1352,7 +1359,7 @@ private fun RecurringTransactionSection(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.label_recurring_transaction),
-                    color = if (isEnabled) colorScheme.primary else colorScheme.onSurface,
+                    color = if (isEnabled) colorScheme.accentInk else colorScheme.onSurface,
                     style = MaterialTheme.typography.titleSmall
                 )
             }
@@ -1372,8 +1379,8 @@ private fun RecurringTransactionSection(
                     }
                 },
                 colors = androidx.compose.material3.SwitchDefaults.colors(
-                    checkedThumbColor = colorScheme.onPrimary,
-                    checkedTrackColor = colorScheme.primary,
+                    checkedThumbColor = colorScheme.onCta,
+                    checkedTrackColor = colorScheme.cta,
                     uncheckedThumbColor = colorScheme.outline,
                     uncheckedTrackColor = colorScheme.surfaceVariant
                 )
@@ -1386,7 +1393,7 @@ private fun RecurringTransactionSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(colorScheme.primary.copy(alpha = 0.06f))
+                    .background(colorScheme.accentSoft)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -1429,12 +1436,20 @@ private fun RecurringTransactionSection(
                             FilterChip(
                                 selected = !isInstallment,
                                 onClick = { onTypeSelected(RecurringType.REGULAR) },
-                                label = { Text(stringResource(R.string.label_type_regular)) }
+                                label = { Text(stringResource(R.string.label_type_regular)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = colorScheme.chipSelected,
+                                    selectedLabelColor = colorScheme.chipSelectedInk
+                                )
                             )
                             FilterChip(
                                 selected = isInstallment,
                                 onClick = { onTypeSelected(RecurringType.INSTALLMENT) },
-                                label = { Text(stringResource(R.string.label_type_emi)) }
+                                label = { Text(stringResource(R.string.label_type_emi)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = colorScheme.chipSelected,
+                                    selectedLabelColor = colorScheme.chipSelectedInk
+                                )
                             )
                         }
                         if (isInstallment) {
@@ -1503,7 +1518,7 @@ private fun RecurringTransactionSection(
                                     AccessStatus.Granted
                                 }
                                 val animatedColor by animateColorAsState(
-                                    targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                                    targetValue = if (selected) colorScheme.onCta else colorScheme.onSurfaceVariant,
                                     label = "recurring_freq_text_color"
                                 )
                                 Box(
@@ -1572,7 +1587,7 @@ private fun RecurringTransactionSection(
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
                                     contentDescription = null,
-                                    tint = colorScheme.primary
+                                    tint = colorScheme.accentInk
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1613,14 +1628,14 @@ private fun RecurringTransactionSection(
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
                                         when {
-                                            isSelected -> SolidColor(colorScheme.primary.copy(alpha = 0.15f))
+                                            isSelected -> SolidColor(colorScheme.accentSoft)
                                             colorScheme.isDark -> standardCardGradient()
                                             else -> SolidColor(colorScheme.surfaceVariant)
                                         }
                                     )
                                     .border(
                                         width = 1.dp,
-                                        color = if (isSelected) colorScheme.primary else Color.Transparent,
+                                        color = if (isSelected) colorScheme.accentInk else Color.Transparent,
                                         shape = RoundedCornerShape(12.dp)
                                     )
                                     .clickable { onRepeatCountChange(count) },
@@ -1628,7 +1643,7 @@ private fun RecurringTransactionSection(
                             ) {
                                 Text(
                                     text = count,
-                                    color = if (isSelected) colorScheme.primary else colorScheme.onSurface,
+                                    color = if (isSelected) colorScheme.accentInk else colorScheme.onSurface,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
@@ -1650,9 +1665,9 @@ private fun RecurringTransactionSection(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedBorderColor = colorScheme.primary,
+                                focusedBorderColor = colorScheme.accentInk,
                                 unfocusedBorderColor = Color.Transparent,
-                                focusedTextColor = colorScheme.primary
+                                focusedTextColor = colorScheme.accentInk
                             )
                         )
                     }
@@ -1791,7 +1806,7 @@ private fun CurrencyAmountCard(
     val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
     val currency = getCurrency(currencyId)
     val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.accentInk
     } else {
         MaterialTheme.colorScheme.onSurface
     }
@@ -1806,7 +1821,7 @@ private fun CurrencyAmountCard(
             .shadow(
                 elevation = if (MaterialTheme.colorScheme.isDark) 8.dp else 12.dp,
                 shape = shape,
-                ambientColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else CardShadowAmbientLight,
+                ambientColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f) else CardShadowAmbientLight,
                 spotColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f) else CardShadowSpotLight
             )
             .clip(shape)
@@ -1832,7 +1847,7 @@ private fun CurrencyAmountCard(
             Column {
                 Text(
                     text = stringResource(R.string.label_enter_amount),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier
                         .graphicsLayer { translationY = labelTranslationY }
@@ -1859,7 +1874,7 @@ private fun CurrencyAmountCard(
                 if (currency.position == CurrencyPosition.PREFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -1942,14 +1957,14 @@ private fun CurrencyAmountCard(
                             onNext = { onImeNext() }
                         ),
                         singleLine = true,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk)
                     )
                 }
 
                 if (currency.position == CurrencyPosition.POSTFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -2014,7 +2029,7 @@ private fun ChoiceChip(
                 .shadow(
                     elevation = if (isSelected) 22.dp else 0.dp,
                     shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
                 )
                 .clip(CircleShape)
@@ -2031,7 +2046,7 @@ private fun ChoiceChip(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (isSelected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
         }
@@ -2040,7 +2055,7 @@ private fun ChoiceChip(
 
         Text(
             text = label,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -2088,7 +2103,7 @@ private fun SelectionInfoCard(
                     // The highlighted tile is the enabled-recurring one, and its violet lift
                     // is that state's message, so light keeps the tint; the plain tile takes
                     // the card spec's own shadow.
-                    ambientColor = if (colorScheme.isDark || highlighted) colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowAmbientLight,
+                    ambientColor = if (colorScheme.isDark || highlighted) colorScheme.accentInk.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowAmbientLight,
                     spotColor = if (colorScheme.isDark || highlighted) colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowSpotLight
                 )
                 .clip(RoundedCornerShape(20.dp))
@@ -2109,9 +2124,9 @@ private fun SelectionInfoCard(
                 imageVector = leadingIcon,
                 contentDescription = label,
                 tint = when {
-                    highlighted -> colorScheme.primary
+                    highlighted -> colorScheme.accentInk
                     isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    else -> colorScheme.primary
+                    else -> colorScheme.accentInk
                 },
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
@@ -2296,7 +2311,7 @@ private fun QuickFavoritesRow(
                     label = {
                         Text(
                             text = stringResource(R.string.label_all_favorites),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             maxLines = 1
                         )
                     },
@@ -2304,13 +2319,13 @@ private fun QuickFavoritesRow(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(16.dp)
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
-                        labelColor = MaterialTheme.colorScheme.primary
+                        labelColor = MaterialTheme.colorScheme.accentInk
                     )
                 )
             }
@@ -2357,7 +2372,7 @@ private fun FavoritesBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.sheet
     ) {
         Column(
             modifier = Modifier
@@ -2408,7 +2423,7 @@ private fun FavoritesBottomSheet(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -2496,7 +2511,7 @@ private fun FavoriteTemplateRow(
         Text(
             text = formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.accentInk,
             modifier = Modifier.padding(start = 8.dp, end = 4.dp)
         )
 
@@ -2533,7 +2548,7 @@ private fun AddTransactionButton(
             .shadow(
                 elevation = 26.dp,
                 shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
             )
             .clip(shape)
@@ -2548,7 +2563,7 @@ private fun AddTransactionButton(
         ) {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onCta,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleSmall,
@@ -2678,7 +2693,7 @@ private fun EmiAmountField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
             unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.outline,
             focusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
@@ -2775,7 +2790,7 @@ private fun TransactionNoteBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -2796,7 +2811,7 @@ private fun TransactionNoteBottomSheet(
                     text = stringResource(R.string.label_what_is_this_for),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.accentInk
                     )
                 )
 
@@ -2853,7 +2868,7 @@ private fun TransactionNoteBottomSheet(
                         unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.accentInk
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -2877,7 +2892,7 @@ private fun TransactionNoteBottomSheet(
                     .shadow(
                         elevation = 16.dp,
                         shape = RoundedCornerShape(28.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
                     )
                     .clip(RoundedCornerShape(28.dp))
@@ -2887,7 +2902,7 @@ private fun TransactionNoteBottomSheet(
             ) {
                 Text(
                     text = stringResource(R.string.label_save_note),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onCta,
                     style = MaterialTheme.typography.titleMedium
                 )
             }

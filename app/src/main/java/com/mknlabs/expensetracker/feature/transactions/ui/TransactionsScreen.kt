@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -88,6 +90,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -363,7 +367,7 @@ private fun HeaderCircleActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -591,7 +595,7 @@ private fun TransactionScreenContent(
                                             .padding(4.dp)
                                             .size(7.dp)
                                             .background(
-                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                                                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.85f),
                                                 shape = CircleShape
                                             )
                                     )
@@ -674,9 +678,9 @@ private fun TransactionScreenContent(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -796,7 +800,7 @@ private fun TransactionScreenContent(
                 ) {
                     androidx.compose.material3.CircularProgressIndicator(
                         modifier = Modifier.size(28.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 }
@@ -839,7 +843,7 @@ private fun TransactionScreenContent(
                             text = emptyTransactionMessage,
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            emphasisColor = MaterialTheme.colorScheme.primary,
+                            emphasisColor = MaterialTheme.colorScheme.accentInk,
                             textAlign = TextAlign.Center,
                             softWrap = true,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -998,7 +1002,7 @@ private fun TransactionScreenContent(
                                             style = MaterialTheme.typography.bodyMedium.copy(
                                                 fontWeight = FontWeight.SemiBold
                                             ),
-                                            color = MaterialTheme.colorScheme.primary
+                                            color = MaterialTheme.colorScheme.accentInk
                                         )
                                     }
                                 }
@@ -1013,7 +1017,7 @@ private fun TransactionScreenContent(
                                 ) {
                                     androidx.compose.material3.CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.accentInk,
                                         strokeWidth = 2.dp
                                     )
                                 }
@@ -1049,7 +1053,7 @@ private fun TransactionScreenContent(
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.SemiBold
                             ),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.accentInk
                         )
                     }
                     HorizontalDivider(
@@ -1196,7 +1200,7 @@ private fun TransactionScreenContent(
                     Text(stringResource(R.string.label_cancel_confirm))
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1212,7 +1216,7 @@ private fun TransactionScreenContent(
                     Text(stringResource(R.string.label_ok), fontWeight = FontWeight.Bold)
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1356,7 +1360,7 @@ private fun SwipeableDuplicateCard(
         SwipeActionLabel(
             icon = Icons.Filled.ContentCopy,
             text = stringResource(R.string.label_duplicate),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.accentInk,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 20.dp)
@@ -1752,7 +1756,7 @@ private fun TransactionSummaryCard(
                     Text(
                         text = periodLabel,
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.padding(end = 12.dp)
                     )
                 }
@@ -1798,7 +1802,7 @@ private fun TypewriterText(
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
-    emphasisColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    emphasisColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.accentInk,
     textAlign: TextAlign? = null,
     softWrap: Boolean = true,
     charDelayMillis: Long = 25L,
@@ -1912,7 +1916,7 @@ private fun TransactionListErrorState(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.accentInk
                 )
             }
         }

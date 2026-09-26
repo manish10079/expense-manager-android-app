@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.calendar.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,6 +48,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -525,7 +530,7 @@ private fun MonthHeading(
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = stringResource(id = R.string.content_desc_jump_to_date),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
@@ -667,10 +672,10 @@ private fun DayCell(
     ) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape)
-                .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+                .background(if (selected) MaterialTheme.colorScheme.cta else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
                 .then(
                     if (showTodayRing) {
-                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
                     } else {
                         Modifier
                     }
@@ -844,7 +849,7 @@ private fun YearHeading(
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = stringResource(id = R.string.content_desc_jump_to_year),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
@@ -1000,7 +1005,7 @@ private fun MonthSummaryCard(
                     SummaryRow(
                         icon = Icons.Default.AccountBalanceWallet,
                         label = summary.netLabel,
-                        color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.accentInk,
                         isBold = true
                     )
                 }
@@ -1059,7 +1064,7 @@ private fun CircularNavButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.primary)
+        Icon(imageVector = icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.accentInk)
     }
 }
 
@@ -1179,7 +1184,7 @@ private fun MonthYearPickerDialog(
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         shape = RoundedCornerShape(28.dp)
     )
 }
@@ -1228,7 +1233,7 @@ private fun YearPickerDialog(
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         shape = RoundedCornerShape(28.dp)
     )
 }
