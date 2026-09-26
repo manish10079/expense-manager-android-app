@@ -127,6 +127,7 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.chartSeries
+import com.mknlabs.expensetracker.core.ui.theme.chartOther
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -1344,18 +1345,25 @@ private fun LegendDot(label: String, color: Color) {
 }
 
 @Composable
-private fun categoryBreakdownColor(index: Int): Color {
+private fun seriesColor(index: Int): Color {
+    // Branch, never wrap. The ramp holds five tones and the "view all" sheet lists every
+    // category the user has made, so an index past the ramp is the ordinary case rather
+    // than an edge one. A modulo here silently hands the sixth category the first
+    // category's colour, and the legend can no longer say which slice is which — the one
+    // thing this palette exists to prevent. The overflow takes the neutral tone instead.
     val series = MaterialTheme.colorScheme.chartSeries
-    return series[index % series.size]
+    return if (index < series.size) series[index] else MaterialTheme.colorScheme.chartOther
 }
+
+@Composable
+private fun categoryBreakdownColor(index: Int): Color = seriesColor(index)
 
 @Composable
 private fun paymentBreakdownColor(index: Int): Color {
     // The same categorical ramp as the category donut. A payment type is not an
     // income or an expense, so it has no business wearing the semantic income green
     // that the old three-way split gave it just for being first.
-    val series = MaterialTheme.colorScheme.chartSeries
-    return series[index % series.size]
+    return seriesColor(index)
 }
 
 @Composable

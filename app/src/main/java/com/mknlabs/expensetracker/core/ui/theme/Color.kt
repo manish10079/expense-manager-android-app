@@ -451,6 +451,20 @@ internal val ChartSeriesLight = listOf(
     Color(0xFFDB2777), // magenta
 )
 
+// The tone every slice past the ramp takes. The ramp is only five tones long — the most
+// red-green deficiency lets these charts tell apart — but the "view all" sheet lists
+// every category the user has, and there is no upper bound on that, because categories
+// are user-created. Arithmetic-wrapping the index back to the brand purple would make
+// the sixth category wear the first category's colour and leave the legend unable to say
+// which was which, which is the trap the ramp above was built to avoid. So the overflow
+// takes one neutral instead of a recycled hue: a desaturated grey separates from all
+// five by chroma rather than hue, and chroma is what survives red-green deficiency.
+//
+// Both are aliases of the tertiary ink rather than new literals, the same way NavOffLight
+// aliases it, so the neutral cannot drift away from the palette's own greys.
+internal val ChartOtherLight = TextTertiaryLight  // 4.83:1 on white,    min dE76 30.0 to the ramp
+internal val ChartOtherDark = TextTertiaryDark    // 5.17:1 on the card, min dE76 34.0 to the ramp
+
 /**
  * The categorical palette for chart slices, in draw order.
  *
@@ -462,6 +476,14 @@ internal val ChartSeriesLight = listOf(
  */
 val ColorScheme.chartSeries: List<Color>
     get() = if (isDark) ChartSeriesDark else ChartSeriesLight
+
+/**
+ * The tone a slice takes once the ramp is exhausted, i.e. for every category or payment
+ * type past the fifth. Callers must branch on the index rather than let it wrap: see
+ * [chartSeries] for why a recycled hue is the one thing this palette cannot do.
+ */
+val ColorScheme.chartOther: Color
+    get() = if (isDark) ChartOtherDark else ChartOtherLight
 
 // ── Budget health ────────────────────────────────────────────────────────────
 // Green on track, amber near the limit, deep red over it — the traffic-light read the
