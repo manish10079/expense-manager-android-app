@@ -462,3 +462,34 @@ internal val ChartSeriesLight = listOf(
  */
 val ColorScheme.chartSeries: List<Color>
     get() = if (isDark) ChartSeriesDark else ChartSeriesLight
+
+// ── Budget health ────────────────────────────────────────────────────────────
+// Green on track, amber near the limit, deep red over it — the traffic-light read the
+// mock asks for, so the state of a bar is legible before any of its text is read.
+//
+// The over state is red-900 rather than a brighter red on purpose. Under red-green
+// deficiency amber and red collapse together — the mock measures them 4.4 apart under
+// deuteranopia — and every lighter red that separates from the amber above fails 3:1
+// on the light track. Dropping the over state this far is what buys the separation
+// back, which is why the three tones are not simply "green, orange, red".
+//
+// Contrast on the light track #E8EBEF is 4.19 / 4.20 / 8.38, and on the dark track
+// #26262E it is 7.81 / 8.99 / 5.43. The bar is drawn as a gradient fading to 80% alpha,
+// so its far end is the weakest point; there the pairs still measure 3.09 / 3.13 / 5.44
+// light and 5.48 / 6.25 / 3.97 dark, all clear of the 3:1 a UI element needs.
+internal val BudgetOnTrackDark = Color(0xFF34D399)
+internal val BudgetNearLimitDark = Color(0xFFFBBF24)
+internal val BudgetOverDark = Color(0xFFF87171)
+
+internal val BudgetOnTrackLight = Color(0xFF15803D)
+internal val BudgetNearLimitLight = Color(0xFFB45309)
+internal val BudgetOverLight = Color(0xFF7F1D1D)
+
+val ColorScheme.budgetOnTrack: Color
+    get() = if (isDark) BudgetOnTrackDark else BudgetOnTrackLight
+
+val ColorScheme.budgetNearLimit: Color
+    get() = if (isDark) BudgetNearLimitDark else BudgetNearLimitLight
+
+val ColorScheme.budgetOver: Color
+    get() = if (isDark) BudgetOverDark else BudgetOverLight

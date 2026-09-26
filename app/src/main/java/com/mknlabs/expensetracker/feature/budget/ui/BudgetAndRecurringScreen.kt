@@ -143,6 +143,9 @@ import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.theme.budgetOnTrack
+import com.mknlabs.expensetracker.core.ui.theme.budgetNearLimit
+import com.mknlabs.expensetracker.core.ui.theme.budgetOver
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
@@ -798,6 +801,37 @@ private fun BudgetAndRecurringContent(
     }
 }
 
+
+/**
+ * The three budget health states.
+ *
+ * Deliberately separate from [budgetAccentColor], which reads as the obvious place to
+ * put these colours but serves two unrelated meanings of [BudgetAccent] at once: a
+ * budget's health, and a recurring expense's cadence. Repointing that function would
+ * paint "Weekly" amber and "Monthly" green along with the budgets. Only the five
+ * budget-health call sites resolve through here.
+ *
+ * This also corrects an inversion. The near-limit state resolved through the scheme's
+ * `tertiary`, which the light scheme sets to #15803D — the same green that means "on
+ * track" — so a warning was drawn in the success colour, on the bar and on its label
+ * and on its icon at once.
+ *
+ * The colour never carries the state alone: each bar is accompanied by "SAFE" /
+ * "NEAR LIMIT" / "EXCEEDED", which is what makes the meaning survive red-green
+ * deficiency, where amber and red are only 4.4 ΔE76 apart.
+ */
+@Composable
+private fun budgetHealthColor(accent: BudgetAccent): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (accent) {
+        BudgetAccent.Primary -> colorScheme.budgetOnTrack
+        BudgetAccent.Warning -> colorScheme.budgetNearLimit
+        BudgetAccent.Overspent -> colorScheme.budgetOver
+        // Unreachable for a budget, which only ever gets the three above. Left to the
+        // cadence resolver rather than duplicated so the `when` stays exhaustive.
+        else -> budgetAccentColor(accent)
+    }
+}
 
 @Composable
 private fun budgetAccentColor(accent: BudgetAccent): Color {
@@ -1844,7 +1878,7 @@ private fun CategoryBudgetCard(
             .background(containerBrush)
             .border(
                 width = 1.dp,
-                color = budgetAccentColor(budget.accent).copy(alpha = 0.24f),
+                color = budgetHealthColor(budget.accent).copy(alpha = 0.24f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(16.dp),
@@ -1861,7 +1895,7 @@ private fun CategoryBudgetCard(
                 Icon(
                     imageVector = budget.icon,
                     contentDescription = budget.title,
-                    tint = budgetAccentColor(budget.accent),
+                    tint = budgetHealthColor(budget.accent),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1897,7 +1931,7 @@ private fun CategoryBudgetCard(
 
                 Text(
                     text = budget.statusValueLabel.asString(),
-                    color = budgetAccentColor(budget.accent),
+                    color = budgetHealthColor(budget.accent),
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.8.sp
@@ -1947,7 +1981,7 @@ private fun CategoryBudgetCard(
         BudgetProgressBar(
             progress = budget.progressFraction,
             accent = Brush.horizontalGradient(
-                colors = listOf(budgetAccentColor(budget.accent), budgetAccentColor(budget.accent).copy(alpha = 0.8f))
+                colors = listOf(budgetHealthColor(budget.accent), budgetHealthColor(budget.accent).copy(alpha = 0.8f))
             )
         )
 
@@ -1958,7 +1992,7 @@ private fun CategoryBudgetCard(
         ) {
             Text(
                 text = budget.statusCaption.asString(),
-                color = budgetAccentColor(budget.accent),
+                color = budgetHealthColor(budget.accent),
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     letterSpacing = 1.sp
