@@ -301,8 +301,8 @@ val PremiumShadowNeutral = Color(0xFF000000)
 // subscription's violet. The white ink and the gold accent are shared with the premium
 // card, so the two still read as one family — the surface colour plus the badge say which
 // state this is, without the user having to read the copy to find out.
-val ProPassGradientStart = Color(0xFF1E5FD0) // Deep Blue
-val ProPassGradientEnd = Color(0xFF2E9BD6) // Sky Blue
+val ProPassGradientStart = Color(0xFF0F3B86) // Deep Blue, darkened to hold PremiumGold
+val ProPassGradientEnd = Color(0xFF1A638A) // was #2E9BD6: sky blue cannot carry gold OR white
 val ProPassBorder = Color(0xFF7CC4F5)
 val ProPassOnGradient = Color(0xFFFFFFFF)
 
