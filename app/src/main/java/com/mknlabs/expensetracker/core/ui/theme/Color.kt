@@ -14,14 +14,14 @@ val PurpleAccent = Color(0xFFCDBDFF)
 
 val BackgroundDark = Color(0xFF0A0A0A)
 
-val SurfaceDark = Color(0xFF181817)
+val SurfaceDark = Color(0xFF141418)   // spec --s1
 val CardDark = Color(0xFF353534)
 
 
-val TextPrimaryDark = Color(0xFFEAEAEA)
-val TextSecondaryDark = Color(0xFF9E9E9E)
+val TextPrimaryDark = Color(0xFFF2F2F5)   // spec --tp
+val TextSecondaryDark = Color(0xFFA8A8B3) // spec --ts
 
-val DividerDark = Color(0xFF2A2A2A)
+val DividerDark = Color(0xFF2A2A31)   // spec --line
 
 // Semantic amount inks. Saturated enough to carry the expense and income figures on
 // the dark violet card, where the previous pastels washed out against the surface and
