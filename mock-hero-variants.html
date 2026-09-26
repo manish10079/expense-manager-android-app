@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Flow Hero — Light Mode Variants (vs Dark)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root {
+    --brand: #7B61FF;
+    --brand-light: #BFA6FF;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: radial-gradient(1100px 600px at 50% -10%, #1B1730 0%, transparent 60%), #07060B;
+    color: #fff; min-height: 100vh; padding: 34px 18px 70px;
+  }
+  .page { max-width: 1180px; margin: 0 auto; }
+
+  .intro { text-align: center; margin-bottom: 30px; }
+  .intro h1 { font-size: 24px; font-weight: 700; color: var(--brand-light);
+    display: inline-flex; align-items: center; gap: 10px; }
+  .intro h1 .material-symbols-outlined { font-size: 30px; }
+  .intro p { color: #A5A1B8; font-size: 14px; margin-top: 8px; max-width: 720px; margin-left: auto; margin-right: auto; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 26px;
+  }
+
+  .variant {
+    border: 1px solid #24222F; border-radius: 18px; overflow: hidden;
+    background: #0E0D13;
+  }
+  .variant-head {
+    padding: 12px 16px; background: #16141F; border-bottom: 1px solid #24222F;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .variant-head .vn { font-size: 14px; font-weight: 700; color: #fff; }
+  .variant-head .vt { font-size: 10.5px; color: #A5A1B8; font-family: var(--mono); }
+  .tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; flex-shrink: 0;
+  }
+  .tag.ref  { color: #A5A1B8; background: rgba(165,161,184,.12); border: 1px solid rgba(165,161,184,.25); }
+  .tag.new  { color: #BFA6FF; background: rgba(191,166,255,.12); border: 1px solid rgba(191,166,255,.3); }
+
+  /* the page each hero sits on: light page for light variants, near-black for dark */
+  .canvas { padding: 20px; }
+  .canvas.lightpage { background: #F7F8FA; }
+  .canvas.darkpage  { background: #000000; }
+
+  /* ---------- hero base ---------- */
+  .hero {
+    border-radius: 24px; padding: 20px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .hero-head { display: flex; align-items: center; justify-content: space-between; }
+  .hero-date { font-size: 14px; font-weight: 700; letter-spacing: 1.2px; }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px; border: 1px solid;
+  }
+  .hero-pill .material-symbols-outlined { font-size: 16px; }
+  .hero-metrics { display: flex; justify-content: space-between; align-items: center; }
+  .metric .lab { font-size: 11px; letter-spacing: .8px; font-weight: 600; margin-bottom: 4px; }
+  .metric .val { font-size: 20px; font-weight: 700; }
+  .metric.r { text-align: right; }
+  .net {
+    display: flex; align-items: center; justify-content: space-between;
+    border-radius: 18px; padding: 14px 18px; border: 1px solid;
+  }
+  .net-left { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 500; }
+  .net-left .material-symbols-outlined { font-size: 16px; opacity: .7; }
+  .net-val { font-size: 20px; font-weight: 700; }
+
+  /* ---------- token list under each hero ---------- */
+  .tokens { padding: 0 16px 16px; }
+  .tok-row { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 5px 0;
+    border-bottom: 1px solid #17161f; color: #A5A1B8; }
+  .tok-row:last-child { border-bottom: none; }
+  .tok-row .k { width: 74px; flex-shrink: 0; }
+  .tok-row .sw { width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(255,255,255,.12); }
+  .tok-row .v { font-family: var(--mono); }
+  .pass { color: #22C55E; font-family: var(--mono); margin-left: auto; }
+
+  .footnote {
+    margin-top: 30px; padding: 16px 18px; border: 1px solid #24222F; border-radius: 14px;
+    background: #0E0D13; color: #A5A1B8; font-size: 13px;
+  }
+  .footnote strong { color: #fff; }
+  .footnote ul { margin: 8px 0 0 18px; }
+  .footnote li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="intro">
+    <h1><span class="material-symbols-outlined">gradient</span> Light-Mode Cash Flow Hero — Variant Comparison</h1>
+    <p>Dark (top-left) is the reference and is unchanged. Each card below sits on the real page background so you can judge separation, not just the card. Contrast shown for every ink.</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footnote">
+    <strong>Reading the comparison</strong>
+    <ul>
+      <li><b>Dark</b> wins when the card is <i>different</i> from the page around it. Light variants succeed only when that separation is visible at a glance.</li>
+      <li><b>V1</b> is the softest; separation depends almost entirely on the border and shadow.</li>
+      <li><b>V2</b> gives the page a clear violet cast — the closest to dark's presence while staying light.</li>
+      <li><b>V3</b> flips to white ink and matches the language of your premium/Pro Pass cards; boldest and most "pro".</li>
+      <li><b>V4</b> is the safest: white card, one purple bloom, no gradient wash across the content.</li>
+      <li>Contrast is measured against the darkest point of each gradient. Amounts (20px bold) only need 3:1; labels and date need 4.5:1.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  const D = [
+    { date:"25 SEP 2026", pill:"This Month", expense:"₹47,998", income:"₹66,400", net:"₹18,402" }
+  ][0];
+
+  const variants = [
+    {
+      id: "dark",
+      name: "Dark mode",
+      tag: "Reference",
+      tagClass: "ref",
+      page: "darkpage",
+      style: {
+        background: "radial-gradient(120% 90% at 12% 0%, rgba(67,52,107,.95) 0%, transparent 55%), radial-gradient(120% 100% at 90% 100%, rgba(36,26,66,.95) 0%, transparent 55%), linear-gradient(150deg, #2B2349 0%, #1C1632 45%, #100C1F 100%)",
+        border: "1px solid rgba(122,82,255,.45)",
+        boxShadow: "0 20px 50px rgba(76,42,207,.22), inset 0 1px 0 rgba(255,255,255,.05)"
+      },
+      ink: { date:"#A792E8", lab:"#9089A4", exp:"#FF7262", inc:"#5DE290", netval:"#FFFFFF", netbg:"#161224", netbd:"#2E2644", netlab:"#B5ADCA", pillBg:"#231D33", pillBd:"#3B3254", pillC:"#DDD8EC" }
+    },
+    {
+      id: "v1",
+      name: "V1 — Soft lavender",
+      tag: "Current",
+      tagClass: "ref",
+      page: "lightpage",
+      style: {
+        background: "radial-gradient(120% 90% at 10% 0%, rgba(178,142,255,.30) 0%, transparent 58%), radial-gradient(120% 100% at 92% 100%, rgba(124,77,255,.18) 0%, transparent 60%), linear-gradient(150deg, #FAF8FF 0%, #F1EAFF 50%, #EAE0FB 100%)",
+        border: "1px solid rgba(124,77,255,.22)",
+        boxShadow: "0 10px 28px rgba(124,77,255,.16), inset 0 1px 0 rgba(255,255,255,.7)"
+      },
+      ink: { date:"#5B5470", lab:"#5B5470", exp:"#B3261E", inc:"#166534", netval:"#1F2937", netbg:"rgba(255,255,255,.78)", netbd:"rgba(124,77,255,.20)", netlab:"#5B5470", pillBg:"rgba(255,255,255,.72)", pillBd:"rgba(124,77,255,.24)", pillC:"#5B5470" }
+    },
+    {
+      id: "v2",
+      name: "V2 — Punchier purple",
+      tag: "Bolder",
+      tagClass: "new",
+      page: "lightpage",
+      style: {
+        background: "radial-gradient(120% 90% at 10% 0%, rgba(178,142,255,.55) 0%, transparent 58%), radial-gradient(120% 100% at 92% 100%, rgba(124,77,255,.35) 0%, transparent 62%), linear-gradient(150deg, #EDE4FF 0%, #DDCCFA 50%, #C9B2F2 100%)",
+        border: "1px solid rgba(124,77,255,.38)",
+        boxShadow: "0 14px 34px rgba(124,77,255,.28), inset 0 1px 0 rgba(255,255,255,.55)"
+      },
+      ink: { date:"#443C52", lab:"#443C52", exp:"#8B1D18", inc:"#0F4A22", netval:"#1F2937", netbg:"rgba(255,255,255,.82)", netbd:"rgba(124,77,255,.28)", netlab:"#443C52", pillBg:"rgba(255,255,255,.78)", pillBd:"rgba(124,77,255,.34)", pillC:"#443C52" }
+    },
+    {
+      id: "v3",
+      name: "V3 — Brand bold (white ink)",
+      tag: "Premium",
+      tagClass: "new",
+      page: "lightpage",
+      style: {
+        background: "radial-gradient(120% 100% at 8% 0%, rgba(167,139,250,.55) 0%, transparent 55%), linear-gradient(150deg, #8B5CFF 0%, #7C4DFF 50%, #5B21B6 100%)",
+        border: "1px solid rgba(179,136,255,.55)",
+        boxShadow: "0 16px 38px rgba(101,31,255,.35), inset 0 1px 0 rgba(255,255,255,.18)"
+      },
+      ink: { date:"#EDE7FF", lab:"rgba(255,255,255,.72)", exp:"#FFFFFF", inc:"#A7F3D0", netval:"#FFFFFF", netbg:"rgba(255,255,255,.14)", netbd:"rgba(255,255,255,.26)", netlab:"rgba(255,255,255,.82)", pillBg:"rgba(255,255,255,.16)", pillBd:"rgba(255,255,255,.30)", pillC:"#FFFFFF" }
+    },
+    {
+      id: "v4",
+      name: "V4 — White + purple bloom",
+      tag: "Safest",
+      tagClass: "new",
+      page: "lightpage",
+      style: {
+        background: "radial-gradient(120% 95% at 8% 0%, rgba(178,142,255,.22) 0%, transparent 58%), radial-gradient(120% 100% at 95% 100%, rgba(124,77,255,.08) 0%, transparent 60%), #FFFFFF",
+        border: "1px solid #E8EBEF",
+        boxShadow: "0 10px 26px rgba(124,77,255,.12)"
+      },
+      ink: { date:"#5B5470", lab:"#6B7280", exp:"#B3261E", inc:"#166534", netval:"#1F2937", netbg:"#F7F5FF", netbd:"rgba(124,77,255,.15)", netlab:"#5B5470", pillBg:"#F1F2F4", pillBd:"#E8EBEF", pillC:"#5B5470" }
+    }
+  ];
+
+  function hero(v) {
+    const i = v.ink;
+    return `
+      <div class="hero" style="background:${v.style.background};border:${v.style.border};box-shadow:${v.style.boxShadow}">
+        <div class="hero-head">
+          <div class="hero-date" style="color:${i.date}">${D.date}</div>
+          <span class="hero-pill" style="background:${i.pillBg};border-color:${i.pillBd};color:${i.pillC}">
+            ${D.pill} <span class="material-symbols-outlined">expand_more</span>
+          </span>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="lab" style="color:${i.lab}">EXPENSE</div>
+            <div class="val" style="color:${i.exp}">${D.expense}</div>
+          </div>
+          <div class="metric r">
+            <div class="lab" style="color:${i.lab}">INCOME</div>
+            <div class="val" style="color:${i.inc}">${D.income}</div>
+          </div>
+        </div>
+        <div class="net" style="background:${i.netbg};border-color:${i.netbd}">
+          <div class="net-left" style="color:${i.netlab}">
+            Net Balance <span class="material-symbols-outlined">visibility_off</span>
+          </div>
+          <div class="net-val" style="color:${i.netval}">${D.net}</div>
+        </div>
+      </div>`;
+  }
+
+  function tokenRows(v) {
+    if (v.id === "dark") {
+      return `
+        <div class="tok-row"><span class="k">surface</span><span class="sw" style="background:#2B2349"></span><span class="v">#2B2349 → #100C1F</span></div>
+        <div class="tok-row"><span class="k">border</span><span class="sw" style="background:rgba(122,82,255,.45)"></span><span class="v">violet 45%</span></div>
+        <div class="tok-row"><span class="k">expense</span><span class="sw" style="background:#FF7262"></span><span class="v">#FF7262</span></div>
+        <div class="tok-row"><span class="k">income</span><span class="sw" style="background:#5DE290"></span><span class="v">#5DE290</span></div>`;
+    }
+    const ratios = { v1: [5.15, 6.09, 5.62], v2: [4.87, 7.00, 5.53], v3: [4.81, 3.75, 4.80], v4: [5.42, 5.90, 5.90] };
+    const [expR, incR, dateR] = ratios[v.id];
+    return `
+      <div class="tok-row"><span class="k">expense</span><span class="sw" style="background:${v.ink.exp}"></span><span class="v">${v.ink.exp}</span><span class="pass">${expR.toFixed(2)}:1</span></div>
+      <div class="tok-row"><span class="k">income</span><span class="sw" style="background:${v.ink.inc}"></span><span class="v">${v.ink.inc}</span><span class="pass">${incR.toFixed(2)}:1</span></div>
+      <div class="tok-row"><span class="k">date</span><span class="sw" style="background:${v.ink.date}"></span><span class="v">${v.ink.date}</span><span class="pass">${dateR.toFixed(2)}:1</span></div>`;
+  }
+
+  document.getElementById("grid").innerHTML = variants.map(v => `
+    <div class="variant">
+      <div class="variant-head">
+        <span class="vn">${v.name}</span>
+        <span class="tag ${v.tagClass}">${v.tag}</span>
+      </div>
+      <div class="canvas ${v.page}">${hero(v)}</div>
+      <div class="tokens">${tokenRows(v)}</div>
+    </div>`).join("");
+</script>
+</body>
+</html>

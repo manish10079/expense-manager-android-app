@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ExpenseTracker — Dual-Theme Design System Mockups</title>
+<style>
+  :root{
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#101015;color:#E7E7EC;font-family:var(--sans);
+       font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 24px 96px}
+  h1{font-size:26px;font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
+  h2{font-size:16px;font-weight:650;margin:0 0 4px;letter-spacing:.01em}
+  .sub{color:#9A9AA6;font-size:13px;margin:0 0 32px}
+  .sec{margin:0 0 44px}
+  .sec>.head{display:flex;align-items:baseline;gap:10px;margin:0 0 14px;
+             border-bottom:1px solid #26262E;padding-bottom:9px}
+  .sec>.head .n{font-family:var(--mono);font-size:11px;color:#9E84FF;
+                background:rgba(158,132,255,.12);border:1px solid rgba(158,132,255,.32);
+                padding:2px 7px;border-radius:5px;font-weight:600}
+  .sec>.head .d{color:#7C7C88;font-size:12.5px;margin-left:auto;font-family:var(--mono)}
+
+  /* ── theme panels: the token sets, expressed once ───────────────────────── */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.pair{grid-template-columns:1fr}}
+  .panel{border-radius:16px;padding:16px;border:1px solid;position:relative}
+  .panel>.tag{position:absolute;top:-9px;left:14px;font-family:var(--mono);font-size:10px;
+              padding:2px 7px;border-radius:5px;letter-spacing:.04em}
+  .dark{--chipInkOff:#A8A8B3;--bg:#0A0A0A;--s1:#141418;--card:#1A1A20;--s3:#1E1E23;--s4:#22222A;--menu:#26262E;
+        --line:#2A2A31;--lineStrong:#6A6A7E;--tp:#F2F2F5;--ts:#A8A8B3;--tt:#8A8C95;--dis:#6E6E7A;
+        --accent:#9E84FF;--accentSoft:rgba(158,132,255,.14);--cta:#5838FA;--cta2:#3713EC;
+        --income:#3DDC97;--expense:#FF6B6B;--savings:#5EEAD4;--invest:#FBBF24;
+        --transfer:#60A5FA;--debt:#FB7185;--track:#26262E;
+        --chip:#242428;--chipLine:#2D2D31;--chipSel:#2C283F;--chipInk:#9E84FF;
+        --glow:rgba(158,132,255,.22);
+        background:var(--bg);border-color:#26262E;color:var(--tp)}
+  .dark>.tag{background:#1A1A20;color:#9E84FF;border:1px solid #2A2A31}
+  .light{--chipInkOff:#5B6270;--bg:#F7F8FA;--s1:#FFFFFF;--card:#FFFFFF;--s3:#FAFAFC;--s4:#FAFAFC;--menu:#FFFFFF;
+         --line:#E8EBEF;--lineStrong:#A7B0BC;--tp:#1F2937;--ts:#5B6270;--tt:#6B7280;--dis:#A8B0BB;
+         --accent:#6A4DFF;--accentSoft:rgba(106,77,255,.10);--cta:#6A4DFF;--cta2:#5B45D6;
+         --income:#15803D;--expense:#DC2626;--savings:#0F766E;--invest:#B45309;
+         --transfer:#1D4ED8;--debt:#BE123C;--track:#E8EBEF;
+         --chip:#F5F5F5;--chipLine:rgba(0,0,0,.08);--chipSel:#EDEAFF;--chipInk:#5B45D6;
+         --glow:rgba(106,77,255,.10);
+         background:var(--bg);border-color:#E8EBEF;color:var(--tp)}
+  .light>.tag{background:#fff;color:#6A4DFF;border:1px solid #E8EBEF}
+
+  /* ── primitives ─────────────────────────────────────────────────────────── */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:10px}
+  .hx{font-family:var(--mono);font-size:9.5px;color:#7C7C88;letter-spacing:.02em}
+  .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tt);font-weight:600}
+  .val{font-size:19px;font-weight:700;letter-spacing:-.01em}
+  .mut{color:var(--ts);font-size:12px}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+          padding:10px 2px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .topbar .t{font-weight:650;font-size:15px}
+
+  /* the rebuilt hero: neutral field, purple rail + bloom only */
+  .hero{position:relative;overflow:hidden;border-radius:20px;background:var(--card);
+        border:1px solid var(--line);padding:15px 16px 14px}
+  .hero:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+        background:linear-gradient(180deg,var(--cta),var(--cta2))}
+  .hero:after{content:"";position:absolute;right:-40px;top:-60px;width:190px;height:190px;
+        border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 70%);pointer-events:none}
+  .hero>*{position:relative;z-index:1}
+  .pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--chipLine);
+        background:var(--chip);border-radius:99px;padding:3px 9px;font-size:11px;color:var(--ts)}
+  .inset{background:var(--s4);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+         display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+
+  .fab{width:52px;height:52px;border-radius:17px;background:linear-gradient(135deg,var(--cta),var(--cta2));
+       color:#fff;display:grid;place-items:center;font-size:24px;font-weight:300;
+       box-shadow:0 6px 18px var(--glow)}
+  .btn{border:none;border-radius:12px;padding:10px 18px;font-size:13.5px;font-weight:600;
+       font-family:var(--sans);background:var(--cta);color:#fff}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+  .btn.off{background:var(--track);color:var(--dis)}
+
+  .chip{border-radius:99px;padding:7px 14px;font-size:12.5px;font-weight:600;
+        background:var(--chip);color:var(--chipInkOff);border:1px solid var(--chipLine)}
+  .chip.on{background:var(--chipSel);color:var(--chipInk);border-color:transparent}
+
+  .bar{height:9px;border-radius:99px;background:var(--track);overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:99px}
+
+  .nav{display:flex;justify-content:space-around;align-items:center;background:var(--card);
+       border:1px solid var(--line);border-radius:16px;padding:9px 4px}
+  .nav .it{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9.5px;
+           color:var(--tt);flex:1}
+  .nav .it.a{color:var(--accent)}
+  .nav .it.a .dot{background:var(--accentSoft);border-radius:12px;padding:5px 14px}
+  .nav .dot{padding:5px 14px;font-size:15px}
+
+  .key{background:var(--s3);border:1px solid var(--line);border-radius:13px;
+       display:grid;place-items:center;font-size:18px;font-weight:500;color:var(--tp);
+       aspect-ratio:1.35}
+  .key.op{color:var(--accent);font-weight:600}
+  .key.eq{background:var(--cta);border-color:transparent;color:#fff;font-weight:700}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
+  .cal .d{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:12px;
+          color:var(--tt);position:relative}
+  .cal .d.today{border:1.5px solid var(--accent);color:var(--accent);font-weight:650}
+  .cal .d.sel{background:var(--cta);color:#fff;font-weight:700}
+  .cal .d .dt{position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%}
+
+  .tile{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+        border-radius:14px;padding:11px 13px}
+  .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:15px;
+      background:var(--accentSoft);color:var(--accent)}
+  .sw{width:42px;height:24px;border-radius:99px;background:var(--cta);position:relative;flex:0 0 auto}
+  .sw:after{content:"";position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+  .sw.off{background:var(--track)}
+  .sw.off:after{right:auto;left:3px;background:var(--dis)}
+
+  /* premium stays a DARK surface in both themes — the one brand-surface exception */
+  .premium{background:linear-gradient(135deg,#5030E8,#3713EC);border:1px solid #B388FF;
+           border-radius:16px;padding:15px;color:#fff}
+  .premium .gold{color:#FFD700;font-weight:700}
+
+  .dialog{background:var(--s3);border:1px solid var(--line);border-radius:22px;padding:16px}
+  .field{background:var(--s4);border:1px solid var(--line);border-radius:13px;padding:10px 12px;
+         color:var(--tt);font-size:13px}
+  .toast{background:var(--s4);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+         display:flex;align-items:center;gap:9px;font-size:13px}
+
+  .swatch{border-radius:10px;height:52px;display:grid;place-items:end start;padding:6px 8px;
+          font-family:var(--mono);font-size:9px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .scale{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+  .cc{display:flex;flex-direction:column;gap:3px}
+  .cc .b{height:40px;border-radius:8px;border:1px solid rgba(255,255,255,.07)}
+  .cc .n{font-family:var(--mono);font-size:9px;color:#8A8C95;text-align:center}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #26262E}
+  th{color:#8A8C95;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  td.m{font-family:var(--mono);font-size:11.5px}
+  .ok{color:#5EEAD4;font-weight:600}
+  .no{color:#FB7185;font-weight:600}
+  .neutral{color:#A8A8B3}
+  .note{background:#16161A;border:1px solid #26262E;border-left:3px solid #9E84FF;
+        border-radius:10px;padding:12px 15px;color:#B4B4BF;font-size:12.5px;margin:14px 0}
+  .note b{color:#F2F2F5}
+  .warn{border-left-color:#FB7185}
+  .cvd{display:grid;grid-template-columns:78px repeat(4,1fr);gap:6px;align-items:center}
+  .cvd .h{font-size:10px;color:#8A8C95;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .cvd .s{height:34px;border-radius:8px;display:grid;place-items:center;
+          font-family:var(--mono);font-size:9px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>ExpenseTracker — Dual-Theme Design System</h1>
+  <p class="sub">Dark base <b>#0A0A0A</b> (kept per your call) · Light base <b>#F7F8FA</b> · brand hue 250 · every value on this page was computed, not estimated.</p>
+
+  <div class="note">
+    <b>Three corrections to the brief, measured.</b><br>
+    1 — The dark base is <b>#0A0A0A</b>, not <code>#000000</code>. Only <code>AppLockLoadingBackground</code> is true black today.<br>
+    2 — The app is <b>not</b> mostly purple: the majority of cards already run <code>surfaceVariant</code> greys. Seven specific surfaces are over-purple, and they are the ones this system rebuilds.<br>
+    3 — Two inks <b>already ship below AA</b>: <code>DarkOnPrimary #24114C</code> on <code>#7B61FF</code> = <b>3.97:1</b> (the dark primary button), and <code>TextTertiaryLight #9CA3AF</code> on white = <b>2.54:1</b>.
+  </div>
+
+  <!-- ═══ 2. TOKEN PALETTES ═══ -->
+  <div class="sec">
+    <div class="head"><span class="n">TASK 2</span><h2>Token palettes</h2><span class="d">hue 250</span></div>
+
+    <div class="lbl" style="margin-bottom:8px">Brand purple — 10 tones · 500 is the shipped base, identical to hsl(250,100,69)</div>
+    <div class="scale" style="margin-bottom:18px">
+      <div class="cc"><div class="b" style="background:#F2F0FF"></div><div class="n">50<br>F2F0FF</div></div>
+      <div class="cc"><div class="b" style="background:#E5E0FF"></div><div class="n">100<br>E5E0FF</div></div>
+      <div class="cc"><div class="b" style="background:#CCC2FF"></div><div class="n">200<br>CCC2FF</div></div>
+      <div class="cc"><div class="b" style="background:#AA99FF"></div><div class="n">300<br>AA99FF</div></div>
+      <div class="cc"><div class="b" style="background:#917AFF"></div><div class="n">400<br>917AFF</div></div>
+      <div class="cc"><div class="b" style="background:#7B61FF;outline:2px solid #fff;outline-offset:1px"></div><div class="n">500 ★<br>7B61FF</div></div>
+      <div class="cc"><div class="b" style="background:#5838FA"></div><div class="n">600<br>5838FA</div></div>
+      <div class="cc"><div class="b" style="background:#3713EC"></div><div class="n">700<br>3713EC</div></div>
+      <div class="cc"><div class="b" style="background:#351DAF"></div><div class="n">800<br>351DAF</div></div>
+      <div class="cc"><div class="b" style="background:#2E1F7A"></div><div class="n">900<br>2E1F7A</div></div>
+    </div>
+    <div class="note">500 is <b>fully saturated</b> — that is the actual cause of the over-purple feel, not its use. It survives as accent, glow and focus ring; <b>fills drop to 600/700</b>, because <code>#24114C</code> on a 500 fill measures 3.97:1.</div>
+
+    <div class="pair" style="margin-top:18px">
+      <div class="panel dark"><span class="tag">DARK AMOLED · #0A0A0A</span>
+        <div class="lbl" style="margin-bottom:8px">Surface ladder</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="background:#0A0A0A;border:1px solid #2A2A31;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Background</span><span class="hx">#0A0A0A</span></div>
+          <div style="background:#141418;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Surface L1</span><span class="hx">#141418 · 1.078:1</span></div>
+          <div style="background:#1A1A20;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Card L2</span><span class="hx">#1A1A20 · 1.143:1</span></div>
+          <div style="background:#1E1E23;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Sheet L3</span><span class="hx">#1E1E23 · 1.193:1</span></div>
+          <div style="background:#22222A;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Input / inset L4</span><span class="hx">#22222A</span></div>
+          <div style="background:#26262E;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Menu / track</span><span class="hx">#26262E</span></div>
+        </div>
+        <div class="hx" style="margin-top:10px">outline soft #2A2A31 (1.22:1) · outline strong #6A6A7E (3.28:1)</div>
+      </div>
+      <div class="panel light"><span class="tag">LIGHT · #F7F8FA</span>
+        <div class="lbl" style="margin-bottom:8px">Surface ladder</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="background:#F7F8FA;border:1px solid #E8EBEF;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Background</span><span class="hx">#F7F8FA</span></div>
+          <div style="background:#FFFFFF;border:1px solid #E8EBEF;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Card L1</span><span class="hx">#FFFFFF · 1.06:1</span></div>
+          <div style="background:#FAFAFC;border:1px solid #E8EBEF;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Sheet L2</span><span class="hx">#FAFAFC</span></div>
+          <div style="background:#F1F2F4;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Input / track</span><span class="hx">#F1F2F4</span></div>
+          <div style="background:#E8EBEF;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between"><span>Outline soft</span><span class="hx">#E8EBEF · 1.13:1</span></div>
+          <div style="background:#A7B0BC;border-radius:9px;padding:9px 11px;display:flex;justify-content:space-between;color:#1F2937"><span>Outline strong</span><span class="hx" style="color:#1F2937">#A7B0BC · 2.19:1</span></div>
+        </div>
+        <div class="hx" style="margin-top:10px">light cannot reach 3:1 on a hairline — meaningful borders need a fill or a 2dp stroke</div>
+      </div>
+    </div>
+
+    <div class="pair" style="margin-top:14px">
+      <div class="panel dark"><span class="tag">DARK · semantic</span>
+        <div class="row" style="gap:7px">
+          <div style="flex:1"><div class="swatch" style="background:#3DDC97;color:#0A0A0A;text-shadow:none">income 3DDC97</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#FF6B6B;color:#0A0A0A;text-shadow:none">expense FF6B6B</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#5EEAD4;color:#0A0A0A;text-shadow:none">savings 5EEAD4</div></div>
+        </div>
+        <div class="row" style="gap:7px;margin-top:7px">
+          <div style="flex:1"><div class="swatch" style="background:#FBBF24;color:#0A0A0A;text-shadow:none">invest FBBF24</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#60A5FA;color:#0A0A0A;text-shadow:none">transfer 60A5FA</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#FB7185;color:#0A0A0A;text-shadow:none">debt FB7185</div></div>
+        </div>
+        <div class="hx" style="margin-top:8px">income 11.20:1 · expense 7.13:1 · savings 13.38:1 · invest 11.86:1 · transfer 7.79:1 · debt 7.36:1 — all on #0A0A0A</div>
+      </div>
+      <div class="panel light"><span class="tag">LIGHT · semantic</span>
+        <div class="row" style="gap:7px">
+          <div style="flex:1"><div class="swatch" style="background:#15803D">income 15803D</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#DC2626">expense DC2626</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#0F766E">savings 0F766E</div></div>
+        </div>
+        <div class="row" style="gap:7px;margin-top:7px">
+          <div style="flex:1"><div class="swatch" style="background:#B45309">invest B45309</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#1D4ED8">transfer 1D4ED8</div></div>
+          <div style="flex:1"><div class="swatch" style="background:#BE123C">debt BE123C</div></div>
+        </div>
+        <div class="hx" style="margin-top:8px">income 5.02:1 · expense 4.83:1 · savings 5.47:1 · invest 5.02:1 · transfer 6.70:1 · debt 6.29:1 — all on #FFFFFF</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 1 & 3. COMPONENTS ═══ -->
+  <div class="sec">
+    <div class="head"><span class="n">TASK 1 + 3</span><h2>Components &amp; screen roles</h2><span class="d">dark | light, identical recipe</span></div>
+
+    <div class="pair">
+      <!-- ───────────── DARK ───────────── -->
+      <div class="panel dark"><span class="tag">DARK · home</span>
+        <div class="topbar"><span class="t">Home</span><span class="mut">Sep 2026</span></div>
+
+        <div class="hero">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:700;font-size:12px;color:var(--tt)">15 SEP 2026</span>
+            <span class="pill">This Month ▾</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin:14px 0 0">
+            <div><div class="lbl">Expense</div><div class="val" style="color:var(--expense)">₹42,180</div></div>
+            <div style="text-align:right"><div class="lbl">Income</div><div class="val" style="color:var(--income)">₹68,500</div></div>
+          </div>
+          <div class="inset">
+            <div><div class="lbl">Net balance</div><div class="hx">white 10% over card</div></div>
+            <div class="val" style="font-size:17px">₹26,320</div>
+          </div>
+          <div class="hx" style="margin-top:9px">rail #5838FA→#3713EC · bloom rgba(158,132,255,.22) · purple ≈ 9% of card area</div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="card" style="flex:1">
+            <div class="lbl">Spent today</div>
+            <div class="val" style="color:var(--expense);font-size:17px">₹1,240</div>
+            <div class="hx" style="margin-top:6px">neutral card — no violet</div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="lbl">My goals</div>
+            <div class="val" style="font-size:17px;color:var(--accent)">₹8,000</div>
+            <div class="bar" style="margin-top:8px"><i style="width:64%;background:linear-gradient(90deg,var(--cta),var(--cta2))"></i></div>
+            <div class="hx" style="margin-top:5px">64% of ₹12,500</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;justify-content:space-between">
+          <div class="row">
+            <span class="chip">All</span>
+            <span class="chip on">Food</span>
+            <span class="chip">Travel</span>
+          </div>
+          <div class="fab">+</div>
+        </div>
+
+        <div class="nav" style="margin-top:12px">
+          <div class="it"><span class="dot">⌂</span>Home</div>
+          <div class="it a"><span class="dot">▤</span>Stats</div>
+          <div class="it"><span class="dot">▦</span>Budget</div>
+          <div class="it"><span class="dot">☰</span>More</div>
+        </div>
+      </div>
+
+      <!-- ───────────── LIGHT ───────────── -->
+      <div class="panel light"><span class="tag">LIGHT · home</span>
+        <div class="topbar"><span class="t">Home</span><span class="mut">Sep 2026</span></div>
+
+        <div class="hero">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:700;font-size:12px;color:var(--tt)">15 SEP 2026</span>
+            <span class="pill">This Month ▾</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin:14px 0 0">
+            <div><div class="lbl">Expense</div><div class="val" style="color:var(--expense)">₹42,180</div></div>
+            <div style="text-align:right"><div class="lbl">Income</div><div class="val" style="color:var(--income)">₹68,500</div></div>
+          </div>
+          <div class="inset">
+            <div><div class="lbl">Net balance</div><div class="hx">#F1F2F4</div></div>
+            <div class="val" style="font-size:17px">₹26,320</div>
+          </div>
+          <div class="hx" style="margin-top:9px">same rail + bloom, lighter wash · purple ≈ 9% of card area</div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="card" style="flex:1">
+            <div class="lbl">Spent today</div>
+            <div class="val" style="color:var(--expense);font-size:17px">₹1,240</div>
+            <div class="hx" style="margin-top:6px">white card + hairline</div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="lbl">My goals</div>
+            <div class="val" style="font-size:17px;color:var(--accent)">₹8,000</div>
+            <div class="bar" style="margin-top:8px"><i style="width:64%;background:linear-gradient(90deg,var(--cta),var(--cta2))"></i></div>
+            <div class="hx" style="margin-top:5px">64% of ₹12,500</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;justify-content:space-between">
+          <div class="row">
+            <span class="chip">All</span>
+            <span class="chip on">Food</span>
+            <span class="chip">Travel</span>
+          </div>
+          <div class="fab">+</div>
+        </div>
+
+        <div class="nav" style="margin-top:12px">
+          <div class="it"><span class="dot">⌂</span>Home</div>
+          <div class="it a"><span class="dot">▤</span>Stats</div>
+          <div class="it"><span class="dot">▦</span>Budget</div>
+          <div class="it"><span class="dot">☰</span>More</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">The hero is rebuilt as a <b>neutral card carrying a purple rail and one corner bloom</b> — about 9% purple area, against the ~100% of the violet-gradient version. That is the change your "from scratch" decision implies, and it reverses the uncommitted work checkpointed in <code>4549ab5</code>.</div>
+
+    <!-- buttons, states, budget, calendar -->
+    <div class="pair" style="margin-top:14px">
+      <div class="panel dark"><span class="tag">DARK · states</span>
+        <div class="lbl" style="margin-bottom:8px">Buttons</div>
+        <div class="row"><button class="btn">Save expense</button><button class="btn ghost">Cancel</button><button class="btn off" disabled>Disabled</button></div>
+        <div class="hx" style="margin-top:6px">#5838FA + #fff = 6.25:1 · disabled exempt, kept at 3.44:1</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Chips</div>
+        <div class="row"><span class="chip">Unselected</span><span class="chip on">Selected</span></div>
+        <div class="hx" style="margin-top:6px">#A8A8B3 on #242428 = 6.57:1 · #9E84FF on #2C283F = 4.86:1</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Budget</div>
+        <div class="col">
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Food · on track</span><span style="color:var(--income)">₹8,000 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:66%;background:#34D399"></i></div></div>
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Travel · near limit</span><span style="color:var(--invest)">₹10,500 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:87%;background:#FBBF24"></i></div></div>
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Shopping · over</span><span style="color:var(--debt)">₹14,200 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:100%;background:#F87171"></i></div></div>
+        </div>
+        <div class="hx" style="margin-top:6px">CVD min ΔE76 <b>18.6</b> — safe as colour alone</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Calendar</div>
+        <div class="cal">
+          <div class="d">M</div><div class="d">T</div><div class="d">W</div><div class="d">T</div><div class="d">F</div><div class="d">S</div><div class="d">S</div>
+          <div class="d">9</div><div class="d today">10</div><div class="d">11</div>
+          <div class="d sel">12</div>
+          <div class="d">13<div class="dt" style="background:#3DDC97"></div></div>
+          <div class="d">14<div class="dt" style="background:#FF6B6B"></div></div><div class="d">15</div>
+        </div>
+        <div class="hx" style="margin-top:6px">selected = fill · today = outline · days = 4dp dots, never fills</div>
+      </div>
+
+      <div class="panel light"><span class="tag">LIGHT · states</span>
+        <div class="lbl" style="margin-bottom:8px">Buttons</div>
+        <div class="row"><button class="btn">Save expense</button><button class="btn ghost">Cancel</button><button class="btn off" disabled>Disabled</button></div>
+        <div class="hx" style="margin-top:6px">#6A4DFF + #fff = 5.10:1 · disabled exempt, kept at 2.19:1</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Chips</div>
+        <div class="row"><span class="chip">Unselected</span><span class="chip on">Selected</span></div>
+        <div class="hx" style="margin-top:6px">#5B6270 on #F5F5F5 = 5.62:1 · #5B45D6 on #EDEAFF = 5.45:1 <b>(was 4.37:1)</b></div>
+
+        <div class="lbl" style="margin:14px 0 8px">Budget</div>
+        <div class="col">
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Food · on track</span><span style="color:var(--income)">₹8,000 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:66%;background:#15803D"></i></div></div>
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Travel · near limit</span><span style="color:var(--invest)">₹10,500 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:87%;background:#B45309"></i></div></div>
+          <div><div class="row" style="justify-content:space-between;font-size:12px"><span>Shopping · over</span><span style="color:var(--debt)">₹14,200 / ₹12,000</span></div><div class="bar" style="margin-top:5px"><i style="width:100%;background:#7F1D1D"></i></div></div>
+        </div>
+        <div class="hx" style="margin-top:6px">over = <b>#7F1D1D</b> red-900, not #DC2626 · CVD min ΔE76 4.4 → <b>15.0</b>, and the state is labelled either way</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Calendar</div>
+        <div class="cal">
+          <div class="d">M</div><div class="d">T</div><div class="d">W</div><div class="d">T</div><div class="d">F</div><div class="d">S</div><div class="d">S</div>
+          <div class="d">9</div><div class="d today">10</div><div class="d">11</div>
+          <div class="d sel">12</div>
+          <div class="d">13<div class="dt" style="background:#15803D"></div></div>
+          <div class="d">14<div class="dt" style="background:#DC2626"></div></div><div class="d">15</div>
+        </div>
+        <div class="hx" style="margin-top:6px">selected = fill · today = outline · days = 4dp dots, never fills</div>
+      </div>
+    </div>
+
+    <!-- calculator, voice, settings, premium, dialog -->
+    <div class="pair" style="margin-top:14px">
+      <div class="panel dark"><span class="tag">DARK · input &amp; settings</span>
+        <div class="lbl" style="margin-bottom:8px">Keypad — neutral keys, purple only on operators</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+          <div class="key">1</div><div class="key">2</div><div class="key">3</div><div class="key op">÷</div>
+          <div class="key">4</div><div class="key">5</div><div class="key">6</div><div class="key op">×</div>
+          <div class="key">7</div><div class="key">8</div><div class="key">9</div><div class="key op">−</div>
+          <div class="key">.</div><div class="key">0</div><div class="key">⌫</div><div class="key op">+</div>
+          <div class="key eq" style="grid-column:span 4">Save ₹1,240</div>
+        </div>
+
+        <div class="lbl" style="margin:14px 0 8px">Voice entry</div>
+        <div class="card" style="display:flex;align-items:center;gap:13px;background:radial-gradient(circle at 20% 50%,rgba(158,132,255,.30),transparent 70%)">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--cta);display:grid;place-items:center;font-size:19px">🎙</div>
+          <div><div style="font-weight:600">Listening…</div><div class="hx">“Coffee 240 rupees”</div></div>
+        </div>
+
+        <div class="lbl" style="margin:14px 0 8px">Settings tile</div>
+        <div class="tile"><div class="ic">🔔</div><div style="flex:1"><div style="font-size:13px">Daily reminder</div><div class="hx">9:00 PM</div></div><div class="sw"></div></div>
+        <div class="tile" style="margin-top:8px"><div class="ic">☁</div><div style="flex:1"><div style="font-size:13px">Cloud sync</div><div class="hx">Off</div></div><div class="sw off"></div></div>
+
+        <div class="lbl" style="margin:14px 0 8px">Premium — dark in BOTH themes (the one brand-surface exception)</div>
+        <div class="premium"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700">Pro Pass</div><div class="hx" style="color:rgba(255,255,255,.65)">Cloud sync · advanced analytics</div></div><div class="gold">₹499/yr</div></div></div>
+        <div class="hx" style="margin-top:6px">gold #FFD700 = 5.11:1 on this surface — and 1.40:1 on white, which is why it never leaves it</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Dialog &amp; toast</div>
+        <div class="dialog">
+          <div style="font-weight:650;margin-bottom:10px">Delete transaction?</div>
+          <div class="field" style="margin-bottom:12px">This cannot be undone.</div>
+          <div class="row" style="justify-content:flex-end"><button class="btn ghost">Cancel</button><button class="btn">Delete</button></div>
+        </div>
+        <div class="toast" style="margin-top:8px">✅ <span>Transaction saved</span></div>
+      </div>
+
+      <div class="panel light"><span class="tag">LIGHT · input &amp; settings</span>
+        <div class="lbl" style="margin-bottom:8px">Keypad — neutral keys, purple only on operators</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+          <div class="key">1</div><div class="key">2</div><div class="key">3</div><div class="key op">÷</div>
+          <div class="key">4</div><div class="key">5</div><div class="key">6</div><div class="key op">×</div>
+          <div class="key">7</div><div class="key">8</div><div class="key">9</div><div class="key op">−</div>
+          <div class="key">.</div><div class="key">0</div><div class="key">⌫</div><div class="key op">+</div>
+          <div class="key eq" style="grid-column:span 4">Save ₹1,240</div>
+        </div>
+
+        <div class="lbl" style="margin:14px 0 8px">Voice entry</div>
+        <div class="card" style="display:flex;align-items:center;gap:13px;background:radial-gradient(circle at 20% 50%,rgba(106,77,255,.14),transparent 70%)">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--cta);display:grid;place-items:center;font-size:19px">🎙</div>
+          <div><div style="font-weight:600">Listening…</div><div class="hx">“Coffee 240 rupees”</div></div>
+        </div>
+
+        <div class="lbl" style="margin:14px 0 8px">Settings tile</div>
+        <div class="tile"><div class="ic">🔔</div><div style="flex:1"><div style="font-size:13px">Daily reminder</div><div class="hx">9:00 PM</div></div><div class="sw"></div></div>
+        <div class="tile" style="margin-top:8px"><div class="ic">☁</div><div style="flex:1"><div style="font-size:13px">Cloud sync</div><div class="hx">Off</div></div><div class="sw off"></div></div>
+
+        <div class="lbl" style="margin:14px 0 8px">Premium — dark in BOTH themes (the one brand-surface exception)</div>
+        <div class="premium"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700">Pro Pass</div><div class="hx" style="color:rgba(255,255,255,.65)">Cloud sync · advanced analytics</div></div><div class="gold">₹499/yr</div></div></div>
+        <div class="hx" style="margin-top:6px">unchanged between themes by design — gold stays legible because the surface stays dark</div>
+
+        <div class="lbl" style="margin:14px 0 8px">Dialog &amp; toast</div>
+        <div class="dialog">
+          <div style="font-weight:650;margin-bottom:10px">Delete transaction?</div>
+          <div class="field" style="margin-bottom:12px">This cannot be undone.</div>
+          <div class="row" style="justify-content:flex-end"><button class="btn ghost">Cancel</button><button class="btn">Delete</button></div>
+        </div>
+        <div class="toast" style="margin-top:8px">✅ <span>Transaction saved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 4. CONTRAST ═══ -->
+  <div class="sec">
+    <div class="head"><span class="n">TASK 4</span><h2>WCAG 2.2 contrast matrix</h2><span class="d">computed, AA = 4.5 text / 3.0 UI</span></div>
+    <table>
+      <tr><th>Pair</th><th>Dark</th><th>Light</th><th>Need</th><th>Verdict</th></tr>
+      <tr><td>Primary text / background</td><td class="m">17.72:1</td><td class="m">13.81:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Primary text / card</td><td class="m">15.50:1</td><td class="m">14.68:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Secondary text / background</td><td class="m">8.41:1</td><td class="m">5.77:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Secondary text / card</td><td class="m">7.35:1</td><td class="m">6.13:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Tertiary text / card</td><td class="m">5.17:1</td><td class="m">4.83:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Accent / card</td><td class="m">5.94:1</td><td class="m">5.10:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>CTA fill with white ink</td><td class="m">6.25:1</td><td class="m">5.10:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Income / card</td><td class="m">9.80:1</td><td class="m">5.02:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Expense / card</td><td class="m">6.24:1</td><td class="m">4.83:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Selected chip label / fill</td><td class="m">4.86:1</td><td class="m">5.45:1</td><td class="m">4.5</td><td class="ok">PASS</td></tr>
+      <tr><td>Outline strong / surface</td><td class="m">3.28:1</td><td class="m">2.19:1</td><td class="m">3.0</td><td class="neutral">dark only — light needs a fill</td></tr>
+      <tr><td>Disabled control</td><td class="m">3.44:1</td><td class="m">2.19:1</td><td class="m">exempt</td><td class="neutral">1.4.3 exempts inactive</td></tr>
+      <tr style="background:rgba(251,113,133,.06)"><td><b>SHIPPED</b> — DarkOnPrimary #24114C on #7B61FF</td><td class="m">3.97:1</td><td class="m">—</td><td class="m">4.5</td><td class="no">FAIL → CTA fills move to #5838FA</td></tr>
+      <tr style="background:rgba(251,113,133,.06)"><td><b>SHIPPED</b> — TextTertiaryLight #9CA3AF on white</td><td class="m">—</td><td class="m">2.54:1</td><td class="m">4.5</td><td class="no">FAIL → #74767C</td></tr>
+      <tr style="background:rgba(251,113,133,.06)"><td><b>SHIPPED</b> — TextTertiaryDark #77777C on #0A0A0A</td><td class="m">4.44:1</td><td class="m">—</td><td class="m">4.5</td><td class="no">FAIL → #8A8C95</td></tr>
+      <tr style="background:rgba(251,113,133,.06)"><td><b>SHIPPED</b> — chip #6C52EE on 12% tint</td><td class="m">—</td><td class="m">4.37:1</td><td class="m">4.5</td><td class="no">FAIL → #5B45D6</td></tr>
+    </table>
+  </div>
+
+  <!-- ═══ CVD ═══ -->
+  <div class="sec">
+    <div class="head"><span class="n">NEW</span><h2>Colour-vision-deficiency validation</h2><span class="d">Machado 2009 severity 1.0 · ΔE76 in CIELAB</span></div>
+
+    <div class="note warn">
+      <b>The chart palette failed, so it was rebuilt.</b> The blue series and the purple series collapse into the <b>same colour</b> under deuteranopia — ΔE76 of <b>7.1</b> (dark) and <b>7.6</b> (light). The fix is a lightness gap, not a new hue: under red-green deficiency only blue↔yellow survives, so the second blue must sit far from the brand purple in <i>lightness</i>. Dark gains a pale sky, light a deep navy, giving <b>14.2</b> and <b>17.9</b>.
+    </div>
+
+    <div class="lbl" style="margin-bottom:9px">Dark chart — as proposed, then as seen with each deficiency</div>
+    <div class="cvd" style="margin-bottom:16px">
+      <div class="h"></div><div class="h">Normal</div><div class="h">Protan</div><div class="h">Deutan</div><div class="h">Tritan</div>
+      <div class="h">purple</div><div class="s" style="background:#9E84FF">9E84FF</div><div class="s" style="background:#5599ff">5599ff</div><div class="s" style="background:#5795fc">5795fc</div><div class="s" style="background:#859db6">859db6</div>
+      <div class="h">teal</div><div class="s" style="background:#5EEAD4;color:#0A0A0A;text-shadow:none">5EEAD4</div><div class="s" style="background:#e0ddd3;color:#0A0A0A;text-shadow:none">e0ddd3</div><div class="s" style="background:#cbced6;color:#0A0A0A;text-shadow:none">cbced6</div><div class="s" style="background:#00eee3;color:#0A0A0A;text-shadow:none">00eee3</div>
+      <div class="h">amber</div><div class="s" style="background:#FBBF24;color:#0A0A0A;text-shadow:none">FBBF24</div><div class="s" style="background:#d9bf00;color:#0A0A0A;text-shadow:none">d9bf00</div><div class="s" style="background:#e7cf2f;color:#0A0A0A;text-shadow:none">e7cf2f</div><div class="s" style="background:#ffaca4;color:#0A0A0A;text-shadow:none">ffaca4</div>
+      <div class="h">rose</div><div class="s" style="background:#FB7185;color:#0A0A0A;text-shadow:none">FB7185</div><div class="s" style="background:#8f8c85">8f8c85</div><div class="s" style="background:#b2a882">b2a882</div><div class="s" style="background:#ff5e79;color:#0A0A0A;text-shadow:none">ff5e79</div>
+      <div class="h">sky <b>NEW</b></div><div class="s" style="background:#BAE6FD;color:#0A0A0A;text-shadow:none">BAE6FD</div><div class="s" style="background:#dbe4fe;color:#0A0A0A;text-shadow:none">dbe4fe</div><div class="s" style="background:#d1dcfd;color:#0A0A0A;text-shadow:none">d1dcfd</div><div class="s" style="background:#a6eded;color:#0A0A0A;text-shadow:none">a6eded</div>
+    </div>
+    <div class="hx" style="margin:-8px 0 18px">min ΔE76 — normal 37.3 · protan 19.2 · deutan 14.2 · tritan 27.2 · contrast 5.9 11.7 10.4 6.4 13.1 (all ≥3:1) · <b>was 7.1</b></div>
+
+    <div class="lbl" style="margin-bottom:9px">Light chart</div>
+    <div class="cvd" style="margin-bottom:8px">
+      <div class="h"></div><div class="h">Normal</div><div class="h">Protan</div><div class="h">Deutan</div><div class="h">Tritan</div>
+      <div class="h">purple</div><div class="s" style="background:#6A4DFF">6A4DFF</div><div class="s" style="background:#0074ff">0074ff</div><div class="s" style="background:#0068fc">0068fc</div><div class="s" style="background:#007da1">007da1</div>
+      <div class="h">teal</div><div class="s" style="background:#0F766E">0F766E</div><div class="s" style="background:#6f6f6e">6f6f6e</div><div class="s" style="background:#62656f">62656f</div><div class="s" style="background:#007973">007973</div>
+      <div class="h">amber</div><div class="s" style="background:#B45309">B45309</div><div class="s" style="background:#6f6100">6f6100</div><div class="s" style="background:#877703">877703</div><div class="s" style="background:#c63c47">c63c47</div>
+      <div class="h">navy <b>NEW</b></div><div class="s" style="background:#1E3A8A">1E3A8A</div><div class="s" style="background:#00458d">00458d</div><div class="s" style="background:#003b88">003b88</div><div class="s" style="background:#004e5c">004e5c</div>
+      <div class="h">magenta <b>NEW</b></div><div class="s" style="background:#DB2777">DB2777</div><div class="s" style="background:#555f79">555f79</div><div class="s" style="background:#858173">858173</div><div class="s" style="background:#ee004d">ee004d</div>
+    </div>
+    <div class="hx" style="margin:0 0 18px">min ΔE76 — normal 56.3 · protan 17.9 · deutan 18.1 · tritan 22.8 · contrast 5.1 5.5 5.0 10.4 4.6 (all ≥3:1) · <b>was 7.6</b></div>
+
+    <div class="lbl" style="margin-bottom:9px">The one that colour alone cannot fix — light budget states</div>
+    <table style="margin-bottom:8px">
+      <tr><th>State trio (light, on track #E8EBEF)</th><th>min ΔE76</th><th>Track contrast</th><th>Verdict</th></tr>
+      <tr><td class="m">#15803D / #B45309 / #DC2626 &nbsp;<span class="mut">(proposed)</span></td><td class="m">4.4</td><td class="m">4.2 / 4.2 / 4.0</td><td class="no">FAIL — amber ≈ red under deutan</td></tr>
+      <tr><td class="m">#15803D / #B45309 / <b>#7F1D1D</b></td><td class="m">15.0</td><td class="m">4.2 / 4.2 / 8.4</td><td class="ok">PASS — 3.4× better</td></tr>
+    </table>
+    <div class="note">
+      Every lighter amber that would separate from red <b>fails 3:1 on its own track</b>, so this triple can never be made CVD-safe by hue alone. Two changes are therefore mandatory rather than optional: the over state drops to red-900 <b>#7F1D1D</b>, and <b>every bar carries its state in text</b> (“on track” / “near limit” / “over”). That is WCAG 1.4.1 Use of Color — the meaning must not rest on the hue. The same applies to income and expense amounts: <b>a +/− sign or an arrow is required</b>, since income vs expense is only ΔE76 11.5 apart for protanopes in light.
+    </div>
+  </div>
+
+  <!-- ═══ 6. MASTER TABLES ═══ -->
+  <div class="sec">
+    <div class="head"><span class="n">TASK 6</span><h2>Master reference</h2></div>
+    <div class="pair">
+      <div class="panel dark"><span class="tag">DARK · complete</span>
+        <table>
+          <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+          <tr><td>Background</td><td class="m">#0A0A0A</td><td>field</td></tr>
+          <tr><td>Surface L1 / Card L2</td><td class="m">#141418 / #1A1A20</td><td>panels, cards</td></tr>
+          <tr><td>Sheet L3 / Input L4</td><td class="m">#1E1E23 / #22222A</td><td>sheets, fields</td></tr>
+          <tr><td>Track / Menu</td><td class="m">#26262E</td><td>bars, menus</td></tr>
+          <tr><td>Outline soft / strong</td><td class="m">#2A2A31 / #6A6A7E</td><td>edge / boundary</td></tr>
+          <tr><td>Text P / S / T</td><td class="m">#F2F2F5 / #A8A8B3 / #8A8C95</td><td>3 weights</td></tr>
+          <tr><td>Disabled</td><td class="m">#6E6E7A</td><td>exempt, kept visible</td></tr>
+          <tr><td>Accent / CTA</td><td class="m">#9E84FF / #5838FA</td><td>ink / fill</td></tr>
+          <tr><td>Income / Expense</td><td class="m">#3DDC97 / #FF6B6B</td><td>amounts</td></tr>
+          <tr><td>Savings / Invest</td><td class="m">#5EEAD4 / #FBBF24</td><td>amounts</td></tr>
+          <tr><td>Transfer / Debt</td><td class="m">#60A5FA / #FB7185</td><td>amounts</td></tr>
+          <tr><td>Chart series</td><td class="m">#9E84FF #5EEAD4 #FBBF24 #FB7185 #BAE6FD</td><td>5 tones</td></tr>
+          <tr><td>Budget states</td><td class="m">#34D399 #FBBF24 #F87171</td><td>3 states</td></tr>
+          <tr><td>Premium</td><td class="m">#5838FA→#3713EC · #FFD700</td><td>gold on dark</td></tr>
+        </table>
+      </div>
+      <div class="panel light"><span class="tag">LIGHT · complete</span>
+        <table>
+          <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+          <tr><td>Background</td><td class="m">#F7F8FA</td><td>field</td></tr>
+          <tr><td>Card / Sheet</td><td class="m">#FFFFFF / #FAFAFC</td><td>surfaces</td></tr>
+          <tr><td>Input / Track</td><td class="m">#F1F2F4</td><td>fields, bars</td></tr>
+          <tr><td>Outline soft / strong</td><td class="m">#E8EBEF / #A7B0BC</td><td>edge / boundary</td></tr>
+          <tr><td>Text P / S / T</td><td class="m">#1F2937 / #5B6270 / #6B7280</td><td>3 weights</td></tr>
+          <tr><td>Disabled</td><td class="m">#A8B0BB</td><td>exempt</td></tr>
+          <tr><td>Accent / CTA</td><td class="m">#6A4DFF / #6A4DFF</td><td>ink / fill</td></tr>
+          <tr><td>Chip ink on tint</td><td class="m">#5B45D6</td><td>selected chip</td></tr>
+          <tr><td>Income / Expense</td><td class="m">#15803D / #DC2626</td><td>amounts</td></tr>
+          <tr><td>Savings / Invest</td><td class="m">#0F766E / #B45309</td><td>amounts</td></tr>
+          <tr><td>Transfer / Debt</td><td class="m">#1D4ED8 / #BE123C</td><td>amounts</td></tr>
+          <tr><td>Chart series</td><td class="m">#6A4DFF #0F766E #B45309 #1E3A8A #DB2777</td><td>5 tones</td></tr>
+          <tr><td>Budget states</td><td class="m">#15803D #B45309 #7F1D1D</td><td>3 states</td></tr>
+          <tr><td>Premium</td><td class="m">unchanged — dark card</td><td>brand exception</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Purple budget, per screen.</b> Field and cards carry zero chroma; the accent appears only as the hero rail and bloom (~9% of that card), the FAB (~2%), the active nav pill (~3%), the selected chip (~2%) and goal progress (~2%). That totals <b>15–25% of a screen</b>, inside the 20–30% target — and the old goal bar, which was 100% purple, is now one purple among five tones.
+  </div>
+
+</div>
+</body>
+</html>

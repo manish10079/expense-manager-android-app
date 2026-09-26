@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transactions Screen Mock — Light vs Dark (Category Colors)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root {
+    --brand: #7B61FF;
+    --brand-light: #BFA6FF;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background:
+      radial-gradient(1100px 600px at 50% -10%, #1B1730 0%, transparent 60%),
+      #07060B;
+    color: #FFFFFF;
+    min-height: 100vh;
+    padding: 34px 18px 70px;
+  }
+
+  .page { max-width: 1000px; margin: 0 auto; }
+
+  .intro { text-align: center; margin-bottom: 30px; }
+  .intro h1 {
+    font-size: 24px; font-weight: 700; color: var(--brand-light);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .intro h1 .material-symbols-outlined { font-size: 30px; }
+  .intro p { color: #A5A1B8; font-size: 14px; margin-top: 8px; }
+
+  /* ---------- Layout ---------- */
+  .devices {
+    display: flex;
+    gap: 34px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .device-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .device-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .device-label .material-symbols-outlined { font-size: 17px; }
+  .device-label.light { color: #5B21B6; background: rgba(124,77,255,.14); border: 1px solid rgba(124,77,255,.3); }
+  .device-label.dark  { color: var(--brand-light); background: rgba(191,166,255,.1); border: 1px solid rgba(191,166,255,.26); }
+
+  /* ---------- Phone frame ---------- */
+  .phone {
+    width: 392px;
+    padding: 11px;
+    border-radius: 44px;
+    background: linear-gradient(160deg, #26232F, #0C0B10);
+    box-shadow: 0 40px 80px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .screen {
+    border-radius: 34px;
+    height: 830px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .screen.dark {
+    --bg: #0A0A0A;
+    --card: transparent;
+    --card-border: transparent;
+    --card-shadow: none;
+    --text: #EAEAEA;
+    --text2: #9E9E9E;
+    --text3: #77777C;
+    --hair: rgba(42,42,42,.65);
+    --primary: #7B61FF;
+    --primary-ink: #BFA6FF;
+    --primary-container: rgba(45,36,63,.6);
+    --income: #3DDC97;
+    --expense-amount: #FFFFFF;
+    --expense-pill: #FF6B6B;
+    --tile-border: rgba(42,42,42,.65);
+    --chrome-circle: rgba(53,53,52,.3);
+    --nav-off: #7A778C;
+    --nav-on: #BFA6FF;
+    --nav-pill: rgba(122,82,255,.16);
+    --nav-bg: rgba(17,15,26,.92);
+    --nav-border: rgba(58,53,90,.55);
+  }
+  .screen.light {
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --card-border: #E8EBEF;
+    --card-shadow: 0 2px 10px rgba(0,0,0,.05);
+    --text: #1F2937;
+    --text2: #6B7280;
+    --text3: #9CA3AF;
+    --hair: #E8EBEF;
+    --primary: #6A4DFF;
+    --primary-ink: #6A4DFF;
+    --primary-container: rgba(229,222,255,.6);
+    --income: #15803D;
+    --expense-amount: #1F2937;
+    --expense-pill: #DC2626;
+    --tile-border: #E8EBEF;
+    --chrome-circle: #F1F2F4;
+    --nav-off: #9CA3AF;
+    --nav-on: #6C52EE;
+    --nav-pill: rgba(108,82,238,.12);
+    --nav-bg: rgba(255,255,255,.94);
+    --nav-border: #ECEEF2;
+  }
+
+  /* ---------- Status bar ---------- */
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 22px 8px; font-size: 13px; font-weight: 600;
+    color: var(--text);
+  }
+  .statusbar .icons { display: flex; gap: 5px; align-items: center; }
+  .statusbar .material-symbols-outlined { font-size: 17px; }
+
+  /* ---------- Header ---------- */
+  .header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 6px 16px 14px;
+  }
+  .circle-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--chrome-circle);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .circle-btn .material-symbols-outlined { font-size: 22px; color: var(--primary); }
+  .header h2 {
+    flex: 1; font-size: 21px; font-weight: 700; color: var(--text);
+  }
+  .screen.dark .header h2 { color: var(--primary); }
+
+  /* ---------- Period navigator ---------- */
+  .period-strip {
+    margin: 0 16px 12px;
+    border: 1px solid var(--hair);
+    border-radius: 28px;
+    background: var(--card);
+    padding: 9px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .period-left { display: flex; align-items: center; gap: 5px; }
+  .period-left .material-symbols-outlined { font-size: 20px; color: var(--primary); }
+  .period-label { font-size: 13.5px; font-weight: 600; color: var(--text); padding: 0 4px; }
+  .period-left .cal { color: var(--text2); font-size: 17px; }
+  .view-chip {
+    font-size: 11.5px; font-weight: 700; color: var(--primary-ink);
+    background: var(--primary-container); padding: 5px 12px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .view-chip .material-symbols-outlined { font-size: 15px; }
+
+  /* ---------- Summary ---------- */
+  .summary { margin: 0 16px 12px; }
+  .summary .rule { height: 1px; background: var(--hair); }
+  .summary-row {
+    display: flex; align-items: center; justify-content: center; gap: 22px;
+    padding: 9px 0; font-size: 13px; font-weight: 600;
+  }
+  .summary-row .period { color: var(--primary); font-weight: 700; }
+  .summary-row .inc { color: var(--income); }
+  .summary-row .exp { color: var(--expense-pill); }
+
+  /* ---------- List ---------- */
+  .list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 120px;
+    scrollbar-width: none;
+  }
+  .list::-webkit-scrollbar { display: none; }
+
+  .date-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 12px 2px 8px;
+    font-size: 13px; font-weight: 600;
+  }
+  .date-header .day { color: var(--primary); }
+  .screen.dark .date-header .day { color: #CDBDFF; }
+  .screen.light .date-header .day { color: #6750A4; }
+  .date-header .date { color: var(--text2); font-weight: 400; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .screen.dark .card { border: none; }
+
+  .tile {
+    width: 50px; height: 50px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--tile-border);
+  }
+  .tile .material-symbols-outlined { font-size: 25px; }
+
+  .body { flex: 1; min-width: 0; }
+  .row1 { display: flex; align-items: baseline; gap: 8px; }
+  .note {
+    flex: 1; min-width: 0;
+    font-size: 14px; font-weight: 700; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .amount { font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .amount.inc { color: var(--income); }
+  .amount.exp { color: var(--expense-amount); }
+
+  .row2 {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 7px; overflow: hidden;
+  }
+  .pill {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .3px;
+    padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+  }
+  .pill.pay { color: var(--text2); background: color-mix(in srgb, var(--text2) 10%, transparent); }
+  .pill.income { color: var(--income); background: color-mix(in srgb, var(--income) 12%, transparent); }
+  .pill.expense { color: var(--expense-pill); background: color-mix(in srgb, var(--expense-pill) 12%, transparent); }
+  .pill.cat { color: var(--primary); background: var(--primary-container); }
+  .datetime {
+    margin-left: auto; font-size: 10.5px; color: var(--text2);
+    white-space: nowrap; padding-left: 6px; flex-shrink: 0;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .nav {
+    position: absolute; left: 16px; right: 16px; bottom: 14px;
+    height: 62px; border-radius: 999px;
+    background: var(--nav-bg);
+    border: 1px solid var(--nav-border);
+    backdrop-filter: blur(16px);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 10px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--nav-off); font-size: 9.5px; font-weight: 600;
+  }
+  .nav-item .material-symbols-outlined { font-size: 22px; }
+  .nav-item.active { color: var(--nav-on); }
+  .nav-item.active .material-symbols-outlined {
+    background: var(--nav-pill); border-radius: 999px; padding: 4px 14px;
+  }
+
+  /* ---------- Legend ---------- */
+  .legend-card {
+    margin-top: 44px;
+    border: 1px solid #24222F;
+    border-radius: 16px;
+    background: #0E0D13;
+    overflow: hidden;
+  }
+  .legend-head {
+    padding: 15px 20px; background: #16141F; border-bottom: 1px solid #24222F;
+    font-size: 15px; font-weight: 700; color: var(--brand-light);
+    display: flex; align-items: center; gap: 9px;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .legend-head .material-symbols-outlined { font-size: 20px; }
+  .legend-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #17161f;
+  }
+  .pair { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+  .sw { width: 16px; height: 16px; border-radius: 5px; display: inline-block; }
+  .legend-item .name { font-size: 13px; color: #FFFFFF; font-weight: 600; }
+  .legend-item .tok { font-size: 10px; color: #A5A1B8; }
+
+  .footnote {
+    margin-top: 22px; padding: 16px 18px;
+    border: 1px solid #24222F; border-radius: 14px;
+    background: #0E0D13; color: #A5A1B8; font-size: 13px;
+  }
+  .footnote strong { color: #fff; }
+  .footnote ul { margin: 8px 0 0 18px; }
+  .footnote li { margin-bottom: 5px; }
+
+  @media (max-width: 860px) { .devices { gap: 40px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="intro">
+    <h1><span class="material-symbols-outlined">receipt_long</span> Transactions Screen — Category Color Mock</h1>
+    <p>Same data, same layout, side by side. The category tile carries the corrected light/dark color pair; every other token is the app's real theme.</p>
+  </div>
+
+  <div class="devices">
+
+    <div class="device-wrap">
+      <span class="device-label light"><span class="material-symbols-outlined">light_mode</span> Light Mode</span>
+      <div class="phone"><div class="screen light" id="screenLight"></div></div>
+    </div>
+
+    <div class="device-wrap">
+      <span class="device-label dark"><span class="material-symbols-outlined">dark_mode</span> Dark Mode</span>
+      <div class="phone"><div class="screen dark" id="screenDark"></div></div>
+    </div>
+
+  </div>
+
+  <div class="legend-card">
+    <div class="legend-head"><span class="material-symbols-outlined">palette</span> Category Color Pairs Used Above</div>
+    <div class="legend-grid" id="legendGrid"></div>
+  </div>
+
+  <div class="footnote">
+    <strong>How to read this mock</strong>
+    <ul>
+      <li>The icon tile is the only element that takes the category color. Payment, type and category pills keep the app's current styling — the category pill stays brand purple, exactly as in <code>TransactionCard.kt</code>.</li>
+      <li>Dark mode transaction rows are transparent (<code>TransactionCard.kt:115</code>), so the tiles and pills sit directly on the <code>#0A0A0A</code> field. Light mode rows are white cards on <code>#F7F8FA</code>.</li>
+      <li>Income amounts use <code>#3DDC97</code> dark / <code>#15803D</code> light. Expense amounts are white in dark and <code>#1F2937</code> in light.</li>
+      <li>If the tiles feel too loud against the purple category pill, the natural next step is to tint the pill with the same category pair — see the last note.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  const tokens = {
+    red:        { dark: "#FF6B6B", light: "#C0392B" },
+    rose:       { dark: "#FF7A9C", light: "#BE123C" },
+    sky:        { dark: "#4FC3F7", light: "#0369A1" },
+    blue:       { dark: "#6BA6FF", light: "#1D4ED8" },
+    indigo:     { dark: "#B79CFF", light: "#4F46E5" },
+    violet:     { dark: "#A78BFA", light: "#6D28D9" },
+    lilac:      { dark: "#C77DFF", light: "#7B1FA2" },
+    orchid:     { dark: "#E879F9", light: "#A21CAF" },
+    green:      { dark: "#3DDC97", light: "#166534" },
+    teal:       { dark: "#2DD4BF", light: "#0F766E" },
+    lime:       { dark: "#A3E635", light: "#3F6212" },
+    yellow:     { dark: "#F5C542", light: "#7C5A00" },
+    amber:      { dark: "#FFB020", light: "#92400E" },
+    orange:     { dark: "#FF9F45", light: "#9A3412" },
+    deepOrange: { dark: "#FF7043", light: "#7C2D12" },
+    brown:      { dark: "#E0A458", light: "#6B3410" },
+    grey:       { dark: "#A5A1B8", light: "#5F6470" }
+  };
+
+  const feed = [
+    { header: "Today", date: "25 Sep" },
+    { note: "Lunch at office cafeteria", amount: "-₹320", income: false, token: "deepOrange", icon: "restaurant",         payment: "UPI",  category: "FOOD",          time: "1:30 PM" },
+    { note: "Uber to airport",           amount: "-₹1,250", income: false, token: "sky",        icon: "flight",             payment: "CARD", category: "TRAVEL",        time: "11:05 AM" },
+    { note: "Monthly salary credit",     amount: "+₹64,000", income: true, token: "green",       icon: "payments",           payment: "BANK", category: "SALARY",        time: "9:00 AM" },
+
+    { header: "Yesterday", date: "24 Sep" },
+    { note: "Amazon wireless headphones", amount: "-₹2,999", income: false, token: "lilac",      icon: "shopping_bag",       payment: "CARD", category: "SHOPPING",      time: "8:40 PM" },
+    { note: "Electricity bill",           amount: "-₹1,840", income: false, token: "green",       icon: "receipt_long",       payment: "UPI",  category: "BILLS",         time: "6:15 PM" },
+    { note: "Pharmacy — antibiotics",     amount: "-₹740",   income: false, token: "red",        icon: "favorite",           payment: "UPI",  category: "HEALTH",        time: "2:10 PM" },
+
+    { header: "Wednesday", date: "23 Sep" },
+    { note: "Netflix subscription",       amount: "-₹649",   income: false, token: "yellow",     icon: "movie",              payment: "CARD", category: "ENTERTAINMENT", time: "12:00 AM" },
+    { note: "Petrol — full tank",         amount: "-₹2,800", income: false, token: "amber",      icon: "local_gas_station",  payment: "CARD", category: "FUEL",          time: "9:30 AM" },
+    { note: "Weekly grocery run",         amount: "-₹3,450", income: false, token: "teal",       icon: "shopping_cart",      payment: "CASH", category: "GROCERIES",     time: "8:50 AM" },
+
+    { header: "Tuesday", date: "22 Sep" },
+    { note: "House rent",                 amount: "-₹18,000", income: false, token: "orange",    icon: "home",               payment: "BANK", category: "RENT",          time: "10:00 AM" },
+    { note: "Mutual fund dividend",       amount: "+₹2,400",  income: true, token: "violet",     icon: "trending_up",        payment: "BANK", category: "INVESTMENT",    time: "8:00 AM" },
+
+    { header: "Monday", date: "21 Sep" },
+    { note: "Online course — Kotlin",     amount: "-₹1,499", income: false, token: "blue",       icon: "school",             payment: "CARD", category: "EDUCATION",     time: "5:45 PM" },
+    { note: "Home insurance premium",     amount: "-₹4,200", income: false, token: "indigo",     icon: "security",           payment: "BANK", category: "INSURANCE",     time: "3:20 PM" },
+    { note: "Car service",                amount: "-₹6,750", income: false, token: "brown",      icon: "build",              payment: "CARD", category: "MAINTENANCE",   time: "11:10 AM" },
+    { note: "Gift for cousin's wedding",  amount: "-₹5,000", income: false, token: "rose",       icon: "card_giftcard",      payment: "CARD", category: "GIFTS",         time: "10:05 AM" }
+  ];
+
+  const NAV = [
+    { icon: "home", label: "Home" },
+    { icon: "receipt_long", label: "History", active: true },
+    { icon: "insights", label: "Stats" },
+    { icon: "person", label: "Profile" }
+  ];
+
+  function rgba(hex, a) {
+    const c = hex.replace("#", "");
+    return `rgba(${parseInt(c.slice(0,2),16)}, ${parseInt(c.slice(2,4),16)}, ${parseInt(c.slice(4,6),16)}, ${a})`;
+  }
+
+  function iconTile(item, mode) {
+    const ink = tokens[item.token][mode];
+    const alpha = mode === "dark" ? 0.18 : 0.12;
+    return `<div class="tile" style="background:${rgba(ink, alpha)};color:${ink}">
+      <span class="material-symbols-outlined">${item.icon}</span></div>`;
+  }
+
+  function card(item, mode) {
+    const pay = item.payment;
+    const typePill = item.income ? "INCOME" : "EXPENSE";
+    return `
+      <div class="card">
+        ${iconTile(item, mode)}
+        <div class="body">
+          <div class="row1">
+            <span class="note">${item.note}</span>
+            <span class="amount ${item.income ? "inc" : "exp"}">${item.amount}</span>
+          </div>
+          <div class="row2">
+            <span class="pill pay">${pay}</span>
+            <span class="pill ${item.income ? "income" : "expense"}">${typePill}</span>
+            <span class="pill cat">${item.category}</span>
+            <span class="datetime">${item.time}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderScreen(mode) {
+    let rows = "";
+    for (const item of feed) {
+      if (item.header) {
+        rows += `<div class="date-header"><span class="day">${item.header}</span><span class="date">${item.date}</span></div>`;
+      } else {
+        rows += card(item, mode);
+      }
+    }
+
+    const navItems = NAV.map(n => `
+      <div class="nav-item ${n.active ? "active" : ""}">
+        <span class="material-symbols-outlined">${n.icon}</span>
+        <span>${n.label}</span>
+      </div>`).join("");
+
+    return `
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="icons">
+          <span class="material-symbols-outlined">signal_cellular_alt</span>
+          <span class="material-symbols-outlined">wifi</span>
+          <span class="material-symbols-outlined">battery_full</span>
+        </span>
+      </div>
+
+      <div class="header">
+        <div class="circle-btn"><span class="material-symbols-outlined">arrow_back</span></div>
+        <h2>Transactions</h2>
+        <div class="circle-btn"><span class="material-symbols-outlined">search</span></div>
+        <div class="circle-btn"><span class="material-symbols-outlined">filter_alt</span></div>
+      </div>
+
+      <div class="period-strip">
+        <div class="period-left">
+          <span class="material-symbols-outlined">chevron_left</span>
+          <span class="period-label">July 2026</span>
+          <span class="material-symbols-outlined cal">calendar_today</span>
+          <span class="material-symbols-outlined">chevron_right</span>
+        </div>
+        <span class="view-chip"><span class="material-symbols-outlined">calendar_month</span>Monthly</span>
+      </div>
+
+      <div class="summary">
+        <div class="rule"></div>
+        <div class="summary-row">
+          <span class="period">July 2026</span>
+          <span class="inc">+ ₹66,400</span>
+          <span class="exp">- ₹47,998</span>
+        </div>
+        <div class="rule"></div>
+      </div>
+
+      <div class="list">${rows}</div>
+
+      <div class="nav">${navItems}</div>
+    `;
+  }
+
+  document.getElementById("screenLight").innerHTML = renderScreen("light");
+  document.getElementById("screenDark").innerHTML = renderScreen("dark");
+
+  document.getElementById("legendGrid").innerHTML = Object.keys(tokens).map(key => `
+    <div class="legend-item">
+      <div>
+        <div class="name">${key}</div>
+        <div class="tok">${tokens[key].dark} / ${tokens[key].light}</div>
+      </div>
+      <div class="pair">
+        <span class="sw" style="background:${tokens[key].light}" title="light"></span>
+        <span class="sw" style="background:${tokens[key].dark}" title="dark"></span>
+      </div>
+    </div>`).join("");
+</script>
+</body>
+</html>
