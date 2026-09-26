@@ -59,6 +59,7 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.data.constants.transactionList
@@ -258,14 +259,19 @@ private fun CategoryManagementContent(
             }
         }
 
-        AddCategoryFab(
+        // The shared brand "+" FAB at its standard diameter, so this button is the same
+        // size as the one docked in the navigation bar and the one on the goals screen.
+        // Only the shadow is heavier — it floats over the list with no bar beside it to
+        // carry its edge — and that is a comment, not a size, so the three still read as
+        // one button.
+        BrandAddFab(
+            onClick = { onAddCategoryClick(activeTab) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
                 .padding(end = 22.dp, bottom = 28.dp),
-            onClick = {
-                onAddCategoryClick(activeTab)
-            }
+            contentDescription = stringResource(R.string.desc_add_category),
+            shadowElevation = 22.dp
         )
     }
 
@@ -378,23 +384,17 @@ private fun CategoryManagementCard(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column(
+        // Title only. There was a second line here describing the category, but no
+        // category or payment method has ever carried a description — neither model has
+        // the field — so the line was a hardcoded fallback string, and it labelled the
+        // user's own entries with a canned sentence rather than anything they wrote.
+        // With nothing real behind it, the row renders nothing instead.
+        Text(
+            text = item.title,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = item.title,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleSmall,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = item.subtitleRes?.let { stringResource(it) } ?: item.subtitle ?: "",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        )
 
         if (item.isUserCreated) {
             Spacer(modifier = Modifier.width(8.dp))
@@ -459,56 +459,6 @@ private fun defaultIconIdFor(tab: CategoryManagementTab): String {
         CategoryManagementTab.Income -> "wallet"
         CategoryManagementTab.Expense -> "shopping_cart"
         CategoryManagementTab.Payment -> "payments"
-    }
-}
-
-@Composable
-private fun AddCategoryFab(
-        modifier: Modifier = Modifier,
-        onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .size(88.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.accentInk.copy(alpha = 0.28f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                        )
-                    ),
-                    shape = CircleShape
-                )
-        )
-
-        Box(
-            modifier = Modifier
-                .size(66.dp)
-                .shadow(
-                    elevation = 22.dp,
-                    shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
-                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.30f)
-                )
-                .clip(CircleShape)
-                .background(
-                    brush = brandGradient()
-                )
-                .clickable(onClick = onClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.desc_add_category),
-                tint = MaterialTheme.colorScheme.onCta,
-                modifier = Modifier.size(26.dp)
-            )
-        }
     }
 }
 

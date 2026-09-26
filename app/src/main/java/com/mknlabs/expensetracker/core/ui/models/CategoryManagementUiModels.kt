@@ -22,8 +22,6 @@ enum class CategoryManagementTab(@StringRes val titleRes: Int) {
 data class CategoryManagementItemUi(
     val id: Int,
     val title: String,
-    val subtitle: String? = null,
-    @StringRes val subtitleRes: Int? = null,
     val icon: ImageVector,
     val isUserCreated: Boolean
 )

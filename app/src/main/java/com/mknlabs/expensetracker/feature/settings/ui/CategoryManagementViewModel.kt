@@ -3,7 +3,6 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
-import com.mknlabs.expensetracker.data.constants.categoryFallbackDescriptions
-import com.mknlabs.expensetracker.data.constants.paymentFallbackDescriptions
 import javax.inject.Inject
 
 @Immutable
@@ -78,13 +75,11 @@ class CategoryManagementViewModel @Inject constructor(
     ) {
         val incomeItems = buildCategoryManagementItems(
             categories = customCategories,
-            transactionTypeId = 1,
-            fallbackSubtitleRes = R.string.title_custom_income_category
+            transactionTypeId = 1
         )
         val expenseItems = buildCategoryManagementItems(
             categories = customCategories,
-            transactionTypeId = 2,
-            fallbackSubtitleRes = R.string.title_custom_expense_category
+            transactionTypeId = 2
         )
         val paymentItems = buildPaymentManagementItems(customPaymentTypes)
 
@@ -102,8 +97,7 @@ class CategoryManagementViewModel @Inject constructor(
 
 private fun buildCategoryManagementItems(
     categories: List<CategoryType>,
-    transactionTypeId: Int,
-    fallbackSubtitleRes: Int
+    transactionTypeId: Int
 ): List<CategoryManagementItemUi> {
     val customItems = categories
         .filter { it.transactionTypeId == transactionTypeId }
@@ -116,7 +110,6 @@ private fun buildCategoryManagementItems(
         CategoryManagementItemUi(
             id = category.id,
             title = category.name,
-            subtitleRes = categoryFallbackDescriptions[category.id] ?: fallbackSubtitleRes,
             icon = category.icon,
             isUserCreated = category.id !in categoryMap
         )
@@ -133,7 +126,6 @@ private fun buildPaymentManagementItems(
         CategoryManagementItemUi(
             id = paymentType.id,
             title = paymentType.name,
-            subtitleRes = paymentFallbackDescriptions[paymentType.id] ?: R.string.label_custom_payment_method,
             icon = paymentType.icon,
             isUserCreated = paymentType.id !in paymentTypeMap
         )

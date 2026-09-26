@@ -144,27 +144,34 @@ fun brandGradient(alpha: Float = 1f): Brush {
 /**
  * Fill for the Add-transaction FAB: the brand ramp lit from the top-left corner.
  *
- * These are the mock's own CTA ends — `#5838FA → #3713EC` in dark and
- * `#6A4DFF → #5B45D6` in light — not a hand-tuned lerp of the scheme's `primary`.
- * `primary` in dark is the fully-saturated 500 (`#7B61FF`), which the spec keeps as
- * accent, glow and focus ring and never as a fill; a large brand block built by
- * lerping it is exactly the "over-purple" surface the redesign replaces. Routing the
- * FAB through the same ramp every filled control uses also means the FAB and the
- * reveal handle cannot drift apart.
+ * Deliberately one ramp in BOTH themes — the mock's light CTA ends `#6A4DFF →
+ * #5B45D6`. The FAB and the bottom bar's reveal handle are the app's two brand
+ * islands rather than chrome sitting in a themed surface, so they keep one identity
+ * across the switch instead of each theme recolouring them. The dark pair
+ * (`#5838FA → #3713EC`) is still the ramp [ColorScheme.cta] draws from, so buttons,
+ * chips and segment indicators continue to follow the surface under them.
+ *
+ * Neither end is a hand-tuned lerp of the scheme's `primary`. `primary` in dark is the
+ * fully-saturated 500 (`#7B61FF`), which the spec keeps as accent, glow and focus ring
+ * and never as a fill; a large brand block built by lerping it is exactly the
+ * "over-purple" surface the redesign replaces. Routing the FAB through the same ramp
+ * every filled control uses also means the FAB and the reveal handle cannot drift
+ * apart.
+ *
+ * White ink clears AA on both ends (5.10:1 on `#6A4DFF`, higher on `#5B45D6`), which
+ * is what makes taking the light pair in dark a legibility-safe substitution rather
+ * than a contrast trade. [ColorScheme.onBrandGradient] is white in both themes for
+ * the same reason.
  *
  * The lighter end sits top-left because that is where [Brush.linearGradient] starts.
  */
 @Composable
-fun fabGradient(): Brush {
-    val isDark = MaterialTheme.colorScheme.isDark
-    val lit = if (isDark) HeroRailStartDark else HeroRailStartLight
-    val deep = if (isDark) HeroRailEndDark else HeroRailEndLight
-    return remember(lit, deep) {
+fun fabGradient(): Brush =
+    remember {
         Brush.linearGradient(
-            colors = listOf(lit, deep)
+            colors = listOf(HeroRailStartLight, HeroRailEndLight)
         )
     }
-}
 
 // The card fill, read straight from the spec's card ladder rather than a wash of
 // `surfaceVariant`. The old recipe blended a legacy #353534 down over the field to reach

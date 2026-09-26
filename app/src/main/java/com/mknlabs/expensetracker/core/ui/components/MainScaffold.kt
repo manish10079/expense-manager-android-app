@@ -206,7 +206,7 @@ fun MainScaffold(
     )
     val colorScheme = MaterialTheme.colorScheme
 
-    // Shared visibility controller for the standalone AddTransactionFab. Tab
+    // Shared visibility controller for the standalone BrandAddFab. Tab
     // screens flip this from their list's scroll direction; the slot composable
     // reads only this value so bar flips stay scoped.
     val addFabVisibility = remember { mutableStateOf(true) }

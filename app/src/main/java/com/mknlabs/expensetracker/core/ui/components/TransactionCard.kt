@@ -113,7 +113,7 @@ fun TransactionCard(
     val cardColors = when {
         isSelected -> baseColors.copy(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
+           border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
         )
         MaterialTheme.colorScheme.isDark -> baseColors.copy(containerColor = transparent)
         else -> baseColors
@@ -316,10 +316,24 @@ fun TransactionCard(
                                     }
 
                                     if (showTypeLabel) {
+                                        val typeInk = if (transactionTypeId == 1) {
+                                            MaterialTheme.colorScheme.income
+                                        } else {
+                                            MaterialTheme.colorScheme.expense
+                                        }
+                                        // The wash sits behind the semantic ink to name the type at a
+                                        // glance. Those inks are the spec's bright pair (#3DDC97 /
+                                        // #FF6B6B) and the dark card is transparent, so the same 12%
+                                        // that reads as a tint on the light card reads as a lit block on
+                                        // the dark background. The wash is halved in dark so the pill
+                                        // stays a label rather than a surface.
+                                        val typeWash = typeInk.copy(
+                                            alpha = if (MaterialTheme.colorScheme.isDark) 0.06f else 0.12f
+                                        )
                                         TransactionPill(
                                             text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
-                                            color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                                            backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f),
+                                            color = typeInk,
+                                            backgroundColor = typeWash,
                                             style = metaStyle
                                         )
                                     }
@@ -328,7 +342,7 @@ fun TransactionCard(
                                         TransactionPill(
                                             text = categoryLabel,
                                             color = MaterialTheme.colorScheme.accentInk,
-                                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
                                             style = metaStyle
                                         )
                                     }
@@ -388,7 +402,7 @@ fun TransactionCard(
                                                     R.string.desc_view_full_note
                                                 }
                                             ),
-                                            tint = MaterialTheme.colorScheme.accentInk,
+                                            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }

@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -53,8 +50,6 @@ import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentInkGradient
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.onCta
 
 /** Width of the branded rail, mirroring the 80dp spec in the roadmap. */
 val AppNavigationRailWidth = 80.dp
@@ -92,9 +87,17 @@ fun AppNavigationRail(
             )
         }
 
-        // Centered Add action (spacers balance the two item groups).
+        // Centered Add action (spacers balance the two item groups). The shared brand
+        // "+" FAB, kept at the rail's narrower diameter; no halo, because the rail paints
+        // behind the button and a glow this close to the destinations would wash them.
         Spacer(modifier = Modifier.weight(1f))
-        RailAddButton(onClick = onAddClick)
+        BrandAddFab(
+            onClick = onAddClick,
+            size = 48.dp,
+            iconSize = 20.dp,
+            glow = false,
+            shadowElevation = 22.dp
+        )
         Spacer(modifier = Modifier.weight(1f))
 
         bottomItems.forEach { item ->
@@ -196,27 +199,3 @@ private fun RailNavItem(
     }
 }
 
-@Composable
-private fun RailAddButton(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .shadow(
-                elevation = 22.dp,
-                shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.30f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
-            )
-            .clip(CircleShape)
-            .background(brush = brandGradient())
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(R.string.desc_add_transaction),
-            tint = MaterialTheme.colorScheme.onCta,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}

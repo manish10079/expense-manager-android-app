@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
@@ -142,13 +144,23 @@ private fun GoalsScreenContent(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
+            // The very same brand "+" FAB the shell docks on the home screen — one
+            // component, so the ramp, glow, shape and elevation cannot drift from it.
+            // It carries its own label because this button adds a goal, not a
+            // transaction. The offset cancels the room the component reserves for its
+            // glow, which Scaffold would otherwise count as button width and leave the
+            // circle inset from the screen edge rather than on the standard margin.
+            BrandAddFab(
                 onClick = { isAddGoalDialogVisible = true },
-                containerColor = MaterialTheme.colorScheme.accentInk,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_goal))
-            }
+                modifier = Modifier.offset(
+                    x = BrandAddFabDefaults.GlowInset,
+                    y = BrandAddFabDefaults.GlowInset
+                ),
+                contentDescription = stringResource(R.string.cd_add_goal),
+                // Pools the halo downward, matching the docked FAB it is the same
+                // button as.
+                glowOffset = 8.dp
+            )
         },
         containerColor = Color.Transparent
     ) { padding ->

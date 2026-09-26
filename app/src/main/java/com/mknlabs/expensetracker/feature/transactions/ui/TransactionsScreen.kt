@@ -147,7 +147,7 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.components.ActiveFilter
 import com.mknlabs.expensetracker.core.ui.components.ActiveFilterBar
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
-import com.mknlabs.expensetracker.core.ui.components.AddTransactionFabSlot
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFabSlot
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.FilterBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.FilterPillType
@@ -1087,7 +1087,7 @@ private fun TransactionScreenContent(
                 .padding(bottom = 80.dp)
         )
 
-        AddTransactionFabSlot(
+        BrandAddFabSlot(
             onClick = onAddTransactionClick,
             visible = !uiState.isSelectionMode && snackbarHostState.currentSnackbarData == null,
             modifier = Modifier

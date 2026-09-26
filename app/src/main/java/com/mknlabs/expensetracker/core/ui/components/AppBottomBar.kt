@@ -83,7 +83,7 @@ import kotlinx.coroutines.delay
 /**
  * Gap reserved between the two destination groups for the docked Add FAB.
  *
- * Deliberately 8dp NARROWER than the FAB ([AddTransactionFabSize]), i.e. 4dp per
+ * Deliberately 8dp NARROWER than the FAB ([BrandAddFabDefaults.Size]), i.e. 4dp per
  * side, so Analytics and Budget sit closer to Add. The slot previously measured
  * exactly one FAB diameter, which left the two inner pills tangent to the FAB's
  * *bounding box* — but the FAB is a circle whose widest point rests on the
@@ -107,7 +107,7 @@ import kotlinx.coroutines.delay
  * intrusion triples to ~6.8dp, which reads as a collision. Narrowing further would
  * also steal room the labels need at raised font scales.
  */
-private val AddFabSlotWidth = AddTransactionFabSize - 8.dp
+private val AddFabSlotWidth = BrandAddFabDefaults.Size - 8.dp
 
 /** Capsule width cap so the bar stays a capsule rather than stretching edge to
  *  edge if it is ever rendered on a wide window (the rail covers those today). */
@@ -127,7 +127,7 @@ private val NavItemMinHeight = 56.dp
 /**
  * Diameter of the circular reveal handle. Held at the 48dp minimum touch target
  * because it is the only way back to the bar once it has hidden itself, and kept
- * below [AddTransactionFabSize] so it reads as a compact affordance rather than
+ * below [BrandAddFabDefaults.Size] so it reads as a compact affordance rather than
  * competing with the Add button that occupied the same centre line.
  */
 private val RevealHandleSize = 48.dp
@@ -348,7 +348,7 @@ private fun AppBottomBarContent(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(
-                        top = AddTransactionFabSize / 2 + AddTransactionFabGlowInset,
+                        top = BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset,
                         start = Dimens.spacingCompact,
                         end = Dimens.spacingCompact,
                         bottom = Dimens.spacingCompact
@@ -428,11 +428,14 @@ private fun AppBottomBarContent(
                     // The offset covers the glow inset as well as the radius: what
                     // is aligned to the capsule is the glow box, and the circle sits
                     // one inset inside that box.
-                    AddTransactionFab(
+                    BrandAddFab(
                         onClick = onAddClick,
                         modifier = Modifier.offset(
-                            y = -(AddTransactionFabSize / 2 + AddTransactionFabGlowInset)
-                        )
+                            y = -(BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset)
+                        ),
+                        // Pools the halo downward onto the frosted capsule below, which is
+                        // the one place in the app the glow is meant to light something.
+                        glowOffset = 8.dp
                     )
                 }
             }
@@ -456,8 +459,10 @@ private fun AppBottomBarContent(
  * The fill is [fabGradient], the same one the docked FAB uses, and the chevron
  * takes the same [onBrandGradient] ink — so the affordance the bar collapses into
  * is visibly the same button as the one it collapsed from, rather than a second
- * brand surface a shade off it. Both ends of the gradient are derived from
- * [MaterialTheme.colorScheme], so it separates from the background in either theme.
+ * brand surface a shade off it. The ramp itself is theme-independent — [fabGradient]
+ * takes the same two ends whichever theme is on — so the handle separates from the
+ * background in either theme and stays exactly the FAB's colour rather than each
+ * theme recolouring it separately.
  */
 @Composable
 private fun BottomBarRevealHandle(onClick: () -> Unit) {
