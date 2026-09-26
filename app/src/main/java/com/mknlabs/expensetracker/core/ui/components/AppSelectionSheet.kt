@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +16,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +51,7 @@ fun <T> AppSelectionSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -99,11 +104,11 @@ fun <T> AppSelectionSheet(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.accentInk
                     )
                 )
             }
@@ -147,7 +152,7 @@ private fun <T> SelectionRow(
     onClick: () -> Unit
 ) {
     val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
     } else {
         MaterialTheme.colorScheme.surfaceVariant
     }
@@ -159,7 +164,7 @@ private fun <T> SelectionRow(
     }
 
     val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.accentInk
     } else {
         MaterialTheme.colorScheme.onSurface
     }
@@ -212,7 +217,7 @@ private fun <T> SelectionRow(
                 val titleText = if (item.titleRes != 0) stringResource(item.titleRes) else item.title
                 Text(
                     text = titleText,
-                    color = if (item.isLocked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface,
+                    color = if (item.isLocked) MaterialTheme.colorScheme.disabled else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -242,7 +247,7 @@ private fun <T> SelectionRow(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitleText,
-                    color = if (item.isLocked) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (item.isLocked) MaterialTheme.colorScheme.disabled else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium,
                     lineHeight = 18.sp,
                     maxLines = 1,
@@ -256,7 +261,7 @@ private fun <T> SelectionRow(
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.label_selected),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold
                 )

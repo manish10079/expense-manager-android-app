@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -144,12 +148,12 @@ fun UpdateDialog(
             usePlatformDefaultWidth = false,
         ),
         modifier = Modifier.width(metrics.maxWidth),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         icon = {
             Icon(
                 imageVector = Icons.Rounded.RocketLaunch,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(metrics.iconSize)
             )
         },
@@ -345,7 +349,7 @@ private fun UpdateDialogContent(info: UpdateInfo) {
     Icon(
         imageVector = Icons.Rounded.RocketLaunch,
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.primary,
+        tint = MaterialTheme.colorScheme.accentInk,
         modifier = Modifier.size(32.dp)
     )
     Spacer(modifier = Modifier.height(16.dp))

@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,6 +49,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -60,7 +65,6 @@ import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.monetization.AccessLevel
-import com.mknlabs.expensetracker.core.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,7 +96,7 @@ fun SettingsItemCard(
     val updatedOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val interactionSource = remember { MutableInteractionSource() }
 
-    val primary = colorScheme.primary
+    val primary = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
     val danger = colorScheme.error
@@ -114,14 +118,14 @@ fun SettingsItemCard(
     }
 
     val titleColor = when {
-        isGated -> onSurface.copy(alpha = 0.38f)
+        isGated -> colorScheme.disabled
         !finalEnabled -> onSurface.copy(alpha = 0.5f)
         isDanger -> danger
         else -> onSurface
     }
 
     val subtitleColor = when {
-        isGated -> onSurfaceVariant.copy(alpha = 0.38f)
+        isGated -> colorScheme.disabled
         else -> onSurfaceVariant.copy(alpha = if (finalEnabled) 1f else 0.6f)
     }
 
@@ -222,9 +226,9 @@ fun SettingsItemCard(
                                     checkedThumbColor = colorScheme.onCta,
                                     checkedTrackColor = colorScheme.cta,
                                     checkedBorderColor = Color.Transparent,
-                                    uncheckedThumbColor = NeutralGray,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.textTertiary,
                                     uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
-                                    uncheckedBorderColor = NeutralGray,
+                                    uncheckedBorderColor = MaterialTheme.colorScheme.textTertiary,
                                     disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
                                     disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
                                     disabledCheckedBorderColor = Color.Transparent,

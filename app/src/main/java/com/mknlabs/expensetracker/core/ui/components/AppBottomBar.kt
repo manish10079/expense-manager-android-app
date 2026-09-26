@@ -44,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
@@ -380,8 +382,7 @@ private fun AppBottomBarContent(
                                             // light, so the light bar cannot drift off the
                                             // spec, and the same charcoal it has always
                                             // been in dark.
-                                            backgroundColor = if (isDark) Color(0xD90E0D13)
-                                                else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                                            backgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                                             blurRadius = 24.dp,
                                             noiseFactor = 0.03f,
                                             tints = emptyList()
@@ -475,7 +476,7 @@ private fun BottomBarRevealHandle(onClick: () -> Unit) {
                 .shadow(
                     elevation = 22.dp,
                     shape = handleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.30f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                 )
                 .clip(handleShape)

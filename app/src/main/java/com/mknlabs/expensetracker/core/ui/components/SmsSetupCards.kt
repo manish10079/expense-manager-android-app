@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,7 +64,7 @@ fun SmsPermissionCard(
                     Icon(
                         imageVector = Icons.Rounded.Sms,
                         contentDescription = stringResource(id = R.string.desc_sms_detection_icon),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -98,7 +100,7 @@ fun SmsPermissionCard(
             AppTextButton(onClick = onOpenSettings) {
                 Text(
                     text = stringResource(id = R.string.label_open_app_settings),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -133,7 +135,7 @@ fun MiuiSmsSetupCard(
                     Icon(
                         imageVector = Icons.Rounded.PhoneAndroid,
                         contentDescription = stringResource(id = R.string.desc_sms_detection_icon),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -174,14 +176,14 @@ fun MiuiSmsSetupCard(
                 AppTextButton(onClick = onOpenAppSettings) {
                     Text(
                         text = stringResource(id = R.string.label_open_app_settings),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
                 AppTextButton(onClick = onBatterySettings) {
                     Text(
                         text = stringResource(id = R.string.label_battery_settings),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }

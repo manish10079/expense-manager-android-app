@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +50,7 @@ fun SelectionHeader(
             Icon(
                 imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.desc_exit_selection),
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.accentInk
             )
         }
 
@@ -72,7 +74,7 @@ fun SelectionHeader(
             Icon(
                 imageVector = Icons.Rounded.DoneAll,
                 contentDescription = stringResource(R.string.desc_select_all),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(18.dp)
             )
         }

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 /** The spec's corner for a dialog's buttons and for the fields inside it. */
 private val ActionShape = RoundedCornerShape(16.dp)
@@ -43,7 +44,7 @@ object AppDialogDefaults {
     @Composable
     fun containerColor(): Color =
         if (MaterialTheme.colorScheme.isDark) AlertDialogDefaults.containerColor
-        else MaterialTheme.colorScheme.surface
+        else MaterialTheme.colorScheme.sheet
 
     /** The corner of an input field inside a dialog, per the spec's 16dp fields. */
     @Composable
@@ -63,7 +64,7 @@ fun AppDialogConfirmButton(
     enabled: Boolean = true
 ) {
     if (MaterialTheme.colorScheme.isDark) {
-        // The bare TextButton takes colorScheme.primary, and in dark that is #7B61FF:
+        // The bare TextButton takes colorScheme.accentInk, and in dark that is #7B61FF:
         // 3.95:1 on the dialog surface (#1E1E23), under the 4.5:1 this label needs.
         // accentInk is #9E84FF in dark, which clears it at 5.69:1, and is the same ink
         // the keypad hands its operators. In light the two are the same colour anyway.
@@ -99,7 +100,7 @@ fun AppDialogDismissButton(
     enabled: Boolean = true
 ) {
     if (MaterialTheme.colorScheme.isDark) {
-        // The bare TextButton takes colorScheme.primary, and in dark that is #7B61FF:
+        // The bare TextButton takes colorScheme.accentInk, and in dark that is #7B61FF:
         // 3.95:1 on the dialog surface (#1E1E23), under the 4.5:1 this label needs.
         // accentInk is #9E84FF in dark, which clears it at 5.69:1, and is the same ink
         // the keypad hands its operators. In light the two are the same colour anyway.
@@ -117,9 +118,9 @@ fun AppDialogDismissButton(
             modifier = modifier,
             enabled = enabled,
             shape = ActionShape,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
+                contentColor = MaterialTheme.colorScheme.accentInk
             )
         ) {
             Text(text)

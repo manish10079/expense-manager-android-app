@@ -22,6 +22,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.ShaderBrush
@@ -98,10 +100,10 @@ fun ProfileCard(
     // take the theme's background. They used to be a hardcoded black, which read as
     // "invisible" on the dark palette but drew a black ring around the card in light mode.
     val brandColors = listOf(
-        colorScheme.primary,
+        colorScheme.accentInk,
         colorScheme.background,
         colorScheme.background,
-        colorScheme.primary
+        colorScheme.accentInk
     )
 
     val currentAlpha = glowAlpha.value
@@ -161,7 +163,7 @@ fun ProfileCard(
                 size = 64.dp,
                 showGlow = isPremium,
                 showBorder = true,
-                backgroundColor = colorScheme.primary.copy(alpha = 0.1f),
+                backgroundColor = colorScheme.accentInk.copy(alpha = 0.1f),
                 userTier = userTier,
                 isSyncing = isSyncing,
                 isAnonymous = isAnonymous
@@ -231,7 +233,7 @@ fun ProfileCard(
                     Text(
                         text = subtext,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (isAnonymous) MaterialTheme.colorScheme.primary else colorScheme.onSurfaceVariant,
+                        color = if (isAnonymous) MaterialTheme.colorScheme.accentInk else colorScheme.onSurfaceVariant,
                         // The invitation is written as two lines of its own, so this is a cap
                         // rather than a wrap: if a large font scale pushes one line over, the
                         // card still stops at two instead of growing without limit.

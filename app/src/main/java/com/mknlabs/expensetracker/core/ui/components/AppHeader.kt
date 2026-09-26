@@ -20,7 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,13 +67,13 @@ fun AppHeader(
     ) {
         BackButton(onClick = onBackClick)
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Text(
             text = title,
             // The page's own ink in light — a title rather than an accent on one — and
             // the brand purple it has always been in dark.
-            color = if (isDark) MaterialTheme.colorScheme.primary else TextPrimaryLight,
+            color = if (isDark) Color.White else TextPrimaryLight,
             maxLines = titleMaxLines,
             overflow = TextOverflow.Ellipsis,
             softWrap = true,
@@ -111,7 +114,7 @@ private fun BackButton(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = stringResource(R.string.desc_back),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(24.dp)
             )
         }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,19 +50,11 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
  *   purpose: Analytics has four short labels and uses labelLarge, while Budget has three
  *   all-caps labels that would not fit on one line at that size.
  */
-import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 
 
 @Composable
@@ -73,24 +66,26 @@ fun PeriodChip(
     isLocked: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-
+    // The spec's five chip tokens, in place of the old twelve: --chip / --chipLine /
+    // --chipInkOff when idle, --chipSel / --chipInk when chosen. The selected chip has no
+    // edge of its own in the mock, so its border goes transparent rather than being drawn
+    // in a second brand weight.
     val targetContainerColor = if (isSelected) {
-        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+        MaterialTheme.colorScheme.chipSelected
     } else {
-        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+        MaterialTheme.colorScheme.chip
     }
 
     val targetBorderColor = if (isSelected) {
-        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+        Color.Transparent
     } else {
-        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+        MaterialTheme.colorScheme.chipOutline
     }
 
     val targetContentColor = if (isSelected) {
-        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+        MaterialTheme.colorScheme.chipSelectedInk
     } else {
-        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+        MaterialTheme.colorScheme.chipInkOff
     }
 
     val containerColor by animateColorAsState(

@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -57,6 +59,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -1274,7 +1278,7 @@ fun MainScreen(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false
                 ),
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_ad_expiry_warning),
@@ -1325,7 +1329,7 @@ fun MainScreen(
             }
             AlertDialog(
                 onDismissRequest = acknowledgeIntegrityNotice,
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_device_integrity_notice),
@@ -1351,7 +1355,7 @@ fun MainScreen(
         if (showLogoutDialog && isUiInteractive) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.label_logout),
@@ -1675,7 +1679,7 @@ fun MainScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(56.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 4.dp
                     )
                     Spacer(Modifier.height(20.dp))

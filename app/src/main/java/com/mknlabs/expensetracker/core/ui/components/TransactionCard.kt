@@ -42,6 +42,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -58,7 +62,6 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.core.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.utils.formatTime
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
@@ -110,7 +113,7 @@ fun TransactionCard(
     val cardColors = when {
         isSelected -> baseColors.copy(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
         )
         MaterialTheme.colorScheme.isDark -> baseColors.copy(containerColor = transparent)
         else -> baseColors
@@ -192,7 +195,7 @@ fun TransactionCard(
                     Text(
                         text = displayNote,
                         color = if (isNoteEmpty) {
-                            NeutralGray
+                            MaterialTheme.colorScheme.textTertiary
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
@@ -324,7 +327,7 @@ fun TransactionCard(
                                     if (showCategoryLabel && categoryLabel.isNotBlank()) {
                                         TransactionPill(
                                             text = categoryLabel,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.accentInk,
                                             backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
                                             style = metaStyle
                                         )
@@ -385,7 +388,7 @@ fun TransactionCard(
                                                     R.string.desc_view_full_note
                                                 }
                                             ),
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = MaterialTheme.colorScheme.accentInk,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -453,7 +456,7 @@ fun TransactionCard(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.cta)
                         .border(
                             width = 1.5.dp,
                             color = MaterialTheme.colorScheme.surface,

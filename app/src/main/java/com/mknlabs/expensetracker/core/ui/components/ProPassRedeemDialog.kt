@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,12 +68,12 @@ fun ProPassRedeemDialog(
     if (hasActiveStoreSubscription) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             icon = {
                 Icon(
                     imageVector = Icons.Rounded.ConfirmationNumber,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -102,12 +106,12 @@ fun ProPassRedeemDialog(
     if (!isEmailVerified) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             icon = {
                 Icon(
                     imageVector = Icons.Rounded.Email,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -151,12 +155,12 @@ fun ProPassRedeemDialog(
                 onDismiss()
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         icon = {
             Icon(
                 imageVector = if (state is RedemptionState.Success) Icons.Rounded.CheckCircle else Icons.Rounded.ConfirmationNumber,
                 contentDescription = null,
-                tint = if (state is RedemptionState.Success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                tint = if (state is RedemptionState.Success) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(32.dp)
             )
         },

@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -84,7 +86,7 @@ fun ProfileAvatar(
                     .shadow(
                         elevation = 24.dp,
                         shape = CircleShape,
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                     )
                     .background(
@@ -217,7 +219,7 @@ fun ProfileAvatar(
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                            colors = listOf(MaterialTheme.colorScheme.accentInk, MaterialTheme.colorScheme.secondary)
                         )
                     )
                     .border(

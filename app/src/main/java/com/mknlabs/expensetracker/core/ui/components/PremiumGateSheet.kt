@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +14,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
@@ -40,7 +44,7 @@ fun PremiumGateSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = {
             Box(
@@ -77,7 +81,7 @@ fun PremiumGateSheet(
                         .clip(RoundedCornerShape(20.dp))
                         .background(
                             brush = Brush.linearGradient(
-                                colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                                colors = listOf(MaterialTheme.colorScheme.accentInk, MaterialTheme.colorScheme.secondary)
                             )
                         ),
                     contentAlignment = Alignment.Center
@@ -96,14 +100,14 @@ fun PremiumGateSheet(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                        .background(MaterialTheme.colorScheme.accentSoft)
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
                         text = stringResource(selectedCopy.ctaResId).uppercase(),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             letterSpacing = 1.2.sp
                         )
                     )
@@ -125,7 +129,7 @@ fun PremiumGateSheet(
                 //     Text(
                 //         text = stringResource(R.string.msg_goal_faster_with_pro, financialGoal),
                 //         style = MaterialTheme.typography.bodyMedium.copy(
-                //             color = MaterialTheme.colorScheme.primary,
+                //             color = MaterialTheme.colorScheme.accentInk,
                 //             fontWeight = FontWeight.Bold
                 //         ),
                 //         textAlign = TextAlign.Center,
@@ -175,7 +179,7 @@ fun PremiumGateSheet(
                             .fillMaxSize()
                             .background(
                                 brush = Brush.horizontalGradient(
-                                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                                    colors = listOf(MaterialTheme.colorScheme.accentInk, MaterialTheme.colorScheme.secondary)
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -214,7 +218,7 @@ fun PremiumGateSheet(
                         Text(
                             text = stringResource(R.string.label_have_a_code),
                             style = MaterialTheme.typography.labelMedium.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.accentInk,
                                 fontWeight = FontWeight.SemiBold
                             )
                         )
@@ -237,13 +241,13 @@ private fun BenefitItem(text: String) {
             modifier = Modifier
                 .size(24.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(14.dp)
             )
         }

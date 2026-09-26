@@ -51,7 +51,10 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentInkGradient
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 
 /** Width of the branded rail, mirroring the 80dp spec in the roadmap. */
 val AppNavigationRailWidth = 80.dp
@@ -129,7 +132,10 @@ private fun RailNavItem(
         targetValue = if (selected) 26.dp else 22.dp,
         label = "rail_icon_size"
     )
-    val gradientBrush = brandGradient()
+    // The selected glyph is painted with the brand as INK, not as a fill: a gradient
+    // fill here would put near-black CTA purple on the near-black field. See
+    // [accentInkGradient].
+    val gradientBrush = accentInkGradient()
 
     Column(
         modifier = modifier
@@ -163,8 +169,8 @@ private fun RailNavItem(
                     tint = iconTint,
                     modifier = Modifier
                         .size(iconSize)
-                        // Same gradient fill as the bottom bar: the icon itself is
-                        // painted with the brand gradient (SrcAtop) when selected.
+                        // The icon itself is painted with the brand ink gradient
+                        // (SrcAtop) when selected.
                         .graphicsLayer(alpha = 0.99f)
                         .drawWithCache {
                             onDrawWithContent {
@@ -198,7 +204,7 @@ private fun RailAddButton(onClick: () -> Unit) {
             .shadow(
                 elevation = 22.dp,
                 shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.30f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
             )
             .clip(CircleShape)
@@ -209,7 +215,7 @@ private fun RailAddButton(onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.Add,
             contentDescription = stringResource(R.string.desc_add_transaction),
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = MaterialTheme.colorScheme.onCta,
             modifier = Modifier.size(20.dp)
         )
     }

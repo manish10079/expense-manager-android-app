@@ -61,6 +61,12 @@ enum class FilterPillType {
  * The container uses a tinted background; the content color is derived from
  * the same hue but darker for contrast.
  */
+// Sanctioned exception to the mock's token set and to the 30% brand budget: these are
+// CATEGORY IDENTITY hues, not brand or selection colours. A sort pill, a date pill and an
+// amount pill are different kinds of thing, and the bar is more legible when each kind
+// keeps its own hue than when all eight collapse onto the brand accent. They are tints
+// (12–15%) carrying a deepened ink of the same hue, and none of them is the brand violet,
+// so the bar adds no brand area. Kept as literals rather than tokens for that reason.
 private fun FilterPillType.colors(): Pair<Color, Color> {
     return when (this) {
         FilterPillType.SORT ->

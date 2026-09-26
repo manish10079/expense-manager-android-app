@@ -23,6 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 @Composable
@@ -71,7 +74,7 @@ fun TodaySpendingCard(
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
                         contentDescription = stringResource(R.string.desc_todays_spending),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onCta
                     )
                 }
 
@@ -98,7 +101,7 @@ fun TodaySpendingCard(
                 modifier = Modifier
                     .size(36.dp)
                     .background(
-                        color = colorScheme.primary.copy(alpha = 0.12f),
+                        color = colorScheme.accentInk.copy(alpha = 0.12f),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -106,7 +109,7 @@ fun TodaySpendingCard(
                 Icon(
                     imageVector = Icons.Outlined.ChevronRight,
                     contentDescription = stringResource(R.string.desc_open_calendar),
-                    tint = colorScheme.primary
+                    tint = colorScheme.accentInk
                 )
             }
         }

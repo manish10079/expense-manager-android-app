@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -40,6 +42,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
@@ -95,7 +99,7 @@ fun VoiceInputSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetBodyState,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -117,7 +121,7 @@ fun VoiceInputSheet(
                     text = stringResource(R.string.title_voice_add),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.accentInk
                     )
                 )
 
@@ -172,13 +176,13 @@ private fun ListeningContent(transcript: String) {
                 .size(80.dp)
                 .scale(pulseScale)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Mic,
                 contentDescription = stringResource(R.string.desc_voice_add),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -187,7 +191,7 @@ private fun ListeningContent(transcript: String) {
             text = stringResource(R.string.msg_voice_listening),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.accentInk
             )
         )
 
@@ -228,13 +232,13 @@ private fun ProcessingContent() {
             modifier = Modifier
                 .size(80.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Mic,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -243,7 +247,7 @@ private fun ProcessingContent() {
             text = stringResource(R.string.msg_voice_processing),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.accentInk
             )
         )
     }
@@ -265,7 +269,7 @@ private fun ResultContent(
     }
 
     val confidenceColor = when (transaction.confidence) {
-        VoiceConfidence.HIGH -> MaterialTheme.colorScheme.primary
+        VoiceConfidence.HIGH -> MaterialTheme.colorScheme.accentInk
         VoiceConfidence.MEDIUM -> MaterialTheme.colorScheme.tertiary
         VoiceConfidence.LOW -> MaterialTheme.colorScheme.error
     }
@@ -381,7 +385,7 @@ private fun ResultContent(
                 onClick = { onConfirm(transaction) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.accentInk
                 )
             ) {
                 Text(
@@ -427,7 +431,7 @@ private fun ErrorContent(
         Button(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.accentInk
             )
         ) {
             Icon(

@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
@@ -28,6 +30,7 @@ import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 @Composable
@@ -68,7 +71,7 @@ fun SavingsGoalCard(
                     Icon(
                         imageVector = Icons.Filled.Savings,
                         contentDescription = stringResource(R.string.title_my_goals),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onCta
                     )
                 }
 
@@ -95,7 +98,7 @@ fun SavingsGoalCard(
                 modifier = Modifier
                     .size(36.dp)
                     .background(
-                        color = colorScheme.primary.copy(alpha = 0.12f),
+                        color = colorScheme.accentInk.copy(alpha = 0.12f),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -103,7 +106,7 @@ fun SavingsGoalCard(
                 Icon(
                     imageVector = Icons.Outlined.ChevronRight,
                     contentDescription = null,
-                    tint = colorScheme.primary
+                    tint = colorScheme.accentInk
                 )
             }
         }

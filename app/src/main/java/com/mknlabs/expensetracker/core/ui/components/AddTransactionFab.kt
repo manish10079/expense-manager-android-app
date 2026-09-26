@@ -40,6 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailEndDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailEndLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailStartDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailStartLight
 import com.mknlabs.expensetracker.core.ui.theme.fabGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import kotlinx.coroutines.delay
@@ -123,8 +127,8 @@ fun AddTransactionFab(
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                (if (isDark) Color(0xFF8B5CF6) else Color(0xFF7C4DFF)).copy(alpha = if (isDark) 0.55f else 0.35f),
-                                (if (isDark) Color(0xFF6D28D9) else Color(0xFF6C52EE)).copy(alpha = if (isDark) 0.22f else 0.12f),
+                                (if (isDark) HeroRailStartDark else HeroRailStartLight).copy(alpha = if (isDark) 0.55f else 0.35f),
+                                (if (isDark) HeroRailEndDark else HeroRailEndLight).copy(alpha = if (isDark) 0.22f else 0.12f),
                                 Color.Transparent
                             )
                         ),
@@ -150,8 +154,8 @@ fun AddTransactionFab(
                     .shadow(
                         elevation = 16.dp,
                         shape = CircleShape,
-                        ambientColor = if (isDark) Color(0xFF8B5CF6).copy(alpha = 0.55f) else Color(0xFF7C4DFF).copy(alpha = 0.40f),
-                        spotColor = if (isDark) Color(0xFF7C3AED).copy(alpha = 0.60f) else Color(0xFF6D28D9).copy(alpha = 0.45f)
+                        ambientColor = if (isDark) HeroRailStartDark.copy(alpha = 0.55f) else HeroRailStartLight.copy(alpha = 0.40f),
+                        spotColor = if (isDark) HeroRailEndDark.copy(alpha = 0.60f) else HeroRailEndLight.copy(alpha = 0.45f)
                     )
             ) {
                 Box(

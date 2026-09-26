@@ -14,6 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -86,7 +88,7 @@ fun NativeAdCard(
     val colorScheme = MaterialTheme.colorScheme
     val headlineColor = colorScheme.onSurface
     val bodyColor = colorScheme.onSurfaceVariant
-    val primaryColor = colorScheme.primary
+    val primaryColor = colorScheme.accentInk
     val isDarkMode = colorScheme.isDark
 
     // Premium gradient border matching StatsCard/SmallHomeCard

@@ -35,6 +35,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -117,7 +119,7 @@ fun <T> DialogModeSelector(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = selectedOption.iconTint ?: MaterialTheme.colorScheme.primary,
+                    tint = selectedOption.iconTint ?: MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -212,7 +214,7 @@ fun <T> ViewPickerDialog(
                                 val isSelected = option.id == selectedId
                                 val bgColor by animateColorAsState(
                                     targetValue = if (isSelected)
-                                        MaterialTheme.colorScheme.primary
+                                        MaterialTheme.colorScheme.accentInk
                                     else if (MaterialTheme.colorScheme.isDark)
                                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                                     else
@@ -263,7 +265,7 @@ fun <T> ViewPickerDialog(
                                                         if (isSelected)
                                                             MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
                                                         else
-                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                            MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {
@@ -273,7 +275,7 @@ fun <T> ViewPickerDialog(
                                                     tint = if (isSelected)
                                                         MaterialTheme.colorScheme.onPrimary
                                                     else
-                                                        MaterialTheme.colorScheme.primary,
+                                                        MaterialTheme.colorScheme.accentInk,
                                                     modifier = Modifier.size(18.dp)
                                                 )
                                             }

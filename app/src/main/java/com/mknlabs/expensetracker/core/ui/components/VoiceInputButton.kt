@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -33,7 +35,7 @@ fun VoiceInputButton(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isListening) Color(0xFFE53935) else MaterialTheme.colorScheme.primary,
+        targetValue = if (isListening) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.accentInk,
         animationSpec = tween(durationMillis = 300),
         label = "buttonColor"
     )

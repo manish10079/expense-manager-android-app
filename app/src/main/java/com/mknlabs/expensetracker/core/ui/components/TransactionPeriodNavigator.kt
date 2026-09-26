@@ -26,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -106,7 +108,7 @@ fun TransactionPeriodNavigator(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = stringResource(R.string.desc_previous_period),
-                                tint = colorScheme.primary
+                                tint = colorScheme.accentInk
                             )
                         }
                     )
@@ -144,7 +146,7 @@ fun TransactionPeriodNavigator(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = stringResource(R.string.desc_next_period),
-                                tint = colorScheme.primary
+                                tint = colorScheme.accentInk
                             )
                         }
                     )
@@ -163,7 +165,7 @@ fun TransactionPeriodNavigator(
                         TransactionPeriodFilter.MONTHLY -> Icons.Filled.DateRange
                         TransactionPeriodFilter.YEARLY -> Icons.Filled.CalendarMonth
                     },
-                    iconTint = colorScheme.primary
+                    iconTint = colorScheme.accentInk
                 )
             },
             selectedId = selectedFilter,

@@ -18,7 +18,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 /**
  * A text-only action, identical to `TextButton` except for its ink.
  *
- * A bare `TextButton` takes its content colour from `colorScheme.primary`, and in dark that is
+ * A bare `TextButton` takes its content colour from `colorScheme.accentInk`, and in dark that is
  * #7B61FF, which measures 3.95:1 on the surfaces these buttons sit on -- under the 4.5:1 a
  * label needs. [accentInk] is the palette's purple-for-ink, which is #9E84FF in dark (5.69:1
  * on the dialog surface) and #6A4DFF in light, where it is the same value `primary` already

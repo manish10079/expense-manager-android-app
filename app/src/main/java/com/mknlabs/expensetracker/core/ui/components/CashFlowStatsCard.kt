@@ -33,6 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.menu
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -164,11 +167,6 @@ fun CashFlowStatsCard(
                 .matchParentSize()
                 .heroBloom()
         )
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .heroRail()
-        )
 
         Column(
             modifier = Modifier
@@ -242,7 +240,7 @@ fun CashFlowStatsCard(
                         // edge and the card's own corner. Dark keeps the Material default
                         // it has always had.
                         shape = RoundedCornerShape(16.dp),
-                        containerColor = if (isDark) MenuDefaults.containerColor else MaterialTheme.colorScheme.surface,
+                        containerColor = MaterialTheme.colorScheme.menu,
                         tonalElevation = if (isDark) MenuDefaults.TonalElevation else 0.dp,
                         border = if (isDark) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
@@ -379,7 +377,7 @@ private fun CashFlowPeriodOption(
     Text(
         text = label,
         color = if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.accentInk
         } else {
             MaterialTheme.colorScheme.onSurface
         },

@@ -38,6 +38,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
@@ -92,11 +94,7 @@ fun <T> AnimatedTabSwitcher(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(pillRadius))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    .background(brandGradient())
             )
         }
 
@@ -109,7 +107,7 @@ fun <T> AnimatedTabSwitcher(
                 
                 val animatedColor by animateColorAsState(
                     targetValue = when {
-                        selected -> MaterialTheme.colorScheme.onPrimary
+                        selected -> MaterialTheme.colorScheme.onCta
                         item.isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
