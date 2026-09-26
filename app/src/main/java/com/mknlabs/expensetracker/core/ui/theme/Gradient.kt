@@ -5,6 +5,9 @@ import android.graphics.Matrix
 import android.graphics.Shader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,6 +56,64 @@ private class BitmapFillBrush(private val bitmap: ImageBitmap) : ShaderBrush() {
 @Composable
 fun darkOnlyGradient(gradient: Brush): Brush? =
     if (MaterialTheme.colorScheme.isDark) gradient else null
+
+/**
+ * The Cash Flow hero's base fill: a three-stop violet ramp from top-left to bottom-right.
+ *
+ * Both themes run the identical recipe — same hue, same saturation, same bloom positions
+ * and radii, same inks — and differ only in the lightness of this ramp. That is what makes
+ * the dark and light heroes read as the same card, and it is why this returns a fill in
+ * light too: the hero no longer falls back to a plain white card, and the baked dark PNG
+ * is gone. The two blooms that sit over this ramp are painted by
+ * [cashFlowHeroGlows], since a single [Brush] cannot stack them.
+ */
+@Composable
+fun cashFlowHeroBaseBrush(): Brush {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val start = if (isDark) CashFlowHeroDarkStart else CashFlowHeroLightStart
+    val center = if (isDark) CashFlowHeroDarkCenter else CashFlowHeroLightCenter
+    val end = if (isDark) CashFlowHeroDarkEnd else CashFlowHeroLightEnd
+
+    return remember(start, center, end) {
+        Brush.linearGradient(
+            colors = listOf(start, center, end),
+            start = Offset.Zero,
+            end = Offset.Infinite
+        )
+    }
+}
+
+/**
+ * Overpaints the Cash Flow hero's two radial blooms — a light violet wash at the top-left
+ * and a deep violet one at the bottom-right — over the base from [cashFlowHeroBaseBrush].
+ *
+ * A [Modifier] rather than a [Brush] because the blooms are positioned relative to the
+ * surface: [Brush.radialGradient] takes its centre and radius in pixels, and only
+ * [drawWithCache] hands back a [Size] to compute them from. Attach it to a fill that spans
+ * the card; the card's own clip keeps the blooms inside its rounded corners.
+ */
+@Composable
+fun Modifier.cashFlowHeroGlows(): Modifier {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val glowBottom = if (isDark) CashFlowHeroGlowBottomDark else CashFlowHeroGlowBottomLight
+
+    return this.drawWithCache {
+        val topGlow = Brush.radialGradient(
+            colors = listOf(CashFlowHeroGlowTop, Color.Transparent),
+            center = Offset(size.width * 0.12f, 0f),
+            radius = size.maxDimension * 0.9f
+        )
+        val bottomGlow = Brush.radialGradient(
+            colors = listOf(glowBottom, Color.Transparent),
+            center = Offset(size.width * 0.9f, size.height),
+            radius = size.maxDimension * 1.1f
+        )
+        onDrawBehind {
+            drawRect(topGlow)
+            drawRect(bottomGlow)
+        }
+    }
+}
 
 @Composable
 fun brandGradient(alpha: Float = 1f): Brush {

@@ -182,6 +182,46 @@ val CashFlowNetBalanceLabelLight = TextSecondaryLight
 val CashFlowNetBalanceAmountDark = Color(0xFFFFFFFF)
 val CashFlowNetBalanceAmountLight = TextPrimaryLight
 
+// ── Cash Flow hero: one unified recipe for both themes ─────────────────────────
+//
+// Hue 255, ~47% saturation, an identical two-bloom structure (light violet top-left,
+// deep violet bottom-right) and literally identical inks. Only the base gradient's
+// lightness changes between themes, which is what makes the light and dark heroes read
+// as the same card recolored rather than as two different designs. Dark previously drew
+// a baked PNG (bg_cashflow_dark); the hero is now painted from these tokens in both
+// themes, so the image is no longer needed. Contrast of every ink was checked against
+// the brightest (bloomed) corner of each gradient: expense 4.54:1, income 5.20:1,
+// date 5.26:1, labels 4.89:1 — all clear AA.
+val CashFlowHeroDarkStart = Color(0xFF271B4B)
+val CashFlowHeroDarkCenter = Color(0xFF1B1334)
+val CashFlowHeroDarkEnd = Color(0xFF120C22)
+val CashFlowHeroLightStart = Color(0xFF3E2B78)
+val CashFlowHeroLightCenter = Color(0xFF31225E)
+val CashFlowHeroLightEnd = Color(0xFF231843)
+
+val CashFlowHeroGlowTop = Color(0x479378FF)         // rgba(147, 120, 255, 0.28)
+val CashFlowHeroGlowBottomDark = Color(0x8C140C28)  // rgba(20, 12, 40, 0.55)
+val CashFlowHeroGlowBottomLight = Color(0x47140C28) // rgba(20, 12, 40, 0.28)
+
+val CashFlowHeroBorderDark = Color(0x619378FF)      // rgba(147, 120, 255, 0.38)
+val CashFlowHeroBorderLight = Color(0x73A38CFF)     // rgba(163, 140, 255, 0.45)
+
+// The inks inside the hero: shared verbatim by both themes, so the two cards carry the
+// same colours and only their surface differs.
+val CashFlowHeroDateText = Color(0xFFD8CCF8)
+val CashFlowHeroLabel = Color(0xFFCFC6EC)
+val CashFlowHeroExpense = Color(0xFFFFB0A6)
+val CashFlowHeroIncome = Color(0xFF6FE8A6)
+val CashFlowHeroNetText = Color(0xFFFFFFFF)
+
+// The inset surfaces are white washes over the gradient in both themes, rather than a
+// darker fill in dark and a lighter one in light — which is what used to make the two
+// heroes feel inverted relative to each other.
+val CashFlowHeroInsetBg = Color(0x1AFFFFFF)         // white 10%
+val CashFlowHeroInsetBorder = Color(0x2EFFFFFF)     // white 18%
+val CashFlowHeroPillBg = Color(0x1FFFFFFF)          // white 12%
+val CashFlowHeroPillBorder = Color(0x38FFFFFF)      // white 22%
+
 // Bottom Navigation Bar Palette (indexmockup.html)
 val NavOnDark = Color(0xFFBFA6FF)     // --nav-on: #BFA6FF
 val NavOffDark = Color(0xFF7A778C)    // --nav-off: #7A778C
