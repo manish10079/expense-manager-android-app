@@ -34,6 +34,8 @@ import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -217,8 +219,8 @@ fun SettingsItemCard(
                                 onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
                                 enabled = finalEnabled,
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = colorScheme.onPrimary,
-                                    checkedTrackColor = primary,
+                                    checkedThumbColor = colorScheme.onCta,
+                                    checkedTrackColor = colorScheme.cta,
                                     checkedBorderColor = Color.Transparent,
                                     uncheckedThumbColor = NeutralGray,
                                     uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),

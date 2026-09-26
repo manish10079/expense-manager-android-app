@@ -500,6 +500,25 @@ internal val AccentInkDark = Color(0xFF9E84FF)
 val ColorScheme.accentInk: Color
     get() = if (isDark) AccentInkDark else AccentInkLight
 
+// ── CTA fill ──────────────────────────────────────────────────────────────
+// The mock's --cta is a fill, never an ink: #5838FA in dark, and byte-identical to light's
+// primary so nothing in light moves. Its label is white, which measures 6.25:1 against the
+// dark fill -- the figure the spec's own matrix records for this pair.
+//
+// The ink has to travel with the fill. The scheme's dark onPrimary is near-black (#0A0A0A)
+// and lands at 4.71:1 on the old #7B61FF, so it passes today; left on the new #5838FA it
+// drops to 3.17:1 and fails. Moving a CTA fill without its label turns a passing pair into a
+// failing one, which is why the two are declared together and must be changed together.
+internal val CtaLight = Color(0xFF6A4DFF)
+internal val CtaDark = Color(0xFF5838FA)
+internal val OnCta = Color(0xFFFFFFFF)
+
+val ColorScheme.cta: Color
+    get() = if (isDark) CtaDark else CtaLight
+
+val ColorScheme.onCta: Color
+    get() = OnCta
+
 // ── Budget health ────────────────────────────────────────────────────────────
 // Green on track, amber near the limit, deep red over it — the traffic-light read the
 // mock asks for, so the state of a bar is legible before any of its text is read.
