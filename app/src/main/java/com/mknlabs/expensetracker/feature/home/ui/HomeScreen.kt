@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.feature.home.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.track
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -39,6 +42,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -909,7 +914,7 @@ private fun UpcomingRecurringCard(
                                 Icon(
                                     imageVector = expense.icon,
                                     contentDescription = expense.categoryLabel,
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -1114,7 +1119,7 @@ fun AccountSetupCard(
                     Text(
                         text = "$score%",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.accentInk
                         )
                     )
                     
@@ -1142,8 +1147,8 @@ fun AccountSetupCard(
                     .fillMaxWidth()
                     .height(3.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                color = MaterialTheme.colorScheme.accentInk,
+                trackColor = MaterialTheme.colorScheme.track
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -1167,7 +1172,7 @@ fun AccountSetupCard(
                     Icon(
                         imageVector = PhosphorIcons.Regular.Info,
                         contentDescription = stringResource(id = R.string.title_setup_progress),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -1213,7 +1218,7 @@ fun AccountSetupCard(
                             Icon(
                                 imageVector = if (isDone) PhosphorIcons.Fill.CheckCircle else PhosphorIcons.Regular.Circle,
                                 contentDescription = null,
-                                tint = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = if (isDone) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -1227,7 +1232,7 @@ fun AccountSetupCard(
                                     Text(
                                         text = stringResource(subtitleRes),
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.accentInk
                                     )
                                 }
                             }
@@ -1240,7 +1245,7 @@ fun AccountSetupCard(
                     Text(stringResource(R.string.btn_got_it))
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
         )
     }
@@ -1264,7 +1269,7 @@ fun SettingsButton(onClick: () -> Unit) {
         Icon(
             imageVector = PhosphorIcons.Regular.Gear,
             contentDescription = stringResource(id = R.string.desc_settings),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.accentInk,
             modifier = Modifier.size(28.dp)
         )
     }

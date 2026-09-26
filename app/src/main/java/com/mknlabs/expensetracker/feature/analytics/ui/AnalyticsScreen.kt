@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.feature.analytics.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -69,44 +72,6 @@ import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
-import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
-import androidx.compose.foundation.BorderStroke
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
 import com.adamglin.phosphoricons.regular.Wallet
 import com.adamglin.phosphoricons.regular.TrendUp
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -130,7 +95,18 @@ import com.mknlabs.expensetracker.core.ui.theme.chartSeries
 import com.mknlabs.expensetracker.core.ui.theme.chartOther
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 
@@ -638,25 +614,26 @@ private fun CustomRangeSelector(
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
     val isSelected = selectedPeriod == AnalyticsPeriod.CUSTOM
 
+    // The same five spec chip tokens PeriodChip reads, so the custom-range control and the
+    // period chips beside it cannot disagree about what a selected chip looks like.
     val containerColor = if (isSelected) {
-        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+        MaterialTheme.colorScheme.chipSelected
     } else {
-        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+        MaterialTheme.colorScheme.chip
     }
 
     val borderColor = if (isSelected) {
-        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+        Color.Transparent
     } else {
-        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+        MaterialTheme.colorScheme.chipOutline
     }
 
     val textColor = if (isSelected) {
-        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+        MaterialTheme.colorScheme.chipSelectedInk
     } else {
-        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+        MaterialTheme.colorScheme.chipInkOff
     }
 
     Row(
@@ -720,7 +697,7 @@ private fun CustomRangeSelector(
         if (selectedPeriod == AnalyticsPeriod.CUSTOM && customRange != null) {
             Text(
                 text = stringResource(id = R.string.label_clear),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.clickable(onClick = onClear)
             )
@@ -734,8 +711,6 @@ private fun HeroAnalyticsSection(
     displayMode: HeroDisplayMode,
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-
     val title = when (displayMode) {
         HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spending)
         HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
@@ -748,15 +723,9 @@ private fun HeroAnalyticsSection(
         HeroDisplayMode.BOTH -> snapshot.savingsDisplay
     }
 
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(CashFlowCardDarkStart, CashFlowCardDarkCenter, CashFlowCardDarkEnd))
-    } else {
-        null
-    }
-    // The hero paints its own edge in dark; in light it is an ordinary card and takes the
-    // shared outline instead.
-    val borderColor = CashFlowCardBorderDarkStart.copy(alpha = 0.35f)
-    val shape = RoundedCornerShape(20.dp)
+    // The hero is a neutral card in both themes, the same recipe the home hero uses: the
+    // brand is the bloom, never the surface. The dark-only violet gradient this painted
+    // (CashFlowCardDark*) is retired with the mock that specified it.
 
     val deltaColor = if (snapshot.changePercent >= 0) {
         if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.income
@@ -769,20 +738,21 @@ private fun HeroAnalyticsSection(
         AppCard(
             modifier = Modifier.fillMaxWidth(),
             shape = AppCardDefaults.shape(20.dp),
-            colors = if (isDark) {
-                AppCardColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    border = BorderStroke(1.dp, borderColor)
-                )
-            } else {
-                AppCardDefaults.colors()
-            },
-            brush = gradientBrush,
-            contentPadding = PaddingValues(18.dp),
+            colors = AppCardDefaults.colors(),
+            brush = darkOnlyGradient(standardCardGradient()),
         ) {
+            // The bloom must be attached to a fill that spans the card. Its centre sits at
+            // 92% of the width and 18% of the height, well inside its own radius, so a rect
+            // inset by the card's padding cuts it off at near-full strength and the glow
+            // reads as a square patch rather than a corner wash. The padding therefore sits
+            // on the column below, as it does on the home hero — which also keeps this Box
+            // and the card the same rect, since the bloom's fractions measure against this Box.
+            Box(modifier = Modifier.matchParentSize().heroBloom())
+
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Row(
@@ -792,7 +762,7 @@ private fun HeroAnalyticsSection(
                 ) {
                     Text(
                         text = title.uppercase(Locale.getDefault()),
-                        color = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
+                        color = MaterialTheme.colorScheme.textTertiary,
                         style = MaterialTheme.typography.labelSmall.copy(
                             letterSpacing = 1.2.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -813,7 +783,7 @@ private fun HeroAnalyticsSection(
                                 iconTint = when (mode) {
                                     HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
                                     HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
-                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
+                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.accentInk
                                 }
                             )
                         },
@@ -824,7 +794,7 @@ private fun HeroAnalyticsSection(
 
                 Text(
                     text = amount,
-                    color = if (isDark) CashFlowNetBalanceAmountDark else CashFlowNetBalanceAmountLight,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontSize = 31.sp,
                         fontWeight = FontWeight.Bold
@@ -854,7 +824,7 @@ private fun HeroAnalyticsSection(
 
                     Text(
                         text = resolveSummaryLabel(snapshot.summaryLabel),
-                        color = if (isDark) Color(0xFF8F8BA3) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.textTertiary,
                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp)
                     )
                 }
@@ -1178,34 +1148,17 @@ private fun InsightStatCard(
     deltaBackground: Color,
     icon: ImageVector
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
-    } else {
-        null
-    }
-
-    // The card carries its own hairline in dark; light takes the shared card's.
-    val borderColor = SmallCardBorderDark
-    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
-    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
-    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
-    val shape = RoundedCornerShape(18.dp)
+    val colorScheme = MaterialTheme.colorScheme
+    // A neutral card; the brand is the icon tile, per the spec's accentSoft/accent pairing.
+    val iconBgColor = colorScheme.accentSoft
+    val iconTintColor = colorScheme.accentInk
+    val labelColor = colorScheme.onSurfaceVariant
 
     AppCard(
         modifier = modifier,
         shape = AppCardDefaults.shape(18.dp),
-        colors = if (isDark) {
-            AppCardColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                border = BorderStroke(1.dp, borderColor)
-            )
-        } else {
-            AppCardDefaults.colors()
-        },
-        brush = gradientBrush,
+        colors = AppCardDefaults.colors(),
+        brush = darkOnlyGradient(standardCardGradient()),
         contentPadding = PaddingValues(14.dp),
     ) {
         Column(
@@ -1432,7 +1385,7 @@ private fun CategoryCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1441,7 +1394,7 @@ private fun CategoryCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1495,7 +1448,7 @@ private fun CategoryCard(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
                                     contentDescription = stringResource(id = R.string.desc_show_transactions),
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { onShowTransactions(category.id, category.label) }
@@ -1518,7 +1471,7 @@ private fun CategoryBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -1637,7 +1590,7 @@ private fun CategoryBreakdownRow(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.desc_show_transactions),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onShowTransactions(category.id, category.label) }
@@ -1676,7 +1629,7 @@ private fun CategoryBreakdownRow(
 
 @Composable
 private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val trackColor = MaterialTheme.colorScheme.track
     val segmentColors = breakdown.map { categoryBreakdownColor(it.colorIndex) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
@@ -1752,7 +1705,7 @@ private fun TopSpendingCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1761,7 +1714,7 @@ private fun TopSpendingCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1808,7 +1761,7 @@ private fun TopSpendingRow(
             Icon(
                 imageVector = transaction.icon,
                 contentDescription = transaction.note,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1882,7 +1835,7 @@ private fun SmartTipCard(
                     Icon(
                         imageVector = Icons.Filled.AutoAwesome,
                         contentDescription = stringResource(id = R.string.desc_ai_tip),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onCta,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -1943,7 +1896,7 @@ private fun PaymentTypeCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1952,7 +1905,7 @@ private fun PaymentTypeCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -2012,7 +1965,7 @@ private fun PaymentTypeCard(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
                                     contentDescription = stringResource(id = R.string.desc_show_transactions),
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { onShowTransactions(item.id, item.label) }
@@ -2028,7 +1981,7 @@ private fun PaymentTypeCard(
 
 @Composable
 private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val trackColor = MaterialTheme.colorScheme.track
     val segmentColors = breakdown.map { paymentBreakdownColor(it.colorIndex) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
@@ -2081,7 +2034,7 @@ private fun PaymentTypeBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -2204,7 +2157,7 @@ private fun PaymentBreakdownRow(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.desc_show_transactions),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onShowTransactions(item.id, item.label) }
@@ -2256,7 +2209,7 @@ private fun FilteredTransactionsBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -2370,7 +2323,7 @@ private fun TopSpendingBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
