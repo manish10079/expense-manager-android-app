@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 
 /** The spec's corner for a dialog's buttons and for the fields inside it. */
 private val ActionShape = RoundedCornerShape(16.dp)
@@ -62,7 +63,18 @@ fun AppDialogConfirmButton(
     enabled: Boolean = true
 ) {
     if (MaterialTheme.colorScheme.isDark) {
-        TextButton(onClick = onClick, modifier = modifier, enabled = enabled) { Text(text) }
+        // The bare TextButton takes colorScheme.primary, and in dark that is #7B61FF:
+        // 3.95:1 on the dialog surface (#1E1E23), under the 4.5:1 this label needs.
+        // accentInk is #9E84FF in dark, which clears it at 5.69:1, and is the same ink
+        // the keypad hands its operators. In light the two are the same colour anyway.
+        TextButton(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.accentInk
+            )
+        ) { Text(text) }
     } else {
         Button(
             onClick = onClick,
@@ -87,7 +99,18 @@ fun AppDialogDismissButton(
     enabled: Boolean = true
 ) {
     if (MaterialTheme.colorScheme.isDark) {
-        TextButton(onClick = onClick, modifier = modifier, enabled = enabled) { Text(text) }
+        // The bare TextButton takes colorScheme.primary, and in dark that is #7B61FF:
+        // 3.95:1 on the dialog surface (#1E1E23), under the 4.5:1 this label needs.
+        // accentInk is #9E84FF in dark, which clears it at 5.69:1, and is the same ink
+        // the keypad hands its operators. In light the two are the same colour anyway.
+        TextButton(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.accentInk
+            )
+        ) { Text(text) }
     } else {
         OutlinedButton(
             onClick = onClick,
