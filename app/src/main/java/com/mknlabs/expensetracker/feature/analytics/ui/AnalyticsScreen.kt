@@ -126,6 +126,7 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.chartSeries
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -1344,22 +1345,17 @@ private fun LegendDot(label: String, color: Color) {
 
 @Composable
 private fun categoryBreakdownColor(index: Int): Color {
-    val colorScheme = MaterialTheme.colorScheme
-    return when (index % 3) {
-        0 -> colorScheme.primary
-        1 -> colorScheme.secondary
-        else -> colorScheme.tertiary
-    }
+    val series = MaterialTheme.colorScheme.chartSeries
+    return series[index % series.size]
 }
 
 @Composable
 private fun paymentBreakdownColor(index: Int): Color {
-    val colorScheme = MaterialTheme.colorScheme
-    return when (index % 3) {
-        0 -> colorScheme.income
-        1 -> colorScheme.primary
-        else -> colorScheme.secondary
-    }
+    // The same categorical ramp as the category donut. A payment type is not an
+    // income or an expense, so it has no business wearing the semantic income green
+    // that the old three-way split gave it just for being first.
+    val series = MaterialTheme.colorScheme.chartSeries
+    return series[index % series.size]
 }
 
 @Composable

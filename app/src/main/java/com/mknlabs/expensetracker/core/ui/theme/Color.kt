@@ -417,3 +417,48 @@ val ColorScheme.featureGateLock: Color
  */
 val ColorScheme.onBrandGradient: Color
     get() = if (isDark) Color.White else Color.Black
+
+// ── Categorical chart palette ────────────────────────────────────────────────
+// Chart slices, in draw order. The order is load-bearing: the first tone is the
+// brand accent so the largest slice still reads as the app's own colour, and every
+// later tone is picked to stay clear of each earlier one under red-green deficiency,
+// not merely under normal vision.
+//
+// That constraint is what shapes the last entry of each ramp. Under red-green
+// deficiency only blue-versus-yellow survives, so a second blue cannot be told from
+// the brand purple by hue at all — only by lightness. So the dark ramp takes a pale
+// sky and the light ramp a deep navy, pulling in opposite directions to put as much
+// lightness as possible between themselves and #9E84FF / #6A4DFF. Picking two blues
+// that merely differ in hue is the trap the old palette fell into: its dark trio was
+// two purples, which collapsed to a separation of 7.1 under deuteranopia.
+//
+// Contrast on each theme's card, in the same order, all clear of the 3:1 a chart
+// slice needs: dark 5.9 11.7 10.4 6.4 13.1 against #1A1A20, and light 5.1 5.5 5.0
+// 10.4 4.6 against white.
+internal val ChartSeriesDark = listOf(
+    Color(0xFF9E84FF), // purple — the brand accent
+    Color(0xFF5EEAD4), // teal
+    Color(0xFFFBBF24), // amber
+    Color(0xFFFB7185), // rose
+    Color(0xFFBAE6FD), // pale sky — the lightness lever against the purple
+)
+
+internal val ChartSeriesLight = listOf(
+    Color(0xFF6A4DFF), // purple — the brand accent
+    Color(0xFF0F766E), // teal
+    Color(0xFFB45309), // amber
+    Color(0xFF1E3A8A), // deep navy — the same lever, pushed the other way
+    Color(0xFFDB2777), // magenta
+)
+
+/**
+ * The categorical palette for chart slices, in draw order.
+ *
+ * Index it with the slice's own position. The list is also what defines how many
+ * series these charts can actually tell apart: a caller that draws more slices than
+ * there are tones here has to fold the remainder into a group of its own rather than
+ * let the index wrap, because wrapping would draw two different series in one colour
+ * and the legend would then be unable to say which was which.
+ */
+val ColorScheme.chartSeries: List<Color>
+    get() = if (isDark) ChartSeriesDark else ChartSeriesLight
