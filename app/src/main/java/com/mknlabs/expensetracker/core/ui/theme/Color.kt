@@ -287,8 +287,8 @@ val ChipBorderUnselectedLight = Color(0x14000000) // rgba(0, 0, 0, 0.08)
 val ChipTextUnselectedLight = Color(0xFF746B8B) // #746B8B
 
 // Premium Membership Palette
-val PremiumGradientStart = Color(0xFF7C4DFF) // Deep Violet
-val PremiumGradientEnd = Color(0xFF651FFF) // Vibrant Purple
+val PremiumGradientStart = Color(0xFF663ED3) // Deep Violet, darkened to hold PremiumGold
+val PremiumGradientEnd = Color(0xFF5218D3) // was #651FFF
 val PremiumBorder = Color(0xFFB388FF)
 val PremiumGold = Color(0xFFFFD700)
 val PremiumOnGradient = Color(0xFFFFFFFF)
