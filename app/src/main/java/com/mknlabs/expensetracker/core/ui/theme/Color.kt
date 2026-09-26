@@ -485,6 +485,21 @@ val ColorScheme.chartSeries: List<Color>
 val ColorScheme.chartOther: Color
     get() = if (isDark) ChartOtherDark else ChartOtherLight
 
+// ── Accent as ink ────────────────────────────────────────────────────────────
+// The brand purple used as a GLYPH on a neutral control, which is a different job from
+// `primary` used as a FILL, and the two stop agreeing in dark. In light they coincide:
+// the keypad's operator glyph is #6A4DFF, the mock's own light accent, at 4.55:1 on the
+// #F1F2F4 key. In dark they cannot, because `primary` is #7B61FF, which measures 2.92:1
+// on the #353534 key — under the 3:1 a large glyph needs, and the same shortfall that
+// already keeps #7B61FF from carrying a label elsewhere. Dark therefore takes the mock's
+// dark accent, #9E84FF, which measures 4.21:1 at the weaker of the two gradient stops on
+// that key. Nothing else moves: this is an ink, never a fill.
+internal val AccentInkLight = Color(0xFF6A4DFF)
+internal val AccentInkDark = Color(0xFF9E84FF)
+
+val ColorScheme.accentInk: Color
+    get() = if (isDark) AccentInkDark else AccentInkLight
+
 // ── Budget health ────────────────────────────────────────────────────────────
 // Green on track, amber near the limit, deep red over it — the traffic-light read the
 // mock asks for, so the state of a bar is legible before any of its text is read.

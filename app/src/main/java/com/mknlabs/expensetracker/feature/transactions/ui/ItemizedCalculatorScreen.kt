@@ -115,6 +115,7 @@ import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
@@ -910,13 +911,24 @@ private fun CalculatorKeyButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                tint = when {
+                    primary -> MaterialTheme.colorScheme.onPrimary
+                    accent -> MaterialTheme.colorScheme.accentInk
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
                 modifier = Modifier.size(20.dp)
             )
         } else {
             Text(
                 text = label.orEmpty(),
-                color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                // The mock's keypad rule is "neutral keys, purple only on operators", so
+                // the operator is told apart by its glyph rather than by its surface. The
+                // grey key fill above stays as a second cue; this is the one the spec names.
+                color = when {
+                    primary -> MaterialTheme.colorScheme.onPrimary
+                    accent -> MaterialTheme.colorScheme.accentInk
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = if (primary) 28.sp else 24.sp
