@@ -636,7 +636,7 @@ private fun HomeHeaderRow(
                     maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Medium
                     )
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -670,7 +670,7 @@ private fun HomeHeaderRow(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // Detected bank messages waiting for a decision. Independent of the dialogs below:
                 // the badge is driven by the inbox table, so a dismissed notification still counts.

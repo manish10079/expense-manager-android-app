@@ -975,11 +975,9 @@ private fun TransactionScreenContent(
                                 // render (and are tracked separately in the console).
                                 is TransactionListItemUi.Ad -> {
                                     if (isAdsEnabled) {
-                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                         AdContainer(isAdsEnabled = true) {
                                             NativeAdCard(placement = item.placement)
                                         }
-                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }
                                 }
                                 }

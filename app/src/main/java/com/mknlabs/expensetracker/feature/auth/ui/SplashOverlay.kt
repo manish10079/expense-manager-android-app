@@ -136,7 +136,7 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Title Hierarchy
             Text(
@@ -167,7 +167,7 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                     letterSpacing = 3.sp,
                     fontWeight = FontWeight.Light
                 ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }
