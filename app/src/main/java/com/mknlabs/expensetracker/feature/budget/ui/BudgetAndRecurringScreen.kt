@@ -9,7 +9,6 @@ import com.mknlabs.expensetracker.core.ui.theme.sheet
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -131,6 +130,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.mknlabs.expensetracker.R
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
@@ -222,6 +222,11 @@ fun BudgetAndRecurringScreen(
     isProUser: Boolean = false
 ) {
     val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
+
+    LifecycleResumeEffect(Unit) {
+        budgetViewModel.refreshCurrentPeriod()
+        onPauseOrDispose { }
+    }
 
     LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules, monthStartDay) {
         budgetViewModel.updateInputs(
@@ -433,6 +438,8 @@ private fun BudgetAndRecurringContent(
                             ) { status, onCustomMonthClick ->
                                 BudgetPeriodRow(
                                     selectedPeriod = uiState.selectedPeriod,
+                                    thisMonthLabel = uiState.thisMonthChipLabel,
+                                    lastMonthLabel = uiState.lastMonthChipLabel,
                                     isCustomMonthLocked = status !is AccessStatus.Granted,
                                     onPeriodSelected = { period ->
                                         if (period == BudgetPeriodFilter.CustomMonth) {
@@ -883,6 +890,8 @@ private fun BoxScope.BudgetGlow() {
 @Composable
 private fun BudgetPeriodRow(
     selectedPeriod: BudgetPeriodFilter,
+    thisMonthLabel: String,
+    lastMonthLabel: String,
     isCustomMonthLocked: Boolean,
     onPeriodSelected: (BudgetPeriodFilter) -> Unit
 ) {
@@ -890,32 +899,32 @@ private fun BudgetPeriodRow(
     // Analytics. An equal-segment bar divides the whole width between three short labels, so
     // most of it is empty pill.
     //
-    // The label size stays labelSmall, which is what this row already used. These labels are
-    // all caps and longer than the Analytics ones, and at labelLarge three of them no longer
-    // fit on one line on a phone. The row scrolls sideways instead of wrapping, so each chip
-    // keeps its natural width and every label stays readable on one line — wrapping used to
-    // push "CUSTOM MONTH" onto a second row of its own.
+    // This / last month keep their natural width. Custom month takes whatever is left
+    // so the row stays full-bleed without stretching the short month names.
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        BudgetPeriodFilter.entries.forEach { period ->
-            val isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked
-
-            PeriodChip(
-                label = when (period) {
-                    BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
-                    BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
-                    BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
-                },
-                isSelected = period == selectedPeriod,
-                isLocked = isLocked,
-                textStyle = MaterialTheme.typography.labelSmall,
-                onClick = { onPeriodSelected(period) }
-            )
-        }
+        PeriodChip(
+            label = thisMonthLabel,
+            isSelected = selectedPeriod == BudgetPeriodFilter.ThisMonth,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.ThisMonth) }
+        )
+        PeriodChip(
+            label = lastMonthLabel,
+            isSelected = selectedPeriod == BudgetPeriodFilter.LastMonth,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.LastMonth) }
+        )
+        PeriodChip(
+            label = stringResource(id = R.string.label_custom_month_caps),
+            isSelected = selectedPeriod == BudgetPeriodFilter.CustomMonth,
+            isLocked = isCustomMonthLocked,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.CustomMonth) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

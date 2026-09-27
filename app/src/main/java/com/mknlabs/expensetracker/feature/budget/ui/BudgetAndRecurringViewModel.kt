@@ -167,6 +167,8 @@ data class BudgetAndRecurringScreenUiState(
     val canAddBudget: Boolean = true,
     // Copy-previous-month-budgets sheet data
     val previousMonthLabel: String = "",
+    val thisMonthChipLabel: String = "",
+    val lastMonthChipLabel: String = "",
     val previousMonthBudgets: List<BudgetCopyCandidateUi> = emptyList(),
     // Current period indicator
     val currentPeriodStartMillis: Long = 0L,
@@ -281,6 +283,18 @@ class BudgetAndRecurringViewModel @Inject constructor(
 
     fun selectPeriod(period: BudgetPeriodFilter) {
         selectedPeriod = period
+        rebuildUiState()
+    }
+
+    /**
+     * Re-anchors "this month" / "last month" from the system clock. Called when the
+     * screen resumes so the chip labels follow a date change that happened while the
+     * app was in the background, without requiring a process restart.
+     */
+    fun refreshCurrentPeriod() {
+        val newAnchor = startOfMonth(System.currentTimeMillis(), currentMonthStartDay)
+        if (newAnchor == anchorMonthStart) return
+        anchorMonthStart = newAnchor
         rebuildUiState()
     }
 
@@ -502,6 +516,8 @@ class BudgetAndRecurringViewModel @Inject constructor(
                 recurringExpenses = activeRecurring,
                 categoryTrackedMap = categoryTrackedMap,
                 previousMonthLabel = monthFormatter.format(Date(prevMonthStart)),
+                thisMonthChipLabel = shortMonthTitle(currentMonthStart),
+                lastMonthChipLabel = shortMonthTitle(prevMonthStart),
                 previousMonthBudgets = previousMonthBudgets,
                 emptyCategoryMessage = if (monthlyBudgets.isEmpty()) {
                     val formattedMonth = monthFormatter.format(Date(selectedMonthStart))
@@ -1061,5 +1077,13 @@ private fun Budget.toBudgetEntry(): BudgetEntry {
 
 private const val DAY_IN_MILLIS = 24L * 60L * 60L * 1000L
 private val monthFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+private val shortMonthFormatter = SimpleDateFormat("MMM", Locale.getDefault())
 private val recurringDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 private val dueFormatter = SimpleDateFormat("dd MMM", Locale.getDefault())
+
+private fun shortMonthTitle(timestamp: Long): String {
+    val raw = shortMonthFormatter.format(Date(timestamp))
+    return raw.replaceFirstChar { ch ->
+        if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
+    }
+}

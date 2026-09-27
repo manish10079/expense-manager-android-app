@@ -3,24 +3,16 @@ package com.mknlabs.expensetracker.feature.analytics.ui
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -268,67 +260,38 @@ fun AnalyticsScreenContent(
                 }
             }
             item {
-                // While a custom range is active the other periods are moot, so the row
-                // shows only the range pill (with Clear) and hiding the three switches
-                // leaves nothing to switch between. Clearing the range restores them.
-                //
-                // AnimatedContent rather than fading the three chips out in place, because
-                // the two states are different layouts — four controls spread evenly, or one
-                // pill — and this slides between them instead of snapping. Each direction
-                // slides towards where the eye expects the content to be: the pill arrives
-                // from the end of the row it was already sitting at, and the switches
-                // return from the start.
-                val isCustomRangeActive = uiState.selectedPeriod == AnalyticsPeriod.CUSTOM
+                // Week / Month / Year share the first row in equal thirds. Custom range
+                // sits on the row below at full width so a long date span never has to
+                // compete with the three short labels.
+                GatedAction(
+                    feature = Feature.ANALYTICS_PERIOD_YEAR,
+                    displayName = stringResource(id = R.string.title_yearly_analytics),
+                    onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
+                ) { status, onLockedClick ->
+                    val isYearLocked = status !is AccessStatus.Granted
 
-                AnimatedContent(
-                    targetState = isCustomRangeActive,
-                    transitionSpec = {
-                        if (targetState) {
-                            (slideInHorizontally(tween(260)) { it / 8 } + fadeIn(tween(200))) togetherWith
-                                (slideOutHorizontally(tween(260)) { -it / 8 } + fadeOut(tween(160)))
-                        } else {
-                            (slideInHorizontally(tween(260)) { -it / 8 } + fadeIn(tween(200))) togetherWith
-                                (slideOutHorizontally(tween(260)) { it / 8 } + fadeOut(tween(160)))
-                        }
-                    },
-                    label = "analytics_period_row"
-                ) { customRangeActive ->
-                    // Four period controls on one line, horizontally scrollable. The chips
-                    // take their natural width instead of each being handed a quarter of the
-                    // row, so no label ever has to squeeze, ellipsize or wrap, and the row
-                    // scrolls sideways when all four stop fitting on the screen — which is
-                    // what a large font scale or a narrow window does to them.
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Emitted one chip at a time so the Row sees four siblings to space.
-                        // Wrapping them in an inner Row would make it two children and the
-                        // three periods would stay bunched at one end.
-                        if (!customRangeActive) {
-                            GatedAction(
-                                feature = Feature.ANALYTICS_PERIOD_YEAR,
-                                displayName = stringResource(id = R.string.title_yearly_analytics),
-                                onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
-                            ) { status, onLockedClick ->
-                                val isYearLocked = status !is AccessStatus.Granted
-
-                                AnalyticsPeriod.entries
-                                    .filter { it != AnalyticsPeriod.CUSTOM }
-                                    .forEach { period ->
-                                        val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
-                                        PeriodChip(
-                                            label = stringResource(id = period.labelRes),
-                                            isSelected = period == uiState.selectedPeriod,
-                                            isLocked = isLocked,
-                                            onClick = {
-                                                if (isLocked) onLockedClick() else onDateRangeSelected(period)
-                                            }
-                                        )
-                                    }
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AnalyticsPeriod.entries
+                                .filter { it != AnalyticsPeriod.CUSTOM }
+                                .forEach { period ->
+                                    val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
+                                    PeriodChip(
+                                        label = stringResource(id = period.labelRes),
+                                        isSelected = period == uiState.selectedPeriod,
+                                        isLocked = isLocked,
+                                        onClick = {
+                                            if (isLocked) onLockedClick() else onDateRangeSelected(period)
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                         }
 
                         CustomRangeSelector(
@@ -337,7 +300,8 @@ fun AnalyticsScreenContent(
                             onClick = {
                                 isCustomRangePickerVisible = true
                             },
-                            onClear = onClearCustomRange
+                            onClear = onClearCustomRange,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
@@ -637,12 +601,13 @@ private fun CustomRangeSelector(
     }
 
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
+                .weight(1f)
                 .minimumInteractiveComponentSize()
                 .clip(RoundedCornerShape(18.dp))
                 .background(containerColor)

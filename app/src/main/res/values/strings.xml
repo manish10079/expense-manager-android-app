@@ -853,7 +853,7 @@
     <string name="msg_sms_inbox_swiped_away">Deleted %1$d detection</string>
     <string name="msg_sms_inbox_invalid_amount">Enter an amount greater than zero</string>
     <string name="label_this_month_caps">THIS MONTH</string>
-    <string name="label_custom_month_caps">CUSTOM MONTH</string>
+    <string name="label_custom_month_caps">Custom Month</string>
     <string name="label_remaining">REMAINING</string>
     <string name="label_over">OVER</string>
     <string name="title_add_budget">Add Budget</string>

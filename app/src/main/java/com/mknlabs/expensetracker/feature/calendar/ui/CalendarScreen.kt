@@ -87,6 +87,7 @@ import com.mknlabs.expensetracker.core.ui.models.CalendarMonthFinancialSummaryUi
 import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
@@ -101,9 +102,7 @@ import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.getAmountColor
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePicker
-import com.mknlabs.expensetracker.core.ui.models.TabItem
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
@@ -248,19 +247,38 @@ private fun CalendarScreenContent(
                                     onSetYearView(false)
                                 }
                             }
-                            AnimatedTabSwitcher(
-                                items = listOf(
-                                    TabItem(false, stringResource(id = R.string.label_month_1)),
-                                    TabItem(
-                                        id = true,
-                                        label = stringResource(id = R.string.label_year),
-                                        isLocked = isYearLocked,
-                                        onLockedClick = { onClick() }
-                                    )
-                                ),
-                                selectedItemId = uiState.isYearView,
-                                onItemSelected = { isYearView -> onSetYearView(isYearView) }
-                            )
+                            // The calendar's three controls, dressed as the period pills
+                            // Analytics wears for its four: Month and Year pick the view (Year
+                            // keeping its lock from the gate above), Today jumps to the current
+                            // date — whose ViewModel handler also leaves year view, so the tap
+                            // lands on this month and Month lights up here behind it. Unlike
+                            // Analytics, which sizes its chips to their labels and scrolls
+                            // sideways, these three split the row evenly: three short labels
+                            // always fit, and a fixed third each keeps the row's shape stable.
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_month_1),
+                                    isSelected = !uiState.isYearView,
+                                    onClick = { onSetYearView(false) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_year),
+                                    isSelected = uiState.isYearView,
+                                    isLocked = isYearLocked,
+                                    onClick = { if (isYearLocked) onClick() else onSetYearView(true) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_today),
+                                    isSelected = false,
+                                    onClick = onJumpToToday,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
 
@@ -303,7 +321,6 @@ private fun CalendarScreenContent(
                                                     isPickerLocked = status !is AccessStatus.Granted,
                                                     onPreviousYear = onGoToPreviousYear,
                                                     onNextYear = onGoToNextYear,
-                                                    onTodayClick = onJumpToToday,
                                                     onOpenYearPicker = {
                                                         if (status is AccessStatus.Granted) {
                                                             isYearPickerVisible = true
@@ -359,10 +376,9 @@ private fun CalendarScreenContent(
                                                     MonthHeading(
                                                         monthStart = targetMonthStart,
                                                         isPickerLocked = status !is AccessStatus.Granted,
-                                                        onPreviousMonth = onGoToPreviousMonth,
-                                                        onNextMonth = onGoToNextMonth,
-                                                        onTodayClick = onJumpToToday,
-                                                        onOpenPicker = {
+                                                onPreviousMonth = onGoToPreviousMonth,
+                                                onNextMonth = onGoToNextMonth,
+                                                onOpenPicker = {
                                                             if (status is AccessStatus.Granted) {
                                                                 isMonthYearPickerVisible = true
                                                             } else {
@@ -484,37 +500,32 @@ private fun MonthHeading(
     isPickerLocked: Boolean,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
-    onTodayClick: () -> Unit,
     onOpenPicker: () -> Unit
 ) {
-    // One row, deliberately. The Today shortcut used to sit on a row of its own 10.dp below this
-    // one, which cost a whole row of height to hold a pill that used a sixth of the width, and
-    // pushed the calendar card down for no reason. It now shares the row that already establishes
-    // which month is on screen, which is the thing it acts on.
+    // One row: two arrows and the title. Today used to sit in it too, first on a row of its own
+    // below and then beside the arrows, but it belongs with Month and Year — the screen's other
+    // two controls — and all three now sit together at the top as period chips, in the style
+    // Analytics wears for its weeks and months. What is left here navigates and names the month
+    // on screen.
     //
-    // The title is left-aligned rather than centred. It was only ever centred because the two
-    // arrow buttons happened to be the same width; adding a third element would have shifted it
-    // off centre by half the pill's width, which reads as a mistake. Aligning it deliberately
-    // means its position is the design rather than an accident.
+    // The title sits in the flexible middle so the equal-width arrows pin it on the screen
+    // centre.
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // The two arrows and the shortcut are fixed-size; only the middle is flexible, so the
-        // arrows stay pinned to the corners whatever the month name costs.
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = stringResource(id = R.string.content_desc_previous_month),
             onClick = onPreviousMonth
         )
 
-        // The flexible middle: it takes exactly what the fixed controls leave, and the spacer
-        // inside pushes the shortcut to the far end of it. Capping the title here rather than
-        // letting it take whatever width it asks for is what keeps the row from overflowing — at
-        // large font scales it wraps onto a second line, which is why it carries no maxLines: a
-        // truncated month name would lose information the user came to read.
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 modifier = Modifier
                     .minimumInteractiveComponentSize()
@@ -543,43 +554,12 @@ private fun MonthHeading(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
         }
-
-        TodayShortcutButton(onClick = onTodayClick)
 
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = stringResource(id = R.string.content_desc_next_month),
             onClick = onNextMonth
-        )
-    }
-}
-
-@Composable
-private fun TodayShortcutButton(onClick: () -> Unit) {
-    // The fill is the theme's primaryContainer rather than surfaceVariant, with onPrimaryContainer
-    // as the label. The old pair measured 3.42:1 in light and 2.92:1 in dark against the 4.5:1 that
-    // text this size needs, and it was also heavier than the arrow buttons' surface fill, so the
-    // occasionally-used shortcut outweighed the constantly-used navigation. This pair measures
-    // 13.27:1 and 12.40:1, and sits in the same visual weight band as the arrows.
-    //
-    // The layout reserves a 48.dp touch target while the pill keeps its own size, the same
-    // construction Material's own icon buttons use.
-    Box(
-        modifier = Modifier
-            .minimumInteractiveComponentSize()
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(id = R.string.label_today),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            maxLines = 1,
-            style = MaterialTheme.typography.labelMedium
         )
     }
 }
@@ -816,11 +796,10 @@ private fun YearHeading(
     isPickerLocked: Boolean,
     onPreviousYear: () -> Unit,
     onNextYear: () -> Unit,
-    onTodayClick: () -> Unit,
     onOpenYearPicker: () -> Unit
 ) {
-    // Mirrors [MonthHeading] exactly, including the single row, the left-aligned title and the
-    // corner-pinned arrows. They are kept identical on purpose: switching tabs must not look like
+    // Mirrors [MonthHeading] exactly, including the centred title and the corner-pinned arrows.
+    // They are kept identical on purpose: switching between month and year must not look like
     // the header changed shape.
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -833,7 +812,11 @@ private fun YearHeading(
             onClick = onPreviousYear
         )
 
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 modifier = Modifier
                     .minimumInteractiveComponentSize()
@@ -862,10 +845,7 @@ private fun YearHeading(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
         }
-
-        TodayShortcutButton(onClick = onTodayClick)
 
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
