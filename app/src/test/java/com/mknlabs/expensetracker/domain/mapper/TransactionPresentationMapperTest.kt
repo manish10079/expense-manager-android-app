@@ -122,4 +122,72 @@ class TransactionPresentationMapperTest {
         assertEquals("CASH", result.paymentType)
         assertEquals("CUSTOM FOOD", result.categoryLabel)
     }
+
+    @Test
+    fun `toTransactionCardItemUi carries the user's colour for the category`() {
+        // The mapper is the only place that already holds both the transaction and the
+        // category row it points at, which is why the colour is resolved here rather than
+        // looked up again by the card. If this field stops being carried, a coloured
+        // category silently falls back to the palette with no error anywhere.
+        val categories = listOf(
+            CategoryType(
+                id = 106,
+                name = "Coffee",
+                iconKey = "local_cafe",
+                transactionTypeId = 2,
+                colorHex = "#DC2626",
+                isSystem = false
+            )
+        )
+        val transaction = Transaction(
+            id = "t4",
+            note = "Flat white",
+            createdAt = System.currentTimeMillis(),
+            amountMinor = 45000L,
+            transactionTypeId = 2,
+            paymentTypeId = 1,
+            categoryId = 106,
+            syncState = SyncState.LOCAL_ONLY
+        )
+
+        val result = transaction.toTransactionCardItemUi(
+            currencyId = DEFAULT_CURRENCY_ID,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            timeFormat = DEFAULT_TIME_FORMAT,
+            paymentTypeName = "Cash",
+            categories = categories
+        )
+
+        assertEquals("#DC2626", result.categoryColorHex)
+    }
+
+    @Test
+    fun `toTransactionCardItemUi leaves the colour unset when the category has none`() {
+        // Null is not a failure here: it means "derive one from the id", which is the state
+        // every seeded category is in. A default that invented a colour would make a
+        // built-in category stop following the palette.
+        val categories = listOf(
+            CategoryType(id = 1, name = "Food", iconKey = "flatware", transactionTypeId = 2)
+        )
+        val transaction = Transaction(
+            id = "t5",
+            note = "Lunch",
+            createdAt = System.currentTimeMillis(),
+            amountMinor = 12000L,
+            transactionTypeId = 2,
+            paymentTypeId = 1,
+            categoryId = 1,
+            syncState = SyncState.LOCAL_ONLY
+        )
+
+        val result = transaction.toTransactionCardItemUi(
+            currencyId = DEFAULT_CURRENCY_ID,
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+            timeFormat = DEFAULT_TIME_FORMAT,
+            paymentTypeName = "Cash",
+            categories = categories
+        )
+
+        assertEquals(null, result.categoryColorHex)
+    }
 }

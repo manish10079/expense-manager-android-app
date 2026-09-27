@@ -753,6 +753,8 @@ private fun CalendarTransactionCard(
         amount = transaction.amount,
         transactionTypeId = transaction.transactionTypeId,
         icon = transaction.icon,
+        categoryId = transaction.transaction.categoryId,
+        categoryColorHex = transaction.categoryColorHex,
         paymentType = transaction.paymentType,
         categoryLabel = transaction.categoryLabel,
         showTypeLabel = transactionCardCustomizationSettings.showIncomeExpenseLabels,

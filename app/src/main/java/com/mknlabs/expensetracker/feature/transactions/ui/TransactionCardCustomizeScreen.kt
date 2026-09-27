@@ -622,6 +622,7 @@ private fun PreviewTransactionCard(
         ),
         transactionTypeId = transaction.transactionTypeId,
         icon = transaction.categoryIcon,
+        categoryId = transaction.categoryId,
         paymentType = getPaymentTypeName(transaction.paymentTypeId).uppercase(),
         categoryLabel = stringResource(id = R.string.label_category_1).uppercase(),
         showTypeLabel = settings.showIncomeExpenseLabels,

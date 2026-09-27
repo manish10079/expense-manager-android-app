@@ -1068,6 +1068,8 @@ private fun ColumnScope.HomeTransactionsList(
                 transactionTime = card.transactionTime,
                 amount = card.amount,
                 icon = card.icon,
+                categoryId = card.transaction.categoryId,
+                categoryColorHex = card.categoryColorHex,
                 transactionTypeId = card.transactionTypeId,
                 paymentType = card.paymentType,
                 categoryLabel = card.categoryLabel,

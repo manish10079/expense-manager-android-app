@@ -71,6 +71,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -88,6 +90,17 @@ fun TransactionCard(
     amount: String,
     transactionTypeId: Int,
     icon: ImageVector,
+    /**
+     * The row's category, and the user's own colour for it if they chose one. Resolved here
+     * rather than passed in as a [Color] so every surface that draws a transaction row gets
+     * the same answer from the same place — a card that took a pre-resolved colour would put
+     * the fallback chain in the hands of each of its six call sites.
+     *
+     * Defaults to the brand ink, which is what every category glyph used before the palette
+     * existed, so a caller that does not know the category looks unchanged.
+     */
+    categoryId: Int = 0,
+    categoryColorHex: String? = null,
     paymentType: String,
     categoryLabel: String = "",
     showTypeLabel: Boolean = true,
@@ -109,6 +122,11 @@ fun TransactionCard(
     // An unselected row was a transparent list row rather than a filled surface, and dark
     // mode is not part of this pass, so the dark fill stays clear; in light the row is a
     // card like any other, which is the whole point of the redesign.
+    val categoryColor = MaterialTheme.colorScheme.categoryColor(
+        categoryId = categoryId,
+        colorHex = categoryColorHex
+    )
+
     val baseColors = AppCardDefaults.colors()
     val cardColors = when {
         isSelected -> baseColors.copy(
@@ -160,6 +178,12 @@ fun TransactionCard(
                     contentDescription = note,
                     size = 50.dp,
                     iconSize = 25.dp,
+                    tint = categoryColor,
+                    // The palette's own wash rather than AppIconBox's flat 10%, so the tile
+                    // follows the same light-10/dark-14 split the rest of the system uses:
+                    // 14% of a light pastel over the near-black card is a wash, while the
+                    // same 14% of a deep tone over white reads as a stain.
+                    backgroundColor = MaterialTheme.colorScheme.categorySoft(categoryColor),
                     border = iconBorder
                 )
                 Spacer(modifier = Modifier.width(12.dp))

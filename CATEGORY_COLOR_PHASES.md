@@ -152,6 +152,24 @@ setting).
 
 **Commit:** `feat(ui): transactions draw their category colour` + minor bump + README sync.
 
+### A constraint this phase surfaced, for phases 5 and 6
+
+Several surfaces resolve a category from `categoryMap` — the **compile-time constant** — rather
+than from the rows in the database. A constant's `colorHex` is always null, so those surfaces can
+never see a user's colour, however correct the storage is. Recorded here so phase 5 and phase 6
+do not "discover" it twice.
+
+| Surface | Reads | Consequence |
+|---|---|---|
+| `AnalyticsScreen` donut, legend, top transactions | `categoryMap[...]` | needs the real rows before phase 6 can colour it |
+| `AnalyticsViewModel` breakdown rows | `categoryMap[...]` | same |
+| `CategoryManagementViewModel` built-in lists | `categoryMap.values` | harmless — built-ins are never recoloured by design |
+| `SortFilterModal` chip lists | `categoryMap.values` | chips will show palette colours only |
+| `AddTransactionScreen` / `BudgetAndRecurringScreen` default parameters | `categoryMap.values` | harmless — previews only; the real call sites pass database rows |
+
+The fix where it matters is not to make the constant mutable but to pass the loaded rows in,
+which is what the real call sites already do.
+
 ---
 
 ## Phase 4 — The colour picker

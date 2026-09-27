@@ -17,6 +17,16 @@ data class TransactionCardItemUi(
     val transactionTypeId: Int,
     val paymentType: String,
     val categoryLabel: String,
+    /**
+     * The user's own colour for this row's category, or null to take the palette colour for
+     * the category's id.
+     *
+     * Carried here because this mapper is the one place that already holds both the
+     * transaction and the category row it points at — the same reason [icon] is resolved here
+     * rather than looked up again by the card. The id itself comes from [transaction], so only
+     * the override needs a field of its own.
+     */
+    val categoryColorHex: String? = null,
     val isRecurring: Boolean = false
 )
 
