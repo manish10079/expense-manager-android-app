@@ -156,7 +156,7 @@ fun <T> AnimatedTabSwitcher(
                                 count = badgeCount,
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
-                                    .offset(x = 8.dp, y = (-8).dp)
+                                    .offset(x = 12.dp, y = (-4).dp)
                             )
                         }
                     }

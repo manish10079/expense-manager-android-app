@@ -25,8 +25,8 @@ val ColorScheme.systemBarColor: Color
 val ColorScheme.useDarkSystemBarIcons: Boolean
     get() = systemBarColor.luminance() > 0.5f
 
-// The spec's income ink. Both themes' `tertiary` now hold exactly that value (#3DDC97
-// dark, #15803D light), so the role is simply the tertiary rather than a special case.
+// The spec's income ink. Both themes' `tertiary` now hold exactly that value (#2DD4BF
+// dark, #0D9488 light), so the role is simply the tertiary rather than a special case.
 val ColorScheme.income: Color
     get() = tertiary
 

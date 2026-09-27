@@ -24,18 +24,18 @@ val DividerDark = Color(0xFF2A2A31)   // spec --line
 // Semantic amount inks. Saturated enough to carry the expense and income figures on
 // the dark violet card, where the previous pastels washed out against the surface and
 // read as decoration rather than as the one number the row exists to show.
-val IncomeGreen = Color(0xFF3DDC97)
-val ExpenseRed = Color(0xFFFF6B6B)
+val IncomeInkDark = Color(0xFF2DD4BF)
+val ExpenseInkDark = Color(0xFFFF7597)
 
 // Amount inks for white surfaces. Same hue family as the dark pair above, deepened
 // until both clear 4.5:1 on white.
-val IncomeInkLight = Color(0xFF15803D)  // deep emerald
-val ExpenseInkLight = Color(0xFFDC2626) // crimson
+val IncomeInkLight = Color(0xFF0D9488)  // teal, pair to dark IncomeInkDark
+val ExpenseInkLight = Color(0xFFE11D48) // rose, pair to dark ExpenseInkDark
 
 // Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
 // themes, which the pastel income/expense tones above are too light to do.
-val BadgeIncomeGreen = Color(0xFF1E8E3E)
-val BadgeExpenseRed = Color(0xFFC5221F)
+val BadgeIncomeFill = Color(0xFF1E8E3E)
+val BadgeExpenseFill = Color(0xFFC5221F)
 
 /** The glyph on those two: fixed white, since the fills are the same in both themes. */
 val BadgeOnColor = Color(0xFFFFFFFF)
@@ -264,7 +264,7 @@ private val DarkPrimaryContainer = Color(0x249E84FF)     // spec --accentSoft, d
 private val DarkOnPrimaryContainer = Color(0xFF9E84FF)   // spec --accent
 private val DarkSecondaryContainer = Color(0xFF2C283F)   // spec --chipSel
 private val DarkOnSecondaryContainer = Color(0xFF9E84FF) // spec --chipInk
-private val DarkTertiary = Color(0xFF3DDC97)             // spec --income
+private val DarkTertiary = IncomeInkDark                   // --income dark
 private val DarkOnTertiary = Color(0xFF0A0A0A)
 private val DarkTertiaryContainer = Color(0x245EEAD4)    // spec --savings 14%
 private val DarkErrorContainer = Color(0xFF4B1E20)       // no spec slot: derived expense tint
@@ -300,7 +300,7 @@ internal val ExpenseTrackerDarkColorScheme: ColorScheme = darkColorScheme(
     tertiary = DarkTertiary,
     onTertiary = DarkOnTertiary,
     tertiaryContainer = DarkTertiaryContainer,
-    error = ExpenseRed,
+    error = ExpenseInkDark,
     onError = DarkOnPrimary,
     errorContainer = DarkErrorContainer,
     onErrorContainer = DarkOnErrorContainer,
@@ -525,11 +525,11 @@ internal const val BRAND_AREA_BUDGET = 0.30f
 // #26262E it is 7.81 / 8.99 / 5.43. The bar is drawn as a gradient fading to 80% alpha,
 // so its far end is the weakest point; there the pairs still measure 3.09 / 3.13 / 5.44
 // light and 5.48 / 6.25 / 3.97 dark, all clear of the 3:1 a UI element needs.
-internal val BudgetOnTrackDark = Color(0xFF34D399)
+internal val BudgetOnTrackDark = Color(0xFF2DD4BF)
 internal val BudgetNearLimitDark = Color(0xFFFBBF24)
 internal val BudgetOverDark = Color(0xFFF87171)
 
-internal val BudgetOnTrackLight = Color(0xFF15803D)
+internal val BudgetOnTrackLight = Color(0xFF0D9488)
 internal val BudgetNearLimitLight = Color(0xFFB45309)
 internal val BudgetOverLight = Color(0xFF7F1D1D)
 

@@ -47,8 +47,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkLight
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.HeroInsetDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroInsetLight
@@ -62,8 +60,6 @@ import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineLight
 import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
-import com.mknlabs.expensetracker.core.ui.theme.IncomeInkLight
 import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryDark
 import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryDark
@@ -72,6 +68,8 @@ import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryDark
 import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryLight
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.heroRail
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.feature.home.ui.CashFlowPeriod
 import kotlinx.coroutines.delay
@@ -278,7 +276,7 @@ fun CashFlowStatsCard(
                     label = stringResource(R.string.label_expense_cash_flow).uppercase(Locale.getDefault()),
                     amount = displayExpense,
                     labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
-                    amountColor = if (isDark) ExpenseRed else ExpenseInkLight,
+                    amountColor = MaterialTheme.colorScheme.expense,
                     textAlign = TextAlign.Start
                 )
 
@@ -288,7 +286,7 @@ fun CashFlowStatsCard(
                     label = stringResource(R.string.label_income_cash_flow).uppercase(Locale.getDefault()),
                     amount = displayIncome,
                     labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
-                    amountColor = if (isDark) IncomeGreen else IncomeInkLight,
+                    amountColor = MaterialTheme.colorScheme.income,
                     textAlign = TextAlign.End
                 )
             }

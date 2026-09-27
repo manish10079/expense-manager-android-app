@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
@@ -119,6 +120,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -134,6 +136,7 @@ import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringType
@@ -170,6 +173,7 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.income
 
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -841,7 +845,7 @@ private fun BudgetAndRecurringContent(
  * budget-health call sites resolve through here.
  *
  * This also corrects an inversion. The near-limit state resolved through the scheme's
- * `tertiary`, which the light scheme sets to #15803D — the same green that means "on
+ * `tertiary`, which the light scheme sets to #0D9488 — the same teal that means "on
  * track" — so a warning was drawn in the success colour, on the bar and on its label
  * and on its icon at once.
  *
@@ -2065,6 +2069,7 @@ private fun BudgetCardAction(
     accent: Color = MaterialTheme.colorScheme.accentInk,
     isLocked: Boolean = false,
     enabled: Boolean = true,
+    filled: Boolean = true,
     onClick: () -> Unit
 ) {
     val finalAccent = if (isLocked) MaterialTheme.colorScheme.outline else accent
@@ -2074,14 +2079,24 @@ private fun BudgetCardAction(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(finalAccent.copy(alpha = backgroundAlpha))
-            .border(
-                width = 1.dp,
-                color = finalAccent.copy(alpha = borderAlpha),
-                shape = RoundedCornerShape(12.dp)
+            .then(
+                if (filled) {
+                    Modifier
+                        .background(finalAccent.copy(alpha = backgroundAlpha))
+                        .border(
+                            width = 1.dp,
+                            color = finalAccent.copy(alpha = borderAlpha),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                } else {
+                    Modifier
+                }
             )
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = if (label != null) 12.dp else 10.dp, vertical = 8.dp)
+            .padding(
+                horizontal = if (label != null) 12.dp else if (filled) 10.dp else 4.dp,
+                vertical = if (filled) 8.dp else 4.dp
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -2210,12 +2225,12 @@ private fun RecurringExpenseCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .border(
                 width = 1.dp,
                 color = budgetAccentColor(expense.accent).copy(alpha = 0.18f),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(15.dp)
             )
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -2276,7 +2291,7 @@ private fun RecurringExpenseCard(
                 onCheckedChange = onEnabledChange,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.onCta,
-                    checkedTrackColor = MaterialTheme.colorScheme.cta,
+                    checkedTrackColor = MaterialTheme.colorScheme.accentInk,
                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
                     uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
                     uncheckedBorderColor = MaterialTheme.colorScheme.outline
@@ -2287,15 +2302,17 @@ private fun RecurringExpenseCard(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             RecurringMetaChip(
                 label = expense.categoryLabel,
-                accent = budgetAccentColor(expense.accent)
+                accent = MaterialTheme.colorScheme.onSurfaceVariant
             )
             RecurringMetaChip(
                 label = expense.frequencyLabel,
-                accent = budgetAccentColor(expense.accent)
+                accent = MaterialTheme.colorScheme.income,
+                fillAlpha = 0.07f
             )
             RecurringMetaChip(
                 label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
-                accent = budgetAccentColor(expense.accent)
+                accent = MaterialTheme.colorScheme.expense,
+                fillAlpha = 0.07f
             )
         }
 
@@ -2337,13 +2354,14 @@ private fun RecurringExpenseCard(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (onLedgerClick != null) {
                     BudgetCardAction(
                         icon = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.action_view_installments),
-                        accent = budgetAccentColor(expense.accent),
+                        accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                        filled = false,
                         onClick = onLedgerClick
                     )
                 }
@@ -2351,7 +2369,8 @@ private fun RecurringExpenseCard(
                 BudgetCardAction(
                     icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                     contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
-                    accent = MaterialTheme.colorScheme.accentInk,
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                    filled = false,
                     onClick = {
                         if (expense.notificationsEnabled) {
                             onNotificationsEnabledChange(false)
@@ -2369,17 +2388,106 @@ private fun RecurringExpenseCard(
                     BudgetCardAction(
                         icon = Icons.Default.Edit,
                         contentDescription = stringResource(id = R.string.label_edit),
-                        accent = MaterialTheme.colorScheme.accentInk,
+                        accent = MaterialTheme.colorScheme.onSurfaceVariant,
                         isLocked = status !is AccessStatus.Granted,
+                        filled = false,
                         onClick = onClick
                     )
                 }
 
                 BudgetCardAction(
-                    icon = Icons.Default.Delete,
+                    icon = Icons.Rounded.Close,
                     contentDescription = stringResource(id = R.string.label_delete),
                     accent = MaterialTheme.colorScheme.error,
+                    filled = false,
                     onClick = onDeleteClick
+                )
+            }
+        }
+    }
+}
+
+@Preview(name = "RecurringExpenseCard Light", showBackground = true)
+@Preview(name = "RecurringExpenseCard Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun RecurringExpenseCardPreview() {
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                RecurringExpenseCard(
+                    expense = BudgetRecurringExpenseUi(
+                        id = "preview-rent",
+                        transactionId = "tx-preview-rent",
+                        title = "Rent",
+                        amountLabel = "₹12,000",
+                        categoryLabel = "Housing",
+                        frequency = RecurringFrequency.Monthly,
+                        frequencyLabel = "Monthly",
+                        repeatCount = 12,
+                        currentInstallment = 3,
+                        totalInstallments = 12,
+                        sourceDateLabel = UiText.dynamic("01 Jan 2026"),
+                        dueLabel = UiText.dynamic("01 Oct"),
+                        dueAmountLabel = "₹12,000",
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Primary,
+                        nextDueAt = 0L,
+                        isEnabled = true,
+                        notificationsEnabled = true
+                    ),
+                    onEnabledChange = {},
+                    onNotificationsEnabledChange = {},
+                    onEditClick = {},
+                    onDeleteClick = {}
+                )
+                RecurringExpenseCard(
+                    expense = BudgetRecurringExpenseUi(
+                        id = "preview-emi",
+                        transactionId = "tx-preview-emi",
+                        title = "Phone EMI",
+                        amountLabel = "₹4,500 / mo",
+                        categoryLabel = "Electronics",
+                        frequency = RecurringFrequency.Monthly,
+                        frequencyLabel = "Monthly",
+                        repeatCount = 12,
+                        currentInstallment = 4,
+                        totalInstallments = 12,
+                        sourceDateLabel = UiText.dynamic("15 Jan 2026"),
+                        dueLabel = UiText.dynamic("15 Oct"),
+                        dueAmountLabel = "₹4,500",
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Primary,
+                        nextDueAt = 0L,
+                        isEnabled = true,
+                        notificationsEnabled = true,
+                        isInstallment = true,
+                        recurringType = RecurringType.INSTALLMENT,
+                        installmentTotalAmount = 54000.0,
+                        installmentPerAmount = 4500.0,
+                        installmentPaidCount = 3,
+                        installmentRemainingLabel = "₹40,500 left",
+                        installmentProgressFraction = 0.25f,
+                        installmentPlanStatus = InstallmentStatus.ACTIVE,
+                        firstDueAt = 0L,
+                        slots = listOf(
+                            InstallmentSlotUi(
+                                id = "slot-1",
+                                index = 4,
+                                dueAt = 0L,
+                                amountLabel = "₹4,500",
+                                status = InstallmentOccurrenceStatus.PENDING,
+                                paidAt = null
+                            )
+                        )
+                    ),
+                    onEnabledChange = {},
+                    onNotificationsEnabledChange = {},
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onLedgerClick = {}
                 )
             }
         }
@@ -2389,16 +2497,17 @@ private fun RecurringExpenseCard(
 @Composable
 private fun RecurringMetaChip(
     label: String,
-    accent: Color
+    accent: Color,
+    fillAlpha: Float = 0.14f
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(accent.copy(alpha = 0.14f))
+            .clip(RoundedCornerShape(10.dp))
+            .background(accent.copy(alpha = fillAlpha))
             .border(
                 width = 1.dp,
-                color = accent.copy(alpha = 0.26f),
-                shape = RoundedCornerShape(8.dp)
+                color = accent.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(10.dp)
             )
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
@@ -2413,12 +2522,7 @@ private fun RecurringMetaChip(
     }
 }
 
-@Preview(
-    name = "Budget Screen",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
+
 /**
  * Installment ledger for one EMI rule: every scheduled slot with what it is
  * worth, what happened to it, and the three settlement actions.

@@ -322,8 +322,8 @@ fun TransactionCard(
                                             MaterialTheme.colorScheme.expense
                                         }
                                         // The wash sits behind the semantic ink to name the type at a
-                                        // glance. Those inks are the spec's bright pair (#3DDC97 /
-                                        // #FF6B6B) and the dark card is transparent, so the same 12%
+                                        // glance. Those inks are the spec's bright pair (#2DD4BF /
+                                        // #FF7597) and the dark card is transparent, so the same 12%
                                         // that reads as a tint on the light card reads as a lit block on
                                         // the dark background. The wash is halved in dark so the pill
                                         // stays a label rather than a surface.

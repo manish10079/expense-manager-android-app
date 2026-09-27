@@ -103,8 +103,8 @@ import com.mknlabs.expensetracker.sms.SmsConfidence
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.TransactionDateHeader
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
-import com.mknlabs.expensetracker.core.ui.theme.BadgeExpenseRed
-import com.mknlabs.expensetracker.core.ui.theme.BadgeIncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.BadgeExpenseFill
+import com.mknlabs.expensetracker.core.ui.theme.BadgeIncomeFill
 import com.mknlabs.expensetracker.core.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -1053,7 +1053,7 @@ private fun AmountBadge(isIncome: Boolean, symbol: String) {
         modifier = Modifier
             .size(18.dp)
             .clip(CircleShape)
-            .background(if (isIncome) BadgeIncomeGreen else BadgeExpenseRed),
+            .background(if (isIncome) BadgeIncomeFill else BadgeExpenseFill),
         contentAlignment = Alignment.Center
     ) {
         Text(

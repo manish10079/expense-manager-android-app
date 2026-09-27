@@ -78,7 +78,7 @@ import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.ProPassBorder
 import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientEnd
 import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientStart
@@ -453,7 +453,7 @@ private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalet
             panelBackground = PremiumOnGradient.copy(alpha = 0.12f),
             // A green tick on the panel is this card's "you have it" mark; the pass card marks
             // the same claim in gold, which is the accent a grant is dressed in.
-            panelIcon = IncomeGreen,
+            panelIcon = MaterialTheme.colorScheme.income,
             panelHeadline = PremiumOnGradient,
         )
 

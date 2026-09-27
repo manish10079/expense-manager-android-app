@@ -30,8 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,6 +64,8 @@ import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatAmount
 import com.mknlabs.expensetracker.utils.formatDate
@@ -741,7 +741,7 @@ private fun PreviewTransactionSummaryCard(
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
                         contentDescription = null,
-                        tint = IncomeGreen,
+                        tint = MaterialTheme.colorScheme.income,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
@@ -761,7 +761,7 @@ private fun PreviewTransactionSummaryCard(
                     Icon(
                         imageVector = Icons.Default.ArrowUpward,
                         contentDescription = null,
-                        tint = ExpenseRed,
+                        tint = MaterialTheme.colorScheme.expense,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(

@@ -70,10 +70,10 @@ class TokenParityTest {
 
     @Test
     fun `semantic amount inks match the spec in both themes`() {
-        assertEquals(Color(0xFF3DDC97), dark.tertiary)        // --income dark
-        assertEquals(Color(0xFF15803D), light.tertiary)       // --income light
-        assertEquals(Color(0xFFFF6B6B), dark.error)           // --expense dark
-        assertEquals(Color(0xFFDC2626), light.error)          // --expense light
+        assertEquals(Color(0xFF2DD4BF), dark.tertiary)        // --income dark
+        assertEquals(Color(0xFF0D9488), light.tertiary)       // --income light
+        assertEquals(Color(0xFFFF7597), dark.error)           // --expense dark
+        assertEquals(Color(0xFFE11D48), light.error)          // --expense light
         assertEquals(Color(0xFF5EEAD4), dark.savings)         // --savings dark
         assertEquals(Color(0xFF0F766E), light.savings)        // --savings light
         assertEquals(Color(0xFFFBBF24), dark.invest)          // --invest dark
@@ -177,10 +177,10 @@ class TokenParityTest {
 
     @Test
     fun `budget trios match the spec`() {
-        assertEquals(Color(0xFF34D399), dark.budgetOnTrack)
+        assertEquals(Color(0xFF2DD4BF), dark.budgetOnTrack)
         assertEquals(Color(0xFFFBBF24), dark.budgetNearLimit)
         assertEquals(Color(0xFFF87171), dark.budgetOver)
-        assertEquals(Color(0xFF15803D), light.budgetOnTrack)
+        assertEquals(Color(0xFF0D9488), light.budgetOnTrack)
         assertEquals(Color(0xFFB45309), light.budgetNearLimit)
         assertEquals(Color(0xFF7F1D1D), light.budgetOver)
     }

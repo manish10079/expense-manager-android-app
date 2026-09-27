@@ -74,9 +74,9 @@ private fun FilterPillType.colors(): Pair<Color, Color> {
         FilterPillType.DATE_RANGE ->
             Color(0xFF00BFA5).copy(alpha = 0.12f) to Color(0xFF00897B)       // Teal
         FilterPillType.INCOME ->
-            Color(0xFF81C784).copy(alpha = 0.15f) to Color(0xFF2E7D32)       // IncomeGreen
+            Color(0xFF81C784).copy(alpha = 0.15f) to Color(0xFF2E7D32)       // IncomeInkDark
         FilterPillType.EXPENSE ->
-            Color(0xFFFF7D7D).copy(alpha = 0.15f) to Color(0xFFC62828)       // ExpenseRed
+            Color(0xFFFF7D7D).copy(alpha = 0.15f) to Color(0xFFC62828)       // ExpenseInkDark
         FilterPillType.CATEGORY ->
             Color(0xFF00C853).copy(alpha = 0.12f) to Color(0xFF2E7D32)       // Green
         FilterPillType.PAYMENT_MODE ->
